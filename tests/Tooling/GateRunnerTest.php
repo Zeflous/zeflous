@@ -57,6 +57,32 @@ final class GateRunnerTest extends TestCase
         self::assertTrue($this->runner()->run('mutation', ['100'])->passed);
     }
 
+    public function testCoverageGateUsesTheProvidedThreshold(): void
+    {
+        file_put_contents(
+            $this->root . '/build/clover.xml',
+            '<coverage><project><metrics statements="10" coveredstatements="6"/></project></coverage>',
+        );
+
+        $gateResult = $this->runner()->run('coverage', ['50']);
+
+        self::assertTrue($gateResult->passed);
+        self::assertStringContainsString('required: 50.00%', $gateResult->message);
+    }
+
+    public function testMutationGateUsesTheProvidedFloor(): void
+    {
+        file_put_contents(
+            $this->root . '/build/infection/infection.json',
+            '{"stats":{"msi":60,"coveredCodeMsi":60,"mutationCodeCoverage":100}}',
+        );
+
+        $gateResult = $this->runner()->run('mutation', ['50']);
+
+        self::assertTrue($gateResult->passed);
+        self::assertStringContainsString('floor: 50.00%', $gateResult->message);
+    }
+
     public function testBaselineGatePassesWithoutABaselineFile(): void
     {
         self::assertTrue($this->runner()->run('baseline', [])->passed);

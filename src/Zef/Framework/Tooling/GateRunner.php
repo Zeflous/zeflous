@@ -65,37 +65,7 @@ final readonly class GateRunner
      */
     private function readAuditAllowlist(): array
     {
-        $path = $this->root . '/composer.json';
-
-        if (!is_file($path)) {
-            return [];
-        }
-
-        $raw = file_get_contents($path);
-
-        if (!\is_string($raw)) {
-            return [];
-        }
-
-        $composerJson = json_decode($raw, true);
-
-        if (!\is_array($composerJson)) {
-            return [];
-        }
-
-        $config = $composerJson['config'] ?? null;
-
-        if (!\is_array($config)) {
-            return [];
-        }
-
-        $audit = $config['audit'] ?? null;
-
-        if (!\is_array($audit)) {
-            return [];
-        }
-
-        $configured = $audit['ignore'] ?? null;
+        $configured = $this->composerAuditIgnore();
 
         if (!\is_array($configured)) {
             return [];
@@ -112,6 +82,46 @@ final readonly class GateRunner
         }
 
         return $allowlist;
+    }
+
+    private function composerAuditIgnore(): mixed
+    {
+        $composerJson = $this->readComposerJson();
+
+        if (!\is_array($composerJson)) {
+            return null;
+        }
+
+        $config = $this->arrayValue($composerJson, 'config');
+        $audit = $this->arrayValue($config, 'audit');
+
+        return $this->arrayValue($audit, 'ignore');
+    }
+
+    private function readComposerJson(): mixed
+    {
+        $path = $this->root . '/composer.json';
+
+        if (!is_file($path)) {
+            return null;
+        }
+
+        $raw = file_get_contents($path);
+
+        if (!\is_string($raw)) {
+            return null;
+        }
+
+        return json_decode($raw, true);
+    }
+
+    private function arrayValue(mixed $value, string $key): mixed
+    {
+        if (!\is_array($value)) {
+            return null;
+        }
+
+        return $value[$key] ?? null;
     }
 
     private function auditPayload(): string

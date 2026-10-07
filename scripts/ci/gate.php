@@ -15,7 +15,7 @@ declare(strict_types=1);
 use Zef\Framework\Tooling\GateRunner;
 use Zef\Framework\Tooling\ToolingException;
 
-require dirname(__DIR__, 2) . '/vendor/autoload.php';
+require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 $root = dirname(__DIR__, 2);
 
