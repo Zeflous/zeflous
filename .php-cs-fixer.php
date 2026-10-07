@@ -32,6 +32,10 @@ return (new Config())
         // Natural (non-Yoda) comparisons: authoritative here, enforced by the
         // PHPCS Slevomat DisallowYodaComparison sniff. Overrides @PhpCsFixer.
         'yoda_style' => false,
+        // PSR-12 requires one space around the concatenation operator; the
+        // @PhpCsFixer preset defaults to none. Align to PSR-12 (the higher
+        // standard) so php-cs-fixer and PHP_CodeSniffer agree.
+        'concat_space' => ['spacing' => 'one'],
         // Keep empty bodies multi-line: the PHPCS PSR2/Squiz sniffs require it.
         'single_line_empty_body' => false,
         'global_namespace_import' => [
