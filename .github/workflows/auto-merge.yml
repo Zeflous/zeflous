@@ -158,19 +158,28 @@ jobs:
             #    returns 202 (async) on success and 422 "no new commits on the
             #    base branch" when already up to date. The `if` form captures
             #    the exit code safely under `set -e`-style handling.
-            if resp=$(gh api -X PUT "repos/${GITHUB_REPOSITORY}/pulls/${pr}/update-branch" 2>&1); then
-              rc=0
-            else
-              rc=$?
-            fi
-
             updated=0
-            if [ "$rc" -eq 0 ]; then
-              echo "PR #$pr: branch update accepted (202) — CI will re-run."
-              updated=1
-            elif printf '%s' "$resp" | grep -q 'no new commits on the base branch'; then
-              echo "PR #$pr is already up to date with the base branch."
-            else
+            for attempt in 1 2 3; do
+              if resp=$(gh api -X PUT "repos/${GITHUB_REPOSITORY}/pulls/${pr}/update-branch" 2>&1); then
+                echo "PR #$pr: branch update accepted (202) — CI will re-run."
+                updated=1
+                break
+              fi
+              if printf '%s' "$resp" | grep -q 'no new commits on the base branch'; then
+                # GitHub can evaluate `update-branch` against a STALE PR base and
+                # answer "no new commits" for a branch that is really behind.
+                # Re-read the live merge state and retry only when the PR
+                # genuinely reports BEHIND, so a genuinely-stale PR is still
+                # synced without hammering the API when it is truly up to date.
+                ms=$(gh pr view "$pr" --json mergeStateStatus --jq '.mergeStateStatus' 2>/dev/null) || ms=""
+                if [ "$ms" = "BEHIND" ] && [ "$attempt" -lt 3 ]; then
+                  echo "PR #$pr reports BEHIND but the sync was a no-op; retrying (attempt $attempt)..."
+                  sleep 4
+                  continue
+                fi
+                echo "PR #$pr is already up to date with the base branch."
+                break
+              fi
               # The branch could not be synced. The common causes are a genuine
               # merge conflict, a fork head, or a transient API error. The job
               # grants `contents: write`, so a scope failure is not expected
@@ -182,7 +191,8 @@ jobs:
               # silent skip of the whole PR.
               echo "::warning::Could not update PR #$pr branch: $resp"
               echo "   (A conflicting PR, a fork head, or a transient API error legitimately fails here.)"
-            fi
+              break
+            done
 
             # 2. A bot-authored push (the built-in `GITHUB_TOKEN`) leaves the
             #    new runs waiting for maintainer approval ("action_required"),
@@ -198,15 +208,40 @@ jobs:
             if [ "$is_fork" = "true" ]; then
               echo "PR #$pr is from a fork - leaving run approval to a maintainer."
             else
-              head_sha=$(gh pr view "$pr" --json headRefOid --jq '.headRefOid' 2>/dev/null) || head_sha="$before_sha"
+              # CRITICAL: the branch sync above may have MOVED the PR head (the
+              # update-branch call is asynchronous), and the runs on the NEW head
+              # are the ones that need approval. Approving only the head read
+              # before the update approves nothing -- the old head is superseded
+              # and its runs are gone -- which is exactly how a merge used to
+              # stall. Poll for up to ~60s and approve every waiting run that
+              # belongs to EITHER the PR's current head (the case where the
+              # changelog lane pushed with the built-in token and the head is
+              # fresh) OR a head that is newer than the pre-update head and was
+              # created after this sweep requested the update (the post-sync
+              # case). This mirrors the reference repository's behaviour.
               ids=""
-              for attempt in 1 2 3; do
+              head_sha="$before_sha"
+              for attempt in $(seq 1 12); do
+                head_sha=$(gh pr view "$pr" --json headRefOid --jq '.headRefOid' 2>/dev/null) || head_sha="$before_sha"
                 runs_json=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?branch=${branch}&per_page=50" 2>/dev/null) || runs_json='{"workflow_runs":[]}'
                 ids=$(printf '%s' "$runs_json" \
-                  | jq -r --arg head "$head_sha" \
-                        '.workflow_runs[] | select(.head_sha == $head and .conclusion == "action_required") | .id')
+                  | jq -r --arg head "$head_sha" --arg before "$before_sha" --arg start "$update_started" \
+                        '.workflow_runs[]
+                         | select(.conclusion == "action_required")
+                         | select(.head_sha == $head or (.head_sha != $before and .created_at > $start))
+                         | .id')
                 if [ -n "$ids" ]; then
                   break
+                fi
+                # After a sync, if a new head already produced runs that are NOT
+                # waiting for approval (a non-bot actor pushed), there is nothing
+                # to approve -- stop polling instead of burning the whole window.
+                if [ "$updated" = "1" ] && [ "$attempt" -gt 2 ]; then
+                  n_new=$(printf '%s' "$runs_json" \
+                    | jq -r --arg start "$update_started" '[.workflow_runs[] | select(.created_at > $start)] | length')
+                  if [ "${n_new:-0}" -gt 0 ]; then
+                    break
+                  fi
                 fi
                 sleep 5
               done
