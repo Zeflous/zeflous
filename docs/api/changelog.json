@@ -1,9 +1,11 @@
 {
-  "schema_version": 2,
-  "as_of": "2026-10-07T22:08:54Z",
+  "schema_version": 3,
+  "as_of": "2026-10-07T22:32:36Z",
   "repository": "Zeflous/zeflous",
+  "version_source": "none",
   "latest_release": null,
-  "unreleased_count": 19,
+  "next_release": "v0.1.0",
+  "unreleased_count": 20,
   "versions": [
     {
       "version": "Unreleased",
@@ -174,9 +176,66 @@
                 "subject": "chore: re-trigger CI on human-authored head"
               }
             ]
+          },
+          {
+            "pr": 27,
+            "title": "fix(changelog): merged-only PR selection + split pull_request trigger",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-07T22:32:36Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/27",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8750f0b4b502cef3360e247a0edd73c491950f63",
+                "short_sha": "8750f0b",
+                "subject": "fix(changelog): merged-only PR selection + split pull_request trigger"
+              }
+            ]
           }
         ],
         "Maintenance": [
+          {
+            "pr": 1,
+            "title": "Composer scaffold + strict audit engine (PHPStan/PHPCS/Fixer/Rector/Deptrac/Infection) + SonarCloud CI",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-07T15:35:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/1",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0f67b78d1b11568bf3ad49693f2d060a226a2559",
+                "short_sha": "0f67b78",
+                "subject": "chore: fix composer.json, scaffold src/tests, add tooling configs and CI scripts"
+              },
+              {
+                "sha": "38640405c0038d08ceeb8961e7b9dd3bebf8b32d",
+                "short_sha": "3864040",
+                "subject": "chore(quality): strict audit engine + SonarCloud CI gate"
+              },
+              {
+                "sha": "f09cb8b2f362b15a52e41776ffd4d260c29e4bbc",
+                "short_sha": "f09cb8b",
+                "subject": "ci(sonar): pin projectKey=zef and organization=zef (verified via SonarCloud API)"
+              },
+              {
+                "sha": "9a96ee6b9c1caf0290186907fa7bc199d71e4b1c",
+                "short_sha": "9a96ee6",
+                "subject": "ci(sonar): set organization=zeflous and projectKey=zef_zeflous per owner"
+              },
+              {
+                "sha": "bc732c50f40f8b9848587b5712e1c18c4027d62d",
+                "short_sha": "bc732c5",
+                "subject": "ci(security): pin all GitHub Actions uses: to full commit SHAs (S7637)"
+              },
+              {
+                "sha": "85e91394850af9e3dadbad72033cf04d32b9bc59",
+                "short_sha": "85e9139",
+                "subject": "Merge branch 'main' into chore/composer-scaffold"
+              }
+            ]
+          },
           {
             "pr": 4,
             "title": "chore(ci): ZEF_TOKEN for auto-merge queue chain + adopt dependency-review/docs-check/phpbench",
@@ -317,47 +376,6 @@
         ],
         "Other": [
           {
-            "pr": 1,
-            "title": "Composer scaffold + strict audit engine (PHPStan/PHPCS/Fixer/Rector/Deptrac/Infection) + SonarCloud CI",
-            "author": "mbetixz",
-            "category": "Other",
-            "merged_at": "2026-10-07T15:35:40Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/1",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "0f67b78d1b11568bf3ad49693f2d060a226a2559",
-                "short_sha": "0f67b78",
-                "subject": "chore: fix composer.json, scaffold src/tests, add tooling configs and CI scripts"
-              },
-              {
-                "sha": "38640405c0038d08ceeb8961e7b9dd3bebf8b32d",
-                "short_sha": "3864040",
-                "subject": "chore(quality): strict audit engine + SonarCloud CI gate"
-              },
-              {
-                "sha": "f09cb8b2f362b15a52e41776ffd4d260c29e4bbc",
-                "short_sha": "f09cb8b",
-                "subject": "ci(sonar): pin projectKey=zef and organization=zef (verified via SonarCloud API)"
-              },
-              {
-                "sha": "9a96ee6b9c1caf0290186907fa7bc199d71e4b1c",
-                "short_sha": "9a96ee6",
-                "subject": "ci(sonar): set organization=zeflous and projectKey=zef_zeflous per owner"
-              },
-              {
-                "sha": "bc732c50f40f8b9848587b5712e1c18c4027d62d",
-                "short_sha": "bc732c5",
-                "subject": "ci(security): pin all GitHub Actions uses: to full commit SHAs (S7637)"
-              },
-              {
-                "sha": "85e91394850af9e3dadbad72033cf04d32b9bc59",
-                "short_sha": "85e9139",
-                "subject": "Merge branch 'main' into chore/composer-scaffold"
-              }
-            ]
-          },
-          {
             "pr": 19,
             "title": "No changes made: insufficient quota to complete coverage setup",
             "author": "code-coverage-agent[bot]",
@@ -463,7 +481,7 @@
           "pr": 1,
           "title": "Composer scaffold + strict audit engine (PHPStan/PHPCS/Fixer/Rector/Deptrac/Infection) + SonarCloud CI",
           "author": "mbetixz",
-          "category": "Other",
+          "category": "Maintenance",
           "merged_at": "2026-10-07T15:35:40Z",
           "url": "https://github.com/Zeflous/zeflous/pull/1",
           "file": "CHANGELOG-unreleased.md",
@@ -895,6 +913,22 @@
               "sha": "857696ac448d69650d5719751a7619c62a25891c",
               "short_sha": "857696a",
               "subject": "chore: re-trigger CI on human-authored head"
+            }
+          ]
+        },
+        {
+          "pr": 27,
+          "title": "fix(changelog): merged-only PR selection + split pull_request trigger",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-07T22:32:36Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/27",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8750f0b4b502cef3360e247a0edd73c491950f63",
+              "short_sha": "8750f0b",
+              "subject": "fix(changelog): merged-only PR selection + split pull_request trigger"
             }
           ]
         }

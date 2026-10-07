@@ -4,7 +4,7 @@ These live under ``scripts/changelog/`` (not ``tests/``) on purpose: the
 repository's SonarCloud scope excludes ``scripts/**`` from analysis and
 coverage, so the generator's own tests stay out of the PHP project's quality
 gate while still running in CI. They are executed by the ``test`` job of
-``.github/workflows/changelog.yml`` with a 90% coverage floor.
+``.github/workflows/changelog-tests.yml`` with a 90% coverage floor.
 
 The GitHub API is never called: the module's ``_api_get`` / ``_api_get_all``
 seam is monkeypatched, so the tests are hermetic and deterministic.
@@ -35,20 +35,26 @@ gen = _load_module()
 CATEGORIES = [
     {"title": "Features", "labels": ["feature", "enhancement"]},
     {"title": "Bug Fixes", "labels": ["fix", "bugfix", "bug"]},
+    {"title": "Security", "labels": ["security"]},
     {"title": "Maintenance", "labels": ["chore", "maintenance", "dependencies", "ci"]},
     {"title": "Documentation", "labels": ["documentation", "docs"]},
+    {"title": "Tests", "labels": ["test", "tests"]},
 ]
 
-CONFIG_YAML = """
+CONFIG_YAML = """\
 categories:
   - title: "Features"
     labels: ["feature", "enhancement"]
   - title: "Bug Fixes"
     labels: ["fix", "bugfix", "bug"]
+  - title: "Security"
+    labels: ["security"]
   - title: "Maintenance"
     labels: ["chore", "maintenance", "dependencies", "ci"]
   - title: "Documentation"
     labels: ["documentation", "docs"]
+  - title: "Tests"
+    labels: ["test", "tests"]
 """
 
 
@@ -68,6 +74,10 @@ def _pr(number, title, merged_at, labels=None, author="alice", base="main", draf
 
 def _commit(sha, message):
     return {"sha": sha, "commit": {"message": message}}
+
+
+def _release(tag, published_at, draft=False):
+    return {"tag_name": tag, "name": tag, "draft": draft, "published_at": published_at}
 
 
 # --------------------------------------------------------------------------
@@ -92,16 +102,72 @@ def test_semver_key_orders_numerically():
     assert gen._semver_key("not-a-version") == (0, 0, 0)
 
 
-def test_category_for_matches_label():
-    assert gen.category_for(["feature"], "anything", CATEGORIES) == "Features"
+# --------------------------------------------------------------------------
+# Conventional-Commit regex -> category
+# --------------------------------------------------------------------------
+
+
+def test_conventional_type_plain():
+    assert gen.conventional_type("feat: add thing") == "feat"
+
+
+def test_conventional_type_with_scope():
+    assert gen.conventional_type("fix(api): repair thing") == "fix"
+
+
+def test_conventional_type_with_breaking_bang():
+    assert gen.conventional_type("feat(api)!: break thing") == "feat"
+
+
+def test_conventional_type_is_case_insensitive():
+    assert gen.conventional_type("FIX: shout") == "fix"
+
+
+def test_conventional_type_none_for_plain_title():
+    assert gen.conventional_type("random title") is None
+
+
+def test_conventional_type_none_for_empty():
+    assert gen.conventional_type("") is None
+
+
+@pytest.mark.parametrize(
+    ("title", "expected"),
+    [
+        ("feat(x): a", "Features"),
+        ("fix(x): a", "Bug Fixes"),
+        ("docs(x): a", "Documentation"),
+        ("chore(x): a", "Maintenance"),
+        ("refactor(x): a", "Maintenance"),
+        ("perf(x): a", "Maintenance"),
+        ("test(x): a", "Tests"),
+        ("ci(x): a", "Maintenance"),
+        ("build(x): a", "Maintenance"),
+        ("style(x): a", "Maintenance"),
+        ("revert(x): a", "Maintenance"),
+        ("security(x): a", "Security"),
+    ],
+)
+def test_category_for_regex_maps_every_conventional_type(title, expected):
+    """Every Conventional-Commit type maps onto a configured category title."""
+    assert gen.category_for([], title, CATEGORIES) == expected
+
+
+def test_category_for_label_wins_over_regex():
+    """A configured label is authoritative; the regex is only a fallback."""
+    assert gen.category_for(["fix"], "feat: misleading title", CATEGORIES) == "Bug Fixes"
 
 
 def test_category_for_is_case_insensitive():
     assert gen.category_for(["FIX"], "anything", CATEGORIES) == "Bug Fixes"
 
 
-def test_category_for_falls_back_to_title_prefix():
-    assert gen.category_for([], "feat(scope): add thing", CATEGORIES) == "Features"
+def test_category_for_falls_back_to_commit_subject():
+    """A non-conventional title still categorises from its commits."""
+    assert (
+        gen.category_for([], "Tidy up", CATEGORIES, ["feat: real change"])
+        == "Features"
+    )
 
 
 def test_category_for_unknown_is_other():
@@ -110,6 +176,12 @@ def test_category_for_unknown_is_other():
 
 def test_category_for_unknown_prefix_is_other():
     assert gen.category_for([], "wibble: nope", CATEGORIES) == "Other"
+
+
+def test_category_for_regex_only_maps_to_configured_titles():
+    """A type whose target title is not configured must not invent a bucket."""
+    only_features = [{"title": "Features", "labels": ["feature"]}]
+    assert gen.category_for([], "security: x", only_features) == "Other"
 
 
 # --------------------------------------------------------------------------
@@ -252,12 +324,107 @@ def test_fetch_tags_sorted_by_semver(monkeypatch):
 
 
 # --------------------------------------------------------------------------
+# Releases (the version source of truth)
+# --------------------------------------------------------------------------
+
+
+def test_fetch_releases_excludes_draft_and_sorts(monkeypatch):
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [
+            _release("v1.10.0", "2026-02-01T00:00:00Z"),
+            _release("v1.9.0", "2026-01-01T00:00:00Z"),
+            _release("v2.0.0", None, draft=True),
+        ],
+    )
+    releases = gen.fetch_releases("o/r")
+    assert [r["name"] for r in releases] == ["v1.9.0", "v1.10.0"]
+
+
+def test_fetch_releases_skips_nameless(monkeypatch):
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [{"tag_name": "", "name": "", "draft": False, "published_at": None}],
+    )
+    assert gen.fetch_releases("o/r") == []
+
+
+def test_fetch_next_release_returns_newest_draft(monkeypatch):
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [
+            _release("v1.0.0", "2026-01-01T00:00:00Z"),
+            _release("v1.1.0", None, draft=True),
+            _release("v1.2.0", None, draft=True),
+        ],
+    )
+    assert gen.fetch_next_release("o/r") == "v1.2.0"
+
+
+def test_fetch_next_release_none_when_no_draft(monkeypatch):
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [_release("v1.0.0", "2026-01-01T00:00:00Z")],
+    )
+    assert gen.fetch_next_release("o/r") is None
+
+
+def test_version_markers_prefers_releases(monkeypatch):
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: (
+            [_release("v1.0.0", "2026-01-01T00:00:00Z")]
+            if "/releases" in path
+            else [{"name": "v9.9.9", "commit": {"sha": "s"}}]
+        ),
+    )
+    monkeypatch.setattr(
+        gen, "_api_get", lambda path: {"commit": {"committer": {"date": "2026-01-01T00:00:00Z"}}}
+    )
+    markers, source = gen._version_markers("o/r")
+    assert source == "github_release"
+    assert [m["name"] for m in markers] == ["v1.0.0"]
+
+
+def test_version_markers_falls_back_to_tags(monkeypatch):
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: (
+            []
+            if "/releases" in path
+            else [{"name": "v1.0.0", "commit": {"sha": "s"}}]
+        ),
+    )
+    monkeypatch.setattr(
+        gen, "_api_get", lambda path: {"commit": {"committer": {"date": "2026-01-01T00:00:00Z"}}}
+    )
+    markers, source = gen._version_markers("o/r")
+    assert source == "git_tag"
+    assert [m["name"] for m in markers] == ["v1.0.0"]
+
+
+def test_version_markers_none(monkeypatch):
+    monkeypatch.setattr(gen, "_api_get_all", lambda path: [])
+    markers, source = gen._version_markers("o/r")
+    assert markers == []
+    assert source == "none"
+
+
+# --------------------------------------------------------------------------
 # Model building
 # --------------------------------------------------------------------------
 
 
-def _patch_api(monkeypatch, tags, prs, commits_by_pr):
+def _patch_api(monkeypatch, tags, prs, commits_by_pr, releases=None):
     def fake_get_all(path):
+        if "/releases" in path:
+            return releases or []
         if "/tags" in path:
             return tags
         if "/pulls?" in path:
@@ -299,6 +466,32 @@ def test_build_model_groups_by_version_and_attaches_commits(monkeypatch):
     assert model["unreleased_count"] == 1
     assert model["latest_release"] == "v1.0.0"
     assert model["as_of"] == "2026-02-01T00:00:00Z"
+    # No published releases -> the tag fallback is the version source.
+    assert model["version_source"] == "git_tag"
+
+
+def test_build_model_uses_release_versions(monkeypatch):
+    """Version buckets come from RELEASES, not tags, when releases exist."""
+    releases = [
+        _release("v1.0.0", "2026-01-15T00:00:00Z"),
+        _release("v2.0.0", None, draft=True),
+    ]
+    prs = [
+        _pr(1, "feat: before release", "2026-01-10T00:00:00Z", ["feature"]),
+        _pr(2, "fix: after release", "2026-02-01T00:00:00Z", ["fix"]),
+    ]
+    _patch_api(monkeypatch, [], prs, {1: [], 2: []}, releases=releases)
+    model = gen.build_model("o/r", {"categories": CATEGORIES})
+
+    versions = {v["version"]: v for v in model["versions"]}
+    assert set(versions) == {"Unreleased", "v1.0.0"}
+    assert [e["pr"] for e in versions["v1.0.0"]["entries"]] == [1]
+    assert [e["pr"] for e in versions["Unreleased"]["entries"]] == [2]
+    assert model["version_source"] == "github_release"
+    assert model["latest_release"] == "v1.0.0"
+    # The draft release is surfaced as the next-version hint, not as a bucket.
+    assert model["next_release"] == "v2.0.0"
+    assert model["schema_version"] == 3
 
 
 def test_build_model_dedupes_pr_number(monkeypatch):
@@ -331,6 +524,15 @@ def test_build_model_no_tags_is_all_unreleased(monkeypatch):
     model = gen.build_model("o/r", {"categories": CATEGORIES})
     assert [v["version"] for v in model["versions"]] == ["Unreleased"]
     assert model["latest_release"] is None
+    assert model["version_source"] == "none"
+
+
+def test_build_model_categorises_from_commit_subject(monkeypatch):
+    """A non-conventional PR title still categorises from its commits."""
+    prs = [_pr(1, "Tidy up the thing", "2026-01-01T00:00:00Z")]
+    _patch_api(monkeypatch, [], prs, {1: [_commit("a" * 40, "feat: real change")]})
+    model = gen.build_model("o/r", {"categories": CATEGORIES})
+    assert model["versions"][0]["entries"][0]["category"] == "Features"
 
 
 # --------------------------------------------------------------------------
@@ -340,10 +542,12 @@ def test_build_model_no_tags_is_all_unreleased(monkeypatch):
 
 def _model_with_one_pr():
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "as_of": "2026-01-01T00:00:00Z",
         "repository": "o/r",
+        "version_source": "github_release",
         "latest_release": None,
+        "next_release": "v0.1.0",
         "unreleased_count": 1,
         "versions": [
             {
@@ -416,6 +620,12 @@ def test_render_index_json_is_small_and_has_file():
     assert data["versions"][0]["file"] == "CHANGELOG-unreleased.md"
     assert data["versions"][0]["pr_count"] == 1
     assert "entries" not in data["versions"][0]
+
+
+def test_render_index_json_has_version_source_and_next_release():
+    data = json.loads(gen.render_index_json(_model_with_one_pr()))
+    assert data["version_source"] == "github_release"
+    assert data["next_release"] == "v0.1.0"
 
 
 def test_render_json_roundtrips():

@@ -9,7 +9,8 @@ disagree:
   * ``CHANGELOG-vX.Y.Z.md``      -- one file PER RELEASE VERSION. Each merged
     PR is one block: the PR number + title, then the list of commits that
     belong to that PR (short SHA + subject). ``CHANGELOG-unreleased.md`` holds
-    the PRs merged after the newest tag (or every PR when no tag exists yet).
+    the PRs merged after the newest release (or every PR when no release exists
+    yet).
   * ``CHANGELOG.md``             -- a LIGHTWEIGHT INDEX only: a table of links
     to each per-version file. It never carries the full history, so it cannot
     grow without bound.
@@ -28,6 +29,18 @@ for API consumers and for the file itself. Splitting per release keeps every
 file small and bounded: a new release starts a new file, and the index stays a
 constant-size table of links.
 
+VERSION SOURCE: RELEASE, NOT TAG
+--------------------------------
+The version a PR belongs to is decided by the project's **releases**, not by
+raw git tags. The source of truth is the GitHub Releases API
+(``GET /repos/{owner}/{repo}/releases``): a PR belongs to the FIRST *published*
+release whose publish time is at or after the PR's merge time. A draft release
+is not yet a release, so it never buckets a PR; it is surfaced only as the
+``next_release`` hint. Git tags are used ONLY as a fallback when the repository
+has no published releases at all, so a tag-only repository still works. The
+chosen source is recorded in the model as ``version_source``
+(``github_release`` / ``git_tag`` / ``none``).
+
 DESIGN CONSTRAINTS
 ------------------
 * **Merged-only.** Only pull requests that were actually MERGED into the
@@ -38,12 +51,16 @@ DESIGN CONSTRAINTS
 * **Single source of truth for categories.** The category list and the
   label->category mapping are read from ``.github/release-drafter.yml`` -- the
   same file Release Drafter uses. There is no second, drifting copy of the
-  taxonomy here.
+  taxonomy here. A PR with no matching label is categorised from its
+  Conventional-Commit type (``feat:``/``fix:``/...) via ``CONVENTIONAL_CATEGORY``,
+  which maps each type onto one of those SAME configured titles, so a
+  regex-derived category can never conflict with a label-derived one.
 * **Idempotent & deterministic.** Output is a pure function of (merged PRs,
-  their commits, tags, config). Re-running never duplicates an entry: entries
-  are de-duplicated by PR number within a version and commits are de-duplicated
-  by SHA within a PR. ``as_of`` is derived from the data (newest merge time),
-  never the wall clock, so ``--check`` can pass and a re-run is a no-op.
+  their commits, releases, config). Re-running never duplicates an entry:
+  entries are de-duplicated by PR number within a version and commits are
+  de-duplicated by SHA within a PR. ``as_of`` is derived from the data (newest
+  merge time), never the wall clock, so ``--check`` can pass and a re-run is a
+  no-op.
 * **No secrets in output.** The token is read from the environment and never
   written to a file, log, or artifact.
 * **Fail-closed on the config.** If the Release Drafter config cannot be read,
@@ -103,24 +120,39 @@ CHANGELOG_PR_PREFIX = "chore(changelog):"
 # changelog. Overridable via GITHUB_DEFAULT_BRANCH for forks/renames.
 DEFAULT_BRANCH = os.environ.get("GITHUB_DEFAULT_BRANCH", "main")
 
-# Conventional-Commit prefix -> category label, used only when a PR carries no
-# labels at all. This mirrors the autolabeler rules in the Release Drafter
-# config so a PR that has not been labelled yet still lands in the right bucket.
-TITLE_PREFIX_LABELS = {
-    "feat": "feature",
-    "fix": "fix",
-    "docs": "documentation",
-    "chore": "chore",
-    "ci": "ci",
-    "test": "test",
-    "refactor": "chore",
-    "perf": "chore",
-    "build": "chore",
-    "style": "chore",
+# Conventional-Commit type -> Release Drafter category TITLE.
+#
+# The titles on the right are exactly the ones configured in
+# `.github/release-drafter.yml` (the single source of the taxonomy), so a
+# category derived from a title/commit regex can never conflict with one
+# derived from a label. Types that Release Drafter folds into "Maintenance"
+# (chore / refactor / perf / ci / build / style / revert) map there too, which
+# is why the changelog shows the same buckets as the release notes.
+#
+# This is the "regex filter" a conventional changelog generator applies: a PR
+# titled `feat(scope): ...` lands under Features, `fix(scope): ...` under Bug
+# Fixes, and so on, even before Release Drafter's autolabeler has run.
+CONVENTIONAL_CATEGORY = {
+    "feat": "Features",
+    "fix": "Bug Fixes",
+    "docs": "Documentation",
+    "chore": "Maintenance",
+    "refactor": "Maintenance",
+    "perf": "Maintenance",
+    "test": "Tests",
+    "ci": "Maintenance",
+    "build": "Maintenance",
+    "style": "Maintenance",
+    "revert": "Maintenance",
+    "security": "Security",
 }
 
-# The version bucket used for PRs merged after the newest tag (or for every PR
-# when the repository has no tags yet).
+# `type(scope)!: subject` -- the Conventional-Commit header. The scope and the
+# breaking-change `!` are optional; only the leading type is captured.
+CONVENTIONAL_RE = re.compile(r"^([a-z]+)(?:\([^)]*\))?!?:")
+
+# The version bucket used for PRs merged after the newest release (or for every
+# PR when the repository has no releases and no tags yet).
 UNRELEASED = "Unreleased"
 
 
@@ -173,28 +205,52 @@ def load_config() -> dict:
     return cfg
 
 
-def category_for(labels: list[str], title: str, categories: list[dict]) -> str:
-    """Map a PR to a category title using the configured label taxonomy."""
+def conventional_type(text: str) -> str | None:
+    """Return the Conventional-Commit type of a title/subject, or ``None``.
+
+    ``"feat(api)!: add thing"`` -> ``"feat"``; ``"random title"`` -> ``None``.
+    """
+    match = CONVENTIONAL_RE.match((text or "").strip().lower())
+    return match.group(1) if match else None
+
+
+def category_for(
+    labels: list[str],
+    title: str,
+    categories: list[dict],
+    commit_subjects: tuple[str, ...] | list[str] = (),
+) -> str:
+    """Map a PR to a category title.
+
+    Resolution order, first hit wins:
+
+    1. A configured label on the PR (Release Drafter's own taxonomy).
+    2. The Conventional-Commit type of the PR title, mapped through
+       ``CONVENTIONAL_CATEGORY`` onto a configured title.
+    3. The Conventional-Commit type of the PR's commit subjects (same mapping),
+       so a PR whose title is not conventional but whose commits are still
+       lands in the right bucket.
+    4. ``FALLBACK_CATEGORY`` ("Other").
+    """
     lowered = {label.lower() for label in labels}
     for cat in categories:
         cat_labels = {str(x).lower() for x in (cat.get("labels") or [])}
         if lowered & cat_labels:
             return str(cat.get("title") or FALLBACK_CATEGORY)
-    # No label matched: fall back to the Conventional-Commit prefix so an
+    # No label matched: fall back to the Conventional-Commit type so an
     # unlabelled PR is still categorised rather than dumped into "Other".
-    match = re.match(r"^([a-z]+)(\([^)]*\))?!?:", title.strip().lower())
-    if match:
-        implied = TITLE_PREFIX_LABELS.get(match.group(1))
-        if implied:
-            for cat in categories:
-                cat_labels = {str(x).lower() for x in (cat.get("labels") or [])}
-                if implied in cat_labels:
-                    return str(cat.get("title") or FALLBACK_CATEGORY)
+    configured_titles = {str(c.get("title")) for c in categories}
+    for text in (title, *commit_subjects):
+        ctype = conventional_type(text)
+        if ctype:
+            mapped = CONVENTIONAL_CATEGORY.get(ctype)
+            if mapped and mapped in configured_titles:
+                return mapped
     return FALLBACK_CATEGORY
 
 
 def _semver_key(tag: str) -> tuple:
-    m = re.match(r"^v?(\d+)\.(\d+)\.(\d+)$", tag.strip())
+    m = re.match(r"^v?(\d+)\.(\d+)\.(\d+)$", (tag or "").strip())
     if not m:
         return (0, 0, 0)
     return tuple(int(x) for x in m.groups())
@@ -213,8 +269,47 @@ def version_filename(version: str) -> str:
     return f"CHANGELOG-{safe}.md"
 
 
+def fetch_releases(repo: str) -> list[dict]:
+    """Return PUBLISHED (non-draft) releases, sorted ascending by semver.
+
+    This is the version source of truth: a release is what the project has
+    actually shipped. A draft release is not yet a release, so it is excluded
+    here (it is surfaced separately as the ``next_release`` hint).
+    """
+    raw = _api_get_all(f"/repos/{repo}/releases")
+    out = []
+    for rel in raw:
+        if rel.get("draft"):
+            continue
+        name = rel.get("tag_name") or rel.get("name") or ""
+        if not name:
+            continue
+        out.append({"name": name, "date": rel.get("published_at")})
+    out.sort(key=lambda r: _semver_key(r["name"]))
+    return out
+
+
+def fetch_next_release(repo: str) -> str | None:
+    """The newest DRAFT release's tag, used as the "next version" hint.
+
+    Release Drafter keeps a draft release for the upcoming version; surfacing
+    its tag lets a consumer label the ``Unreleased`` bucket without treating
+    the draft as a shipped release.
+    """
+    raw = _api_get_all(f"/repos/{repo}/releases")
+    drafts = [r for r in raw if r.get("draft") and (r.get("tag_name") or r.get("name"))]
+    if not drafts:
+        return None
+    drafts.sort(key=lambda r: _semver_key(r.get("tag_name") or r.get("name") or ""))
+    return drafts[-1].get("tag_name") or drafts[-1].get("name")
+
+
 def fetch_tags(repo: str) -> list[dict]:
-    """Return tags with their commit date, sorted ascending by semver."""
+    """Return tags with their commit date, sorted ascending by semver.
+
+    Used ONLY as a fallback version source when the repository has no published
+    releases at all, so a tag-only repository still produces a changelog.
+    """
     tags = _api_get_all(f"/repos/{repo}/tags")
     out = []
     for tag in tags:
@@ -301,13 +396,30 @@ def _parse_ts(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
+def _version_markers(repo: str) -> tuple[list[dict], str]:
+    """Return the (markers, version_source) used to bucket PRs by version.
+
+    Markers are the published releases when any exist (``github_release``);
+    otherwise the git tags (``git_tag``); otherwise nothing (``none``), in
+    which case every PR is ``Unreleased``.
+    """
+    releases = fetch_releases(repo)
+    if releases:
+        return releases, "github_release"
+    tags = fetch_tags(repo)
+    if tags:
+        return [{"name": t["name"], "date": t["date"]} for t in tags], "git_tag"
+    return [], "none"
+
+
 def build_model(repo: str, cfg: dict) -> dict:
     categories = cfg.get("categories") or []
-    tags = fetch_tags(repo)
+    markers, version_source = _version_markers(repo)
+    next_release = fetch_next_release(repo)
     prs = fetch_merged_prs(repo)
 
     # A PR belongs to the FIRST release published at or after its merge time.
-    # Anything merged after the newest tag is "Unreleased".
+    # Anything merged after the newest release is "Unreleased".
     versions: dict[str, dict] = {}
     order: list[str] = []
 
@@ -326,14 +438,16 @@ def build_model(repo: str, cfg: dict) -> dict:
     for pr in prs:
         merged_at = pr["merged_at"]
         target = UNRELEASED
-        for tag in tags:
-            if tag["date"] and _parse_ts(tag["date"]) >= _parse_ts(merged_at):
-                target = tag["name"]
+        for marker in markers:
+            if marker["date"] and _parse_ts(marker["date"]) >= _parse_ts(merged_at):
+                target = marker["name"]
                 break
+        commits = fetch_pr_commits(repo, pr["number"])
         cat = category_for(
             [lbl.get("name", "") for lbl in pr.get("labels", [])],
             pr.get("title", ""),
             categories,
+            [c.get("subject", "") for c in commits],
         )
         entry = {
             "pr": pr["number"],
@@ -343,25 +457,25 @@ def build_model(repo: str, cfg: dict) -> dict:
             "merged_at": merged_at,
             "url": pr.get("html_url", ""),
             "file": version_filename(target),
-            "commits": fetch_pr_commits(repo, pr["number"]),
+            "commits": commits,
         }
         b = bucket(target)
         # De-duplicate by PR number: re-running must never duplicate an entry.
         if not any(e["pr"] == entry["pr"] for e in b["entries"]):
             b["entries"].append(entry)
 
-    # Attach each version's date from its tag (Unreleased has none).
-    tag_dates = {t["name"]: t["date"] for t in tags}
+    # Attach each version's date from its release/tag (Unreleased has none).
+    marker_dates = {m["name"]: m["date"] for m in markers}
     for name, b in versions.items():
-        b["date"] = tag_dates.get(name)
+        b["date"] = marker_dates.get(name)
 
-    # Order: Unreleased first, then tags newest-first.
+    # Order: Unreleased first, then releases newest-first.
     ordered = []
     if UNRELEASED in versions:
         ordered.append(versions[UNRELEASED])
-    for tag in reversed(tags):
-        if tag["name"] in versions:
-            ordered.append(versions[tag["name"]])
+    for marker in reversed(markers):
+        if marker["name"] in versions:
+            ordered.append(versions[marker["name"]])
 
     # Group each version's entries by category, in the configured order.
     cat_titles = [str(c.get("title")) for c in categories] + [FALLBACK_CATEGORY]
@@ -372,19 +486,21 @@ def build_model(repo: str, cfg: dict) -> dict:
         b["categories"] = {k: v for k, v in grouped.items() if v}
         b["entries"] = sorted(b["entries"], key=lambda e: e["pr"])
 
-    latest = tags[-1]["name"] if tags else None
+    latest = markers[-1]["name"] if markers else None
     # `as_of` is the newest merge timestamp in the model, NOT the wall clock.
     # A wall-clock timestamp would make the document differ on every run, so
     # `--check` could never pass and the update job would commit on every push
     # even when nothing changed. Deriving it from the data keeps the output a
-    # pure function of (merged PRs, tags, config) -- the property that makes
-    # the whole lane idempotent.
+    # pure function of (merged PRs, releases, config) -- the property that
+    # makes the whole lane idempotent.
     as_of = max((p["merged_at"] for p in prs), default=None)
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "as_of": as_of,
         "repository": repo,
+        "version_source": version_source,
         "latest_release": latest,
+        "next_release": next_release,
         "unreleased_count": len(versions.get(UNRELEASED, {}).get("entries", [])),
         "versions": ordered,
     }
@@ -403,7 +519,7 @@ def render_version_markdown(version: dict) -> str:
         lines.append(f"Release date: {version['date'][:10]}")
         lines.append("")
     lines.append(
-        "Index: [`CHANGELOG.md`](CHANGELOG.md) · "
+        "Index: [`CHANGELOG.md`](CHANGELOG.md) \u00b7 "
         "API: [`docs/api/changelog.json`](docs/api/changelog.json)"
     )
     lines.append("")
@@ -434,14 +550,14 @@ def render_index_markdown(model: dict) -> str:
         "This is an index only. Each release has its own file so no single file",
         "grows without bound.",
         "",
-        "Machine-readable form: [`docs/api/changelog.json`](docs/api/changelog.json) ·",
+        "Machine-readable form: [`docs/api/changelog.json`](docs/api/changelog.json) \u00b7",
         "index: [`docs/api/changelog-index.json`](docs/api/changelog-index.json).",
         "",
         "| Version | Date | PRs | File |",
         "| --- | --- | --- | --- |",
     ]
     for version in model["versions"]:
-        date = version["date"][:10] if version.get("date") else "—"
+        date = version["date"][:10] if version.get("date") else "\u2014"
         lines.append(
             f"| {version['version']} | {date} | {len(version['entries'])} | "
             f"[{version['file']}]({version['file']}) |"
@@ -460,7 +576,9 @@ def render_index_json(model: dict) -> str:
         "schema_version": model["schema_version"],
         "as_of": model["as_of"],
         "repository": model["repository"],
+        "version_source": model["version_source"],
         "latest_release": model["latest_release"],
+        "next_release": model["next_release"],
         "unreleased_count": model["unreleased_count"],
         "versions": [
             {
@@ -535,7 +653,7 @@ def main() -> int:
     print(
         f"Wrote {len(outputs)} file(s): index + JSON + "
         f"{len(model['versions'])} version file(s) "
-        f"({model['unreleased_count']} unreleased)."
+        f"({model['unreleased_count']} unreleased, source={model['version_source']})."
     )
     return 0
 
