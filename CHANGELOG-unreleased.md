@@ -94,3 +94,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#28 feat(changelog): regex category mapping + release-based versioning
     - cec2b81 feat(changelog): regex category mapping + release-based versioning
+
+- PR#30 chore(changelog-official): regenerate official changelog
+    - 3560922 chore(changelog-official): regenerate official changelog
+
+- PR#31 fix(auto-merge): approve runs on post-sync head
+    - f2a90ad fix(auto-merge): approve runs on the post-sync head + retry stale sync

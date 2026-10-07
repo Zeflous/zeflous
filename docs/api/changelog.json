@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-07T22:54:02Z",
+  "as_of": "2026-10-07T23:22:15Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 21,
+  "unreleased_count": 23,
   "versions": [
     {
       "version": "Unreleased",
@@ -208,6 +208,22 @@
                 "subject": "fix(changelog): merged-only PR selection + split pull_request trigger"
               }
             ]
+          },
+          {
+            "pr": 31,
+            "title": "fix(auto-merge): approve runs on post-sync head",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-07T23:22:15Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/31",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f2a90ade1a47405f333c36d1d2ffef27e2ed0b23",
+                "short_sha": "f2a90ad",
+                "subject": "fix(auto-merge): approve runs on the post-sync head + retry stale sync"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -386,6 +402,22 @@
                 "sha": "c80b21ee3580163fcb4282f9ce4a9d8c6a8f910e",
                 "short_sha": "c80b21e",
                 "subject": "Merge branch 'main' into chore/changelog-official-update"
+              }
+            ]
+          },
+          {
+            "pr": 30,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-07T23:11:21Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/30",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3560922fc6ba1d6b944a4582f23ad1da54a7bdfe",
+                "short_sha": "3560922",
+                "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
           }
@@ -961,6 +993,38 @@
               "sha": "cec2b818e6a45547d0cd5ead9b2425e075fc447a",
               "short_sha": "cec2b81",
               "subject": "feat(changelog): regex category mapping + release-based versioning"
+            }
+          ]
+        },
+        {
+          "pr": 30,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-07T23:11:21Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/30",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3560922fc6ba1d6b944a4582f23ad1da54a7bdfe",
+              "short_sha": "3560922",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 31,
+          "title": "fix(auto-merge): approve runs on post-sync head",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-07T23:22:15Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/31",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f2a90ade1a47405f333c36d1d2ffef27e2ed0b23",
+              "short_sha": "f2a90ad",
+              "subject": "fix(auto-merge): approve runs on the post-sync head + retry stale sync"
             }
           ]
         }
