@@ -98,10 +98,21 @@ jobs:
 
       - name: Process open pull requests (oldest first)
         env:
-          # `gh` authenticates with the workflow token. It can read the PR list,
-          # sync a branch and arm auto-merge; it cannot bypass the ruleset, so
-          # the merge still waits for `CI Strict` to be green.
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # `gh` authenticates with the organization-provisioned `ZEF_TOKEN`
+          # when it is present, and falls back to the workflow token otherwise.
+          # This matters for the QUEUE CHAIN, not for
+          # permissions: a merge executed by `github-actions[bot]`
+          # (GITHUB_TOKEN) emits no follow-up workflow event (GitHub's recursion
+          # guard), so the `closed` handler never fires and the next pull request
+          # waits for the next cron sweep. A merge executed with the PAT DOES
+          # emit the event, so the FIFO chain advances immediately.
+          # Neither token can bypass the ruleset: the merge still waits for the
+          # required `CI Strict` check to be green.
+          # Secret is referenced by NAME only; the value is injected at run time.
+          GH_TOKEN: ${{ secrets.ZEF_TOKEN || secrets.GITHUB_TOKEN }}
+          # Kept separately so the arm step can fall back to the workflow token
+          # when the PAT lacks `pull_requests: write`.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -u
 
@@ -155,9 +166,17 @@ jobs:
             elif printf '%s' "$resp" | grep -q 'no new commits on the base branch'; then
               echo "PR #$pr is already up to date with the base branch."
             else
+              # The branch could not be synced. The common causes are a token
+              # that lacks the `contents: write` scope the endpoint needs (a 403
+              # "Resource not accessible by personal access token"), a genuine
+              # merge conflict, or a fork head. This must NOT abort the sweep:
+              # arming auto-merge is still correct and useful (GitHub merges the
+              # PR itself once the required check is green and the branch is up
+              # to date), and a later cron sweep retries the sync. Only a real
+              # conflict leaves the PR un-mergeable, and that is the
+              # maintainer's call — never a silent skip of the whole PR.
               echo "::warning::Could not update PR #$pr branch: $resp"
-              echo "   (A conflicting PR or a fork head legitimately fails here.)"
-              continue
+              echo "   (A conflicting PR, a fork head, or a token without contents:write legitimately fails here.)"
             fi
 
             # 2. If the branch was just updated, a bot-authored push can leave
@@ -208,8 +227,16 @@ jobs:
               # This is NOT a failure and NOT a manual merge — the merge is
               # left to GitHub's own merge queue / the maintainer.
               echo "PR #$pr is already in a clean, mergeable state (auto-merge not needed)."
+            elif err2=$(GH_TOKEN="$GITHUB_TOKEN" gh pr merge "$pr" --auto --merge 2>&1); then
+              # The PAT could not arm auto-merge (e.g. it lacks
+              # `pull_requests: write`); the workflow token can. Arming is what
+              # matters here — the merge itself still waits for the required
+              # `CI Strict` check, so this never bypasses the ruleset.
+              echo "Auto-merge armed for PR #$pr (workflow token fallback)."
+            elif printf '%s' "$err2" | grep -qi 'clean status'; then
+              echo "PR #$pr is already in a clean, mergeable state (auto-merge not needed)."
             else
-              echo "::warning::Could not arm auto-merge for PR #$pr: $err"
+              echo "::warning::Could not arm auto-merge for PR #$pr: $err / $err2"
             fi
 
             sleep 5
