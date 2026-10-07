@@ -1,0 +1,160 @@
+# Changelog (official generator) lane -- COMPLEMENTARY to the per-version lane.
+#
+# WHY THIS IS A COMPLEMENT, NOT THE MAIN ENGINE
+# ---------------------------------------------
+# The user asked whether the official tool
+# `github-changelog-generator/github-changelog-generator` (Ruby gem) could be
+# used. It was investigated against the real repository and its limits are
+# concrete (all verified, see the PR report):
+#
+#   * It emits ONE flat `CHANGELOG.md`. It has no "one file per release
+#     version" mode -- the exact thing the user asked for.
+#   * It lists PR titles only. It does NOT list the commits that belong to a
+#     PR, so it cannot produce the requested "PR block + commits beneath it".
+#   * It has no JSON output (upstream issue #932 is an open feature request),
+#     so it cannot serve the machine-readable changelog API.
+#   * It lists the changelog automation's OWN bookkeeping PRs, which would make
+#     a regeneration loop (each run adds a line -> new diff -> new PR -> ...).
+#
+# Therefore the per-version generator (`scripts/changelog/generate.py`, driven
+# by `.github/workflows/changelog.yml`) REMAINS the source of truth for the
+# per-version files, the index, and the JSON API. This lane adds the official
+# tool as a bounded, complementary snapshot of the CURRENT unreleased changes
+# (a release-notes preview), which is what the official tool is genuinely good
+# at. Nothing that already worked is removed or changed.
+#
+# REPRODUCIBLE & SAFE
+# -------------------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
+#     original tag kept as a trailing comment (SonarCloud `githubactions:S7637`
+#     stays at zero without any rule exclusion).
+#   * The gem itself is pinned to an exact version (`-v 1.18.0`).
+#   * Least privilege: `contents: read` at the workflow level; only the job
+#     that opens the update pull request gets `contents: write` +
+#     `pull-requests: write` + `actions: write`.
+#   * The built-in `GITHUB_TOKEN` is used -- no PAT. The token is referenced by
+#     NAME only; its value is never written to a file, log, or artifact.
+#   * Idempotent: the snapshot is a pure function of the merged PRs, and the
+#     automation's own PR lines are filtered out, so a re-run on an unchanged
+#     repository is a no-op and the lane cannot chase its own tail.
+#   * The update goes through a pull request (the `main` ruleset requires it)
+#     and arms GitHub's native auto-merge; it is never merged by hand.
+
+name: Changelog (official generator)
+
+on:
+  push:
+    branches:
+      - main
+  # Manual re-run (idempotent) to refresh the snapshot without waiting for a push.
+  workflow_dispatch:
+
+# Baseline: no write authority at the workflow level.
+permissions:
+  contents: read
+
+# One run at a time; a queued run proceeds after the current one instead of
+# being dropped, so two quick merges cannot race over the same update branch.
+concurrency:
+  group: changelog-official
+  cancel-in-progress: false
+
+jobs:
+  official:
+    name: Official changelog snapshot
+    # Skip the run caused by the automation's own merge commit, so the lane
+    # cannot chase its own tail.
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write      # push the update branch
+      pull-requests: write # open the update pull request + arm auto-merge
+      actions: write       # dispatch the required checks on the update branch
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@95ef2b042f9d7a56d8268cba8559e2842e2ad01b # v1.321.0
+        with:
+          ruby-version: '3.1'
+
+      - name: Install github-changelog-generator (pinned)
+        run: gem install github_changelog_generator -v 1.18.0 --no-document
+
+      - name: Generate the official changelog snapshot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p docs/api
+          github_changelog_generator \
+            --user "${GITHUB_REPOSITORY%%/*}" \
+            --project "${GITHUB_REPOSITORY##*/}" \
+            --token "$GITHUB_TOKEN" \
+            --output docs/api/changelog-official.md \
+            --unreleased-only \
+            --no-issues \
+            --no-filter-by-milestone
+          # Break the automation loop: the official tool lists EVERY merged PR,
+          # including the changelog automation's own bookkeeping PRs. Left in,
+          # each regeneration would add a line, produce a new diff, and open a
+          # new pull request forever. Drop those lines so the snapshot is a
+          # pure function of the real, human-authored changes.
+          grep -v -E 'regenerate (API|official) changelog' \
+            docs/api/changelog-official.md > docs/api/changelog-official.md.tmp || true
+          mv docs/api/changelog-official.md.tmp docs/api/changelog-official.md
+
+      - name: Open or update the official changelog pull request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- docs/api/changelog-official.md; then
+            echo "Official changelog already up to date -- nothing to do."
+            exit 0
+          fi
+
+          # One stable branch: a re-run updates the same pull request instead of
+          # opening a second one.
+          branch="chore/changelog-official-update"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add docs/api/changelog-official.md
+          git commit -m "chore(changelog-official): regenerate official changelog [skip ci]"
+          git push -f -u origin "$branch"
+
+          # Reuse an open pull request for this branch if one exists; otherwise
+          # open it. `gh pr view` exits non-zero when there is no PR.
+          if gh pr view "$branch" --json state --jq '.state' 2>/dev/null | grep -q OPEN; then
+            echo "Updated the existing official changelog pull request."
+          else
+            gh pr create \
+              --base main \
+              --head "$branch" \
+              --title "chore(changelog-official): regenerate official changelog" \
+              --body "Automated snapshot of the current unreleased changes, generated by the official \`github-changelog-generator\` (\`docs/api/changelog-official.md\`). This is a COMPLEMENT to the per-version changelog (\`CHANGELOG-vX.Y.Z.md\` / \`CHANGELOG-unreleased.md\` + \`docs/api/changelog.json\`), which remains the source of truth. Generated by \`.github/workflows/changelog-official.yml\`; no hand edits."
+          fi
+
+          # A push made with the built-in `GITHUB_TOKEN` does NOT trigger other
+          # workflows (GitHub's recursion guard), so the required `CI Strict`
+          # check would never appear on this branch and auto-merge would wait
+          # forever. Dispatch the required workflows explicitly on the update
+          # branch so the checks run and the pull request can merge itself.
+          pr_number=$(gh pr view "$branch" --json number --jq '.number')
+          gh workflow run ci-strict.yml --ref "$branch" \
+            && echo "Dispatched ci-strict.yml on $branch." \
+            || echo "::warning::Could not dispatch ci-strict.yml on $branch."
+          # SonarCloud is dispatched with the PR number so the analysis is
+          # attached to this pull request (the ruleset's `code_quality` rule
+          # reads it; without an analysis the merge stays blocked).
+          gh workflow run sonarcloud.yml --ref "$branch" -f pr_number="$pr_number" \
+            && echo "Dispatched sonarcloud.yml on $branch for PR #$pr_number." \
+            || echo "::warning::Could not dispatch sonarcloud.yml on $branch."
+
+          # Arm GitHub's native auto-merge: the change lands itself once the
+          # required `CI Strict` check is green. Never merged by hand.
+          gh pr merge "$branch" --auto --squash || \
+            echo "::warning::Could not arm auto-merge on the official changelog PR; it will be merged by the auto-merge sweep once green."
