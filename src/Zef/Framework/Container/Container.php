@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Container;
 
 use Closure;
+use Override;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -35,20 +36,22 @@ final class Container implements ContainerInterface
         unset($this->resolved[$id]);
     }
 
+    #[Override]
     public function has(string $id): bool
     {
-        return array_key_exists($id, $this->resolved)
-            || array_key_exists($id, $this->factories);
+        return \array_key_exists($id, $this->resolved)
+            || \array_key_exists($id, $this->factories);
     }
 
+    #[Override]
     public function get(string $id): mixed
     {
-        if (array_key_exists($id, $this->resolved)) {
+        if (\array_key_exists($id, $this->resolved)) {
             return $this->resolved[$id];
         }
 
-        if (!array_key_exists($id, $this->factories)) {
-            throw new NotFoundException(sprintf('Service "%s" is not defined.', $id));
+        if (!\array_key_exists($id, $this->factories)) {
+            throw new NotFoundException(\sprintf('Service "%s" is not defined.', $id));
         }
 
         $service = ($this->factories[$id])($this);

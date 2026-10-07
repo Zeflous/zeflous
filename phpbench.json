@@ -5,5 +5,9 @@
         "benchmarks"
     ],
     "runner.file_pattern": "*Bench.php",
-    "runner.time_unit": "microseconds"
+    "runner.time_unit": "microseconds",
+    "runner.retry_threshold": 3,
+    "runner.iterations": 10,
+    "runner.revs": 100,
+    "runner.warmup": 3
 }

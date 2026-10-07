@@ -1,0 +1,70 @@
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Least privilege: the analysis needs read access to the repository contents.
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  sonarcloud:
+    name: SonarCloud analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      # The whole job is a no-op until the SONAR_TOKEN repository secret is
+      # configured, so adding this workflow can never break the build for a
+      # repository that has not been onboarded to SonarCloud yet.
+      - name: Check SONAR_TOKEN availability
+        id: sonar_guard
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [ -z "${SONAR_TOKEN}" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=SonarCloud skipped::SONAR_TOKEN is not set. Add it under Settings > Secrets and variables > Actions to enable the analysis."
+          else
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.sonar_guard.outputs.available == 'true'
+        uses: actions/checkout@v4
+        with:
+          # Full history is required for accurate new-code / blame detection.
+          fetch-depth: 0
+
+      - name: Setup PHP 8.4
+        if: steps.sonar_guard.outputs.available == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pcov
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Install dependencies
+        if: steps.sonar_guard.outputs.available == 'true'
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run test suite with coverage
+        if: steps.sonar_guard.outputs.available == 'true'
+        run: |
+          php -d pcov.enabled=1 vendor/bin/phpunit \
+            --coverage-clover build/clover.xml \
+            --log-junit build/junit.xml
+
+      - name: SonarCloud scan
+        if: steps.sonar_guard.outputs.available == 'true'
+        uses: SonarSource/sonarcloud-github-action@v3
+        env:
+          # ZEF_TOKEN is an optional PAT (contents/PR read) used when the
+          # default GITHUB_TOKEN is not sufficient; it falls back automatically.
+          GITHUB_TOKEN: ${{ secrets.ZEF_TOKEN || secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -8,6 +8,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Version;
 
+/**
+ * @internal
+ */
 #[CoversClass(Version::class)]
 final class VersionTest extends TestCase
 {

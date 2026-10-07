@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Benchmark;
 
 use PhpBench\Attributes\Revs;
+use RuntimeException;
 use Zef\Framework\Version;
 
 final class VersionBench
@@ -15,7 +16,7 @@ final class VersionBench
         $version = Version::current();
 
         if ($version === '') {
-            throw new \RuntimeException('Version::current() must not be empty.');
+            throw new RuntimeException('Version::current() must not be empty.');
         }
     }
 }

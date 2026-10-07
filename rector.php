@@ -13,11 +13,19 @@ return RectorConfig::configure()
     ->withSkip([
         __DIR__ . '/src/Contracts/Psr',
         __DIR__ . '/vendor',
+        // Kept authoritative by php-cs-fixer; avoid a Rector/CS-Fixer tug-of-war.
+        'Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector',
     ])
     ->withPhpSets(php84: true)
     ->withPreparedSets(
         deadCode: true,
         codeQuality: true,
+        codingStyle: true,
         typeDeclarations: true,
         privatization: true,
+        naming: true,
+        instanceOf: true,
+        earlyReturn: true,
+        rectorPreset: true,
+        phpunitCodeQuality: true,
     );

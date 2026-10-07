@@ -3,18 +3,20 @@
 declare(strict_types=1);
 
 /**
- * Per-zone mutation coverage floor.
+ * Mutation-score floor gate.
  *
  * Reads the JSON log produced by Infection (`build/infection/infection.json`) and
- * asserts that every mutated "zone" (the top-level namespace segment under
- * `Zef\Framework`) meets the requested coverage floor.
+ * asserts that both the mutation score index (MSI) and the covered-code MSI meet
+ * the requested floor. The scores are read from Infection's own reported metrics
+ * (which correctly account for killed, escaped and timed-out mutants) instead of
+ * being recomputed here, so the gate can never diverge from the tool.
  *
- * Fail-closed: a missing report is a failure, never a silent pass.
+ * Fail-closed: a missing report OR missing metric is a failure, never a silent pass.
  *
- * Usage: php scripts/ci/assert-zone-coverage.php [--floor=95]
+ * Usage: php scripts/ci/assert-zone-coverage.php [--floor=100]
  */
 
-$floor = 95.0;
+$floor = 100.0;
 
 foreach ($argv as $argument) {
     if (str_starts_with($argument, '--floor=')) {
@@ -32,8 +34,8 @@ if (!is_file($report)) {
     exit(1);
 }
 
-/** @var array<string, mixed>|null $data */
-$data = json_decode((string) file_get_contents($report), true);
+$contents = file_get_contents($report);
+$data = is_string($contents) ? json_decode($contents, true) : null;
 
 if (!is_array($data)) {
     fwrite(STDERR, 'Unable to parse the Infection JSON report.' . PHP_EOL);
@@ -47,15 +49,29 @@ if (!is_array($stats)) {
     exit(1);
 }
 
-$killed = (int) ($stats['killedCount'] ?? 0);
-$total = (int) ($stats['totalMutantsCount'] ?? 0);
-$coveredMsi = $total > 0 ? ($killed / $total) * 100.0 : 0.0;
+foreach (['msi', 'coveredCodeMsi', 'mutationCodeCoverage'] as $required) {
+    if (!array_key_exists($required, $stats)) {
+        fwrite(STDERR, sprintf('The Infection report is missing the "%s" metric.%s', $required, PHP_EOL));
+        exit(1);
+    }
+}
 
-printf('Global mutation score: %.2f%% (floor: %.2f%%)%s', $coveredMsi, $floor, PHP_EOL);
+$msi = (float) $stats['msi'];
+$coveredMsi = (float) $stats['coveredCodeMsi'];
+$coverage = (float) $stats['mutationCodeCoverage'];
 
-if ($coveredMsi < $floor) {
-    fwrite(STDERR, 'Zone coverage floor FAILED.' . PHP_EOL);
+printf(
+    'Mutation score: MSI %.2f%% / covered MSI %.2f%% (code coverage %.2f%%, floor: %.2f%%)%s',
+    $msi,
+    $coveredMsi,
+    $coverage,
+    $floor,
+    PHP_EOL,
+);
+
+if ($msi < $floor || $coveredMsi < $floor) {
+    fwrite(STDERR, 'Mutation-score floor FAILED.' . PHP_EOL);
     exit(1);
 }
 
-echo 'Zone coverage floor PASSED.' . PHP_EOL;
+echo 'Mutation-score floor PASSED.' . PHP_EOL;

@@ -2,17 +2,39 @@ deptrac:
   paths:
     - ./src
   exclude_files:
+    # The vendored PSR shim is a zero-library boundary artifact, not a ZEF layer.
     - '#.*/Contracts/Psr/.*#'
   layers:
+    - name: Contracts
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Contracts\\#'
     - name: Container
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Container\\#'
+    - name: Health
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Health\\#'
+    - name: Message
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Message\\#'
     - name: Kernel
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\(Kernel|Version)$#'
   ruleset:
-    Container: ~
+    # Contracts is the innermost layer: it may not depend on any other ZEF layer.
+    Contracts: ~
+    Container:
+      - Contracts
+    Health:
+      - Contracts
+    Message: ~
     Kernel:
       - Container
+      - Health
+      - Message
+      - Contracts

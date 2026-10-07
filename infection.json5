@@ -9,13 +9,21 @@
         "text": "build/infection/infection.log",
         "html": "build/infection/infection.html",
         "summary": "build/infection/summary.log",
-        "json": "build/infection/infection.json"
+        "json": "build/infection/infection.json",
+        "perMutator": "build/infection/per-mutator.md"
     },
     "tmpDir": "build/infection",
+    "testFramework": "phpunit",
+    "bootstrap": "vendor/autoload.php",
     "phpUnit": {
         "configDir": "."
     },
     "mutators": {
         "@default": true
-    }
+    },
+    "minMsi": 100,
+    "minCoveredMsi": 100,
+    "ignoreMsiWithNoMutations": false,
+    "threads": "max",
+    "timeout": 10
 }

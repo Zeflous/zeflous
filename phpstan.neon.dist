@@ -1,5 +1,8 @@
+# PHPStan extensions (strict-rules, deprecation-rules, phpunit) are auto-loaded
+# by phpstan/extension-installer; they must not be included again here.
+# bleedingEdge enables the strictest upcoming checks that are not yet in level max.
 includes:
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
 
 parameters:
     level: max
@@ -8,5 +11,14 @@ parameters:
         - tests
         - benchmarks
     tmpDir: build/phpstan
-    treatPhpDocTypesAsCertain: false
+    treatPhpDocTypesAsCertain: true
     reportUnmatchedIgnoredErrors: true
+    checkUninitializedProperties: true
+    checkMissingCallableSignature: true
+    checkMissingOverrideMethodAttribute: true
+    checkDynamicProperties: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    checkPhpDocMissingReturn: true
+    checkPhpDocMethodSignatures: true
+    checkExplicitMixedMissingReturn: true
+    checkBenevolentUnionTypes: true
