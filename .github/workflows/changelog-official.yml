@@ -25,6 +25,10 @@
 #
 # REPRODUCIBLE & SAFE
 # -------------------
+#   * MERGED-ONLY: the snapshot is built from merged pull requests only, and
+#     this workflow runs ONLY on `push` to `main` (what a merge produces) and
+#     on `workflow_dispatch` -- never on `pull_request` -- so a changelog can
+#     never be produced before a PR has landed.
 #   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
 #     original tag kept as a trailing comment (SonarCloud `githubactions:S7637`
 #     stays at zero without any rule exclusion).

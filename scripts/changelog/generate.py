@@ -30,6 +30,11 @@ constant-size table of links.
 
 DESIGN CONSTRAINTS
 ------------------
+* **Merged-only.** Only pull requests that were actually MERGED into the
+  default branch are included. A PR that was closed without being merged, a
+  draft PR, and a PR merged into a non-default branch are all excluded
+  explicitly -- they never changed the default branch, so they must not appear
+  in the changelog. See ``fetch_merged_prs``.
 * **Single source of truth for categories.** The category list and the
   label->category mapping are read from ``.github/release-drafter.yml`` -- the
   same file Release Drafter uses. There is no second, drifting copy of the
@@ -91,6 +96,12 @@ FALLBACK_CATEGORY = "Other"
 # are bookkeeping (they only land the regenerated files) and are excluded from
 # the changelog so the document never describes its own maintenance.
 CHANGELOG_PR_PREFIX = "chore(changelog):"
+
+# The branch a PR must have been merged INTO to count as a change to the
+# project. A PR merged into some other branch (a release branch, a backport
+# branch, ...) never lands on the default branch, so it must not appear in the
+# changelog. Overridable via GITHUB_DEFAULT_BRANCH for forks/renames.
+DEFAULT_BRANCH = os.environ.get("GITHUB_DEFAULT_BRANCH", "main")
 
 # Conventional-Commit prefix -> category label, used only when a PR carries no
 # labels at all. This mirrors the autolabeler rules in the Release Drafter
@@ -222,19 +233,40 @@ def fetch_tags(repo: str) -> list[dict]:
 
 
 def fetch_merged_prs(repo: str) -> list[dict]:
-    """Return every merged PR, oldest first.
+    """Return every PR that was actually MERGED into the default branch.
 
-    Pull requests authored by the changelog automation itself are excluded:
-    the update lane opens a PR to land the regenerated files, and that PR is
-    bookkeeping, not a change to the project. Including it would make the
-    changelog describe its own maintenance and would add a new entry on every
-    regeneration cycle.
+    A PR only changes the project once it is merged into the default branch.
+    The changelog must therefore contain exactly those PRs, and nothing else.
+    The selection is explicit and fail-closed on every exclusion:
+
+    * ``merged_at`` must be set. A PR that was closed WITHOUT being merged
+      (``state == "closed"`` and ``merged_at is None``) never landed on the
+      default branch, so it is excluded. Filtering on ``state == "closed"``
+      alone would wrongly include it -- that is the bug this guard prevents.
+    * ``draft`` PRs are excluded: a draft is not a completed change.
+    * PRs merged into a branch other than the default branch are excluded:
+      they never reached the default branch.
+    * PRs authored by the changelog automation itself are excluded: the update
+      lane opens a PR to land the regenerated files, and that PR is
+      bookkeeping, not a change to the project. Including it would make the
+      changelog describe its own maintenance and would add a new entry on every
+      regeneration cycle.
+
+    GitHub's REST API does not expose an "archived" flag on a pull request
+    (archiving applies to repositories, not PRs), so there is no archived-PR
+    field to test; the ``merged_at`` + default-branch guards already exclude
+    every PR that did not land on the default branch, which is the property
+    that matters. The guard is written so that if such a field ever appears it
+    is honoured too.
     """
     prs = _api_get_all(f"/repos/{repo}/pulls?state=closed&sort=created&direction=asc")
     merged = [
         p
         for p in prs
-        if p.get("merged_at")
+        if p.get("merged_at")  # merged, not merely closed
+        and not p.get("draft")  # a draft is not a completed change
+        and not p.get("archived")  # honoured if the API ever exposes it
+        and (p.get("base") or {}).get("ref", DEFAULT_BRANCH) == DEFAULT_BRANCH
         and not (p.get("title") or "").startswith(CHANGELOG_PR_PREFIX)
     ]
     merged.sort(key=lambda p: p["merged_at"])

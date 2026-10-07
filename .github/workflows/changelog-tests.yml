@@ -1,0 +1,72 @@
+# Changelog generator tests -- the pull-request signal for the changelog tooling.
+#
+# WHY THIS IS A SEPARATE WORKFLOW
+# ------------------------------
+# The changelog itself must only ever be produced AFTER a pull request has been
+# merged into `main`. The generation lanes (`.github/workflows/changelog.yml`
+# and `.github/workflows/changelog-official.yml`) therefore run ONLY on `push`
+# to `main` and on `workflow_dispatch` -- never on `pull_request`, which would
+# let a changelog be produced before the change landed.
+#
+# The generator's own test suite, however, SHOULD run on every pull request so
+# a change to the tooling is verified before it merges. That signal lives here,
+# in its own workflow, so the generation lanes can keep a strict
+# `push`-to-`main`-only trigger. This workflow is read-only: it never writes a
+# changelog, never pushes a branch, and never opens a pull request.
+#
+# CONVENTIONS
+# -----------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
+#     original tag kept as a trailing comment. Tag/branch refs are what
+#     SonarCloud flags as `githubactions:S7637`; pinning keeps supply-chain
+#     findings at zero without any rule exclusion.
+#   * Least privilege: `contents: read` only. No write scope is needed to run
+#     tests.
+#   * The built-in `GITHUB_TOKEN` is used -- no PAT. The token is referenced by
+#     NAME only; its value is never written to a file, log, or artifact.
+
+name: Changelog tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  # Manual re-run (idempotent) to verify the tooling without opening a PR.
+  workflow_dispatch:
+
+# Baseline: no write authority at the workflow level.
+permissions:
+  contents: read
+
+# One run at a time per pull request; a queued run proceeds after the current
+# one instead of being dropped.
+concurrency:
+  group: changelog-tests-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Changelog generator tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: python3 -m pip install --quiet pytest pytest-cov pyyaml
+
+      - name: Run generator tests with a 90% coverage floor
+        run: |
+          python3 -m pytest scripts/changelog/tests/ \
+            --cov=scripts/changelog \
+            --cov-report=term-missing \
+            --cov-fail-under=90

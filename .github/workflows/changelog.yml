@@ -21,6 +21,18 @@
 # requests, their commits, and the repository tags, so the artifacts can never
 # disagree.
 #
+# MERGED-ONLY
+# -----------
+#   * Only pull requests that were actually MERGED into `main` are included.
+#     A PR closed WITHOUT being merged, a draft PR, and a PR merged into a
+#     non-default branch are all excluded explicitly -- they never changed
+#     `main`, so they must not appear in the changelog.
+#   * This workflow runs ONLY on `push` to `main` (what a merge produces) and
+#     on `workflow_dispatch`. There is deliberately no `pull_request` trigger,
+#     so a changelog can never be produced before a PR has landed. The
+#     generator's own test suite runs on pull requests in the separate,
+#     read-only `.github/workflows/changelog-tests.yml`.
+#
 # HOW IT ACCUMULATES PER VERSION
 # ------------------------------
 #   * Every merged PR becomes one entry: number, title, author, category
@@ -73,17 +85,14 @@
 name: Changelog
 
 on:
+  # ONLY after a merge: a push to `main` is what a merged pull request
+  # produces. The changelog must never be generated before a PR has landed, so
+  # there is deliberately NO `pull_request` trigger here. The generator's own
+  # test suite runs on pull requests in the separate, read-only
+  # `.github/workflows/changelog-tests.yml`.
   push:
     branches:
       - main
-  # Run the generator's own test suite on every pull request, so a change to
-  # the changelog tooling is verified before it lands. The `update` job is
-  # skipped on pull_request events (see its `if:`), so this trigger only adds
-  # the test signal.
-  pull_request:
-    branches:
-      - main
-    types: [opened, synchronize, reopened]
   # Manual re-run (idempotent) to refresh the changelog without waiting for a push.
   workflow_dispatch:
 
@@ -98,38 +107,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
-    name: Changelog generator tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Setup Python
-        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
-        with:
-          python-version: '3.11'
-
-      - name: Install test dependencies
-        run: python3 -m pip install --quiet pytest pytest-cov pyyaml
-
-      - name: Run generator tests with a 90% coverage floor
-        run: |
-          python3 -m pytest scripts/changelog/tests/ \
-            --cov=scripts/changelog \
-            --cov-report=term-missing \
-            --cov-fail-under=90
-
   update:
     name: Update changelog
     # Skip the run caused by the automation's own merge commit, so the lane
-    # cannot chase its own tail. Also skip on pull_request events: the update
-    # job pushes a branch and opens a PR, which only makes sense on push to
-    # main or a manual dispatch.
-    if: github.event_name != 'pull_request' && github.actor != 'github-actions[bot]'
+    # cannot chase its own tail. This workflow only runs on push to `main` and
+    # on manual dispatch, so there is no pull_request event to guard against.
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
