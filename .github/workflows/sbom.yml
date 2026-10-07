@@ -1,0 +1,41 @@
+# SBOM — branch attestation lane.
+#
+# Ditiru dari repo referensi `zeflous/zef-framework`
+# (`.github/workflows/sbom.yml`).
+#
+# Lane ini HANYA menghasilkan SBOM + attestation untuk setiap commit yang
+# masuk ke `main`, dengan least-privilege (`contents: read`), tanpa interaksi
+# rilis. Aset SBOM yang menempel pada rilis adalah tanggung jawab alur rilis
+# (belum ada di repo ini), sehingga lane ini sengaja tidak menyentuh rilis.
+#
+# REPRODUCIBLE / IDEMPOTENT
+# -------------------------
+#   * Setiap `uses:` dipin ke commit SHA penuh 40 karakter dengan tag asli
+#     sebagai komentar (menghindari temuan `githubactions:S7637`).
+#   * Tidak memerlukan secret eksternal: attestation memakai OIDC keyless.
+#   * Idempotent: menjalankan ulang menghasilkan SBOM yang sama dan
+#     meng-attest ulang ref yang sama.
+
+name: SBOM
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sbom-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sbom:
+    name: SBOM (branch attestation)
+    if: github.ref_type != 'tag'
+    permissions:
+      contents: read
+      id-token: write      # required untuk keyless (OIDC) SBOM attestation
+      attestations: write  # required untuk mempersist attestation
+    uses: ./.github/workflows/sbom-generate.yml

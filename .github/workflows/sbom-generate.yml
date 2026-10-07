@@ -1,0 +1,67 @@
+# SBOM generation (reusable) — CycloneDX + keyless (OIDC) attestation.
+#
+# Ditiru dari repo referensi `zeflous/zef-framework`
+# (`.github/workflows/sbom-generate.yml`).
+#
+# Reusable pipeline yang dipanggil oleh `sbom.yml`. Permission GITHUB_TOKEN
+# diberikan oleh job PEMANGGIL dan tidak bisa dinaikkan di sini, sehingga file
+# ini tidak mendeklarasikan `permissions` sendiri.
+#
+# REPRODUCIBLE / IDEMPOTENT
+# -------------------------
+#   * Setiap `uses:` dipin ke commit SHA penuh 40 karakter dengan tag asli
+#     sebagai komentar (menghindari temuan `githubactions:S7637`).
+#   * Tidak memerlukan secret eksternal: attestation memakai OIDC keyless.
+#   * Idempotent: menghasilkan SBOM deterministik dari tree yang di-checkout
+#     dan mengunggahnya sebagai artifact bernama per-SHA.
+
+name: SBOM generation (reusable)
+
+on:
+  workflow_call:
+
+jobs:
+  generate:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Prepare SBOM output directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          test -d build
+
+      - name: Generate CycloneDX SBOM
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: build/sbom.cdx.json
+
+      - name: Verify SBOM artifact is present and non-empty
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s build/sbom.cdx.json
+          echo "SBOM bytes: $(wc -c < build/sbom.cdx.json)"
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: zef-sbom-${{ github.sha }}
+          path: build/sbom.cdx.json
+          if-no-files-found: error
+
+      # Keyless SBOM attestation via GitHub Actions OIDC (tanpa kunci panjang).
+      # Blocking: bila attestation tidak bisa dipersist, run gagal — regresi
+      # attestation tidak boleh lolos diam-diam.
+      - name: Attest SBOM (keyless, OIDC)
+        uses: actions/attest-sbom@c604332985a26aa8cf1bdc465b92731239ec6b9e # v4.1.0
+        with:
+          subject-path: build/sbom.cdx.json
+          sbom-path: build/sbom.cdx.json

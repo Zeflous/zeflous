@@ -1,0 +1,71 @@
+# Konfigurasi Release Drafter.
+#
+# File ini WAJIB berada di default branch (`main`): release-drafter membaca
+# konfigurasinya dari sana, dan tanpa file ini setiap run gagal dengan
+# "Configuration file .github/release-drafter.yml is not found".
+#
+# Ditiru dari repo referensi `zeflous/zef-framework` (`.github/release-drafter.yml`),
+# disesuaikan dengan konvensi commit repo ini (Conventional Commits:
+# `feat:`, `fix:`, `chore:`, `docs:`, `ci:`, `test:`, `refactor:`).
+#
+# Version resolver: default MINOR (kadensi rilis aditif), PATCH hanya lewat
+# label eksplisit `patch` (hotfix), MAJOR lewat label `breaking`.
+
+name-template: "v$NEXT_MINOR_VERSION"
+tag-template: "v$NEXT_MINOR_VERSION"
+
+version-resolver:
+  major:
+    labels: ["breaking"]
+  patch:
+    labels: ["patch"]
+  default: minor
+
+categories:
+  - title: "Features"
+    labels: ["feature", "enhancement"]
+  - title: "Bug Fixes"
+    labels: ["fix", "bugfix", "bug"]
+  - title: "Security"
+    labels: ["security"]
+  - title: "Maintenance"
+    labels: ["chore", "maintenance", "dependencies", "ci"]
+  - title: "Documentation"
+    labels: ["documentation", "docs"]
+  - title: "Tests"
+    labels: ["test", "tests"]
+
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: '\<*_&'
+
+no-changes-template: "- Tidak ada perubahan."
+
+template: |
+  ## Perubahan
+
+  $CHANGES
+
+  **Perubahan penuh**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$NEXT_MINOR_VERSION
+
+# Autolabeler: memberi label pada PR berdasarkan judul Conventional Commits,
+# sehingga kategori di atas terisi dan version-resolver punya sinyal versi.
+# Aktif hanya bila workflow memicu event `pull_request` (lihat release-drafter.yml).
+autolabeler:
+  - label: "breaking"
+    title: '^([a-z]+(\([^)]*\))?)?!:|BREAKING CHANGE'
+  - label: "feature"
+    title: '^feat(\([^)]*\))?:'
+  - label: "fix"
+    title: '^fix(\([^)]*\))?:'
+  - label: "documentation"
+    title: '^docs(\([^)]*\))?:'
+  - label: "chore"
+    title: '^chore(\([^)]*\))?:'
+  - label: "ci"
+    title: '^ci(\([^)]*\))?:'
+  - label: "test"
+    title: '^test(\([^)]*\))?:'
+  - label: "documentation"
+    files: ["*.md", "docs/**"]
+  - label: "dependencies"
+    files: ["composer.json", "composer.lock"]
