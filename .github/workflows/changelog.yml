@@ -173,7 +173,14 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"
           git add CHANGELOG.md 'CHANGELOG-*.md' docs/api/changelog.json docs/api/changelog-index.json
-          git commit -m "chore(changelog): regenerate API changelog [skip ci]"
+          # NOTE: no `[skip ci]` here on purpose. The commit is pushed with the
+          # built-in `GITHUB_TOKEN`, and `[skip ci]` would suppress the
+          # `pull_request` event entirely, so the required `CI Strict` check
+          # would never be created for this PR and auto-merge would wait
+          # forever. Without it the push fires `pull_request`; the run is left
+          # `action_required` (bot-authored push) and `auto-merge.yml` approves
+          # it on its next sweep so the check can turn green.
+          git commit -m "chore(changelog): regenerate API changelog"
           git push -f -u origin "$branch"
 
           # Reuse an open pull request for this branch if one exists; otherwise

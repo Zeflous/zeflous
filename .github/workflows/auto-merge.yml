@@ -184,23 +184,28 @@ jobs:
               echo "   (A conflicting PR, a fork head, or a transient API error legitimately fails here.)"
             fi
 
-            # 2. If the branch was just updated, a bot-authored push can leave
-            #    the new runs waiting for maintainer approval. Approve them via
-            #    the API (equivalent to the "Approve and run" button) so CI
-            #    actually runs and the required check can turn green.
-            if [ "$updated" = "1" ]; then
+            # 2. A bot-authored push (the built-in `GITHUB_TOKEN`) leaves the
+            #    new runs waiting for maintainer approval ("action_required"),
+            #    so the required `CI Strict` check never turns green and
+            #    auto-merge waits forever. Approve them via the API (equivalent
+            #    to the "Approve and run" button). This runs on EVERY sweep,
+            #    not only after a branch sync: the changelog lanes push with
+            #    the built-in token and their runs are left waiting even when
+            #    the branch is already up to date. Fork PRs are skipped -
+            #    approving an untrusted fork's run is a maintainer decision,
+            #    not this lane's.
+            is_fork=$(gh pr view "$pr" --json isCrossRepository --jq '.isCrossRepository' 2>/dev/null) || is_fork="false"
+            if [ "$is_fork" = "true" ]; then
+              echo "PR #$pr is from a fork - leaving run approval to a maintainer."
+            else
+              head_sha=$(gh pr view "$pr" --json headRefOid --jq '.headRefOid' 2>/dev/null) || head_sha="$before_sha"
               ids=""
-              for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+              for attempt in 1 2 3; do
                 runs_json=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?branch=${branch}&per_page=50" 2>/dev/null) || runs_json='{"workflow_runs":[]}'
                 ids=$(printf '%s' "$runs_json" \
-                  | jq -r --arg before "$before_sha" --arg start "$update_started" \
-                        '.workflow_runs[] | select(.head_sha != $before and .created_at > $start and .conclusion == "action_required") | .id')
-                n_new=$(printf '%s' "$runs_json" \
-                  | jq -r --arg start "$update_started" '[.workflow_runs[] | select(.created_at > $start)] | length')
+                  | jq -r --arg head "$head_sha" \
+                        '.workflow_runs[] | select(.head_sha == $head and .conclusion == "action_required") | .id')
                 if [ -n "$ids" ]; then
-                  break
-                fi
-                if [ "$n_new" -gt 0 ] && [ "$attempt" -gt 2 ]; then
                   break
                 fi
                 sleep 5
@@ -214,7 +219,7 @@ jobs:
                   fi
                 done
               else
-                echo "No run waiting for approval on the new head."
+                echo "No run waiting for approval on the current head."
               fi
             fi
 
