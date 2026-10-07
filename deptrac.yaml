@@ -5,6 +5,10 @@ deptrac:
     # The vendored PSR shim is a zero-library boundary artifact, not a ZEF layer.
     - '#.*/Contracts/Psr/.*#'
   layers:
+    - name: Exception
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Exception\\#'
     - name: Contracts
       collectors:
         - type: classNameRegex
@@ -25,16 +29,32 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\(Kernel|Version)$#'
+    - name: Tooling
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Tooling\\#'
   ruleset:
-    # Contracts is the innermost layer: it may not depend on any other ZEF layer.
-    Contracts: ~
+    # Exception is the innermost layer: it may not depend on any other ZEF layer.
+    Exception: ~
+    # Contracts may only depend on the exception root.
+    Contracts:
+      - Exception
     Container:
       - Contracts
+      - Exception
     Health:
       - Contracts
-    Message: ~
+      - Exception
+    Message:
+      - Exception
     Kernel:
       - Container
       - Health
       - Message
       - Contracts
+      - Exception
+    # Tooling gates are developer/CI utilities: they may use the kernel and the
+    # exception root, but no other domain layer.
+    Tooling:
+      - Kernel
+      - Exception
