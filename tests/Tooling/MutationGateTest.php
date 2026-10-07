@@ -30,9 +30,15 @@ final class MutationGateTest extends TestCase
 
     public function testThrowsWhenTheJsonIsInvalid(): void
     {
-        $this->expectException(ToolingException::class);
-
-        MutationReport::fromInfectionJson('not json');
+        try {
+            MutationReport::fromInfectionJson('not json');
+            self::fail('Invalid JSON must raise a ToolingException.');
+            // Pin the parse failure: otherwise the invalid-JSON path falls
+            // through to the "no statistics" guard, whose own exception would
+            // keep the test green and mask a removed throw.
+        } catch (ToolingException $toolingException) {
+            self::assertSame('Unable to parse the Infection JSON report.', $toolingException->getMessage());
+        }
     }
 
     public function testThrowsWhenStatsAreMissing(): void
@@ -44,9 +50,31 @@ final class MutationGateTest extends TestCase
 
     public function testThrowsWhenARequiredMetricIsMissing(): void
     {
-        $this->expectException(ToolingException::class);
+        try {
+            MutationReport::fromInfectionJson('{"stats":{"msi":100,"coveredCodeMsi":100}}');
+            self::fail('A missing required metric must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'The Infection report is missing the "mutationCodeCoverage" metric.',
+                $toolingException->getMessage(),
+            );
+        }
+    }
 
-        MutationReport::fromInfectionJson('{"stats":{"msi":100,"coveredCodeMsi":100}}');
+    public function testThrowsWhenTheMsiMetricIsMissing(): void
+    {
+        // Every required metric must be checked, so this asserts the specific
+        // missing-metric name: dropping the 'msi' entry from the required list
+        // would otherwise be masked by the later "not numeric" guard.
+        try {
+            MutationReport::fromInfectionJson('{"stats":{"coveredCodeMsi":100,"mutationCodeCoverage":100}}');
+            self::fail('A missing MSI metric must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'The Infection report is missing the "msi" metric.',
+                $toolingException->getMessage(),
+            );
+        }
     }
 
     public function testThrowsWhenAMetricIsNotNumeric(): void
@@ -100,8 +128,14 @@ final class MutationGateTest extends TestCase
         $gateResult = new MutationGate(100.0)->evaluate($this->report(99.0, 100.0));
 
         self::assertFalse($gateResult->passed);
-        self::assertStringContainsString('Mutation score: MSI 99.00%', $gateResult->message);
-        self::assertStringContainsString('Mutation-score floor FAILED', $gateResult->message);
+        // Exact message: the figures must precede the verdict, so a mutated
+        // concatenation order is detected instead of being tolerated by two
+        // substring checks that either order would satisfy.
+        self::assertSame(
+            'Mutation score: MSI 99.00% / covered MSI 100.00% (code coverage 100.00%, floor: 100.00%)'
+            . ' -> Mutation-score floor FAILED.',
+            $gateResult->message,
+        );
     }
 
     public function testGateFailsWhenCoveredMsiIsBelowTheFloor(): void

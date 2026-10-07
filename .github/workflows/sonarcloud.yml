@@ -1,3 +1,64 @@
+# SonarCloud quality gate: cloud-side static analysis (bugs, vulnerabilities,
+# code smells, duplications, security hotspots) over the repository, with a
+# blocking quality-gate verdict and pull-request decoration.
+#
+# READ FIRST: docs/security/sonarcloud.md — it records the scope/policy
+# decisions and the one-time SonarCloud account setup this file depends on.
+#
+# WHY THIS FILE WAS REWRITTEN (2026-10-07, PR decoration investigation)
+# -------------------------------------------------------------------
+# Analysis ran and the gate was green, but NO SonarCloud decoration appeared on
+# pull requests (#1/#2): no `sonarqubecloud[bot]` comment and no
+# "SonarCloud Code Analysis" check-run from the GitHub App `sonarqubecloud`.
+# Compared against the reference repository `zeflous/zef-framework` (whose PRs
+# DO carry the decoration), the measured differences were:
+#
+#   1. ANALYSED SURFACE. The job analysed the entire repository — the previous
+#      header pinned the scanner action, but the checked-out tree still held
+#      `vendor/`, `build/`, `.scannerwork/`, caches — so `new_coverage` was
+#      computed over ~1.4k mostly-irrelevant files (24.6% on PR #1) instead of
+#      over `src/`. The reference narrows the surface with an explicit
+#      `sonar.exclusions` allow-list (SonarCloud's new analysis-scope UX
+#      analyses the whole project and *ignores* `sonar.sources`/`sonar.tests`).
+#      The scanner is now handed `-Dsonar.projectBaseDir=.` explicitly.
+#      A "Analysis scope (diagnostic)" step prints the analysed file count so
+#      scope drift is visible, never silent.
+#
+#   2. PR DECORATION IS DELIVERED BY THE GITHUB APP, NOT BY THIS WORKFLOW.
+#      The analysis was ALREADY correct: the jobs API showed
+#      `permissions: PullRequests: read`, the scanner log showed
+#      "Detected project binding: BOUND", "Auto-configuring pull request 2",
+#      "Pull request 2 for merge into main" and
+#      "QUALITY GATE STATUS: PASSED ...&pullRequest=2", and the SonarCloud API
+#      (`/api/project_pull_requests/list?project=zef_zeflous`) returned the PRs
+#      with `"url":"https://api.github.com/repos/Zeflous/zeflous/pulls/2"`.
+#      Decoration is produced by the SonarCloud service through the GitHub App
+#      `sonarqubecloud` (installation 165585169 on org `Zeflous`), whose
+#      permissions are `checks:write` + `pull_requests:write`. That
+#      installation's `repository_selection` is **selected**, and the token in
+#      this sandbox is not an app JWT, so the selected-repository list could
+#      not be enumerated from CI — but `Zeflous/zeflous` demonstrably carries
+#      no `sonarqubecloud` check-run while `Zeflous/zef-framework` does. The
+#      fix is therefore an ACCOUNT-SIDE change (grant the app the repository),
+#      recorded step by step in docs/security/sonarcloud.md; this file keeps the
+#      guard and the analysis correct so decoration follows the moment the app
+#      is granted the repository.
+#
+#   3. SCANNER ACTION. Switched to `SonarSource/sonarqube-scan-action`
+#      (pinned to the full commit SHA of tag v8.2.2), the action used by the
+#      reference repository. The previous `sonarcloud-github-action` v3
+#      wrapper runs its scanner inside a Docker container; the reference's
+#      action runs the scanner engine directly. Both were functional here, but
+#      parity with the reference removes a variable from the investigation.
+#
+# CONTRACT (unchanged, deliberate): this job ALWAYS runs and concludes. When it
+# cannot scan credentialed — the `SONAR_TOKEN` repository secret is not set, or
+# a `pull_request` event where GitHub withholds repository secrets (a
+# `dependabot[bot]` author, or a head from a fork) — it reports GREEN WITH A
+# NOTICE (step summary + `::notice::`) instead of failing, so an unconfigured
+# gate can never block the PR queue. Never work around the secret withholding
+# with `pull_request_target`.
+
 name: SonarCloud
 
 on:
@@ -5,42 +66,76 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+      - main
     types: [opened, synchronize, reopened]
   # Allow a manual run (e.g. right after adding the SONAR_TOKEN secret).
   workflow_dispatch:
 
-# Least privilege: the analysis needs read access to the repository contents.
+# Least privilege: the analysis reads the repository; the SonarSource action
+# queries pull-request metadata.
 permissions:
   contents: read
   pull-requests: read
 
+# Supersede a stale run for the same ref instead of queueing behind it.
+concurrency:
+  group: sonarcloud-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   sonarcloud:
+    # The job NAME is a public contract: it is the status-check context a branch
+    # protection rule pins. Keep it exactly "SonarCloud analysis".
     name: SonarCloud analysis
     runs-on: ubuntu-latest
+    # The scan takes a few minutes; the bound keeps a hung docker pull or scanner
+    # from holding the required check open forever.
+    timeout-minutes: 30
+    env:
+      # Job-scoped so no unrelated job can receive it. Never echo or print this.
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: https://sonarcloud.io
 
     steps:
-      # The whole job is a no-op until the SONAR_TOKEN repository secret is
-      # configured, so adding this workflow can never break the build for a
-      # repository that has not been onboarded to SonarCloud yet.
+      # The credential check turns the whole job into a no-op until the
+      # SONAR_TOKEN repository secret is configured, so adding this workflow can
+      # never break the build for a repository not yet onboarded to SonarCloud.
       - name: Check SONAR_TOKEN availability
         id: sonar_guard
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           if [ -z "${SONAR_TOKEN}" ]; then
             echo "available=false" >> "$GITHUB_OUTPUT"
-            echo "::warning title=SonarCloud skipped::SONAR_TOKEN is not set. Add it under Settings > Secrets and variables > Actions to enable the analysis."
           else
             echo "available=true" >> "$GITHUB_OUTPUT"
           fi
 
+      # Checkout ALWAYS runs, so the unconfigured-state step below can still
+      # write a step summary and the job keeps a deterministic conclusion.
       - name: Checkout
-        if: steps.sonar_guard.outputs.available == 'true'
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-          # Full history is required for accurate new-code / blame detection.
+          # Full history is required for accurate new-code / blame detection:
+          # the scanner's SCM sensor needs per-file blame and the origin/main
+          # ref to compute changed lines. A shallow clone makes the whole
+          # analysis read as new code.
           fetch-depth: 0
+
+      - name: Report unconfigured state (SONAR_TOKEN absent or withheld)
+        if: steps.sonar_guard.outputs.available != 'true'
+        run: |
+          {
+            echo "### SonarCloud analysis — skipped (no credentials in this context)"
+            echo ""
+            echo "No credentialed SonarCloud analysis ran for this commit: either the"
+            echo "repository secret \`SONAR_TOKEN\` is not set, or this is a pull request"
+            echo "whose secrets GitHub withholds (a \`dependabot[bot]\` author, or a head"
+            echo "from a fork). The check reports green so an unconfigured or"
+            echo "uncredentialed gate cannot block the pull request queue."
+            echo ""
+            echo "Setup checklist: docs/security/sonarcloud.md, section 3."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice::SONAR_TOKEN unavailable in this context — SonarCloud analysis skipped (setup: docs/security/sonarcloud.md)."
 
       - name: Setup PHP 8.4
         if: steps.sonar_guard.outputs.available == 'true'
@@ -62,11 +157,34 @@ jobs:
             --coverage-clover build/clover.xml \
             --log-junit build/junit.xml
 
+      - name: Analysis scope (diagnostic)
+        if: steps.sonar_guard.outputs.available == 'true'
+        run: |
+          {
+            echo "### Analysis scope (diagnostic)"
+            echo ""
+            echo "- tracked files in the checkout: $(git ls-files | wc -l)"
+            echo "- src/ PHP files: $(git ls-files 'src/*.php' | wc -l)"
+            echo "- tests/ PHP files: $(git ls-files 'tests/*.php' | wc -l)"
+            echo ""
+            echo "If a scan reports coverage or new-code counts far outside the src/"
+            echo "figures above, the exclusion allow-list in sonar-project.properties"
+            echo "has drifted — see docs/security/sonarcloud.md section 4."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: SonarCloud scan
         if: steps.sonar_guard.outputs.available == 'true'
-        uses: SonarSource/sonarcloud-github-action@383f7e52eae3ab0510c3cb0e7d9d150bbaeab838 # v3
+        uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4 # v8.2.2
+        with:
+          # Pass the base dir explicitly (parity with the reference repository);
+          # the properties file restates it so a local `sonar-scanner` run
+          # behaves identically.
+          args: -Dsonar.projectBaseDir=.
         env:
-          # ZEF_TOKEN is an optional PAT (contents/PR read) used when the
-          # default GITHUB_TOKEN is not sufficient; it falls back automatically.
-          GITHUB_TOKEN: ${{ secrets.ZEF_TOKEN || secrets.GITHUB_TOKEN }}
+          # Reported to SonarCloud for the SCM/CI sensor. Decoration itself is
+          # delivered by the SonarCloud GitHub App, not by this workflow.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional PAT (contents/pull-requests read) kept for compatibility
+          # with earlier runs; falls back automatically when unset.
+          ZEF_TOKEN: ${{ secrets.ZEF_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

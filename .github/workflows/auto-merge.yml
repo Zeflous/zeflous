@@ -1,0 +1,219 @@
+# Auto-merge lane: arms GitHub's native auto-merge on open pull requests so a
+# PR merges itself the moment every required gate is green — no human click.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# The repository's branch ruleset (`main`) requires the `CI Strict` status
+# check and a 90% code-coverage floor. A PR therefore cannot be merged until
+# those gates pass. GitHub's *native* auto-merge is the mechanism that turns
+# "gates green" into "merged" without a human: once armed, GitHub performs the
+# merge itself as soon as the required checks succeed.
+#
+# The problem this file solves: arming auto-merge is only accepted while the
+# PR is still *waiting* on something. If you try to arm it on a PR that is
+# already fully green and up to date, GitHub rejects the request with
+# `UNPROCESSABLE: "Pull request is in clean status"` — which is exactly what
+# happened when the merge was attempted by hand. The fix is to arm auto-merge
+# EARLY (on `opened`/`synchronize`, while checks are still pending) and to keep
+# re-arming it on a schedule, so a PR is never left un-armed.
+#
+# METHOD (mirrors the reference repository `zeflous/zef-framework`,
+# `.github/workflows/auto-update-prs.yaml`)
+# ---------------------------------------------------------------------------
+#   * FIFO queue: open, non-draft PRs are processed oldest-first.
+#   * Branch sync: a PR that is behind `main` is updated first (the REST
+#     `update-branch` endpoint). This both satisfies the ruleset's
+#     "require branches to be up to date" policy and re-triggers CI, which
+#     puts the PR back into a *waiting* state where auto-merge can be armed.
+#   * Arm auto-merge: `gh pr merge --auto --merge` (the same call the
+#     reference uses). Auto-merge then obeys the branch ruleset: the merge
+#     happens automatically once `CI Strict` is green.
+#   * Clean-status edge case: if the PR is ALREADY fully green and up to date,
+#     GitHub refuses to arm auto-merge ("clean status"). That is not a failure
+#     — it means the auto-merge condition is already satisfied and there is
+#     nothing left to wait for. The step reports it as READY and leaves the
+#     merge to GitHub's own merge queue / the maintainer; it never performs a
+#     direct, un-gated merge.
+#
+# CONVENTIONS
+# -----------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
+#     original tag kept as a trailing comment. Tag/branch refs are what
+#     SonarCloud flags as `githubactions:S7637`; pinning keeps supply-chain
+#     findings at zero without any rule exclusion.
+#   * Least privilege: `contents: write` (branch sync) + `pull-requests: write`
+#     (arm auto-merge) + `actions: write` (approve a run that a bot-authored
+#     push left waiting for approval). Nothing else.
+#   * The job never fails the queue because of one problematic PR: every error
+#     path is a warning, and the job exits 0.
+
+name: Auto Merge
+
+on:
+  pull_request:
+    branches:
+      - main
+    # Arm-on-open: the PR is processed the moment it appears, while its checks
+    # are still pending — the only window in which auto-merge can be armed.
+    # `synchronize` re-arms after every push; `ready_for_review` covers a PR
+    # that was opened as a draft; `closed` keeps the FIFO chain alive after a
+    # merge (the next PR is then synced and armed without waiting for cron).
+    types: [opened, reopened, ready_for_review, synchronize, closed]
+  # Safety net: the GitHub scheduler is not perfectly reliable, so a periodic
+  # sweep re-arms any PR that a missed event left un-armed. Off the :00/:30
+  # peak minutes on purpose (GitHub drops cron runs that land exactly there).
+  schedule:
+    - cron: '7,27,47 * * * *'
+  # Allow a manual sweep (e.g. right after enabling auto-merge on the repo).
+  workflow_dispatch:
+
+# One run at a time: a cron sweep and a PR event must not fight over the same
+# PR. `cancel-in-progress: false` lets the queued run proceed after the current
+# one instead of being dropped.
+concurrency:
+  group: auto-merge
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    # Run on cron/manual, on any meaningful PR lifecycle event, and on a
+    # `closed` event ONLY when the PR was actually merged (a closed-without-
+    # merge PR has nothing to re-process).
+    if: >-
+      github.event_name != 'pull_request' ||
+      github.event.action != 'closed' ||
+      github.event.pull_request.merged == true
+    name: Auto Merge
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: write      # sync a behind branch (update-branch endpoint)
+      pull-requests: write # read the PR list + arm auto-merge
+      actions: write       # approve a run left waiting by a bot-authored push
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Process open pull requests (oldest first)
+        env:
+          # `gh` authenticates with the workflow token. It can read the PR list,
+          # sync a branch and arm auto-merge; it cannot bypass the ruleset, so
+          # the merge still waits for `CI Strict` to be green.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -u
+
+          echo "Fetching open, non-draft pull requests (oldest first)..."
+          if ! raw=$(gh pr list --state open --limit 100 --json number,isDraft,createdAt); then
+            echo "::warning::Could not list pull requests; nothing to do."
+            exit 0
+          fi
+
+          # `gh pr list` has no --sort flag; sort the JSON ourselves so the
+          # oldest PR is processed first (FIFO), matching the reference repo.
+          prs=$(printf '%s' "$raw" \
+            | jq -r 'sort_by(.createdAt) | .[] | select(.isDraft == false) | .number')
+
+          if [ -z "$prs" ]; then
+            echo "No open pull requests to process."
+            exit 0
+          fi
+
+          for pr in $prs; do
+            echo "----------------------------------------"
+            echo "Processing PR #$pr..."
+
+            # A PR can be closed/merged concurrently while this loop runs, so a
+            # failed read is expected and must skip the PR, not kill the job.
+            branch=$(gh pr view "$pr" --json headRefName --jq '.headRefName' 2>/dev/null) || {
+              echo "::warning::PR #$pr is no longer readable (closed?) — skipping."
+              continue
+            }
+            before_sha=$(gh pr view "$pr" --json headRefOid --jq '.headRefOid' 2>/dev/null) || {
+              echo "::warning::PR #$pr head is unreadable — skipping."
+              continue
+            }
+            # Timestamp taken 5s in the past to absorb runner/server clock skew.
+            update_started=$(date -u -d '5 seconds ago' +%Y-%m-%dT%H:%M:%SZ)
+
+            # 1. Sync the branch if it is behind `main`. The REST endpoint
+            #    returns 202 (async) on success and 422 "no new commits on the
+            #    base branch" when already up to date. The `if` form captures
+            #    the exit code safely under `set -e`-style handling.
+            if resp=$(gh api -X PUT "repos/${GITHUB_REPOSITORY}/pulls/${pr}/update-branch" 2>&1); then
+              rc=0
+            else
+              rc=$?
+            fi
+
+            updated=0
+            if [ "$rc" -eq 0 ]; then
+              echo "PR #$pr: branch update accepted (202) — CI will re-run."
+              updated=1
+            elif printf '%s' "$resp" | grep -q 'no new commits on the base branch'; then
+              echo "PR #$pr is already up to date with the base branch."
+            else
+              echo "::warning::Could not update PR #$pr branch: $resp"
+              echo "   (A conflicting PR or a fork head legitimately fails here.)"
+              continue
+            fi
+
+            # 2. If the branch was just updated, a bot-authored push can leave
+            #    the new runs waiting for maintainer approval. Approve them via
+            #    the API (equivalent to the "Approve and run" button) so CI
+            #    actually runs and the required check can turn green.
+            if [ "$updated" = "1" ]; then
+              ids=""
+              for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+                runs_json=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?branch=${branch}&per_page=50" 2>/dev/null) || runs_json='{"workflow_runs":[]}'
+                ids=$(printf '%s' "$runs_json" \
+                  | jq -r --arg before "$before_sha" --arg start "$update_started" \
+                        '.workflow_runs[] | select(.head_sha != $before and .created_at > $start and .conclusion == "action_required") | .id')
+                n_new=$(printf '%s' "$runs_json" \
+                  | jq -r --arg start "$update_started" '[.workflow_runs[] | select(.created_at > $start)] | length')
+                if [ -n "$ids" ]; then
+                  break
+                fi
+                if [ "$n_new" -gt 0 ] && [ "$attempt" -gt 2 ]; then
+                  break
+                fi
+                sleep 5
+              done
+              if [ -n "$ids" ]; then
+                for id in $ids; do
+                  if err=$(gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/runs/${id}/approve" 2>&1); then
+                    echo "Approved run ${id} via API."
+                  else
+                    echo "::warning::Could not approve run ${id}: $err"
+                  fi
+                done
+              else
+                echo "No run waiting for approval on the new head."
+              fi
+            fi
+
+            # Give GitHub a moment to settle internal state before arming.
+            sleep 3
+
+            # 3. Arm auto-merge. This is the whole point of the lane: once
+            #    armed, GitHub merges the PR itself as soon as `CI Strict` is
+            #    green. Re-arming on every run keeps the state from being lost.
+            if err=$(gh pr merge "$pr" --auto --merge 2>&1); then
+              echo "Auto-merge armed for PR #$pr."
+            elif printf '%s' "$err" | grep -qi 'clean status'; then
+              # The PR is already fully green and up to date: the auto-merge
+              # condition is satisfied and there is nothing left to wait for.
+              # This is NOT a failure and NOT a manual merge — the merge is
+              # left to GitHub's own merge queue / the maintainer.
+              echo "PR #$pr is already in a clean, mergeable state (auto-merge not needed)."
+            else
+              echo "::warning::Could not arm auto-merge for PR #$pr: $err"
+            fi
+
+            sleep 5
+          done
+
+          # Every error path above is a warning; the sweep itself succeeded.
+          exit 0

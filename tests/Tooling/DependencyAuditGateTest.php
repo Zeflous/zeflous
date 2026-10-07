@@ -27,6 +27,18 @@ final class DependencyAuditGateTest extends TestCase
         self::assertSame(['c/d'], $dependencyAudit->abandoned);
     }
 
+    public function testStringifiesNumericPackageKeys(): void
+    {
+        // json_decode() turns numeric object keys into PHP integers, so the
+        // package list must re-cast them to strings to stay a list<string>.
+        $dependencyAudit = DependencyAudit::fromComposerAuditJson(
+            '{"advisories":{"0":{}},"abandoned":{"1":"x"}}',
+        );
+
+        self::assertSame(['0'], $dependencyAudit->advisories);
+        self::assertSame(['1'], $dependencyAudit->abandoned);
+    }
+
     public function testMissingSectionsBecomeEmptyLists(): void
     {
         $dependencyAudit = DependencyAudit::fromComposerAuditJson('{}');
@@ -87,7 +99,17 @@ final class DependencyAuditGateTest extends TestCase
         $gateResult = new DependencyAuditGate(['x/y'])->evaluate(DependencyAudit::fromComposerAuditJson('{}'));
 
         self::assertTrue($gateResult->passed);
-        self::assertStringContainsString('Allow-listed (documented exceptions): x/y', $gateResult->message);
+        // The verdict must come first and the allow-list note last, so a
+        // swapped concatenation order is detected: both fragments are present
+        // in either order, so substring checks alone cannot see the swap.
+        self::assertStringStartsWith(
+            'Strict audit PASSED: 0 security advisories, 0 unallow-listed abandoned packages.',
+            $gateResult->message,
+        );
+        self::assertStringEndsWith(
+            ' Allow-listed (documented exceptions): x/y.',
+            $gateResult->message,
+        );
     }
 
     public function testGateFailsOnAnUnallowListedAdvisory(): void

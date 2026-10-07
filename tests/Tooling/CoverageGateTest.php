@@ -48,8 +48,14 @@ final class CoverageGateTest extends TestCase
         $gateResult = new CoverageGate(90.0)->evaluate($this->report(10, 8));
 
         self::assertFalse($gateResult->passed);
-        self::assertStringContainsString('Line coverage: 80.00%', $gateResult->message);
-        self::assertStringContainsString('Coverage gate FAILED', $gateResult->message);
+        // Assert the exact message, not just substrings: the coverage figures
+        // must precede the verdict, so a mutated concatenation order (both
+        // fragments swapped) is detected rather than tolerated by two
+        // independent substring checks that either order would satisfy.
+        self::assertSame(
+            'Line coverage: 80.00% (required: 90.00%) -> Coverage gate FAILED.',
+            $gateResult->message,
+        );
     }
 
     public function testFromCloverFileReadsTheMetrics(): void
@@ -71,9 +77,19 @@ final class CoverageGateTest extends TestCase
 
     public function testFromCloverFileThrowsWhenTheFileIsMissing(): void
     {
-        $this->expectException(ToolingException::class);
-
-        CoverageReport::fromCloverFile('/nonexistent/clover.xml');
+        try {
+            CoverageReport::fromCloverFile('/nonexistent/clover.xml');
+            self::fail('A missing coverage report must raise a ToolingException.');
+            // Pin the specific message: the "report not found" guard must be the
+            // one that fires. Without it the invalid path falls through to the
+            // later XML-parse guard, whose own ToolingException would keep the
+            // test green and hide a removed throw.
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'Coverage report not found: /nonexistent/clover.xml',
+                $toolingException->getMessage(),
+            );
+        }
     }
 
     public function testFromCloverFileRestoresTheLibxmlErrorState(): void

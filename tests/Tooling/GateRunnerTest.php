@@ -145,6 +145,20 @@ final class GateRunnerTest extends TestCase
         self::assertFalse($runner->run('audit', [])->passed);
     }
 
+    public function testAuditGateToleratesANonArrayConfigSection(): void
+    {
+        // A present-but-non-array 'config' must be treated as "no allow-list"
+        // rather than tripping a type error while walking the composer.json
+        // tree. Reading a key off a string without the guard would raise, so
+        // this pins the fail-safe branch of the traversal.
+        file_put_contents($this->root . '/composer.json', '{"config":"not-an-array"}');
+
+        $runner = $this->runner(static fn (string $command): array => [0, '{"advisories":{"a/b":[{}]}}']);
+
+        // Empty allow-list => the advisory is not exempt => the gate fails.
+        self::assertFalse($runner->run('audit', [])->passed);
+    }
+
     public function testLintGatePassesWhenTheProcessSucceeds(): void
     {
         $runner = $this->runner(static fn (string $command): array => [0, 'No syntax errors']);
