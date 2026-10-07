@@ -10,3 +10,7 @@
 /.vscode/
 coverage.xml
 junit.xml
+
+# Python bytecode
+__pycache__/
+*.pyc

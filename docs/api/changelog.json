@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-07T18:18:59Z",
+  "repository": "Zeflous/zeflous",
+  "latest_release": null,
+  "unreleased_count": 5,
+  "versions": [
+    {
+      "version": "Unreleased",
+      "date": null,
+      "categories": {
+        "Bug Fixes": [
+          {
+            "pr": 2,
+            "title": "fix(sonar): green Quality Gate — testable tooling, >90% coverage, no new exclusions",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-07T16:34:23Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/2"
+          },
+          {
+            "pr": 3,
+            "title": "fix(ci): restore SonarCloud PR decoration + scope parity with reference",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-07T17:32:27Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/3"
+          }
+        ],
+        "Maintenance": [
+          {
+            "pr": 4,
+            "title": "chore(ci): ZEF_TOKEN for auto-merge queue chain + adopt dependency-review/docs-check/phpbench",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-07T17:46:29Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/4"
+          },
+          {
+            "pr": 5,
+            "title": "ci(reproducible): release-drafter + SBOM lanes; GITHUB_TOKEN for full repo access",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-07T18:18:59Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/5"
+          }
+        ],
+        "Other": [
+          {
+            "pr": 1,
+            "title": "Composer scaffold + strict audit engine (PHPStan/PHPCS/Fixer/Rector/Deptrac/Infection) + SonarCloud CI",
+            "author": "mbetixz",
+            "category": "Other",
+            "merged_at": "2026-10-07T15:35:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/1"
+          }
+        ]
+      },
+      "entries": [
+        {
+          "pr": 1,
+          "title": "Composer scaffold + strict audit engine (PHPStan/PHPCS/Fixer/Rector/Deptrac/Infection) + SonarCloud CI",
+          "author": "mbetixz",
+          "category": "Other",
+          "merged_at": "2026-10-07T15:35:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/1"
+        },
+        {
+          "pr": 2,
+          "title": "fix(sonar): green Quality Gate — testable tooling, >90% coverage, no new exclusions",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-07T16:34:23Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/2"
+        },
+        {
+          "pr": 3,
+          "title": "fix(ci): restore SonarCloud PR decoration + scope parity with reference",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-07T17:32:27Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/3"
+        },
+        {
+          "pr": 4,
+          "title": "chore(ci): ZEF_TOKEN for auto-merge queue chain + adopt dependency-review/docs-check/phpbench",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-07T17:46:29Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/4"
+        },
+        {
+          "pr": 5,
+          "title": "ci(reproducible): release-drafter + SBOM lanes; GITHUB_TOKEN for full repo access",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-07T18:18:59Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/5"
+        }
+      ]
+    }
+  ]
+}
