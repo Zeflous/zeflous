@@ -37,14 +37,14 @@ jobs:
 
       - name: Checkout
         if: steps.sonar_guard.outputs.available == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           # Full history is required for accurate new-code / blame detection.
           fetch-depth: 0
 
       - name: Setup PHP 8.4
         if: steps.sonar_guard.outputs.available == 'true'
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: '8.4'
           extensions: pcov
@@ -64,7 +64,7 @@ jobs:
 
       - name: SonarCloud scan
         if: steps.sonar_guard.outputs.available == 'true'
-        uses: SonarSource/sonarcloud-github-action@v3
+        uses: SonarSource/sonarcloud-github-action@383f7e52eae3ab0510c3cb0e7d9d150bbaeab838 # v3
         env:
           # ZEF_TOKEN is an optional PAT (contents/PR read) used when the
           # default GITHUB_TOKEN is not sufficient; it falls back automatically.
