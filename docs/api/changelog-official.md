@@ -6,6 +6,13 @@
 
 **Merged pull requests:**
 
+- feat\(changelog\): regex category mapping + release-based versioning [\#28](https://github.com/Zeflous/zeflous/pull/28) ([mbetixz](https://github.com/mbetixz))
+- fix\(changelog\): merged-only PR selection + split pull\_request trigger [\#27](https://github.com/Zeflous/zeflous/pull/27) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): make CI Strict run on bot-authored PRs [\#25](https://github.com/Zeflous/zeflous/pull/25) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): make CI Strict run on bot-authored PRs [\#24](https://github.com/Zeflous/zeflous/pull/24) ([mbetixz](https://github.com/mbetixz))
+- probe: dispatch required check [\#23](https://github.com/Zeflous/zeflous/pull/23) ([mbetixz](https://github.com/mbetixz))
+- probe: update-branch trigger v2 [\#22](https://github.com/Zeflous/zeflous/pull/22) ([mbetixz](https://github.com/mbetixz))
+- probe: update-branch trigger test [\#21](https://github.com/Zeflous/zeflous/pull/21) ([mbetixz](https://github.com/mbetixz))
 - No changes made: insufficient quota to complete coverage setup [\#19](https://github.com/Zeflous/zeflous/pull/19) ([code-coverage-agent[bot]](https://github.com/apps/code-coverage-agent))
 - feat\(changelog\): adopt official github-changelog-generator as a complementary lane [\#17](https://github.com/Zeflous/zeflous/pull/17) ([mbetixz](https://github.com/mbetixz))
 - feat\(changelog\): split changelog into one file per release version [\#16](https://github.com/Zeflous/zeflous/pull/16) ([mbetixz](https://github.com/mbetixz))
