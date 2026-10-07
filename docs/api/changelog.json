@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
-  "as_of": "2026-10-07T20:13:20Z",
+  "as_of": "2026-10-07T21:08:53Z",
   "repository": "Zeflous/zeflous",
   "latest_release": null,
-  "unreleased_count": 10,
+  "unreleased_count": 13,
   "versions": [
     {
       "version": "Unreleased",
@@ -24,6 +24,38 @@
                 "sha": "bef4e1e7b97cb3aaaa270db9726a11ac80126fb2",
                 "short_sha": "bef4e1e",
                 "subject": "feat(changelog): per-PR API changelog (CHANGELOG.md + docs/api/changelog.json)"
+              }
+            ]
+          },
+          {
+            "pr": 16,
+            "title": "feat(changelog): split changelog into one file per release version",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-07T20:48:19Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/16",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4fa7151e4c2839f542d636b21f48d794702198c9",
+                "short_sha": "4fa7151",
+                "subject": "feat(changelog): split changelog into one file per release version"
+              }
+            ]
+          },
+          {
+            "pr": 17,
+            "title": "feat(changelog): adopt official github-changelog-generator as a complementary lane",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-07T20:58:29Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/17",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "20ad8c584c2a130dd85ab5eb16ce645af6304421",
+                "short_sha": "20ad8c5",
+                "subject": "feat(changelog): adopt official github-changelog-generator as a complementary lane"
               }
             ]
           }
@@ -239,6 +271,22 @@
                 "sha": "85e91394850af9e3dadbad72033cf04d32b9bc59",
                 "short_sha": "85e9139",
                 "subject": "Merge branch 'main' into chore/composer-scaffold"
+              }
+            ]
+          },
+          {
+            "pr": 19,
+            "title": "No changes made: insufficient quota to complete coverage setup",
+            "author": "code-coverage-agent[bot]",
+            "category": "Other",
+            "merged_at": "2026-10-07T21:08:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/19",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e95117929b9f756bd41d6c1e727d88d01cf8d4ce",
+                "short_sha": "e951179",
+                "subject": "Initial plan"
               }
             ]
           }
@@ -467,6 +515,54 @@
               "sha": "d5e7840f18ee59477a07fa26ae9faabf32d81637",
               "short_sha": "d5e7840",
               "subject": "ci(changelog): attach SonarCloud analysis to the update PR"
+            }
+          ]
+        },
+        {
+          "pr": 16,
+          "title": "feat(changelog): split changelog into one file per release version",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-07T20:48:19Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/16",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4fa7151e4c2839f542d636b21f48d794702198c9",
+              "short_sha": "4fa7151",
+              "subject": "feat(changelog): split changelog into one file per release version"
+            }
+          ]
+        },
+        {
+          "pr": 17,
+          "title": "feat(changelog): adopt official github-changelog-generator as a complementary lane",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-07T20:58:29Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/17",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "20ad8c584c2a130dd85ab5eb16ce645af6304421",
+              "short_sha": "20ad8c5",
+              "subject": "feat(changelog): adopt official github-changelog-generator as a complementary lane"
+            }
+          ]
+        },
+        {
+          "pr": 19,
+          "title": "No changes made: insufficient quota to complete coverage setup",
+          "author": "code-coverage-agent[bot]",
+          "category": "Other",
+          "merged_at": "2026-10-07T21:08:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/19",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e95117929b9f756bd41d6c1e727d88d01cf8d4ce",
+              "short_sha": "e951179",
+              "subject": "Initial plan"
             }
           ]
         }
