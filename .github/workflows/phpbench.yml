@@ -1,0 +1,96 @@
+# PHPBench performance lane: runs the committed benchmark suite so a change
+# that regresses a measured hot path is visible on the pull request.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# Mirrors `.github/workflows/phpbench.yml` from the reference repository
+# `zeflous/zef-framework`. This repository already ships `phpbench.json` and the
+# `benchmarks/` suite, and `composer ci:strict` ends with `composer bench` — but
+# nothing surfaced that result on a pull request, so a regression was only ever
+# seen by whoever happened to run the benchmarks locally. This lane runs the very
+# same `composer bench`.
+#
+# CONVENTIONS (mirrors the repository's other workflows)
+# ------------------------------------------------------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
+#     original tag kept as a trailing comment. Tag/branch refs are what
+#     SonarCloud flags as `githubactions:S7637`; pinning keeps the supply-chain
+#     finding count at zero, with no rule exclusion and no relaxed gate.
+#   * Least privilege: the job only reads the repository.
+#
+# FAIL-CLOSED DETECTION
+# ---------------------
+# The detection path is the one `phpbench.json` declares (`runner.path` =>
+# `benchmarks`, `runner.file_pattern` => `*Bench.php`). If the probe finds no
+# benchmark file the job FAILS instead of reporting a silent green: the suite is
+# committed (`benchmarks/VersionBench.php`), so "no benchmarks found" means the
+# probe or the tree is broken, not that the gate may be skipped. A gate that
+# cannot go red is not a gate.
+
+name: PHPBench Performance
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  # Keep the performance signal visible on the default branch and re-runnable
+  # after a tooling update.
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Least privilege: measure, write nothing back.
+permissions:
+  contents: read
+
+concurrency:
+  group: phpbench-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpbench:
+    # The job NAME is a public contract: it is the status-check context a branch
+    # protection rule would pin. Keep it exactly "PHPBench".
+    name: PHPBench
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # The detection path MUST match the directory PHPBench actually reads, as
+      # declared by `runner.path` in phpbench.json.
+      - name: Detect benchmarks
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find benchmarks -type f -name "*Bench.php" -print -quit 2>/dev/null | grep -q .; then
+            echo "has_benchmarks=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_benchmarks=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run PHPBench
+        if: steps.detect.outputs.has_benchmarks == 'true'
+        run: composer bench
+
+      # Fail-closed: the suite is committed, so "no benchmarks found" means the
+      # probe or the tree is broken — not that the gate may be skipped silently.
+      - name: No benchmarks found (fail-closed)
+        if: steps.detect.outputs.has_benchmarks != 'true'
+        run: |
+          echo "::error::No PHPBench benchmarks found under benchmarks/ — the benchmark gate cannot be skipped silently."
+          exit 1

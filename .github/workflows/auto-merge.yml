@@ -98,10 +98,18 @@ jobs:
 
       - name: Process open pull requests (oldest first)
         env:
-          # `gh` authenticates with the workflow token. It can read the PR list,
-          # sync a branch and arm auto-merge; it cannot bypass the ruleset, so
-          # the merge still waits for `CI Strict` to be green.
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # `gh` authenticates with the organization-provisioned `ZEF_TOKEN`
+          # when it is present, and falls back to the workflow token otherwise.
+          # This matters for the QUEUE CHAIN, not for
+          # permissions: a merge executed by `github-actions[bot]`
+          # (GITHUB_TOKEN) emits no follow-up workflow event (GitHub's recursion
+          # guard), so the `closed` handler never fires and the next pull request
+          # waits for the next cron sweep. A merge executed with the PAT DOES
+          # emit the event, so the FIFO chain advances immediately.
+          # Neither token can bypass the ruleset: the merge still waits for the
+          # required `CI Strict` check to be green.
+          # Secret is referenced by NAME only; the value is injected at run time.
+          GH_TOKEN: ${{ secrets.ZEF_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           set -u
 

@@ -1,0 +1,83 @@
+# API documentation lane: builds the API reference on every pull request, so a
+# change that breaks the documentation renderer fails BEFORE merge.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# Mirrors `.github/workflows/docs-check.yml` from the reference repository
+# `zeflous/zef-framework`. This repository already ships `doctum.php` and a
+# `composer docs` script, and `composer ci:strict` runs everything EXCEPT the
+# documentation build — so a source change that Doctum cannot parse was
+# previously discovered only by whoever happened to run the docs build locally.
+# This lane closes that gap: the same `composer docs` the maintainers run.
+#
+# CONVENTIONS (mirrors the repository's other workflows)
+# ------------------------------------------------------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
+#     original tag kept as a trailing comment. Tag/branch refs are what
+#     SonarCloud flags as `githubactions:S7637`; pinning keeps the supply-chain
+#     finding count at zero, with no rule exclusion and no relaxed gate.
+#   * Least privilege: the job only reads the repository.
+#   * Read-only: nothing is deployed from a pull request. Doctum writes to
+#     `build/docs`, which is already git-ignored.
+
+name: API Documentation Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  # Keep the docs build verifiable on the default branch and re-runnable after a
+  # tooling update.
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Least privilege: build the documentation, write nothing back to the repo.
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs-check:
+    # The job NAME is a public contract: it is the status-check context a branch
+    # protection rule would pin. Keep it exactly "API Documentation Check".
+    name: API Documentation Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Build API documentation (Doctum)
+        # `composer docs` -> `vendor/bin/doctum.php update doctum.php`; the build
+        # directory comes from doctum.php (build_dir => build/docs).
+        run: composer docs
+
+      - name: Verify documentation output
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Fail-closed: a missing or empty entry point means the documentation
+          # build is broken, which is precisely what this lane exists to catch.
+          if [ ! -s build/docs/index.html ]; then
+            echo "::error::Doctum produced no build/docs/index.html - the API documentation build is broken."
+            exit 1
+          fi
+
+          echo "API documentation generated: $(find build/docs -type f | wc -l) files under build/docs."
