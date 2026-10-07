@@ -7,6 +7,10 @@ Machine-readable form: [`docs/api/changelog.json`](docs/api/changelog.json).
 
 ## Unreleased
 
+### Features
+
+- feat(changelog): per-PR API changelog (CHANGELOG.md + docs/api/changelog.json) @mbetixz (#6)
+
 ### Bug Fixes
 
 - fix(sonar): green Quality Gate — testable tooling, >90% coverage, no new exclusions @mbetixz (#2)
