@@ -20,6 +20,10 @@ Machine-readable form: [`docs/api/changelog.json`](docs/api/changelog.json).
 
 - chore(ci): ZEF_TOKEN for auto-merge queue chain + adopt dependency-review/docs-check/phpbench @mbetixz (#4)
 - ci(reproducible): release-drafter + SBOM lanes; GITHUB_TOKEN for full repo access @mbetixz (#5)
+- ci(changelog): reuse one update branch/PR so re-runs never duplicate @mbetixz (#9)
+- ci(changelog): dispatch required checks on the update branch @mbetixz (#12)
+- ci(changelog): grant actions:write so the update branch can dispatch checks @mbetixz (#13)
+- ci(changelog): attach SonarCloud analysis to the update PR @mbetixz (#14)
 
 ### Other
 
