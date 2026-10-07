@@ -1,0 +1,21 @@
+name: probe-token
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  probe:
+    if: github.head_ref == 'fix/ci-strict-bot-prs'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: push with GITHUB_TOKEN (no skip ci)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B probe-token-target
+          git commit --allow-empty -m "probe: GITHUB_TOKEN push without skip ci"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/Zeflous/zeflous.git" probe-token-target
