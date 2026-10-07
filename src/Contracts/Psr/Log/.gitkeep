@@ -1,0 +1,2 @@
+# PSR-3 logging contracts are vendored here by the ZEF zero-library shim.
+# They land together with the logging module (see ROADMAP.md).

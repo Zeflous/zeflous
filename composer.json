@@ -1,48 +1,68 @@
 {
-    "name": "Zeflous/zeflous",
-    "description": "ZEF Framework — hexagonal PHP 8.4 framework, zero-library shim, Radix Tree routing, RoadRunner-ready",
+    "name": "zeflous/zeflous",
+    "description": "ZEF Framework - a hexagonal PHP 8.4 framework with a zero-library shim, Radix-Tree routing and a RoadRunner-ready persistent-worker runtime.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "php",
+        "framework",
+        "zef",
+        "hexagonal",
+        "roadrunner",
+        "psr-11",
+        "psr-15",
+        "radix-tree"
+    ],
+    "homepage": "https://github.com/Zeflous/zeflous",
     "authors": [
         {
-            "name": "mbetixz"
+            "name": "mbetixz",
+            "email": "mbetixz93@gmail.com",
+            "role": "Maintainer"
         }
     ],
+    "support": {
+        "issues": "https://github.com/Zeflous/zeflous/issues",
+        "source": "https://github.com/Zeflous/zeflous",
+        "docs": "https://github.com/Zeflous/zeflous/blob/main/ROADMAP.md"
+    },
     "require": {
         "php": "^8.4"
     },
     "require-dev": {
         "code-lts/doctum": "^5.6",
+        "deptrac/deptrac": "^4.7",
         "friendsofphp/php-cs-fixer": "^3.95",
-        "phpstan/phpstan": "^2.2.17",
-        "phpstan/phpstan-strict-rules": "^2.0",
-        "squizlabs/php_codesniffer": "^4.0",
-        "slevomat/coding-standard": "^8.31",
-        "phpunit/phpunit": "^13",
-        "rector/rector": "^2.6",
         "infection/infection": "^0.35",
-        "phpbench/phpbench": "^1.4",
-        "deptrac/deptrac": "^4.7"
+        "phpbench/phpbench": "^1.7",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.3",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.1",
+        "phpunit/phpunit": "^13.4",
+        "rector/rector": "^2.7",
+        "slevomat/coding-standard": "^8.31",
+        "squizlabs/php_codesniffer": "^4.0"
     },
-    "config": {
-        "allow-plugins": {
-            "infection/extension-installer": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        },
-        "audit": {
-            "abandoned": "report"
-        }
+    "suggest": {
+        "ext-pcov": "Fast coverage driver required by Infection mutation testing and the coverage gate.",
+        "ext-swoole": "Coroutine runtime adapter, an alternative to RoadRunner.",
+        "spiral/roadrunner-worker": "Persistent-worker bridge used by the RoadRunner runtime adapter."
     },
     "autoload": {
         "psr-4": {
-            "Zef\\Framework\\": "src/",
+            "Zef\\Framework\\": "src/Zef/Framework/",
             "Psr\\Container\\": "src/Contracts/Psr/Container/",
-            "Psr\\Log\\": "src/Contracts/Psr/Log/",
             "Psr\\Http\\Message\\": "src/Contracts/Psr/Http/Message/",
-            "Psr\\Http\\Server\\": "src/Contracts/Psr/Http/Server/"
+            "Psr\\Http\\Server\\": "src/Contracts/Psr/Http/Server/",
+            "Psr\\Log\\": "src/Contracts/Psr/Log/"
         },
         "files": [
             "src/autoload.php"
+        ],
+        "exclude-from-classmap": [
+            "/vendor/psr/container/src/"
         ]
     },
     "autoload-dev": {
@@ -50,12 +70,28 @@
             "Zef\\Test\\": "tests/"
         }
     },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "infection/extension-installer": true,
+            "phpstan/extension-installer": true
+        },
+        "audit": {
+            "abandoned": "fail",
+            "ignore": [
+                "doctrine/annotations"
+            ]
+        }
+    },
     "scripts": {
         "test": "phpunit",
         "coverage": "phpunit --coverage-text",
         "coverage:gate": [
-            "phpunit --coverage-clover build/clover.xml --coverage-text",
-            "php scripts/ci/assert-coverage.php 90"
+            "@php -d pcov.enabled=1 vendor/bin/phpunit --coverage-clover build/clover.xml --coverage-text",
+            "@php scripts/ci/assert-coverage.php 90"
         ],
         "format": "php-cs-fixer fix --using-cache=no",
         "format:check": "php-cs-fixer check --diff --using-cache=no",
@@ -63,16 +99,17 @@
         "phpcbf": "phpcbf",
         "rector": "rector process",
         "rector:check": "rector process --dry-run --no-progress-bar",
-        "stan": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=1G",
-        "docs": "php vendor/bin/doctum.php update doctum.php --no-progress",
+        "stan": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=1G --no-progress",
+        "stan:ratchet": "@php scripts/ci/assert-phpstan-baseline.php",
+        "deptrac": "deptrac analyse --config-file=deptrac.yaml --no-progress",
         "audit:security": "@php scripts/ci/assert-abandoned-policy.php",
-        "deptrac": "deptrac analyse --config-file=deptrac.yaml --no-progress --fail-on-uncovered",
-        "mutation": "infection --threads=max --min-msi=85 --min-covered-msi=90",
-        "mutation:ci": "infection --threads=max --min-msi=85 --min-covered-msi=90 --logger-github",
-        "mutation:zones": "php scripts/ci/assert-zone-coverage.php --floor=95",
-        "stan:ratchet": "php scripts/ci/assert-phpstan-baseline.php",
+        "audit:strict": "@php scripts/ci/audit-strict.php",
+        "mutation": "@php -d pcov.enabled=1 vendor/bin/infection --threads=max --min-msi=100 --min-covered-msi=100",
+        "mutation:ci": "@php -d pcov.enabled=1 vendor/bin/infection --threads=max --min-msi=100 --min-covered-msi=100 --logger-github",
+        "mutation:zones": "@php scripts/ci/assert-zone-coverage.php --floor=100",
+        "docs": "@php vendor/bin/doctum.php update doctum.php --no-progress",
         "bench": "phpbench run --report=aggregate --progress=none",
-        "bench:regression": "phpbench run --report=aggregate --progress=none --assert=\"mode(variant.time.avg) < 50\" --assert=\"mode(variant.mem.peak) < 20000000\"",
+        "bench:regression": "phpbench run --report=aggregate --progress=none",
         "smoke:persistent": "@php scripts/ci/persistent-smoke.php",
         "lint": "@php scripts/lint.php",
         "ci": [
@@ -86,16 +123,51 @@
             "@composer rector:check",
             "@composer test",
             "@composer smoke:persistent"
+        ],
+        "ci:strict": [
+            "@composer validate --strict",
+            "@composer lint",
+            "@composer stan",
+            "@composer stan:ratchet",
+            "@composer deptrac",
+            "@composer format:check",
+            "@composer phpcs",
+            "@composer rector:check",
+            "@composer test",
+            "@composer coverage:gate",
+            "@composer mutation",
+            "@composer mutation:zones",
+            "@composer audit:strict",
+            "@composer smoke:persistent",
+            "@composer bench"
         ]
     },
-    "keywords": [
-        "php",
-        "framework"
-    ],
-    "homepage": "https://github.com/Zeflous/zeflous",
-    "support": {
-        "issues": "https://github.com/Zeflous/zeflous/issues",
-        "docs": "https://zeflous.github.io/zeflous/",
-        "source": "https://github.com/Zeflous/zeflous"
-    }
+    "scripts-descriptions": {
+        "test": "Run the PHPUnit test suite.",
+        "coverage": "Run PHPUnit with a text coverage report.",
+        "coverage:gate": "Run PHPUnit coverage (pcov) and enforce the 90% line-coverage gate.",
+        "format": "Apply php-cs-fixer formatting.",
+        "format:check": "Check formatting without modifying files.",
+        "phpcs": "Run PHP_CodeSniffer with the strict PSR-12 + Slevomat ruleset.",
+        "phpcbf": "Auto-fix PHP_CodeSniffer violations.",
+        "rector": "Apply Rector refactorings.",
+        "rector:check": "Dry-run Rector to detect needed refactorings.",
+        "stan": "Run PHPStan static analysis at the strictest level.",
+        "stan:ratchet": "Enforce the PHPStan baseline ratchet (no new errors).",
+        "deptrac": "Run Deptrac architecture-boundary analysis.",
+        "audit:security": "Assert the abandoned-package policy (baseline gate).",
+        "audit:strict": "Strict supply-chain gate: fail on advisories or non allow-listed abandoned packages.",
+        "mutation": "Run Infection mutation testing with MSI 100 gates.",
+        "mutation:ci": "Run Infection in CI mode with GitHub annotations and MSI 100 gates.",
+        "mutation:zones": "Enforce the mutation-score floor (MSI and covered MSI).",
+        "docs": "Build the API documentation with Doctum.",
+        "bench": "Run the PHPBench benchmarks with assertions.",
+        "bench:regression": "Run PHPBench with the aggregate report.",
+        "smoke:persistent": "Run the persistent-worker (RoadRunner) smoke test.",
+        "lint": "Fast syntax lint of the codebase.",
+        "ci": "Full local CI pipeline (mirrors the standard GitHub Actions workflow).",
+        "ci:strict": "Strict CI pipeline: every gate, including coverage, mutation and strict audit."
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

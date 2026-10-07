@@ -1,0 +1,2 @@
+# PSR-15 server request handler contracts are vendored here by the ZEF zero-library shim.
+# They land together with the HTTP middleware layer (see ROADMAP.md).

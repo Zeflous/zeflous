@@ -1,0 +1,2 @@
+# PSR-7 HTTP message contracts are vendored here by the ZEF zero-library shim.
+# They land together with the HTTP layer (see ROADMAP.md).
