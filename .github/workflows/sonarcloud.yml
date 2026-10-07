@@ -6,6 +6,8 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+  # Allow a manual run (e.g. right after adding the SONAR_TOKEN secret).
+  workflow_dispatch:
 
 # Least privilege: the analysis needs read access to the repository contents.
 permissions:
