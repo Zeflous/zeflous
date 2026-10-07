@@ -16,6 +16,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -B probe-token-target
+          git checkout -B probe-dispatch
           git commit --allow-empty -m "probe: GITHUB_TOKEN push without skip ci"
-          git push -f "https://x-access-token:${GH_TOKEN}@github.com/Zeflous/zeflous.git" probe-token-target
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/Zeflous/zeflous.git" probe-dispatch
