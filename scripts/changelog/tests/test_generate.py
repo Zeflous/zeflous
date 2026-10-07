@@ -52,11 +52,14 @@ categories:
 """
 
 
-def _pr(number, title, merged_at, labels=None, author="alice"):
+def _pr(number, title, merged_at, labels=None, author="alice", base="main", draft=False, archived=False):
     return {
         "number": number,
         "title": title,
         "merged_at": merged_at,
+        "draft": draft,
+        "archived": archived,
+        "base": {"ref": base},
         "labels": [{"name": x} for x in (labels or [])],
         "user": {"login": author},
         "html_url": f"https://github.com/o/r/pull/{number}",
@@ -154,6 +157,82 @@ def test_fetch_merged_prs_excludes_changelog_automation(monkeypatch):
     assert [p["number"] for p in merged] == [1]
 
 
+def test_fetch_merged_prs_excludes_closed_without_merge(monkeypatch):
+    """A PR closed WITHOUT being merged must never enter the changelog.
+
+    This is the regression guard for the reported bug: selecting on
+    ``state == "closed"`` alone would include a closed-unmerged PR, which never
+    changed the default branch.
+    """
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [
+            _pr(1, "feat: merged", "2026-01-01T00:00:00Z"),
+            _pr(2, "feat: abandoned", None),  # closed, never merged
+        ],
+    )
+    merged = gen.fetch_merged_prs("o/r")
+    assert [p["number"] for p in merged] == [1]
+
+
+def test_fetch_merged_prs_excludes_draft(monkeypatch):
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [
+            _pr(1, "feat: merged", "2026-01-01T00:00:00Z"),
+            _pr(2, "feat: draft", "2026-01-02T00:00:00Z", draft=True),
+        ],
+    )
+    merged = gen.fetch_merged_prs("o/r")
+    assert [p["number"] for p in merged] == [1]
+
+
+def test_fetch_merged_prs_excludes_archived(monkeypatch):
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [
+            _pr(1, "feat: merged", "2026-01-01T00:00:00Z"),
+            _pr(2, "feat: archived", "2026-01-02T00:00:00Z", archived=True),
+        ],
+    )
+    merged = gen.fetch_merged_prs("o/r")
+    assert [p["number"] for p in merged] == [1]
+
+
+def test_fetch_merged_prs_excludes_non_default_branch(monkeypatch):
+    """A PR merged into a branch other than the default never reached main."""
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [
+            _pr(1, "feat: to main", "2026-01-01T00:00:00Z", base="main"),
+            _pr(2, "feat: to release", "2026-01-02T00:00:00Z", base="release/1.x"),
+        ],
+    )
+    merged = gen.fetch_merged_prs("o/r")
+    assert [p["number"] for p in merged] == [1]
+
+
+def test_fetch_merged_prs_keeps_only_merged_and_sorts(monkeypatch):
+    """End-to-end selection: only merged-to-main PRs, oldest first."""
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [
+            _pr(3, "feat: later", "2026-03-01T00:00:00Z"),
+            _pr(1, "feat: earlier", "2026-01-01T00:00:00Z"),
+            _pr(2, "feat: abandoned", None),
+            _pr(4, "feat: draft", "2026-04-01T00:00:00Z", draft=True),
+            _pr(5, "feat: other branch", "2026-05-01T00:00:00Z", base="dev"),
+        ],
+    )
+    merged = gen.fetch_merged_prs("o/r")
+    assert [p["number"] for p in merged] == [1, 3]
+
+
 def test_fetch_tags_sorted_by_semver(monkeypatch):
     monkeypatch.setattr(
         gen,
@@ -230,6 +309,20 @@ def test_build_model_dedupes_pr_number(monkeypatch):
     _patch_api(monkeypatch, [], prs, {1: []})
     model = gen.build_model("o/r", {"categories": CATEGORIES})
     assert len(model["versions"][0]["entries"]) == 1
+
+
+def test_build_model_excludes_closed_unmerged_and_draft(monkeypatch):
+    """The model must contain only merged-to-main PRs, never closed/draft ones."""
+    prs = [
+        _pr(1, "feat: merged", "2026-01-01T00:00:00Z", ["feature"]),
+        _pr(2, "feat: abandoned", None, ["feature"]),  # closed, never merged
+        _pr(3, "feat: draft", "2026-01-02T00:00:00Z", ["feature"], draft=True),
+        _pr(4, "feat: other branch", "2026-01-03T00:00:00Z", ["feature"], base="dev"),
+    ]
+    _patch_api(monkeypatch, [], prs, {1: [], 2: [], 3: [], 4: []})
+    model = gen.build_model("o/r", {"categories": CATEGORIES})
+    numbers = [e["pr"] for v in model["versions"] for e in v["entries"]]
+    assert numbers == [1]
 
 
 def test_build_model_no_tags_is_all_unreleased(monkeypatch):
