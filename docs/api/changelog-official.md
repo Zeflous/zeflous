@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- No changes made: insufficient quota to complete coverage setup [\#19](https://github.com/Zeflous/zeflous/pull/19) ([code-coverage-agent[bot]](https://github.com/apps/code-coverage-agent))
+- feat\(changelog\): adopt official github-changelog-generator as a complementary lane [\#17](https://github.com/Zeflous/zeflous/pull/17) ([mbetixz](https://github.com/mbetixz))
 - feat\(changelog\): split changelog into one file per release version [\#16](https://github.com/Zeflous/zeflous/pull/16) ([mbetixz](https://github.com/mbetixz))
 - ci\(changelog\): attach SonarCloud analysis to the update PR [\#14](https://github.com/Zeflous/zeflous/pull/14) ([mbetixz](https://github.com/mbetixz))
 - ci\(changelog\): grant actions:write so the update branch can dispatch checks [\#13](https://github.com/Zeflous/zeflous/pull/13) ([mbetixz](https://github.com/mbetixz))
