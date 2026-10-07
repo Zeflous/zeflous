@@ -47,3 +47,12 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#14 ci(changelog): attach SonarCloud analysis to the update PR
     - d5e7840 ci(changelog): attach SonarCloud analysis to the update PR
+
+- PR#16 feat(changelog): split changelog into one file per release version
+    - 4fa7151 feat(changelog): split changelog into one file per release version
+
+- PR#17 feat(changelog): adopt official github-changelog-generator as a complementary lane
+    - 20ad8c5 feat(changelog): adopt official github-changelog-generator as a complementary lane
+
+- PR#19 No changes made: insufficient quota to complete coverage setup
+    - e951179 Initial plan
