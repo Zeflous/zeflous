@@ -70,7 +70,17 @@ on:
       - main
     types: [opened, synchronize, reopened]
   # Allow a manual run (e.g. right after adding the SONAR_TOKEN secret).
+  # `pr_number` lets an automation lane analyse a pull request whose
+  # `pull_request` event never fired (a PR opened by the built-in
+  # `GITHUB_TOKEN` does not trigger workflows -- GitHub's recursion guard).
+  # Without it the ruleset's `code_quality` rule has no SonarCloud analysis to
+  # read and blocks the merge.
   workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull request number to analyse (optional)"
+        required: false
+        type: string
 
 # Least privilege: the analysis reads the repository; the SonarSource action
 # queries pull-request metadata.
@@ -178,8 +188,13 @@ jobs:
         with:
           # Pass the base dir explicitly (parity with the reference repository);
           # the properties file restates it so a local `sonar-scanner` run
-          # behaves identically.
-          args: -Dsonar.projectBaseDir=.
+          # behaves identically. When a `pr_number` input is supplied (a manual
+          # run for a PR whose `pull_request` event never fired), pass the
+          # pull-request context explicitly so the analysis is attached to that
+          # PR and the ruleset's `code_quality` rule can read it.
+          args: >-
+            -Dsonar.projectBaseDir=.
+            ${{ inputs.pr_number != '' && format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base=main', inputs.pr_number, github.ref_name) || '' }}
         env:
           # Reported to SonarCloud for the SCM/CI sensor. Decoration itself is
           # delivered by the SonarCloud GitHub App, not by this workflow.
