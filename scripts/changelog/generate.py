@@ -1,20 +1,32 @@
 #!/usr/bin/env python3
-"""Generate a machine-readable, per-version API changelog from merged PRs.
+"""Generate a per-version, machine-readable changelog from merged PRs.
 
 WHAT THIS PRODUCES
 ------------------
-Two artifacts, both derived from the same in-memory model so they can never
+A single in-memory model is rendered into several artifacts, so they can never
 disagree:
 
-  * ``CHANGELOG.md``          -- human-readable, grouped by release version.
-  * ``docs/api/changelog.json`` -- the "changelog API": a static JSON document
-    that can be served as-is (raw.githubusercontent.com, GitHub Pages, or any
-    static host) and consumed by tooling.
+  * ``CHANGELOG-vX.Y.Z.md``      -- one file PER RELEASE VERSION. Each merged
+    PR is one block: the PR number + title, then the list of commits that
+    belong to that PR (short SHA + subject). ``CHANGELOG-unreleased.md`` holds
+    the PRs merged after the newest tag (or every PR when no tag exists yet).
+  * ``CHANGELOG.md``             -- a LIGHTWEIGHT INDEX only: a table of links
+    to each per-version file. It never carries the full history, so it cannot
+    grow without bound.
+  * ``docs/api/changelog.json``  -- the "changelog API": a static JSON document
+    (served as-is from the repository, raw.githubusercontent.com, or GitHub
+    Pages) that tooling can consume. Each entry carries the ``file`` it lives
+    in and its ``commits`` (short SHA + subject), so a consumer never has to
+    download a large file to read one PR.
+  * ``docs/api/changelog-index.json`` -- a small index (version -> file, counts,
+    latest release) for cheap discovery.
 
-Each entry carries: PR number, title, author, category (feat/fix/chore/docs/...),
-merge date, and the release version it belongs to. Entries are grouped by
-version: PRs merged after the newest tag land under ``Unreleased``; PRs merged
-before a tag land under that tag (``vX.Y.Z``).
+WHY ONE FILE PER VERSION
+------------------------
+A single ``CHANGELOG.md`` grows without bound as PRs accumulate, which is bad
+for API consumers and for the file itself. Splitting per release keeps every
+file small and bounded: a new release starts a new file, and the index stays a
+constant-size table of links.
 
 DESIGN CONSTRAINTS
 ------------------
@@ -22,9 +34,11 @@ DESIGN CONSTRAINTS
   label->category mapping are read from ``.github/release-drafter.yml`` -- the
   same file Release Drafter uses. There is no second, drifting copy of the
   taxonomy here.
-* **Idempotent.** Output is a pure function of (merged PRs, tags, config).
-  Re-running never duplicates an entry: entries are de-duplicated by PR number
-  within a version and the whole document is rebuilt deterministically.
+* **Idempotent & deterministic.** Output is a pure function of (merged PRs,
+  their commits, tags, config). Re-running never duplicates an entry: entries
+  are de-duplicated by PR number within a version and commits are de-duplicated
+  by SHA within a PR. ``as_of`` is derived from the data (newest merge time),
+  never the wall clock, so ``--check`` can pass and a re-run is a no-op.
 * **No secrets in output.** The token is read from the environment and never
   written to a file, log, or artifact.
 * **Fail-closed on the config.** If the Release Drafter config cannot be read,
@@ -62,8 +76,9 @@ except ImportError:  # pragma: no cover - PyYAML is present in CI and locally
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = REPO_ROOT / ".github" / "release-drafter.yml"
-CHANGELOG_MD = REPO_ROOT / "CHANGELOG.md"
+CHANGELOG_INDEX_MD = REPO_ROOT / "CHANGELOG.md"
 CHANGELOG_JSON = REPO_ROOT / "docs" / "api" / "changelog.json"
+CHANGELOG_INDEX_JSON = REPO_ROOT / "docs" / "api" / "changelog-index.json"
 
 DEFAULT_REPO = "Zeflous/zeflous"
 API = "https://api.github.com"
@@ -92,6 +107,10 @@ TITLE_PREFIX_LABELS = {
     "build": "chore",
     "style": "chore",
 }
+
+# The version bucket used for PRs merged after the newest tag (or for every PR
+# when the repository has no tags yet).
+UNRELEASED = "Unreleased"
 
 
 def _token() -> str | None:
@@ -170,6 +189,19 @@ def _semver_key(tag: str) -> tuple:
     return tuple(int(x) for x in m.groups())
 
 
+def version_filename(version: str) -> str:
+    """The per-version markdown file name for a version bucket.
+
+    ``Unreleased`` -> ``CHANGELOG-unreleased.md``; ``v1.2.3`` ->
+    ``CHANGELOG-v1.2.3.md``. The name is derived from the version so it is
+    stable across runs (idempotent) and safe as a path component.
+    """
+    if version == UNRELEASED:
+        return "CHANGELOG-unreleased.md"
+    safe = re.sub(r"[^A-Za-z0-9._-]", "-", version.strip())
+    return f"CHANGELOG-{safe}.md"
+
+
 def fetch_tags(repo: str) -> list[dict]:
     """Return tags with their commit date, sorted ascending by semver."""
     tags = _api_get_all(f"/repos/{repo}/tags")
@@ -209,6 +241,30 @@ def fetch_merged_prs(repo: str) -> list[dict]:
     return merged
 
 
+def fetch_pr_commits(repo: str, number: int) -> list[dict]:
+    """Return the commits that belong to a PR, oldest first.
+
+    Each commit is reduced to ``{sha, short_sha, subject}``. The list is
+    de-duplicated by SHA so a re-run (or a rebase that repeats a commit) can
+    never duplicate a line.
+    """
+    try:
+        raw = _api_get_all(f"/repos/{repo}/pulls/{number}/commits")
+    except urllib.error.HTTPError:
+        return []
+    out: list[dict] = []
+    seen: set[str] = set()
+    for item in raw:
+        sha = item.get("sha") or ""
+        if not sha or sha in seen:
+            continue
+        seen.add(sha)
+        message = ((item.get("commit") or {}).get("message") or "").strip()
+        subject = message.splitlines()[0] if message else ""
+        out.append({"sha": sha, "short_sha": sha[:7], "subject": subject})
+    return out
+
+
 def _parse_ts(value: str) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
@@ -223,11 +279,12 @@ def build_model(repo: str, cfg: dict) -> dict:
     versions: dict[str, dict] = {}
     order: list[str] = []
 
-    def bucket(version: str, date: str | None) -> dict:
+    def bucket(version: str) -> dict:
         if version not in versions:
             versions[version] = {
                 "version": version,
-                "date": date,
+                "date": None,
+                "file": version_filename(version),
                 "categories": {},
                 "entries": [],
             }
@@ -236,7 +293,7 @@ def build_model(repo: str, cfg: dict) -> dict:
 
     for pr in prs:
         merged_at = pr["merged_at"]
-        target = "Unreleased"
+        target = UNRELEASED
         for tag in tags:
             if tag["date"] and _parse_ts(tag["date"]) >= _parse_ts(merged_at):
                 target = tag["name"]
@@ -253,8 +310,10 @@ def build_model(repo: str, cfg: dict) -> dict:
             "category": cat,
             "merged_at": merged_at,
             "url": pr.get("html_url", ""),
+            "file": version_filename(target),
+            "commits": fetch_pr_commits(repo, pr["number"]),
         }
-        b = bucket(target, None)
+        b = bucket(target)
         # De-duplicate by PR number: re-running must never duplicate an entry.
         if not any(e["pr"] == entry["pr"] for e in b["entries"]):
             b["entries"].append(entry)
@@ -266,8 +325,8 @@ def build_model(repo: str, cfg: dict) -> dict:
 
     # Order: Unreleased first, then tags newest-first.
     ordered = []
-    if "Unreleased" in versions:
-        ordered.append(versions["Unreleased"])
+    if UNRELEASED in versions:
+        ordered.append(versions[UNRELEASED])
     for tag in reversed(tags):
         if tag["name"] in versions:
             ordered.append(versions[tag["name"]])
@@ -290,46 +349,115 @@ def build_model(repo: str, cfg: dict) -> dict:
     # the whole lane idempotent.
     as_of = max((p["merged_at"] for p in prs), default=None)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "as_of": as_of,
         "repository": repo,
         "latest_release": latest,
-        "unreleased_count": len(versions.get("Unreleased", {}).get("entries", [])),
+        "unreleased_count": len(versions.get(UNRELEASED, {}).get("entries", [])),
         "versions": ordered,
     }
 
 
-def render_markdown(model: dict) -> str:
+def render_version_markdown(version: dict) -> str:
+    """Render ONE per-version file: a block per PR, commits beneath it."""
+    name = version["version"]
+    lines = [f"# CHANGELOG {name}", ""]
+    lines.append("<!-- GENERATED FILE - do not edit by hand. -->")
+    lines.append(
+        "<!-- Regenerated by .github/workflows/changelog.yml from merged pull requests. -->"
+    )
+    lines.append("")
+    if version.get("date"):
+        lines.append(f"Release date: {version['date'][:10]}")
+        lines.append("")
+    lines.append(
+        "Index: [`CHANGELOG.md`](CHANGELOG.md) · "
+        "API: [`docs/api/changelog.json`](docs/api/changelog.json)"
+    )
+    lines.append("")
+    if not version["entries"]:
+        lines.append("- Tidak ada perubahan.")
+        lines.append("")
+        return "\n".join(lines).rstrip() + "\n"
+    for entry in version["entries"]:
+        lines.append(f"- PR#{entry['pr']:02d} {entry['title']}")
+        if entry.get("commits"):
+            for commit in entry["commits"]:
+                subject = commit.get("subject") or ""
+                lines.append(f"    - {commit['short_sha']} {subject}".rstrip())
+        else:
+            lines.append("    - (no commits recorded)")
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def render_index_markdown(model: dict) -> str:
+    """Render the lightweight index: links to each per-version file."""
     lines = [
         "# Changelog",
         "",
         "<!-- GENERATED FILE - do not edit by hand. -->",
         "<!-- Regenerated by .github/workflows/changelog.yml from merged pull requests. -->",
         "",
-        "Machine-readable form: [`docs/api/changelog.json`](docs/api/changelog.json).",
+        "This is an index only. Each release has its own file so no single file",
+        "grows without bound.",
         "",
+        "Machine-readable form: [`docs/api/changelog.json`](docs/api/changelog.json) ·",
+        "index: [`docs/api/changelog-index.json`](docs/api/changelog-index.json).",
+        "",
+        "| Version | Date | PRs | File |",
+        "| --- | --- | --- | --- |",
     ]
     for version in model["versions"]:
-        heading = version["version"]
-        if version.get("date"):
-            heading += f" ({version['date'][:10]})"
-        lines.append(f"## {heading}")
-        lines.append("")
-        if not version["categories"]:
-            lines.append("- Tidak ada perubahan.")
-            lines.append("")
-            continue
-        for cat, entries in version["categories"].items():
-            lines.append(f"### {cat}")
-            lines.append("")
-            for e in entries:
-                lines.append(f"- {e['title']} @{e['author']} (#{e['pr']})")
-            lines.append("")
+        date = version["date"][:10] if version.get("date") else "—"
+        lines.append(
+            f"| {version['version']} | {date} | {len(version['entries'])} | "
+            f"[{version['file']}]({version['file']}) |"
+        )
+    lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
 
 def render_json(model: dict) -> str:
     return json.dumps(model, indent=2, ensure_ascii=False, sort_keys=False) + "\n"
+
+
+def render_index_json(model: dict) -> str:
+    """A small discovery index: version -> file, counts, latest release."""
+    index = {
+        "schema_version": model["schema_version"],
+        "as_of": model["as_of"],
+        "repository": model["repository"],
+        "latest_release": model["latest_release"],
+        "unreleased_count": model["unreleased_count"],
+        "versions": [
+            {
+                "version": v["version"],
+                "date": v["date"],
+                "file": v["file"],
+                "pr_count": len(v["entries"]),
+            }
+            for v in model["versions"]
+        ],
+    }
+    return json.dumps(index, indent=2, ensure_ascii=False, sort_keys=False) + "\n"
+
+
+def _all_outputs(model: dict) -> dict[Path, str]:
+    """Every file the generator owns, as {path: content}."""
+    outputs: dict[Path, str] = {
+        CHANGELOG_INDEX_MD: render_index_markdown(model),
+        CHANGELOG_JSON: render_json(model),
+        CHANGELOG_INDEX_JSON: render_index_json(model),
+    }
+    for version in model["versions"]:
+        outputs[REPO_ROOT / version["file"]] = render_version_markdown(version)
+    return outputs
+
+
+def _managed_version_files() -> set[Path]:
+    """Existing per-version files the generator owns (for stale cleanup)."""
+    return set(REPO_ROOT.glob("CHANGELOG-*.md"))
 
 
 def main() -> int:
@@ -341,33 +469,41 @@ def main() -> int:
     repo = os.environ.get("GITHUB_REPOSITORY", DEFAULT_REPO)
     cfg = load_config()
     model = build_model(repo, cfg)
-    md = render_markdown(model)
-    js = render_json(model)
 
     if args.stdout:
-        sys.stdout.write(js)
+        sys.stdout.write(render_json(model))
         return 0
+
+    outputs = _all_outputs(model)
 
     if args.check:
         stale = []
-        if not CHANGELOG_MD.is_file() or CHANGELOG_MD.read_text(encoding="utf-8") != md:
-            stale.append(str(CHANGELOG_MD.relative_to(REPO_ROOT)))
-        if not CHANGELOG_JSON.is_file() or CHANGELOG_JSON.read_text(encoding="utf-8") != js:
-            stale.append(str(CHANGELOG_JSON.relative_to(REPO_ROOT)))
+        for path, content in outputs.items():
+            if not path.is_file() or path.read_text(encoding="utf-8") != content:
+                stale.append(str(path.relative_to(REPO_ROOT)))
+        # A per-version file that is no longer produced (e.g. a version was
+        # re-tagged) is stale too.
+        for path in _managed_version_files() - set(outputs):
+            stale.append(str(path.relative_to(REPO_ROOT)))
         if stale:
-            sys.stderr.write("STALE: " + ", ".join(stale) + "\n")
+            sys.stderr.write("STALE: " + ", ".join(sorted(stale)) + "\n")
             return 1
         print("Changelog is up to date.")
         return 0
 
-    CHANGELOG_MD.write_text(md, encoding="utf-8")
-    CHANGELOG_JSON.parent.mkdir(parents=True, exist_ok=True)
-    CHANGELOG_JSON.write_text(js, encoding="utf-8")
+    # Remove per-version files that are no longer part of the model, so a
+    # re-tag does not leave an orphan file behind.
+    for path in _managed_version_files() - set(outputs):
+        path.unlink()
+
+    for path, content in outputs.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+
     print(
-        f"Wrote {CHANGELOG_MD.relative_to(REPO_ROOT)} and "
-        f"{CHANGELOG_JSON.relative_to(REPO_ROOT)} "
-        f"({len(model['versions'])} version(s), "
-        f"{model['unreleased_count']} unreleased)."
+        f"Wrote {len(outputs)} file(s): index + JSON + "
+        f"{len(model['versions'])} version file(s) "
+        f"({model['unreleased_count']} unreleased)."
     )
     return 0
 
