@@ -1,0 +1,50 @@
+# Release Drafter: menjaga satu draft release tetap terbarui dari PR yang
+# sudah ter-merge, sehingga rilis berikutnya tidak perlu disusun manual.
+#
+# Ditiru dari repo referensi `zeflous/zef-framework`
+# (`.github/workflows/release-drafter.yml`).
+#
+# REPRODUCIBLE / IDEMPOTENT
+# -------------------------
+#   * Setiap `uses:` dipin ke commit SHA penuh 40 karakter dengan tag asli
+#     sebagai komentar. Ref tag/branch adalah yang ditandai SonarCloud sebagai
+#     `githubactions:S7637`; pinning menjaga temuan supply-chain tetap nol
+#     tanpa satu pun ruleKey exclusion.
+#   * Tidak memerlukan secret eksternal: memakai `github.token` bawaan.
+#   * Idempotent: menjalankan ulang hanya memperbarui draft yang sama, tidak
+#     membuat rilis baru dan tidak menyentuh kode.
+#   * Least privilege: `contents: read` di level workflow; hanya job yang
+#     benar-benar menulis draft yang mendapat `contents: write`.
+#
+# CATATAN: file konfigurasi `.github/release-drafter.yml` WAJIB ada di default
+# branch (`main`); tanpa itu setiap run gagal.
+
+name: Release Drafter
+
+on:
+  push:
+    branches: ["main"]
+  # Manual re-run (idempotent) untuk menyegarkan draft tanpa menunggu push.
+  workflow_dispatch:
+
+# Baseline: tanpa wewenang tulis di level workflow.
+permissions:
+  contents: read
+
+concurrency:
+  group: release-drafter
+  cancel-in-progress: true
+
+jobs:
+  update-release-draft:
+    name: Update release draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write      # required: membuat/memperbarui draft release
+      pull-requests: read  # required: membaca PR ter-merge untuk changelog
+    steps:
+      - name: Draft release
+        uses: release-drafter/release-drafter@34d80673e067bdc0c24568d3af899c216adcfaa9 # v7.7.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

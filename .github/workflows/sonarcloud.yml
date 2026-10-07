@@ -183,8 +183,6 @@ jobs:
         env:
           # Reported to SonarCloud for the SCM/CI sensor. Decoration itself is
           # delivered by the SonarCloud GitHub App, not by this workflow.
+          # The built-in workflow token is sufficient — no PAT is required.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Optional PAT (contents/pull-requests read) kept for compatibility
-          # with earlier runs; falls back automatically when unset.
-          ZEF_TOKEN: ${{ secrets.ZEF_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
