@@ -91,3 +91,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#27 fix(changelog): merged-only PR selection + split pull_request trigger
     - 8750f0b fix(changelog): merged-only PR selection + split pull_request trigger
+
+- PR#28 feat(changelog): regex category mapping + release-based versioning
+    - cec2b81 feat(changelog): regex category mapping + release-based versioning

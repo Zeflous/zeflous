@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-07T22:32:36Z",
+  "as_of": "2026-10-07T22:54:02Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 20,
+  "unreleased_count": 21,
   "versions": [
     {
       "version": "Unreleased",
@@ -58,6 +58,22 @@
                 "sha": "20ad8c584c2a130dd85ab5eb16ce645af6304421",
                 "short_sha": "20ad8c5",
                 "subject": "feat(changelog): adopt official github-changelog-generator as a complementary lane"
+              }
+            ]
+          },
+          {
+            "pr": 28,
+            "title": "feat(changelog): regex category mapping + release-based versioning",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-07T22:54:02Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/28",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cec2b818e6a45547d0cd5ead9b2425e075fc447a",
+                "short_sha": "cec2b81",
+                "subject": "feat(changelog): regex category mapping + release-based versioning"
               }
             ]
           }
@@ -929,6 +945,22 @@
               "sha": "8750f0b4b502cef3360e247a0edd73c491950f63",
               "short_sha": "8750f0b",
               "subject": "fix(changelog): merged-only PR selection + split pull_request trigger"
+            }
+          ]
+        },
+        {
+          "pr": 28,
+          "title": "feat(changelog): regex category mapping + release-based versioning",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-07T22:54:02Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/28",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cec2b818e6a45547d0cd5ead9b2425e075fc447a",
+              "short_sha": "cec2b81",
+              "subject": "feat(changelog): regex category mapping + release-based versioning"
             }
           ]
         }
