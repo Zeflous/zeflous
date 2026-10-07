@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<ruleset name="ZEF Framework">
+    <description>Coding standard for the ZEF Framework (PSR-12 + Slevomat).</description>
+
+    <file>src</file>
+    <file>tests</file>
+    <file>benchmarks</file>
+
+    <exclude-pattern>*/src/Contracts/Psr/*</exclude-pattern>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+
+    <arg name="basepath" value="."/>
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="8"/>
+    <arg name="cache" value="build/phpcs.cache"/>
+    <arg value="ps"/>
+
+    <rule ref="PSR12"/>
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+        <properties>
+            <property name="declareOnFirstLine" value="false"/>
+            <property name="spacesCountAroundEqualsSign" value="0"/>
+        </properties>
+    </rule>
+</ruleset>

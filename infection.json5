@@ -1,0 +1,21 @@
+{
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": [
+            "src/Zef"
+        ]
+    },
+    "logs": {
+        "text": "build/infection/infection.log",
+        "html": "build/infection/infection.html",
+        "summary": "build/infection/summary.log",
+        "json": "build/infection/infection.json"
+    },
+    "tmpDir": "build/infection",
+    "phpUnit": {
+        "configDir": "."
+    },
+    "mutators": {
+        "@default": true
+    }
+}

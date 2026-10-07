@@ -1,0 +1,18 @@
+deptrac:
+  paths:
+    - ./src
+  exclude_files:
+    - '#.*/Contracts/Psr/.*#'
+  layers:
+    - name: Container
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Container\\#'
+    - name: Kernel
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\(Kernel|Version)$#'
+  ruleset:
+    Container: ~
+    Kernel:
+      - Container
