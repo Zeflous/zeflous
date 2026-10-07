@@ -90,6 +90,7 @@ jobs:
     permissions:
       contents: write      # push the update branch
       pull-requests: write # open the update pull request + arm auto-merge
+      actions: write       # dispatch the required checks on the update branch
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
