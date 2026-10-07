@@ -88,3 +88,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - d10739d chore: re-trigger CI
     - bcde5a2 Merge branch 'main' into fix/ci-strict-bot-prs-v2
     - 857696a chore: re-trigger CI on human-authored head
+
+- PR#27 fix(changelog): merged-only PR selection + split pull_request trigger
+    - 8750f0b fix(changelog): merged-only PR selection + split pull_request trigger

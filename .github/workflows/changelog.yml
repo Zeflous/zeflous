@@ -6,7 +6,7 @@
 #   * `CHANGELOG-vX.Y.Z.md`      -- ONE FILE PER RELEASE VERSION. Each merged
 #     PR is one block: the PR number + title, then the commits that belong to
 #     that PR (short SHA + subject). `CHANGELOG-unreleased.md` holds the PRs
-#     merged after the newest tag (or every PR when no tag exists yet).
+#     merged after the newest RELEASE (or every PR when no release exists yet).
 #   * `CHANGELOG.md`             -- a LIGHTWEIGHT INDEX only: a table of links
 #     to each per-version file. It never carries the full history, so it cannot
 #     grow without bound as PRs accumulate.
@@ -37,12 +37,23 @@
 # ------------------------------
 #   * Every merged PR becomes one entry: number, title, author, category
 #     (feat/fix/chore/docs/...), merge date, and the release version it belongs
-#     to. PRs merged after the newest tag land under `Unreleased`; PRs merged
-#     before a tag land under that tag (`vX.Y.Z`).
+#     to. The version is decided by the project's RELEASES, not by raw git
+#     tags: the source of truth is the GitHub Releases API, and a PR belongs to
+#     the FIRST published release at or after its merge time. PRs merged after
+#     the newest release land under `Unreleased`; a draft release is surfaced
+#     only as the `next_release` hint, never as a bucket. Git tags are used
+#     ONLY as a fallback when the repository has no published releases at all.
+#     The chosen source is recorded in the JSON as `version_source`
+#     (`github_release` / `git_tag` / `none`).
 #   * The category taxonomy is read from `.github/release-drafter.yml` -- the
 #     SAME file Release Drafter uses -- so there is no second, drifting copy of
-#     the label->category mapping. Release Drafter keeps the draft release
-#     notes; this lane keeps the machine-readable, per-version changelog.
+#     the label->category mapping. A PR with no matching label is categorised
+#     from its Conventional-Commit type (`feat:`/`fix:`/`docs:`/`chore:`/
+#     `refactor:`/`perf:`/`test:`/`ci:`/`build:`/`style:`/`revert:`/`security:`)
+#     via a regex, mapped onto those SAME configured titles, so a regex-derived
+#     category can never conflict with a label-derived one. Release Drafter
+#     keeps the draft release notes; this lane keeps the machine-readable,
+#     per-version changelog.
 #
 # WHY THE UPDATE GOES THROUGH A PULL REQUEST (not a direct commit to `main`)
 # --------------------------------------------------------------------------
