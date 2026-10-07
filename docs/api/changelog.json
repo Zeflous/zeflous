@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "as_of": "2026-10-07T20:13:20Z",
   "repository": "Zeflous/zeflous",
   "latest_release": null,
@@ -8,6 +8,7 @@
     {
       "version": "Unreleased",
       "date": null,
+      "file": "CHANGELOG-unreleased.md",
       "categories": {
         "Features": [
           {
@@ -16,7 +17,15 @@
             "author": "mbetixz",
             "category": "Features",
             "merged_at": "2026-10-07T19:31:54Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/6"
+            "url": "https://github.com/Zeflous/zeflous/pull/6",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "bef4e1e7b97cb3aaaa270db9726a11ac80126fb2",
+                "short_sha": "bef4e1e",
+                "subject": "feat(changelog): per-PR API changelog (CHANGELOG.md + docs/api/changelog.json)"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -26,7 +35,20 @@
             "author": "mbetixz",
             "category": "Bug Fixes",
             "merged_at": "2026-10-07T16:34:23Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/2"
+            "url": "https://github.com/Zeflous/zeflous/pull/2",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "61490abfc08bba9f26a0b0b6a204565399215b07",
+                "short_sha": "61490ab",
+                "subject": "fix(sonar): make tooling gates testable, >90% coverage, no new exclusions"
+              },
+              {
+                "sha": "b4c9c71c06e3e034bcb699e28789c556599fca60",
+                "short_sha": "b4c9c71",
+                "subject": "fix(sonar): resolve S2003/S1142 and cover gate thresholds"
+              }
+            ]
           },
           {
             "pr": 3,
@@ -34,7 +56,35 @@
             "author": "mbetixz",
             "category": "Bug Fixes",
             "merged_at": "2026-10-07T17:32:27Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/3"
+            "url": "https://github.com/Zeflous/zeflous/pull/3",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "aa264d6a108f208da979c6bd208bdeb5fe68cfd3",
+                "short_sha": "aa264d6",
+                "subject": "ci(sonar): investigate + fix missing PR decoration"
+              },
+              {
+                "sha": "43ca0e0108a851dc5ef4f16104f685ce465d587d",
+                "short_sha": "43ca0e0",
+                "subject": "ci(strict): add CI Strict workflow for composer ci:strict"
+              },
+              {
+                "sha": "ff1cb034f4eda60b88b524a6c8b2430deba30f19",
+                "short_sha": "ff1cb03",
+                "subject": "fix(gates): strengthen assertions to kill escaped mutants"
+              },
+              {
+                "sha": "649027902c9ed6c9325660f5119442135469edbd",
+                "short_sha": "6490279",
+                "subject": "fix(gates): remove last equivalent mutant in GateRunner::arrayValue"
+              },
+              {
+                "sha": "4c00a822a2768c1b5f1446acde4f3984cedeb4e6",
+                "short_sha": "4c00a82",
+                "subject": "ci(auto-merge): add auto-merge lane mirroring zef-framework"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -44,7 +94,20 @@
             "author": "mbetixz",
             "category": "Maintenance",
             "merged_at": "2026-10-07T17:46:29Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/4"
+            "url": "https://github.com/Zeflous/zeflous/pull/4",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4e2953822584ed911290697eb78fa1c78e2207a5",
+                "short_sha": "4e29538",
+                "subject": "ci(tokens+parity): ZEF_TOKEN for auto-merge queue chain; adopt dependency-review/docs-check/phpbench lanes"
+              },
+              {
+                "sha": "25b901f48ae3635e0f3e70323dcdf1f1c3cbbe82",
+                "short_sha": "25b901f",
+                "subject": "ci(auto-merge): never skip a PR when branch sync is denied; fall back to workflow token to arm"
+              }
+            ]
           },
           {
             "pr": 5,
@@ -52,7 +115,15 @@
             "author": "mbetixz",
             "category": "Maintenance",
             "merged_at": "2026-10-07T18:18:59Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/5"
+            "url": "https://github.com/Zeflous/zeflous/pull/5",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4fc5493da2587d4a18d82747594de066189ecbc8",
+                "short_sha": "4fc5493",
+                "subject": "ci(reproducible): add release-drafter + SBOM lanes; use GITHUB_TOKEN for full repo access"
+              }
+            ]
           },
           {
             "pr": 9,
@@ -60,7 +131,15 @@
             "author": "mbetixz",
             "category": "Maintenance",
             "merged_at": "2026-10-07T19:35:25Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/9"
+            "url": "https://github.com/Zeflous/zeflous/pull/9",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ce362bcd4fc1db7e6834a3d079921095cb8b7c16",
+                "short_sha": "ce362bc",
+                "subject": "ci(changelog): reuse one update branch/PR so re-runs never duplicate"
+              }
+            ]
           },
           {
             "pr": 12,
@@ -68,7 +147,15 @@
             "author": "mbetixz",
             "category": "Maintenance",
             "merged_at": "2026-10-07T19:51:40Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/12"
+            "url": "https://github.com/Zeflous/zeflous/pull/12",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ea0f18f801447e655b0352d3a4ef98f87d9a6f83",
+                "short_sha": "ea0f18f",
+                "subject": "ci(changelog): dispatch required checks on the update branch"
+              }
+            ]
           },
           {
             "pr": 13,
@@ -76,7 +163,25 @@
             "author": "mbetixz",
             "category": "Maintenance",
             "merged_at": "2026-10-07T19:56:45Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/13"
+            "url": "https://github.com/Zeflous/zeflous/pull/13",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ea0f18f801447e655b0352d3a4ef98f87d9a6f83",
+                "short_sha": "ea0f18f",
+                "subject": "ci(changelog): dispatch required checks on the update branch"
+              },
+              {
+                "sha": "16e46002dfd25f9d12e23d8f81fb36bbfbb895cc",
+                "short_sha": "16e4600",
+                "subject": "ci(changelog): grant actions:write so the update branch can dispatch checks"
+              },
+              {
+                "sha": "899feb8918ce2d3a9d67e191340e0d072e65b489",
+                "short_sha": "899feb8",
+                "subject": "Merge branch 'main' into chore/changelog-trigger-checks"
+              }
+            ]
           },
           {
             "pr": 14,
@@ -84,7 +189,15 @@
             "author": "mbetixz",
             "category": "Maintenance",
             "merged_at": "2026-10-07T20:13:20Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/14"
+            "url": "https://github.com/Zeflous/zeflous/pull/14",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d5e7840f18ee59477a07fa26ae9faabf32d81637",
+                "short_sha": "d5e7840",
+                "subject": "ci(changelog): attach SonarCloud analysis to the update PR"
+              }
+            ]
           }
         ],
         "Other": [
@@ -94,7 +207,40 @@
             "author": "mbetixz",
             "category": "Other",
             "merged_at": "2026-10-07T15:35:40Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/1"
+            "url": "https://github.com/Zeflous/zeflous/pull/1",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0f67b78d1b11568bf3ad49693f2d060a226a2559",
+                "short_sha": "0f67b78",
+                "subject": "chore: fix composer.json, scaffold src/tests, add tooling configs and CI scripts"
+              },
+              {
+                "sha": "38640405c0038d08ceeb8961e7b9dd3bebf8b32d",
+                "short_sha": "3864040",
+                "subject": "chore(quality): strict audit engine + SonarCloud CI gate"
+              },
+              {
+                "sha": "f09cb8b2f362b15a52e41776ffd4d260c29e4bbc",
+                "short_sha": "f09cb8b",
+                "subject": "ci(sonar): pin projectKey=zef and organization=zef (verified via SonarCloud API)"
+              },
+              {
+                "sha": "9a96ee6b9c1caf0290186907fa7bc199d71e4b1c",
+                "short_sha": "9a96ee6",
+                "subject": "ci(sonar): set organization=zeflous and projectKey=zef_zeflous per owner"
+              },
+              {
+                "sha": "bc732c50f40f8b9848587b5712e1c18c4027d62d",
+                "short_sha": "bc732c5",
+                "subject": "ci(security): pin all GitHub Actions uses: to full commit SHAs (S7637)"
+              },
+              {
+                "sha": "85e91394850af9e3dadbad72033cf04d32b9bc59",
+                "short_sha": "85e9139",
+                "subject": "Merge branch 'main' into chore/composer-scaffold"
+              }
+            ]
           }
         ]
       },
@@ -105,7 +251,40 @@
           "author": "mbetixz",
           "category": "Other",
           "merged_at": "2026-10-07T15:35:40Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/1"
+          "url": "https://github.com/Zeflous/zeflous/pull/1",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0f67b78d1b11568bf3ad49693f2d060a226a2559",
+              "short_sha": "0f67b78",
+              "subject": "chore: fix composer.json, scaffold src/tests, add tooling configs and CI scripts"
+            },
+            {
+              "sha": "38640405c0038d08ceeb8961e7b9dd3bebf8b32d",
+              "short_sha": "3864040",
+              "subject": "chore(quality): strict audit engine + SonarCloud CI gate"
+            },
+            {
+              "sha": "f09cb8b2f362b15a52e41776ffd4d260c29e4bbc",
+              "short_sha": "f09cb8b",
+              "subject": "ci(sonar): pin projectKey=zef and organization=zef (verified via SonarCloud API)"
+            },
+            {
+              "sha": "9a96ee6b9c1caf0290186907fa7bc199d71e4b1c",
+              "short_sha": "9a96ee6",
+              "subject": "ci(sonar): set organization=zeflous and projectKey=zef_zeflous per owner"
+            },
+            {
+              "sha": "bc732c50f40f8b9848587b5712e1c18c4027d62d",
+              "short_sha": "bc732c5",
+              "subject": "ci(security): pin all GitHub Actions uses: to full commit SHAs (S7637)"
+            },
+            {
+              "sha": "85e91394850af9e3dadbad72033cf04d32b9bc59",
+              "short_sha": "85e9139",
+              "subject": "Merge branch 'main' into chore/composer-scaffold"
+            }
+          ]
         },
         {
           "pr": 2,
@@ -113,7 +292,20 @@
           "author": "mbetixz",
           "category": "Bug Fixes",
           "merged_at": "2026-10-07T16:34:23Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/2"
+          "url": "https://github.com/Zeflous/zeflous/pull/2",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "61490abfc08bba9f26a0b0b6a204565399215b07",
+              "short_sha": "61490ab",
+              "subject": "fix(sonar): make tooling gates testable, >90% coverage, no new exclusions"
+            },
+            {
+              "sha": "b4c9c71c06e3e034bcb699e28789c556599fca60",
+              "short_sha": "b4c9c71",
+              "subject": "fix(sonar): resolve S2003/S1142 and cover gate thresholds"
+            }
+          ]
         },
         {
           "pr": 3,
@@ -121,7 +313,35 @@
           "author": "mbetixz",
           "category": "Bug Fixes",
           "merged_at": "2026-10-07T17:32:27Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/3"
+          "url": "https://github.com/Zeflous/zeflous/pull/3",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "aa264d6a108f208da979c6bd208bdeb5fe68cfd3",
+              "short_sha": "aa264d6",
+              "subject": "ci(sonar): investigate + fix missing PR decoration"
+            },
+            {
+              "sha": "43ca0e0108a851dc5ef4f16104f685ce465d587d",
+              "short_sha": "43ca0e0",
+              "subject": "ci(strict): add CI Strict workflow for composer ci:strict"
+            },
+            {
+              "sha": "ff1cb034f4eda60b88b524a6c8b2430deba30f19",
+              "short_sha": "ff1cb03",
+              "subject": "fix(gates): strengthen assertions to kill escaped mutants"
+            },
+            {
+              "sha": "649027902c9ed6c9325660f5119442135469edbd",
+              "short_sha": "6490279",
+              "subject": "fix(gates): remove last equivalent mutant in GateRunner::arrayValue"
+            },
+            {
+              "sha": "4c00a822a2768c1b5f1446acde4f3984cedeb4e6",
+              "short_sha": "4c00a82",
+              "subject": "ci(auto-merge): add auto-merge lane mirroring zef-framework"
+            }
+          ]
         },
         {
           "pr": 4,
@@ -129,7 +349,20 @@
           "author": "mbetixz",
           "category": "Maintenance",
           "merged_at": "2026-10-07T17:46:29Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/4"
+          "url": "https://github.com/Zeflous/zeflous/pull/4",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4e2953822584ed911290697eb78fa1c78e2207a5",
+              "short_sha": "4e29538",
+              "subject": "ci(tokens+parity): ZEF_TOKEN for auto-merge queue chain; adopt dependency-review/docs-check/phpbench lanes"
+            },
+            {
+              "sha": "25b901f48ae3635e0f3e70323dcdf1f1c3cbbe82",
+              "short_sha": "25b901f",
+              "subject": "ci(auto-merge): never skip a PR when branch sync is denied; fall back to workflow token to arm"
+            }
+          ]
         },
         {
           "pr": 5,
@@ -137,7 +370,15 @@
           "author": "mbetixz",
           "category": "Maintenance",
           "merged_at": "2026-10-07T18:18:59Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/5"
+          "url": "https://github.com/Zeflous/zeflous/pull/5",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4fc5493da2587d4a18d82747594de066189ecbc8",
+              "short_sha": "4fc5493",
+              "subject": "ci(reproducible): add release-drafter + SBOM lanes; use GITHUB_TOKEN for full repo access"
+            }
+          ]
         },
         {
           "pr": 6,
@@ -145,7 +386,15 @@
           "author": "mbetixz",
           "category": "Features",
           "merged_at": "2026-10-07T19:31:54Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/6"
+          "url": "https://github.com/Zeflous/zeflous/pull/6",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "bef4e1e7b97cb3aaaa270db9726a11ac80126fb2",
+              "short_sha": "bef4e1e",
+              "subject": "feat(changelog): per-PR API changelog (CHANGELOG.md + docs/api/changelog.json)"
+            }
+          ]
         },
         {
           "pr": 9,
@@ -153,7 +402,15 @@
           "author": "mbetixz",
           "category": "Maintenance",
           "merged_at": "2026-10-07T19:35:25Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/9"
+          "url": "https://github.com/Zeflous/zeflous/pull/9",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ce362bcd4fc1db7e6834a3d079921095cb8b7c16",
+              "short_sha": "ce362bc",
+              "subject": "ci(changelog): reuse one update branch/PR so re-runs never duplicate"
+            }
+          ]
         },
         {
           "pr": 12,
@@ -161,7 +418,15 @@
           "author": "mbetixz",
           "category": "Maintenance",
           "merged_at": "2026-10-07T19:51:40Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/12"
+          "url": "https://github.com/Zeflous/zeflous/pull/12",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ea0f18f801447e655b0352d3a4ef98f87d9a6f83",
+              "short_sha": "ea0f18f",
+              "subject": "ci(changelog): dispatch required checks on the update branch"
+            }
+          ]
         },
         {
           "pr": 13,
@@ -169,7 +434,25 @@
           "author": "mbetixz",
           "category": "Maintenance",
           "merged_at": "2026-10-07T19:56:45Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/13"
+          "url": "https://github.com/Zeflous/zeflous/pull/13",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ea0f18f801447e655b0352d3a4ef98f87d9a6f83",
+              "short_sha": "ea0f18f",
+              "subject": "ci(changelog): dispatch required checks on the update branch"
+            },
+            {
+              "sha": "16e46002dfd25f9d12e23d8f81fb36bbfbb895cc",
+              "short_sha": "16e4600",
+              "subject": "ci(changelog): grant actions:write so the update branch can dispatch checks"
+            },
+            {
+              "sha": "899feb8918ce2d3a9d67e191340e0d072e65b489",
+              "short_sha": "899feb8",
+              "subject": "Merge branch 'main' into chore/changelog-trigger-checks"
+            }
+          ]
         },
         {
           "pr": 14,
@@ -177,7 +460,15 @@
           "author": "mbetixz",
           "category": "Maintenance",
           "merged_at": "2026-10-07T20:13:20Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/14"
+          "url": "https://github.com/Zeflous/zeflous/pull/14",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d5e7840f18ee59477a07fa26ae9faabf32d81637",
+              "short_sha": "d5e7840",
+              "subject": "ci(changelog): attach SonarCloud analysis to the update PR"
+            }
+          ]
         }
       ]
     }

@@ -14,3 +14,9 @@ junit.xml
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Python coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
