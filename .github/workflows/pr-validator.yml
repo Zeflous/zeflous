@@ -1,0 +1,88 @@
+# PR Validator -- the pull-request title gate.
+#
+# WHY THIS GATE EXISTS
+# --------------------
+# The changelog generator categorises a merged PR from its Conventional-Commit
+# type (`feat:` -> Features, `fix:` -> Bug Fixes, ...). A PR whose title is not
+# a Conventional-Commit header cannot be categorised, so it silently lands in
+# "Other" and the release notes lose signal. This gate makes the convention
+# ENFORCED at the pull request instead of discovered after the merge: a title
+# that does not match the taxonomy fails the check.
+#
+# SINGLE SOURCE OF TRUTH
+# ----------------------
+# The accepted types and the header regex are NOT re-declared here. The job
+# imports `scripts/changelog/conventional.py` -- the very module the changelog
+# generator imports -- so the gate and the changelog can never disagree about
+# what a valid title is. Adding a type in one place changes both.
+#
+# CONVENTIONS (mirrors the other lanes)
+# -------------------------------------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
+#     original tag kept as a trailing comment. Tag/branch refs are what
+#     SonarCloud flags as `githubactions:S7637`; pinning keeps supply-chain
+#     findings at zero without any rule exclusion.
+#   * Least privilege: the job only reads the repository and the pull request.
+#   * The built-in `GITHUB_TOKEN` is used -- no PAT. The token is referenced by
+#     NAME only; its value is never written to a file, log, or artifact.
+#   * The job NAME "PR Validator" is the status-check context. It is a required
+#     status check on `main`; keep it exactly "PR Validator".
+
+name: PR Validator
+
+on:
+  pull_request:
+    branches:
+      - main
+    # `edited` re-runs the gate when the title is fixed, so a corrected title
+    # turns the check green without a new commit.
+    types: [opened, edited, synchronize, reopened]
+  # Manual run. A title can be supplied for a dry-run; without one the job
+  # reports that there is nothing to validate and passes.
+  workflow_dispatch:
+    inputs:
+      title:
+        description: 'PR title to validate (optional; for a manual dry-run)'
+        required: false
+        type: string
+
+# Least privilege: read the repository and the pull request; write nothing.
+permissions:
+  contents: read
+  pull-requests: read
+
+# One run at a time per pull request; a queued run proceeds after the current
+# one instead of being dropped (a title edit must not cancel a pending run).
+concurrency:
+  group: pr-validator-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pr-validator:
+    # The job NAME is a public contract: it is the status-check context pinned
+    # by the `main` ruleset. Keep it exactly "PR Validator".
+    name: PR Validator
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: '3.11'
+
+      - name: Validate the pull-request title
+        # The title is passed through the environment (never interpolated into
+        # the shell), so a title containing shell metacharacters cannot inject a
+        # command. The validator imports the shared taxonomy module, so the
+        # accepted types are exactly the changelog's.
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title || inputs.title || '' }}
+        run: |
+          if [ -z "$PR_TITLE" ]; then
+            echo "::notice::No pull-request title to validate (manual run without a title input)."
+            exit 0
+          fi
+          python3 scripts/changelog/conventional.py --title "$PR_TITLE"

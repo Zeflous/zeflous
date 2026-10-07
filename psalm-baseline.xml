@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<files psalm-version="6.19.2@fa716e443b23e6fa35bf58907e67ca692ec3c00a">
+  <file src="src/Contracts/Psr/Container/ContainerInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[has]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Container/Container.php">
+    <MixedAssignment>
+      <code><![CDATA[$service]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Contracts/ServiceProviderInterface.php">
+    <UnusedClass>
+      <code><![CDATA[ServiceProviderInterface]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Exception/InvariantViolationException.php">
+    <UnusedClass>
+      <code><![CDATA[InvariantViolationException]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Health/HealthChecker.php">
+    <UnusedClass>
+      <code><![CDATA[HealthChecker]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Health/HealthReport.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[checks]]></code>
+      <code><![CDATA[isHealthy]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Kernel.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[version]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Message/Message.php">
+    <UnusedClass>
+      <code><![CDATA[Message]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Tooling/CoverageReport.php">
+    <InvalidOperand>
+      <code><![CDATA[$this->coveredStatements / $this->statements * 100.0]]></code>
+    </InvalidOperand>
+    <MixedArrayAccess>
+      <code><![CDATA[$metrics['coveredstatements']]]></code>
+      <code><![CDATA[$metrics['statements']]]></code>
+    </MixedArrayAccess>
+    <MixedAssignment>
+      <code><![CDATA[$metrics]]></code>
+    </MixedAssignment>
+    <MixedPropertyFetch>
+      <code><![CDATA[$xml->project->metrics]]></code>
+    </MixedPropertyFetch>
+    <TypeDoesNotContainType>
+      <code><![CDATA[!isset($xml->project->metrics)]]></code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="src/Zef/Framework/Tooling/GateResult.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[exitCode]]></code>
+    </PossiblyUnusedMethod>
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$message]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Tooling/GateRunner.php">
+    <MixedAssignment>
+      <code><![CDATA[$audit]]></code>
+      <code><![CDATA[$config]]></code>
+    </MixedAssignment>
+    <UnusedClass>
+      <code><![CDATA[GateRunner]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Tooling/LintReport.php">
+    <MixedAssignment>
+      <code><![CDATA[$file]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Tooling/PersistentWorkerSmoke.php">
+    <MixedAssignment>
+      <code><![CDATA[$first]]></code>
+    </MixedAssignment>
+  </file>
+</files>

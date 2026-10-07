@@ -90,6 +90,14 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
+# The Conventional-Commit taxonomy lives in a shared module so the changelog
+# generator and the PR Validator gate import the SAME rules (no drift). The
+# script's own directory is put on sys.path so the import works both when run
+# as `python3 scripts/changelog/generate.py` and when the test suite loads this
+# file by path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from conventional import CONVENTIONAL_CATEGORY, CONVENTIONAL_RE  # noqa: E402
+
 try:
     import yaml
 except ImportError:  # pragma: no cover - PyYAML is present in CI and locally
@@ -120,36 +128,13 @@ CHANGELOG_PR_PREFIX = "chore(changelog):"
 # changelog. Overridable via GITHUB_DEFAULT_BRANCH for forks/renames.
 DEFAULT_BRANCH = os.environ.get("GITHUB_DEFAULT_BRANCH", "main")
 
-# Conventional-Commit type -> Release Drafter category TITLE.
-#
-# The titles on the right are exactly the ones configured in
-# `.github/release-drafter.yml` (the single source of the taxonomy), so a
-# category derived from a title/commit regex can never conflict with one
-# derived from a label. Types that Release Drafter folds into "Maintenance"
-# (chore / refactor / perf / ci / build / style / revert) map there too, which
-# is why the changelog shows the same buckets as the release notes.
-#
-# This is the "regex filter" a conventional changelog generator applies: a PR
-# titled `feat(scope): ...` lands under Features, `fix(scope): ...` under Bug
-# Fixes, and so on, even before Release Drafter's autolabeler has run.
-CONVENTIONAL_CATEGORY = {
-    "feat": "Features",
-    "fix": "Bug Fixes",
-    "docs": "Documentation",
-    "chore": "Maintenance",
-    "refactor": "Maintenance",
-    "perf": "Maintenance",
-    "test": "Tests",
-    "ci": "Maintenance",
-    "build": "Maintenance",
-    "style": "Maintenance",
-    "revert": "Maintenance",
-    "security": "Security",
-}
-
-# `type(scope)!: subject` -- the Conventional-Commit header. The scope and the
-# breaking-change `!` are optional; only the leading type is captured.
-CONVENTIONAL_RE = re.compile(r"^([a-z]+)(?:\([^)]*\))?!?:")
+# Conventional-Commit type -> Release Drafter category TITLE, and the header
+# regex, are imported from `scripts/changelog/conventional.py` (see the import
+# above). That module is the SINGLE SOURCE OF TRUTH: the PR Validator gate
+# imports the very same rules, so a title that passes the gate can never be
+# categorised differently here. The mapped titles are exactly the ones
+# configured in `.github/release-drafter.yml`, so a regex-derived category can
+# never conflict with a label-derived one.
 
 # The version bucket used for PRs merged after the newest release (or for every
 # PR when the repository has no releases and no tags yet).
