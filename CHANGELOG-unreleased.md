@@ -54,5 +54,37 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#17 feat(changelog): adopt official github-changelog-generator as a complementary lane
     - 20ad8c5 feat(changelog): adopt official github-changelog-generator as a complementary lane
 
+- PR#18 chore(changelog-official): regenerate official changelog
+    - 0b07683 chore(changelog-official): regenerate official changelog [skip ci]
+    - 6cf6ab4 probe: bot push without skip ci
+    - c80b21e Merge branch 'main' into chore/changelog-official-update
+
 - PR#19 No changes made: insufficient quota to complete coverage setup
     - e951179 Initial plan
+
+- PR#21 probe: update-branch trigger test
+    - 8dbee6f probe: branch behind main
+    - 60d7d00 Merge branch 'main' into probe-ub
+
+- PR#22 probe: update-branch trigger v2
+    - de4474d probe: behind main v2
+    - 05f161b Merge branch 'main' into probe-ub2
+    - 4d91ae3 Merge branch 'main' into probe-ub2
+
+- PR#23 probe: dispatch required check
+    - 73115d1 probe: test GITHUB_TOKEN push event
+    - 77a8f98 probe: target branch with open PR
+    - 01fdaf7 Merge branch 'main' into fix/ci-strict-bot-prs
+    - 3a6d627 Merge 01fdaf764a172c2c831771bceff73a76ff6976cc into 710ba91ffedf47871c75fee4197c98cff1e152b7
+    - a54caef probe: GITHUB_TOKEN push without skip ci
+
+- PR#24 fix(ci): make CI Strict run on bot-authored PRs
+    - 73115d1 probe: test GITHUB_TOKEN push event
+    - 77a8f98 probe: target branch with open PR
+    - 01fdaf7 Merge branch 'main' into fix/ci-strict-bot-prs
+
+- PR#25 fix(ci): make CI Strict run on bot-authored PRs
+    - 8626a86 fix(ci): make CI Strict run on bot-authored PRs
+    - d10739d chore: re-trigger CI
+    - bcde5a2 Merge branch 'main' into fix/ci-strict-bot-prs-v2
+    - 857696a chore: re-trigger CI on human-authored head

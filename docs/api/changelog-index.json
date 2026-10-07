@@ -1,15 +1,15 @@
 {
   "schema_version": 2,
-  "as_of": "2026-10-07T21:08:53Z",
+  "as_of": "2026-10-07T22:08:54Z",
   "repository": "Zeflous/zeflous",
   "latest_release": null,
-  "unreleased_count": 13,
+  "unreleased_count": 19,
   "versions": [
     {
       "version": "Unreleased",
       "date": null,
       "file": "CHANGELOG-unreleased.md",
-      "pr_count": 13
+      "pr_count": 19
     }
   ]
 }
