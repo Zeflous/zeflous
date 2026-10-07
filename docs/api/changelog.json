@@ -1,14 +1,24 @@
 {
   "schema_version": 1,
-  "as_of": "2026-10-07T18:18:59Z",
+  "as_of": "2026-10-07T19:31:54Z",
   "repository": "Zeflous/zeflous",
   "latest_release": null,
-  "unreleased_count": 5,
+  "unreleased_count": 6,
   "versions": [
     {
       "version": "Unreleased",
       "date": null,
       "categories": {
+        "Features": [
+          {
+            "pr": 6,
+            "title": "feat(changelog): per-PR API changelog (CHANGELOG.md + docs/api/changelog.json)",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-07T19:31:54Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/6"
+          }
+        ],
         "Bug Fixes": [
           {
             "pr": 2,
@@ -96,6 +106,14 @@
           "category": "Maintenance",
           "merged_at": "2026-10-07T18:18:59Z",
           "url": "https://github.com/Zeflous/zeflous/pull/5"
+        },
+        {
+          "pr": 6,
+          "title": "feat(changelog): per-PR API changelog (CHANGELOG.md + docs/api/changelog.json)",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-07T19:31:54Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/6"
         }
       ]
     }
