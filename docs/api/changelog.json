@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
-  "as_of": "2026-10-07T21:08:53Z",
+  "as_of": "2026-10-07T22:08:54Z",
   "repository": "Zeflous/zeflous",
   "latest_release": null,
-  "unreleased_count": 13,
+  "unreleased_count": 19,
   "versions": [
     {
       "version": "Unreleased",
@@ -115,6 +115,63 @@
                 "sha": "4c00a822a2768c1b5f1446acde4f3984cedeb4e6",
                 "short_sha": "4c00a82",
                 "subject": "ci(auto-merge): add auto-merge lane mirroring zef-framework"
+              }
+            ]
+          },
+          {
+            "pr": 24,
+            "title": "fix(ci): make CI Strict run on bot-authored PRs",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-07T21:56:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/24",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "73115d178112ba3cd733df9ea49e945a9ebe2165",
+                "short_sha": "73115d1",
+                "subject": "probe: test GITHUB_TOKEN push event"
+              },
+              {
+                "sha": "77a8f9805f8791fd3c6b42ab02947e241ca4a847",
+                "short_sha": "77a8f98",
+                "subject": "probe: target branch with open PR"
+              },
+              {
+                "sha": "01fdaf764a172c2c831771bceff73a76ff6976cc",
+                "short_sha": "01fdaf7",
+                "subject": "Merge branch 'main' into fix/ci-strict-bot-prs"
+              }
+            ]
+          },
+          {
+            "pr": 25,
+            "title": "fix(ci): make CI Strict run on bot-authored PRs",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-07T22:08:54Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/25",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8626a86daf0baf1e5dfb76b9da715a72ae692ca7",
+                "short_sha": "8626a86",
+                "subject": "fix(ci): make CI Strict run on bot-authored PRs"
+              },
+              {
+                "sha": "d10739de256cd0da5096df4e92767e009fb9a5ee",
+                "short_sha": "d10739d",
+                "subject": "chore: re-trigger CI"
+              },
+              {
+                "sha": "bcde5a2a648d49fa54aaabddc0b8218289784766",
+                "short_sha": "bcde5a2",
+                "subject": "Merge branch 'main' into fix/ci-strict-bot-prs-v2"
+              },
+              {
+                "sha": "857696ac448d69650d5719751a7619c62a25891c",
+                "short_sha": "857696a",
+                "subject": "chore: re-trigger CI on human-authored head"
               }
             ]
           }
@@ -230,6 +287,32 @@
                 "subject": "ci(changelog): attach SonarCloud analysis to the update PR"
               }
             ]
+          },
+          {
+            "pr": 18,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-07T21:45:41Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/18",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0b0768338a1871c497e692eee53adb749206feec",
+                "short_sha": "0b07683",
+                "subject": "chore(changelog-official): regenerate official changelog [skip ci]"
+              },
+              {
+                "sha": "6cf6ab4abc349b616369c016ac99018c60d71ffe",
+                "short_sha": "6cf6ab4",
+                "subject": "probe: bot push without skip ci"
+              },
+              {
+                "sha": "c80b21ee3580163fcb4282f9ce4a9d8c6a8f910e",
+                "short_sha": "c80b21e",
+                "subject": "Merge branch 'main' into chore/changelog-official-update"
+              }
+            ]
           }
         ],
         "Other": [
@@ -287,6 +370,89 @@
                 "sha": "e95117929b9f756bd41d6c1e727d88d01cf8d4ce",
                 "short_sha": "e951179",
                 "subject": "Initial plan"
+              }
+            ]
+          },
+          {
+            "pr": 21,
+            "title": "probe: update-branch trigger test",
+            "author": "mbetixz",
+            "category": "Other",
+            "merged_at": "2026-10-07T21:48:15Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/21",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8dbee6f33445654f3c98b4569dd3ce62acd3e8f8",
+                "short_sha": "8dbee6f",
+                "subject": "probe: branch behind main"
+              },
+              {
+                "sha": "60d7d00ae6472dc31352bb7086cfe318fdb9d6f1",
+                "short_sha": "60d7d00",
+                "subject": "Merge branch 'main' into probe-ub"
+              }
+            ]
+          },
+          {
+            "pr": 22,
+            "title": "probe: update-branch trigger v2",
+            "author": "mbetixz",
+            "category": "Other",
+            "merged_at": "2026-10-07T21:50:15Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/22",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "de4474dd580e214c1dee097833fcab094183c132",
+                "short_sha": "de4474d",
+                "subject": "probe: behind main v2"
+              },
+              {
+                "sha": "05f161b55a130b6fc2231ef3ce26bff63ed911d7",
+                "short_sha": "05f161b",
+                "subject": "Merge branch 'main' into probe-ub2"
+              },
+              {
+                "sha": "4d91ae3a7af4b5c996a8e35962cda9f5fd1c17c2",
+                "short_sha": "4d91ae3",
+                "subject": "Merge branch 'main' into probe-ub2"
+              }
+            ]
+          },
+          {
+            "pr": 23,
+            "title": "probe: dispatch required check",
+            "author": "mbetixz",
+            "category": "Other",
+            "merged_at": "2026-10-07T21:58:43Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/23",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "73115d178112ba3cd733df9ea49e945a9ebe2165",
+                "short_sha": "73115d1",
+                "subject": "probe: test GITHUB_TOKEN push event"
+              },
+              {
+                "sha": "77a8f9805f8791fd3c6b42ab02947e241ca4a847",
+                "short_sha": "77a8f98",
+                "subject": "probe: target branch with open PR"
+              },
+              {
+                "sha": "01fdaf764a172c2c831771bceff73a76ff6976cc",
+                "short_sha": "01fdaf7",
+                "subject": "Merge branch 'main' into fix/ci-strict-bot-prs"
+              },
+              {
+                "sha": "3a6d62775b25add8b21c733eb10a871373c55953",
+                "short_sha": "3a6d627",
+                "subject": "Merge 01fdaf764a172c2c831771bceff73a76ff6976cc into 710ba91ffedf47871c75fee4197c98cff1e152b7"
+              },
+              {
+                "sha": "a54caef8c0c498301989d4b79b5ea08a45899a86",
+                "short_sha": "a54caef",
+                "subject": "probe: GITHUB_TOKEN push without skip ci"
               }
             ]
           }
@@ -551,6 +717,32 @@
           ]
         },
         {
+          "pr": 18,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-07T21:45:41Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/18",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0b0768338a1871c497e692eee53adb749206feec",
+              "short_sha": "0b07683",
+              "subject": "chore(changelog-official): regenerate official changelog [skip ci]"
+            },
+            {
+              "sha": "6cf6ab4abc349b616369c016ac99018c60d71ffe",
+              "short_sha": "6cf6ab4",
+              "subject": "probe: bot push without skip ci"
+            },
+            {
+              "sha": "c80b21ee3580163fcb4282f9ce4a9d8c6a8f910e",
+              "short_sha": "c80b21e",
+              "subject": "Merge branch 'main' into chore/changelog-official-update"
+            }
+          ]
+        },
+        {
           "pr": 19,
           "title": "No changes made: insufficient quota to complete coverage setup",
           "author": "code-coverage-agent[bot]",
@@ -563,6 +755,146 @@
               "sha": "e95117929b9f756bd41d6c1e727d88d01cf8d4ce",
               "short_sha": "e951179",
               "subject": "Initial plan"
+            }
+          ]
+        },
+        {
+          "pr": 21,
+          "title": "probe: update-branch trigger test",
+          "author": "mbetixz",
+          "category": "Other",
+          "merged_at": "2026-10-07T21:48:15Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/21",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8dbee6f33445654f3c98b4569dd3ce62acd3e8f8",
+              "short_sha": "8dbee6f",
+              "subject": "probe: branch behind main"
+            },
+            {
+              "sha": "60d7d00ae6472dc31352bb7086cfe318fdb9d6f1",
+              "short_sha": "60d7d00",
+              "subject": "Merge branch 'main' into probe-ub"
+            }
+          ]
+        },
+        {
+          "pr": 22,
+          "title": "probe: update-branch trigger v2",
+          "author": "mbetixz",
+          "category": "Other",
+          "merged_at": "2026-10-07T21:50:15Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/22",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "de4474dd580e214c1dee097833fcab094183c132",
+              "short_sha": "de4474d",
+              "subject": "probe: behind main v2"
+            },
+            {
+              "sha": "05f161b55a130b6fc2231ef3ce26bff63ed911d7",
+              "short_sha": "05f161b",
+              "subject": "Merge branch 'main' into probe-ub2"
+            },
+            {
+              "sha": "4d91ae3a7af4b5c996a8e35962cda9f5fd1c17c2",
+              "short_sha": "4d91ae3",
+              "subject": "Merge branch 'main' into probe-ub2"
+            }
+          ]
+        },
+        {
+          "pr": 23,
+          "title": "probe: dispatch required check",
+          "author": "mbetixz",
+          "category": "Other",
+          "merged_at": "2026-10-07T21:58:43Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/23",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "73115d178112ba3cd733df9ea49e945a9ebe2165",
+              "short_sha": "73115d1",
+              "subject": "probe: test GITHUB_TOKEN push event"
+            },
+            {
+              "sha": "77a8f9805f8791fd3c6b42ab02947e241ca4a847",
+              "short_sha": "77a8f98",
+              "subject": "probe: target branch with open PR"
+            },
+            {
+              "sha": "01fdaf764a172c2c831771bceff73a76ff6976cc",
+              "short_sha": "01fdaf7",
+              "subject": "Merge branch 'main' into fix/ci-strict-bot-prs"
+            },
+            {
+              "sha": "3a6d62775b25add8b21c733eb10a871373c55953",
+              "short_sha": "3a6d627",
+              "subject": "Merge 01fdaf764a172c2c831771bceff73a76ff6976cc into 710ba91ffedf47871c75fee4197c98cff1e152b7"
+            },
+            {
+              "sha": "a54caef8c0c498301989d4b79b5ea08a45899a86",
+              "short_sha": "a54caef",
+              "subject": "probe: GITHUB_TOKEN push without skip ci"
+            }
+          ]
+        },
+        {
+          "pr": 24,
+          "title": "fix(ci): make CI Strict run on bot-authored PRs",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-07T21:56:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/24",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "73115d178112ba3cd733df9ea49e945a9ebe2165",
+              "short_sha": "73115d1",
+              "subject": "probe: test GITHUB_TOKEN push event"
+            },
+            {
+              "sha": "77a8f9805f8791fd3c6b42ab02947e241ca4a847",
+              "short_sha": "77a8f98",
+              "subject": "probe: target branch with open PR"
+            },
+            {
+              "sha": "01fdaf764a172c2c831771bceff73a76ff6976cc",
+              "short_sha": "01fdaf7",
+              "subject": "Merge branch 'main' into fix/ci-strict-bot-prs"
+            }
+          ]
+        },
+        {
+          "pr": 25,
+          "title": "fix(ci): make CI Strict run on bot-authored PRs",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-07T22:08:54Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/25",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8626a86daf0baf1e5dfb76b9da715a72ae692ca7",
+              "short_sha": "8626a86",
+              "subject": "fix(ci): make CI Strict run on bot-authored PRs"
+            },
+            {
+              "sha": "d10739de256cd0da5096df4e92767e009fb9a5ee",
+              "short_sha": "d10739d",
+              "subject": "chore: re-trigger CI"
+            },
+            {
+              "sha": "bcde5a2a648d49fa54aaabddc0b8218289784766",
+              "short_sha": "bcde5a2",
+              "subject": "Merge branch 'main' into fix/ci-strict-bot-prs-v2"
+            },
+            {
+              "sha": "857696ac448d69650d5719751a7619c62a25891c",
+              "short_sha": "857696a",
+              "subject": "chore: re-trigger CI on human-authored head"
             }
           ]
         }
