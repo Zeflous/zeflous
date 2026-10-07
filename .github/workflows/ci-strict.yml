@@ -1,0 +1,90 @@
+# Strict CI lane: runs the repository's own full-quality pipeline
+# (`composer ci:strict`) on every pull request, so the local gates
+# (PHPStan max level, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector,
+# Deptrac, Infection mutation testing, PHPUnit + coverage gate, strict
+# supply-chain audit, persistent-worker smoke and PHPBench) are visible on
+# each PR instead of living only on a developer's machine.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# The SonarCloud lane (`.github/workflows/sonarcloud.yml`) is the cloud
+# reviewer, but it only publishes what *it* computes. `composer ci:strict`
+# is the repository's single source of truth for the strict pipeline, and it
+# previously had no CI surface at all. This lane runs exactly that script, so
+# a green check means the same set of gates the maintainers run locally.
+#
+# CONVENTIONS (mirrors `.github/workflows/sonarcloud.yml`)
+# -------------------------------------------------------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
+#     original tag kept as a trailing comment. Tag/branch refs are what
+#     SonarCloud flags as `githubactions:S7637`; pinning keeps supply-chain
+#     findings at zero without any rule exclusion.
+#   * Least privilege: the job only reads the repository.
+#   * The job NAME "CI Strict" is the status-check context — keep it stable
+#     if it is ever added to a branch-protection rule.
+#
+# SCOPE NOTE
+# ----------
+# This lane complements, and does not replace, the SonarCloud gate. It runs
+# the deterministic local pipeline; the SonarCloud lane runs the server-side
+# quality gate. Both are independent signals on the same pull request.
+
+name: CI Strict
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  # Keep the same gate visible on the default branch, so a post-merge audit of
+  # `main` shows the strict pipeline result for the merged commit.
+  push:
+    branches:
+      - main
+  # Allow a manual run (e.g. to re-verify after a tooling update).
+  workflow_dispatch:
+
+# Least privilege: the pipeline reads the repository and writes nothing back.
+permissions:
+  contents: read
+
+# Supersede a stale run for the same ref instead of queueing behind it.
+concurrency:
+  group: ci-strict-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci-strict:
+    # The job NAME is a public contract: it is the status-check context that a
+    # branch-protection rule would pin. Keep it exactly "CI Strict".
+    name: CI Strict
+    runs-on: ubuntu-latest
+    # ci:strict runs the whole battery including Infection (mutation testing
+    # over the full surface) and PHPBench; the bound keeps a hung dependency
+    # install or analyser from holding the check open forever.
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4 with pcov
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          # pcov is the coverage driver required by Infection mutation testing
+          # and the `coverage:gate` script inside ci:strict.
+          extensions: pcov
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run strict pipeline (composer ci:strict)
+        # One entry point, defined in composer.json: composer validate --strict,
+        # lint, PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer check,
+        # PHP_CodeSniffer, Rector dry-run, PHPUnit, the 90% coverage gate,
+        # Infection (MSI 100) and the mutation-score floor, the strict
+        # supply-chain audit, the persistent-worker smoke test and PHPBench.
+        run: composer ci:strict
