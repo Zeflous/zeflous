@@ -43,7 +43,8 @@
         "phpunit/phpunit": "^13.4",
         "rector/rector": "^2.7",
         "slevomat/coding-standard": "^8.31",
-        "squizlabs/php_codesniffer": "^4.0"
+        "squizlabs/php_codesniffer": "^4.0",
+        "vimeo/psalm": "^6.19"
     },
     "suggest": {
         "ext-pcov": "Fast coverage driver required by Infection mutation testing and the coverage gate.",
@@ -101,6 +102,7 @@
         "rector:check": "rector process --dry-run --no-progress-bar",
         "stan": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=1G --no-progress",
         "stan:ratchet": "@php scripts/ci/gate.php baseline",
+        "psalm": "psalm --no-cache --no-progress",
         "deptrac": "deptrac analyse --config-file=deptrac.yaml --no-progress",
         "audit:security": "@php scripts/ci/gate.php audit",
         "audit:strict": "@php scripts/ci/gate.php audit",
@@ -154,6 +156,7 @@
         "rector:check": "Dry-run Rector to detect needed refactorings.",
         "stan": "Run PHPStan static analysis at the strictest level.",
         "stan:ratchet": "Enforce the PHPStan baseline ratchet (no new errors).",
+        "psalm": "Run Psalm static analysis at level 1 against the frozen baseline.",
         "deptrac": "Run Deptrac architecture-boundary analysis.",
         "audit:security": "Strict supply-chain gate (alias of audit:strict).",
         "audit:strict": "Strict supply-chain gate: fail on advisories or non allow-listed abandoned packages.",

@@ -88,3 +88,29 @@ jobs:
         # Infection (MSI 100) and the mutation-score floor, the strict
         # supply-chain audit, the persistent-worker smoke test and PHPBench.
         run: composer ci:strict
+
+      - name: Psalm (static analysis, level 1 + baseline)
+        # Psalm runs at its strictest level (1). The pre-existing findings are
+        # frozen in `psalm-baseline.xml` -- the same "no new debt" ratchet the
+        # PHPStan baseline uses -- so this gate fails only on NEW issues and
+        # never loosens the existing PHPStan gate.
+        run: vendor/bin/psalm --no-cache --no-progress
+
+      - name: Progpilot (static security analysis)
+        # Progpilot is a taint-style security analyser. It is NOT installed via
+        # Composer: `designsecurity/progpilot` v1.3.0 requires `symfony/yaml
+        # ^7.3.2`, which conflicts with the `symfony/yaml ^8` this repository
+        # already locks (pulled in by doctum/deptrac). The official release PHAR
+        # is used instead, pinned by version AND by SHA-256 so the artifact
+        # cannot be swapped. It analyses `src/` and fails on any finding.
+        run: |
+          curl -fsSL -o progpilot.phar \
+            https://github.com/designsecurity/progpilot/releases/download/v1.3.0/progpilot_v1.3.0.phar
+          echo "e95979fa4a562daffbfb66012f7fab2f4ff47692d16284337a8fc48d5247d203  progpilot.phar" | sha256sum -c -
+          findings="$(php progpilot.phar --configuration=progpilot.yml src | tr -d '[:space:]')"
+          if [ "$findings" != "[]" ]; then
+            echo "::error::Progpilot reported security findings in src/."
+            php progpilot.phar --configuration=progpilot.yml src
+            exit 1
+          fi
+          echo "Progpilot: no security findings in src/."
