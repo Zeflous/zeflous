@@ -144,12 +144,16 @@ jobs:
       # Checkout ALWAYS runs, so the unconfigured-state step below can still
       # write a step summary and the job keeps a deterministic conclusion.
       - name: Checkout
-        # v4.4.0 (not v4.3.1): v4.3.1 is the last release that targets the
-        # deprecated Node.js 20 runtime, so GitHub forced it onto Node.js 24 and
-        # every run logged a `##[warning]Node.js 20 is deprecated` line (run
-        # 37724920801). v4.4.0 is the current `v4` line and carries the Node.js
-        # 24 runtime, so the warning is gone with the SHA pin intact.
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        # actions/checkout v7.0.1 -- the Node.js 24 runtime line, and the pin the
+        # reference repository `Zeflous/zef-framework` uses for this same lane.
+        # v4.4.0 was tried first and is NOT enough: every v4 release (and v5's
+        # predecessor line) declares `using: node20` in its action.yml, so GitHub
+        # forced it onto Node.js 24 and the run still logged
+        # `##[warning]Node.js 20 is deprecated ... actions/checkout@<sha>`
+        # (runs 37724920801 with v4.3.1 and 37727041126 with v4.4.0). v7.0.1
+        # declares `using: node24`, so the warning is gone with the full
+        # 40-character SHA pin intact.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
