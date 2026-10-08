@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): add ROADMAP-HISTORY grouped by roadmap area [\#77](https://github.com/Zeflous/zeflous/pull/77) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): refresh ROADMAP-STATUS header to current main [\#74](https://github.com/Zeflous/zeflous/pull/74) ([mbetixz](https://github.com/mbetixz))
 - ci\(auto-merge\): correct ZEF\_TOKEN caveat comment [\#71](https://github.com/Zeflous/zeflous/pull/71) ([mbetixz](https://github.com/mbetixz))
 - ci\(auto-merge\): correct the PAT caveat comment \(update-branch does not support fine-grained PATs\) [\#67](https://github.com/Zeflous/zeflous/pull/67) ([mbetixz](https://github.com/mbetixz))
