@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-08T03:49:39Z",
+  "as_of": "2026-10-08T04:26:43Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 41,
+  "unreleased_count": 44,
   "versions": [
     {
       "version": "Unreleased",
@@ -715,6 +715,59 @@
                 "sha": "7e549b226efa8d8828be5c7d9f48f3622bb4b294",
                 "short_sha": "7e549b2",
                 "subject": "ci(sonar): drop broken composer install step and bridge coverage on every event"
+              }
+            ]
+          },
+          {
+            "pr": 56,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T03:56:15Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/56",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "99fa748bdc543281f8902e37db20ef5609062c18",
+                "short_sha": "99fa748",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 57,
+            "title": "ci(sonar): use full-history checkout for better analysis relevancy",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T03:54:12Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/57",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0e7d3a85f6ae57791634bc80c9270989db34c57a",
+                "short_sha": "0e7d3a8",
+                "subject": "ci(sonar): use full-history checkout for better analysis relevancy"
+              }
+            ]
+          },
+          {
+            "pr": 59,
+            "title": "ci: bump sonar checkout to v4.4.0 and split heavy jobs",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T04:26:43Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/59",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "2c157c03b5a6b868c28466c040a93f89c1aa13fb",
+                "short_sha": "2c157c0",
+                "subject": "ci: bump sonar checkout to v4.4.0 and split heavy CI lanes into own workflows"
+              },
+              {
+                "sha": "fb05b0a1f71989f5088593308f66acf6a2f9c150",
+                "short_sha": "fb05b0a",
+                "subject": "ci: keep lane names whole in the CI Strict aggregator"
               }
             ]
           }
@@ -1653,6 +1706,59 @@
               "sha": "7e549b226efa8d8828be5c7d9f48f3622bb4b294",
               "short_sha": "7e549b2",
               "subject": "ci(sonar): drop broken composer install step and bridge coverage on every event"
+            }
+          ]
+        },
+        {
+          "pr": 56,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T03:56:15Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/56",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "99fa748bdc543281f8902e37db20ef5609062c18",
+              "short_sha": "99fa748",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 57,
+          "title": "ci(sonar): use full-history checkout for better analysis relevancy",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T03:54:12Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/57",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0e7d3a85f6ae57791634bc80c9270989db34c57a",
+              "short_sha": "0e7d3a8",
+              "subject": "ci(sonar): use full-history checkout for better analysis relevancy"
+            }
+          ]
+        },
+        {
+          "pr": 59,
+          "title": "ci: bump sonar checkout to v4.4.0 and split heavy jobs",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T04:26:43Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/59",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "2c157c03b5a6b868c28466c040a93f89c1aa13fb",
+              "short_sha": "2c157c0",
+              "subject": "ci: bump sonar checkout to v4.4.0 and split heavy CI lanes into own workflows"
+            },
+            {
+              "sha": "fb05b0a1f71989f5088593308f66acf6a2f9c150",
+              "short_sha": "fb05b0a",
+              "subject": "ci: keep lane names whole in the CI Strict aggregator"
             }
           ]
         }

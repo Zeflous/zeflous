@@ -159,3 +159,13 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#55 ci(sonar): drop broken composer install step and bridge coverage on every event
     - 7e549b2 ci(sonar): drop broken composer install step and bridge coverage on every event
+
+- PR#56 chore(changelog-official): regenerate official changelog
+    - 99fa748 chore(changelog-official): regenerate official changelog
+
+- PR#57 ci(sonar): use full-history checkout for better analysis relevancy
+    - 0e7d3a8 ci(sonar): use full-history checkout for better analysis relevancy
+
+- PR#59 ci: bump sonar checkout to v4.4.0 and split heavy jobs
+    - 2c157c0 ci: bump sonar checkout to v4.4.0 and split heavy CI lanes into own workflows
+    - fb05b0a ci: keep lane names whole in the CI Strict aggregator
