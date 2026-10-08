@@ -48,8 +48,9 @@
 #     lane finishes, this workflow sweeps immediately and approves the waiting
 #     runs, so the bot PRs merge without a human. The periodic `schedule` sweep
 #     remains as a safety net.
-#   * Optional `ZEF_CI_PAT`: if the owner adds a fine-grained PAT under that
-#     secret name, it is preferred over the built-in token. A push/approve made
+#   * Optional `ZEF_TOKEN`: if the owner adds a fine-grained PAT under that
+#     secret name (organization-level secret `ZEF_TOKEN`), it is preferred over
+#     the built-in token. A push/approve made
 #     with a human-owned token is attributed to a human actor, so the runs are
 #     not left waiting in the first place. Absent the secret, the built-in
 #     token is used and the auto-approve step still clears any waiting run.
@@ -133,8 +134,9 @@ jobs:
       - name: Process open pull requests (oldest first)
         env:
           # `gh` authenticates with the built-in workflow token (`GITHUB_TOKEN`)
-          # by default. If the owner has added the optional fine-grained PAT
-          # `ZEF_CI_PAT`, it is preferred: a push/approve performed with a
+          # by default. If the owner has added the optional fine-grained PAT as
+          # the organization-level secret `ZEF_TOKEN`, it is preferred: a
+          # push/approve performed with a
           # human-owned token is attributed to a human actor, so the resulting
           # runs are NOT left waiting for approval in the first place. When the
           # secret is absent the expression falls back to the built-in token and
@@ -148,10 +150,10 @@ jobs:
           # request is picked up by the next sweep instead of immediately.
           # Neither token can bypass the ruleset — the merge still waits for the
           # required `CI Strict` check to be green.
-          GH_TOKEN: ${{ secrets.ZEF_CI_PAT || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ZEF_TOKEN || secrets.GITHUB_TOKEN }}
           # Kept separately so the arm step can fall back to the workflow token
           # if the primary arm attempt is rejected for a transient reason.
-          GITHUB_TOKEN: ${{ secrets.ZEF_CI_PAT || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ZEF_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           set -u
 
