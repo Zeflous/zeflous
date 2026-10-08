@@ -101,7 +101,7 @@ see how far the code has moved against the roadmap.
 | Item | Status | Evidence |
 |------|--------|----------|
 | Strict local pipeline | ✅ Implemented | `composer ci:strict` → `ci:static` + `ci:coverage` + `ci:infection` + `ci:bench` (`composer.json`). |
-| CI lane (split jobs) | ✅ Implemented | `.github/workflows/ci-strict.yml` — `CI Static`, `CI Coverage`, `CI Infection`, `CI Bench` run in parallel; `CI Strict` aggregates them. |
+| CI lane (split workflows) | ✅ Implemented | Heavy lanes split into their own workflows: `.github/workflows/ci-static.yml`, `ci-coverage.yml`, `ci-infection.yml`, `ci-bench.yml` — each with its own status check, so one lane can be retried/re-run alone. `.github/workflows/ci-strict.yml` is the aggregator that keeps the required `CI Strict` check (it polls the four lane checks and fails unless all are green). |
 | PR title gate | ✅ Implemented | `.github/workflows/pr-validator.yml` (job `PR Validator`), taxonomy in `scripts/changelog/conventional.py`. |
 | Architecture gate | ✅ Implemented | `php-codearch-config.yaml`, `scripts/ci/archeology-gate.php`, `.github/workflows/archeology.yml` (job `PhpCodeArcheology SARIF`). |
 | Static analysis | ✅ Implemented | PHPStan max + ratchet, Psalm level 1 + baseline, Progpilot (PHAR, SHA-256 pinned). |

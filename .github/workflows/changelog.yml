@@ -195,9 +195,15 @@ jobs:
           # forever. Dispatch the required workflows explicitly on the update
           # branch so the checks run and the pull request can merge itself.
           pr_number=$(gh pr view "$branch" --json number --jq '.number')
-          gh workflow run ci-strict.yml --ref "$branch" \
-            && echo "Dispatched ci-strict.yml on $branch." \
-            || echo "::warning::Could not dispatch ci-strict.yml on $branch."
+          # The four strict lanes now live in their own workflows, so each must
+          # be dispatched individually: dispatching only the `CI Strict`
+          # aggregator would leave it polling for lane runs that were never
+          # created, and it would time out instead of going green.
+          for lane in ci-static ci-coverage ci-infection ci-bench; do
+            gh workflow run "${lane}.yml" --ref "$branch" \
+              && echo "Dispatched ${lane}.yml on $branch." \
+              || echo "::warning::Could not dispatch ${lane}.yml on $branch."
+          done
           # SonarCloud is dispatched with the PR number so the analysis is
           # attached to this pull request (the ruleset's `code_quality` rule
           # reads it; without an analysis the merge stays blocked).

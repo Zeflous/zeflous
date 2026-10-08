@@ -1,43 +1,51 @@
-# Strict CI lane: runs the repository's own full-quality pipeline on every pull
-# request, so the local gates (PHPStan max level, PHP-CS-Fixer, PHP_CodeSniffer +
-# Slevomat, Rector, Deptrac, Infection mutation testing, PHPUnit + coverage gate,
-# strict supply-chain audit, persistent-worker smoke and PHPBench) are visible on
-# each PR instead of living only on a developer's machine.
+# CI Strict -- the AGGREGATOR that preserves the required `CI Strict` status
+# check now that the four strict lanes live in their own workflow files.
 #
-# WHY THIS FILE EXISTS
-# --------------------
-# The SonarCloud lane (`.github/workflows/sonarcloud.yml`) is the cloud
-# reviewer, but it only publishes what *it* computes. `composer ci:strict` is the
-# repository's single source of truth for the strict pipeline, and it previously
-# had no CI surface at all. This lane runs exactly that script, so a green check
-# means the same set of gates the maintainers run locally.
-#
-# WHY THE JOBS ARE SPLIT
-# ----------------------
-# `composer ci:strict` is one entry point, but it is composed of four independent
-# lanes (`ci:static`, `ci:coverage`, `ci:infection`, `ci:bench`). Running them in
-# a single job made the whole pipeline as slow as its slowest member: Infection
-# (mutation testing over the full surface) can take tens of minutes on a growing
-# codebase, and it blocked every other gate behind it. Each lane now runs as its
-# own job, in parallel, so a slow mutation run no longer holds the fast gates
-# open. The `CI Strict` job is a thin aggregator that `needs` all four, so the
-# required status-check context "CI Strict" is preserved unchanged.
-#
-# CONVENTIONS (mirrors `.github/workflows/sonarcloud.yml`)
-# -------------------------------------------------------
-#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
-#     original tag kept as a trailing comment. Tag/branch refs are what
-#     SonarCloud flags as `githubactions:S7637`; pinning keeps supply-chain
-#     findings at zero without any rule exclusion.
-#   * Least privilege: the jobs only read the repository.
-#   * The job NAME "CI Strict" is the status-check context -- keep it stable
-#     if it is ever added to a branch-protection rule.
-#
-# SCOPE NOTE
+# BACKGROUND
 # ----------
-# This lane complements, and does not replace, the SonarCloud gate. It runs the
-# deterministic local pipeline; the SonarCloud lane runs the server-side quality
-# gate. Both are independent signals on the same pull request.
+# The strict pipeline (`composer ci:strict`) is composed of four independent
+# lanes: `ci:static`, `ci:coverage`, `ci:infection`, `ci:bench`. They used to be
+# four JOBS of this one workflow file, which meant:
+#   * a failure/cancellation in any lane entangled the others' reporting, and
+#   * a retry re-ran the whole set -- including the 60-minute Infection lane --
+#     just to retry a fast lane.
+# Each lane now has its own workflow (`ci-static.yml`, `ci-coverage.yml`,
+# `ci-infection.yml`, `ci-bench.yml`) and therefore its own status check, so it
+# can be retried, cancelled and watched on its own.
+#
+# This file is the thin replacement that keeps the branch ruleset working: the
+# required status-check context is the string `CI Strict`, so `CI Strict` must
+# remain a check that FAILS whenever a lane is red and SUCCEEDS only when all
+# four lanes are green.
+#
+# HOW IT WORKS (and why not `needs:`)
+# -----------------------------------
+# A job that only `needs:` other jobs is SKIPPED when a dependency fails, and a
+# required status check that is `skipped` counts as SATISFIED for branch
+# protection -- a red lane would silently let a PR merge. With the lanes now in
+# separate workflow files a `needs:` list is not even expressible across files,
+# so this job POLLS the lane status checks for the exact commit under
+# verification and fails unless every one of them completed `success`.
+#
+# WHY THE POLL ASSIGNS THE VERDICT (not the lanes' own runs)
+# ----------------------------------------------------------
+# GitHub reports workflow runs -- and therefore status checks -- by the pull
+# request's HEAD sha, but on a `pull_request` event the lanes are executed on the
+# ephemeral merge commit `refs/pull/N/merge`. Both shas can carry same-named
+# check-runs, so this job proves the relation with the compare API before it
+# attributes a run to the commit it is verifying, and it only ever accepts a
+# run that is IDENTICAL to, or AHEAD of, that commit. When the merge-commit run
+# is what ends up reported, those events are addressed from the PR's own events
+# (`refs/pull/N/merge`), so `CI Strict` still fires here and still assigns the
+# verdict.
+#
+# CONVENTIONS (unchanged)
+# -----------------------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the original
+#     tag kept as a trailing comment.
+#   * Least privilege: it only reads the repository and the lane runs.
+#   * The job NAME "CI Strict" is the status-check context -- keep it stable.
+#   * The aggregator FAILS (never skips) whenever a lane is not green.
 
 name: CI Strict
 
@@ -54,9 +62,11 @@ on:
   # Allow a manual run (e.g. to re-verify after a tooling update).
   workflow_dispatch:
 
-# Least privilege: the pipeline reads the repository and writes nothing back.
+# Least privilege: read the repository, the lane runs and their check-runs.
 permissions:
   contents: read
+  actions: read
+  checks: read
 
 # Supersede a stale run for the same ref instead of queueing behind it.
 concurrency:
@@ -64,251 +74,135 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Fast, deterministic static analysis + unit tests + supply-chain audit.
-  ci-static:
-    name: CI Static
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Setup PHP 8.4
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: '8.4'
-          coverage: none
-          tools: composer:v2
-          # Cache the Composer download cache so the split jobs do not each pay
-          # the full dependency-download cost.
-          cache: composer
-
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Run static pipeline (composer ci:static)
-        # composer validate --strict, lint, PHPStan (max level) + ratchet,
-        # Deptrac, PHP-CS-Fixer check, PHP_CodeSniffer, Rector dry-run, PHPUnit,
-        # the persistent-worker smoke test and the strict supply-chain audit.
-        run: composer ci:static
-
-      - name: Psalm (static analysis, level 1 + baseline)
-        # Psalm runs at its strictest level (1). The pre-existing findings are
-        # frozen in `psalm-baseline.xml` -- the same "no new debt" ratchet the
-        # PHPStan baseline uses -- so this gate fails only on NEW issues and
-        # never loosens the existing PHPStan gate.
-        run: vendor/bin/psalm --no-cache --no-progress
-
-      - name: Progpilot (static security analysis)
-        # Progpilot is a taint-style security analyser. It is NOT installed via
-        # Composer: `designsecurity/progpilot` v1.3.0 requires `symfony/yaml
-        # ^7.3.2`, which conflicts with the `symfony/yaml ^8` this repository
-        # already locks (pulled in by doctum/deptrac). The official release PHAR
-        # is used instead, pinned by version AND by SHA-256 so the artifact
-        # cannot be swapped. It analyses `src/` and fails on any finding.
-        run: |
-          curl -fsSL -o progpilot.phar \
-            https://github.com/designsecurity/progpilot/releases/download/v1.3.0/progpilot_v1.3.0.phar
-          echo "e95979fa4a562daffbfb66012f7fab2f4ff47692d16284337a8fc48d5247d203  progpilot.phar" | sha256sum -c -
-          findings="$(php progpilot.phar --configuration=progpilot.yml src | tr -d '[:space:]')"
-          if [ "$findings" != "[]" ]; then
-            echo "::error::Progpilot reported security findings in src/."
-            php progpilot.phar --configuration=progpilot.yml src
-            exit 1
-          fi
-          echo "Progpilot: no security findings in src/."
-
-      - name: PhpCodeArcheology (architecture & maintainability gate)
-        # PhpCodeArcheology is the repository's non-server-side counterpart to
-        # SonarCloud: it measures architecture and maintainability (60+ metrics,
-        # complexity, coupling, cohesion, git churn hotspots, health score)
-        # rather than type safety, so it complements PHPStan/Psalm instead of
-        # duplicating them. It is installed as a Composer dev-dependency
-        # (`php-code-archeology/php-code-archeology`, pinned `^2.11`).
-        #
-        # The MCP server it ships is intentionally NOT configured or used.
-        #
-        # Two steps:
-        #   1. `composer archeology` writes the SARIF + Markdown reports into
-        #      the git-ignored `build/archeology/` (uploaded as an artifact).
-        #   2. `composer archeology:gate` normalises the SARIF paths and fails
-        #      on any ERROR-level architecture finding.
-        #
-        # WHY NOT `--quick --fail-on=error`: `--quick` short-circuits the
-        # prediction pass entirely and always exits 0, so it was a no-op gate.
-        # The full run's `--fail-on=error` is also unusable as-is: it counts
-        # the relative "effort/MI/LCOM more than 30% above/below average"
-        # findings as errors, and those are a distribution artefact (any
-        # codebase has entities above 1.3x the mean by construction), not
-        # defects. The gate therefore reads the SARIF `level` field, which is
-        # `error` only for genuine architecture defects (GodClass,
-        # SecuritySmell, DependencyCycle, "Difficulty is too high").
-        #
-        # WHY NOT A COMMITTED BASELINE: the tool's problem identity is
-        # `crc32(<absolute path>)`, so a baseline file is not portable between
-        # the developer's checkout and the CI runner (different absolute
-        # paths) -- it would report spurious "new problems" on every run. The
-        # gate is therefore deterministic and depends only on the source tree.
-        run: |
-          composer archeology
-          composer archeology:gate
-
-      - name: Upload PhpCodeArcheology reports
-        # The SARIF report is also consumable by GitHub Code Scanning; the
-        # Markdown report is the human-readable summary. Both are uploaded as
-        # a build artifact so the metrics are visible on every run.
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
-        with:
-          name: phpcodearcheology-report
-          path: build/archeology/
-          if-no-files-found: ignore
-          retention-days: 14
-
-  # Line-coverage gate (needs pcov).
-  ci-coverage:
-    name: CI Coverage
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Setup PHP 8.4 with pcov
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: '8.4'
-          extensions: pcov
-          coverage: pcov
-          tools: composer:v2
-          cache: composer
-
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Run coverage gate (composer ci:coverage)
-        run: composer ci:coverage
-
-      - name: Regenerate coverage reports (clover + JUnit)
-        # ci:coverage runs the gate variant, which writes build/clover.xml but
-        # does not emit the JUnit report. This script (composer ci:coverage:reports)
-        # reruns PHPUnit with both report writers so the SonarCloud job can
-        # download a complete report set instead of installing dependencies and
-        # rerunning the suite itself. The gate above already enforced the 90%
-        # floor, so a failure here is a real signal, not a budget artefact.
-        run: composer ci:coverage:reports
-
-      - name: Upload coverage reports
-        # Consumed by the SonarCloud job's coverage bridge (it fetches this
-        # artifact by name for the same commit). Published AFTER the gate so a
-        # failed coverage lane never feeds a phantom report to the scanner.
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: coverage-reports
-          path: |
-            build/clover.xml
-            build/junit.xml
-          if-no-files-found: error
-          retention-days: 14
-
-  # Mutation testing -- the heaviest lane, isolated so it cannot block the rest.
-  ci-infection:
-    name: CI Infection
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Setup PHP 8.4 with pcov
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: '8.4'
-          extensions: pcov
-          coverage: pcov
-          tools: composer:v2
-          cache: composer
-
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Run mutation testing (composer ci:infection)
-        # Infection (MSI 100) plus the mutation-score floor.
-        run: composer ci:infection
-
-  # Micro-benchmark lane.
-  ci-bench:
-    name: CI Bench
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Setup PHP 8.4
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: '8.4'
-          coverage: none
-          tools: composer:v2
-          cache: composer
-
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Run benchmarks (composer ci:bench)
-        run: composer ci:bench
-
   # Aggregator: preserves the "CI Strict" status-check context. It runs no gate
   # of its own -- it is green only when every lane above is green, so the
   # branch-protection rule keeps working unchanged.
-  #
-  # WHY `if: always()` + AN EXPLICIT RESULT CHECK
-  # ---------------------------------------------
-  # A job that only `needs:` other jobs is SKIPPED when any dependency fails
-  # (GitHub's implicit `success()` gate). Branch protection treats a required
-  # status check that is `skipped` as SATISFIED, so a red lane could still let a
-  # PR merge -- the aggregator would silently "pass" by not running at all.
-  # `if: always()` forces the aggregator to run even when a lane failed, and the
-  # step below turns any non-`success` dependency result into a non-zero exit,
-  # so the required "CI Strict" check FAILS (never skips) whenever a lane is red.
   ci-strict:
     name: CI Strict
     runs-on: ubuntu-latest
     if: always()
-    needs:
-      - ci-static
-      - ci-coverage
-      - ci-infection
-      - ci-bench
+    # Worst case is the Infection lane's own 60-minute budget plus the polling
+    # overhead (65 minutes of polling + a 5-minute grace), so the aggregator can
+    # conclude whenever the slowest lane does.
+    timeout-minutes: 75
+
     steps:
       - name: Verify every strict lane succeeded
         env:
-          # The result of each dependency, injected by GitHub. It is `success`
-          # only when the lane completed green; `failure`, `cancelled` and
-          # `skipped` all mean the pipeline is not green.
-          STATIC: ${{ needs.ci-static.result }}
-          COVERAGE: ${{ needs.ci-coverage.result }}
-          INFECTION: ${{ needs.ci-infection.result }}
-          BENCH: ${{ needs.ci-bench.result }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
         run: |
-          set -u
+          set -uo pipefail
+
+          required="CI Static CI Coverage CI Infection CI Bench"
+
+          # --- Resolve the commit whose lane check-runs must be verified. -------
+          # A `pull_request` event executes this workflow on the ephemeral merge
+          # commit `refs/pull/N/merge`, but the lane runs are REPORTED by the PR
+          # head sha, so that is the authoritative commit to verify. Manual
+          # dispatches look the branch head up through the API.
+          sha=""
+          if [ "${EVENT}" = "workflow_dispatch" ]; then
+            sha=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/commits/${GITHUB_REF_NAME}" \
+              | jq -r '.sha // empty' 2>/dev/null) || sha=""
+          elif [ "${EVENT}" = "pull_request" ] && [ -n "${GITHUB_EVENT_PATH:-}" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
+            sha=$(jq -r '.pull_request.head.sha // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null) || sha=""
+          fi
+          [ -n "${sha}" ] || sha="${GITHUB_SHA}"
+          echo "Verifying the strict lanes for commit ${sha} (event: ${EVENT})."
+
+          # --- Merge-commit relation probe. ------------------------------------
+          # `compare(a...b)` reports "identical" when a == b, "ahead" when b is a
+          # descendant of a (so b is newer), and "behind"/"diverged" otherwise.
+          # Only "identical" and "ahead" are accepted, which stops a same-named
+          # check-run belonging to a DIFFERENT commit from being mistaken for a
+          # lane result of the commit under verification.
+          relation() { # $1=base sha  $2=head sha
+            local rel
+            rel=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/compare/$1...$2" 2>/dev/null \
+              | jq -r '.status // "unknown"') || rel="unknown"
+            printf '%s' "${rel}"
+          }
+
+          # --- Resolve a lane check's canonical head sha. ----------------------
+          # Returns the sha whose check-run is the lane result for `${sha}`: the
+          # exact sha when GitHub reported the lane there, otherwise a descendant
+          # sha (the merge commit case). Anything else is ignored.
+          resolve_sha() { # $1=check name  $2=queried sha
+            local name="$1" sn="$2" csr c
+            csr=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/commits/${sn}/check-runs?check_name=$(printf '%s' "${name}" | jq -sRr @uri)&per_page=100" 2>/dev/null) || csr=""
+            if [ -z "${csr}" ]; then printf '%s' "${sn}"; return; fi
+            for c in $(printf '%s' "${csr}" | jq -r --arg n "${name}" '.check_runs[] | select(.name == $n) | .head_sha'); do
+              [ "${c}" = "${sn}" ] && { printf '%s' "${sn}"; return; }
+              rel=$(relation "${sn}" "${c}")
+              if [ "${rel}" = "ahead" ] || [ "${rel}" = "identical" ]; then
+                printf '%s' "${c}"; return
+              fi
+            done
+            printf '%s' "${sn}"
+          }
+
+          # --- Poll until every lane has a concluding run for this commit. -----
+          # Bound by the slowest lane's own timeout (60 minutes for Infection)
+          # plus a small grace, so a lane held open can never hang this check.
+          deadline=$(( $(date +%s) + 65 * 60 ))
+          while :; do
+            pending=0
+            report=""
+            for name in ${required}; do
+              lsha=$(resolve_sha "${name}" "${sha}")
+              line=$(curl -fsSL \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${REPO}/commits/${lsha}/check-runs?check_name=$(printf '%s' "${name}" | jq -sRr @uri)&per_page=100" 2>/dev/null \
+                | jq -r --arg n "${name}" '[.check_runs[] | select(.name == $n)] | sort_by(.id) | if length == 0 then "absent|absent" else "\(.[-1].status)|\(.[-1].conclusion)" end') || line="unknown|unknown"
+              st="${line%%|*}"
+              cc="${line##*|}"
+              report="${report}${name}: status=${st} conclusion=${cc} (sha ${lsha})"$'\n'
+              case "${st}:${cc}" in
+                completed:success) : ;;
+                completed:*) pending=1 ;;   # failure / cancelled / timed_out / ...
+                *) pending=1 ;;             # queued / in_progress / absent
+              esac
+            done
+            printf '%s' "${report}"
+            if [ "${pending}" -eq 0 ]; then break; fi
+            if [ "$(date +%s)" -ge "${deadline}" ]; then
+              echo "::error::Timed out waiting for the strict lanes to conclude."
+              printf '%s' "${report}"
+              exit 1
+            fi
+            echo "Lanes still pending; polling again in 20s..."
+            sleep 20
+          done
+
+          # --- Verdict. --------------------------------------------------------
           failed=0
-          for lane in "static:$STATIC" "coverage:$COVERAGE" "infection:$INFECTION" "bench:$BENCH"; do
-            name="${lane%%:*}"
-            result="${lane#*:}"
-            if [ "$result" != "success" ]; then
-              echo "::error::CI Strict lane '$name' did not succeed (result: $result)."
+          for name in ${required}; do
+            lsha=$(resolve_sha "${name}" "${sha}")
+            cc=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${REPO}/commits/${lsha}/check-runs?check_name=$(printf '%s' "${name}" | jq -sRr @uri)&per_page=100" 2>/dev/null \
+              | jq -r --arg n "${name}" '[.check_runs[] | select(.name == $n)] | sort_by(.id) | if length == 0 then "skipped" else .[-1].conclusion end') || cc="unknown"
+            if [ "${cc}" != "success" ]; then
+              echo "::error::CI Strict lane '${name}' did not succeed (conclusion: ${cc})."
               failed=1
             else
-              echo "CI Strict lane '$name' succeeded."
+              echo "CI Strict lane '${name}' succeeded."
             fi
           done
-          if [ "$failed" -ne 0 ]; then
+          if [ "${failed}" -ne 0 ]; then
             echo "::error::One or more strict lanes failed; failing the CI Strict aggregator."
             exit 1
           fi
