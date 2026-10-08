@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-08T02:54:19Z",
+  "as_of": "2026-10-08T03:05:48Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 36,
+  "unreleased_count": 38,
   "versions": [
     {
       "version": "Unreleased",
@@ -625,6 +625,48 @@
                 "sha": "ab3ccbdbe124bbab2943f2ffac4e24ff64375c6b",
                 "short_sha": "ab3ccbd",
                 "subject": "refactor: validate url scheme before urllib calls"
+              }
+            ]
+          },
+          {
+            "pr": 47,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T03:03:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/47",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6d6e833a37333781be6195c57fcc822e59498b82",
+                "short_sha": "6d6e833",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              },
+              {
+                "sha": "af587c49b7157b8539570e08dcdb8d1b28c85c13",
+                "short_sha": "af587c4",
+                "subject": "Merge branch 'main' into chore/changelog-official-update"
+              }
+            ]
+          },
+          {
+            "pr": 50,
+            "title": "chore(ci): rename bot PAT secret to ZEF_TOKEN in auto-merge",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T03:05:48Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/50",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b92418160dc43699544377f248e514eeebaf09b6",
+                "short_sha": "b924181",
+                "subject": "chore(ci): rename bot PAT secret to ZEF_TOKEN in auto-merge"
+              },
+              {
+                "sha": "c46b32d8b5ba10ab4919d62718c4781751ec519b",
+                "short_sha": "c46b32d",
+                "subject": "Merge branch 'main' into chore/zef-token-secret-name"
               }
             ]
           }
@@ -1461,6 +1503,27 @@
           ]
         },
         {
+          "pr": 47,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T03:03:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/47",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6d6e833a37333781be6195c57fcc822e59498b82",
+              "short_sha": "6d6e833",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            },
+            {
+              "sha": "af587c49b7157b8539570e08dcdb8d1b28c85c13",
+              "short_sha": "af587c4",
+              "subject": "Merge branch 'main' into chore/changelog-official-update"
+            }
+          ]
+        },
+        {
           "pr": 49,
           "title": "fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger",
           "author": "mbetixz",
@@ -1473,6 +1536,27 @@
               "sha": "f57dc8234e90d51adc8d18e1747b56d3cb9f5db1",
               "short_sha": "f57dc82",
               "subject": "fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger"
+            }
+          ]
+        },
+        {
+          "pr": 50,
+          "title": "chore(ci): rename bot PAT secret to ZEF_TOKEN in auto-merge",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T03:05:48Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/50",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b92418160dc43699544377f248e514eeebaf09b6",
+              "short_sha": "b924181",
+              "subject": "chore(ci): rename bot PAT secret to ZEF_TOKEN in auto-merge"
+            },
+            {
+              "sha": "c46b32d8b5ba10ab4919d62718c4781751ec519b",
+              "short_sha": "c46b32d",
+              "subject": "Merge branch 'main' into chore/zef-token-secret-name"
             }
           ]
         }
