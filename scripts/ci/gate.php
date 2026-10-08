@@ -14,17 +14,23 @@ declare(strict_types=1);
 
 use Zef\Framework\Tooling\GateRunner;
 use Zef\Framework\Tooling\ToolingException;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 
 $root = dirname(__DIR__, 2);
 
 $runner = new GateRunner($root, static function (string $command): array {
-    $output = [];
-    $exitCode = 0;
-    exec($command, $output, $exitCode);
+    try {
+        $parts = explode(' ', $command);
+        $process = new Process($parts);
+        $process->mustRun();
 
-    return [$exitCode, implode(PHP_EOL, $output)];
+        return [$process->getExitCode(), $process->getOutput()];
+    } catch (ProcessFailedException $exception) {
+        return [$exception->getProcess()->getExitCode(), $exception->getMessage()];
+    }
 });
 
 try {
