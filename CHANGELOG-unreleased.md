@@ -188,3 +188,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#67 ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)
     - c52b359 ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)
+
+- PR#68 chore(changelog-official): regenerate official changelog
+    - 578b8cb chore(changelog-official): regenerate official changelog
+
+- PR#71 ci(auto-merge): correct ZEF_TOKEN caveat comment
+    - f2ccf43 ci(auto-merge): correct the token-type caveat (ZEF_TOKEN is a classic PAT)
