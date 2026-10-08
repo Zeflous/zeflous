@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-08T14:15:56Z",
+  "as_of": "2026-10-08T14:46:47Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 49,
+  "unreleased_count": 51,
   "versions": [
     {
       "version": "Unreleased",
@@ -868,6 +868,38 @@
                 "sha": "c52b359ff54321af84a7beacf71a195196ae527d",
                 "short_sha": "c52b359",
                 "subject": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)"
+              }
+            ]
+          },
+          {
+            "pr": 68,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T14:18:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/68",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "578b8cb6524f36c283397c63f6e345c5084e456d",
+                "short_sha": "578b8cb",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 71,
+            "title": "ci(auto-merge): correct ZEF_TOKEN caveat comment",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T14:46:47Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/71",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f2ccf43cefb9f85ac1f52c674d7f363c029af51e",
+                "short_sha": "f2ccf43",
+                "subject": "ci(auto-merge): correct the token-type caveat (ZEF_TOKEN is a classic PAT)"
               }
             ]
           }
@@ -1959,6 +1991,38 @@
               "sha": "c52b359ff54321af84a7beacf71a195196ae527d",
               "short_sha": "c52b359",
               "subject": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)"
+            }
+          ]
+        },
+        {
+          "pr": 68,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T14:18:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/68",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "578b8cb6524f36c283397c63f6e345c5084e456d",
+              "short_sha": "578b8cb",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 71,
+          "title": "ci(auto-merge): correct ZEF_TOKEN caveat comment",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T14:46:47Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/71",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f2ccf43cefb9f85ac1f52c674d7f363c029af51e",
+              "short_sha": "f2ccf43",
+              "subject": "ci(auto-merge): correct the token-type caveat (ZEF_TOKEN is a classic PAT)"
             }
           ]
         }
