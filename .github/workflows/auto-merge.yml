@@ -35,6 +35,25 @@
 #     merge to GitHub's own merge queue / the maintainer; it never performs a
 #     direct, un-gated merge.
 #
+# PROMPT, NON-GATED TRIGGER (why `workflow_run` is here)
+# -----------------------------------------------------
+#   * A changelog lane pushes its update branch with the built-in
+#     `GITHUB_TOKEN`. GitHub then leaves the `pull_request` runs of THIS
+#     workflow (and of every other `pull_request` workflow) waiting for
+#     maintainer approval — conclusion `action_required`. A run that is itself
+#     waiting for approval cannot approve anything, so the `pull_request`
+#     trigger alone can never clear the gate, and the required `CI Strict`
+#     check never turns green.
+#   * `workflow_run` is NOT subject to that approval gate. When a changelog
+#     lane finishes, this workflow sweeps immediately and approves the waiting
+#     runs, so the bot PRs merge without a human. The periodic `schedule` sweep
+#     remains as a safety net.
+#   * Optional `ZEF_CI_PAT`: if the owner adds a fine-grained PAT under that
+#     secret name, it is preferred over the built-in token. A push/approve made
+#     with a human-owned token is attributed to a human actor, so the runs are
+#     not left waiting in the first place. Absent the secret, the built-in
+#     token is used and the auto-approve step still clears any waiting run.
+#
 # CONVENTIONS
 # -----------
 #   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
@@ -59,6 +78,20 @@ on:
     # that was opened as a draft; `closed` keeps the FIFO chain alive after a
     # merge (the next PR is then synced and armed without waiting for cron).
     types: [opened, reopened, ready_for_review, synchronize, closed]
+  # Prompt, NON-GATED trigger. A changelog lane pushes its update branch with
+  # the built-in `GITHUB_TOKEN`, which leaves the pull-request runs of THIS
+  # workflow (and of every other `pull_request` workflow) waiting for
+  # maintainer approval ("action_required"). A run that is itself waiting for
+  # approval cannot approve anything, so the `pull_request` trigger alone can
+  # never clear the gate. `workflow_run` is NOT subject to that approval gate,
+  # so when a changelog lane finishes we sweep immediately and approve the
+  # waiting runs. This is what lets the bot PRs merge without a human.
+  workflow_run:
+    workflows:
+      - "Changelog"
+      - "Changelog (official generator)"
+      - "Changelog tests"
+    types: [completed]
   # Safety net: the GitHub scheduler is not perfectly reliable, so a periodic
   # sweep re-arms any PR that a missed event left un-armed. Off the :00/:30
   # peak minutes on purpose (GitHub drops cron runs that land exactly there).
@@ -78,7 +111,8 @@ jobs:
   auto-merge:
     # Run on cron/manual, on any meaningful PR lifecycle event, and on a
     # `closed` event ONLY when the PR was actually merged (a closed-without-
-    # merge PR has nothing to re-process).
+    # merge PR has nothing to re-process). `workflow_run` and `schedule` are
+    # not `pull_request` events, so they always run.
     if: >-
       github.event_name != 'pull_request' ||
       github.event.action != 'closed' ||
@@ -98,26 +132,26 @@ jobs:
 
       - name: Process open pull requests (oldest first)
         env:
-          # `gh` authenticates with the built-in workflow token (`GITHUB_TOKEN`).
-          # No PAT is required: the job's explicit `permissions:` block below
-          # grants exactly the scopes the operations need — `contents: write`
-          # (branch sync via the update-branch endpoint), `pull-requests: write`
-          # (arm auto-merge) and `actions: write` (approve a run left waiting by
-          # a bot-authored push). The token is referenced by NAME only; the
-          # value is injected at run time and never written to a file or log.
+          # `gh` authenticates with the built-in workflow token (`GITHUB_TOKEN`)
+          # by default. If the owner has added the optional fine-grained PAT
+          # `ZEF_CI_PAT`, it is preferred: a push/approve performed with a
+          # human-owned token is attributed to a human actor, so the resulting
+          # runs are NOT left waiting for approval in the first place. When the
+          # secret is absent the expression falls back to the built-in token and
+          # the auto-approve step below still clears any waiting run. The token
+          # is referenced by NAME only; its value is injected at run time and
+          # never written to a file or log.
           #
           # QUEUE-CHAIN NOTE: a merge executed by `github-actions[bot]`
           # (GITHUB_TOKEN) emits no follow-up workflow event (GitHub's recursion
           # guard), so the `closed` handler does not fire and the next pull
-          # request is picked up by the next cron sweep instead of immediately.
-          # That is a latency trade-off, not a correctness one: the periodic
-          # sweep (every 20 minutes) still arms and merges every eligible PR.
+          # request is picked up by the next sweep instead of immediately.
           # Neither token can bypass the ruleset — the merge still waits for the
           # required `CI Strict` check to be green.
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.ZEF_CI_PAT || secrets.GITHUB_TOKEN }}
           # Kept separately so the arm step can fall back to the workflow token
           # if the primary arm attempt is rejected for a transient reason.
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ZEF_CI_PAT || secrets.GITHUB_TOKEN }}
         run: |
           set -u
 
