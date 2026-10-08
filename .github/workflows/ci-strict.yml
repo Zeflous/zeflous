@@ -95,7 +95,12 @@ jobs:
         run: |
           set -uo pipefail
 
-          required="CI Static CI Coverage CI Infection CI Bench"
+          # LANE NAMES CONTAIN SPACES. A space-separated string fed to
+          # `for name in ${required}` word-splits into "CI", "Static", "CI",
+          # ... so every lookup resolved to a name that does not exist, came
+          # back "absent", and the poll below spun until its deadline. A bash
+          # array keeps each lane name whole.
+          required=("CI Static" "CI Coverage" "CI Infection" "CI Bench")
 
           # --- Resolve the commit whose lane check-runs must be verified. -------
           # A `pull_request` event executes this workflow on the ephemeral merge
@@ -159,7 +164,7 @@ jobs:
           while :; do
             pending=0
             report=""
-            for name in ${required}; do
+            for name in "${required[@]}"; do
               lsha=$(resolve_sha "${name}" "${sha}")
               line=$(curl -fsSL \
                 -H "Authorization: Bearer ${GH_TOKEN}" \
@@ -188,7 +193,7 @@ jobs:
 
           # --- Verdict. --------------------------------------------------------
           failed=0
-          for name in ${required}; do
+          for name in "${required[@]}"; do
             lsha=$(resolve_sha "${name}" "${sha}")
             cc=$(curl -fsSL \
               -H "Authorization: Bearer ${GH_TOKEN}" \
