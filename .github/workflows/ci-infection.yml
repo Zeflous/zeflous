@@ -1,0 +1,57 @@
+# Strict CI lane -- mutation testing (the heaviest lane), kept in its own file.
+#
+# SPLIT OUT OF `.github/workflows/ci-strict.yml` (2026-10-08). Infection can run
+# for tens of minutes; while it shared a file with the fast lanes it was the one
+# lane everybody else waited behind, and retrying a flaky fast lane would also
+# re-run mutation testing. As its own workflow it is retried, cancelled and
+# reported on independently.
+#
+# The job NAME below ("CI Infection") is the status-check context -- keep it
+# stable.
+
+name: CI Infection
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Least privilege: the lane reads the repository and writes nothing back.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-infection-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Mutation testing -- the heaviest lane, isolated so it cannot block the rest.
+  ci-infection:
+    name: CI Infection
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4 with pcov
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          extensions: pcov
+          coverage: pcov
+          tools: composer:v2
+          cache: composer
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run mutation testing (composer ci:infection)
+        # Infection (MSI 100) plus the mutation-score floor.
+        run: composer ci:infection

@@ -1,0 +1,80 @@
+# Strict CI lane -- line-coverage gate (needs pcov) + coverage report producer.
+#
+# SPLIT OUT OF `.github/workflows/ci-strict.yml` (2026-10-08), for the same
+# reason as `ci-static.yml`: one lane's failure no longer entangles the others
+# and this lane can be retried on its own.
+#
+# This lane is also the SOLE PRODUCER of the `coverage-reports` artifact
+# (clover + JUnit) that the SonarCloud lane bridges for its coverage-on-new-code
+# condition, so it is the only lane whose runs the scanner waits for.
+#
+# The job NAME below ("CI Coverage") is the status-check context -- keep it
+# stable.
+
+name: CI Coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Least privilege: the lane reads the repository; it writes no repository state.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-coverage-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Line-coverage gate (needs pcov).
+  ci-coverage:
+    name: CI Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4 with pcov
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          extensions: pcov
+          coverage: pcov
+          tools: composer:v2
+          cache: composer
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run coverage gate (composer ci:coverage)
+        run: composer ci:coverage
+
+      - name: Regenerate coverage reports (clover + JUnit)
+        # ci:coverage runs the gate variant, which writes build/clover.xml but
+        # does not emit the JUnit report. This script (composer ci:coverage:reports)
+        # reruns PHPUnit with both report writers so the SonarCloud job can
+        # download a complete report set instead of installing dependencies and
+        # rerunning the suite itself. The gate above already enforced the 90%
+        # floor, so a failure here is a real signal, not a budget artefact.
+        run: composer ci:coverage:reports
+
+      - name: Upload coverage reports
+        # Consumed by the SonarCloud job's coverage bridge (it fetches this
+        # artifact by name for the same commit). Published AFTER the gate so a
+        # failed coverage lane never feeds a phantom report to the scanner.
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-reports
+          path: |
+            build/clover.xml
+            build/junit.xml
+          if-no-files-found: error
+          retention-days: 14

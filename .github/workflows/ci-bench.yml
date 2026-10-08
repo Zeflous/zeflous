@@ -1,0 +1,52 @@
+# Strict CI lane -- micro-benchmarks, kept in its own file.
+#
+# SPLIT OUT OF `.github/workflows/ci-strict.yml` (2026-10-08): the lane now has
+# its own status-check context, so it can be retried, cancelled and reported on
+# without dragging the static / coverage / mutation lanes along.
+#
+# The job NAME below ("CI Bench") is the status-check context -- keep it stable.
+
+name: CI Bench
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Least privilege: the lane reads the repository and writes nothing back.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-bench-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Micro-benchmark lane.
+  ci-bench:
+    name: CI Bench
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+          cache: composer
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run benchmarks (composer ci:bench)
+        run: composer ci:bench

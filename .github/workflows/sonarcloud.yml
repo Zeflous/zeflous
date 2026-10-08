@@ -59,6 +59,14 @@
 #      the duplicated `composer install` -- and its transient codeload HTTP/2 429
 #      rate-limit failures -- are gone. See the bridge step below.
 #
+#   5. HEAVY LANES SPLIT (2026-10-08). The four strict lanes moved out of
+#      `ci-strict.yml` into one workflow each (`ci-static.yml`, `ci-coverage.yml`,
+#      `ci-infection.yml`, `ci-bench.yml`) so a slow lane no longer entangles the
+#      others and each can be retried alone; `ci-strict.yml` is now the thin
+#      aggregator that keeps the required `CI Strict` check. The bridge below
+#      therefore waits on `ci-coverage.yml`, which is the lane that produces the
+#      `coverage-reports` artifact -- the same artifact, a narrower wait.
+#
 # CONTRACT (unchanged, deliberate): this job ALWAYS runs and concludes. When it
 # cannot scan credentialed — the `SONAR_TOKEN` repository secret is not set, or
 # a `pull_request` event where GitHub withholds repository secrets (a
@@ -136,7 +144,12 @@ jobs:
       # Checkout ALWAYS runs, so the unconfigured-state step below can still
       # write a step summary and the job keeps a deterministic conclusion.
       - name: Checkout
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        # v4.4.0 (not v4.3.1): v4.3.1 is the last release that targets the
+        # deprecated Node.js 20 runtime, so GitHub forced it onto Node.js 24 and
+        # every run logged a `##[warning]Node.js 20 is deprecated` line (run
+        # 37724920801). v4.4.0 is the current `v4` line and carries the Node.js
+        # 24 runtime, so the warning is gone with the SHA pin intact.
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
@@ -160,10 +173,12 @@ jobs:
       # runs NO tests. The analysis needs SOURCE plus a coverage report, and
       # sonar-project.properties derives no path from vendor/ (it is excluded
       # from the analysis scope). The report is taken from the CI Coverage lane
-      # (`ci-strict.yml`), which publishes the `coverage-reports` artifact
+      # (`ci-coverage.yml`), which publishes the `coverage-reports` artifact
       # (clover + JUnit) for the same commit -- the same `checkout -> download
       # artifact -> sonar-scanner` shape as the reference repository
-      # `Zeflous/zef-framework`.
+      # `Zeflous/zef-framework`. That lane has its own workflow since the heavy
+      # lanes were split apart, so the bridge polls it directly instead of the
+      # former combined `CI Strict` workflow.
       #
       # v1 kept a `composer install` + PHPUnit step for the push-to-main path (to
       # be the artifact's producer). That was both redundant -- the CI Coverage
@@ -204,7 +219,7 @@ jobs:
           echo "Bridging coverage for reported head sha ${sha:0:8} (event: ${GITHUB_EVENT_NAME})."
 
           # Bound the wait by the CI Coverage lane's own timeout (20 minutes in
-          # .github/workflows/ci-strict.yml); beyond it the lane has failed on
+          # .github/workflows/ci-coverage.yml); beyond it the lane has failed on
           # its own terms and this gate must not hold the check open.
           deadline=$(( $(date +%s) + 20 * 60 ))
           run_id=""
@@ -213,14 +228,14 @@ jobs:
             run_id=$(curl -fsSL \
               -H "Authorization: Bearer ${GH_TOKEN}" \
               -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci-strict.yml/runs?head_sha=${sha}&per_page=1" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci-coverage.yml/runs?head_sha=${sha}&per_page=1" \
               | jq -r '.workflow_runs[0].id // empty' 2>/dev/null) || run_id=""
             if [ -n "${run_id}" ]; then
               status=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
                 "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" \
                 | jq -r '.status // "unknown"' 2>/dev/null) || status="unknown"
               if [ "${status}" = "completed" ]; then break; fi
-              echo "CI Strict run ${run_id} for ${sha:0:8}: ${status}; polling again in 20s..."
+              echo "CI Coverage run ${run_id} for ${sha:0:8}: ${status}; polling again in 20s..."
             fi
             sleep 20
           done

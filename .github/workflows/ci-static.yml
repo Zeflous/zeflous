@@ -1,0 +1,145 @@
+# Strict CI lane -- static analysis, unit tests and the supply-chain audit.
+#
+# SPLIT OUT OF `.github/workflows/ci-strict.yml` (2026-10-08). The four strict
+# lanes (`ci:static`, `ci:coverage`, `ci:infection`, `ci:bench`) used to be four
+# jobs of ONE workflow file, so a failure in any of them entangled the others and
+# a single retry re-ran the whole set. Each lane now lives in its own workflow
+# file with its own status-check context, so it can be retried, watched and
+# reported on independently. `ci-strict.yml` is now the aggregator that keeps the
+# required `CI Strict` status check.
+#
+# The job NAME below ("CI Static") is the status-check context -- keep it stable.
+#
+# CONVENTIONS (unchanged)
+# -----------------------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the original
+#     tag kept as a trailing comment (supply-chain hygiene, no rule exclusion).
+#   * Least privilege: the job only reads the repository.
+
+name: CI Static
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  # Keep the same gate visible on the default branch, so a post-merge audit of
+  # `main` shows the strict pipeline result for the merged commit.
+  push:
+    branches:
+      - main
+  # Allow a manual re-run of this lane alone (previously the whole CI Strict
+  # workflow had to be re-run just to retry one lane).
+  workflow_dispatch:
+
+# Least privilege: the lane reads the repository and writes nothing back.
+permissions:
+  contents: read
+
+# Supersede a stale run for the same ref instead of queueing behind it.
+concurrency:
+  group: ci-static-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Fast, deterministic static analysis + unit tests + supply-chain audit.
+  ci-static:
+    name: CI Static
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+          # Cache the Composer download cache so the split jobs do not each pay
+          # the full dependency-download cost.
+          cache: composer
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run static pipeline (composer ci:static)
+        # composer validate --strict, lint, PHPStan (max level) + ratchet,
+        # Deptrac, PHP-CS-Fixer check, PHP_CodeSniffer, Rector dry-run, PHPUnit,
+        # the persistent-worker smoke test and the strict supply-chain audit.
+        run: composer ci:static
+
+      - name: Psalm (static analysis, level 1 + baseline)
+        # Psalm runs at its strictest level (1). The pre-existing findings are
+        # frozen in `psalm-baseline.xml` -- the same "no new debt" ratchet the
+        # PHPStan baseline uses -- so this gate fails only on NEW issues and
+        # never loosens the existing PHPStan gate.
+        run: vendor/bin/psalm --no-cache --no-progress
+
+      - name: Progpilot (static security analysis)
+        # Progpilot is a taint-style security analyser. It is NOT installed via
+        # Composer: `designsecurity/progpilot` v1.3.0 requires `symfony/yaml
+        # ^7.3.2`, which conflicts with the `symfony/yaml ^8` this repository
+        # already locks (pulled in by doctum/deptrac). The official release PHAR
+        # is used instead, pinned by version AND by SHA-256 so the artifact
+        # cannot be swapped. It analyses `src/` and fails on any finding.
+        run: |
+          curl -fsSL -o progpilot.phar \
+            https://github.com/designsecurity/progpilot/releases/download/v1.3.0/progpilot_v1.3.0.phar
+          echo "e95979fa4a562daffbfb66012f7fab2f4ff47692d16284337a8fc48d5247d203  progpilot.phar" | sha256sum -c -
+          findings="$(php progpilot.phar --configuration=progpilot.yml src | tr -d '[:space:]')"
+          if [ "$findings" != "[]" ]; then
+            echo "::error::Progpilot reported security findings in src/."
+            php progpilot.phar --configuration=progpilot.yml src
+            exit 1
+          fi
+          echo "Progpilot: no security findings in src/."
+
+      - name: PhpCodeArcheology (architecture & maintainability gate)
+        # PhpCodeArcheology is the repository's non-server-side counterpart to
+        # SonarCloud: it measures architecture and maintainability (60+ metrics,
+        # complexity, coupling, cohesion, git churn hotspots, health score)
+        # rather than type safety, so it complements PHPStan/Psalm instead of
+        # duplicating them. It is installed as a Composer dev-dependency
+        # (`php-code-archeology/php-code-archeology`, pinned `^2.11`).
+        #
+        # The MCP server it ships is intentionally NOT configured or used.
+        #
+        # Two steps:
+        #   1. `composer archeology` writes the SARIF + Markdown reports into
+        #      the git-ignored `build/archeology/` (uploaded as an artifact).
+        #   2. `composer archeology:gate` normalises the SARIF paths and fails
+        #      on any ERROR-level architecture finding.
+        #
+        # WHY NOT `--quick --fail-on=error`: `--quick` short-circuits the
+        # prediction pass entirely and always exits 0, so it was a no-op gate.
+        # The full run's `--fail-on=error` is also unusable as-is: it counts
+        # the relative "effort/MI/LCOM more than 30% above/below average"
+        # findings as errors, and those are a distribution artefact (any
+        # codebase has entities above 1.3x the mean by construction), not
+        # defects. The gate therefore reads the SARIF `level` field, which is
+        # `error` only for genuine architecture defects (GodClass,
+        # SecuritySmell, DependencyCycle, "Difficulty is too high").
+        #
+        # WHY NOT A COMMITTED BASELINE: the tool's problem identity is
+        # `crc32(<absolute path>)`, so a baseline file is not portable between
+        # the developer's checkout and the CI runner (different absolute
+        # paths) -- it would report spurious "new problems" on every run. The
+        # gate is therefore deterministic and depends only on the source tree.
+        run: |
+          composer archeology
+          composer archeology:gate
+
+      - name: Upload PhpCodeArcheology reports
+        # The SARIF report is also consumable by GitHub Code Scanning; the
+        # Markdown report is the human-readable summary. Both are uploaded as
+        # a build artifact so the metrics are visible on every run.
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: phpcodearcheology-report
+          path: build/archeology/
+          if-no-files-found: ignore
+          retention-days: 14
