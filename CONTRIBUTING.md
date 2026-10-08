@@ -43,7 +43,10 @@ its own CI job so a slow lane cannot block the others:
 | Micro-benchmarks | `composer ci:bench` | `CI Bench` |
 
 The `CI Strict` job is a thin aggregator that `needs` all four lanes, so the
-required status-check context is unchanged.
+required status-check context is unchanged. It runs with `if: always()` and
+explicitly inspects each lane's result, so it **fails** (never silently skips)
+whenever a lane is red — a skipped required check would otherwise count as
+satisfied and let a red pull request merge.
 
 ## Pull requests
 
@@ -153,7 +156,7 @@ are **required** — the rest are advisory signals.
 
 | Check | What it enforces |
 | --- | --- |
-| `CI Strict` | Aggregator: green only when `CI Static`, `CI Coverage`, `CI Infection` and `CI Bench` are all green. |
+| `CI Strict` | Aggregator: green only when `CI Static`, `CI Coverage`, `CI Infection` and `CI Bench` are all green. It runs with `if: always()` and fails (never skips) if any lane did not succeed. |
 | `CI Static` | `composer ci:static` — PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector, PHPUnit, the persistent-worker smoke test and the strict supply-chain audit — plus Psalm (level 1 + baseline), Progpilot (static security analysis) and PhpCodeArcheology (architecture & maintainability gate). |
 | `CI Coverage` | `composer ci:coverage` — the 90% line-coverage gate. |
 | `CI Infection` | `composer ci:infection` — Infection mutation testing (MSI 100) and the mutation-score floor. |
