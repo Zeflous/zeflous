@@ -6,6 +6,9 @@
 
 **Merged pull requests:**
 
+- fix\(ci\): approve bot runs on every sweep via non-gated workflow\_run trigger [\#49](https://github.com/Zeflous/zeflous/pull/49) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): make CI Strict aggregator fail when lanes fail [\#46](https://github.com/Zeflous/zeflous/pull/46) ([mbetixz](https://github.com/mbetixz))
+- refactor: validate url scheme before urllib calls [\#45](https://github.com/Zeflous/zeflous/pull/45) ([deepsource-autofix[bot]](https://github.com/apps/deepsource-autofix))
 - fix\(ci\): run gate commands through the shell in the process runner [\#42](https://github.com/Zeflous/zeflous/pull/42) ([mbetixz](https://github.com/mbetixz))
 - refactor: consolidate list initialization [\#41](https://github.com/Zeflous/zeflous/pull/41) ([deepsource-autofix[bot]](https://github.com/apps/deepsource-autofix))
 - refactor: replace exec with Symfony Process for command execution [\#40](https://github.com/Zeflous/zeflous/pull/40) ([deepsource-autofix[bot]](https://github.com/apps/deepsource-autofix))
