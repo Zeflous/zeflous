@@ -130,7 +130,7 @@
             "@composer test",
             "@composer smoke:persistent"
         ],
-        "ci:strict": [
+        "ci:static": [
             "@composer validate --strict",
             "@composer lint",
             "@composer stan",
@@ -140,12 +140,24 @@
             "@composer phpcs",
             "@composer rector:check",
             "@composer test",
-            "@composer coverage:gate",
-            "@composer mutation",
-            "@composer mutation:zones",
-            "@composer audit:strict",
             "@composer smoke:persistent",
+            "@composer audit:strict"
+        ],
+        "ci:coverage": [
+            "@composer coverage:gate"
+        ],
+        "ci:infection": [
+            "@composer mutation",
+            "@composer mutation:zones"
+        ],
+        "ci:bench": [
             "@composer bench"
+        ],
+        "ci:strict": [
+            "@composer ci:static",
+            "@composer ci:coverage",
+            "@composer ci:infection",
+            "@composer ci:bench"
         ]
     },
     "scripts-descriptions": {
