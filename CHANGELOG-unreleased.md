@@ -181,3 +181,10 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#62 fix(ci): fall back to the built-in token when the bot PAT is under-scoped
     - fb57dd1 fix(ci): fall back to the built-in token when the PAT is under-scoped
+
+- PR#64 chore(changelog-official): regenerate official changelog
+    - 1f8934c chore(changelog-official): regenerate official changelog
+    - 5520ca9 Merge branch 'main' into chore/changelog-official-update
+
+- PR#67 ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)
+    - c52b359 ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)

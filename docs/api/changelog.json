@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-08T04:44:42Z",
+  "as_of": "2026-10-08T14:15:56Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 47,
+  "unreleased_count": 49,
   "versions": [
     {
       "version": "Unreleased",
@@ -831,6 +831,43 @@
                 "sha": "4d5f206007624da68564d4b857275d25a32212c6",
                 "short_sha": "4d5f206",
                 "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+              }
+            ]
+          },
+          {
+            "pr": 64,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T05:53:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/64",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1f8934ce902390116e4a66289ec1e9f132418e69",
+                "short_sha": "1f8934c",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              },
+              {
+                "sha": "5520ca97d5672fcb77209bfee90baa42f8153575",
+                "short_sha": "5520ca9",
+                "subject": "Merge branch 'main' into chore/changelog-official-update"
+              }
+            ]
+          },
+          {
+            "pr": 67,
+            "title": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T14:15:56Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/67",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c52b359ff54321af84a7beacf71a195196ae527d",
+                "short_sha": "c52b359",
+                "subject": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)"
               }
             ]
           }
@@ -1885,6 +1922,43 @@
               "sha": "fb57dd1bc35981dec9601d67b3c315afec1be6f2",
               "short_sha": "fb57dd1",
               "subject": "fix(ci): fall back to the built-in token when the PAT is under-scoped"
+            }
+          ]
+        },
+        {
+          "pr": 64,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T05:53:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/64",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1f8934ce902390116e4a66289ec1e9f132418e69",
+              "short_sha": "1f8934c",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            },
+            {
+              "sha": "5520ca97d5672fcb77209bfee90baa42f8153575",
+              "short_sha": "5520ca9",
+              "subject": "Merge branch 'main' into chore/changelog-official-update"
+            }
+          ]
+        },
+        {
+          "pr": 67,
+          "title": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T14:15:56Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/67",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c52b359ff54321af84a7beacf71a195196ae527d",
+              "short_sha": "c52b359",
+              "subject": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)"
             }
           ]
         }
