@@ -85,7 +85,7 @@ final class ContainerTest extends TestCase
             $container->get('zef.missing');
             self::fail('Expected a NotFoundException to be thrown.');
         } catch (NotFoundException $notFoundException) {
-            self::assertStringContainsString('zef.missing', $notFoundException->getMessage());
+            self::assertSame('Service "zef.missing" is not defined.', $notFoundException->getMessage());
         }
     }
 

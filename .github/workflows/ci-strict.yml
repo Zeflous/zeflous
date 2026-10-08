@@ -128,16 +128,24 @@ jobs:
         # Two steps:
         #   1. `composer archeology` writes the SARIF + Markdown reports into
         #      the git-ignored `build/archeology/` (uploaded as an artifact).
-        #   2. `composer archeology:gate` fails on ANY architecture error.
+        #   2. `composer archeology:gate` normalises the SARIF paths and fails
+        #      on any ERROR-level architecture finding.
+        #
+        # WHY NOT `--quick --fail-on=error`: `--quick` short-circuits the
+        # prediction pass entirely and always exits 0, so it was a no-op gate.
+        # The full run's `--fail-on=error` is also unusable as-is: it counts
+        # the relative "effort/MI/LCOM more than 30% above/below average"
+        # findings as errors, and those are a distribution artefact (any
+        # codebase has entities above 1.3x the mean by construction), not
+        # defects. The gate therefore reads the SARIF `level` field, which is
+        # `error` only for genuine architecture defects (GodClass,
+        # SecuritySmell, DependencyCycle, "Difficulty is too high").
         #
         # WHY NOT A COMMITTED BASELINE: the tool's problem identity is
         # `crc32(<absolute path>)`, so a baseline file is not portable between
         # the developer's checkout and the CI runner (different absolute
-        # paths) — it would report spurious "new problems" on every run. The
-        # gate is therefore the deterministic `--fail-on=error` check, which
-        # depends only on the source tree. The repository currently has zero
-        # architecture errors (all 57 findings are warnings), so this is a
-        # strict, zero-tolerance gate that never loosens PHPStan/Psalm.
+        # paths) -- it would report spurious "new problems" on every run. The
+        # gate is therefore deterministic and depends only on the source tree.
         run: |
           composer archeology
           composer archeology:gate
