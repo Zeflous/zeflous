@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): refresh ROADMAP-STATUS header to current main [\#74](https://github.com/Zeflous/zeflous/pull/74) ([mbetixz](https://github.com/mbetixz))
 - ci\(auto-merge\): correct ZEF\_TOKEN caveat comment [\#71](https://github.com/Zeflous/zeflous/pull/71) ([mbetixz](https://github.com/mbetixz))
 - ci\(auto-merge\): correct the PAT caveat comment \(update-branch does not support fine-grained PATs\) [\#67](https://github.com/Zeflous/zeflous/pull/67) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): fall back to the built-in token when the bot PAT is under-scoped [\#62](https://github.com/Zeflous/zeflous/pull/62) ([mbetixz](https://github.com/mbetixz))
