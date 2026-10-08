@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- ci\(auto-merge\): correct ZEF\_TOKEN caveat comment [\#71](https://github.com/Zeflous/zeflous/pull/71) ([mbetixz](https://github.com/mbetixz))
 - ci\(auto-merge\): correct the PAT caveat comment \(update-branch does not support fine-grained PATs\) [\#67](https://github.com/Zeflous/zeflous/pull/67) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): fall back to the built-in token when the bot PAT is under-scoped [\#62](https://github.com/Zeflous/zeflous/pull/62) ([mbetixz](https://github.com/mbetixz))
 - ci\(sonar\): pin checkout to v7.0.1 to actually drop the Node.js 20 warning [\#61](https://github.com/Zeflous/zeflous/pull/61) ([mbetixz](https://github.com/mbetixz))
