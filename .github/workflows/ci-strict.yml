@@ -114,3 +114,36 @@ jobs:
             exit 1
           fi
           echo "Progpilot: no security findings in src/."
+
+      - name: PhpCodeArcheology (architecture & maintainability gate)
+        # PhpCodeArcheology is the repository's non-server-side counterpart to
+        # SonarCloud: it measures architecture and maintainability (60+ metrics,
+        # complexity, coupling, cohesion, git churn hotspots, health score)
+        # rather than type safety, so it complements PHPStan/Psalm instead of
+        # duplicating them. It is installed as a Composer dev-dependency
+        # (`php-code-archeology/php-code-archeology`, pinned `^2.11`).
+        #
+        # The MCP server it ships is intentionally NOT configured or used.
+        #
+        # Two steps, mirroring the PHPStan baseline ratchet:
+        #   1. `composer archeology` writes the SARIF + Markdown reports into
+        #      the git-ignored `build/archeology/` (uploaded as an artifact).
+        #   2. `composer archeology:baseline` fails only on NEW architecture
+        #      problems relative to the committed `.phpcodearch-baseline.json`,
+        #      so the 57 pre-existing findings are frozen and the gate never
+        #      loosens the existing PHPStan/Psalm gates.
+        run: |
+          composer archeology
+          composer archeology:baseline
+
+      - name: Upload PhpCodeArcheology reports
+        # The SARIF report is also consumable by GitHub Code Scanning; the
+        # Markdown report is the human-readable summary. Both are uploaded as
+        # a build artifact so the metrics are visible on every run.
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: phpcodearcheology-report
+          path: build/archeology/
+          if-no-files-found: ignore
+          retention-days: 14
