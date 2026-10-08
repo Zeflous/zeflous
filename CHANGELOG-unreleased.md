@@ -100,3 +100,33 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#31 fix(auto-merge): approve runs on post-sync head
     - f2a90ad fix(auto-merge): approve runs on the post-sync head + retry stale sync
+
+- PR#33 feat(ci): add PR Validator gate and psalm/progpilot static analysis
+    - 5cd9ebd feat(ci): add PR Validator gate and psalm/progpilot static analysis
+
+- PR#35 docs(contributing): document PR Validator gate
+    - 90a5360 docs(contributing): document PR Validator gate
+
+- PR#36 feat(ci): add PhpCodeArcheology strict architecture gate
+    - c110a25 feat(ci): add PhpCodeArcheology strict architecture gate
+    - e3f9e31 fix(ci): make the archeology report step non-failing; gate via baseline ratchet
+
+- PR#37 fix(ci): make the archeology gate deterministic (drop the non-portable baseline)
+    - cb7cde7 fix(ci): make the archeology gate deterministic (drop the non-portable baseline)
+
+- PR#38 refactor(quality): fix archeology error and add SARIF code-scanning gate
+    - 224615b refactor(quality): fix archeology error, add SARIF code-scanning gate
+    - faac958 test(container): assert the exact not-found message to kill escaped mutants
+
+- PR#39 refactor(ci): split heavy jobs and add roadmap status
+    - 6ac4622 refactor(ci): split heavy jobs and add roadmap status
+
+- PR#40 refactor: replace exec with Symfony Process for command execution
+    - 6e5eaed refactor: replace exec with Symfony Process for command execution
+
+- PR#41 refactor: consolidate list initialization
+    - b213731 refactor: consolidate list initialization
+    - 459f361 Merge branch 'main' into deepsource-autofix-c55a21be
+
+- PR#42 fix(ci): run gate commands through the shell in the process runner
+    - 7b53162 fix(ci): run gate commands through the shell in the process runner

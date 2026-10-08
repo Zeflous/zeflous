@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-07T23:22:15Z",
+  "as_of": "2026-10-08T02:20:27Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 23,
+  "unreleased_count": 32,
   "versions": [
     {
       "version": "Unreleased",
@@ -74,6 +74,43 @@
                 "sha": "cec2b818e6a45547d0cd5ead9b2425e075fc447a",
                 "short_sha": "cec2b81",
                 "subject": "feat(changelog): regex category mapping + release-based versioning"
+              }
+            ]
+          },
+          {
+            "pr": 33,
+            "title": "feat(ci): add PR Validator gate and psalm/progpilot static analysis",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-07T23:55:36Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/33",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5cd9ebdbbac08579c050bb97c560bb6737bda6fd",
+                "short_sha": "5cd9ebd",
+                "subject": "feat(ci): add PR Validator gate and psalm/progpilot static analysis"
+              }
+            ]
+          },
+          {
+            "pr": 36,
+            "title": "feat(ci): add PhpCodeArcheology strict architecture gate",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-08T00:44:25Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/36",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c110a25eed1967c9d93565786b387fac9c8ad63d",
+                "short_sha": "c110a25",
+                "subject": "feat(ci): add PhpCodeArcheology strict architecture gate"
+              },
+              {
+                "sha": "e3f9e315f3038a4c6e8e932296eb31c5c9cefaca",
+                "short_sha": "e3f9e31",
+                "subject": "fix(ci): make the archeology report step non-failing; gate via baseline ratchet"
               }
             ]
           }
@@ -222,6 +259,38 @@
                 "sha": "f2a90ade1a47405f333c36d1d2ffef27e2ed0b23",
                 "short_sha": "f2a90ad",
                 "subject": "fix(auto-merge): approve runs on the post-sync head + retry stale sync"
+              }
+            ]
+          },
+          {
+            "pr": 37,
+            "title": "fix(ci): make the archeology gate deterministic (drop the non-portable baseline)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-08T00:50:01Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/37",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cb7cde76ababd7a5edd9f15cc3fd36e1d439db1b",
+                "short_sha": "cb7cde7",
+                "subject": "fix(ci): make the archeology gate deterministic (drop the non-portable baseline)"
+              }
+            ]
+          },
+          {
+            "pr": 42,
+            "title": "fix(ci): run gate commands through the shell in the process runner",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-08T02:20:27Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/42",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7b531627f432a2116274716fed756962c7bb5207",
+                "short_sha": "7b53162",
+                "subject": "fix(ci): run gate commands through the shell in the process runner"
               }
             ]
           }
@@ -418,6 +487,98 @@
                 "sha": "3560922fc6ba1d6b944a4582f23ad1da54a7bdfe",
                 "short_sha": "3560922",
                 "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 38,
+            "title": "refactor(quality): fix archeology error and add SARIF code-scanning gate",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T01:37:21Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/38",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "224615bb95ae1c90840f0539b6099b39fb14002a",
+                "short_sha": "224615b",
+                "subject": "refactor(quality): fix archeology error, add SARIF code-scanning gate"
+              },
+              {
+                "sha": "faac9580f508b5b5f345c0a96bbaf1cb5b21a9ad",
+                "short_sha": "faac958",
+                "subject": "test(container): assert the exact not-found message to kill escaped mutants"
+              }
+            ]
+          },
+          {
+            "pr": 39,
+            "title": "refactor(ci): split heavy jobs and add roadmap status",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T01:59:01Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/39",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6ac46223b019e7bf839d5f198fd576da6b47581e",
+                "short_sha": "6ac4622",
+                "subject": "refactor(ci): split heavy jobs and add roadmap status"
+              }
+            ]
+          },
+          {
+            "pr": 40,
+            "title": "refactor: replace exec with Symfony Process for command execution",
+            "author": "deepsource-autofix[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T02:15:32Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/40",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6e5eaed92163a097186e2c25a894506b28149ee8",
+                "short_sha": "6e5eaed",
+                "subject": "refactor: replace exec with Symfony Process for command execution"
+              }
+            ]
+          },
+          {
+            "pr": 41,
+            "title": "refactor: consolidate list initialization",
+            "author": "deepsource-autofix[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T02:16:57Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/41",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b213731818e5ddc2ffcdd13e4a362cb56463c67f",
+                "short_sha": "b213731",
+                "subject": "refactor: consolidate list initialization"
+              },
+              {
+                "sha": "459f3610f76e4065625ae66da62f86d7f645ba09",
+                "short_sha": "459f361",
+                "subject": "Merge branch 'main' into deepsource-autofix-c55a21be"
+              }
+            ]
+          }
+        ],
+        "Documentation": [
+          {
+            "pr": 35,
+            "title": "docs(contributing): document PR Validator gate",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-08T00:14:56Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/35",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "90a5360b5ac9ceacd4a6b01e96775e40fc784dd2",
+                "short_sha": "90a5360",
+                "subject": "docs(contributing): document PR Validator gate"
               }
             ]
           }
@@ -1025,6 +1186,165 @@
               "sha": "f2a90ade1a47405f333c36d1d2ffef27e2ed0b23",
               "short_sha": "f2a90ad",
               "subject": "fix(auto-merge): approve runs on the post-sync head + retry stale sync"
+            }
+          ]
+        },
+        {
+          "pr": 33,
+          "title": "feat(ci): add PR Validator gate and psalm/progpilot static analysis",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-07T23:55:36Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/33",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5cd9ebdbbac08579c050bb97c560bb6737bda6fd",
+              "short_sha": "5cd9ebd",
+              "subject": "feat(ci): add PR Validator gate and psalm/progpilot static analysis"
+            }
+          ]
+        },
+        {
+          "pr": 35,
+          "title": "docs(contributing): document PR Validator gate",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-08T00:14:56Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/35",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "90a5360b5ac9ceacd4a6b01e96775e40fc784dd2",
+              "short_sha": "90a5360",
+              "subject": "docs(contributing): document PR Validator gate"
+            }
+          ]
+        },
+        {
+          "pr": 36,
+          "title": "feat(ci): add PhpCodeArcheology strict architecture gate",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-08T00:44:25Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/36",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c110a25eed1967c9d93565786b387fac9c8ad63d",
+              "short_sha": "c110a25",
+              "subject": "feat(ci): add PhpCodeArcheology strict architecture gate"
+            },
+            {
+              "sha": "e3f9e315f3038a4c6e8e932296eb31c5c9cefaca",
+              "short_sha": "e3f9e31",
+              "subject": "fix(ci): make the archeology report step non-failing; gate via baseline ratchet"
+            }
+          ]
+        },
+        {
+          "pr": 37,
+          "title": "fix(ci): make the archeology gate deterministic (drop the non-portable baseline)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-08T00:50:01Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/37",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cb7cde76ababd7a5edd9f15cc3fd36e1d439db1b",
+              "short_sha": "cb7cde7",
+              "subject": "fix(ci): make the archeology gate deterministic (drop the non-portable baseline)"
+            }
+          ]
+        },
+        {
+          "pr": 38,
+          "title": "refactor(quality): fix archeology error and add SARIF code-scanning gate",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T01:37:21Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/38",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "224615bb95ae1c90840f0539b6099b39fb14002a",
+              "short_sha": "224615b",
+              "subject": "refactor(quality): fix archeology error, add SARIF code-scanning gate"
+            },
+            {
+              "sha": "faac9580f508b5b5f345c0a96bbaf1cb5b21a9ad",
+              "short_sha": "faac958",
+              "subject": "test(container): assert the exact not-found message to kill escaped mutants"
+            }
+          ]
+        },
+        {
+          "pr": 39,
+          "title": "refactor(ci): split heavy jobs and add roadmap status",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T01:59:01Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/39",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6ac46223b019e7bf839d5f198fd576da6b47581e",
+              "short_sha": "6ac4622",
+              "subject": "refactor(ci): split heavy jobs and add roadmap status"
+            }
+          ]
+        },
+        {
+          "pr": 40,
+          "title": "refactor: replace exec with Symfony Process for command execution",
+          "author": "deepsource-autofix[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T02:15:32Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/40",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6e5eaed92163a097186e2c25a894506b28149ee8",
+              "short_sha": "6e5eaed",
+              "subject": "refactor: replace exec with Symfony Process for command execution"
+            }
+          ]
+        },
+        {
+          "pr": 41,
+          "title": "refactor: consolidate list initialization",
+          "author": "deepsource-autofix[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T02:16:57Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/41",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b213731818e5ddc2ffcdd13e4a362cb56463c67f",
+              "short_sha": "b213731",
+              "subject": "refactor: consolidate list initialization"
+            },
+            {
+              "sha": "459f3610f76e4065625ae66da62f86d7f645ba09",
+              "short_sha": "459f361",
+              "subject": "Merge branch 'main' into deepsource-autofix-c55a21be"
+            }
+          ]
+        },
+        {
+          "pr": 42,
+          "title": "fix(ci): run gate commands through the shell in the process runner",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-08T02:20:27Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/42",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7b531627f432a2116274716fed756962c7bb5207",
+              "short_sha": "7b53162",
+              "subject": "fix(ci): run gate commands through the shell in the process runner"
             }
           ]
         }
