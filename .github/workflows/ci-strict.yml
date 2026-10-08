@@ -191,6 +191,28 @@ jobs:
       - name: Run coverage gate (composer ci:coverage)
         run: composer ci:coverage
 
+      - name: Regenerate coverage reports (clover + JUnit)
+        # ci:coverage runs the gate variant, which writes build/clover.xml but
+        # does not emit the JUnit report. This script (composer ci:coverage:reports)
+        # reruns PHPUnit with both report writers so the SonarCloud job can
+        # download a complete report set instead of installing dependencies and
+        # rerunning the suite itself. The gate above already enforced the 90%
+        # floor, so a failure here is a real signal, not a budget artefact.
+        run: composer ci:coverage:reports
+
+      - name: Upload coverage reports
+        # Consumed by the SonarCloud job's coverage bridge (it fetches this
+        # artifact by name for the same commit). Published AFTER the gate so a
+        # failed coverage lane never feeds a phantom report to the scanner.
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-reports
+          path: |
+            build/clover.xml
+            build/junit.xml
+          if-no-files-found: error
+          retention-days: 14
+
   # Mutation testing -- the heaviest lane, isolated so it cannot block the rest.
   ci-infection:
     name: CI Infection

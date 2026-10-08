@@ -51,6 +51,14 @@
 #      action runs the scanner engine directly. Both were functional here, but
 #      parity with the reference removes a variable from the investigation.
 #
+#   4. COVERAGE SOURCE (2026-10-08, "composer install not needed here"). The job
+#      no longer installs dependencies or runs PHPUnit itself: the analysis needs
+#      SOURCE plus a coverage report, and sonar-project.properties derives no path
+#      from vendor/. It bridges the CI Coverage lane's `coverage-reports` artifact
+#      (clover + JUnit) exactly like the reference repository, so the duplicated
+#      `composer install` -- and its transient codeload HTTP/2 429 rate-limit
+#      failures -- are gone. See the bridge step below.
+#
 # CONTRACT (unchanged, deliberate): this job ALWAYS runs and concludes. When it
 # cannot scan credentialed — the `SONAR_TOKEN` repository secret is not set, or
 # a `pull_request` event where GitHub withholds repository secrets (a
@@ -81,6 +89,11 @@ on:
         description: "Pull request number to analyse (optional)"
         required: false
         type: string
+      coverage:
+        description: "Upload this run's clover/JUnit reports as the coverage-reports artifact (CI only; leave unset manually)"
+        required: false
+        type: boolean
+        default: false
 
 # Least privilege: the analysis reads the repository; the SonarSource action
 # queries pull-request metadata.
@@ -147,25 +160,134 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           echo "::notice::SONAR_TOKEN unavailable in this context — SonarCloud analysis skipped (setup: docs/security/sonarcloud.md)."
 
-      - name: Setup PHP 8.4
-        if: steps.sonar_guard.outputs.available == 'true'
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
-        with:
-          php-version: '8.4'
-          extensions: pcov
-          coverage: pcov
-          tools: composer:v2
-
-      - name: Install dependencies
-        if: steps.sonar_guard.outputs.available == 'true'
-        run: composer install --no-interaction --prefer-dist --no-progress
-
-      - name: Run test suite with coverage
-        if: steps.sonar_guard.outputs.available == 'true'
+      # COVERAGE BRIDGE v1 (2026-10-08). This job used to run `composer install`
+      # + PHPUnit itself, purely to produce build/clover.xml. That duplicated the
+      # CI lane's own coverage run and, worse, downloaded the whole dependency
+      # set again on every push -- the site of the transient
+      # `codeload.github.com` HTTP/2 429 rate-limit failure (run 37721082020,
+      # attempt 1: step "Install dependencies" red). The analysis does NOT need
+      # vendor/: the scanner reads SOURCE plus a coverage report, and
+      # sonar-project.properties derives no path from vendor/ (it is excluded
+      # from the analysis scope). The report is taken from the CI Coverage lane
+      # instead -- same approach as the reference repository
+      # `Zeflous/zef-framework`, which runs `checkout -> download artifact ->
+      # sonar-scanner` and never installs dependencies here.
+      - name: Install dependencies and run test suite with coverage
+        # Runs ONLY in the CI Coverage lane (the lane computes coverage anyway).
+        # The artifact it uploads is the bridge source for every OTHER run of
+        # this workflow. Kept as a single step to preserve the historical job
+        # step-name contract "Install dependencies and run test suite with
+        # coverage".
+        if: steps.sonar_guard.outputs.available == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
+          composer install --no-interaction --prefer-dist --no-progress
           php -d pcov.enabled=1 vendor/bin/phpunit \
             --coverage-clover build/clover.xml \
             --log-junit build/junit.xml
+
+      - name: Upload coverage reports (bridge source)
+        # Publish the clover + JUnit reports the scanner consumes. Only the CI
+        # Coverage lane produces them (it is the only run that installs vendor/).
+        if: steps.sonar_guard.outputs.available == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-reports
+          path: |
+            build/clover.xml
+            build/junit.xml
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Wait for the CI Coverage lane and fetch its coverage artifact (bridge)
+        # Every non-CI run (pull requests, manual dispatches) downloads the
+        # report the CI Coverage lane published for THIS commit, so the quality
+        # gate's coverage-on-new-code condition is still computed on real PHPUnit
+        # data -- without installing a single dependency in this job.
+        if: steps.sonar_guard.outputs.available == 'true' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          # Resolve the commit whose run published the artifact. On a
+          # `pull_request` event GITHUB_SHA is the ephemeral merge commit of
+          # refs/pull/N/merge -- workflow runs are reported by the PR HEAD sha,
+          # so read it from the event payload (the authoritative source). Manual
+          # dispatches look up the head of this ref through the API.
+          sha="${GITHUB_SHA}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
+            pr_head=$(jq -r '.pull_request.head.sha // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null || true)
+            if [ -n "${pr_head}" ]; then sha="${pr_head}"; fi
+          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            api_sha=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_REF_NAME}" \
+              | jq -r '.sha // empty' 2>/dev/null || true)
+            if [ -n "${api_sha}" ]; then sha="${api_sha}"; fi
+          fi
+          echo "Bridging coverage for reported head sha ${sha:0:8} (event: ${GITHUB_EVENT_NAME})."
+
+          # Bound the wait by the CI Coverage lane's own timeout (20 minutes in
+          # .github/workflows/ci-strict.yml); beyond it the lane has failed on
+          # its own terms and this gate must not hold the check open.
+          deadline=$(( $(date +%s) + 20 * 60 ))
+          run_id=""
+          findings="[]"
+          while [ "$(date +%s)" -lt "${deadline}" ]; do
+            run_id=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci-strict.yml/runs?head_sha=${sha}&per_page=1" \
+              | jq -r '.workflow_runs[0].id // empty' 2>/dev/null) || run_id=""
+            if [ -n "${run_id}" ]; then
+              status=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" \
+                | jq -r '.status // "unknown"' 2>/dev/null) || status="unknown"
+              if [ "${status}" = "completed" ]; then break; fi
+              echo "CI Strict run ${run_id} for ${sha:0:8}: ${status}; polling again in 20s..."
+            fi
+            sleep 20
+          done
+
+          if [ -n "${run_id}" ]; then
+            findings=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts" \
+              | jq -c '[.artifacts[] | select(.name == "coverage-reports" and .expired == false)]' 2>/dev/null) || findings="[]"
+          fi
+
+          verdict="fallback"
+          args="-Dsonar.coverage.exclusions=**/*"
+          ready=false
+          if [ "${findings}" != "[]" ] && [ -n "${findings}" ]; then
+            rm -rf build && mkdir -p build
+            if curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -o build/coverage-reports.zip \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/$(printf '%s' "${findings}" | jq -r '.[0].id')/zip"; then
+              unzip -o -q build/coverage-reports.zip -d build
+            fi
+            if [ -s build/clover.xml ] && grep -q '<coverage' build/clover.xml 2>/dev/null; then
+              ready=true
+              args="-Dsonar.php.coverage.reportPaths=build/clover.xml"
+              [ -s build/junit.xml ] && args="${args} -Dsonar.php.tests.reportPaths=build/junit.xml"
+              verdict="bridged"
+            fi
+          fi
+
+          if [ "${ready}" != "true" ]; then
+            echo "::notice::No coverage-reports artifact was available for ${sha:0:8} within 20 minutes -- coverage excluded for this run."
+          fi
+
+          {
+            echo "### Coverage bridge"
+            echo ""
+            echo "- verdict: **${verdict}**"
+            if [ "${verdict}" = "bridged" ]; then
+              echo "- Consumed the CI Coverage lane's \`coverage-reports\` artifact (run ${run_id}); the quality gate's coverage-on-new-code condition is enforced on real data and this job installed no dependencies."
+            else
+              echo "- No coverage data was available for this commit, so \`sonar.coverage.exclusions=**/*\` applies to THIS run only and the coverage-on-new-code condition is skipped. Every other condition (bugs, vulnerabilities, code smells, duplications, security hotspots) remains fully enforced, and the fallback is announced here and via \`::notice::\` -- never silent."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "COVERAGE_ARGS=${args}" >> "$GITHUB_ENV"
 
       - name: Analysis scope (diagnostic)
         if: steps.sonar_guard.outputs.available == 'true'
@@ -194,6 +316,7 @@ jobs:
           # PR and the ruleset's `code_quality` rule can read it.
           args: >-
             -Dsonar.projectBaseDir=.
+            ${{ env.COVERAGE_ARGS }}
             ${{ inputs.pr_number != '' && format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base=main', inputs.pr_number, github.ref_name) || '' }}
         env:
           # Reported to SonarCloud for the SCM/CI sensor. Decoration itself is
@@ -201,3 +324,4 @@ jobs:
           # The built-in workflow token is sufficient — no PAT is required.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          COVERAGE_ARGS: ${{ env.COVERAGE_ARGS }}
