@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- ci\(sonar\): drop unnecessary composer install from analysis job [\#53](https://github.com/Zeflous/zeflous/pull/53) ([mbetixz](https://github.com/mbetixz))
+- chore\(ci\): rename bot PAT secret to ZEF\_TOKEN in auto-merge [\#50](https://github.com/Zeflous/zeflous/pull/50) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): approve bot runs on every sweep via non-gated workflow\_run trigger [\#49](https://github.com/Zeflous/zeflous/pull/49) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): make CI Strict aggregator fail when lanes fail [\#46](https://github.com/Zeflous/zeflous/pull/46) ([mbetixz](https://github.com/mbetixz))
 - refactor: validate url scheme before urllib calls [\#45](https://github.com/Zeflous/zeflous/pull/45) ([deepsource-autofix[bot]](https://github.com/apps/deepsource-autofix))
