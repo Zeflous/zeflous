@@ -6,6 +6,16 @@
 
 **Merged pull requests:**
 
+- fix\(ci\): run gate commands through the shell in the process runner [\#42](https://github.com/Zeflous/zeflous/pull/42) ([mbetixz](https://github.com/mbetixz))
+- refactor: consolidate list initialization [\#41](https://github.com/Zeflous/zeflous/pull/41) ([deepsource-autofix[bot]](https://github.com/apps/deepsource-autofix))
+- refactor: replace exec with Symfony Process for command execution [\#40](https://github.com/Zeflous/zeflous/pull/40) ([deepsource-autofix[bot]](https://github.com/apps/deepsource-autofix))
+- refactor\(ci\): split heavy jobs and add roadmap status [\#39](https://github.com/Zeflous/zeflous/pull/39) ([mbetixz](https://github.com/mbetixz))
+- refactor\(quality\): fix archeology error and add SARIF code-scanning gate [\#38](https://github.com/Zeflous/zeflous/pull/38) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): make the archeology gate deterministic \(drop the non-portable baseline\) [\#37](https://github.com/Zeflous/zeflous/pull/37) ([mbetixz](https://github.com/mbetixz))
+- feat\(ci\): add PhpCodeArcheology strict architecture gate [\#36](https://github.com/Zeflous/zeflous/pull/36) ([mbetixz](https://github.com/mbetixz))
+- docs\(contributing\): document PR Validator gate [\#35](https://github.com/Zeflous/zeflous/pull/35) ([mbetixz](https://github.com/mbetixz))
+- feat\(ci\): add PR Validator gate and psalm/progpilot static analysis [\#33](https://github.com/Zeflous/zeflous/pull/33) ([mbetixz](https://github.com/mbetixz))
+- fix\(auto-merge\): approve runs on post-sync head [\#31](https://github.com/Zeflous/zeflous/pull/31) ([mbetixz](https://github.com/mbetixz))
 - feat\(changelog\): regex category mapping + release-based versioning [\#28](https://github.com/Zeflous/zeflous/pull/28) ([mbetixz](https://github.com/mbetixz))
 - fix\(changelog\): merged-only PR selection + split pull\_request trigger [\#27](https://github.com/Zeflous/zeflous/pull/27) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): make CI Strict run on bot-authored PRs [\#25](https://github.com/Zeflous/zeflous/pull/25) ([mbetixz](https://github.com/mbetixz))
