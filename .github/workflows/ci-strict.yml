@@ -244,14 +244,50 @@ jobs:
   # Aggregator: preserves the "CI Strict" status-check context. It runs no gate
   # of its own -- it is green only when every lane above is green, so the
   # branch-protection rule keeps working unchanged.
+  #
+  # WHY `if: always()` + AN EXPLICIT RESULT CHECK
+  # ---------------------------------------------
+  # A job that only `needs:` other jobs is SKIPPED when any dependency fails
+  # (GitHub's implicit `success()` gate). Branch protection treats a required
+  # status check that is `skipped` as SATISFIED, so a red lane could still let a
+  # PR merge -- the aggregator would silently "pass" by not running at all.
+  # `if: always()` forces the aggregator to run even when a lane failed, and the
+  # step below turns any non-`success` dependency result into a non-zero exit,
+  # so the required "CI Strict" check FAILS (never skips) whenever a lane is red.
   ci-strict:
     name: CI Strict
     runs-on: ubuntu-latest
+    if: always()
     needs:
       - ci-static
       - ci-coverage
       - ci-infection
       - ci-bench
     steps:
-      - name: All strict lanes passed
-        run: echo "All strict lanes (static, coverage, infection, bench) passed."
+      - name: Verify every strict lane succeeded
+        env:
+          # The result of each dependency, injected by GitHub. It is `success`
+          # only when the lane completed green; `failure`, `cancelled` and
+          # `skipped` all mean the pipeline is not green.
+          STATIC: ${{ needs.ci-static.result }}
+          COVERAGE: ${{ needs.ci-coverage.result }}
+          INFECTION: ${{ needs.ci-infection.result }}
+          BENCH: ${{ needs.ci-bench.result }}
+        run: |
+          set -u
+          failed=0
+          for lane in "static:$STATIC" "coverage:$COVERAGE" "infection:$INFECTION" "bench:$BENCH"; do
+            name="${lane%%:*}"
+            result="${lane#*:}"
+            if [ "$result" != "success" ]; then
+              echo "::error::CI Strict lane '$name' did not succeed (result: $result)."
+              failed=1
+            else
+              echo "CI Strict lane '$name' succeeded."
+            fi
+          done
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::One or more strict lanes failed; failing the CI Strict aggregator."
+            exit 1
+          fi
+          echo "All strict lanes (static, coverage, infection, bench) passed."
