@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 use Zef\Framework\Tooling\GateRunner;
 use Zef\Framework\Tooling\ToolingException;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
@@ -22,15 +21,20 @@ require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 $root = dirname(__DIR__, 2);
 
 $runner = new GateRunner($root, static function (string $command): array {
-    try {
-        $parts = explode(' ', $command);
-        $process = new Process($parts);
-        $process->mustRun();
+    // The gate classes build their commands as shell strings (they call
+    // escapeshellarg() on every argument), so the runner must keep shell
+    // semantics. Symfony's Process is used with `fromShellCommandline()` --
+    // NOT with an argument array: passing the shell string through
+    // `explode(' ', ...)` would hand the literal quotes produced by
+    // escapeshellarg() to execve(), which then fails with exit 127
+    // ("'/usr/bin/php8.4': not found") and makes every file look like a
+    // syntax error. `fromShellCommandline()` runs the string through the
+    // shell exactly like the previous exec() did, while still giving us the
+    // exit code and the combined output.
+    $process = Process::fromShellCommandline($command);
+    $process->run();
 
-        return [$process->getExitCode(), $process->getOutput()];
-    } catch (ProcessFailedException $exception) {
-        return [$exception->getProcess()->getExitCode(), $exception->getMessage()];
-    }
+    return [$process->getExitCode() ?? 1, $process->getOutput() . $process->getErrorOutput()];
 });
 
 try {
