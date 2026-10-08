@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- ci\(sonar\): use full-history checkout for better analysis relevancy [\#57](https://github.com/Zeflous/zeflous/pull/57) ([mbetixz](https://github.com/mbetixz))
+- ci\(sonar\): drop broken composer install step and bridge coverage on every event [\#55](https://github.com/Zeflous/zeflous/pull/55) ([mbetixz](https://github.com/mbetixz))
 - ci\(sonar\): drop unnecessary composer install from analysis job [\#53](https://github.com/Zeflous/zeflous/pull/53) ([mbetixz](https://github.com/mbetixz))
 - chore\(ci\): rename bot PAT secret to ZEF\_TOKEN in auto-merge [\#50](https://github.com/Zeflous/zeflous/pull/50) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): approve bot runs on every sweep via non-gated workflow\_run trigger [\#49](https://github.com/Zeflous/zeflous/pull/49) ([mbetixz](https://github.com/mbetixz))
