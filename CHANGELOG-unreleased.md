@@ -140,5 +140,13 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#46 fix(ci): make CI Strict aggregator fail when lanes fail
     - 923905d fix(ci): make CI Strict aggregator fail when lanes fail
 
+- PR#47 chore(changelog-official): regenerate official changelog
+    - 6d6e833 chore(changelog-official): regenerate official changelog
+    - af587c4 Merge branch 'main' into chore/changelog-official-update
+
 - PR#49 fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger
     - f57dc82 fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger
+
+- PR#50 chore(ci): rename bot PAT secret to ZEF_TOKEN in auto-merge
+    - b924181 chore(ci): rename bot PAT secret to ZEF_TOKEN in auto-merge
+    - c46b32d Merge branch 'main' into chore/zef-token-secret-name
