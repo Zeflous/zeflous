@@ -136,13 +136,9 @@ jobs:
       # Checkout ALWAYS runs, so the unconfigured-state step below can still
       # write a step summary and the job keeps a deterministic conclusion.
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          # Full history is required for accurate new-code / blame detection:
-          # the scanner's SCM sensor needs per-file blame and the origin/main
-          # ref to compute changed lines. A shallow clone makes the whole
-          # analysis read as new code.
-          fetch-depth: 0
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Report unconfigured state (SONAR_TOKEN absent or withheld)
         if: steps.sonar_guard.outputs.available != 'true'
