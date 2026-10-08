@@ -165,19 +165,21 @@ It is installed as a Composer dev-dependency
 `CI Strict` lane as two steps:
 
 ```bash
-composer archeology          # writes SARIF + Markdown reports to build/archeology/
-composer archeology:baseline # fails only on NEW problems vs the committed baseline
+composer archeology       # writes SARIF + Markdown reports to build/archeology/
+composer archeology:gate  # fails on ANY architecture error
 ```
 
 - **Strict configuration** lives in
   [`php-codearch-config.yaml`](php-codearch-config.yaml): the metric thresholds
   are pinned to the tool's tightest defaults so a future default change cannot
   silently loosen the gate.
-- **Baseline ratchet.** The 57 pre-existing findings are frozen in the committed
-  [`.phpcodearch-baseline.json`](.phpcodearch-baseline.json) — the same
-  "no new debt" pattern as the PHPStan baseline. `composer archeology:baseline`
-  fails on **any new** architecture problem, so the gate never loosens the
-  existing PHPStan/Psalm gates.
+- **The gate is `--fail-on=error`** — a deterministic, zero-tolerance check
+  that depends only on the source tree. It is deliberately **not** a committed
+  baseline: the tool's problem identity is `crc32(<absolute path>)`, so a
+  baseline file is not portable between a developer's checkout and the CI
+  runner and would report spurious "new problems" on every run. The repository
+  currently has **zero** architecture errors (all findings are warnings), so
+  this gate never loosens the existing PHPStan/Psalm gates.
 - **Reports** (SARIF + Markdown) are uploaded as the
   `phpcodearcheology-report` build artifact on every run; the SARIF file is also
   consumable by GitHub Code Scanning.

@@ -7,8 +7,8 @@
 #
 # The settings below are deliberately STRICT, consistent with the rest of the
 # quality pipeline (PHPStan max level, Psalm level 1, 90% coverage, Infection
-# MSI 100): the metric thresholds are the tool's tightest defaults and the
-# gate is a zero-tolerance baseline ratchet (no new architecture problem).
+# MSI 100): the metric thresholds are the tool's tightest defaults, and the
+# gate (`composer archeology:gate`) fails on ANY architecture error.
 #
 # NOTE: the MCP server is intentionally NOT configured or used — this gate is
 # a plain CLI analysis step in CI.
@@ -24,13 +24,9 @@ exclude:
 extensions:
   - "php"
 
-# NOTE: `reportDir` is pinned to the repository root so the baseline file
-# (`.phpcodearch-baseline.json`, written next to `reportDir`) is committed at
-# the root, mirroring the committed `phpstan-baseline.neon` convention. The CI
-# report step overrides it with `--report-dir=build/archeology` (git-ignored)
-# on the command line, so generated reports never land in version control.
-# The config file accepts a single report type; the CI step passes
-# `--report-type=sarif,markdown` on the command line to emit both.
+# The report step overrides this with `--report-dir=build/archeology`
+# (git-ignored) on the command line, so generated reports never land in
+# version control.
 reportDir: "."
 reportType: "sarif"
 
@@ -38,15 +34,6 @@ git:
   enable: true
   since: "12 months ago"
   root: "."
-
-# Strictness model (mirrors the PHPStan max-level + baseline ratchet):
-#   * the metric thresholds below are pinned to the tool's tightest defaults,
-#     so a future default change cannot silently loosen this gate;
-#   * the gate itself is the committed `.phpcodearch-baseline.json` ratchet —
-#     `composer archeology:baseline` fails on ANY new architecture problem.
-# `qualityGate` is deliberately NOT set here: it would make the report-writing
-# run exit non-zero on the 57 frozen pre-existing findings, which is the
-# baseline's job, not the report step's.
 
 # Tightest metric thresholds (the tool's own defaults, pinned explicitly so a
 # future default change cannot silently loosen this gate).

@@ -125,16 +125,22 @@ jobs:
         #
         # The MCP server it ships is intentionally NOT configured or used.
         #
-        # Two steps, mirroring the PHPStan baseline ratchet:
+        # Two steps:
         #   1. `composer archeology` writes the SARIF + Markdown reports into
         #      the git-ignored `build/archeology/` (uploaded as an artifact).
-        #   2. `composer archeology:baseline` fails only on NEW architecture
-        #      problems relative to the committed `.phpcodearch-baseline.json`,
-        #      so the 57 pre-existing findings are frozen and the gate never
-        #      loosens the existing PHPStan/Psalm gates.
+        #   2. `composer archeology:gate` fails on ANY architecture error.
+        #
+        # WHY NOT A COMMITTED BASELINE: the tool's problem identity is
+        # `crc32(<absolute path>)`, so a baseline file is not portable between
+        # the developer's checkout and the CI runner (different absolute
+        # paths) — it would report spurious "new problems" on every run. The
+        # gate is therefore the deterministic `--fail-on=error` check, which
+        # depends only on the source tree. The repository currently has zero
+        # architecture errors (all 57 findings are warnings), so this is a
+        # strict, zero-tolerance gate that never loosens PHPStan/Psalm.
         run: |
           composer archeology
-          composer archeology:baseline
+          composer archeology:gate
 
       - name: Upload PhpCodeArcheology reports
         # The SARIF report is also consumable by GitHub Code Scanning; the
