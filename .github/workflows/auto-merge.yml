@@ -144,14 +144,14 @@ jobs:
           # is referenced by NAME only; its value is injected at run time and
           # never written to a file or log.
           #
-          # PAT SCOPE CAVEAT: a fine-grained PAT only carries the scopes it was
-          # granted, and a push/approve/update-branch performed with it is
-          # authorised by THOSE scopes -- not by this job's `permissions:` block.
-          # An under-scoped PAT therefore fails with 403 "Resource not accessible
-          # by personal access token" (observed on the `update-branch` call, which
-          # needs `contents: write`), leaving a `behind` PR un-synced and
-          # auto-merge waiting forever. Every write below therefore retries with
-          # the built-in token via `BUILTIN_TOKEN` when the PAT is refused.
+          # PAT ENDPOINT CAVEAT: the `update-branch` endpoint does NOT support
+          # fine-grained personal access tokens. A fine-grained PAT (such as the
+          # optional `ZEF_TOKEN`) is refused with 403 "Resource not accessible by
+          # personal access token" REGARDLESS of the scopes it was granted -- the
+          # refusal is about the token TYPE, not a missing scope. That leaves a
+          # `behind` PR un-synced and auto-merge waiting forever. Every write
+          # below therefore retries with the built-in token via `BUILTIN_TOKEN`,
+          # which carries this job's declared `contents: write`.
           #
           # QUEUE-CHAIN NOTE: a merge executed by `github-actions[bot]`
           # (GITHUB_TOKEN) emits no follow-up workflow event (GitHub's recursion
@@ -229,10 +229,10 @@ jobs:
                 echo "PR #$pr is already up to date with the base branch."
                 break
               fi
-              # The optional PAT is preferred, but a fine-grained PAT only has
-              # the scopes it was granted. `update-branch` needs `contents:
-              # write`; an under-scoped PAT answers 403 "Resource not accessible
-              # by personal access token", which would leave this PR `behind`
+              # The optional PAT is preferred, but `update-branch` does NOT
+              # support fine-grained personal access tokens: a fine-grained PAT
+              # answers 403 "Resource not accessible by personal access token"
+              # regardless of its scopes, which would leave this PR `behind`
               # forever (the ruleset requires an up-to-date branch). Retry with
               # the built-in token, which always carries this job's declared
               # `contents: write`.
