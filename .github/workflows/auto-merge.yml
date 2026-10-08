@@ -48,12 +48,17 @@
 #     lane finishes, this workflow sweeps immediately and approves the waiting
 #     runs, so the bot PRs merge without a human. The periodic `schedule` sweep
 #     remains as a safety net.
-#   * Optional `ZEF_TOKEN`: if the owner adds a fine-grained PAT under that
-#     secret name (organization-level secret `ZEF_TOKEN`), it is preferred over
-#     the built-in token. A push/approve made
-#     with a human-owned token is attributed to a human actor, so the runs are
-#     not left waiting in the first place. Absent the secret, the built-in
-#     token is used and the auto-approve step still clears any waiting run.
+#   * Optional `ZEF_TOKEN`: if the owner adds a PAT under that secret name
+#     (organization-level secret `ZEF_TOKEN`), it is preferred over the
+#     built-in token. A push/approve made with a human-owned token is
+#     attributed to a human actor, so the runs are not left waiting in the
+#     first place. Absent the secret, the built-in token is used and the
+#     auto-approve step still clears any waiting run.
+#   * TOKEN TYPE: the refreshed `ZEF_TOKEN` is a CLASSIC PAT (scopes include
+#     `repo` + `workflow`). A classic PAT is accepted by every endpoint this
+#     lane calls, including `update-branch`. (An earlier revision of this file
+#     claimed `update-branch` rejects fine-grained PATs outright; that claim
+#     was never verified against a working token and has been removed.)
 #
 # CONVENTIONS
 # -----------
@@ -144,14 +149,15 @@ jobs:
           # is referenced by NAME only; its value is injected at run time and
           # never written to a file or log.
           #
-          # PAT ENDPOINT CAVEAT: the `update-branch` endpoint does NOT support
-          # fine-grained personal access tokens. A fine-grained PAT (such as the
-          # optional `ZEF_TOKEN`) is refused with 403 "Resource not accessible by
-          # personal access token" REGARDLESS of the scopes it was granted -- the
-          # refusal is about the token TYPE, not a missing scope. That leaves a
-          # `behind` PR un-synced and auto-merge waiting forever. Every write
-          # below therefore retries with the built-in token via `BUILTIN_TOKEN`,
-          # which carries this job's declared `contents: write`.
+          # TOKEN TYPE: the refreshed `ZEF_TOKEN` is a CLASSIC PAT (scopes
+          # include `repo` + `workflow`), and a classic PAT is accepted by every
+          # endpoint this lane calls, including `update-branch`. The earlier
+          # "fine-grained PAT is refused by update-branch" caveat was never
+          # verified against a working token and has been removed. The
+          # `BUILTIN_TOKEN` fallback below is kept purely as a safety net: if the
+          # optional PAT is ever absent, expired, or refused, the write retries
+          # with the built-in token, which carries this job's declared
+          # `contents: write`.
           #
           # QUEUE-CHAIN NOTE: a merge executed by `github-actions[bot]`
           # (GITHUB_TOKEN) emits no follow-up workflow event (GitHub's recursion
@@ -165,7 +171,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ZEF_TOKEN || secrets.GITHUB_TOKEN }}
           # The built-in workflow token, always present and always carrying this
           # job's declared permissions. Used as the fallback for repo writes when
-          # the optional PAT is refused for lack of scope.
+          # the optional PAT is absent, expired, or refused.
           BUILTIN_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -u
@@ -229,13 +235,10 @@ jobs:
                 echo "PR #$pr is already up to date with the base branch."
                 break
               fi
-              # The optional PAT is preferred, but `update-branch` does NOT
-              # support fine-grained personal access tokens: a fine-grained PAT
-              # answers 403 "Resource not accessible by personal access token"
-              # regardless of its scopes, which would leave this PR `behind`
-              # forever (the ruleset requires an up-to-date branch). Retry with
-              # the built-in token, which always carries this job's declared
-              # `contents: write`.
+              # The optional PAT is preferred and, as a classic PAT, is accepted
+              # by `update-branch`. If it is ever absent, expired, or refused,
+              # retry with the built-in token, which always carries this job's
+              # declared `contents: write`.
               if printf '%s' "$resp" | grep -qiE 'not accessible|forbidden|403'; then
                 if resp=$(GH_TOKEN="$BUILTIN_TOKEN" gh api -X PUT "repos/${GITHUB_REPOSITORY}/pulls/${pr}/update-branch" 2>&1); then
                   echo "PR #$pr: branch update accepted (202) via the built-in token — CI will re-run."
