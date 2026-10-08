@@ -130,3 +130,15 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#42 fix(ci): run gate commands through the shell in the process runner
     - 7b53162 fix(ci): run gate commands through the shell in the process runner
+
+- PR#43 chore(changelog-official): regenerate official changelog
+    - a11c649 chore(changelog-official): regenerate official changelog
+
+- PR#45 refactor: validate url scheme before urllib calls
+    - ab3ccbd refactor: validate url scheme before urllib calls
+
+- PR#46 fix(ci): make CI Strict aggregator fail when lanes fail
+    - 923905d fix(ci): make CI Strict aggregator fail when lanes fail
+
+- PR#49 fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger
+    - f57dc82 fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger
