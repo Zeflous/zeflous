@@ -169,3 +169,15 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#59 ci: bump sonar checkout to v4.4.0 and split heavy jobs
     - 2c157c0 ci: bump sonar checkout to v4.4.0 and split heavy CI lanes into own workflows
     - fb05b0a ci: keep lane names whole in the CI Strict aggregator
+
+- PR#60 chore(changelog-official): regenerate official changelog
+    - 69e1989 chore(changelog-official): regenerate official changelog
+
+- PR#61 ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning
+    - b59c395 ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning
+    - 064741f Merge branch 'main' into ci/sonar-checkout-node24
+    - 6048307 Merge branch 'main' into ci/sonar-checkout-node24
+    - 4d5f206 Merge branch 'main' into ci/sonar-checkout-node24
+
+- PR#62 fix(ci): fall back to the built-in token when the bot PAT is under-scoped
+    - fb57dd1 fix(ci): fall back to the built-in token when the PAT is under-scoped

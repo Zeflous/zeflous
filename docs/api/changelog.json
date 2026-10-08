@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-08T04:26:43Z",
+  "as_of": "2026-10-08T04:44:42Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 44,
+  "unreleased_count": 47,
   "versions": [
     {
       "version": "Unreleased",
@@ -323,6 +323,22 @@
                 "sha": "f57dc8234e90d51adc8d18e1747b56d3cb9f5db1",
                 "short_sha": "f57dc82",
                 "subject": "fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger"
+              }
+            ]
+          },
+          {
+            "pr": 62,
+            "title": "fix(ci): fall back to the built-in token when the bot PAT is under-scoped",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-08T04:39:09Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/62",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "fb57dd1bc35981dec9601d67b3c315afec1be6f2",
+                "short_sha": "fb57dd1",
+                "subject": "fix(ci): fall back to the built-in token when the PAT is under-scoped"
               }
             ]
           }
@@ -768,6 +784,53 @@
                 "sha": "fb05b0a1f71989f5088593308f66acf6a2f9c150",
                 "short_sha": "fb05b0a",
                 "subject": "ci: keep lane names whole in the CI Strict aggregator"
+              }
+            ]
+          },
+          {
+            "pr": 60,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T04:42:10Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/60",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "69e1989a0072eec47229919f38451a3b7578626d",
+                "short_sha": "69e1989",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 61,
+            "title": "ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T04:44:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/61",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b59c395f5149303e2a3bd68d72e15f1dd1bc63b8",
+                "short_sha": "b59c395",
+                "subject": "ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning"
+              },
+              {
+                "sha": "064741f29bc3bb87747a017fa370a19aed04b0ca",
+                "short_sha": "064741f",
+                "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+              },
+              {
+                "sha": "60483073bb9b84e500822ae124f3412b2e7ef2ba",
+                "short_sha": "6048307",
+                "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+              },
+              {
+                "sha": "4d5f206007624da68564d4b857275d25a32212c6",
+                "short_sha": "4d5f206",
+                "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
               }
             ]
           }
@@ -1759,6 +1822,69 @@
               "sha": "fb05b0a1f71989f5088593308f66acf6a2f9c150",
               "short_sha": "fb05b0a",
               "subject": "ci: keep lane names whole in the CI Strict aggregator"
+            }
+          ]
+        },
+        {
+          "pr": 60,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T04:42:10Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/60",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "69e1989a0072eec47229919f38451a3b7578626d",
+              "short_sha": "69e1989",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 61,
+          "title": "ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T04:44:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/61",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b59c395f5149303e2a3bd68d72e15f1dd1bc63b8",
+              "short_sha": "b59c395",
+              "subject": "ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning"
+            },
+            {
+              "sha": "064741f29bc3bb87747a017fa370a19aed04b0ca",
+              "short_sha": "064741f",
+              "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+            },
+            {
+              "sha": "60483073bb9b84e500822ae124f3412b2e7ef2ba",
+              "short_sha": "6048307",
+              "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+            },
+            {
+              "sha": "4d5f206007624da68564d4b857275d25a32212c6",
+              "short_sha": "4d5f206",
+              "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+            }
+          ]
+        },
+        {
+          "pr": 62,
+          "title": "fix(ci): fall back to the built-in token when the bot PAT is under-scoped",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-08T04:39:09Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/62",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "fb57dd1bc35981dec9601d67b3c315afec1be6f2",
+              "short_sha": "fb57dd1",
+              "subject": "fix(ci): fall back to the built-in token when the PAT is under-scoped"
             }
           ]
         }
