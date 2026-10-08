@@ -148,6 +148,8 @@ def _token() -> str | None:
 def _api_get(path: str) -> object:
     """GET a GitHub API path, following pagination for list endpoints."""
     url = path if path.startswith("http") else f"{API}{path}"
+    if not url.lower().startswith("http"):
+        raise ValueError(f"Unsupported URL scheme: {url}")
     req = urllib.request.Request(url)
     req.add_header("Accept", "application/vnd.github+json")
     req.add_header("X-GitHub-Api-Version", "2022-11-28")
