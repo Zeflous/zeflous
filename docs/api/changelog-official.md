@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- fix\(ci\): fall back to the built-in token when the bot PAT is under-scoped [\#62](https://github.com/Zeflous/zeflous/pull/62) ([mbetixz](https://github.com/mbetixz))
+- ci: bump sonar checkout to v4.4.0 and split heavy jobs [\#59](https://github.com/Zeflous/zeflous/pull/59) ([mbetixz](https://github.com/mbetixz))
 - ci\(sonar\): use full-history checkout for better analysis relevancy [\#57](https://github.com/Zeflous/zeflous/pull/57) ([mbetixz](https://github.com/mbetixz))
 - ci\(sonar\): drop broken composer install step and bridge coverage on every event [\#55](https://github.com/Zeflous/zeflous/pull/55) ([mbetixz](https://github.com/mbetixz))
 - ci\(sonar\): drop unnecessary composer install from analysis job [\#53](https://github.com/Zeflous/zeflous/pull/53) ([mbetixz](https://github.com/mbetixz))
