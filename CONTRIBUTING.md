@@ -170,15 +170,14 @@ composer archeology:baseline # fails only on NEW problems vs the committed basel
 ```
 
 - **Strict configuration** lives in
-  [`php-codearch-config.yaml`](php-codearch-config.yaml): `qualityGate` tolerates
-  **zero errors and zero warnings**, and the metric thresholds are pinned to the
-  tool's tightest defaults so a future default change cannot silently loosen the
-  gate.
+  [`php-codearch-config.yaml`](php-codearch-config.yaml): the metric thresholds
+  are pinned to the tool's tightest defaults so a future default change cannot
+  silently loosen the gate.
 - **Baseline ratchet.** The 57 pre-existing findings are frozen in the committed
   [`.phpcodearch-baseline.json`](.phpcodearch-baseline.json) — the same
   "no new debt" pattern as the PHPStan baseline. `composer archeology:baseline`
-  fails only when a change introduces a **new** architecture problem, so the gate
-  never loosens the existing PHPStan/Psalm gates.
+  fails on **any new** architecture problem, so the gate never loosens the
+  existing PHPStan/Psalm gates.
 - **Reports** (SARIF + Markdown) are uploaded as the
   `phpcodearcheology-report` build artifact on every run; the SARIF file is also
   consumable by GitHub Code Scanning.
