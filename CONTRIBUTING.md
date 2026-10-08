@@ -11,6 +11,7 @@ by convention alone — a pull request that breaks one of them cannot be merged.
 - [PR title convention (PR Validator gate)](#pr-title-convention-pr-validator-gate)
 - [Commit messages](#commit-messages)
 - [Quality gates](#quality-gates)
+- [Roadmap status](#roadmap-status)
 - [Changelog](#changelog)
 
 ## Getting started
@@ -30,6 +31,19 @@ composer ci:strict
 `composer ci:strict` is the repository's single source of truth for the strict
 pipeline. A green `CI Strict` check on your pull request means exactly the same
 set of gates you just ran locally.
+
+`ci:strict` is composed of four independent lanes, each of which also runs as
+its own CI job so a slow lane cannot block the others:
+
+| Lane | Script | CI job |
+| --- | --- | --- |
+| Static analysis, unit tests, supply-chain audit | `composer ci:static` | `CI Static` |
+| Line-coverage gate | `composer ci:coverage` | `CI Coverage` |
+| Mutation testing (Infection, MSI 100) | `composer ci:infection` | `CI Infection` |
+| Micro-benchmarks | `composer ci:bench` | `CI Bench` |
+
+The `CI Strict` job is a thin aggregator that `needs` all four lanes, so the
+required status-check context is unchanged.
 
 ## Pull requests
 
@@ -139,7 +153,11 @@ are **required** — the rest are advisory signals.
 
 | Check | What it enforces |
 | --- | --- |
-| `CI Strict` | `composer ci:strict` — PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector, PHPUnit, the 90% coverage gate, Infection (MSI 100), the strict supply-chain audit, the persistent-worker smoke test and PHPBench — plus Psalm (level 1 + baseline), Progpilot (static security analysis) and PhpCodeArcheology (architecture & maintainability gate). |
+| `CI Strict` | Aggregator: green only when `CI Static`, `CI Coverage`, `CI Infection` and `CI Bench` are all green. |
+| `CI Static` | `composer ci:static` — PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector, PHPUnit, the persistent-worker smoke test and the strict supply-chain audit — plus Psalm (level 1 + baseline), Progpilot (static security analysis) and PhpCodeArcheology (architecture & maintainability gate). |
+| `CI Coverage` | `composer ci:coverage` — the 90% line-coverage gate. |
+| `CI Infection` | `composer ci:infection` — Infection mutation testing (MSI 100) and the mutation-score floor. |
+| `CI Bench` | `composer ci:bench` — PHPBench. |
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
 | `SonarCloud Code Analysis` | The server-side quality gate. |
@@ -197,6 +215,14 @@ composer archeology:gate  # normalises SARIF paths and fails on any error-level 
   **required** check on `main`.
 - The tool's bundled **MCP server is intentionally not configured or used** —
   this gate is a plain CLI analysis step in CI.
+
+## Roadmap status
+
+[`ROADMAP-STATUS.md`](ROADMAP-STATUS.md) is the living "roadmap meter": for every
+area described in [`ROADMAP.md`](ROADMAP.md) it records the current status
+(Implemented / Partial / Not started) with a one-line evidence pointer, plus the
+cross-cutting quality gates. Update it whenever a roadmap area gains code — see
+the "How to update this file" section at the bottom of that document.
 
 ## Changelog
 

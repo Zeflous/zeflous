@@ -1,17 +1,27 @@
-# Strict CI lane: runs the repository's own full-quality pipeline
-# (`composer ci:strict`) on every pull request, so the local gates
-# (PHPStan max level, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector,
-# Deptrac, Infection mutation testing, PHPUnit + coverage gate, strict
-# supply-chain audit, persistent-worker smoke and PHPBench) are visible on
+# Strict CI lane: runs the repository's own full-quality pipeline on every pull
+# request, so the local gates (PHPStan max level, PHP-CS-Fixer, PHP_CodeSniffer +
+# Slevomat, Rector, Deptrac, Infection mutation testing, PHPUnit + coverage gate,
+# strict supply-chain audit, persistent-worker smoke and PHPBench) are visible on
 # each PR instead of living only on a developer's machine.
 #
 # WHY THIS FILE EXISTS
 # --------------------
 # The SonarCloud lane (`.github/workflows/sonarcloud.yml`) is the cloud
-# reviewer, but it only publishes what *it* computes. `composer ci:strict`
-# is the repository's single source of truth for the strict pipeline, and it
-# previously had no CI surface at all. This lane runs exactly that script, so
-# a green check means the same set of gates the maintainers run locally.
+# reviewer, but it only publishes what *it* computes. `composer ci:strict` is the
+# repository's single source of truth for the strict pipeline, and it previously
+# had no CI surface at all. This lane runs exactly that script, so a green check
+# means the same set of gates the maintainers run locally.
+#
+# WHY THE JOBS ARE SPLIT
+# ----------------------
+# `composer ci:strict` is one entry point, but it is composed of four independent
+# lanes (`ci:static`, `ci:coverage`, `ci:infection`, `ci:bench`). Running them in
+# a single job made the whole pipeline as slow as its slowest member: Infection
+# (mutation testing over the full surface) can take tens of minutes on a growing
+# codebase, and it blocked every other gate behind it. Each lane now runs as its
+# own job, in parallel, so a slow mutation run no longer holds the fast gates
+# open. The `CI Strict` job is a thin aggregator that `needs` all four, so the
+# required status-check context "CI Strict" is preserved unchanged.
 #
 # CONVENTIONS (mirrors `.github/workflows/sonarcloud.yml`)
 # -------------------------------------------------------
@@ -19,15 +29,15 @@
 #     original tag kept as a trailing comment. Tag/branch refs are what
 #     SonarCloud flags as `githubactions:S7637`; pinning keeps supply-chain
 #     findings at zero without any rule exclusion.
-#   * Least privilege: the job only reads the repository.
-#   * The job NAME "CI Strict" is the status-check context — keep it stable
+#   * Least privilege: the jobs only read the repository.
+#   * The job NAME "CI Strict" is the status-check context -- keep it stable
 #     if it is ever added to a branch-protection rule.
 #
 # SCOPE NOTE
 # ----------
-# This lane complements, and does not replace, the SonarCloud gate. It runs
-# the deterministic local pipeline; the SonarCloud lane runs the server-side
-# quality gate. Both are independent signals on the same pull request.
+# This lane complements, and does not replace, the SonarCloud gate. It runs the
+# deterministic local pipeline; the SonarCloud lane runs the server-side quality
+# gate. Both are independent signals on the same pull request.
 
 name: CI Strict
 
@@ -54,40 +64,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci-strict:
-    # The job NAME is a public contract: it is the status-check context that a
-    # branch-protection rule would pin. Keep it exactly "CI Strict".
-    name: CI Strict
+  # Fast, deterministic static analysis + unit tests + supply-chain audit.
+  ci-static:
+    name: CI Static
     runs-on: ubuntu-latest
-    # ci:strict runs the whole battery including Infection (mutation testing
-    # over the full surface) and PHPBench; the bound keeps a hung dependency
-    # install or analyser from holding the check open forever.
     timeout-minutes: 30
 
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Setup PHP 8.4 with pcov
+      - name: Setup PHP 8.4
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: '8.4'
-          # pcov is the coverage driver required by Infection mutation testing
-          # and the `coverage:gate` script inside ci:strict.
-          extensions: pcov
-          coverage: pcov
+          coverage: none
           tools: composer:v2
+          # Cache the Composer download cache so the split jobs do not each pay
+          # the full dependency-download cost.
+          cache: composer
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Run strict pipeline (composer ci:strict)
-        # One entry point, defined in composer.json: composer validate --strict,
-        # lint, PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer check,
-        # PHP_CodeSniffer, Rector dry-run, PHPUnit, the 90% coverage gate,
-        # Infection (MSI 100) and the mutation-score floor, the strict
-        # supply-chain audit, the persistent-worker smoke test and PHPBench.
-        run: composer ci:strict
+      - name: Run static pipeline (composer ci:static)
+        # composer validate --strict, lint, PHPStan (max level) + ratchet,
+        # Deptrac, PHP-CS-Fixer check, PHP_CodeSniffer, Rector dry-run, PHPUnit,
+        # the persistent-worker smoke test and the strict supply-chain audit.
+        run: composer ci:static
 
       - name: Psalm (static analysis, level 1 + baseline)
         # Psalm runs at its strictest level (1). The pre-existing findings are
@@ -161,3 +165,93 @@ jobs:
           path: build/archeology/
           if-no-files-found: ignore
           retention-days: 14
+
+  # Line-coverage gate (needs pcov).
+  ci-coverage:
+    name: CI Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4 with pcov
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          extensions: pcov
+          coverage: pcov
+          tools: composer:v2
+          cache: composer
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run coverage gate (composer ci:coverage)
+        run: composer ci:coverage
+
+  # Mutation testing -- the heaviest lane, isolated so it cannot block the rest.
+  ci-infection:
+    name: CI Infection
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4 with pcov
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          extensions: pcov
+          coverage: pcov
+          tools: composer:v2
+          cache: composer
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run mutation testing (composer ci:infection)
+        # Infection (MSI 100) plus the mutation-score floor.
+        run: composer ci:infection
+
+  # Micro-benchmark lane.
+  ci-bench:
+    name: CI Bench
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+          cache: composer
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run benchmarks (composer ci:bench)
+        run: composer ci:bench
+
+  # Aggregator: preserves the "CI Strict" status-check context. It runs no gate
+  # of its own -- it is green only when every lane above is green, so the
+  # branch-protection rule keeps working unchanged.
+  ci-strict:
+    name: CI Strict
+    runs-on: ubuntu-latest
+    needs:
+      - ci-static
+      - ci-coverage
+      - ci-infection
+      - ci-bench
+    steps:
+      - name: All strict lanes passed
+        run: echo "All strict lanes (static, coverage, infection, bench) passed."
