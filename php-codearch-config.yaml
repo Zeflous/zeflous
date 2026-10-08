@@ -1,0 +1,79 @@
+# PhpCodeArcheology — strict architecture & maintainability gate.
+#
+# This is the repository's non-server-side counterpart to SonarCloud: it
+# measures architecture and maintainability (60+ metrics, complexity,
+# coupling, cohesion, git churn hotspots, health score) rather than type
+# safety, so it complements PHPStan/Psalm instead of duplicating them.
+#
+# The settings below are deliberately STRICT, consistent with the rest of the
+# quality pipeline (PHPStan max level, Psalm level 1, 90% coverage, Infection
+# MSI 100): the quality gate tolerates zero errors and zero warnings, and the
+# metric thresholds are the tool's tightest defaults.
+#
+# NOTE: the MCP server is intentionally NOT configured or used — this gate is
+# a plain CLI analysis step in CI.
+
+include:
+  - "src"
+
+exclude:
+  - "vendor"
+  - "tests"
+  - "benchmarks"
+
+extensions:
+  - "php"
+
+# NOTE: `reportDir` is pinned to the repository root so the baseline file
+# (`.phpcodearch-baseline.json`, written next to `reportDir`) is committed at
+# the root, mirroring the committed `phpstan-baseline.neon` convention. The CI
+# report step overrides it with `--report-dir=build/archeology` (git-ignored)
+# on the command line, so generated reports never land in version control.
+# The config file accepts a single report type; the CI step passes
+# `--report-type=sarif,markdown` on the command line to emit both.
+reportDir: "."
+reportType: "sarif"
+
+git:
+  enable: true
+  since: "12 months ago"
+  root: "."
+
+# Strict quality gate: no error and no warning is tolerated.
+qualityGate:
+  maxErrors: 0
+  maxWarnings: 0
+
+# Tightest metric thresholds (the tool's own defaults, pinned explicitly so a
+# future default change cannot silently loosen this gate).
+thresholds:
+  tooLong:
+    file: 400
+    class: 300
+    function: 40
+    method: 30
+  tooComplex:
+    cc: 10
+    ccLargeCode: 20
+    difficulty: 20
+    cognitiveComplexity: 15
+    avgMethodCc: 10
+  tooManyParameters:
+    warning: 4
+    error: 7
+  tooDependent:
+    function: 10
+    class: 20
+  lowTypeCoverage:
+    warning: 60
+    error: 40
+  deepInheritance:
+    warning: 4
+    error: 6
+  hotspot:
+    minChurn: 10
+    minCc: 15
+
+# Acknowledge the v2.7.0 metric-formula correction so the interactive
+# "Continue with analysis?" prompt is skipped in non-interactive CI runs.
+acknowledgedVersion: "2.7.0"

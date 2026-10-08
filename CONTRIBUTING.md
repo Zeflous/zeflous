@@ -139,7 +139,7 @@ are **required** — the rest are advisory signals.
 
 | Check | What it enforces |
 | --- | --- |
-| `CI Strict` | `composer ci:strict` — PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector, PHPUnit, the 90% coverage gate, Infection (MSI 100), the strict supply-chain audit, the persistent-worker smoke test and PHPBench — plus Psalm (level 1 + baseline) and Progpilot (static security analysis). |
+| `CI Strict` | `composer ci:strict` — PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector, PHPUnit, the 90% coverage gate, Infection (MSI 100), the strict supply-chain audit, the persistent-worker smoke test and PHPBench — plus Psalm (level 1 + baseline), Progpilot (static security analysis) and PhpCodeArcheology (architecture & maintainability gate). |
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `SonarCloud Code Analysis` | The server-side quality gate. |
 | `CodeQL` | Code scanning. |
@@ -150,6 +150,40 @@ are **required** — the rest are advisory signals.
 
 Do not weaken a gate, add a rule exclusion, or lower a threshold to make a
 change pass. Fix the underlying issue instead.
+
+### PhpCodeArcheology (architecture & maintainability)
+
+[PhpCodeArcheology](https://github.com/PhpCodeArcheology/PhpCodeArcheology) is
+the repository's **non-server-side** counterpart to SonarCloud. Where PHPStan
+and Psalm check type safety and bugs, PhpCodeArcheology measures **architecture
+and maintainability** — 60+ metrics (cyclomatic/cognitive complexity,
+maintainability index, LCOM, coupling, instability, Halstead), git churn
+hotspots, a 0–100 health score and a technical-debt score.
+
+It is installed as a Composer dev-dependency
+(`php-code-archeology/php-code-archeology`, pinned `^2.11`) and runs inside the
+`CI Strict` lane as two steps:
+
+```bash
+composer archeology          # writes SARIF + Markdown reports to build/archeology/
+composer archeology:baseline # fails only on NEW problems vs the committed baseline
+```
+
+- **Strict configuration** lives in
+  [`php-codearch-config.yaml`](php-codearch-config.yaml): `qualityGate` tolerates
+  **zero errors and zero warnings**, and the metric thresholds are pinned to the
+  tool's tightest defaults so a future default change cannot silently loosen the
+  gate.
+- **Baseline ratchet.** The 57 pre-existing findings are frozen in the committed
+  [`.phpcodearch-baseline.json`](.phpcodearch-baseline.json) — the same
+  "no new debt" pattern as the PHPStan baseline. `composer archeology:baseline`
+  fails only when a change introduces a **new** architecture problem, so the gate
+  never loosens the existing PHPStan/Psalm gates.
+- **Reports** (SARIF + Markdown) are uploaded as the
+  `phpcodearcheology-report` build artifact on every run; the SARIF file is also
+  consumable by GitHub Code Scanning.
+- The tool's bundled **MCP server is intentionally not configured or used** —
+  this gate is a plain CLI analysis step in CI.
 
 ## Changelog
 

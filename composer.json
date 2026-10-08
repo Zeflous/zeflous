@@ -34,6 +34,7 @@
         "deptrac/deptrac": "^4.7",
         "friendsofphp/php-cs-fixer": "^3.95",
         "infection/infection": "^0.35",
+        "php-code-archeology/php-code-archeology": "^2.11",
         "phpbench/phpbench": "^1.7",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.3",
@@ -78,6 +79,7 @@
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "infection/extension-installer": true,
+            "php-code-archeology/php-code-archeology": true,
             "phpstan/extension-installer": true
         },
         "audit": {
@@ -103,6 +105,8 @@
         "stan": "phpstan analyse --configuration=phpstan.neon.dist --memory-limit=1G --no-progress",
         "stan:ratchet": "@php scripts/ci/gate.php baseline",
         "psalm": "psalm --no-cache --no-progress",
+        "archeology": "phpcodearcheology --report-type=sarif,markdown --report-dir=build/archeology --no-color",
+        "archeology:baseline": "phpcodearcheology baseline check src --report-dir=. --no-color",
         "deptrac": "deptrac analyse --config-file=deptrac.yaml --no-progress",
         "audit:security": "@php scripts/ci/gate.php audit",
         "audit:strict": "@php scripts/ci/gate.php audit",
@@ -157,6 +161,8 @@
         "stan": "Run PHPStan static analysis at the strictest level.",
         "stan:ratchet": "Enforce the PHPStan baseline ratchet (no new errors).",
         "psalm": "Run Psalm static analysis at level 1 against the frozen baseline.",
+        "archeology": "Run PhpCodeArcheology (architecture/maintainability metrics) with the strict quality gate.",
+        "archeology:baseline": "Enforce the PhpCodeArcheology baseline ratchet (no new architecture problems).",
         "deptrac": "Run Deptrac architecture-boundary analysis.",
         "audit:security": "Strict supply-chain gate (alias of audit:strict).",
         "audit:strict": "Strict supply-chain gate: fail on advisories or non allow-listed abandoned packages.",
