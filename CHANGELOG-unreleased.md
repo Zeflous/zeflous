@@ -150,3 +150,12 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#50 chore(ci): rename bot PAT secret to ZEF_TOKEN in auto-merge
     - b924181 chore(ci): rename bot PAT secret to ZEF_TOKEN in auto-merge
     - c46b32d Merge branch 'main' into chore/zef-token-secret-name
+
+- PR#52 chore(changelog-official): regenerate official changelog
+    - 02c4ec4 chore(changelog-official): regenerate official changelog
+
+- PR#53 ci(sonar): drop unnecessary composer install from analysis job
+    - 5109e6b ci(sonar): drop unnecessary composer install from analysis job
+
+- PR#55 ci(sonar): drop broken composer install step and bridge coverage on every event
+    - 7e549b2 ci(sonar): drop broken composer install step and bridge coverage on every event
