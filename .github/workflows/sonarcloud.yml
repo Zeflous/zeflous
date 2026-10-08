@@ -52,12 +52,12 @@
 #      parity with the reference removes a variable from the investigation.
 #
 #   4. COVERAGE SOURCE (2026-10-08, "composer install not needed here"). The job
-#      no longer installs dependencies or runs PHPUnit itself: the analysis needs
-#      SOURCE plus a coverage report, and sonar-project.properties derives no path
-#      from vendor/. It bridges the CI Coverage lane's `coverage-reports` artifact
-#      (clover + JUnit) exactly like the reference repository, so the duplicated
-#      `composer install` -- and its transient codeload HTTP/2 429 rate-limit
-#      failures -- are gone. See the bridge step below.
+#      installs NO dependencies and runs NO tests: the analysis needs SOURCE plus
+#      a coverage report, and sonar-project.properties derives no path from
+#      vendor/. It bridges the CI Coverage lane's `coverage-reports` artifact
+#      (clover + JUnit) on EVERY event, exactly like the reference repository, so
+#      the duplicated `composer install` -- and its transient codeload HTTP/2 429
+#      rate-limit failures -- are gone. See the bridge step below.
 #
 # CONTRACT (unchanged, deliberate): this job ALWAYS runs and concludes. When it
 # cannot scan credentialed — the `SONAR_TOKEN` repository secret is not set, or
@@ -136,7 +136,7 @@ jobs:
       # Checkout ALWAYS runs, so the unconfigured-state step below can still
       # write a step summary and the job keeps a deterministic conclusion.
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           # Full history is required for accurate new-code / blame detection:
           # the scanner's SCM sensor needs per-file blame and the origin/main
@@ -160,50 +160,30 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           echo "::notice::SONAR_TOKEN unavailable in this context — SonarCloud analysis skipped (setup: docs/security/sonarcloud.md)."
 
-      # COVERAGE BRIDGE v1 (2026-10-08). This job used to run `composer install`
-      # + PHPUnit itself, purely to produce build/clover.xml. That duplicated the
-      # CI lane's own coverage run and, worse, downloaded the whole dependency
-      # set again on every push -- the site of the transient
-      # `codeload.github.com` HTTP/2 429 rate-limit failure (run 37721082020,
-      # attempt 1: step "Install dependencies" red). The analysis does NOT need
-      # vendor/: the scanner reads SOURCE plus a coverage report, and
+      # COVERAGE BRIDGE v2 (2026-10-08). This job installs NO dependencies and
+      # runs NO tests. The analysis needs SOURCE plus a coverage report, and
       # sonar-project.properties derives no path from vendor/ (it is excluded
       # from the analysis scope). The report is taken from the CI Coverage lane
-      # instead -- same approach as the reference repository
-      # `Zeflous/zef-framework`, which runs `checkout -> download artifact ->
-      # sonar-scanner` and never installs dependencies here.
-      - name: Install dependencies and run test suite with coverage
-        # Runs ONLY in the CI Coverage lane (the lane computes coverage anyway).
-        # The artifact it uploads is the bridge source for every OTHER run of
-        # this workflow. Kept as a single step to preserve the historical job
-        # step-name contract "Install dependencies and run test suite with
-        # coverage".
-        if: steps.sonar_guard.outputs.available == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          composer install --no-interaction --prefer-dist --no-progress
-          php -d pcov.enabled=1 vendor/bin/phpunit \
-            --coverage-clover build/clover.xml \
-            --log-junit build/junit.xml
-
-      - name: Upload coverage reports (bridge source)
-        # Publish the clover + JUnit reports the scanner consumes. Only the CI
-        # Coverage lane produces them (it is the only run that installs vendor/).
-        if: steps.sonar_guard.outputs.available == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: coverage-reports
-          path: |
-            build/clover.xml
-            build/junit.xml
-          if-no-files-found: error
-          retention-days: 14
-
+      # (`ci-strict.yml`), which publishes the `coverage-reports` artifact
+      # (clover + JUnit) for the same commit -- the same `checkout -> download
+      # artifact -> sonar-scanner` shape as the reference repository
+      # `Zeflous/zef-framework`.
+      #
+      # v1 kept a `composer install` + PHPUnit step for the push-to-main path (to
+      # be the artifact's producer). That was both redundant -- the CI Coverage
+      # lane already produces the artifact -- and broken: the step ran on the
+      # runner's default PHP 8.3.6 while composer.lock requires PHP >=8.4
+      # (`phpunit/php-code-coverage 14.4.1`), so every push-to-main run failed
+      # with "Your lock file does not contain a compatible set of packages"
+      # (run 37723034605). Removing the step removes the failure and the
+      # duplicated dependency download (the site of the transient
+      # `codeload.github.com` HTTP/2 429 rate-limit failure, run 37721082020).
       - name: Wait for the CI Coverage lane and fetch its coverage artifact (bridge)
-        # Every non-CI run (pull requests, manual dispatches) downloads the
-        # report the CI Coverage lane published for THIS commit, so the quality
-        # gate's coverage-on-new-code condition is still computed on real PHPUnit
-        # data -- without installing a single dependency in this job.
-        if: steps.sonar_guard.outputs.available == 'true' && !(github.event_name == 'push' && github.ref == 'refs/heads/main')
+        # Runs on EVERY event (push to main, pull requests, manual dispatch):
+        # the CI Coverage lane publishes the report for this commit, so the
+        # quality gate's coverage-on-new-code condition is computed on real
+        # PHPUnit data without installing a single dependency in this job.
+        if: steps.sonar_guard.outputs.available == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
