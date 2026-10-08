@@ -141,6 +141,7 @@ are **required** — the rest are advisory signals.
 | --- | --- |
 | `CI Strict` | `composer ci:strict` — PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector, PHPUnit, the 90% coverage gate, Infection (MSI 100), the strict supply-chain audit, the persistent-worker smoke test and PHPBench — plus Psalm (level 1 + baseline), Progpilot (static security analysis) and PhpCodeArcheology (architecture & maintainability gate). |
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
+| `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
 | `SonarCloud Code Analysis` | The server-side quality gate. |
 | `CodeQL` | Code scanning. |
 | `Dependency Review` | Supply-chain review of dependency changes. |
@@ -166,23 +167,34 @@ It is installed as a Composer dev-dependency
 
 ```bash
 composer archeology       # writes SARIF + Markdown reports to build/archeology/
-composer archeology:gate  # fails on ANY architecture error
+composer archeology:gate  # normalises SARIF paths and fails on any error-level finding
 ```
 
 - **Strict configuration** lives in
   [`php-codearch-config.yaml`](php-codearch-config.yaml): the metric thresholds
   are pinned to the tool's tightest defaults so a future default change cannot
   silently loosen the gate.
-- **The gate is `--fail-on=error`** — a deterministic, zero-tolerance check
-  that depends only on the source tree. It is deliberately **not** a committed
-  baseline: the tool's problem identity is `crc32(<absolute path>)`, so a
-  baseline file is not portable between a developer's checkout and the CI
-  runner and would report spurious "new problems" on every run. The repository
-  currently has **zero** architecture errors (all findings are warnings), so
-  this gate never loosens the existing PHPStan/Psalm gates.
+- **The gate reads the SARIF `level` field** (via
+  [`scripts/ci/archeology-gate.php`](scripts/ci/archeology-gate.php)) and fails
+  on any **error-level** architecture finding — GodClass, SecuritySmell,
+  DependencyCycle and "Difficulty is too high". It deliberately does **not**
+  use the tool's own `--fail-on=error`, which counts the relative
+  "effort/MI/LCOM more than 30% above/below average" findings as errors: those
+  are a distribution artefact (any codebase has entities above 1.3× the mean by
+  construction), not defects, and gating on them would be un-actionable. The
+  same script rewrites the tool's absolute SARIF paths to repository-relative
+  URIs, which GitHub Code Scanning requires.
+- **The gate is deterministic** and depends only on the source tree. It is
+  deliberately **not** a committed baseline: the tool's problem identity is
+  `crc32(<absolute path>)`, so a baseline file is not portable between a
+  developer's checkout and the CI runner and would report spurious "new
+  problems" on every run.
 - **Reports** (SARIF + Markdown) are uploaded as the
-  `phpcodearcheology-report` build artifact on every run; the SARIF file is also
-  consumable by GitHub Code Scanning.
+  `phpcodearcheology-report` build artifact on every run. The dedicated
+  [`archeology.yml`](.github/workflows/archeology.yml) lane additionally
+  publishes the SARIF to **GitHub Code Scanning** (Security → Code scanning
+  alerts) under the `PhpCodeArcheology SARIF` status check, which is a
+  **required** check on `main`.
 - The tool's bundled **MCP server is intentionally not configured or used** —
   this gate is a plain CLI analysis step in CI.
 

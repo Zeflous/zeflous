@@ -11,19 +11,19 @@ use Psr\Container\ContainerInterface;
 /**
  * Minimal, reflection-free service locator implementing PSR-11.
  *
- * This is the seed of the ZEF container: it stores factories and memoises the
- * instances they build. Autowiring, compiler passes, tags and per-request scopes
- * described in `ROADMAP.md` are layered on top of this class, not inside it.
- *
- * @phpstan-type Factory Closure(self): mixed
+ * This is the seed of the ZEF container: it exposes the PSR-11 surface and
+ * delegates storage and resolution to {@see ServiceStore}. Autowiring, compiler
+ * passes, tags and per-request scopes described in `ROADMAP.md` are layered on
+ * top of this class, not inside it.
  */
-final class Container implements ContainerInterface
+final readonly class Container implements ContainerInterface
 {
-    /** @var array<string, mixed> */
-    private array $resolved = [];
+    private ServiceStore $serviceStore;
 
-    /** @var array<string, Closure(self): mixed> */
-    private array $factories = [];
+    public function __construct()
+    {
+        $this->serviceStore = new ServiceStore();
+    }
 
     /**
      * Registers a factory under an identifier.
@@ -32,32 +32,22 @@ final class Container implements ContainerInterface
      */
     public function set(string $id, Closure $factory): void
     {
-        $this->factories[$id] = $factory;
-        unset($this->resolved[$id]);
+        $this->serviceStore->set($id, $factory);
     }
 
     #[Override]
     public function has(string $id): bool
     {
-        return \array_key_exists($id, $this->resolved)
-            || \array_key_exists($id, $this->factories);
+        return $this->serviceStore->has($id);
     }
 
     #[Override]
     public function get(string $id): mixed
     {
-        if (\array_key_exists($id, $this->resolved)) {
-            return $this->resolved[$id];
+        if ($this->serviceStore->has($id)) {
+            return $this->serviceStore->resolve($id, $this);
         }
 
-        if (!\array_key_exists($id, $this->factories)) {
-            throw new NotFoundException(\sprintf('Service "%s" is not defined.', $id));
-        }
-
-        $service = ($this->factories[$id])($this);
-
-        $this->resolved[$id] = $service;
-
-        return $service;
+        throw new NotFoundException('Service "' . $id . '" is not defined.');
     }
 }

@@ -1,0 +1,92 @@
+# PhpCodeArcheology SARIF lane.
+#
+# Publishes the PhpCodeArcheology architecture & maintainability report to
+# GitHub Code Scanning (Security -> Code scanning alerts) and exposes a stable
+# status check named "PhpCodeArcheology SARIF".
+#
+# WHY A SEPARATE LANE
+# -------------------
+# `ci-strict.yml` already runs the analysis, but its status-check context is
+# "CI Strict". Code Scanning needs `security-events: write`, which the
+# least-privilege "CI Strict" job deliberately does not hold. Keeping the SARIF
+# upload in its own job means the write permission is scoped to exactly one
+# job, and the check name is stable and self-describing.
+#
+# CONVENTIONS
+# -----------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
+#     original tag kept as a trailing comment (supply-chain hygiene).
+#   * Least privilege: `contents: read` to check out, `security-events: write`
+#     only to upload the SARIF.
+#   * The job NAME "PhpCodeArcheology SARIF" is the status-check context.
+
+name: PhpCodeArcheology SARIF
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: archeology-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  archeology-sarif:
+    name: PhpCodeArcheology SARIF
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+      # Required by github/codeql-action/upload-sarif to publish results.
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: PhpCodeArcheology analysis (SARIF + Markdown)
+        # Writes build/archeology/sarif/report.sarif.json and the Markdown
+        # summary. The MCP server the tool ships is intentionally NOT used.
+        run: composer archeology
+
+      - name: Normalise SARIF paths and gate on error-level findings
+        # GitHub Code Scanning only accepts repository-relative URIs, and the
+        # tool's own `--fail-on=error` counts the relative "effort/MI/LCOM
+        # above/below average" warnings as errors. This step rewrites the paths
+        # and fails only on genuine error-level architecture defects.
+        run: php scripts/ci/archeology-gate.php build/archeology/sarif/report.sarif.json
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
+        with:
+          sarif_file: build/archeology/sarif/report.sarif.json
+          category: phpcodearcheology
+
+      - name: Upload PhpCodeArcheology reports
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: phpcodearcheology-sarif
+          path: build/archeology/
+          if-no-files-found: ignore
+          retention-days: 14

@@ -5,11 +5,6 @@
       <code><![CDATA[has]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Container/Container.php">
-    <MixedAssignment>
-      <code><![CDATA[$service]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Contracts/ServiceProviderInterface.php">
     <UnusedClass>
       <code><![CDATA[ServiceProviderInterface]]></code>
