@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-08T02:20:27Z",
+  "as_of": "2026-10-08T02:54:19Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 32,
+  "unreleased_count": 36,
   "versions": [
     {
       "version": "Unreleased",
@@ -293,6 +293,38 @@
                 "subject": "fix(ci): run gate commands through the shell in the process runner"
               }
             ]
+          },
+          {
+            "pr": 46,
+            "title": "fix(ci): make CI Strict aggregator fail when lanes fail",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-08T02:38:08Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/46",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "923905ddd3c9d3e5042fa45d9664886242766ed5",
+                "short_sha": "923905d",
+                "subject": "fix(ci): make CI Strict aggregator fail when lanes fail"
+              }
+            ]
+          },
+          {
+            "pr": 49,
+            "title": "fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-08T02:54:19Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/49",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f57dc8234e90d51adc8d18e1747b56d3cb9f5db1",
+                "short_sha": "f57dc82",
+                "subject": "fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -561,6 +593,38 @@
                 "sha": "459f3610f76e4065625ae66da62f86d7f645ba09",
                 "short_sha": "459f361",
                 "subject": "Merge branch 'main' into deepsource-autofix-c55a21be"
+              }
+            ]
+          },
+          {
+            "pr": 43,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T02:22:19Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/43",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a11c64969c27f99a1062b8818bc183c6da805ed6",
+                "short_sha": "a11c649",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 45,
+            "title": "refactor: validate url scheme before urllib calls",
+            "author": "deepsource-autofix[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-08T02:35:16Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/45",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ab3ccbdbe124bbab2943f2ffac4e24ff64375c6b",
+                "short_sha": "ab3ccbd",
+                "subject": "refactor: validate url scheme before urllib calls"
               }
             ]
           }
@@ -1345,6 +1409,70 @@
               "sha": "7b531627f432a2116274716fed756962c7bb5207",
               "short_sha": "7b53162",
               "subject": "fix(ci): run gate commands through the shell in the process runner"
+            }
+          ]
+        },
+        {
+          "pr": 43,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T02:22:19Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/43",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a11c64969c27f99a1062b8818bc183c6da805ed6",
+              "short_sha": "a11c649",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 45,
+          "title": "refactor: validate url scheme before urllib calls",
+          "author": "deepsource-autofix[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-08T02:35:16Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/45",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ab3ccbdbe124bbab2943f2ffac4e24ff64375c6b",
+              "short_sha": "ab3ccbd",
+              "subject": "refactor: validate url scheme before urllib calls"
+            }
+          ]
+        },
+        {
+          "pr": 46,
+          "title": "fix(ci): make CI Strict aggregator fail when lanes fail",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-08T02:38:08Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/46",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "923905ddd3c9d3e5042fa45d9664886242766ed5",
+              "short_sha": "923905d",
+              "subject": "fix(ci): make CI Strict aggregator fail when lanes fail"
+            }
+          ]
+        },
+        {
+          "pr": 49,
+          "title": "fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-08T02:54:19Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/49",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f57dc8234e90d51adc8d18e1747b56d3cb9f5db1",
+              "short_sha": "f57dc82",
+              "subject": "fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger"
             }
           ]
         }
