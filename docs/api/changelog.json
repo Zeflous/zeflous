@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T15:38:30Z",
+  "as_of": "2026-10-09T16:59:23Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 85,
+  "unreleased_count": 97,
   "versions": [
     {
       "version": "Unreleased",
@@ -1216,6 +1216,77 @@
             ]
           },
           {
+            "pr": 110,
+            "title": "chore(governance): add CODEOWNERS to satisfy require_code_owner_review",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T15:53:34Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/110",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "76229baa366403008411a8ce0e60da7a0796203f",
+                "short_sha": "76229ba",
+                "subject": "chore(governance): add CODEOWNERS to satisfy require_code_owner_review"
+              },
+              {
+                "sha": "8f75e063d43e8fc3fdc4d2b2ff91e515512cb1c0",
+                "short_sha": "8f75e06",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "909a798ef41874264355ca1f284a259c027d0ec0",
+                "short_sha": "909a798",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "37f312a21cf4ff2287bade1e6ffc904e6dfba543",
+                "short_sha": "37f312a",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "db74ec00b81a6b6bb504a49d0eaafbb094189a09",
+                "short_sha": "db74ec0",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "8f69122006c81de562cb13e1aaa1debf6b660080",
+                "short_sha": "8f69122",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "5a284e4d981cc51f05361ac0b25621b321e19472",
+                "short_sha": "5a284e4",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "b5a14c0969ab8d6b75dca62f64c6555c03f06381",
+                "short_sha": "b5a14c0",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "9a89c4bade210c3fb9d9a2db431d88d99fd7e7ee",
+                "short_sha": "9a89c4b",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "f207bdfa543f2e86176e7ca77a1baadb2625f4b4",
+                "short_sha": "f207bdf",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "bd9b8b20a74be50a2fbd7f9d9dfb092440befc3d",
+                "short_sha": "bd9b8b2",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "86350a78cf3e9fa1969194f118945a386f556af2",
+                "short_sha": "86350a7",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              }
+            ]
+          },
+          {
             "pr": 117,
             "title": "chore(changelog-official): regenerate official changelog",
             "author": "github-actions[bot]",
@@ -1259,6 +1330,80 @@
                 "sha": "77a8f0bbb1db0a41aa829a93df1b524d16126480",
                 "short_sha": "77a8f0b",
                 "subject": "Merge branch 'main' into ci/stale-prs-updater"
+              }
+            ]
+          },
+          {
+            "pr": 120,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T15:43:44Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/120",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "07a632d6439135000d7dea4fc3e89a4e09c9737a",
+                "short_sha": "07a632d",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 122,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T16:15:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/122",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "52eb1eb0b96a256eabfaa371517db4cdae947308",
+                "short_sha": "52eb1eb",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 124,
+            "title": "ci(security): remove CodeQL in favor of DeepSource/SonarCloud/PhpCodeArcheology",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T16:18:54Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/124",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3dee2e650dd815cdbff811afd396bb66a5ba1a5a",
+                "short_sha": "3dee2e6",
+                "subject": "docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)"
+              },
+              {
+                "sha": "f473db5b35ae1b6ede917bd17a96d529bae9095a",
+                "short_sha": "f473db5",
+                "subject": "docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)"
+              },
+              {
+                "sha": "f3b0facde8936d533ebf096118ae426492d78819",
+                "short_sha": "f3b0fac",
+                "subject": "Merge branch 'main' into ci/remove-codeql"
+              }
+            ]
+          },
+          {
+            "pr": 125,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T16:31:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/125",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "982de7a57526f5ee9c7801021f0dbe2f0f128404",
+                "short_sha": "982de7a",
+                "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
           }
@@ -1645,6 +1790,209 @@
             ]
           },
           {
+            "pr": 108,
+            "title": "docs(ci): note 4 for per-event concurrency scoping",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T15:50:52Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/108",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "bc2eabeba00a7b54342fce2caa5064f462d48bb9",
+                "short_sha": "bc2eabe",
+                "subject": "docs(ci): note 4 for per-event concurrency scoping"
+              },
+              {
+                "sha": "879528f78001cd4da512fe58218f14b061a1a5e1",
+                "short_sha": "879528f",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "957686a24518c5901ca13a41c33d73a0965eac49",
+                "short_sha": "957686a",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "9a772529148e3d687cedf1070485bcaaf3e3115d",
+                "short_sha": "9a77252",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "99020551fd5c5bd3451ab22264eac773509a0b47",
+                "short_sha": "9902055",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "e48dcfbdf31111db9bd45ed439dfcc0527f23cc0",
+                "short_sha": "e48dcfb",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "8caaf0add7ab67451ba459981b7c41e7a490d8dc",
+                "short_sha": "8caaf0a",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "57999e798fb20b5d7b5c4e75421ff580cbc24d82",
+                "short_sha": "57999e7",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "f3e0bb589bafeac75756c70bb7c69f61ffc02401",
+                "short_sha": "f3e0bb5",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "b3765067984f4e31b354785331ab5992dd4c3794",
+                "short_sha": "b376506",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "415dc0827d7496b77d0b2e537639800eba8834ad",
+                "short_sha": "415dc08",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "844ce4fa8f19feae0390c3377600c139c0e96ff3",
+                "short_sha": "844ce4f",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "8e285c46142fda0f0ddfb831cfcc6769d4fee6ee",
+                "short_sha": "8e285c4",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              }
+            ]
+          },
+          {
+            "pr": 114,
+            "title": "docs(ci): ruleset verification probe 1",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T15:48:12Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/114",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a29d1d62b5bc2ea964da3376cfdfe41a9fa8e559",
+                "short_sha": "a29d1d6",
+                "subject": "docs(ci): add docs/ci-ruleset-verify-1.md probe"
+              },
+              {
+                "sha": "ecb04fe60f04d5635553ca1c351753f2c4a5e22d",
+                "short_sha": "ecb04fe",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "e113fd256c15e139588a02d297593e35db29b114",
+                "short_sha": "e113fd2",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "96ae2271211712e05c5e21d9f7b8ac88f4affaaf",
+                "short_sha": "96ae227",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "486246f5f6d2e5d9961b940bd0ee308b58a3d2d0",
+                "short_sha": "486246f",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "3087c3ad94c28a8af8ef8d2d35945ba074297c0c",
+                "short_sha": "3087c3a",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "67f6b5d0127e6e126bf6e7cfd7ec426204c325c3",
+                "short_sha": "67f6b5d",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "27213e9b464ecb57f709c6f4e0e8675c57a9ae7a",
+                "short_sha": "27213e9",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "954433b24c7e85710d9fcde1bd56ae59a7f96398",
+                "short_sha": "954433b",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              }
+            ]
+          },
+          {
+            "pr": 115,
+            "title": "docs(ci): ruleset verification probe 2",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T15:56:04Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/115",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "985e043300ad4b3d909a88f241cb2f507ea300ae",
+                "short_sha": "985e043",
+                "subject": "docs(ci): add docs/ci-ruleset-verify-2.md probe"
+              },
+              {
+                "sha": "3c5b40f170eac8b045a217800237e585ba08b983",
+                "short_sha": "3c5b40f",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "837f7bc9d6be80d0425f633baa16dadc9aff99a8",
+                "short_sha": "837f7bc",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "0127f4f74c05326608ed07ff82578ae7e4756f14",
+                "short_sha": "0127f4f",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "8619ae82952aa27777947c2100e13321102103f1",
+                "short_sha": "8619ae8",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "93efbdd428ee367798f987269d3ab41489fde2a5",
+                "short_sha": "93efbdd",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "c3a347b1ad9c6993e58b262affee75dae584246b",
+                "short_sha": "c3a347b",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "87ba3dd13fd23fdfa73b330655f25780f4821127",
+                "short_sha": "87ba3dd",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "eca576c3141b264c698c35babac277bb761ec900",
+                "short_sha": "eca576c",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "654d268d56fb6242ecfdce7424488ae6f43a81de",
+                "short_sha": "654d268",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "fcd3ebbd0a9e0adf3629c8e29d7144d192ded2aa",
+                "short_sha": "fcd3ebb",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "bde6203e446ef13c5e0a596e1a589525ab091fac",
+                "short_sha": "bde6203",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              }
+            ]
+          },
+          {
             "pr": 116,
             "title": "docs(ci): ruleset verification probe 3",
             "author": "mbetixz",
@@ -1682,6 +2030,85 @@
                 "sha": "b25e8e1091596914adfe552f20da85000610d1f9",
                 "short_sha": "b25e8e1",
                 "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              }
+            ]
+          },
+          {
+            "pr": 126,
+            "title": "docs: ci burst probe 1",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T16:23:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/126",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4e9e014496192cfc20c5a213fff22134bd5cfd13",
+                "short_sha": "4e9e014",
+                "subject": "docs: add ci burst probe 1"
+              }
+            ]
+          },
+          {
+            "pr": 127,
+            "title": "docs: ci burst probe 2",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T16:25:29Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/127",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b65793829adde9f7c3fe95d020535f299116fe50",
+                "short_sha": "b657938",
+                "subject": "docs: add ci burst probe 2"
+              },
+              {
+                "sha": "dfb458e3927a185ff5da7a3f4c43c11a18cfe07d",
+                "short_sha": "dfb458e",
+                "subject": "Merge branch 'main' into docs/ci-burst-2"
+              }
+            ]
+          },
+          {
+            "pr": 128,
+            "title": "docs: ci burst probe 3",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T16:28:26Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/128",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "2c54c313d29e868bb8d78848b46d6c0bf9fa839d",
+                "short_sha": "2c54c31",
+                "subject": "docs: add ci burst probe 3"
+              },
+              {
+                "sha": "048b3bc32fb07f8187677dedf64c0be6196c6b21",
+                "short_sha": "048b3bc",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              },
+              {
+                "sha": "85cf66ccae15d4aebac2ce95ade9082e3de5d5b5",
+                "short_sha": "85cf66c",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              }
+            ]
+          },
+          {
+            "pr": 129,
+            "title": "docs(security): purge remaining CodeQL references",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T16:59:23Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/129",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0014f9f745258504e98c6cfadae0a4c67263f0f3",
+                "short_sha": "0014f9f",
+                "subject": "docs(security): purge remaining CodeQL references"
               }
             ]
           }
@@ -3436,6 +3863,82 @@
           ]
         },
         {
+          "pr": 108,
+          "title": "docs(ci): note 4 for per-event concurrency scoping",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T15:50:52Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/108",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "bc2eabeba00a7b54342fce2caa5064f462d48bb9",
+              "short_sha": "bc2eabe",
+              "subject": "docs(ci): note 4 for per-event concurrency scoping"
+            },
+            {
+              "sha": "879528f78001cd4da512fe58218f14b061a1a5e1",
+              "short_sha": "879528f",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "957686a24518c5901ca13a41c33d73a0965eac49",
+              "short_sha": "957686a",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "9a772529148e3d687cedf1070485bcaaf3e3115d",
+              "short_sha": "9a77252",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "99020551fd5c5bd3451ab22264eac773509a0b47",
+              "short_sha": "9902055",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "e48dcfbdf31111db9bd45ed439dfcc0527f23cc0",
+              "short_sha": "e48dcfb",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "8caaf0add7ab67451ba459981b7c41e7a490d8dc",
+              "short_sha": "8caaf0a",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "57999e798fb20b5d7b5c4e75421ff580cbc24d82",
+              "short_sha": "57999e7",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "f3e0bb589bafeac75756c70bb7c69f61ffc02401",
+              "short_sha": "f3e0bb5",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "b3765067984f4e31b354785331ab5992dd4c3794",
+              "short_sha": "b376506",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "415dc0827d7496b77d0b2e537639800eba8834ad",
+              "short_sha": "415dc08",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "844ce4fa8f19feae0390c3377600c139c0e96ff3",
+              "short_sha": "844ce4f",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "8e285c46142fda0f0ddfb831cfcc6769d4fee6ee",
+              "short_sha": "8e285c4",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            }
+          ]
+        },
+        {
           "pr": 109,
           "title": "ci(security): unify auto-merge lanes + pull_request_target actor isolation",
           "author": "mbetixz",
@@ -3463,6 +3966,204 @@
               "sha": "bce114cd07d5e704de213c7f0e730385629bc294",
               "short_sha": "bce114c",
               "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
+            }
+          ]
+        },
+        {
+          "pr": 110,
+          "title": "chore(governance): add CODEOWNERS to satisfy require_code_owner_review",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T15:53:34Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/110",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "76229baa366403008411a8ce0e60da7a0796203f",
+              "short_sha": "76229ba",
+              "subject": "chore(governance): add CODEOWNERS to satisfy require_code_owner_review"
+            },
+            {
+              "sha": "8f75e063d43e8fc3fdc4d2b2ff91e515512cb1c0",
+              "short_sha": "8f75e06",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "909a798ef41874264355ca1f284a259c027d0ec0",
+              "short_sha": "909a798",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "37f312a21cf4ff2287bade1e6ffc904e6dfba543",
+              "short_sha": "37f312a",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "db74ec00b81a6b6bb504a49d0eaafbb094189a09",
+              "short_sha": "db74ec0",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "8f69122006c81de562cb13e1aaa1debf6b660080",
+              "short_sha": "8f69122",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "5a284e4d981cc51f05361ac0b25621b321e19472",
+              "short_sha": "5a284e4",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "b5a14c0969ab8d6b75dca62f64c6555c03f06381",
+              "short_sha": "b5a14c0",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "9a89c4bade210c3fb9d9a2db431d88d99fd7e7ee",
+              "short_sha": "9a89c4b",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "f207bdfa543f2e86176e7ca77a1baadb2625f4b4",
+              "short_sha": "f207bdf",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "bd9b8b20a74be50a2fbd7f9d9dfb092440befc3d",
+              "short_sha": "bd9b8b2",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "86350a78cf3e9fa1969194f118945a386f556af2",
+              "short_sha": "86350a7",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            }
+          ]
+        },
+        {
+          "pr": 114,
+          "title": "docs(ci): ruleset verification probe 1",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T15:48:12Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/114",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a29d1d62b5bc2ea964da3376cfdfe41a9fa8e559",
+              "short_sha": "a29d1d6",
+              "subject": "docs(ci): add docs/ci-ruleset-verify-1.md probe"
+            },
+            {
+              "sha": "ecb04fe60f04d5635553ca1c351753f2c4a5e22d",
+              "short_sha": "ecb04fe",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "e113fd256c15e139588a02d297593e35db29b114",
+              "short_sha": "e113fd2",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "96ae2271211712e05c5e21d9f7b8ac88f4affaaf",
+              "short_sha": "96ae227",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "486246f5f6d2e5d9961b940bd0ee308b58a3d2d0",
+              "short_sha": "486246f",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "3087c3ad94c28a8af8ef8d2d35945ba074297c0c",
+              "short_sha": "3087c3a",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "67f6b5d0127e6e126bf6e7cfd7ec426204c325c3",
+              "short_sha": "67f6b5d",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "27213e9b464ecb57f709c6f4e0e8675c57a9ae7a",
+              "short_sha": "27213e9",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "954433b24c7e85710d9fcde1bd56ae59a7f96398",
+              "short_sha": "954433b",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            }
+          ]
+        },
+        {
+          "pr": 115,
+          "title": "docs(ci): ruleset verification probe 2",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T15:56:04Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/115",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "985e043300ad4b3d909a88f241cb2f507ea300ae",
+              "short_sha": "985e043",
+              "subject": "docs(ci): add docs/ci-ruleset-verify-2.md probe"
+            },
+            {
+              "sha": "3c5b40f170eac8b045a217800237e585ba08b983",
+              "short_sha": "3c5b40f",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "837f7bc9d6be80d0425f633baa16dadc9aff99a8",
+              "short_sha": "837f7bc",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "0127f4f74c05326608ed07ff82578ae7e4756f14",
+              "short_sha": "0127f4f",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "8619ae82952aa27777947c2100e13321102103f1",
+              "short_sha": "8619ae8",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "93efbdd428ee367798f987269d3ab41489fde2a5",
+              "short_sha": "93efbdd",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "c3a347b1ad9c6993e58b262affee75dae584246b",
+              "short_sha": "c3a347b",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "87ba3dd13fd23fdfa73b330655f25780f4821127",
+              "short_sha": "87ba3dd",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "eca576c3141b264c698c35babac277bb761ec900",
+              "short_sha": "eca576c",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "654d268d56fb6242ecfdce7424488ae6f43a81de",
+              "short_sha": "654d268",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "fcd3ebbd0a9e0adf3629c8e29d7144d192ded2aa",
+              "short_sha": "fcd3ebb",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "bde6203e446ef13c5e0a596e1a589525ab091fac",
+              "short_sha": "bde6203",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
             }
           ]
         },
@@ -3551,6 +4252,159 @@
               "sha": "77a8f0bbb1db0a41aa829a93df1b524d16126480",
               "short_sha": "77a8f0b",
               "subject": "Merge branch 'main' into ci/stale-prs-updater"
+            }
+          ]
+        },
+        {
+          "pr": 120,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T15:43:44Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/120",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "07a632d6439135000d7dea4fc3e89a4e09c9737a",
+              "short_sha": "07a632d",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 122,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T16:15:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/122",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "52eb1eb0b96a256eabfaa371517db4cdae947308",
+              "short_sha": "52eb1eb",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 124,
+          "title": "ci(security): remove CodeQL in favor of DeepSource/SonarCloud/PhpCodeArcheology",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T16:18:54Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/124",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3dee2e650dd815cdbff811afd396bb66a5ba1a5a",
+              "short_sha": "3dee2e6",
+              "subject": "docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)"
+            },
+            {
+              "sha": "f473db5b35ae1b6ede917bd17a96d529bae9095a",
+              "short_sha": "f473db5",
+              "subject": "docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)"
+            },
+            {
+              "sha": "f3b0facde8936d533ebf096118ae426492d78819",
+              "short_sha": "f3b0fac",
+              "subject": "Merge branch 'main' into ci/remove-codeql"
+            }
+          ]
+        },
+        {
+          "pr": 125,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T16:31:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/125",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "982de7a57526f5ee9c7801021f0dbe2f0f128404",
+              "short_sha": "982de7a",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 126,
+          "title": "docs: ci burst probe 1",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T16:23:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/126",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4e9e014496192cfc20c5a213fff22134bd5cfd13",
+              "short_sha": "4e9e014",
+              "subject": "docs: add ci burst probe 1"
+            }
+          ]
+        },
+        {
+          "pr": 127,
+          "title": "docs: ci burst probe 2",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T16:25:29Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/127",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b65793829adde9f7c3fe95d020535f299116fe50",
+              "short_sha": "b657938",
+              "subject": "docs: add ci burst probe 2"
+            },
+            {
+              "sha": "dfb458e3927a185ff5da7a3f4c43c11a18cfe07d",
+              "short_sha": "dfb458e",
+              "subject": "Merge branch 'main' into docs/ci-burst-2"
+            }
+          ]
+        },
+        {
+          "pr": 128,
+          "title": "docs: ci burst probe 3",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T16:28:26Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/128",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "2c54c313d29e868bb8d78848b46d6c0bf9fa839d",
+              "short_sha": "2c54c31",
+              "subject": "docs: add ci burst probe 3"
+            },
+            {
+              "sha": "048b3bc32fb07f8187677dedf64c0be6196c6b21",
+              "short_sha": "048b3bc",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            },
+            {
+              "sha": "85cf66ccae15d4aebac2ce95ade9082e3de5d5b5",
+              "short_sha": "85cf66c",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            }
+          ]
+        },
+        {
+          "pr": 129,
+          "title": "docs(security): purge remaining CodeQL references",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T16:59:23Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/129",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0014f9f745258504e98c6cfadae0a4c67263f0f3",
+              "short_sha": "0014f9f",
+              "subject": "docs(security): purge remaining CodeQL references"
             }
           ]
         }
