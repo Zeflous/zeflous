@@ -240,3 +240,69 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#87 ci(actions): bump remaining checkout pins to node24
     - cf8edcd ci(actions): bump remaining checkout pins to node24
     - b9211fb Merge branch 'main' into ci/checkout-node24-remaining
+
+- PR#88 chore(changelog-official): regenerate official changelog
+    - 2802e95 chore(changelog-official): regenerate official changelog
+    - 399f5a5 Merge branch 'main' into chore/changelog-official-update
+
+- PR#90 ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN
+    - 12f27dc ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN
+
+- PR#91 chore(changelog-official): regenerate official changelog
+    - 22ad970 chore(changelog-official): regenerate official changelog
+
+- PR#93 docs(ci): add pipeline note 1 for auto-prs evaluation
+    - 47062db docs(ci): add pipeline note 1 for auto-prs evaluation
+    - 4d65419 Merge branch 'main' into docs/ci-notes-1
+
+- PR#94 docs(ci): add pipeline note 2 for auto-prs evaluation
+    - cdbfdfd docs(ci): add pipeline note 2 for auto-prs evaluation
+    - f17ff78 Merge branch 'main' into docs/ci-notes-2
+    - f762c9a Merge branch 'main' into docs/ci-notes-2
+
+- PR#95 docs(ci): add pipeline note 3 for auto-prs evaluation
+    - 5c00ce1 docs(ci): add pipeline note 3 for auto-prs evaluation
+    - dbcbb82 Merge branch 'main' into docs/ci-notes-3
+    - a7fca2b Merge branch 'main' into docs/ci-notes-3
+    - 0396952 Merge branch 'main' into docs/ci-notes-3
+
+- PR#96 docs(ci): add pipeline note 4 for auto-prs evaluation
+    - 8503c65 docs(ci): add pipeline note 4 for auto-prs evaluation
+    - 8c2bc60 Merge branch 'main' into docs/ci-notes-4
+    - 489286a Merge branch 'main' into docs/ci-notes-4
+    - 98fa994 Merge branch 'main' into docs/ci-notes-4
+    - d2f58a3 Merge branch 'main' into docs/ci-notes-4
+
+- PR#97 chore(changelog-official): regenerate official changelog
+    - 78c183a chore(changelog-official): regenerate official changelog
+
+- PR#98 ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator
+    - 970715d ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator
+
+- PR#100 docs(ci): burst probe 1 for event-scoped CI Strict concurrency
+    - da55186 docs(ci): burst probe 1 for event-scoped CI Strict concurrency
+
+- PR#101 docs(ci): burst probe 2 for event-scoped CI Strict concurrency
+    - d8ece2f docs(ci): burst probe 2 for event-scoped CI Strict concurrency
+    - 80fddd5 Merge branch 'main' into docs/ci-burst-2
+    - a4420e5 Merge branch 'main' into docs/ci-burst-2
+
+- PR#102 docs(ci): burst probe 3 for event-scoped CI Strict concurrency
+    - 1a03f97 docs(ci): burst probe 3 for event-scoped CI Strict concurrency
+    - 4c3e128 Merge branch 'main' into docs/ci-burst-3
+    - c4379b5 Merge branch 'main' into docs/ci-burst-3
+    - bdd15b7 Merge branch 'main' into docs/ci-burst-3
+
+- PR#103 docs(ci): burst probe 4 for event-scoped CI Strict concurrency
+    - e339d5b docs(ci): burst probe 4 for event-scoped CI Strict concurrency
+    - b76f4e9 Merge branch 'main' into docs/ci-burst-4
+
+- PR#104 ci: scope concurrency groups per event across all lanes for uniform gate behavior
+    - 5ad32e4 ci: scope concurrency groups per event across all lanes for uniform gate behavior
+
+- PR#105 docs(ci): note 1 for per-event concurrency scoping
+    - aca5b35 docs(ci): note 1 for per-event concurrency scoping
+
+- PR#106 docs(ci): note 2 for per-event concurrency scoping
+    - ae2e398 docs(ci): note 2 for per-event concurrency scoping
+    - f5fec62 Merge branch 'main' into docs/ci-lane-scope-2
