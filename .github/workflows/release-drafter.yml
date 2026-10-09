@@ -31,9 +31,14 @@ on:
 permissions:
   contents: read
 
+# Keyed per commit with `cancel-in-progress: false`: the group never spans
+# two different commits, so a run can never be cancelled by (or cancel) a run
+# of another head -- the same deterministic pattern ci-strict.yml uses. Draft
+# regeneration is idempotent (the drafter rebuilds the notes from every merged
+# pull request), so parallel per-commit runs converge.
 concurrency:
-  group: release-drafter
-  cancel-in-progress: true
+  group: release-drafter-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
   update-release-draft:

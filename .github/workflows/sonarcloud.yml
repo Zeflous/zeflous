@@ -110,14 +110,29 @@ permissions:
   pull-requests: read
 
 # Supersede a stale run for the same ref instead of queueing behind it.
-# Scope the group PER EVENT (same method as ci-strict.yml, adopted from
-# zef-framework ci.yml). A run can only supersede a run of its own event
-# type, so a `pull_request` run never queues behind a `push`/`workflow_dispatch`
-# run for the same ref; with `cancel-in-progress` the stale run of the SAME
-# event is cancelled and the new run starts immediately.
+# NEVER CANCEL A RUN OF A DIFFERENT HEAD -- KEY THE GROUP PER COMMIT
+# (fixed 2026-10-10, mirrors ci-strict.yml). On a `pull_request` event
+# `github.ref` is the ephemeral merge ref `refs/pull/N/merge`, which MUTATES
+# whenever the pull request is updated: two runs for two different heads share
+# one group, and GitHub's `cancel-in-progress` is a best-effort, unordered
+# cancellation -- the NEWEST run is sometimes the victim (observed on PR #136:
+# the lane runs for head 92f182e0 were cancelled by a run for the older head
+# 511c72c5 that entered the group one second earlier). A cancelled lane leaves
+# the required check `cancelled`, the `CI Strict` aggregator polls it as
+# pending for 60 minutes, times out, and the pull request is blocked even
+# though nothing is wrong with its code.
+#
+# Keying the group on the COMMIT under verification (the pull-request head
+# sha, falling back to the push sha) makes two runs for two different heads
+# land in two different groups, so a new run can never be cancelled by a stale
+# one: it starts immediately and reports its own check-run. `cancel-in-
+# progress: false` is deliberate -- with per-commit groups the only runs that
+# can share a group are duplicates of the SAME commit, and letting both run
+# (rather than cancelling one) guarantees the check-run is reported (see the
+# CONCURRENCY note in ci-strict.yml for the full rationale).
 concurrency:
-  group: sonarcloud-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: sonarcloud-${{ github.event_name }}-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
 
 jobs:
   sonarcloud:
