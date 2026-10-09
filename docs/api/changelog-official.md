@@ -6,10 +6,11 @@
 
 **Merged pull requests:**
 
+- docs\(security\): purge remaining CodeQL references [\#129](https://github.com/Zeflous/zeflous/pull/129) ([mbetixz](https://github.com/mbetixz))
 - docs: ci burst probe 3 [\#128](https://github.com/Zeflous/zeflous/pull/128) ([mbetixz](https://github.com/mbetixz))
 - docs: ci burst probe 2 [\#127](https://github.com/Zeflous/zeflous/pull/127) ([mbetixz](https://github.com/mbetixz))
 - docs: ci burst probe 1 [\#126](https://github.com/Zeflous/zeflous/pull/126) ([mbetixz](https://github.com/mbetixz))
-- ci\(security\): remove legacy scanner in favor of DeepSource/SonarCloud/PhpCodeArcheology [\#124](https://github.com/Zeflous/zeflous/pull/124) ([mbetixz](https://github.com/mbetixz))
+- ci\(security\): remove CodeQL in favor of DeepSource/SonarCloud/PhpCodeArcheology [\#124](https://github.com/Zeflous/zeflous/pull/124) ([mbetixz](https://github.com/mbetixz))
 - ci\(automation\): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane [\#119](https://github.com/Zeflous/zeflous/pull/119) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): ruleset verification probe 3 [\#116](https://github.com/Zeflous/zeflous/pull/116) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): ruleset verification probe 2 [\#115](https://github.com/Zeflous/zeflous/pull/115) ([mbetixz](https://github.com/mbetixz))
