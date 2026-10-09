@@ -37,8 +37,13 @@ permissions:
   contents: read
 
 # Supersede a stale run for the same ref instead of queueing behind it.
+# Scope the group PER EVENT (same method as ci-strict.yml, adopted from
+# zef-framework ci.yml). A run can only supersede a run of its own event
+# type, so a `pull_request` run never queues behind a `push`/`workflow_dispatch`
+# run for the same ref; with `cancel-in-progress` the stale run of the SAME
+# event is cancelled and the new run starts immediately.
 concurrency:
-  group: ci-static-${{ github.ref }}
+  group: ci-static-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
