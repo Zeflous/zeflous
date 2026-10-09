@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T00:15:45Z",
+  "as_of": "2026-10-09T01:04:24Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 59,
+  "unreleased_count": 61,
   "versions": [
     {
       "version": "Unreleased",
@@ -1013,6 +1013,22 @@
                 "subject": "Merge branch 'main' into ci/hardening"
               }
             ]
+          },
+          {
+            "pr": 83,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T00:19:09Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/83",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b208d1dff619416b09641922797b4bf7c42885a8",
+                "short_sha": "b208d1d",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
           }
         ],
         "Documentation": [
@@ -1061,6 +1077,52 @@
                 "sha": "a21a0eeba4d4115c72eceaf0ebcea30a64d49d42",
                 "short_sha": "a21a0ee",
                 "subject": "docs(roadmap): add ROADMAP-HISTORY grouped by roadmap area"
+              }
+            ]
+          },
+          {
+            "pr": 84,
+            "title": "docs(readme): document the quality gates",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T01:04:24Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/84",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1504bde7bee6168b59a6643579af88659ccddbfa",
+                "short_sha": "1504bde",
+                "subject": "docs(readme): document the quality gates"
+              },
+              {
+                "sha": "c61a054bb7b432a0f1e52e9b428163f8fdd0d65c",
+                "short_sha": "c61a054",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "b5ec7c5e5d0899bc1a3ccec97e775eb75e638fef",
+                "short_sha": "b5ec7c5",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "9ba4ff0565efffba0c0e7ea327e555de0bada4c2",
+                "short_sha": "9ba4ff0",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "81cd99090c8d7ea802e47d107fe771f34a39dcd8",
+                "short_sha": "81cd990",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "627449371092e4673276ef312e527c639aaaca45",
+                "short_sha": "6274493",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "7cf12feaf0b9fb9d2e6b041b9bbcedb13cac3737",
+                "short_sha": "7cf12fe",
+                "subject": "ci: re-trigger checks"
               }
             ]
           }
@@ -2309,6 +2371,68 @@
               "sha": "4bbbddf97f70461d350af9b05a711e723a984ace",
               "short_sha": "4bbbddf",
               "subject": "Merge branch 'main' into ci/hardening"
+            }
+          ]
+        },
+        {
+          "pr": 83,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T00:19:09Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/83",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b208d1dff619416b09641922797b4bf7c42885a8",
+              "short_sha": "b208d1d",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 84,
+          "title": "docs(readme): document the quality gates",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T01:04:24Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/84",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1504bde7bee6168b59a6643579af88659ccddbfa",
+              "short_sha": "1504bde",
+              "subject": "docs(readme): document the quality gates"
+            },
+            {
+              "sha": "c61a054bb7b432a0f1e52e9b428163f8fdd0d65c",
+              "short_sha": "c61a054",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "b5ec7c5e5d0899bc1a3ccec97e775eb75e638fef",
+              "short_sha": "b5ec7c5",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "9ba4ff0565efffba0c0e7ea327e555de0bada4c2",
+              "short_sha": "9ba4ff0",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "81cd99090c8d7ea802e47d107fe771f34a39dcd8",
+              "short_sha": "81cd990",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "627449371092e4673276ef312e527c639aaaca45",
+              "short_sha": "6274493",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "7cf12feaf0b9fb9d2e6b041b9bbcedb13cac3737",
+              "short_sha": "7cf12fe",
+              "subject": "ci: re-trigger checks"
             }
           ]
         }
