@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T01:04:24Z",
+  "as_of": "2026-10-09T01:12:11Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 61,
+  "unreleased_count": 63,
   "versions": [
     {
       "version": "Unreleased",
@@ -1027,6 +1027,43 @@
                 "sha": "b208d1dff619416b09641922797b4bf7c42885a8",
                 "short_sha": "b208d1d",
                 "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 85,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T01:07:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/85",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ac1bf86036aa05e96e495144368668f4b636369d",
+                "short_sha": "ac1bf86",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 87,
+            "title": "ci(actions): bump remaining checkout pins to node24",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T01:12:11Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/87",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cf8edcd89c646c0cf027355e38b6b39e903239f6",
+                "short_sha": "cf8edcd",
+                "subject": "ci(actions): bump remaining checkout pins to node24"
+              },
+              {
+                "sha": "b9211fbd2f3e62ee82bdc70064afa45d35127feb",
+                "short_sha": "b9211fb",
+                "subject": "Merge branch 'main' into ci/checkout-node24-remaining"
               }
             ]
           }
@@ -2433,6 +2470,43 @@
               "sha": "7cf12feaf0b9fb9d2e6b041b9bbcedb13cac3737",
               "short_sha": "7cf12fe",
               "subject": "ci: re-trigger checks"
+            }
+          ]
+        },
+        {
+          "pr": 85,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T01:07:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/85",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ac1bf86036aa05e96e495144368668f4b636369d",
+              "short_sha": "ac1bf86",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 87,
+          "title": "ci(actions): bump remaining checkout pins to node24",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T01:12:11Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/87",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cf8edcd89c646c0cf027355e38b6b39e903239f6",
+              "short_sha": "cf8edcd",
+              "subject": "ci(actions): bump remaining checkout pins to node24"
+            },
+            {
+              "sha": "b9211fbd2f3e62ee82bdc70064afa45d35127feb",
+              "short_sha": "b9211fb",
+              "subject": "Merge branch 'main' into ci/checkout-node24-remaining"
             }
           ]
         }
