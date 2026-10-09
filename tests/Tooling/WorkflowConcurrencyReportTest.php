@@ -28,6 +28,9 @@ final class WorkflowConcurrencyReportTest extends TestCase
         file_put_contents($this->root . '/.github/workflows/notes.txt', 'ignore me');
         mkdir($this->root . '/.github/workflows/nested', 0o777, true);
         file_put_contents($this->root . '/.github/workflows/nested/c.yml', "name: C\n");
+        // A workflow-shaped file OUTSIDE .github/workflows must never be
+        // collected: it pins the directory operand of the path concatenation.
+        file_put_contents($this->root . '/stray.yml', "name: stray\n");
     }
 
     #[Override]
@@ -37,6 +40,7 @@ final class WorkflowConcurrencyReportTest extends TestCase
         unlink($this->root . '/.github/workflows/a.yaml');
         unlink($this->root . '/.github/workflows/notes.txt');
         unlink($this->root . '/.github/workflows/nested/c.yml');
+        unlink($this->root . '/stray.yml');
         rmdir($this->root . '/.github/workflows/nested');
         rmdir($this->root . '/.github/workflows');
         rmdir($this->root . '/.github');
@@ -50,6 +54,7 @@ final class WorkflowConcurrencyReportTest extends TestCase
         self::assertSame(['a.yaml', 'b.yml', 'c.yml'], array_keys($workflowConcurrencyReport->workflows));
         self::assertSame("name: A\n", $workflowConcurrencyReport->workflows['a.yaml']);
         self::assertSame("name: C\n", $workflowConcurrencyReport->workflows['c.yml']);
+        self::assertArrayNotHasKey('stray.yml', $workflowConcurrencyReport->workflows);
         self::assertSame(3, $workflowConcurrencyReport->count());
     }
 
