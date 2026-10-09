@@ -81,4 +81,36 @@
       <code><![CDATA[$first]]></code>
     </MixedAssignment>
   </file>
+  <file src="src/Zef/Framework/Tooling/ReviewThread.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$path]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Tooling/ReviewThreadFactory.php">
+    <MixedAssignment>
+      <code><![CDATA[$id]]></code>
+      <code><![CDATA[$path]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Tooling/ReviewThreadReport.php">
+    <MixedAssignment>
+      <code><![CDATA[$node]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Tooling/ReviewThreadResolution.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[message]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Tooling/ReviewThreadResolver.php">
+    <MixedAssignment>
+      <code><![CDATA[$data]]></code>
+      <code><![CDATA[$resolve]]></code>
+      <code><![CDATA[$thread]]></code>
+    </MixedAssignment>
+    <UnusedClass>
+      <code><![CDATA[ReviewThreadResolver]]></code>
+    </UnusedClass>
+  </file>
 </files>

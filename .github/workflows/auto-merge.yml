@@ -167,6 +167,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      - name: Setup PHP 8.4
+        # The review-thread resolver below is a PHP CLI script; PHP is set up
+        # here so the lane can run it. No coverage tooling is needed.
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        # The resolver only needs the Composer autoloader; a full install keeps
+        # the lane consistent with the other PHP lanes.
+        run: composer install --no-interaction --prefer-dist --no-progress
+
       - name: Process open pull requests (oldest first)
         env:
           # `gh` authenticates with the built-in workflow token (`GITHUB_TOKEN`)
@@ -289,6 +303,23 @@ jobs:
               echo "   (A conflicting PR, a fork head, or a transient API error legitimately fails here.)"
               break
             done
+
+            # 1b. Resolve FINISHED review conversations. The `main` ruleset
+            #     requires every review thread to be resolved before a PR may
+            #     merge (`required_review_thread_resolution`). A thread anchored
+            #     to a diff hunk that no longer exists on the current head is
+            #     reported by GitHub as `isOutdated`: the code moved on, so the
+            #     conversation is finished and can never be acted on again --
+            #     yet it still counts as unresolved and keeps the PR `blocked`
+            #     forever. The resolver closes exactly those threads and nothing
+            #     else: a thread that is unresolved but still anchored to live
+            #     code is a real reviewer objection and is left for a human.
+            #     A failure here is a warning, never a sweep abort.
+            if php scripts/ci/resolve-review-threads.php "$pr"; then
+              :
+            else
+              echo "::warning::Could not resolve every finished review conversation on PR #$pr."
+            fi
 
             # 2. A bot-authored push (the built-in `GITHUB_TOKEN`) leaves the
             #    new runs waiting for maintainer approval ("action_required"),
