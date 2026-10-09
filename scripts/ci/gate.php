@@ -9,7 +9,7 @@ declare(strict_types=1);
  * this file only wires the real process runner and maps the result to an exit
  * code, so it stays a few lines long.
  *
- * Usage: php scripts/ci/gate.php <coverage|mutation|baseline|audit|lint|workflow-concurrency|smoke> [arg]
+ * Usage: php scripts/ci/gate.php <coverage|mutation|baseline|audit|lint|smoke> [arg]
  */
 
 use Zef\Framework\Tooling\GateRunner;
