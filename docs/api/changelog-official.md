@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(readme\): document the quality gates [\#84](https://github.com/Zeflous/zeflous/pull/84) ([mbetixz](https://github.com/mbetixz))
 - ci\(hardening\): fail-closed changelog filter, least-privilege proof-html, concurrency groups [\#81](https://github.com/Zeflous/zeflous/pull/81) ([mbetixz](https://github.com/mbetixz))
 - ci\(setup-php\): drop unrecognised cache input from the strict lanes [\#80](https://github.com/Zeflous/zeflous/pull/80) ([mbetixz](https://github.com/mbetixz))
 - ci\(actions\): bump deprecated node20 actions to node24 [\#79](https://github.com/Zeflous/zeflous/pull/79) ([mbetixz](https://github.com/mbetixz))
