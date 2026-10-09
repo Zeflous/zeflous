@@ -6,15 +6,21 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Tooling\BashArrayExpansionDetector;
 use Zef\Framework\Tooling\GateResult;
 use Zef\Framework\Tooling\WorkflowConcurrencyGate;
+use Zef\Framework\Tooling\WorkflowConcurrencyPolicy;
 use Zef\Framework\Tooling\WorkflowConcurrencyReport;
+use Zef\Framework\Tooling\WorkflowFileCollector;
 
 /**
  * @internal
  */
 #[CoversClass(WorkflowConcurrencyGate::class)]
 #[CoversClass(WorkflowConcurrencyReport::class)]
+#[CoversClass(WorkflowFileCollector::class)]
+#[CoversClass(BashArrayExpansionDetector::class)]
+#[CoversClass(WorkflowConcurrencyPolicy::class)]
 final class WorkflowConcurrencyGateTest extends TestCase
 {
     private const string COMMIT_GROUP = 'ci-strict-${{ github.event_name }}-'
@@ -26,6 +32,11 @@ final class WorkflowConcurrencyGateTest extends TestCase
         . '${{ github.event.pull_request.head.sha }}';
 
     private const string BRANCH_GROUP = 'ci-strict-${{ github.event_name }}-${{ github.ref }}';
+
+    private const string LANE_BRANCH_GROUP = 'ci-coverage-${{ github.event_name }}-${{ github.ref }}';
+
+    private const string LANE_COMMIT_GROUP = 'ci-coverage-${{ github.event_name }}-'
+        . '${{ github.event.pull_request.head.sha || github.sha }}';
 
     public function testPassesForArrayExpansionAndCommitKeyedAggregator(): void
     {
@@ -98,10 +109,67 @@ final class WorkflowConcurrencyGateTest extends TestCase
         self::assertTrue($gateResult->passed);
     }
 
-    public function testIgnoresBranchKeyedGroupsOnNonAggregatorWorkflows(): void
+    public function testIgnoresBranchKeyedGroupsOnNonCancellingWorkflows(): void
     {
         $gateResult = $this->gate([
-            'ci-static.yml' => "concurrency:\n  group: " . self::BRANCH_GROUP . "\n",
+            'ci-static.yml' => "concurrency:\n  group: " . self::BRANCH_GROUP . "\n  cancel-in-progress: false\n",
+        ]);
+
+        self::assertTrue($gateResult->passed);
+    }
+
+    public function testFailsWhenACancellingWorkflowKeysItsGroupOnTheMutatingRef(): void
+    {
+        $gateResult = $this->gate([
+            'ci-coverage.yml' => "concurrency:\n  group: " . self::LANE_BRANCH_GROUP . "\n  cancel-in-progress: true\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertSame(
+            'Workflow concurrency gate FAILED: ci-coverage.yml cancels in progress but its concurrency group '
+            . 'is not keyed on the commit sha (found: ' . self::LANE_BRANCH_GROUP . ').',
+            $gateResult->message,
+        );
+    }
+
+    public function testFailsWhenACancellingWorkflowHasNoGroupAtAll(): void
+    {
+        $gateResult = $this->gate([
+            'ci-coverage.yml' => "concurrency:\n  cancel-in-progress: true\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertSame(
+            'Workflow concurrency gate FAILED: ci-coverage.yml cancels in progress but its concurrency group '
+            . 'is not keyed on the commit sha (found: none).',
+            $gateResult->message,
+        );
+    }
+
+    public function testAcceptsACancellingWorkflowThatKeysItsGroupOnTheCommit(): void
+    {
+        $gateResult = $this->gate([
+            'ci-coverage.yml' => "concurrency:\n  group: " . self::LANE_COMMIT_GROUP . "\n  cancel-in-progress: true\n",
+        ]);
+
+        self::assertTrue($gateResult->passed);
+    }
+
+    public function testFailsOnACancellingWorkflowSpelledWithACapitalisedBoolean(): void
+    {
+        $gateResult = $this->gate([
+            'ci-coverage.yml' => "concurrency:\n  group: " . self::LANE_BRANCH_GROUP . "\n  cancel-in-progress: True\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('cancels in progress', $gateResult->message);
+    }
+
+    public function testTreatsADynamicCancelExpressionAsNotCancelling(): void
+    {
+        $gateResult = $this->gate([
+            'ci-coverage.yml' => "concurrency:\n  group: " . self::LANE_BRANCH_GROUP
+                . "\n  cancel-in-progress: \${{ github.event_name == 'push' }}\n",
         ]);
 
         self::assertTrue($gateResult->passed);
@@ -124,6 +192,32 @@ final class WorkflowConcurrencyGateTest extends TestCase
         self::assertFalse($gateResult->passed);
         self::assertSame(
             'Workflow concurrency gate FAILED: ci-strict.yml expands a bash array without [@] (word-splitting). '
+            . 'ci-strict.yml must key its concurrency group on the commit sha, not the branch '
+            . '(found: ' . self::BRANCH_GROUP . ').',
+            $gateResult->message,
+        );
+    }
+
+    public function testReportsCancellationAndAggregatorFailuresTogether(): void
+    {
+        $contents = "name: CI Strict\n"
+            . "concurrency:\n"
+            . '  group: ' . self::BRANCH_GROUP . "\n"
+            . "  cancel-in-progress: true\n"
+            . "jobs:\n"
+            . "  ci-strict:\n"
+            . "    steps:\n"
+            . "      - run: |\n"
+            . "          required=(\"CI Static\")\n"
+            . "          for name in \"\${required[@]}\"; do :; done\n";
+
+        $gateResult = $this->gate(['ci-strict.yml' => $contents]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertSame(
+            'Workflow concurrency gate FAILED: '
+            . 'ci-strict.yml cancels in progress but its concurrency group is not keyed on the commit sha '
+            . '(found: ' . self::BRANCH_GROUP . '). '
             . 'ci-strict.yml must key its concurrency group on the commit sha, not the branch '
             . '(found: ' . self::BRANCH_GROUP . ').',
             $gateResult->message,
@@ -203,7 +297,9 @@ final class WorkflowConcurrencyGateTest extends TestCase
         }
 
         try {
-            return new WorkflowConcurrencyGate()->evaluate(WorkflowConcurrencyReport::collect($root));
+            return new WorkflowConcurrencyGate()->evaluate(new WorkflowConcurrencyReport(
+                new WorkflowFileCollector($root)->collect(),
+            ));
         } finally {
             foreach (array_keys($workflows) as $name) {
                 unlink($root . '/.github/workflows/' . $name);
