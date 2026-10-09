@@ -30,18 +30,12 @@ final readonly class WorkflowConcurrencyRule
         }
 
         $concurrency = $this->arrayOrNull($document['concurrency'] ?? null);
-
-        if ($concurrency === null) {
-            // No concurrency block (or a bare scalar group): runs do not queue
-            // against each other, so there is nothing to supersede.
-            return null;
-        }
-
-        $group = $this->stringOrNull($concurrency['group'] ?? null);
+        $group = $concurrency === null ? null : $this->stringOrNull($concurrency['group'] ?? null);
 
         if ($group === null || !str_contains($group, 'github.ref')) {
-            // Not ref-scoped: a stale run cannot block a specific ref's
-            // required check, so queueing is legitimate here.
+            // No concurrency block, a bare scalar group, or a non-ref-scoped
+            // group: a stale run cannot block a specific ref's required check,
+            // so there is nothing to supersede.
             return null;
         }
 

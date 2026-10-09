@@ -49,22 +49,15 @@ final readonly class WorkflowConcurrencyGate
     public function evaluate(): GateResult
     {
         $violations = [];
-        $polling = 0;
 
         foreach ($this->workflowFiles() as $file) {
-            $raw = file_get_contents($file);
-
-            if (!\is_string($raw)) {
-                // Unreadable -> out of scope.
-                continue;
-            }
+            $raw = (string) file_get_contents($file);
 
             if (!str_contains($raw, 'check-runs')) {
                 // Not a polling workflow -> out of scope.
                 continue;
             }
 
-            ++$polling;
             $violation = new WorkflowConcurrencyRule()->violation(basename($file), $raw);
 
             if ($violation === null) {
@@ -74,17 +67,14 @@ final readonly class WorkflowConcurrencyGate
             $violations[] = $violation;
         }
 
-        if ($violations !== []) {
-            return GateResult::failed(\sprintf(
-                'Workflow concurrency: %d polling workflow(s) violate the supersede policy -> %s',
-                \count($violations),
-                implode('; ', $violations),
-            ));
+        if ($violations === []) {
+            return GateResult::passed('Workflow concurrency: all polling workflows honour the supersede policy.');
         }
 
-        return GateResult::passed(\sprintf(
-            'Workflow concurrency: %d polling workflow(s) honour the supersede policy.',
-            $polling,
+        return GateResult::failed(\sprintf(
+            'Workflow concurrency: %d polling workflow(s) violate the supersede policy -> %s',
+            \count($violations),
+            implode('; ', $violations),
         ));
     }
 
@@ -94,9 +84,7 @@ final readonly class WorkflowConcurrencyGate
     private function workflowFiles(): array
     {
         $files = glob($this->workflowsDirectory . '/*.{yml,yaml}', \GLOB_BRACE);
-        $list = \is_array($files) ? $files : [];
-        sort($list);
 
-        return $list;
+        return \is_array($files) ? $files : [];
     }
 }

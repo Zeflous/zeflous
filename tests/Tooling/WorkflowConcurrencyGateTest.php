@@ -17,6 +17,8 @@ use Zef\Framework\Tooling\WorkflowConcurrencyRule;
 #[CoversClass(WorkflowConcurrencyRule::class)]
 final class WorkflowConcurrencyGateTest extends TestCase
 {
+    private const string PASS_MESSAGE = 'Workflow concurrency: all polling workflows honour the supersede policy.';
+
     private string $directory;
 
     #[Override]
@@ -55,8 +57,7 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertTrue($gateResult->passed);
-        self::assertStringContainsString('1 polling workflow(s)', $gateResult->message);
-        self::assertStringContainsString('honour the supersede policy', $gateResult->message);
+        self::assertSame(self::PASS_MESSAGE, $gateResult->message);
     }
 
     public function testFailsWhenARefScopedPollingWorkflowQueuesInsteadOfSuperseding(): void
@@ -75,8 +76,11 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertFalse($gateResult->passed);
-        self::assertStringContainsString('ci-strict.yml', $gateResult->message);
-        self::assertStringContainsString('cancel-in-progress: true', $gateResult->message);
+        self::assertSame(
+            'Workflow concurrency: 1 polling workflow(s) violate the supersede policy -> '
+            . 'ci-strict.yml: polls check-runs on a ref-scoped group without cancel-in-progress: true',
+            $gateResult->message,
+        );
     }
 
     public function testFailsWhenARefScopedPollingWorkflowOmitsCancelInProgress(): void
@@ -94,7 +98,11 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertFalse($gateResult->passed);
-        self::assertStringContainsString('cancel-in-progress: true', $gateResult->message);
+        self::assertSame(
+            'Workflow concurrency: 1 polling workflow(s) violate the supersede policy -> '
+            . 'poller.yml: polls check-runs on a ref-scoped group without cancel-in-progress: true',
+            $gateResult->message,
+        );
     }
 
     public function testPassesWhenAPollingWorkflowHasNoConcurrencyBlock(): void
@@ -110,7 +118,7 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertTrue($gateResult->passed);
-        self::assertStringContainsString('1 polling workflow(s)', $gateResult->message);
+        self::assertSame(self::PASS_MESSAGE, $gateResult->message);
     }
 
     public function testPassesWhenAPollingWorkflowUsesAGlobalGroup(): void
@@ -132,7 +140,7 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertTrue($gateResult->passed);
-        self::assertStringContainsString('1 polling workflow(s)', $gateResult->message);
+        self::assertSame(self::PASS_MESSAGE, $gateResult->message);
     }
 
     public function testPassesWhenConcurrencyIsAScalarGroup(): void
@@ -149,6 +157,7 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertTrue($gateResult->passed);
+        self::assertSame(self::PASS_MESSAGE, $gateResult->message);
     }
 
     public function testIgnoresANonPollingWorkflowThatQueues(): void
@@ -167,7 +176,7 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertTrue($gateResult->passed);
-        self::assertStringContainsString('0 polling workflow(s)', $gateResult->message);
+        self::assertSame(self::PASS_MESSAGE, $gateResult->message);
     }
 
     public function testFailsOnUnparseableYamlThatPolls(): void
@@ -177,7 +186,10 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertFalse($gateResult->passed);
-        self::assertStringContainsString('unparseable YAML', $gateResult->message);
+        self::assertSame(
+            'Workflow concurrency: 1 polling workflow(s) violate the supersede policy -> broken.yml: unparseable YAML',
+            $gateResult->message,
+        );
     }
 
     public function testFailsWhenTheDocumentIsNotAMapping(): void
@@ -187,7 +199,10 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertFalse($gateResult->passed);
-        self::assertStringContainsString('not a mapping', $gateResult->message);
+        self::assertSame(
+            'Workflow concurrency: 1 polling workflow(s) violate the supersede policy -> scalar.yml: not a mapping',
+            $gateResult->message,
+        );
     }
 
     public function testScansTheYamlExtensionToo(): void
@@ -206,7 +221,7 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate()->evaluate();
 
         self::assertTrue($gateResult->passed);
-        self::assertStringContainsString('1 polling workflow(s)', $gateResult->message);
+        self::assertSame(self::PASS_MESSAGE, $gateResult->message);
     }
 
     public function testReportsEveryViolation(): void
@@ -237,10 +252,10 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $workflowConcurrencyRule = new WorkflowConcurrencyRule();
         $yaml = "concurrency:\n  group: g-\${{ github.ref }}\n  cancel-in-progress: false\n";
 
-        $violation = $workflowConcurrencyRule->violation('bad.yml', $yaml);
-
-        self::assertIsString($violation);
-        self::assertStringContainsString('bad.yml', $violation);
+        self::assertSame(
+            'bad.yml: polls check-runs on a ref-scoped group without cancel-in-progress: true',
+            $workflowConcurrencyRule->violation('bad.yml', $yaml),
+        );
     }
 
     private function gate(): WorkflowConcurrencyGate
