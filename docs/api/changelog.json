@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T14:30:06Z",
+  "as_of": "2026-10-09T15:38:30Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 82,
+  "unreleased_count": 85,
   "versions": [
     {
       "version": "Unreleased",
@@ -1214,6 +1214,53 @@
                 "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
               }
             ]
+          },
+          {
+            "pr": 117,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T14:54:26Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/117",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "9187def3f86758ceea1d612687aff25e6353d1a6",
+                "short_sha": "9187def",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 119,
+            "title": "ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T15:38:30Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/119",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "75e5e79cd33a6509fbc134b996b8f176364ba6ab",
+                "short_sha": "75e5e79",
+                "subject": "ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane"
+              },
+              {
+                "sha": "fcb92e5065262372e54f49e2b01ab479ab4c7212",
+                "short_sha": "fcb92e5",
+                "subject": "Merge branch 'main' into ci/stale-prs-updater"
+              },
+              {
+                "sha": "308feff692efc2203f0418ef7df9ad530e6eaca6",
+                "short_sha": "308feff",
+                "subject": "Merge branch 'main' into ci/stale-prs-updater"
+              },
+              {
+                "sha": "77a8f0bbb1db0a41aa829a93df1b524d16126480",
+                "short_sha": "77a8f0b",
+                "subject": "Merge branch 'main' into ci/stale-prs-updater"
+              }
+            ]
           }
         ],
         "Documentation": [
@@ -1594,6 +1641,47 @@
                 "sha": "4206aad2dff0407528929935a50d573d71fb9a02",
                 "short_sha": "4206aad",
                 "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              }
+            ]
+          },
+          {
+            "pr": 116,
+            "title": "docs(ci): ruleset verification probe 3",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T15:32:01Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/116",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cb4fd584a7de0463a486aabd2830af6499edff9a",
+                "short_sha": "cb4fd58",
+                "subject": "docs(ci): add docs/ci-ruleset-verify-3.md probe"
+              },
+              {
+                "sha": "178959c6d4c977c40193cc1b8464335a85cb17cf",
+                "short_sha": "178959c",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              },
+              {
+                "sha": "6d2ed8c310026db9a99b9f7af9fbcdb44c1a6cd4",
+                "short_sha": "6d2ed8c",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              },
+              {
+                "sha": "2e816e456b2918205a18b4674548c72c720684f3",
+                "short_sha": "2e816e4",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              },
+              {
+                "sha": "4b9fcd7fd3b1a4aa3e504b1f7ad6781203c7cc5d",
+                "short_sha": "4b9fcd7",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              },
+              {
+                "sha": "b25e8e1091596914adfe552f20da85000610d1f9",
+                "short_sha": "b25e8e1",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
               }
             ]
           }
@@ -3375,6 +3463,94 @@
               "sha": "bce114cd07d5e704de213c7f0e730385629bc294",
               "short_sha": "bce114c",
               "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
+            }
+          ]
+        },
+        {
+          "pr": 116,
+          "title": "docs(ci): ruleset verification probe 3",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T15:32:01Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/116",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cb4fd584a7de0463a486aabd2830af6499edff9a",
+              "short_sha": "cb4fd58",
+              "subject": "docs(ci): add docs/ci-ruleset-verify-3.md probe"
+            },
+            {
+              "sha": "178959c6d4c977c40193cc1b8464335a85cb17cf",
+              "short_sha": "178959c",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            },
+            {
+              "sha": "6d2ed8c310026db9a99b9f7af9fbcdb44c1a6cd4",
+              "short_sha": "6d2ed8c",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            },
+            {
+              "sha": "2e816e456b2918205a18b4674548c72c720684f3",
+              "short_sha": "2e816e4",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            },
+            {
+              "sha": "4b9fcd7fd3b1a4aa3e504b1f7ad6781203c7cc5d",
+              "short_sha": "4b9fcd7",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            },
+            {
+              "sha": "b25e8e1091596914adfe552f20da85000610d1f9",
+              "short_sha": "b25e8e1",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            }
+          ]
+        },
+        {
+          "pr": 117,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T14:54:26Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/117",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "9187def3f86758ceea1d612687aff25e6353d1a6",
+              "short_sha": "9187def",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 119,
+          "title": "ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T15:38:30Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/119",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "75e5e79cd33a6509fbc134b996b8f176364ba6ab",
+              "short_sha": "75e5e79",
+              "subject": "ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane"
+            },
+            {
+              "sha": "fcb92e5065262372e54f49e2b01ab479ab4c7212",
+              "short_sha": "fcb92e5",
+              "subject": "Merge branch 'main' into ci/stale-prs-updater"
+            },
+            {
+              "sha": "308feff692efc2203f0418ef7df9ad530e6eaca6",
+              "short_sha": "308feff",
+              "subject": "Merge branch 'main' into ci/stale-prs-updater"
+            },
+            {
+              "sha": "77a8f0bbb1db0a41aa829a93df1b524d16126480",
+              "short_sha": "77a8f0b",
+              "subject": "Merge branch 'main' into ci/stale-prs-updater"
             }
           ]
         }
