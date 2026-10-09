@@ -242,7 +242,7 @@ final class WorkflowConcurrencyGateTest extends TestCase
     public function testRuleReturnsNullForACompliantWorkflow(): void
     {
         $workflowConcurrencyRule = new WorkflowConcurrencyRule();
-        $yaml = "concurrency:\n  group: g-\${{ github.ref }}\n  cancel-in-progress: true\n";
+        $yaml = "concurrency:\n  group: g-\${{ github.ref }}\n  cancel-in-progress: true\n# check-runs\n";
 
         self::assertNull($workflowConcurrencyRule->violation('ok.yml', $yaml));
     }
@@ -250,7 +250,7 @@ final class WorkflowConcurrencyGateTest extends TestCase
     public function testRuleReturnsTheViolationForAQueuingWorkflow(): void
     {
         $workflowConcurrencyRule = new WorkflowConcurrencyRule();
-        $yaml = "concurrency:\n  group: g-\${{ github.ref }}\n  cancel-in-progress: false\n";
+        $yaml = "concurrency:\n  group: g-\${{ github.ref }}\n  cancel-in-progress: false\n# check-runs\n";
 
         self::assertSame(
             'bad.yml: polls check-runs on a ref-scoped group without cancel-in-progress: true',

@@ -19,6 +19,12 @@ final readonly class WorkflowConcurrencyRule
 {
     public function violation(string $name, string $raw): ?string
     {
+        if (!str_contains($raw, 'check-runs')) {
+            // Not a polling workflow: it never holds a concurrency group open
+            // waiting on another workflow's checks, so it is out of scope.
+            return null;
+        }
+
         try {
             $document = Yaml::parse($raw);
         } catch (ParseException) {

@@ -201,6 +201,28 @@ final class GateRunnerTest extends TestCase
         self::assertStringContainsString('Persistent-worker smoke PASSED', $gateResult->message);
     }
 
+    public function testWorkflowConcurrencyGatePassesWhenNoPollingWorkflowViolates(): void
+    {
+        mkdir($this->root . '/.github/workflows', 0o777, true);
+        file_put_contents(
+            $this->root . '/.github/workflows/ci.yml',
+            "name: CI\njobs:\n  build:\n    steps:\n      - run: echo hi\n",
+        );
+
+        self::assertTrue($this->runner()->run('workflow-concurrency', [])->passed);
+    }
+
+    public function testWorkflowConcurrencyGateFailsOnAQueuingPollingWorkflow(): void
+    {
+        mkdir($this->root . '/.github/workflows', 0o777, true);
+        file_put_contents(
+            $this->root . '/.github/workflows/ci.yml',
+            "name: CI\nconcurrency:\n  group: g-\${{ github.ref }}\n  cancel-in-progress: false\n# check-runs\n",
+        );
+
+        self::assertFalse($this->runner()->run('workflow-concurrency', [])->passed);
+    }
+
     public function testUnknownGateThrows(): void
     {
         $this->expectException(ToolingException::class);
@@ -221,6 +243,9 @@ final class GateRunnerTest extends TestCase
     private function removeTree(string $root): void
     {
         $paths = [
+            $root . '/.github/workflows/ci.yml',
+            $root . '/.github/workflows',
+            $root . '/.github',
             $root . '/build/infection/infection.json',
             $root . '/build/infection',
             $root . '/build/clover.xml',

@@ -51,14 +51,7 @@ final readonly class WorkflowConcurrencyGate
         $violations = [];
 
         foreach ($this->workflowFiles() as $file) {
-            $raw = (string) file_get_contents($file);
-
-            if (!str_contains($raw, 'check-runs')) {
-                // Not a polling workflow -> out of scope.
-                continue;
-            }
-
-            $violation = new WorkflowConcurrencyRule()->violation(basename($file), $raw);
+            $violation = new WorkflowConcurrencyRule()->violation(basename($file), $this->contents($file));
 
             if ($violation === null) {
                 continue;
@@ -86,5 +79,12 @@ final readonly class WorkflowConcurrencyGate
         $files = glob($this->workflowsDirectory . '/*.{yml,yaml}', \GLOB_BRACE);
 
         return \is_array($files) ? $files : [];
+    }
+
+    private function contents(string $file): string
+    {
+        $raw = file_get_contents($file);
+
+        return \is_string($raw) ? $raw : '';
     }
 }
