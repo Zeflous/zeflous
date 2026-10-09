@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- ci\(auto-prs\): port auto-update-prs workflow from zef-framework with ZEF\_TOKEN [\#90](https://github.com/Zeflous/zeflous/pull/90) ([mbetixz](https://github.com/mbetixz))
 - ci\(actions\): bump remaining checkout pins to node24 [\#87](https://github.com/Zeflous/zeflous/pull/87) ([mbetixz](https://github.com/mbetixz))
 - docs\(readme\): document the quality gates [\#84](https://github.com/Zeflous/zeflous/pull/84) ([mbetixz](https://github.com/mbetixz))
 - ci\(hardening\): fail-closed changelog filter, least-privilege proof-html, concurrency groups [\#81](https://github.com/Zeflous/zeflous/pull/81) ([mbetixz](https://github.com/mbetixz))
