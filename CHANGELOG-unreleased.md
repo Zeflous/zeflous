@@ -194,3 +194,30 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#71 ci(auto-merge): correct ZEF_TOKEN caveat comment
     - f2ccf43 ci(auto-merge): correct the token-type caveat (ZEF_TOKEN is a classic PAT)
+
+- PR#72 chore(changelog-official): regenerate official changelog
+    - dd563a4 chore(changelog-official): regenerate official changelog
+
+- PR#74 docs(roadmap): refresh ROADMAP-STATUS header to current main
+    - acf5944 docs(roadmap): refresh ROADMAP-STATUS header to current main
+
+- PR#75 chore(changelog-official): regenerate official changelog
+    - 405b5a7 chore(changelog-official): regenerate official changelog
+
+- PR#77 docs(roadmap): add ROADMAP-HISTORY grouped by roadmap area
+    - a21a0ee docs(roadmap): add ROADMAP-HISTORY grouped by roadmap area
+
+- PR#78 chore(changelog-official): regenerate official changelog
+    - e0410e3 chore(changelog-official): regenerate official changelog
+
+- PR#79 ci(actions): bump deprecated node20 actions to node24
+    - 81e3ad2 ci(actions): bump deprecated node20 actions to node24
+
+- PR#80 ci(setup-php): drop unrecognised cache input from the strict lanes
+    - 4cbeacb ci(setup-php): drop unrecognised cache input from the strict lanes
+    - 72bbdf3 Merge branch 'main' into ci/setup-php-cache-fix
+    - d43330e Merge branch 'main' into ci/setup-php-cache-fix
+
+- PR#81 ci(hardening): fail-closed changelog filter, least-privilege proof-html, concurrency groups
+    - d9b22a6 ci(hardening): fail-closed changelog filter, least-privilege proof-html, concurrency groups
+    - 4bbbddf Merge branch 'main' into ci/hardening
