@@ -66,4 +66,35 @@ final class ReviewThreadFactoryTest extends TestCase
         self::assertInstanceOf(ReviewThread::class, $reviewThread);
         self::assertSame('', $reviewThread->path);
     }
+
+    public function testAMissingResolvedFlagLeavesAnOutdatedThreadFinished(): void
+    {
+        $reviewThread = ReviewThreadFactory::fromNode(['id' => 'PRRT_9', 'isOutdated' => true]);
+
+        self::assertInstanceOf(ReviewThread::class, $reviewThread);
+        self::assertTrue($reviewThread->isFinishedConversation());
+    }
+
+    public function testAResolvedOutdatedThreadIsNotFinished(): void
+    {
+        $reviewThread = ReviewThreadFactory::fromNode([
+            'id' => 'PRRT_10',
+            'isResolved' => true,
+            'isOutdated' => true,
+        ]);
+
+        self::assertInstanceOf(ReviewThread::class, $reviewThread);
+        self::assertFalse($reviewThread->isFinishedConversation());
+    }
+
+    public function testBuildsAThreadFromAnObjectNode(): void
+    {
+        $reviewThread = ReviewThreadFactory::fromNode(
+            (object) ['id' => 'PRRT_11', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/O.php'],
+        );
+
+        self::assertInstanceOf(ReviewThread::class, $reviewThread);
+        self::assertSame('PRRT_11', $reviewThread->id);
+        self::assertTrue($reviewThread->isFinishedConversation());
+    }
 }
