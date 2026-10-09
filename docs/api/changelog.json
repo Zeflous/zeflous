@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T19:38:49Z",
+  "as_of": "2026-10-09T22:49:10Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 101,
+  "unreleased_count": 102,
   "versions": [
     {
       "version": "Unreleased",
@@ -1503,6 +1503,47 @@
                 "sha": "5c6cad35f0e1a1786c3c2f209947aaf44a2e7cb3",
                 "short_sha": "5c6cad3",
                 "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 137,
+            "title": "ci(strict): add workflow-concurrency regression gate",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T22:49:10Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/137",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f7fd17d6ab83b52dc0f13b73387f3ed7af2fb6cd",
+                "short_sha": "f7fd17d",
+                "subject": "ci(strict): add workflow-concurrency regression gate"
+              },
+              {
+                "sha": "8a7a27da982f53e1b8827c05ab4f09645d875775",
+                "short_sha": "8a7a27d",
+                "subject": "Merge branch 'main' into fix/ci-strict-per-commit-concurrency"
+              },
+              {
+                "sha": "b89572aee739d25cec3ce45f449fe59e7c395f4c",
+                "short_sha": "b89572a",
+                "subject": "test(ci): kill the remaining workflow-concurrency mutants (MSI 100%)"
+              },
+              {
+                "sha": "923aa7005f2ee8d513a4d28707c611d9bebcaffd",
+                "short_sha": "923aa70",
+                "subject": "test(ci): pin the workflow-directory operand (MSI 100%)"
+              },
+              {
+                "sha": "ee89f435a6cd3aaf15d51f3bf021fea128285478",
+                "short_sha": "ee89f43",
+                "subject": "fix(ci): harden lane concurrency per-commit and silence new-analyzer findings"
+              },
+              {
+                "sha": "fa5913f9d51a81961ea241ef8cd167136b67d549",
+                "short_sha": "fa5913f",
+                "subject": "fix(ci): kill the four escaped mutants and the phpcs control-structure finding"
               }
             ]
           }
@@ -4603,6 +4644,47 @@
               "sha": "f3b1ad04c88b94e51e8a62151290e82553644b96",
               "short_sha": "f3b1ad0",
               "subject": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock"
+            }
+          ]
+        },
+        {
+          "pr": 137,
+          "title": "ci(strict): add workflow-concurrency regression gate",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T22:49:10Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/137",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f7fd17d6ab83b52dc0f13b73387f3ed7af2fb6cd",
+              "short_sha": "f7fd17d",
+              "subject": "ci(strict): add workflow-concurrency regression gate"
+            },
+            {
+              "sha": "8a7a27da982f53e1b8827c05ab4f09645d875775",
+              "short_sha": "8a7a27d",
+              "subject": "Merge branch 'main' into fix/ci-strict-per-commit-concurrency"
+            },
+            {
+              "sha": "b89572aee739d25cec3ce45f449fe59e7c395f4c",
+              "short_sha": "b89572a",
+              "subject": "test(ci): kill the remaining workflow-concurrency mutants (MSI 100%)"
+            },
+            {
+              "sha": "923aa7005f2ee8d513a4d28707c611d9bebcaffd",
+              "short_sha": "923aa70",
+              "subject": "test(ci): pin the workflow-directory operand (MSI 100%)"
+            },
+            {
+              "sha": "ee89f435a6cd3aaf15d51f3bf021fea128285478",
+              "short_sha": "ee89f43",
+              "subject": "fix(ci): harden lane concurrency per-commit and silence new-analyzer findings"
+            },
+            {
+              "sha": "fa5913f9d51a81961ea241ef8cd167136b67d549",
+              "short_sha": "fa5913f",
+              "subject": "fix(ci): kill the four escaped mutants and the phpcs control-structure finding"
             }
           ]
         }
