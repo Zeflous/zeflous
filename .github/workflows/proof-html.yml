@@ -2,6 +2,15 @@ name: Proof HTML
 on:
   push:
   workflow_dispatch:
+
+# Least privilege: the lane only reads the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: proof-html-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
