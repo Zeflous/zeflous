@@ -6,6 +6,10 @@
 
 **Merged pull requests:**
 
+- docs\(ci\): add pipeline note 4 for auto-prs evaluation [\#96](https://github.com/Zeflous/zeflous/pull/96) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): add pipeline note 3 for auto-prs evaluation [\#95](https://github.com/Zeflous/zeflous/pull/95) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): add pipeline note 2 for auto-prs evaluation [\#94](https://github.com/Zeflous/zeflous/pull/94) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): add pipeline note 1 for auto-prs evaluation [\#93](https://github.com/Zeflous/zeflous/pull/93) ([mbetixz](https://github.com/mbetixz))
 - ci\(auto-prs\): port auto-update-prs workflow from zef-framework with ZEF\_TOKEN [\#90](https://github.com/Zeflous/zeflous/pull/90) ([mbetixz](https://github.com/mbetixz))
 - ci\(actions\): bump remaining checkout pins to node24 [\#87](https://github.com/Zeflous/zeflous/pull/87) ([mbetixz](https://github.com/mbetixz))
 - docs\(readme\): document the quality gates [\#84](https://github.com/Zeflous/zeflous/pull/84) ([mbetixz](https://github.com/mbetixz))
