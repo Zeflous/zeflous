@@ -6,6 +6,14 @@
 
 **Merged pull requests:**
 
+- docs\(ci\): note 2 for per-event concurrency scoping [\#106](https://github.com/Zeflous/zeflous/pull/106) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): note 1 for per-event concurrency scoping [\#105](https://github.com/Zeflous/zeflous/pull/105) ([mbetixz](https://github.com/mbetixz))
+- ci: scope concurrency groups per event across all lanes for uniform gate behavior [\#104](https://github.com/Zeflous/zeflous/pull/104) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): burst probe 4 for event-scoped CI Strict concurrency [\#103](https://github.com/Zeflous/zeflous/pull/103) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): burst probe 3 for event-scoped CI Strict concurrency [\#102](https://github.com/Zeflous/zeflous/pull/102) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): burst probe 2 for event-scoped CI Strict concurrency [\#101](https://github.com/Zeflous/zeflous/pull/101) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): burst probe 1 for event-scoped CI Strict concurrency [\#100](https://github.com/Zeflous/zeflous/pull/100) ([mbetixz](https://github.com/mbetixz))
+- ci\(strict\): adopt zef-framework ci.yaml concurrency method to fix pending aggregator [\#98](https://github.com/Zeflous/zeflous/pull/98) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): add pipeline note 4 for auto-prs evaluation [\#96](https://github.com/Zeflous/zeflous/pull/96) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): add pipeline note 3 for auto-prs evaluation [\#95](https://github.com/Zeflous/zeflous/pull/95) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): add pipeline note 2 for auto-prs evaluation [\#94](https://github.com/Zeflous/zeflous/pull/94) ([mbetixz](https://github.com/mbetixz))
