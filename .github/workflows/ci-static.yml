@@ -58,9 +58,6 @@ jobs:
           php-version: '8.4'
           coverage: none
           tools: composer:v2
-          # Cache the Composer download cache so the split jobs do not each pay
-          # the full dependency-download cost.
-          cache: composer
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
