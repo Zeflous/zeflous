@@ -318,11 +318,65 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - c4d48b3 Merge branch 'main' into docs/ci-lane-scope-3
     - 4206aad Merge branch 'main' into docs/ci-lane-scope-3
 
+- PR#108 docs(ci): note 4 for per-event concurrency scoping
+    - bc2eabe docs(ci): note 4 for per-event concurrency scoping
+    - 879528f Merge branch 'main' into docs/ci-lane-scope-4
+    - 957686a Merge branch 'main' into docs/ci-lane-scope-4
+    - 9a77252 Merge branch 'main' into docs/ci-lane-scope-4
+    - 9902055 Merge branch 'main' into docs/ci-lane-scope-4
+    - e48dcfb Merge branch 'main' into docs/ci-lane-scope-4
+    - 8caaf0a Merge branch 'main' into docs/ci-lane-scope-4
+    - 57999e7 Merge branch 'main' into docs/ci-lane-scope-4
+    - f3e0bb5 Merge branch 'main' into docs/ci-lane-scope-4
+    - b376506 Merge branch 'main' into docs/ci-lane-scope-4
+    - 415dc08 Merge branch 'main' into docs/ci-lane-scope-4
+    - 844ce4f Merge branch 'main' into docs/ci-lane-scope-4
+    - 8e285c4 Merge branch 'main' into docs/ci-lane-scope-4
+
 - PR#109 ci(security): unify auto-merge lanes + pull_request_target actor isolation
     - 1ad24e4 ci(security): harden auto-merge lane (pull_request_target + actor isolation)
     - 775e6f0 ci(security): drop duplicate auto-update-prs.yml (superseded by auto-merge.yml)
     - 4a78bbe Merge branch 'main' into ci/unify-auto-merge-hardening
     - bce114c Merge branch 'main' into ci/unify-auto-merge-hardening
+
+- PR#110 chore(governance): add CODEOWNERS to satisfy require_code_owner_review
+    - 76229ba chore(governance): add CODEOWNERS to satisfy require_code_owner_review
+    - 8f75e06 Merge branch 'main' into chore/governance-codeowners
+    - 909a798 Merge branch 'main' into chore/governance-codeowners
+    - 37f312a Merge branch 'main' into chore/governance-codeowners
+    - db74ec0 Merge branch 'main' into chore/governance-codeowners
+    - 8f69122 Merge branch 'main' into chore/governance-codeowners
+    - 5a284e4 Merge branch 'main' into chore/governance-codeowners
+    - b5a14c0 Merge branch 'main' into chore/governance-codeowners
+    - 9a89c4b Merge branch 'main' into chore/governance-codeowners
+    - f207bdf Merge branch 'main' into chore/governance-codeowners
+    - bd9b8b2 Merge branch 'main' into chore/governance-codeowners
+    - 86350a7 Merge branch 'main' into chore/governance-codeowners
+
+- PR#114 docs(ci): ruleset verification probe 1
+    - a29d1d6 docs(ci): add docs/ci-ruleset-verify-1.md probe
+    - ecb04fe Merge branch 'main' into docs/ci-ruleset-verify-1
+    - e113fd2 Merge branch 'main' into docs/ci-ruleset-verify-1
+    - 96ae227 Merge branch 'main' into docs/ci-ruleset-verify-1
+    - 486246f Merge branch 'main' into docs/ci-ruleset-verify-1
+    - 3087c3a Merge branch 'main' into docs/ci-ruleset-verify-1
+    - 67f6b5d Merge branch 'main' into docs/ci-ruleset-verify-1
+    - 27213e9 Merge branch 'main' into docs/ci-ruleset-verify-1
+    - 954433b Merge branch 'main' into docs/ci-ruleset-verify-1
+
+- PR#115 docs(ci): ruleset verification probe 2
+    - 985e043 docs(ci): add docs/ci-ruleset-verify-2.md probe
+    - 3c5b40f Merge branch 'main' into docs/ci-ruleset-verify-2
+    - 837f7bc Merge branch 'main' into docs/ci-ruleset-verify-2
+    - 0127f4f Merge branch 'main' into docs/ci-ruleset-verify-2
+    - 8619ae8 Merge branch 'main' into docs/ci-ruleset-verify-2
+    - 93efbdd Merge branch 'main' into docs/ci-ruleset-verify-2
+    - c3a347b Merge branch 'main' into docs/ci-ruleset-verify-2
+    - 87ba3dd Merge branch 'main' into docs/ci-ruleset-verify-2
+    - eca576c Merge branch 'main' into docs/ci-ruleset-verify-2
+    - 654d268 Merge branch 'main' into docs/ci-ruleset-verify-2
+    - fcd3ebb Merge branch 'main' into docs/ci-ruleset-verify-2
+    - bde6203 Merge branch 'main' into docs/ci-ruleset-verify-2
 
 - PR#116 docs(ci): ruleset verification probe 3
     - cb4fd58 docs(ci): add docs/ci-ruleset-verify-3.md probe
@@ -340,3 +394,32 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - fcb92e5 Merge branch 'main' into ci/stale-prs-updater
     - 308feff Merge branch 'main' into ci/stale-prs-updater
     - 77a8f0b Merge branch 'main' into ci/stale-prs-updater
+
+- PR#120 chore(changelog-official): regenerate official changelog
+    - 07a632d chore(changelog-official): regenerate official changelog
+
+- PR#122 chore(changelog-official): regenerate official changelog
+    - 52eb1eb chore(changelog-official): regenerate official changelog
+
+- PR#124 ci(security): remove CodeQL in favor of DeepSource/SonarCloud/PhpCodeArcheology
+    - 3dee2e6 docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)
+    - f473db5 docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)
+    - f3b0fac Merge branch 'main' into ci/remove-codeql
+
+- PR#125 chore(changelog-official): regenerate official changelog
+    - 982de7a chore(changelog-official): regenerate official changelog
+
+- PR#126 docs: ci burst probe 1
+    - 4e9e014 docs: add ci burst probe 1
+
+- PR#127 docs: ci burst probe 2
+    - b657938 docs: add ci burst probe 2
+    - dfb458e Merge branch 'main' into docs/ci-burst-2
+
+- PR#128 docs: ci burst probe 3
+    - 2c54c31 docs: add ci burst probe 3
+    - 048b3bc Merge branch 'main' into docs/ci-burst-3
+    - 85cf66c Merge branch 'main' into docs/ci-burst-3
+
+- PR#129 docs(security): purge remaining CodeQL references
+    - 0014f9f docs(security): purge remaining CodeQL references
