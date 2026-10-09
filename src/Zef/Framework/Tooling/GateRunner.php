@@ -42,6 +42,10 @@ final readonly class GateRunner
                 ->evaluate(DependencyAudit::fromComposerAuditJson($this->auditPayload())),
             'lint' => new LintGate(fn (string $file): bool => $this->lintFile($file))
                 ->evaluate(LintReport::collectPhpFiles($this->root, ['src', 'tests', 'benchmarks'])),
+            'workflow-concurrency' => new WorkflowConcurrencyGate()
+                ->evaluate(new WorkflowConcurrencyReport(
+                    new WorkflowFileCollector($this->root)->collect(),
+                )),
             'smoke' => $this->smoke(),
             default => throw new ToolingException(\sprintf('Unknown gate "%s".', $gate)),
         };
