@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T09:23:49Z",
+  "as_of": "2026-10-09T14:30:06Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 79,
+  "unreleased_count": 82,
   "versions": [
     {
       "version": "Unreleased",
@@ -1153,6 +1153,22 @@
             ]
           },
           {
+            "pr": 99,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T13:36:47Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/99",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5507c64b08004f44e142138868ab4b14b78c508d",
+                "short_sha": "5507c64",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
             "pr": 104,
             "title": "ci: scope concurrency groups per event across all lanes for uniform gate behavior",
             "author": "mbetixz",
@@ -1165,6 +1181,37 @@
                 "sha": "5ad32e49d03f9d589cfa7ba556cf2f4e0187b5f3",
                 "short_sha": "5ad32e4",
                 "subject": "ci: scope concurrency groups per event across all lanes for uniform gate behavior"
+              }
+            ]
+          },
+          {
+            "pr": 109,
+            "title": "ci(security): unify auto-merge lanes + pull_request_target actor isolation",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T14:26:16Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/109",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1ad24e4ebb69bf0e67f2db22e145625cd16dea9d",
+                "short_sha": "1ad24e4",
+                "subject": "ci(security): harden auto-merge lane (pull_request_target + actor isolation)"
+              },
+              {
+                "sha": "775e6f01b3c4c5d4db8a9945f1a9b1184c76724b",
+                "short_sha": "775e6f0",
+                "subject": "ci(security): drop duplicate auto-update-prs.yml (superseded by auto-merge.yml)"
+              },
+              {
+                "sha": "4a78bbea3c30bd90141fcdf30b84bf009da25259",
+                "short_sha": "4a78bbe",
+                "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
+              },
+              {
+                "sha": "bce114cd07d5e704de213c7f0e730385629bc294",
+                "short_sha": "bce114c",
+                "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
               }
             ]
           }
@@ -1506,6 +1553,47 @@
                 "sha": "f5fec62eb32630c164de413f80e5d99f2e1fd7e3",
                 "short_sha": "f5fec62",
                 "subject": "Merge branch 'main' into docs/ci-lane-scope-2"
+              }
+            ]
+          },
+          {
+            "pr": 107,
+            "title": "docs(ci): note 3 for per-event concurrency scoping",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T14:30:06Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/107",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3b2781285b975ddaa77be7fb831c8e04bfe187c9",
+                "short_sha": "3b27812",
+                "subject": "docs(ci): note 3 for per-event concurrency scoping"
+              },
+              {
+                "sha": "7400e6eb57f9dc0cc24ee90610055144e21f6a20",
+                "short_sha": "7400e6e",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              },
+              {
+                "sha": "b55b40d8f8f18dbe072939e326d76a3d4a67436f",
+                "short_sha": "b55b40d",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              },
+              {
+                "sha": "c87750cadcfa055a322683ae7090aafee43d1a4d",
+                "short_sha": "c87750c",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              },
+              {
+                "sha": "c4d48b3b232879f68cd09403dce47411436d3a73",
+                "short_sha": "c4d48b3",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              },
+              {
+                "sha": "4206aad2dff0407528929935a50d573d71fb9a02",
+                "short_sha": "4206aad",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
               }
             ]
           }
@@ -3056,6 +3144,22 @@
           ]
         },
         {
+          "pr": 99,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T13:36:47Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/99",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5507c64b08004f44e142138868ab4b14b78c508d",
+              "short_sha": "5507c64",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
           "pr": 100,
           "title": "docs(ci): burst probe 1 for event-scoped CI Strict concurrency",
           "author": "mbetixz",
@@ -3199,6 +3303,78 @@
               "sha": "f5fec62eb32630c164de413f80e5d99f2e1fd7e3",
               "short_sha": "f5fec62",
               "subject": "Merge branch 'main' into docs/ci-lane-scope-2"
+            }
+          ]
+        },
+        {
+          "pr": 107,
+          "title": "docs(ci): note 3 for per-event concurrency scoping",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T14:30:06Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/107",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3b2781285b975ddaa77be7fb831c8e04bfe187c9",
+              "short_sha": "3b27812",
+              "subject": "docs(ci): note 3 for per-event concurrency scoping"
+            },
+            {
+              "sha": "7400e6eb57f9dc0cc24ee90610055144e21f6a20",
+              "short_sha": "7400e6e",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            },
+            {
+              "sha": "b55b40d8f8f18dbe072939e326d76a3d4a67436f",
+              "short_sha": "b55b40d",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            },
+            {
+              "sha": "c87750cadcfa055a322683ae7090aafee43d1a4d",
+              "short_sha": "c87750c",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            },
+            {
+              "sha": "c4d48b3b232879f68cd09403dce47411436d3a73",
+              "short_sha": "c4d48b3",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            },
+            {
+              "sha": "4206aad2dff0407528929935a50d573d71fb9a02",
+              "short_sha": "4206aad",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            }
+          ]
+        },
+        {
+          "pr": 109,
+          "title": "ci(security): unify auto-merge lanes + pull_request_target actor isolation",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T14:26:16Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/109",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1ad24e4ebb69bf0e67f2db22e145625cd16dea9d",
+              "short_sha": "1ad24e4",
+              "subject": "ci(security): harden auto-merge lane (pull_request_target + actor isolation)"
+            },
+            {
+              "sha": "775e6f01b3c4c5d4db8a9945f1a9b1184c76724b",
+              "short_sha": "775e6f0",
+              "subject": "ci(security): drop duplicate auto-update-prs.yml (superseded by auto-merge.yml)"
+            },
+            {
+              "sha": "4a78bbea3c30bd90141fcdf30b84bf009da25259",
+              "short_sha": "4a78bbe",
+              "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
+            },
+            {
+              "sha": "bce114cd07d5e704de213c7f0e730385629bc294",
+              "short_sha": "bce114c",
+              "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
             }
           ]
         }
