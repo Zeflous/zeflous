@@ -423,3 +423,22 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#129 docs(security): purge remaining CodeQL references
     - 0014f9f docs(security): purge remaining CodeQL references
+
+- PR#130 chore(changelog-official): regenerate official changelog
+    - c950b72 chore(changelog-official): regenerate official changelog
+
+- PR#131 fix(ci): supersede stale CI Strict runs to unblock auto-merge
+    - 0993b80 fix(ci): supersede stale CI Strict runs to unblock auto-merge
+    - 549806f test(ci): harden workflow-concurrency gate to 100% MSI
+    - 6a64263 test(ci): reach 100% MSI for the workflow-concurrency gate
+    - 4a2bc26 Merge branch 'main' into fix/ci-strict-aggregator-deadlock
+    - 489ffe6 refactor(ci): split workflow-concurrency rule to satisfy fitness gates
+    - 1d8833c refactor(ci): extract MixedValue so the policy unit passes the fitness gate
+    - 578a075 fix(ci): drop unused private constructor flagged by Psalm
+    - efff803 fix(ci): unblock auto-merge by superseding stale CI Strict runs
+
+- PR#132 chore(changelog-official): regenerate official changelog
+    - 5c6cad3 chore(changelog-official): regenerate official changelog
+
+- PR#135 fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock
+    - f3b1ad0 fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock

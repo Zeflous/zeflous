@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T16:59:23Z",
+  "as_of": "2026-10-09T19:38:49Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 97,
+  "unreleased_count": 101,
   "versions": [
     {
       "version": "Unreleased",
@@ -339,6 +339,73 @@
                 "sha": "fb57dd1bc35981dec9601d67b3c315afec1be6f2",
                 "short_sha": "fb57dd1",
                 "subject": "fix(ci): fall back to the built-in token when the PAT is under-scoped"
+              }
+            ]
+          },
+          {
+            "pr": 131,
+            "title": "fix(ci): supersede stale CI Strict runs to unblock auto-merge",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-09T18:53:26Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/131",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0993b80fc3258237991e7c2550d7901c64d26781",
+                "short_sha": "0993b80",
+                "subject": "fix(ci): supersede stale CI Strict runs to unblock auto-merge"
+              },
+              {
+                "sha": "549806f3d8dffbec6b6fadde4cb0c30047937b6a",
+                "short_sha": "549806f",
+                "subject": "test(ci): harden workflow-concurrency gate to 100% MSI"
+              },
+              {
+                "sha": "6a64263838b93f65f60af49e94dcc726b1009bef",
+                "short_sha": "6a64263",
+                "subject": "test(ci): reach 100% MSI for the workflow-concurrency gate"
+              },
+              {
+                "sha": "4a2bc26279b8e1688f0f0307d24a32a2b90c582f",
+                "short_sha": "4a2bc26",
+                "subject": "Merge branch 'main' into fix/ci-strict-aggregator-deadlock"
+              },
+              {
+                "sha": "489ffe6141d4cd200c17459687a4af30951dd08e",
+                "short_sha": "489ffe6",
+                "subject": "refactor(ci): split workflow-concurrency rule to satisfy fitness gates"
+              },
+              {
+                "sha": "1d8833c7143b5022b05d353bfd19acd45557d254",
+                "short_sha": "1d8833c",
+                "subject": "refactor(ci): extract MixedValue so the policy unit passes the fitness gate"
+              },
+              {
+                "sha": "578a075fb2160a8b36504c0c917b844d88a19f1a",
+                "short_sha": "578a075",
+                "subject": "fix(ci): drop unused private constructor flagged by Psalm"
+              },
+              {
+                "sha": "efff803bb1a6ac81483218f9862b94139aaa7d2a",
+                "short_sha": "efff803",
+                "subject": "fix(ci): unblock auto-merge by superseding stale CI Strict runs"
+              }
+            ]
+          },
+          {
+            "pr": 135,
+            "title": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-09T19:38:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/135",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f3b1ad04c88b94e51e8a62151290e82553644b96",
+                "short_sha": "f3b1ad0",
+                "subject": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock"
               }
             ]
           }
@@ -1403,6 +1470,38 @@
               {
                 "sha": "982de7a57526f5ee9c7801021f0dbe2f0f128404",
                 "short_sha": "982de7a",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 130,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T17:02:10Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/130",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c950b72b3c3ed4e43d3f4e2df9ed3ec8588546db",
+                "short_sha": "c950b72",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 132,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T18:55:32Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/132",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5c6cad35f0e1a1786c3c2f209947aaf44a2e7cb3",
+                "short_sha": "5c6cad3",
                 "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
@@ -4405,6 +4504,105 @@
               "sha": "0014f9f745258504e98c6cfadae0a4c67263f0f3",
               "short_sha": "0014f9f",
               "subject": "docs(security): purge remaining CodeQL references"
+            }
+          ]
+        },
+        {
+          "pr": 130,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T17:02:10Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/130",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c950b72b3c3ed4e43d3f4e2df9ed3ec8588546db",
+              "short_sha": "c950b72",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 131,
+          "title": "fix(ci): supersede stale CI Strict runs to unblock auto-merge",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-09T18:53:26Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/131",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0993b80fc3258237991e7c2550d7901c64d26781",
+              "short_sha": "0993b80",
+              "subject": "fix(ci): supersede stale CI Strict runs to unblock auto-merge"
+            },
+            {
+              "sha": "549806f3d8dffbec6b6fadde4cb0c30047937b6a",
+              "short_sha": "549806f",
+              "subject": "test(ci): harden workflow-concurrency gate to 100% MSI"
+            },
+            {
+              "sha": "6a64263838b93f65f60af49e94dcc726b1009bef",
+              "short_sha": "6a64263",
+              "subject": "test(ci): reach 100% MSI for the workflow-concurrency gate"
+            },
+            {
+              "sha": "4a2bc26279b8e1688f0f0307d24a32a2b90c582f",
+              "short_sha": "4a2bc26",
+              "subject": "Merge branch 'main' into fix/ci-strict-aggregator-deadlock"
+            },
+            {
+              "sha": "489ffe6141d4cd200c17459687a4af30951dd08e",
+              "short_sha": "489ffe6",
+              "subject": "refactor(ci): split workflow-concurrency rule to satisfy fitness gates"
+            },
+            {
+              "sha": "1d8833c7143b5022b05d353bfd19acd45557d254",
+              "short_sha": "1d8833c",
+              "subject": "refactor(ci): extract MixedValue so the policy unit passes the fitness gate"
+            },
+            {
+              "sha": "578a075fb2160a8b36504c0c917b844d88a19f1a",
+              "short_sha": "578a075",
+              "subject": "fix(ci): drop unused private constructor flagged by Psalm"
+            },
+            {
+              "sha": "efff803bb1a6ac81483218f9862b94139aaa7d2a",
+              "short_sha": "efff803",
+              "subject": "fix(ci): unblock auto-merge by superseding stale CI Strict runs"
+            }
+          ]
+        },
+        {
+          "pr": 132,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T18:55:32Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/132",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5c6cad35f0e1a1786c3c2f209947aaf44a2e7cb3",
+              "short_sha": "5c6cad3",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 135,
+          "title": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-09T19:38:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/135",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f3b1ad04c88b94e51e8a62151290e82553644b96",
+              "short_sha": "f3b1ad0",
+              "subject": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock"
             }
           ]
         }
