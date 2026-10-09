@@ -442,3 +442,11 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#135 fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock
     - f3b1ad0 fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock
+
+- PR#137 ci(strict): add workflow-concurrency regression gate
+    - f7fd17d ci(strict): add workflow-concurrency regression gate
+    - 8a7a27d Merge branch 'main' into fix/ci-strict-per-commit-concurrency
+    - b89572a test(ci): kill the remaining workflow-concurrency mutants (MSI 100%)
+    - 923aa70 test(ci): pin the workflow-directory operand (MSI 100%)
+    - ee89f43 fix(ci): harden lane concurrency per-commit and silence new-analyzer findings
+    - fa5913f fix(ci): kill the four escaped mutants and the phpcs control-structure finding
