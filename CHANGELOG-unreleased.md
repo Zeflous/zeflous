@@ -440,8 +440,22 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#132 chore(changelog-official): regenerate official changelog
     - 5c6cad3 chore(changelog-official): regenerate official changelog
 
+- PR#134 fix(ci): auto-resolve finished review conversations to unblock auto-merge
+    - e2931bd fix(ci): auto-resolve finished review conversations to unblock auto-merge
+    - 414443e Merge branch 'main' into fix/review-thread-auto-resolve
+    - 92de32a Merge branch 'main' into fix/review-thread-auto-resolve
+    - 52eefee Merge branch 'main' into fix/review-thread-auto-resolve
+    - 1d75358 fix(ci): kill the escaped mutants and silence the new-analyzer findings
+    - e839757 Merge branch 'main' into fix/review-thread-auto-resolve
+    - 3ac0a3f test(ci): kill the four escaped factory mutants (MSI 100%)
+    - ff86109 Merge branch 'main' into fix/review-thread-auto-resolve
+
 - PR#135 fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock
     - f3b1ad0 fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock
+
+- PR#136 chore(changelog-official): regenerate official changelog
+    - 6c8788e chore(changelog-official): regenerate official changelog
+    - 4beb9f7 Merge branch 'main' into chore/changelog-official-update
 
 - PR#137 ci(strict): add workflow-concurrency regression gate
     - f7fd17d ci(strict): add workflow-concurrency regression gate

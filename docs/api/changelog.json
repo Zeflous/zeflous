@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T22:49:10Z",
+  "as_of": "2026-10-09T22:57:03Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 102,
+  "unreleased_count": 104,
   "versions": [
     {
       "version": "Unreleased",
@@ -390,6 +390,57 @@
                 "sha": "efff803bb1a6ac81483218f9862b94139aaa7d2a",
                 "short_sha": "efff803",
                 "subject": "fix(ci): unblock auto-merge by superseding stale CI Strict runs"
+              }
+            ]
+          },
+          {
+            "pr": 134,
+            "title": "fix(ci): auto-resolve finished review conversations to unblock auto-merge",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-09T22:57:03Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/134",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e2931bd3fc7d51553be5026f963a4af979f480f4",
+                "short_sha": "e2931bd",
+                "subject": "fix(ci): auto-resolve finished review conversations to unblock auto-merge"
+              },
+              {
+                "sha": "414443ee9282936cc8de4db09add8ef76ad80cfb",
+                "short_sha": "414443e",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+              },
+              {
+                "sha": "92de32a6357375462df78f2ee3438e390aa53c71",
+                "short_sha": "92de32a",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+              },
+              {
+                "sha": "52eefeebd8f4040981265248481a9123be73d21c",
+                "short_sha": "52eefee",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+              },
+              {
+                "sha": "1d75358452b0e322251f7048c84f8076e8c6813d",
+                "short_sha": "1d75358",
+                "subject": "fix(ci): kill the escaped mutants and silence the new-analyzer findings"
+              },
+              {
+                "sha": "e83975781a226021ff1f461011dd95b6f4edd341",
+                "short_sha": "e839757",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+              },
+              {
+                "sha": "3ac0a3fe2a4027177e29384fc3bd6cc0c15b96b0",
+                "short_sha": "3ac0a3f",
+                "subject": "test(ci): kill the four escaped factory mutants (MSI 100%)"
+              },
+              {
+                "sha": "ff86109e3757d9c7d2ba13f34b67cf277d4dc531",
+                "short_sha": "ff86109",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
               }
             ]
           },
@@ -1503,6 +1554,27 @@
                 "sha": "5c6cad35f0e1a1786c3c2f209947aaf44a2e7cb3",
                 "short_sha": "5c6cad3",
                 "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 136,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T22:55:28Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/136",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6c8788efc9025c58655ce19483ff0a35df5077fb",
+                "short_sha": "6c8788e",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              },
+              {
+                "sha": "4beb9f7e7573f9881f6bd73c7ed35f73ce8cfaf4",
+                "short_sha": "4beb9f7",
+                "subject": "Merge branch 'main' into chore/changelog-official-update"
               }
             ]
           },
@@ -4632,6 +4704,57 @@
           ]
         },
         {
+          "pr": 134,
+          "title": "fix(ci): auto-resolve finished review conversations to unblock auto-merge",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-09T22:57:03Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/134",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e2931bd3fc7d51553be5026f963a4af979f480f4",
+              "short_sha": "e2931bd",
+              "subject": "fix(ci): auto-resolve finished review conversations to unblock auto-merge"
+            },
+            {
+              "sha": "414443ee9282936cc8de4db09add8ef76ad80cfb",
+              "short_sha": "414443e",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            },
+            {
+              "sha": "92de32a6357375462df78f2ee3438e390aa53c71",
+              "short_sha": "92de32a",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            },
+            {
+              "sha": "52eefeebd8f4040981265248481a9123be73d21c",
+              "short_sha": "52eefee",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            },
+            {
+              "sha": "1d75358452b0e322251f7048c84f8076e8c6813d",
+              "short_sha": "1d75358",
+              "subject": "fix(ci): kill the escaped mutants and silence the new-analyzer findings"
+            },
+            {
+              "sha": "e83975781a226021ff1f461011dd95b6f4edd341",
+              "short_sha": "e839757",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            },
+            {
+              "sha": "3ac0a3fe2a4027177e29384fc3bd6cc0c15b96b0",
+              "short_sha": "3ac0a3f",
+              "subject": "test(ci): kill the four escaped factory mutants (MSI 100%)"
+            },
+            {
+              "sha": "ff86109e3757d9c7d2ba13f34b67cf277d4dc531",
+              "short_sha": "ff86109",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            }
+          ]
+        },
+        {
           "pr": 135,
           "title": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock",
           "author": "mbetixz",
@@ -4644,6 +4767,27 @@
               "sha": "f3b1ad04c88b94e51e8a62151290e82553644b96",
               "short_sha": "f3b1ad0",
               "subject": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock"
+            }
+          ]
+        },
+        {
+          "pr": 136,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T22:55:28Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/136",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6c8788efc9025c58655ce19483ff0a35df5077fb",
+              "short_sha": "6c8788e",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            },
+            {
+              "sha": "4beb9f7e7573f9881f6bd73c7ed35f73ce8cfaf4",
+              "short_sha": "4beb9f7",
+              "subject": "Merge branch 'main' into chore/changelog-official-update"
             }
           ]
         },
