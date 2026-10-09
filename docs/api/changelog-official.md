@@ -8,7 +8,11 @@
 
 - ci\(automation\): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane [\#119](https://github.com/Zeflous/zeflous/pull/119) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): ruleset verification probe 3 [\#116](https://github.com/Zeflous/zeflous/pull/116) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): ruleset verification probe 2 [\#115](https://github.com/Zeflous/zeflous/pull/115) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): ruleset verification probe 1 [\#114](https://github.com/Zeflous/zeflous/pull/114) ([mbetixz](https://github.com/mbetixz))
+- chore\(governance\): add CODEOWNERS to satisfy require\_code\_owner\_review [\#110](https://github.com/Zeflous/zeflous/pull/110) ([mbetixz](https://github.com/mbetixz))
 - ci\(security\): unify auto-merge lanes + pull\_request\_target actor isolation [\#109](https://github.com/Zeflous/zeflous/pull/109) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): note 4 for per-event concurrency scoping [\#108](https://github.com/Zeflous/zeflous/pull/108) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): note 3 for per-event concurrency scoping [\#107](https://github.com/Zeflous/zeflous/pull/107) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): note 2 for per-event concurrency scoping [\#106](https://github.com/Zeflous/zeflous/pull/106) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): note 1 for per-event concurrency scoping [\#105](https://github.com/Zeflous/zeflous/pull/105) ([mbetixz](https://github.com/mbetixz))
