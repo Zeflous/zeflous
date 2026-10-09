@@ -10,6 +10,10 @@ namespace Zef\Framework\Tooling;
  * The parsing lives here rather than on the value object so each class stays
  * small and single-purpose: the value object carries the facts, this factory
  * knows how to read them out of the `mixed` shape json_decode() produces.
+ *
+ * A non-array node is cast to an empty-ish array, so every unusable node --
+ * a scalar, null, a list without the expected keys -- simply yields no
+ * thread instead of needing its own guard branch.
  */
 final readonly class ReviewThreadFactory
 {
@@ -21,22 +25,20 @@ final readonly class ReviewThreadFactory
      */
     public static function fromNode(mixed $node): ?ReviewThread
     {
-        if (!\is_array($node)) {
-            return null;
-        }
+        $fields = (array) $node;
 
-        $id = $node['id'] ?? null;
+        $id = $fields['id'] ?? null;
 
         if (!\is_string($id) || $id === '') {
             return null;
         }
 
-        $path = $node['path'] ?? null;
+        $path = $fields['path'] ?? null;
 
         return new ReviewThread(
             $id,
-            ($node['isResolved'] ?? false) === true,
-            ($node['isOutdated'] ?? false) === true,
+            ($fields['isResolved'] ?? false) === true,
+            ($fields['isOutdated'] ?? false) === true,
             \is_string($path) ? $path : '',
         );
     }

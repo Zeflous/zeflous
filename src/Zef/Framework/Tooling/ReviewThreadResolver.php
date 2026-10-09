@@ -32,6 +32,27 @@ use Closure;
  */
 final readonly class ReviewThreadResolver
 {
+    private const string THREADS_QUERY = <<<'GRAPHQL'
+        query($number: Int!) {
+          repository(owner: "zeflous", name: "zeflous") {
+            pullRequest(number: $number) {
+              reviewThreads(first: 100) {
+                totalCount
+                nodes { id isResolved isOutdated path }
+              }
+            }
+          }
+        }
+        GRAPHQL;
+
+    private const string RESOLVE_MUTATION = <<<'GRAPHQL'
+        mutation($threadId: ID!) {
+          resolveReviewThread(input: {threadId: $threadId}) {
+            thread { id isResolved }
+          }
+        }
+        GRAPHQL;
+
     /**
      * @param Closure(string, array<string, mixed>): string $graphql graphQL transport
      */
@@ -41,85 +62,23 @@ final readonly class ReviewThreadResolver
 
     public function resolve(int $pullRequestNumber): ReviewThreadResolution
     {
-        $payload = ($this->graphql)(
-            $this->threadsQuery(),
-            ['number' => $pullRequestNumber],
-        );
+        $payload = ($this->graphql)(self::THREADS_QUERY, ['number' => $pullRequestNumber]);
 
-        $reviewThreadReport = ReviewThreadReport::fromGraphQlPayload($payload);
-        $resolvable = $reviewThreadReport->resolvableIds();
+        $reviewThreadReport = new ReviewThreadPayload($payload)->report();
 
         $resolved = 0;
         $failed = 0;
 
-        foreach ($resolvable as $threadId) {
-            $response = ($this->graphql)(
-                $this->resolveMutation(),
-                ['threadId' => $threadId],
-            );
+        foreach ($reviewThreadReport->resolvableIds() as $threadId) {
+            $response = ($this->graphql)(self::RESOLVE_MUTATION, ['threadId' => $threadId]);
 
-            if ($this->mutationSucceeded($response)) {
+            if (ReviewThreadMutation::succeeded($response)) {
                 ++$resolved;
-
-                continue;
+            } else {
+                ++$failed;
             }
-
-            ++$failed;
         }
 
         return new ReviewThreadResolution($reviewThreadReport->count(), $resolved, $failed);
-    }
-
-    /**
-     * A mutation response is a success only when it carries no `errors` array
-     * and reports the thread as resolved. Anything else (transport error, a
-     * permission error, a malformed body) is a failure the caller must surface
-     * rather than swallow.
-     */
-    private function mutationSucceeded(string $response): bool
-    {
-        $decoded = json_decode($response, true);
-
-        if (!\is_array($decoded)) {
-            return false;
-        }
-
-        if (isset($decoded['errors']) && \is_array($decoded['errors']) && $decoded['errors'] !== []) {
-            return false;
-        }
-
-        // Narrow the nested `mixed` payload level by level before indexing it.
-        $data = $decoded['data'] ?? null;
-        $resolve = \is_array($data) ? $data['resolveReviewThread'] ?? null : null;
-        $thread = \is_array($resolve) ? $resolve['thread'] ?? null : null;
-
-        return \is_array($thread) && ($thread['isResolved'] ?? false) === true;
-    }
-
-    private function threadsQuery(): string
-    {
-        return <<<'GRAPHQL'
-            query($number: Int!) {
-              repository(owner: "zeflous", name: "zeflous") {
-                pullRequest(number: $number) {
-                  reviewThreads(first: 100) {
-                    totalCount
-                    nodes { id isResolved isOutdated path }
-                  }
-                }
-              }
-            }
-            GRAPHQL;
-    }
-
-    private function resolveMutation(): string
-    {
-        return <<<'GRAPHQL'
-            mutation($threadId: ID!) {
-              resolveReviewThread(input: {threadId: $threadId}) {
-                thread { id isResolved }
-              }
-            }
-            GRAPHQL;
     }
 }

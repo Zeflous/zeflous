@@ -46,6 +46,64 @@ final class ReviewThreadResolverTest extends TestCase
         self::assertSame('PRRT_done', $calls[1]['threadId']);
     }
 
+    public function testResolvesEveryFinishedConversationInOrder(): void
+    {
+        $mutations = [];
+
+        $graphql = static function (string $query, array $variables) use (&$mutations): string {
+            if (str_contains($query, 'reviewThreads')) {
+                return self::threadsPayload([
+                    ['id' => 'PRRT_live', 'isResolved' => false, 'isOutdated' => false, 'path' => 'src/A.php'],
+                    ['id' => 'PRRT_one', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/B.php'],
+                    ['id' => 'PRRT_two', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/C.php'],
+                    ['id' => 'PRRT_three', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/D.php'],
+                ]);
+            }
+
+            $threadId = $variables['threadId'] ?? '';
+            $mutations[] = \is_string($threadId) ? $threadId : '';
+
+            return self::resolveSuccess(\is_string($threadId) ? $threadId : '');
+        };
+
+        $reviewThreadResolution = new ReviewThreadResolver($graphql)->resolve(12);
+
+        self::assertSame(4, $reviewThreadResolution->total);
+        self::assertSame(3, $reviewThreadResolution->resolved);
+        self::assertSame(0, $reviewThreadResolution->failed);
+        self::assertSame(['PRRT_one', 'PRRT_two', 'PRRT_three'], $mutations);
+    }
+
+    public function testKeepsResolvingAfterAFailedMutation(): void
+    {
+        $mutations = [];
+
+        $graphql = static function (string $query, array $variables) use (&$mutations): string {
+            if (str_contains($query, 'reviewThreads')) {
+                return self::threadsPayload([
+                    ['id' => 'PRRT_first', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/B.php'],
+                    ['id' => 'PRRT_second', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/C.php'],
+                ]);
+            }
+
+            $threadId = $variables['threadId'] ?? '';
+            $id = \is_string($threadId) ? $threadId : '';
+            $mutations[] = $id;
+
+            // The first mutation reports an error; the second succeeds.
+            return $id === 'PRRT_first'
+                ? (string) json_encode(['errors' => [['message' => 'forbidden']]])
+                : self::resolveSuccess($id);
+        };
+
+        $reviewThreadResolution = new ReviewThreadResolver($graphql)->resolve(12);
+
+        self::assertSame(2, $reviewThreadResolution->total);
+        self::assertSame(1, $reviewThreadResolution->resolved);
+        self::assertSame(1, $reviewThreadResolution->failed);
+        self::assertSame(['PRRT_first', 'PRRT_second'], $mutations);
+    }
+
     public function testNoFinishedConversationsMeansNoMutation(): void
     {
         $calls = 0;
@@ -81,6 +139,28 @@ final class ReviewThreadResolverTest extends TestCase
         $reviewThreadResolution = new ReviewThreadResolver($graphql)->resolve(9);
 
         self::assertSame(1, $reviewThreadResolution->total);
+        self::assertSame(0, $reviewThreadResolution->resolved);
+        self::assertSame(1, $reviewThreadResolution->failed);
+    }
+
+    public function testMutationErrorWithASuccessfulDataSectionIsAFailure(): void
+    {
+        $graphql = static function (string $query, array $variables): string {
+            if (str_contains($query, 'reviewThreads')) {
+                return self::threadsPayload([
+                    ['id' => 'PRRT_done', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/B.php'],
+                ]);
+            }
+
+            // The errors array wins over the otherwise-successful data section.
+            return (string) json_encode([
+                'errors' => [['message' => 'boom']],
+                'data' => ['resolveReviewThread' => ['thread' => ['id' => 'PRRT_done', 'isResolved' => true]]],
+            ]);
+        };
+
+        $reviewThreadResolution = new ReviewThreadResolver($graphql)->resolve(9);
+
         self::assertSame(0, $reviewThreadResolution->resolved);
         self::assertSame(1, $reviewThreadResolution->failed);
     }

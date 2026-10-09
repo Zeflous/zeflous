@@ -88,14 +88,22 @@
   </file>
   <file src="src/Zef/Framework/Tooling/ReviewThreadFactory.php">
     <MixedAssignment>
-      <code><![CDATA[$id]]></code>
       <code><![CDATA[$path]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Tooling/ReviewThreadReport.php">
+  <file src="src/Zef/Framework/Tooling/GraphQlErrors.php">
+    <MixedAssignment>
+      <code><![CDATA[$errors]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Tooling/ReviewThreadMutation.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Tooling/ReviewThreadPayload.php">
     <MixedAssignment>
       <code><![CDATA[$node]]></code>
-      <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Tooling/ReviewThreadResolution.php">
@@ -104,11 +112,6 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Tooling/ReviewThreadResolver.php">
-    <MixedAssignment>
-      <code><![CDATA[$data]]></code>
-      <code><![CDATA[$resolve]]></code>
-      <code><![CDATA[$thread]]></code>
-    </MixedAssignment>
     <UnusedClass>
       <code><![CDATA[ReviewThreadResolver]]></code>
     </UnusedClass>
