@@ -106,8 +106,13 @@ jobs:
           # each regeneration would add a line, produce a new diff, and open a
           # new pull request forever. Drop those lines so the snapshot is a
           # pure function of the real, human-authored changes.
+          # `grep -v` exits 1 when it filters EVERY line out, which would leave
+          # an empty snapshot. That is a real failure (the generator produced
+          # nothing usable), so fail explicitly instead of swallowing it with
+          # `|| true` and writing an empty changelog.
           grep -v -E 'regenerate (API|official) changelog' \
-            docs/api/changelog-official.md > docs/api/changelog-official.md.tmp || true
+            docs/api/changelog-official.md > docs/api/changelog-official.md.tmp \
+            || { echo "::error::official changelog snapshot is empty after filtering automation PRs."; exit 1; }
           mv docs/api/changelog-official.md.tmp docs/api/changelog-official.md
 
       - name: Open or update the official changelog pull request
