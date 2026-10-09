@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- ci\(strict\): add workflow-concurrency regression gate [\#137](https://github.com/Zeflous/zeflous/pull/137) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): key CI Strict concurrency per commit to stop the waiting deadlock [\#135](https://github.com/Zeflous/zeflous/pull/135) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): supersede stale CI Strict runs to unblock auto-merge [\#131](https://github.com/Zeflous/zeflous/pull/131) ([mbetixz](https://github.com/mbetixz))
 - docs\(security\): purge remaining CodeQL references [\#129](https://github.com/Zeflous/zeflous/pull/129) ([mbetixz](https://github.com/mbetixz))
 - docs: ci burst probe 3 [\#128](https://github.com/Zeflous/zeflous/pull/128) ([mbetixz](https://github.com/mbetixz))
