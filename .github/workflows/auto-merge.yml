@@ -74,8 +74,18 @@
 
 name: Auto Merge
 
+# SECURITY NOTE (pull_request_target): this lane uses `pull_request_target` so
+# that the approve/arm steps always carry `contents: write` + `pull-requests:
+# write` + `actions: write` and are never left `action_required` when a bot
+# actor (changelog lanes) pushes. `pull_request_target` runs in the context of
+# the BASE branch, so it MUST NOT checkout or execute code from the PR head.
+# This lane never does: the only `actions/checkout` stays on the base ref
+# (default) and the steps operate on PR *metadata* (update-branch, approve,
+# arm auto-merge) via `gh`, never on PR source. Workflows that DO run PR code
+# (ci-static/coverage/infection/bench, pr-validator, ci-strict, sonarcloud,
+# archeology) deliberately stay on `pull_request`.
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - main
     # Arm-on-open: the PR is processed the moment it appears, while its checks
@@ -119,10 +129,19 @@ jobs:
     # `closed` event ONLY when the PR was actually merged (a closed-without-
     # merge PR has nothing to re-process). `workflow_run` and `schedule` are
     # not `pull_request` events, so they always run.
+    # Actor isolation (defense-in-depth): for PR events only a trusted actor
+    # (owner / active maintainer / the built-in bot) may drive approve+arm.
+    # This stops the "human-PAT push" trick from being abused by an
+    # unrecognised account that gained write access. Non-PR events (schedule,
+    # workflow_run, workflow_dispatch) always run.
     if: >-
-      github.event_name != 'pull_request' ||
-      github.event.action != 'closed' ||
-      github.event.pull_request.merged == true
+      (github.event_name != 'pull_request_target' ||
+       github.actor == 'Zeflous' ||
+       github.actor == 'mbetixz' ||
+       github.actor == 'github-actions[bot]') &&
+      (github.event_name != 'pull_request_target' ||
+       github.event.action != 'closed' ||
+       github.event.pull_request.merged == true)
     name: Auto Merge
     runs-on: ubuntu-latest
     timeout-minutes: 15
