@@ -233,3 +233,10 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - 81cd990 Merge branch 'main' into docs/quality-gates
     - 6274493 Merge branch 'main' into docs/quality-gates
     - 7cf12fe ci: re-trigger checks
+
+- PR#85 chore(changelog-official): regenerate official changelog
+    - ac1bf86 chore(changelog-official): regenerate official changelog
+
+- PR#87 ci(actions): bump remaining checkout pins to node24
+    - cf8edcd ci(actions): bump remaining checkout pins to node24
+    - b9211fb Merge branch 'main' into ci/checkout-node24-remaining
