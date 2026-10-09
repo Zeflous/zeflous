@@ -279,6 +279,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#98 ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator
     - 970715d ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator
 
+- PR#99 chore(changelog-official): regenerate official changelog
+    - 5507c64 chore(changelog-official): regenerate official changelog
+
 - PR#100 docs(ci): burst probe 1 for event-scoped CI Strict concurrency
     - da55186 docs(ci): burst probe 1 for event-scoped CI Strict concurrency
 
@@ -306,3 +309,17 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#106 docs(ci): note 2 for per-event concurrency scoping
     - ae2e398 docs(ci): note 2 for per-event concurrency scoping
     - f5fec62 Merge branch 'main' into docs/ci-lane-scope-2
+
+- PR#107 docs(ci): note 3 for per-event concurrency scoping
+    - 3b27812 docs(ci): note 3 for per-event concurrency scoping
+    - 7400e6e Merge branch 'main' into docs/ci-lane-scope-3
+    - b55b40d Merge branch 'main' into docs/ci-lane-scope-3
+    - c87750c Merge branch 'main' into docs/ci-lane-scope-3
+    - c4d48b3 Merge branch 'main' into docs/ci-lane-scope-3
+    - 4206aad Merge branch 'main' into docs/ci-lane-scope-3
+
+- PR#109 ci(security): unify auto-merge lanes + pull_request_target actor isolation
+    - 1ad24e4 ci(security): harden auto-merge lane (pull_request_target + actor isolation)
+    - 775e6f0 ci(security): drop duplicate auto-update-prs.yml (superseded by auto-merge.yml)
+    - 4a78bbe Merge branch 'main' into ci/unify-auto-merge-hardening
+    - bce114c Merge branch 'main' into ci/unify-auto-merge-hardening
