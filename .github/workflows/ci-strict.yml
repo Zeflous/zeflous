@@ -39,6 +39,29 @@
 # (`refs/pull/N/merge`), so `CI Strict` still fires here and still assigns the
 # verdict.
 #
+# CONCURRENCY -- SUPERSEDE, DO NOT QUEUE (fixed 2026-10-10)
+# --------------------------------------------------------
+# The aggregator used to QUEUE (`cancel-in-progress: false`). Because it polls
+# the lanes for up to 65 minutes, a superseded run held the concurrency group
+# open for that whole window, so the run for the NEWEST head sat `pending` with
+# 0 jobs and its `CI Strict` check-run was never created -- the pull request
+# stayed `blocked` even though every lane was green. This is the auto-merge
+# deadlock that was observed on PR #123: run 420 (head 636e091c) queued behind
+# run 419, a stale poll for the superseded head 929c2687, so the required
+# `CI Strict` check never concluded for the current head and GitHub's native
+# auto-merge -- which was correctly armed -- had nothing to merge on.
+#
+# The aggregator now SUPERSEDES a stale run of its own event type
+# (`cancel-in-progress: true`), exactly like the reference repository's
+# `ci.yml`. This is safe because the aggregator is a SEPARATE workflow from the
+# lanes and shares no concurrency group with them, so cancelling a stale
+# aggregator run never cancels a lane. The newest run therefore starts
+# immediately and creates the `CI Strict` check-run for the current head.
+#
+# The poll deadline (60 min) is deliberately SHORTER than the job timeout
+# (70 min) so the job always CONCLUDES: a stuck lane fails the aggregator
+# instead of leaving the required check `pending` until the runner kills it.
+#
 # CONVENTIONS (unchanged)
 # -----------------------
 #   * Every `uses:` is pinned to a FULL 40-character commit SHA with the original
@@ -68,20 +91,12 @@ permissions:
   actions: read
   checks: read
 
-# Adopted from the archived zef-framework `ci.yml` pipeline (the long-lived
-# reference implementation): SUPERSEDE a stale run instead of QUEUEING behind
-# it. The distinguishing detail is that this aggregator must never hold the
-# concurrency group open for the slowest lane, because on a `synchronize`
-# burst the newer run would otherwise sit `pending` with 0 jobs behind the
-# stale one -- and the required `CI Strict` check-run would never be created
-# for the new head, so an otherwise fully green PR stayed `blocked` (#93-#96).
-#
-# `ci.yml` deliberately kept only fast work in this group. Here the group is
-# scoped PER EVENT, so a run can only supersede a run of its own event type and
-# a `pull_request` run never queues behind a `push`/`dispatch` run; with
-# `cancel-in-progress` the stale run of the SAME event is cancelled and the new
-# run starts immediately, so its `CI Strict` check-run is created for the new
-# head instead of waiting out the 65-minute poll.
+# SUPERSEDE a stale run instead of QUEUEING behind it (see the CONCURRENCY note
+# above). The group is scoped PER EVENT, so a run can only supersede a run of its
+# own event type and a `pull_request` run never cancels a `push`/`dispatch` run.
+# With `cancel-in-progress: true` the stale run of the SAME event is cancelled
+# and the new run starts immediately, so its `CI Strict` check-run is created for
+# the new head instead of waiting out the previous run's 60-minute poll.
 concurrency:
   group: ci-strict-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -94,10 +109,10 @@ jobs:
     name: CI Strict
     runs-on: ubuntu-latest
     if: always()
-    # Worst case is the Infection lane's own 60-minute budget plus the polling
-    # overhead (65 minutes of polling + a 5-minute grace), so the aggregator can
-    # conclude whenever the slowest lane does.
-    timeout-minutes: 75
+    # The poll deadline below is 60 minutes; the job budget is 70 so the job
+    # always concludes (fails) on a stuck lane rather than being killed while
+    # the required check is still `pending`.
+    timeout-minutes: 70
 
     steps:
       - name: Verify every strict lane succeeded
@@ -173,9 +188,16 @@ jobs:
           # --- Poll until every lane has a concluding run for this commit. -----
           # Bound by the slowest lane's own timeout (60 minutes for Infection)
           # plus a small grace, so a lane held open can never hang this check.
-          deadline=$(( $(date +%s) + 65 * 60 ))
+          # The deadline is SHORTER than the job timeout (70 min) so the job
+          # always concludes instead of being killed while still `pending`.
+          deadline=$(( $(date +%s) + 60 * 60 ))
+          # A lane that never produces a run at all (e.g. its workflow was
+          # disabled) must not hold the required check open for the whole
+          # deadline: fail fast after a short grace (15 polls x 20s = 5 min).
+          absent_streak=0
           while :; do
             pending=0
+            absent=0
             report=""
             for name in "${required[@]}"; do
               lsha=$(resolve_sha "${name}" "${sha}")
@@ -190,11 +212,22 @@ jobs:
               case "${st}:${cc}" in
                 completed:success) : ;;
                 completed:*) pending=1 ;;   # failure / cancelled / timed_out / ...
-                *) pending=1 ;;             # queued / in_progress / absent
+                absent:absent) pending=1; absent=1 ;;
+                *) pending=1 ;;             # queued / in_progress
               esac
             done
             printf '%s' "${report}"
             if [ "${pending}" -eq 0 ]; then break; fi
+            if [ "${absent}" -eq 1 ]; then
+              absent_streak=$((absent_streak + 1))
+            else
+              absent_streak=0
+            fi
+            if [ "${absent_streak}" -ge 15 ]; then
+              echo "::error::A strict lane never produced a run for ${sha} (absent for 5 minutes)."
+              printf '%s' "${report}"
+              exit 1
+            fi
             if [ "$(date +%s)" -ge "${deadline}" ]; then
               echo "::error::Timed out waiting for the strict lanes to conclude."
               printf '%s' "${report}"
