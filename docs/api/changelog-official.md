@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(ci\): supersede stale CI Strict runs to unblock auto-merge [\#131](https://github.com/Zeflous/zeflous/pull/131) ([mbetixz](https://github.com/mbetixz))
 - docs\(security\): purge remaining CodeQL references [\#129](https://github.com/Zeflous/zeflous/pull/129) ([mbetixz](https://github.com/mbetixz))
 - docs: ci burst probe 3 [\#128](https://github.com/Zeflous/zeflous/pull/128) ([mbetixz](https://github.com/mbetixz))
 - docs: ci burst probe 2 [\#127](https://github.com/Zeflous/zeflous/pull/127) ([mbetixz](https://github.com/mbetixz))
