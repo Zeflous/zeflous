@@ -39,19 +39,13 @@ final readonly class WorkflowConcurrencyPolicy
      */
     private function queuesOnRef(string $name, array $document): ?string
     {
-        $concurrency = $document['concurrency'] ?? null;
+        $concurrency = MixedValue::arrayOrNull($document['concurrency'] ?? null);
+        $group = $concurrency === null ? null : MixedValue::stringOrNull($concurrency['group'] ?? null);
 
-        if (!\is_array($concurrency)) {
-            // No concurrency block (or a bare scalar group): runs do not queue
-            // against each other, so there is nothing to supersede.
-            return null;
-        }
-
-        $group = $concurrency['group'] ?? null;
-
-        if (!\is_string($group) || !str_contains($group, 'github.ref')) {
-            // Not ref-scoped: a stale run cannot block a specific ref's
-            // required check, so queueing is legitimate here.
+        if ($group === null || !str_contains($group, 'github.ref')) {
+            // No concurrency block, a bare scalar group, or a non-ref-scoped
+            // group: a stale run cannot block a specific ref's required check,
+            // so there is nothing to supersede.
             return null;
         }
 
