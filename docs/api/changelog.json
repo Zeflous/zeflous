@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T01:12:11Z",
+  "as_of": "2026-10-09T09:23:49Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 63,
+  "unreleased_count": 79,
   "versions": [
     {
       "version": "Unreleased",
@@ -1066,6 +1066,107 @@
                 "subject": "Merge branch 'main' into ci/checkout-node24-remaining"
               }
             ]
+          },
+          {
+            "pr": 88,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T01:29:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/88",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "2802e953e01cee646e6f43f54e5f88f70ff6d7f5",
+                "short_sha": "2802e95",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              },
+              {
+                "sha": "399f5a5ded7487e03149b2930890fc7229efb6b8",
+                "short_sha": "399f5a5",
+                "subject": "Merge branch 'main' into chore/changelog-official-update"
+              }
+            ]
+          },
+          {
+            "pr": 90,
+            "title": "ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T02:19:30Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/90",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "12f27dc1f4ce92604b5a8a7f3a3ca41f3574a459",
+                "short_sha": "12f27dc",
+                "subject": "ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN"
+              }
+            ]
+          },
+          {
+            "pr": 91,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T02:21:39Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/91",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "22ad970147b5c01ef6e9049e82f4cb4175ba91b0",
+                "short_sha": "22ad970",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 97,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T03:41:31Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/97",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "78c183aa8bf42de40aa857df79b831e255a24e10",
+                "short_sha": "78c183a",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 98,
+            "title": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T08:49:14Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/98",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "970715d39899fd8e4cbbd0b9515ce1fe7ecc57ec",
+                "short_sha": "970715d",
+                "subject": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator"
+              }
+            ]
+          },
+          {
+            "pr": 104,
+            "title": "ci: scope concurrency groups per event across all lanes for uniform gate behavior",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T09:15:04Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/104",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5ad32e49d03f9d589cfa7ba556cf2f4e0187b5f3",
+                "short_sha": "5ad32e4",
+                "subject": "ci: scope concurrency groups per event across all lanes for uniform gate behavior"
+              }
+            ]
           }
         ],
         "Documentation": [
@@ -1160,6 +1261,251 @@
                 "sha": "7cf12feaf0b9fb9d2e6b041b9bbcedb13cac3737",
                 "short_sha": "7cf12fe",
                 "subject": "ci: re-trigger checks"
+              }
+            ]
+          },
+          {
+            "pr": 93,
+            "title": "docs(ci): add pipeline note 1 for auto-prs evaluation",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T03:29:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/93",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "47062db3eb7ffe24e5268920cde9362f25e787fc",
+                "short_sha": "47062db",
+                "subject": "docs(ci): add pipeline note 1 for auto-prs evaluation"
+              },
+              {
+                "sha": "4d654195acb7ca4ab750cadcabb5b9434e351c2f",
+                "short_sha": "4d65419",
+                "subject": "Merge branch 'main' into docs/ci-notes-1"
+              }
+            ]
+          },
+          {
+            "pr": 94,
+            "title": "docs(ci): add pipeline note 2 for auto-prs evaluation",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T03:33:00Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/94",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cdbfdfd6c02b2ebd528e6e9ea5601231651b3c8b",
+                "short_sha": "cdbfdfd",
+                "subject": "docs(ci): add pipeline note 2 for auto-prs evaluation"
+              },
+              {
+                "sha": "f17ff78312124e0df5623cec9534bb21c1c13c6f",
+                "short_sha": "f17ff78",
+                "subject": "Merge branch 'main' into docs/ci-notes-2"
+              },
+              {
+                "sha": "f762c9af97dbd3840efee926da005de454124e83",
+                "short_sha": "f762c9a",
+                "subject": "Merge branch 'main' into docs/ci-notes-2"
+              }
+            ]
+          },
+          {
+            "pr": 95,
+            "title": "docs(ci): add pipeline note 3 for auto-prs evaluation",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T03:35:51Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/95",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5c00ce186cd9871288186d44f2e1e0e0e7a988fc",
+                "short_sha": "5c00ce1",
+                "subject": "docs(ci): add pipeline note 3 for auto-prs evaluation"
+              },
+              {
+                "sha": "dbcbb820948189caf778ac6ee7a2302b33b5af1c",
+                "short_sha": "dbcbb82",
+                "subject": "Merge branch 'main' into docs/ci-notes-3"
+              },
+              {
+                "sha": "a7fca2b0ef3753c47820eef0451e79901d64db17",
+                "short_sha": "a7fca2b",
+                "subject": "Merge branch 'main' into docs/ci-notes-3"
+              },
+              {
+                "sha": "0396952696e7c1612aab4ef1fe43cab997ecb0ef",
+                "short_sha": "0396952",
+                "subject": "Merge branch 'main' into docs/ci-notes-3"
+              }
+            ]
+          },
+          {
+            "pr": 96,
+            "title": "docs(ci): add pipeline note 4 for auto-prs evaluation",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T03:38:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/96",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8503c652e73f0b3cd690d875acb60947d00b157d",
+                "short_sha": "8503c65",
+                "subject": "docs(ci): add pipeline note 4 for auto-prs evaluation"
+              },
+              {
+                "sha": "8c2bc604849f6e1f6927915d7f99c787ccc8e3b9",
+                "short_sha": "8c2bc60",
+                "subject": "Merge branch 'main' into docs/ci-notes-4"
+              },
+              {
+                "sha": "489286ae620bfff04aaa311c3824b5cb5a8c5185",
+                "short_sha": "489286a",
+                "subject": "Merge branch 'main' into docs/ci-notes-4"
+              },
+              {
+                "sha": "98fa994d4cce0555b78b49ca64f0b357824d363b",
+                "short_sha": "98fa994",
+                "subject": "Merge branch 'main' into docs/ci-notes-4"
+              },
+              {
+                "sha": "d2f58a3f4f23e4c322b9b15759cf7d7de00fbfec",
+                "short_sha": "d2f58a3",
+                "subject": "Merge branch 'main' into docs/ci-notes-4"
+              }
+            ]
+          },
+          {
+            "pr": 100,
+            "title": "docs(ci): burst probe 1 for event-scoped CI Strict concurrency",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T08:52:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/100",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "da55186a376e3785624a9fddbe910264b1cb1f10",
+                "short_sha": "da55186",
+                "subject": "docs(ci): burst probe 1 for event-scoped CI Strict concurrency"
+              }
+            ]
+          },
+          {
+            "pr": 101,
+            "title": "docs(ci): burst probe 2 for event-scoped CI Strict concurrency",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T08:59:41Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/101",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d8ece2f919a6afe4ea9688bd00f62ffc984fdda3",
+                "short_sha": "d8ece2f",
+                "subject": "docs(ci): burst probe 2 for event-scoped CI Strict concurrency"
+              },
+              {
+                "sha": "80fddd517e210cb100af08b9d6d81caf1715ea2d",
+                "short_sha": "80fddd5",
+                "subject": "Merge branch 'main' into docs/ci-burst-2"
+              },
+              {
+                "sha": "a4420e5381894d8dcd6ff22ec7a185489be95242",
+                "short_sha": "a4420e5",
+                "subject": "Merge branch 'main' into docs/ci-burst-2"
+              }
+            ]
+          },
+          {
+            "pr": 102,
+            "title": "docs(ci): burst probe 3 for event-scoped CI Strict concurrency",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T09:03:17Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/102",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1a03f97beaa6e855a19ebdb1402640ec664d3aff",
+                "short_sha": "1a03f97",
+                "subject": "docs(ci): burst probe 3 for event-scoped CI Strict concurrency"
+              },
+              {
+                "sha": "4c3e12821898ff9a308eedfed313544aa0346dcf",
+                "short_sha": "4c3e128",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              },
+              {
+                "sha": "c4379b526a464c1b6290dce92ab6200631ab9254",
+                "short_sha": "c4379b5",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              },
+              {
+                "sha": "bdd15b7830782f5a926a9f1d781335c01b791171",
+                "short_sha": "bdd15b7",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              }
+            ]
+          },
+          {
+            "pr": 103,
+            "title": "docs(ci): burst probe 4 for event-scoped CI Strict concurrency",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T08:56:32Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/103",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e339d5be1e3bc5625450bae6b8f2ebd16455b858",
+                "short_sha": "e339d5b",
+                "subject": "docs(ci): burst probe 4 for event-scoped CI Strict concurrency"
+              },
+              {
+                "sha": "b76f4e9adbec4cda3882cde397f820c835e1df8c",
+                "short_sha": "b76f4e9",
+                "subject": "Merge branch 'main' into docs/ci-burst-4"
+              }
+            ]
+          },
+          {
+            "pr": 105,
+            "title": "docs(ci): note 1 for per-event concurrency scoping",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T09:20:35Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/105",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "aca5b35de0aa12e3f23e04d6a2eb4e243d8cbd1b",
+                "short_sha": "aca5b35",
+                "subject": "docs(ci): note 1 for per-event concurrency scoping"
+              }
+            ]
+          },
+          {
+            "pr": 106,
+            "title": "docs(ci): note 2 for per-event concurrency scoping",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-09T09:23:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/106",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ae2e398b6cd101ea88ea1a52eeebceacdc518fea",
+                "short_sha": "ae2e398",
+                "subject": "docs(ci): note 2 for per-event concurrency scoping"
+              },
+              {
+                "sha": "f5fec62eb32630c164de413f80e5d99f2e1fd7e3",
+                "short_sha": "f5fec62",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-2"
               }
             ]
           }
@@ -2507,6 +2853,352 @@
               "sha": "b9211fbd2f3e62ee82bdc70064afa45d35127feb",
               "short_sha": "b9211fb",
               "subject": "Merge branch 'main' into ci/checkout-node24-remaining"
+            }
+          ]
+        },
+        {
+          "pr": 88,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T01:29:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/88",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "2802e953e01cee646e6f43f54e5f88f70ff6d7f5",
+              "short_sha": "2802e95",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            },
+            {
+              "sha": "399f5a5ded7487e03149b2930890fc7229efb6b8",
+              "short_sha": "399f5a5",
+              "subject": "Merge branch 'main' into chore/changelog-official-update"
+            }
+          ]
+        },
+        {
+          "pr": 90,
+          "title": "ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T02:19:30Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/90",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "12f27dc1f4ce92604b5a8a7f3a3ca41f3574a459",
+              "short_sha": "12f27dc",
+              "subject": "ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN"
+            }
+          ]
+        },
+        {
+          "pr": 91,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T02:21:39Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/91",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "22ad970147b5c01ef6e9049e82f4cb4175ba91b0",
+              "short_sha": "22ad970",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 93,
+          "title": "docs(ci): add pipeline note 1 for auto-prs evaluation",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T03:29:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/93",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "47062db3eb7ffe24e5268920cde9362f25e787fc",
+              "short_sha": "47062db",
+              "subject": "docs(ci): add pipeline note 1 for auto-prs evaluation"
+            },
+            {
+              "sha": "4d654195acb7ca4ab750cadcabb5b9434e351c2f",
+              "short_sha": "4d65419",
+              "subject": "Merge branch 'main' into docs/ci-notes-1"
+            }
+          ]
+        },
+        {
+          "pr": 94,
+          "title": "docs(ci): add pipeline note 2 for auto-prs evaluation",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T03:33:00Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/94",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cdbfdfd6c02b2ebd528e6e9ea5601231651b3c8b",
+              "short_sha": "cdbfdfd",
+              "subject": "docs(ci): add pipeline note 2 for auto-prs evaluation"
+            },
+            {
+              "sha": "f17ff78312124e0df5623cec9534bb21c1c13c6f",
+              "short_sha": "f17ff78",
+              "subject": "Merge branch 'main' into docs/ci-notes-2"
+            },
+            {
+              "sha": "f762c9af97dbd3840efee926da005de454124e83",
+              "short_sha": "f762c9a",
+              "subject": "Merge branch 'main' into docs/ci-notes-2"
+            }
+          ]
+        },
+        {
+          "pr": 95,
+          "title": "docs(ci): add pipeline note 3 for auto-prs evaluation",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T03:35:51Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/95",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5c00ce186cd9871288186d44f2e1e0e0e7a988fc",
+              "short_sha": "5c00ce1",
+              "subject": "docs(ci): add pipeline note 3 for auto-prs evaluation"
+            },
+            {
+              "sha": "dbcbb820948189caf778ac6ee7a2302b33b5af1c",
+              "short_sha": "dbcbb82",
+              "subject": "Merge branch 'main' into docs/ci-notes-3"
+            },
+            {
+              "sha": "a7fca2b0ef3753c47820eef0451e79901d64db17",
+              "short_sha": "a7fca2b",
+              "subject": "Merge branch 'main' into docs/ci-notes-3"
+            },
+            {
+              "sha": "0396952696e7c1612aab4ef1fe43cab997ecb0ef",
+              "short_sha": "0396952",
+              "subject": "Merge branch 'main' into docs/ci-notes-3"
+            }
+          ]
+        },
+        {
+          "pr": 96,
+          "title": "docs(ci): add pipeline note 4 for auto-prs evaluation",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T03:38:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/96",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8503c652e73f0b3cd690d875acb60947d00b157d",
+              "short_sha": "8503c65",
+              "subject": "docs(ci): add pipeline note 4 for auto-prs evaluation"
+            },
+            {
+              "sha": "8c2bc604849f6e1f6927915d7f99c787ccc8e3b9",
+              "short_sha": "8c2bc60",
+              "subject": "Merge branch 'main' into docs/ci-notes-4"
+            },
+            {
+              "sha": "489286ae620bfff04aaa311c3824b5cb5a8c5185",
+              "short_sha": "489286a",
+              "subject": "Merge branch 'main' into docs/ci-notes-4"
+            },
+            {
+              "sha": "98fa994d4cce0555b78b49ca64f0b357824d363b",
+              "short_sha": "98fa994",
+              "subject": "Merge branch 'main' into docs/ci-notes-4"
+            },
+            {
+              "sha": "d2f58a3f4f23e4c322b9b15759cf7d7de00fbfec",
+              "short_sha": "d2f58a3",
+              "subject": "Merge branch 'main' into docs/ci-notes-4"
+            }
+          ]
+        },
+        {
+          "pr": 97,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T03:41:31Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/97",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "78c183aa8bf42de40aa857df79b831e255a24e10",
+              "short_sha": "78c183a",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 98,
+          "title": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T08:49:14Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/98",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "970715d39899fd8e4cbbd0b9515ce1fe7ecc57ec",
+              "short_sha": "970715d",
+              "subject": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator"
+            }
+          ]
+        },
+        {
+          "pr": 100,
+          "title": "docs(ci): burst probe 1 for event-scoped CI Strict concurrency",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T08:52:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/100",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "da55186a376e3785624a9fddbe910264b1cb1f10",
+              "short_sha": "da55186",
+              "subject": "docs(ci): burst probe 1 for event-scoped CI Strict concurrency"
+            }
+          ]
+        },
+        {
+          "pr": 101,
+          "title": "docs(ci): burst probe 2 for event-scoped CI Strict concurrency",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T08:59:41Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/101",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d8ece2f919a6afe4ea9688bd00f62ffc984fdda3",
+              "short_sha": "d8ece2f",
+              "subject": "docs(ci): burst probe 2 for event-scoped CI Strict concurrency"
+            },
+            {
+              "sha": "80fddd517e210cb100af08b9d6d81caf1715ea2d",
+              "short_sha": "80fddd5",
+              "subject": "Merge branch 'main' into docs/ci-burst-2"
+            },
+            {
+              "sha": "a4420e5381894d8dcd6ff22ec7a185489be95242",
+              "short_sha": "a4420e5",
+              "subject": "Merge branch 'main' into docs/ci-burst-2"
+            }
+          ]
+        },
+        {
+          "pr": 102,
+          "title": "docs(ci): burst probe 3 for event-scoped CI Strict concurrency",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T09:03:17Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/102",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1a03f97beaa6e855a19ebdb1402640ec664d3aff",
+              "short_sha": "1a03f97",
+              "subject": "docs(ci): burst probe 3 for event-scoped CI Strict concurrency"
+            },
+            {
+              "sha": "4c3e12821898ff9a308eedfed313544aa0346dcf",
+              "short_sha": "4c3e128",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            },
+            {
+              "sha": "c4379b526a464c1b6290dce92ab6200631ab9254",
+              "short_sha": "c4379b5",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            },
+            {
+              "sha": "bdd15b7830782f5a926a9f1d781335c01b791171",
+              "short_sha": "bdd15b7",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            }
+          ]
+        },
+        {
+          "pr": 103,
+          "title": "docs(ci): burst probe 4 for event-scoped CI Strict concurrency",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T08:56:32Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/103",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e339d5be1e3bc5625450bae6b8f2ebd16455b858",
+              "short_sha": "e339d5b",
+              "subject": "docs(ci): burst probe 4 for event-scoped CI Strict concurrency"
+            },
+            {
+              "sha": "b76f4e9adbec4cda3882cde397f820c835e1df8c",
+              "short_sha": "b76f4e9",
+              "subject": "Merge branch 'main' into docs/ci-burst-4"
+            }
+          ]
+        },
+        {
+          "pr": 104,
+          "title": "ci: scope concurrency groups per event across all lanes for uniform gate behavior",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T09:15:04Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/104",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5ad32e49d03f9d589cfa7ba556cf2f4e0187b5f3",
+              "short_sha": "5ad32e4",
+              "subject": "ci: scope concurrency groups per event across all lanes for uniform gate behavior"
+            }
+          ]
+        },
+        {
+          "pr": 105,
+          "title": "docs(ci): note 1 for per-event concurrency scoping",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T09:20:35Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/105",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "aca5b35de0aa12e3f23e04d6a2eb4e243d8cbd1b",
+              "short_sha": "aca5b35",
+              "subject": "docs(ci): note 1 for per-event concurrency scoping"
+            }
+          ]
+        },
+        {
+          "pr": 106,
+          "title": "docs(ci): note 2 for per-event concurrency scoping",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-09T09:23:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/106",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ae2e398b6cd101ea88ea1a52eeebceacdc518fea",
+              "short_sha": "ae2e398",
+              "subject": "docs(ci): note 2 for per-event concurrency scoping"
+            },
+            {
+              "sha": "f5fec62eb32630c164de413f80e5d99f2e1fd7e3",
+              "short_sha": "f5fec62",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-2"
             }
           ]
         }
