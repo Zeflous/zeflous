@@ -48,17 +48,14 @@ final readonly class WorkflowConcurrencyGate
 
     public function evaluate(): GateResult
     {
-        $violations = [];
-
-        foreach ($this->workflowFiles() as $file) {
-            $violation = new WorkflowConcurrencyRule()->violation(basename($file), $this->contents($file));
-
-            if ($violation === null) {
-                continue;
-            }
-
-            $violations[] = $violation;
-        }
+        $violations = array_filter(
+            array_map(
+                fn (string $file): ?string => new WorkflowConcurrencyRule()
+                    ->violation(basename($file), $this->contents($file)),
+                $this->workflowFiles(),
+            ),
+            static fn (?string $violation): bool => $violation !== null,
+        );
 
         if ($violations === []) {
             return GateResult::passed('Workflow concurrency: all polling workflows honour the supersede policy.');

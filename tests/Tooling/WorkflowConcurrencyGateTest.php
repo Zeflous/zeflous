@@ -8,6 +8,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Tooling\WorkflowConcurrencyGate;
+use Zef\Framework\Tooling\WorkflowConcurrencyPolicy;
 use Zef\Framework\Tooling\WorkflowConcurrencyRule;
 
 /**
@@ -15,6 +16,7 @@ use Zef\Framework\Tooling\WorkflowConcurrencyRule;
  */
 #[CoversClass(WorkflowConcurrencyGate::class)]
 #[CoversClass(WorkflowConcurrencyRule::class)]
+#[CoversClass(WorkflowConcurrencyPolicy::class)]
 final class WorkflowConcurrencyGateTest extends TestCase
 {
     private const string PASS_MESSAGE = 'Workflow concurrency: all polling workflows honour the supersede policy.';
@@ -255,6 +257,24 @@ final class WorkflowConcurrencyGateTest extends TestCase
         self::assertSame(
             'bad.yml: polls check-runs on a ref-scoped group without cancel-in-progress: true',
             $workflowConcurrencyRule->violation('bad.yml', $yaml),
+        );
+    }
+
+    public function testPolicyReturnsNullForAWorkflowWithoutConcurrency(): void
+    {
+        $workflowConcurrencyPolicy = new WorkflowConcurrencyPolicy();
+
+        self::assertNull($workflowConcurrencyPolicy->violation('x.yml', "name: X\n"));
+    }
+
+    public function testPolicyReturnsTheViolationForAQueuingWorkflow(): void
+    {
+        $workflowConcurrencyPolicy = new WorkflowConcurrencyPolicy();
+        $yaml = "concurrency:\n  group: g-\${{ github.ref }}\n  cancel-in-progress: false\n";
+
+        self::assertSame(
+            'bad.yml: polls check-runs on a ref-scoped group without cancel-in-progress: true',
+            $workflowConcurrencyPolicy->violation('bad.yml', $yaml),
         );
     }
 
