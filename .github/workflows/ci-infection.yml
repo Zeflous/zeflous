@@ -47,7 +47,6 @@ jobs:
           extensions: pcov
           coverage: pcov
           tools: composer:v2
-          cache: composer
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
