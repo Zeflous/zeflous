@@ -68,9 +68,22 @@ permissions:
   actions: read
   checks: read
 
-# Supersede a stale run for the same ref instead of queueing behind it.
+# Adopted from the archived zef-framework `ci.yml` pipeline (the long-lived
+# reference implementation): SUPERSEDE a stale run instead of QUEUEING behind
+# it. The distinguishing detail is that this aggregator must never hold the
+# concurrency group open for the slowest lane, because on a `synchronize`
+# burst the newer run would otherwise sit `pending` with 0 jobs behind the
+# stale one -- and the required `CI Strict` check-run would never be created
+# for the new head, so an otherwise fully green PR stayed `blocked` (#93-#96).
+#
+# `ci.yml` deliberately kept only fast work in this group. Here the group is
+# scoped PER EVENT, so a run can only supersede a run of its own event type and
+# a `pull_request` run never queues behind a `push`/`dispatch` run; with
+# `cancel-in-progress` the stale run of the SAME event is cancelled and the new
+# run starts immediately, so its `CI Strict` check-run is created for the new
+# head instead of waiting out the 65-minute poll.
 concurrency:
-  group: ci-strict-${{ github.ref }}
+  group: ci-strict-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
