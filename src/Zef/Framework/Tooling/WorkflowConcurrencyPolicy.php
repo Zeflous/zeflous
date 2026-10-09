@@ -36,6 +36,15 @@ final readonly class WorkflowConcurrencyPolicy
      */
     private const string AGGREGATOR = 'ci-strict.yml';
 
+    /**
+     * The YAML boolean spellings that make `cancel-in-progress` cancel.
+     */
+    private const array CANCELLING = [
+        'true' => true,
+        'True' => true,
+        'TRUE' => true,
+    ];
+
     private const string GROUP_KEY = '/^[ \t]*group:[ \t]*(.+?)[ \t]*$/m';
 
     private const string CANCEL_KEY = '/^[ \t]*cancel-in-progress:[ \t]*(.+?)[ \t]*$/m';
@@ -50,21 +59,24 @@ final readonly class WorkflowConcurrencyPolicy
         preg_match(self::GROUP_KEY, $contents, $groupMatch);
         preg_match(self::CANCEL_KEY, $contents, $cancelMatch);
 
-        $group = $groupMatch[1] ?? null;
+        $group = $groupMatch[1] ?? 'none';
 
-        if (str_contains($group ?? '', 'github.sha')
-            || str_contains($group ?? '', 'github.event.pull_request.head.sha')
+        if (
+            str_contains($group, 'github.sha')
+            || str_contains($group, 'github.event.pull_request.head.sha')
         ) {
             return [];
         }
 
+        $cancels = self::CANCELLING[$cancelMatch[1] ?? ''] ?? false;
+
         $failures = [];
 
-        if (mb_strtolower($cancelMatch[1] ?? '') === 'true') {
+        if ($cancels) {
             $failures[] = \sprintf(
                 '%s cancels in progress but its concurrency group is not keyed on the commit sha (found: %s).',
                 $workflow,
-                $group ?? 'none',
+                $group,
             );
         }
 
@@ -72,7 +84,7 @@ final readonly class WorkflowConcurrencyPolicy
             $failures[] = \sprintf(
                 '%s must key its concurrency group on the commit sha, not the branch (found: %s).',
                 $workflow,
-                $group ?? 'none',
+                $group,
             );
         }
 

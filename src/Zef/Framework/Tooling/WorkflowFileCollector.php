@@ -16,7 +16,9 @@ use GlobIterator;
  * own workflow discovery: nested directories are ignored by GitHub Actions,
  * so collecting them would audit files that never run. The two glob patterns
  * pre-filter the YAML extensions, and a file that cannot be read is left out
- * instead of aborting the whole audit.
+ * instead of aborting the whole audit. A repository without the workflow
+ * directory simply matches nothing and yields an empty collection (a valid
+ * outcome the gate reports as "0 workflow(s) audited").
  */
 final readonly class WorkflowFileCollector
 {
@@ -35,16 +37,11 @@ final readonly class WorkflowFileCollector
      */
     public function collect(): array
     {
-        $directory = $this->root . self::WORKFLOW_DIRECTORY;
         $workflows = [];
 
-        if (!is_dir($directory)) {
-            return $workflows;
-        }
-
         $files = [
-            ...new GlobIterator($directory . self::YML_PATTERN),
-            ...new GlobIterator($directory . self::YAML_PATTERN),
+            ...new GlobIterator($this->root . self::WORKFLOW_DIRECTORY . self::YML_PATTERN),
+            ...new GlobIterator($this->root . self::WORKFLOW_DIRECTORY . self::YAML_PATTERN),
         ];
 
         foreach ($files as $file) {

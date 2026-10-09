@@ -35,6 +35,8 @@ final class WorkflowConcurrencyGateTest extends TestCase
 
     private const string LANE_BRANCH_GROUP = 'ci-coverage-${{ github.event_name }}-${{ github.ref }}';
 
+    private const string GITHUB_REF_EXPRESSION = '${{ github.ref }}';
+
     private const string LANE_COMMIT_GROUP = 'ci-coverage-${{ github.event_name }}-'
         . '${{ github.event.pull_request.head.sha || github.sha }}';
 
@@ -165,6 +167,16 @@ final class WorkflowConcurrencyGateTest extends TestCase
         self::assertStringContainsString('cancels in progress', $gateResult->message);
     }
 
+    public function testFailsOnACancellingWorkflowSpelledWithAnAllCapsBoolean(): void
+    {
+        $gateResult = $this->gate([
+            'ci-coverage.yml' => "concurrency:\n  group: " . self::LANE_BRANCH_GROUP . "\n  cancel-in-progress: TRUE\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('cancels in progress', $gateResult->message);
+    }
+
     public function testTreatsADynamicCancelExpressionAsNotCancelling(): void
     {
         $gateResult = $this->gate([
@@ -173,6 +185,26 @@ final class WorkflowConcurrencyGateTest extends TestCase
         ]);
 
         self::assertTrue($gateResult->passed);
+    }
+
+    public function testReportsFailuresFromEveryWorkflow(): void
+    {
+        $gateResult = $this->gate([
+            'a.yml' => "concurrency:\n  group: a-\${{ github.ref }}\n  cancel-in-progress: true\n",
+            'b.yml' => "concurrency:\n  group: b-\${{ github.ref }}\n  cancel-in-progress: true\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString(
+            'a.yml cancels in progress but its concurrency group is not keyed on the commit sha (found: a-'
+            . self::GITHUB_REF_EXPRESSION . ').',
+            $gateResult->message,
+        );
+        self::assertStringContainsString(
+            'b.yml cancels in progress but its concurrency group is not keyed on the commit sha (found: b-'
+            . self::GITHUB_REF_EXPRESSION . ').',
+            $gateResult->message,
+        );
     }
 
     public function testPassesWhenThereAreNoWorkflows(): void
