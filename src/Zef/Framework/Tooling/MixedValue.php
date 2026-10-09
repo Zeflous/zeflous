@@ -10,10 +10,6 @@ namespace Zef\Framework\Tooling;
  */
 final class MixedValue
 {
-    private function __construct()
-    {
-    }
-
     /**
      * @return null|array<array-key, mixed>
      */
