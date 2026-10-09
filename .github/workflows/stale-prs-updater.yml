@@ -1,0 +1,168 @@
+# Stale PRs Updater — triage + auto-labeling lane for the open-PR queue.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# `auto-merge.yml` is the *merge driver*: it syncs a behind branch, approves a
+# run left `action_required` by a bot push, and arms GitHub's native
+# auto-merge. It deliberately does NOT label anything, so a PR that is stuck
+# for a reason auto-merge cannot fix (a merge conflict, or a red required
+# check) sits in the queue with no visible signal.
+#
+# This lane is the *triage layer*: it walks the open, non-draft PRs oldest
+# first (FIFO) and classifies each one, applying a label so a human can see at
+# a glance which PRs need manual work:
+#
+#   * `CONFLICTING`  -> `needs-manual-fix`  (a human must resolve the conflict)
+#   * a required check with conclusion FAILURE / TIMED_OUT / STARTUP_FAILURE
+#     (or a status context in state FAILURE / ERROR)
+#                    -> `gate-failed`      (a human must look at the red gate)
+#   * otherwise (MERGEABLE / UNKNOWN) -> healthy: any stale failure label is
+#     cleared, and the PR is reported in the ready queue.
+#
+# SEPARATION OF CONCERNS (why this is a SEPARATE lane, not folded into
+# `auto-merge.yml`)
+# ------------------------------------------------------------------------
+# Two lanes that both call `gh pr merge --auto` on the same PR would race and
+# double-arm. This lane therefore NEVER arms auto-merge and NEVER syncs a
+# branch: it only reads PR state and writes labels. The healthy queue is
+# *processed* (synced + armed) by `auto-merge.yml`; this lane reports that
+# queue in FIFO order and flags the abnormal members. One writer per action.
+#
+# CONVENTIONS
+# -----------
+#   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
+#     original tag kept as a trailing comment (SonarCloud `S7637`).
+#   * Least privilege: `contents: read` (checkout) + `pull-requests: write`
+#     (apply/remove labels). Nothing else.
+#   * The job never fails the queue because of one problematic PR: every error
+#     path is a warning and the job exits 0.
+#   * The token is referenced by NAME only; its value is injected at run time
+#     and never written to a file or log.
+
+name: Stale PRs Updater
+
+on:
+  # Safety-net sweep. Offset from `auto-merge.yml`'s `7,27,47` so the two
+  # lanes never contend for the same scheduler slot.
+  schedule:
+    - cron: '13,33,53 * * * *'
+  # Re-triage as soon as `main` moves (a merge can turn a healthy PR behind).
+  push:
+    branches:
+      - main
+  # Manual sweep.
+  workflow_dispatch:
+
+# One run at a time, FIFO. `cancel-in-progress: false` lets a queued sweep
+# proceed after the current one instead of being dropped.
+concurrency:
+  group: stale-prs-updater
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    # Actor isolation (defense-in-depth): only a trusted actor may drive the
+    # label writes. `schedule` / `push` / `workflow_dispatch` are not PR events
+    # and always run; a PR-driven event (if ever added) is restricted to the
+    # owner / active maintainer / the built-in bot.
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.actor == 'Zeflous' ||
+      github.actor == 'mbetixz' ||
+      github.actor == 'github-actions[bot]'
+    name: Triage open pull requests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: read       # checkout only
+      pull-requests: write # apply / remove labels
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Classify and label the open-PR queue (oldest first)
+        env:
+          GH_TOKEN: ${{ secrets.ZEF_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          set -u
+
+          echo "Fetching open, non-draft pull requests (oldest first)..."
+          if ! raw=$(gh pr list --state open --limit 100 \
+                       --json number,isDraft,createdAt,mergeable,statusCheckRollup,labels); then
+            echo "::warning::Could not list pull requests; nothing to do."
+            exit 0
+          fi
+
+          # `gh pr list` has no --sort flag; sort the JSON ourselves so the
+          # oldest PR is processed first (FIFO). One TSV row per PR:
+          #   number <TAB> mergeable <TAB> failing_checks <TAB> labels
+          # `(.conclusion // .state)` covers BOTH check runs (conclusion) and
+          # legacy status contexts (state), so a red status context is caught
+          # too. The old `cut -d':'` parsing was fragile because the JSON
+          # itself contains ':' — jq is used instead.
+          rows=$(printf '%s' "$raw" | jq -r '
+            sort_by(.createdAt)
+            | .[]
+            | select(.isDraft == false)
+            | [
+                .number,
+                (.mergeable // "UNKNOWN"),
+                ([.statusCheckRollup[]?
+                   | select((.conclusion // .state) == "FAILURE"
+                            or (.conclusion // .state) == "TIMED_OUT"
+                            or (.conclusion // .state) == "STARTUP_FAILURE"
+                            or (.conclusion // .state) == "ERROR")] | length),
+                ([.labels[]?.name] | join(","))
+              ]
+            | @tsv')
+
+          if [ -z "$rows" ]; then
+            echo "No open pull requests to triage."
+            exit 0
+          fi
+
+          healthy=""
+          while IFS=$'\t' read -r num mergeable fails labels; do
+            [ -z "$num" ] && continue
+            echo "----------------------------------------"
+            echo "PR #$num | mergeable=$mergeable | failing_checks=$fails | labels=[$labels]"
+
+            if [ "$mergeable" = "CONFLICTING" ]; then
+              echo "  -> CONFLICTING: needs manual conflict resolution."
+              gh pr edit "$num" --add-label needs-manual-fix \
+                || echo "::warning::Could not add needs-manual-fix to PR #$num."
+              if printf '%s' "$labels" | grep -q 'gate-failed'; then
+                gh pr edit "$num" --remove-label gate-failed \
+                  || echo "::warning::Could not remove gate-failed from PR #$num."
+              fi
+            elif [ "$fails" -gt 0 ]; then
+              echo "  -> $fails required check(s) failed: needs attention."
+              gh pr edit "$num" --add-label gate-failed \
+                || echo "::warning::Could not add gate-failed to PR #$num."
+              if printf '%s' "$labels" | grep -q 'needs-manual-fix'; then
+                gh pr edit "$num" --remove-label needs-manual-fix \
+                  || echo "::warning::Could not remove needs-manual-fix from PR #$num."
+              fi
+            else
+              echo "  -> healthy (mergeable, no failing check)."
+              if printf '%s' "$labels" | grep -q 'needs-manual-fix'; then
+                gh pr edit "$num" --remove-label needs-manual-fix \
+                  || echo "::warning::Could not remove needs-manual-fix from PR #$num."
+              fi
+              if printf '%s' "$labels" | grep -q 'gate-failed'; then
+                gh pr edit "$num" --remove-label gate-failed \
+                  || echo "::warning::Could not remove gate-failed from PR #$num."
+              fi
+              healthy="$healthy $num"
+            fi
+          done <<< "$rows"
+
+          echo "========================================"
+          echo "Healthy queue (FIFO, oldest first):${healthy:- (none)}"
+          echo "The healthy queue is synced and armed by the Auto Merge lane;"
+          echo "this lane only labels and reports it (one writer per action)."
+          exit 0
