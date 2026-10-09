@@ -92,16 +92,12 @@ final readonly class WorkflowConcurrencyGate
     private function hasBareArrayExpansion(string $contents): bool
     {
         $code = $this->stripComments($contents);
-        $matches = [];
-        preg_match_all('/([A-Za-z_][A-Za-z0-9_]*)=\(/', $code, $matches);
+        $arrays = [];
+        $bare = [];
+        preg_match_all('/([A-Za-z_][A-Za-z0-9_]*)=\(/', $code, $arrays);
+        preg_match_all('/\$\{([A-Za-z_][A-Za-z0-9_]*)\}(?!\[)/', $code, $bare);
 
-        return array_any(
-            $matches[1],
-            static fn (string $name): bool => preg_match(
-                '/\$\{' . preg_quote($name, '/') . '\}(?!\[)/',
-                $code,
-            ) === 1,
-        );
+        return array_intersect($arrays[1], $bare[1]) !== [];
     }
 
     /**
@@ -120,7 +116,7 @@ final readonly class WorkflowConcurrencyGate
      */
     private function concurrencyGroup(string $contents): ?string
     {
-        if (preg_match('/^\s*group:\s*(.+?)\s*$/m', $contents, $matches) !== 1) {
+        if (preg_match('/\s*group:\s*(.+?)\s*$/m', $contents, $matches) !== 1) {
             return null;
         }
 

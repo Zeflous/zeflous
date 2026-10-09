@@ -26,6 +26,8 @@ final class WorkflowConcurrencyReportTest extends TestCase
         file_put_contents($this->root . '/.github/workflows/b.yml', "name: B\n");
         file_put_contents($this->root . '/.github/workflows/a.yaml', "name: A\n");
         file_put_contents($this->root . '/.github/workflows/notes.txt', 'ignore me');
+        mkdir($this->root . '/.github/workflows/nested', 0o777, true);
+        file_put_contents($this->root . '/.github/workflows/nested/c.yml', "name: C\n");
     }
 
     #[Override]
@@ -34,6 +36,8 @@ final class WorkflowConcurrencyReportTest extends TestCase
         unlink($this->root . '/.github/workflows/b.yml');
         unlink($this->root . '/.github/workflows/a.yaml');
         unlink($this->root . '/.github/workflows/notes.txt');
+        unlink($this->root . '/.github/workflows/nested/c.yml');
+        rmdir($this->root . '/.github/workflows/nested');
         rmdir($this->root . '/.github/workflows');
         rmdir($this->root . '/.github');
         rmdir($this->root);
@@ -43,9 +47,10 @@ final class WorkflowConcurrencyReportTest extends TestCase
     {
         $workflowConcurrencyReport = WorkflowConcurrencyReport::collect($this->root);
 
-        self::assertSame(['a.yaml', 'b.yml'], array_keys($workflowConcurrencyReport->workflows));
+        self::assertSame(['a.yaml', 'b.yml', 'c.yml'], array_keys($workflowConcurrencyReport->workflows));
         self::assertSame("name: A\n", $workflowConcurrencyReport->workflows['a.yaml']);
-        self::assertSame(2, $workflowConcurrencyReport->count());
+        self::assertSame("name: C\n", $workflowConcurrencyReport->workflows['c.yml']);
+        self::assertSame(3, $workflowConcurrencyReport->count());
     }
 
     public function testReturnsEmptyWhenTheWorkflowDirectoryIsMissing(): void

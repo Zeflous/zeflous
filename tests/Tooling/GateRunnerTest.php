@@ -173,6 +173,26 @@ final class GateRunnerTest extends TestCase
         self::assertFalse($runner->run('lint', [])->passed);
     }
 
+    public function testWorkflowConcurrencyGateAuditsTheWorkflowDirectory(): void
+    {
+        mkdir($this->root . '/.github/workflows', 0o777, true);
+        file_put_contents(
+            $this->root . '/.github/workflows/ci-strict.yml',
+            "concurrency:\n  group: ci-strict-\${{ github.sha }}\n",
+        );
+
+        try {
+            $gateResult = $this->runner()->run('workflow-concurrency', []);
+
+            self::assertTrue($gateResult->passed);
+            self::assertSame('Workflow concurrency gate PASSED: 1 workflow(s) audited.', $gateResult->message);
+        } finally {
+            unlink($this->root . '/.github/workflows/ci-strict.yml');
+            rmdir($this->root . '/.github/workflows');
+            rmdir($this->root . '/.github');
+        }
+    }
+
     public function testSmokeGateRunsThePersistentWorkerSmoke(): void
     {
         $gateResult = $this->runner()->run('smoke', []);
