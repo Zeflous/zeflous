@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- ci\(automation\): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane [\#119](https://github.com/Zeflous/zeflous/pull/119) ([mbetixz](https://github.com/mbetixz))
+- docs\(ci\): ruleset verification probe 3 [\#116](https://github.com/Zeflous/zeflous/pull/116) ([mbetixz](https://github.com/mbetixz))
 - ci\(security\): unify auto-merge lanes + pull\_request\_target actor isolation [\#109](https://github.com/Zeflous/zeflous/pull/109) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): note 3 for per-event concurrency scoping [\#107](https://github.com/Zeflous/zeflous/pull/107) ([mbetixz](https://github.com/mbetixz))
 - docs\(ci\): note 2 for per-event concurrency scoping [\#106](https://github.com/Zeflous/zeflous/pull/106) ([mbetixz](https://github.com/mbetixz))
