@@ -39,10 +39,10 @@
 # (`refs/pull/N/merge`), so `CI Strict` still fires here and still assigns the
 # verdict.
 #
-# CONCURRENCY -- SUPERSEDE, DO NOT QUEUE (fixed 2026-10-10)
-# --------------------------------------------------------
+# CONCURRENCY -- SUPERSEDE, DO NOT QUEUE (fixed 2026-10-10, hardened 2026-10-10)
+# -----------------------------------------------------------------------------
 # The aggregator used to QUEUE (`cancel-in-progress: false`). Because it polls
-# the lanes for up to 65 minutes, a superseded run held the concurrency group
+# the lanes for up to 60 minutes, a superseded run held the concurrency group
 # open for that whole window, so the run for the NEWEST head sat `pending` with
 # 0 jobs and its `CI Strict` check-run was never created -- the pull request
 # stayed `blocked` even though every lane was green. This is the auto-merge
@@ -51,12 +51,33 @@
 # `CI Strict` check never concluded for the current head and GitHub's native
 # auto-merge -- which was correctly armed -- had nothing to merge on.
 #
-# The aggregator now SUPERSEDES a stale run of its own event type
-# (`cancel-in-progress: true`), exactly like the reference repository's
-# `ci.yml`. This is safe because the aggregator is a SEPARATE workflow from the
+# The first fix (PR #131) switched the aggregator to `cancel-in-progress: true`.
+# That is necessary but NOT sufficient, and the "waiting" symptom came back:
+#   * `cancel-in-progress` is a best-effort, server-side cancellation. GitHub
+#     does not guarantee the order in which runs are cancelled, and a run that
+#     is already `in_progress` (this job spends its whole life inside one long
+#     `run:` step) is frequently NOT cancelled at all. The new run is then
+#     created `pending` with 0 jobs and its `CI Strict` check-run is never
+#     created -- exactly the "waiting" state observed on PR #134 (run
+#     37979179137 pending behind run 37978848975 in_progress).
+#   * The concurrency group was keyed on the BRANCH, so a new run and a stale
+#     run shared one group and the new run could be the one left `pending`.
+#
+# This file therefore does BOTH:
+#   1. keys the concurrency group PER COMMIT, so a new run never shares a group
+#      with a stale run and therefore never queues behind one (the deterministic
+#      fix -- see the CONCURRENCY note below), and
+#   2. runs an EXPLICIT supersede step FIRST, before the poll: it lists the
+#      workflow's own runs for the same event + branch and cancels every one
+#      that is STRICTLY OLDER than itself (lower run id) and still live. That
+#      reclaims the runner a stale run would otherwise hold and stops it polling
+#      lanes for a superseded head.
+#
+# The supersede is safe because the aggregator is a SEPARATE workflow from the
 # lanes and shares no concurrency group with them, so cancelling a stale
-# aggregator run never cancels a lane. The newest run therefore starts
-# immediately and creates the `CI Strict` check-run for the current head.
+# aggregator run never cancels a lane. It only ever cancels runs of THIS
+# workflow, of the SAME event, on the SAME branch, that started BEFORE it --
+# never a newer run, never the current run, never another branch, never a lane.
 #
 # The poll deadline (60 min) is deliberately SHORTER than the job timeout
 # (70 min) so the job always CONCLUDES: a stuck lane fails the aggregator
@@ -66,7 +87,8 @@
 # -----------------------
 #   * Every `uses:` is pinned to a FULL 40-character commit SHA with the original
 #     tag kept as a trailing comment.
-#   * Least privilege: it only reads the repository and the lane runs.
+#   * Least privilege: it reads the repository and the lane runs, and it may
+#     cancel its OWN stale runs (`actions: write`).
 #   * The job NAME "CI Strict" is the status-check context -- keep it stable.
 #   * The aggregator FAILS (never skips) whenever a lane is not green.
 
@@ -85,21 +107,37 @@ on:
   # Allow a manual run (e.g. to re-verify after a tooling update).
   workflow_dispatch:
 
-# Least privilege: read the repository, the lane runs and their check-runs.
+# Least privilege: read the repository and the lane runs; `actions: write` is
+# needed only to cancel this workflow's OWN stale runs (the supersede step).
 permissions:
   contents: read
-  actions: read
+  actions: write
   checks: read
 
-# SUPERSEDE a stale run instead of QUEUEING behind it (see the CONCURRENCY note
-# above). The group is scoped PER EVENT, so a run can only supersede a run of its
-# own event type and a `pull_request` run never cancels a `push`/`dispatch` run.
-# With `cancel-in-progress: true` the stale run of the SAME event is cancelled
-# and the new run starts immediately, so its `CI Strict` check-run is created for
-# the new head instead of waiting out the previous run's 60-minute poll.
+# NEVER QUEUE BEHIND A STALE RUN -- KEY THE GROUP PER COMMIT (fixed 2026-10-10)
+# ---------------------------------------------------------------------------
+# The group is keyed on the COMMIT under verification, not on the branch. That
+# is the deterministic fix for the "waiting" symptom:
+#   * With a per-branch group, a new run and a stale run share one group. The
+#     new run is then created `pending` with 0 jobs and its `CI Strict`
+#     check-run is NEVER created -- the required check stays "waiting" and the
+#     PR is `blocked` even though every lane is green. `cancel-in-progress:
+#     true` does not save this: GitHub's cancellation is best-effort and does
+#     not reliably cancel a run that is already `in_progress` (this job lives
+#     inside one long `run:` step), and GitHub does not guarantee WHICH run of
+#     the group is cancelled -- the newest one is sometimes the victim, which
+#     is precisely the "waiting for status to be reported" race.
+#   * With a per-commit group, two different commits are in two different
+#     groups, so a new run NEVER queues behind a stale one: it starts
+#     immediately and creates its `CI Strict` check-run for its own head. The
+#     stale run is then cleaned up by the explicit supersede step below (which
+#     only ever cancels runs OLDER than itself, of the same event and branch).
+# `cancel-in-progress: false` is deliberate: with per-commit groups the only
+# runs that can share a group are duplicates of the SAME commit, and letting
+# both run (rather than cancelling one) guarantees the check-run is reported.
 concurrency:
-  group: ci-strict-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-strict-${{ github.event_name }}-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
 
 jobs:
   # Aggregator: preserves the "CI Strict" status-check context. It runs no gate
@@ -120,6 +158,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           EVENT: ${{ github.event_name }}
+          # The branch a run of this workflow is keyed on. For a `pull_request`
+          # event that is the PR head branch; for `push`/`workflow_dispatch` it
+          # is the ref name. Used to scope the supersede to this branch only.
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          # This run's own id, so the supersede never cancels itself.
+          SELF_RUN_ID: ${{ github.run_id }}
         run: |
           set -uo pipefail
 
@@ -146,7 +190,47 @@ jobs:
             sha=$(jq -r '.pull_request.head.sha // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null) || sha=""
           fi
           [ -n "${sha}" ] || sha="${GITHUB_SHA}"
-          echo "Verifying the strict lanes for commit ${sha} (event: ${EVENT})."
+          echo "Verifying the strict lanes for commit ${sha} (event: ${EVENT}, branch: ${BRANCH})."
+
+          # --- Supersede stale runs of THIS workflow (deterministic). ----------
+          # With the per-commit concurrency group above, a new run never queues
+          # behind a stale one -- but a stale run for an OLDER head can still be
+          # alive (GitHub's own `cancel-in-progress` is best-effort and does not
+          # reliably cancel an `in_progress` run). Left alive it wastes a runner
+          # and, worse, keeps polling lanes for a superseded head. So we cancel
+          # every run of this workflow that is STRICTLY OLDER than this one
+          # (lower run id), of the SAME event, on the SAME branch, and still
+          # live. Ordering by run id -- not by head sha -- is what makes this
+          # safe: a run can only ever cancel runs that started before it, so it
+          # can never cancel a newer run (which would re-create the very
+          # "waiting" race this fix removes), and it can never cancel itself.
+          # Scoped to this workflow only: it can never cancel a lane or another
+          # branch.
+          echo "Superseding stale CI Strict runs (event=${EVENT}, branch=${BRANCH})..."
+          runs_json=$(curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/actions/workflows/ci-strict.yml/runs?event=${EVENT}&branch=$(printf '%s' "${BRANCH}" | jq -sRr @uri)&per_page=100" 2>/dev/null) || runs_json='{"workflow_runs":[]}'
+          stale_ids=$(printf '%s' "${runs_json}" \
+            | jq -r --arg self "${SELF_RUN_ID}" \
+                  '.workflow_runs[]
+                   | select(.id < ($self | tonumber))
+                   | select(.status == "in_progress" or .status == "queued" or .status == "pending" or .status == "requested" or .status == "waiting")
+                   | .id')
+          if [ -n "${stale_ids}" ]; then
+            for id in ${stale_ids}; do
+              if curl -fsSL -X POST \
+                   -H "Authorization: Bearer ${GH_TOKEN}" \
+                   -H "Accept: application/vnd.github+json" \
+                   "https://api.github.com/repos/${REPO}/actions/runs/${id}/cancel" >/dev/null 2>&1; then
+                echo "Cancelled stale CI Strict run ${id}."
+              else
+                echo "::warning::Could not cancel stale CI Strict run ${id} (it may have just concluded)."
+              fi
+            done
+          else
+            echo "No stale CI Strict run to supersede."
+          fi
 
           # --- Merge-commit relation probe. ------------------------------------
           # `compare(a...b)` reports "identical" when a == b, "ahead" when b is a
