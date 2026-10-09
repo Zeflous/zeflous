@@ -323,3 +323,20 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - 775e6f0 ci(security): drop duplicate auto-update-prs.yml (superseded by auto-merge.yml)
     - 4a78bbe Merge branch 'main' into ci/unify-auto-merge-hardening
     - bce114c Merge branch 'main' into ci/unify-auto-merge-hardening
+
+- PR#116 docs(ci): ruleset verification probe 3
+    - cb4fd58 docs(ci): add docs/ci-ruleset-verify-3.md probe
+    - 178959c Merge branch 'main' into docs/ci-ruleset-verify-3
+    - 6d2ed8c Merge branch 'main' into docs/ci-ruleset-verify-3
+    - 2e816e4 Merge branch 'main' into docs/ci-ruleset-verify-3
+    - 4b9fcd7 Merge branch 'main' into docs/ci-ruleset-verify-3
+    - b25e8e1 Merge branch 'main' into docs/ci-ruleset-verify-3
+
+- PR#117 chore(changelog-official): regenerate official changelog
+    - 9187def chore(changelog-official): regenerate official changelog
+
+- PR#119 ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane
+    - 75e5e79 ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane
+    - fcb92e5 Merge branch 'main' into ci/stale-prs-updater
+    - 308feff Merge branch 'main' into ci/stale-prs-updater
+    - 77a8f0b Merge branch 'main' into ci/stale-prs-updater
