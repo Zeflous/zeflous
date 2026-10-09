@@ -221,3 +221,15 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#81 ci(hardening): fail-closed changelog filter, least-privilege proof-html, concurrency groups
     - d9b22a6 ci(hardening): fail-closed changelog filter, least-privilege proof-html, concurrency groups
     - 4bbbddf Merge branch 'main' into ci/hardening
+
+- PR#83 chore(changelog-official): regenerate official changelog
+    - b208d1d chore(changelog-official): regenerate official changelog
+
+- PR#84 docs(readme): document the quality gates
+    - 1504bde docs(readme): document the quality gates
+    - c61a054 Merge branch 'main' into docs/quality-gates
+    - b5ec7c5 Merge branch 'main' into docs/quality-gates
+    - 9ba4ff0 Merge branch 'main' into docs/quality-gates
+    - 81cd990 Merge branch 'main' into docs/quality-gates
+    - 6274493 Merge branch 'main' into docs/quality-gates
+    - 7cf12fe ci: re-trigger checks
