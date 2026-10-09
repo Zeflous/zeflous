@@ -38,8 +38,13 @@ on:
 permissions:
   contents: read
 
+# Scope the group PER EVENT (same method as ci-strict.yml, adopted from
+# zef-framework ci.yml). A run can only supersede a run of its own event
+# type, so a `pull_request` run never queues behind a `push`/`workflow_dispatch`
+# run for the same ref; with `cancel-in-progress` the stale run of the SAME
+# event is cancelled and the new run starts immediately.
 concurrency:
-  group: docs-check-${{ github.ref }}
+  group: docs-check-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
