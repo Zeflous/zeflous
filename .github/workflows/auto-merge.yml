@@ -60,6 +60,18 @@
 #     claimed `update-branch` rejects fine-grained PATs outright; that claim
 #     was never verified against a working token and has been removed.)
 #
+# ROOT CAUSE OF THE OBSERVED STALL (2026-10-10)
+# --------------------------------------------
+# Auto-merge was armed correctly but PRs still did not merge. The cause was NOT
+# this lane: it was the `CI Strict` aggregator QUEUEING behind a stale run
+# (`cancel-in-progress: false`), so the required `CI Strict` check-run was never
+# created for the newest head and the PR stayed `blocked` with every lane green.
+# That is fixed in `.github/workflows/ci-strict.yml` (the aggregator now
+# supersedes a stale run of its own event type). This lane additionally closes
+# the arming race: it now waits (bounded) for the `CI Strict` check-run to be
+# CREATED before arming, so the arm lands while the PR is genuinely "waiting"
+# instead of being refused with "clean status".
+#
 # CONVENTIONS
 # -----------
 #   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
@@ -344,10 +356,28 @@ jobs:
               fi
             fi
 
-            # Give GitHub a moment to settle internal state before arming.
-            sleep 3
+            # 3. Wait (bounded) for the required `CI Strict` check-run to be
+            #    CREATED on the current head before arming. Arming a PR whose
+            #    required check has not been created yet is the race that made
+            #    auto-merge look broken: GitHub sees no pending required check,
+            #    reports the PR as "clean status", and REFUSES to arm -- so the
+            #    PR is left un-armed and never merges. Waiting for the check to
+            #    exist guarantees the arm lands while the PR is genuinely
+            #    "waiting", which is the only state GitHub accepts. The wait is
+            #    bounded (12 x 5s = 60s) so a PR whose check never appears (e.g.
+            #    a docs-only change that no lane triggers) still proceeds to the
+            #    arm attempt below instead of hanging the sweep.
+            head_now=$(gh pr view "$pr" --json headRefOid --jq '.headRefOid' 2>/dev/null) || head_now="$before_sha"
+            for attempt in $(seq 1 12); do
+              if gh api "repos/${GITHUB_REPOSITORY}/commits/${head_now}/check-runs?check_name=CI%20Strict&per_page=1" 2>/dev/null \
+                   | jq -e '.total_count > 0' >/dev/null 2>&1; then
+                echo "Required check 'CI Strict' is present on ${head_now:0:8}; arming."
+                break
+              fi
+              sleep 5
+            done
 
-            # 3. Arm auto-merge. This is the whole point of the lane: once
+            # 4. Arm auto-merge. This is the whole point of the lane: once
             #    armed, GitHub merges the PR itself as soon as `CI Strict` is
             #    green. Re-arming on every run keeps the state from being lost.
             if err=$(gh pr merge "$pr" --auto --merge 2>&1); then

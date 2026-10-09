@@ -119,6 +119,7 @@
         "bench:regression": "phpbench run --report=aggregate --progress=none",
         "smoke:persistent": "@php scripts/ci/gate.php smoke",
         "lint": "@php scripts/ci/gate.php lint",
+        "workflow:concurrency": "@php scripts/ci/gate.php workflow-concurrency",
         "ci": [
             "@composer validate --strict",
             "@composer lint",
@@ -134,6 +135,7 @@
         "ci:static": [
             "@composer validate --strict",
             "@composer lint",
+            "@composer workflow:concurrency",
             "@composer stan",
             "@composer stan:ratchet",
             "@composer deptrac",
