@@ -1,0 +1,16 @@
+# CODEOWNERS — Zeflous/zeflous
+#
+# Purpose: make `require_code_owner_review: true` (ruleset `main`, id 24654862)
+# meaningful and satisfiable by designating explicit code owners.
+#
+# NOTE ON OWNERS: `@Zeflous` is an ORGANIZATION, not a user or team, so it is
+# NOT a valid CODEOWNERS owner. Teams are written `@Zeflous/<team-slug>`, but
+# this organization currently has no teams. The only valid owner is `@mbetixz`
+# (sole organization member and repository admin).
+
+# Default owner for the whole repository.
+* @mbetixz
+
+# CI/CD, workflows and governance files must be reviewed by the owner.
+/.github/ @mbetixz
+/.github/workflows/ @mbetixz
