@@ -25,7 +25,6 @@ until they are green. The rest are advisory signals.
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
 | `SonarCloud Code Analysis` | The server-side quality gate. |
-| `CodeQL` | Code scanning. |
 | `Dependency Review` | Supply-chain review of dependency changes. |
 | `SBOM` | CycloneDX SBOM generation with a keyless (OIDC) attestation. |
 | `API Documentation Check` | The generated API documentation builds. |
