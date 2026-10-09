@@ -4,6 +4,12 @@ on:
     types: [opened]
   pull_request:
     types: [opened]
+
+# One run per issue/PR; never cancel an in-flight assignment.
+concurrency:
+  group: auto-assign-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest
