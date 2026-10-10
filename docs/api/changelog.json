@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T11:11:21Z",
+  "as_of": "2026-10-10T11:43:50Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 111,
+  "unreleased_count": 113,
   "versions": [
     {
       "version": "Unreleased",
@@ -111,6 +111,27 @@
                 "sha": "e3f9e315f3038a4c6e8e932296eb31c5c9cefaca",
                 "short_sha": "e3f9e31",
                 "subject": "fix(ci): make the archeology report step non-failing; gate via baseline ratchet"
+              }
+            ]
+          },
+          {
+            "pr": 150,
+            "title": "feat(ci): assert the zero-dependency invariant in the static gate",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-10T11:41:45Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/150",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4f5d317f5da04ff575d509e3fbe09eb2c800e64d",
+                "short_sha": "4f5d317",
+                "subject": "feat(ci): assert the zero-dependency invariant in the static gate"
+              },
+              {
+                "sha": "a5cac90d31cb161ac009af304a85bdeb9bdda95e",
+                "short_sha": "a5cac90",
+                "subject": "fix(ci): psalm-clean manifest narrowing and multi-section mutation kill"
               }
             ]
           }
@@ -1721,6 +1742,22 @@
               {
                 "sha": "8aef28106abfe1e1471f1c36d3e91ddfdd5a478b",
                 "short_sha": "8aef281",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 151,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-10T11:43:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/151",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "700285c96bc4abcb3ed37e65ebe9eefac60e5e0f",
+                "short_sha": "700285c",
                 "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
@@ -5072,6 +5109,43 @@
             {
               "sha": "8aef28106abfe1e1471f1c36d3e91ddfdd5a478b",
               "short_sha": "8aef281",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 150,
+          "title": "feat(ci): assert the zero-dependency invariant in the static gate",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-10T11:41:45Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/150",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4f5d317f5da04ff575d509e3fbe09eb2c800e64d",
+              "short_sha": "4f5d317",
+              "subject": "feat(ci): assert the zero-dependency invariant in the static gate"
+            },
+            {
+              "sha": "a5cac90d31cb161ac009af304a85bdeb9bdda95e",
+              "short_sha": "a5cac90",
+              "subject": "fix(ci): psalm-clean manifest narrowing and multi-section mutation kill"
+            }
+          ]
+        },
+        {
+          "pr": 151,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-10T11:43:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/151",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "700285c96bc4abcb3ed37e65ebe9eefac60e5e0f",
+              "short_sha": "700285c",
               "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
