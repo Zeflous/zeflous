@@ -224,7 +224,11 @@ foreach ($runs as $runIndex => $run) {
             : '';
 
         if ($lineHash === '') {
-            $lineHash = md5($ruleId . '|' . $uri . '|' . $startLine . '|' . $endLine);
+            // SHA-256, mirroring GitHub's own fingerprint guidance for code
+            // scanning uploads: the hash identifies a finding (rule + location)
+            // so repeated analyses update the same alert instead of forking it.
+            // Not a password context -- a stable, collision-resistant id.
+            $lineHash = hash('sha256', $ruleId . '|' . $uri . '|' . $startLine . '|' . $endLine);
         }
 
         $result['partialFingerprints']['primaryLocationLineHash'] = $lineHash;

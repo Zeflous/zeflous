@@ -120,7 +120,7 @@ final class ArcheologyGateTest extends TestCase
         self::assertSame(1, $exitCode, $output);
         self::assertCount(1, $results);
         self::assertSame('src/Zef/Framework/Tooling/GateRunner.php', $this->uriOf($results[0]));
-        self::assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $this->lineHashOf($results[0]));
+        self::assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $this->lineHashOf($results[0]));
     }
 
     public function testUnresolvableClassFqnUrisAreLeftUntouched(): void
