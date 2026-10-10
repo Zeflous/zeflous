@@ -622,11 +622,61 @@ def _model_with_one_pr():
     }
 
 
-def test_render_version_markdown_has_pr_block_and_commits():
+def test_render_version_markdown_has_reference_style_pr_line():
+    md = gen.render_version_markdown(_model_with_one_pr()["versions"][0], repo="o/r")
+    assert md.startswith("# Changelog")
+    assert "## Unreleased" in md
+    # Reference-style PR line: title + [#n](url) + ([author](author-url)).
+    assert (
+        "- feat: one [#1](https://github.com/o/r/pull/1) "
+        "([alice](https://github.com/alice))" in md
+    )
+    # Commits stay beneath the PR so the markdown agrees with the JSON API.
+    assert f"    - `{'a' * 7}` feat: one" in md
+    # The generated-file banner is retained.
+    assert "<!-- GENERATED FILE - do not edit by hand. -->" in md
+
+
+def test_render_version_markdown_groups_entries_by_category():
+    model = _model_with_one_pr()
+    version = model["versions"][0]
+    version["categories"] = {"Features": [], "Bug Fixes": []}
+    version["entries"].append(
+        {
+            **version["entries"][0],
+            "pr": 2,
+            "title": "fix: two",
+            "category": "Bug Fixes",
+            "url": "https://github.com/o/r/pull/2",
+            "commits": [],
+        }
+    )
+    md = gen.render_version_markdown(version, repo="o/r")
+    assert "**Features:**" in md
+    assert "**Bug Fixes:**" in md
+    assert md.index("**Features:**") < md.index("**Bug Fixes:**")
+
+
+def test_render_version_markdown_infers_repo_from_entry_url():
+    """Called without ``repo``, the slug is derived from an entry's PR URL."""
     md = gen.render_version_markdown(_model_with_one_pr()["versions"][0])
-    assert md.startswith("# CHANGELOG Unreleased")
-    assert "- PR#01 feat: one" in md
-    assert f"    - {'a' * 7} feat: one" in md
+    assert "github.com/o/r" in md
+
+
+def test_render_version_markdown_entry_without_url_or_author():
+    version = _model_with_one_pr()["versions"][0]
+    entry = version["entries"][0]
+    entry["url"] = ""
+    entry["author"] = ""
+    md = gen.render_version_markdown(version, repo="o/r")
+    assert "- feat: one #1 ([unknown](https://github.com/unknown))" in md
+
+
+def test_repo_slug_prefers_explicit_repo_then_entry_url():
+    version = _model_with_one_pr()["versions"][0]
+    assert gen._repo_slug("x/y", version) == "x/y"
+    assert gen._repo_slug(None, version) == "o/r"
+    assert gen._repo_slug(None, {"entries": []}) == gen.DEFAULT_REPO
 
 
 def test_render_version_markdown_without_commits():
@@ -636,11 +686,28 @@ def test_render_version_markdown_without_commits():
     assert "(no commits recorded)" in md
 
 
-def test_render_version_markdown_with_release_date():
-    version = _model_with_one_pr()["versions"][0]
+def test_render_version_markdown_release_heading_and_compare_link():
+    model = _model_with_one_pr()
+    version = model["versions"][0]
+    version["version"] = "v1.2.3"
+    version["file"] = "CHANGELOG-v1.2.3.md"
     version["date"] = "2026-03-04T00:00:00Z"
-    md = gen.render_version_markdown(version)
-    assert "Release date: 2026-03-04" in md
+    md = gen.render_version_markdown(version, repo="o/r", previous="v1.2.2")
+    assert "## [v1.2.3](https://github.com/o/r/tree/v1.2.3) (2026-03-04)" in md
+    assert "[Full Changelog](https://github.com/o/r/compare/v1.2.2...v1.2.3)" in md
+
+
+def test_render_version_markdown_unreleased_compares_to_head():
+    version = _model_with_one_pr()["versions"][0]
+    md = gen.render_version_markdown(version, repo="o/r", previous="v1.0.0")
+    assert "## Unreleased" in md
+    assert "[Full Changelog](https://github.com/o/r/compare/v1.0.0...HEAD)" in md
+
+
+def test_render_version_markdown_without_previous_has_no_compare_link():
+    version = _model_with_one_pr()["versions"][0]
+    md = gen.render_version_markdown(version, repo="o/r")
+    assert "Full Changelog" not in md
 
 
 def test_render_index_markdown_with_release_date():
@@ -679,6 +746,23 @@ def test_render_index_json_has_version_source_and_next_release():
 def test_render_json_roundtrips():
     model = _model_with_one_pr()
     assert json.loads(gen.render_json(model)) == model
+
+
+def test_all_outputs_links_each_release_to_its_predecessor():
+    """`_all_outputs` wires each version's `[Full Changelog]` to the older one."""
+    model = _model_with_one_pr()
+    model["versions"] = [
+        {"version": "Unreleased", "date": None, "file": "CHANGELOG-unreleased.md", "categories": {}, "entries": []},
+        {"version": "v2.0.0", "date": "2026-02-01T00:00:00Z", "file": "CHANGELOG-v2.0.0.md", "categories": {}, "entries": []},
+        {"version": "v1.0.0", "date": "2026-01-01T00:00:00Z", "file": "CHANGELOG-v1.0.0.md", "categories": {}, "entries": []},
+    ]
+    outputs = gen._all_outputs(model)
+    unreleased = outputs[gen.REPO_ROOT / "CHANGELOG-unreleased.md"]
+    v2 = outputs[gen.REPO_ROOT / "CHANGELOG-v2.0.0.md"]
+    v1 = outputs[gen.REPO_ROOT / "CHANGELOG-v1.0.0.md"]
+    assert "compare/v2.0.0...HEAD" in unreleased
+    assert "compare/v1.0.0...v2.0.0" in v2
+    assert "Full Changelog" not in v1
 
 
 # --------------------------------------------------------------------------
