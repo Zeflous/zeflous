@@ -160,4 +160,27 @@ final class ConfigCacheTest extends TestCase
             );
         }
     }
+
+    public function testDumpThrowsWhenTheWriteFails(): void
+    {
+        // The cache target is the test directory itself: dirname() resolves to
+        // the (existing) parent, so the pre-check passes and the write itself
+        // fails. The custom error handler swallows the engine's diagnostic for
+        // the failing stream open; the branch under test is the failure
+        // handling, not the diagnostic.
+        set_error_handler(static fn (): bool => true);
+
+        try {
+            $configCache = new ConfigCache($this->directory);
+            $configCache->dump(['key' => 'value']);
+            self::fail('A failed configuration cache write must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                \sprintf('The configuration cache "%s" could not be written.', $this->directory),
+                $configException->getMessage(),
+            );
+        } finally {
+            restore_error_handler();
+        }
+    }
 }
