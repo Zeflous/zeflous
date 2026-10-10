@@ -221,6 +221,30 @@ jobs:
         run: |
           set -u
 
+          # TOKEN-MODE OBSERVABILITY (the value itself is never printed). A
+          # merge attributed to `github-actions[bot]` emits NO workflow events
+          # (GitHub's recursion guard), so the merge commit lands on `main`
+          # unvalidated -- the gap `ci-main-watchdog.yml` replays and the
+          # changelog lanes now avoid by creating their pull requests with
+          # the PAT. A silent PAT expiry would otherwise be indistinguishable
+          # in the logs from a healthy sweep, so the active credential mode is
+          # reported up front, every sweep.
+          if [ "${GH_TOKEN}" != "${BUILTIN_TOKEN}" ]; then
+            echo "Sweep credential: ZEF_TOKEN (PAT) -- arming stays human-attributed."
+            {
+              echo "### Auto Merge sweep"
+              echo ""
+              echo "- credential: **ZEF_TOKEN (PAT)** -- arms (and the merges they enable, for PAT-created pull requests) stay human-attributed, so push events fire on main."
+            } >> "${GITHUB_STEP_SUMMARY}"
+          else
+            echo "::notice::ZEF_TOKEN unavailable -- sweeping with the built-in GITHUB_TOKEN. Bot-attributed merges emit no push events on main; ci-main-watchdog.yml will replay the missing lanes."
+            {
+              echo "### Auto Merge sweep"
+              echo ""
+              echo "- credential: **built-in GITHUB_TOKEN** -- bot-attributed merges emit no push events on main; the Main Validation Watchdog replays the missing lanes."
+            } >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
           echo "Fetching open, non-draft pull requests (oldest first)..."
           if ! raw=$(gh pr list --state open --limit 100 --json number,isDraft,createdAt); then
             echo "::warning::Could not list pull requests; nothing to do."

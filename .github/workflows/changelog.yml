@@ -90,8 +90,25 @@
 #   * Least privilege: `contents: read` at the workflow level; only the job
 #     that opens the update pull request gets `contents: write` +
 #     `pull-requests: write`.
-#   * The built-in `GITHUB_TOKEN` is used -- no PAT. The token is referenced by
-#     NAME only; its value is never written to a file, log, or artifact.
+#   * TOKEN PREFERENCE (attribution, fixed 2026-10-10): the update branch is
+#     pushed, the pull request created, and auto-merge armed with the
+#     organization-level PAT secret `ZEF_TOKEN` when it is available (the
+#     built-in `GITHUB_TOKEN` remains the fallback). The reason is MERGE
+#     ATTRIBUTION, measured on this repository: GitHub attributes a native
+#     auto-merge to the identity that CREATED the pull request, and a merge
+#     attributed to `github-actions[bot]` emits NO workflow events at all
+#     (GitHub's recursion guard) -- the merge commit then lands on `main`
+#     with zero `on: push` runs: no `CI Strict`, no SonarCloud, no
+#     archeology, nothing (observed on PRs #136/#138/#139/#140: 2 check-runs
+#     vs 18 on a human-merged PR). A PAT-created pull request merges as a
+#     human actor, the push events fire, every main lane runs, and the
+#     pull-request runs are not left `action_required` in the first place.
+#     When the PAT is absent the lane degrades to exactly the previous
+#     behaviour: built-in-token push, explicit lane dispatch, and the
+#     `auto-merge.yml` approval sweep. `ci-main-watchdog.yml` additionally
+#     replays any lane that still ends up missing on `main`. The token is
+#     referenced by NAME only; its value is never written to a file or log
+#     (the push output is redacted before it reaches the console).
 
 name: Changelog
 
@@ -150,7 +167,16 @@ jobs:
 
       - name: Open or update the changelog pull request
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # PAT preferred (see the TOKEN PREFERENCE note in the file header):
+          # a pull request CREATED with a human-owned token is MERGED as that
+          # human actor, so the merge commit's push events fire and `main` is
+          # validated by the normal push lanes. Absent the secret, the
+          # built-in token is used and the merge is bot-attributed -- which
+          # `ci-main-watchdog.yml` then repairs by replaying the lanes.
+          GH_TOKEN: ${{ secrets.ZEF_TOKEN || secrets.GITHUB_TOKEN }}
+          # The built-in workflow token, always present: the fallback push
+          # credential and the token-mode discriminator.
+          BUILTIN_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           # Every file the generator owns: the index, the JSON API, the JSON
@@ -167,15 +193,32 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"
           git add CHANGELOG.md 'CHANGELOG-*.md' docs/api/changelog.json docs/api/changelog-index.json
-          # NOTE: no `[skip ci]` here on purpose. The commit is pushed with the
-          # built-in `GITHUB_TOKEN`, and `[skip ci]` would suppress the
-          # `pull_request` event entirely, so the required `CI Strict` check
-          # would never be created for this PR and auto-merge would wait
-          # forever. Without it the push fires `pull_request`; the run is left
-          # `action_required` (bot-authored push) and `auto-merge.yml` approves
-          # it on its next sweep so the check can turn green.
+          # NOTE: no `[skip ci]` here on purpose. `[skip ci]` would suppress
+          # the `pull_request` event entirely, so the required `CI Strict`
+          # check would never be created for this PR and auto-merge would wait
+          # forever.
           git commit -m "chore(changelog): regenerate API changelog"
-          git push -f -u origin "$branch"
+
+          # TOKEN-AWARE PUSH. With the PAT the push is human-attributed, so the
+          # `pull_request` runs fire immediately and are NOT left
+          # `action_required`. With the built-in token the push is
+          # bot-attributed (runs withheld pending approval) -- the previous,
+          # still-supported behaviour. The URL form never persists the token
+          # (it is used for this one push only, never written to .git/config),
+          # and the push output is scrubbed of the token before it reaches the
+          # console: a classic PAT is strictly alphanumeric, so it is also
+          # regex-safe as a literal sed pattern.
+          pat_mode=false
+          if [ "${GH_TOKEN}" != "${BUILTIN_TOKEN}" ]; then
+            pat_mode=true
+            push_target="https://${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+            echo "Pushing ${branch} with the PAT (human attribution)."
+          else
+            push_target="origin"
+            echo "ZEF_TOKEN unavailable -- pushing ${branch} with the built-in token (bot attribution)."
+          fi
+          git push -f "$push_target" "refs/heads/${branch}:refs/heads/${branch}" 2>&1 \
+            | sed -E "s#${GH_TOKEN}#***REDACTED***#g"
 
           # Reuse an open pull request for this branch if one exists; otherwise
           # open it. `gh pr view` exits non-zero when there is no PR.
@@ -192,26 +235,37 @@ jobs:
           # A push made with the built-in `GITHUB_TOKEN` does NOT trigger other
           # workflows (GitHub's recursion guard), so the required `CI Strict`
           # check would never appear on this branch and auto-merge would wait
-          # forever. Dispatch the required workflows explicitly on the update
+          # forever -- dispatch the required workflows explicitly on the update
           # branch so the checks run and the pull request can merge itself.
-          pr_number=$(gh pr view "$branch" --json number --jq '.number')
-          # The four strict lanes now live in their own workflows, so each must
-          # be dispatched individually: dispatching only the `CI Strict`
-          # aggregator would leave it polling for lane runs that were never
-          # created, and it would time out instead of going green.
-          for lane in ci-static ci-coverage ci-infection ci-bench; do
-            gh workflow run "${lane}.yml" --ref "$branch" \
-              && echo "Dispatched ${lane}.yml on $branch." \
-              || echo "::warning::Could not dispatch ${lane}.yml on $branch."
-          done
-          # SonarCloud is dispatched with the PR number so the analysis is
-          # attached to this pull request (the ruleset's `code_quality` rule
-          # reads it; without an analysis the merge stays blocked).
-          gh workflow run sonarcloud.yml --ref "$branch" -f pr_number="$pr_number" \
-            && echo "Dispatched sonarcloud.yml on $branch for PR #$pr_number." \
-            || echo "::warning::Could not dispatch sonarcloud.yml on $branch."
+          # With the PAT the runs fired NATURALLY on the push, so dispatching
+          # again would only duplicate them (each lane's concurrency group is
+          # keyed per commit AND per event, so a dispatched duplicate would run
+          # side by side with the natural one). Dispatch ONLY in built-in mode.
+          if [ "${pat_mode}" = "false" ]; then
+            pr_number=$(gh pr view "$branch" --json number --jq '.number')
+            # The four strict lanes now live in their own workflows, so each must
+            # be dispatched individually: dispatching only the `CI Strict`
+            # aggregator would leave it polling for lane runs that were never
+            # created, and it would time out instead of going green.
+            for lane in ci-static ci-coverage ci-infection ci-bench; do
+              gh workflow run "${lane}.yml" --ref "$branch" \
+                && echo "Dispatched ${lane}.yml on $branch." \
+                || echo "::warning::Could not dispatch ${lane}.yml on $branch."
+            done
+            # SonarCloud is dispatched with the PR number so the analysis is
+            # attached to this pull request (the ruleset's `code_quality` rule
+            # reads it; without an analysis the merge stays blocked).
+            gh workflow run sonarcloud.yml --ref "$branch" -f pr_number="$pr_number" \
+              && echo "Dispatched sonarcloud.yml on $branch for PR #$pr_number." \
+              || echo "::warning::Could not dispatch sonarcloud.yml on $branch."
+          else
+            echo "PAT mode: the pull_request runs fired on the push; no dispatch needed."
+          fi
 
           # Arm GitHub's native auto-merge: the change lands itself once the
-          # required `CI Strict` check is green. Never merged by hand.
+          # required `CI Strict` check is green. Never merged by hand. GH_TOKEN
+          # carries the PAT when present, so the arm (and, per GitHub's
+          # attribution, the resulting merge) is human-attributed and the
+          # merge's push events fire on `main`.
           gh pr merge "$branch" --auto --squash || \
             echo "::warning::Could not arm auto-merge on the changelog PR; it will be merged by the auto-merge sweep once green."
