@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T13:29:54Z",
+  "as_of": "2026-10-10T14:07:27Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 121,
+  "unreleased_count": 88,
   "versions": [
     {
       "version": "Unreleased",
@@ -559,6 +559,27 @@
                 "subject": "fix(ci): use sha256 for SARIF fingerprint ids"
               }
             ]
+          },
+          {
+            "pr": 165,
+            "title": "fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-10T14:07:27Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/165",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "221279297f935d29e7c27637ee02663327b2cf70",
+                "short_sha": "2212792",
+                "subject": "fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)"
+              },
+              {
+                "sha": "14d818f25b021e20c6cd470a5b6da991df9e309e",
+                "short_sha": "14d818f",
+                "subject": "Merge origin/main into fix/changelog-api-workflows"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -715,48 +736,6 @@
             ]
           },
           {
-            "pr": 18,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-07T21:45:41Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/18",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "0b0768338a1871c497e692eee53adb749206feec",
-                "short_sha": "0b07683",
-                "subject": "chore(changelog-official): regenerate official changelog [skip ci]"
-              },
-              {
-                "sha": "6cf6ab4abc349b616369c016ac99018c60d71ffe",
-                "short_sha": "6cf6ab4",
-                "subject": "probe: bot push without skip ci"
-              },
-              {
-                "sha": "c80b21ee3580163fcb4282f9ce4a9d8c6a8f910e",
-                "short_sha": "c80b21e",
-                "subject": "Merge branch 'main' into chore/changelog-official-update"
-              }
-            ]
-          },
-          {
-            "pr": 30,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-07T23:11:21Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/30",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "3560922fc6ba1d6b944a4582f23ad1da54a7bdfe",
-                "short_sha": "3560922",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
             "pr": 38,
             "title": "refactor(quality): fix archeology error and add SARIF code-scanning gate",
             "author": "mbetixz",
@@ -831,22 +810,6 @@
             ]
           },
           {
-            "pr": 43,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T02:22:19Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/43",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "a11c64969c27f99a1062b8818bc183c6da805ed6",
-                "short_sha": "a11c649",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
             "pr": 45,
             "title": "refactor: validate url scheme before urllib calls",
             "author": "deepsource-autofix[bot]",
@@ -859,27 +822,6 @@
                 "sha": "ab3ccbdbe124bbab2943f2ffac4e24ff64375c6b",
                 "short_sha": "ab3ccbd",
                 "subject": "refactor: validate url scheme before urllib calls"
-              }
-            ]
-          },
-          {
-            "pr": 47,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T03:03:46Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/47",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "6d6e833a37333781be6195c57fcc822e59498b82",
-                "short_sha": "6d6e833",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              },
-              {
-                "sha": "af587c49b7157b8539570e08dcdb8d1b28c85c13",
-                "short_sha": "af587c4",
-                "subject": "Merge branch 'main' into chore/changelog-official-update"
               }
             ]
           },
@@ -901,22 +843,6 @@
                 "sha": "c46b32d8b5ba10ab4919d62718c4781751ec519b",
                 "short_sha": "c46b32d",
                 "subject": "Merge branch 'main' into chore/zef-token-secret-name"
-              }
-            ]
-          },
-          {
-            "pr": 52,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T03:32:06Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/52",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "02c4ec4f68e240bd583ab3a64bddd59a7bf90eb9",
-                "short_sha": "02c4ec4",
-                "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
           },
@@ -949,22 +875,6 @@
                 "sha": "7e549b226efa8d8828be5c7d9f48f3622bb4b294",
                 "short_sha": "7e549b2",
                 "subject": "ci(sonar): drop broken composer install step and bridge coverage on every event"
-              }
-            ]
-          },
-          {
-            "pr": 56,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T03:56:15Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/56",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "99fa748bdc543281f8902e37db20ef5609062c18",
-                "short_sha": "99fa748",
-                "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
           },
@@ -1006,22 +916,6 @@
             ]
           },
           {
-            "pr": 60,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T04:42:10Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/60",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "69e1989a0072eec47229919f38451a3b7578626d",
-                "short_sha": "69e1989",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
             "pr": 61,
             "title": "ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning",
             "author": "mbetixz",
@@ -1053,27 +947,6 @@
             ]
           },
           {
-            "pr": 64,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T05:53:46Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/64",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "1f8934ce902390116e4a66289ec1e9f132418e69",
-                "short_sha": "1f8934c",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              },
-              {
-                "sha": "5520ca97d5672fcb77209bfee90baa42f8153575",
-                "short_sha": "5520ca9",
-                "subject": "Merge branch 'main' into chore/changelog-official-update"
-              }
-            ]
-          },
-          {
             "pr": 67,
             "title": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)",
             "author": "mbetixz",
@@ -1090,22 +963,6 @@
             ]
           },
           {
-            "pr": 68,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T14:18:42Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/68",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "578b8cb6524f36c283397c63f6e345c5084e456d",
-                "short_sha": "578b8cb",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
             "pr": 71,
             "title": "ci(auto-merge): correct ZEF_TOKEN caveat comment",
             "author": "mbetixz",
@@ -1118,54 +975,6 @@
                 "sha": "f2ccf43cefb9f85ac1f52c674d7f363c029af51e",
                 "short_sha": "f2ccf43",
                 "subject": "ci(auto-merge): correct the token-type caveat (ZEF_TOKEN is a classic PAT)"
-              }
-            ]
-          },
-          {
-            "pr": 72,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T14:49:48Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/72",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "dd563a426164cb8e7f25add976375d931a06e37b",
-                "short_sha": "dd563a4",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 75,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T23:25:48Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/75",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "405b5a71d068269dcd07c1086e856471dafbe7e8",
-                "short_sha": "405b5a7",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 78,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-08T23:45:45Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/78",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "e0410e3e895e9a474a0a2b364719365aa1590c4d",
-                "short_sha": "e0410e3",
-                "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
           },
@@ -1233,38 +1042,6 @@
             ]
           },
           {
-            "pr": 83,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T00:19:09Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/83",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "b208d1dff619416b09641922797b4bf7c42885a8",
-                "short_sha": "b208d1d",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 85,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T01:07:40Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/85",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "ac1bf86036aa05e96e495144368668f4b636369d",
-                "short_sha": "ac1bf86",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
             "pr": 87,
             "title": "ci(actions): bump remaining checkout pins to node24",
             "author": "mbetixz",
@@ -1286,27 +1063,6 @@
             ]
           },
           {
-            "pr": 88,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T01:29:46Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/88",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "2802e953e01cee646e6f43f54e5f88f70ff6d7f5",
-                "short_sha": "2802e95",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              },
-              {
-                "sha": "399f5a5ded7487e03149b2930890fc7229efb6b8",
-                "short_sha": "399f5a5",
-                "subject": "Merge branch 'main' into chore/changelog-official-update"
-              }
-            ]
-          },
-          {
             "pr": 90,
             "title": "ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN",
             "author": "mbetixz",
@@ -1323,38 +1079,6 @@
             ]
           },
           {
-            "pr": 91,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T02:21:39Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/91",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "22ad970147b5c01ef6e9049e82f4cb4175ba91b0",
-                "short_sha": "22ad970",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 97,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T03:41:31Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/97",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "78c183aa8bf42de40aa857df79b831e255a24e10",
-                "short_sha": "78c183a",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
             "pr": 98,
             "title": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator",
             "author": "mbetixz",
@@ -1367,22 +1091,6 @@
                 "sha": "970715d39899fd8e4cbbd0b9515ce1fe7ecc57ec",
                 "short_sha": "970715d",
                 "subject": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator"
-              }
-            ]
-          },
-          {
-            "pr": 99,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T13:36:47Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/99",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "5507c64b08004f44e142138868ab4b14b78c508d",
-                "short_sha": "5507c64",
-                "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
           },
@@ -1505,22 +1213,6 @@
             ]
           },
           {
-            "pr": 117,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T14:54:26Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/117",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "9187def3f86758ceea1d612687aff25e6353d1a6",
-                "short_sha": "9187def",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
             "pr": 119,
             "title": "ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane",
             "author": "mbetixz",
@@ -1552,38 +1244,6 @@
             ]
           },
           {
-            "pr": 120,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T15:43:44Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/120",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "07a632d6439135000d7dea4fc3e89a4e09c9737a",
-                "short_sha": "07a632d",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 122,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T16:15:46Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/122",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "52eb1eb0b96a256eabfaa371517db4cdae947308",
-                "short_sha": "52eb1eb",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
             "pr": 124,
             "title": "ci(security): remove CodeQL in favor of DeepSource/SonarCloud/PhpCodeArcheology",
             "author": "mbetixz",
@@ -1606,75 +1266,6 @@
                 "sha": "f3b0facde8936d533ebf096118ae426492d78819",
                 "short_sha": "f3b0fac",
                 "subject": "Merge branch 'main' into ci/remove-codeql"
-              }
-            ]
-          },
-          {
-            "pr": 125,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T16:31:53Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/125",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "982de7a57526f5ee9c7801021f0dbe2f0f128404",
-                "short_sha": "982de7a",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 130,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T17:02:10Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/130",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "c950b72b3c3ed4e43d3f4e2df9ed3ec8588546db",
-                "short_sha": "c950b72",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 132,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T18:55:32Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/132",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "5c6cad35f0e1a1786c3c2f209947aaf44a2e7cb3",
-                "short_sha": "5c6cad3",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 136,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T22:55:28Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/136",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "6c8788efc9025c58655ce19483ff0a35df5077fb",
-                "short_sha": "6c8788e",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              },
-              {
-                "sha": "4beb9f7e7573f9881f6bd73c7ed35f73ce8cfaf4",
-                "short_sha": "4beb9f7",
-                "subject": "Merge branch 'main' into chore/changelog-official-update"
               }
             ]
           },
@@ -1716,155 +1307,6 @@
                 "sha": "fa5913f9d51a81961ea241ef8cd167136b67d549",
                 "short_sha": "fa5913f",
                 "subject": "fix(ci): kill the four escaped mutants and the phpcs control-structure finding"
-              }
-            ]
-          },
-          {
-            "pr": 139,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "github-actions[bot]",
-            "category": "Maintenance",
-            "merged_at": "2026-10-09T23:34:27Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/139",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "ba0f1d23cba99f49bcca8e6428ace98086663344",
-                "short_sha": "ba0f1d2",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              },
-              {
-                "sha": "1d75089b3a861276c00ea5eecf7a885aef254aae",
-                "short_sha": "1d75089",
-                "subject": "Merge branch 'main' into chore/changelog-official-update"
-              }
-            ]
-          },
-          {
-            "pr": 142,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "mbetixz",
-            "category": "Maintenance",
-            "merged_at": "2026-10-10T02:17:07Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/142",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "5951a75e35efcb662ecc870b85210a75dd78b50e",
-                "short_sha": "5951a75",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 145,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "mbetixz",
-            "category": "Maintenance",
-            "merged_at": "2026-10-10T06:32:49Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/145",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "b7abb71e299b72ff89b95b0e1612202c5bd8ba1e",
-                "short_sha": "b7abb71",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 148,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "mbetixz",
-            "category": "Maintenance",
-            "merged_at": "2026-10-10T11:11:21Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/148",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "8aef28106abfe1e1471f1c36d3e91ddfdd5a478b",
-                "short_sha": "8aef281",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 151,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "mbetixz",
-            "category": "Maintenance",
-            "merged_at": "2026-10-10T11:43:50Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/151",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "700285c96bc4abcb3ed37e65ebe9eefac60e5e0f",
-                "short_sha": "700285c",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 154,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "mbetixz",
-            "category": "Maintenance",
-            "merged_at": "2026-10-10T11:59:57Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/154",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "26ffdcb5f80a71fb217564e4388664fe8768b913",
-                "short_sha": "26ffdcb",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 157,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "mbetixz",
-            "category": "Maintenance",
-            "merged_at": "2026-10-10T12:42:21Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/157",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "22136aa22588be6114822f302f6d227c7f692556",
-                "short_sha": "22136aa",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 161,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "mbetixz",
-            "category": "Maintenance",
-            "merged_at": "2026-10-10T13:07:25Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/161",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "521830f7198a4d02f1591d0346a8aa0bd1d94a4e",
-                "short_sha": "521830f",
-                "subject": "chore(changelog-official): regenerate official changelog"
-              }
-            ]
-          },
-          {
-            "pr": 163,
-            "title": "chore(changelog-official): regenerate official changelog",
-            "author": "mbetixz",
-            "category": "Maintenance",
-            "merged_at": "2026-10-10T13:29:54Z",
-            "url": "https://github.com/Zeflous/zeflous/pull/163",
-            "file": "CHANGELOG-unreleased.md",
-            "commits": [
-              {
-                "sha": "cf67240d794530a450f92f723e990ff928b4b77e",
-                "short_sha": "cf67240",
-                "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
           }
@@ -2985,32 +2427,6 @@
           ]
         },
         {
-          "pr": 18,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-07T21:45:41Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/18",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "0b0768338a1871c497e692eee53adb749206feec",
-              "short_sha": "0b07683",
-              "subject": "chore(changelog-official): regenerate official changelog [skip ci]"
-            },
-            {
-              "sha": "6cf6ab4abc349b616369c016ac99018c60d71ffe",
-              "short_sha": "6cf6ab4",
-              "subject": "probe: bot push without skip ci"
-            },
-            {
-              "sha": "c80b21ee3580163fcb4282f9ce4a9d8c6a8f910e",
-              "short_sha": "c80b21e",
-              "subject": "Merge branch 'main' into chore/changelog-official-update"
-            }
-          ]
-        },
-        {
           "pr": 19,
           "title": "No changes made: insufficient quota to complete coverage setup",
           "author": "code-coverage-agent[bot]",
@@ -3199,22 +2615,6 @@
           ]
         },
         {
-          "pr": 30,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-07T23:11:21Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/30",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "3560922fc6ba1d6b944a4582f23ad1da54a7bdfe",
-              "short_sha": "3560922",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 31,
           "title": "fix(auto-merge): approve runs on post-sync head",
           "author": "mbetixz",
@@ -3390,22 +2790,6 @@
           ]
         },
         {
-          "pr": 43,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T02:22:19Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/43",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "a11c64969c27f99a1062b8818bc183c6da805ed6",
-              "short_sha": "a11c649",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 45,
           "title": "refactor: validate url scheme before urllib calls",
           "author": "deepsource-autofix[bot]",
@@ -3434,27 +2818,6 @@
               "sha": "923905ddd3c9d3e5042fa45d9664886242766ed5",
               "short_sha": "923905d",
               "subject": "fix(ci): make CI Strict aggregator fail when lanes fail"
-            }
-          ]
-        },
-        {
-          "pr": 47,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T03:03:46Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/47",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "6d6e833a37333781be6195c57fcc822e59498b82",
-              "short_sha": "6d6e833",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            },
-            {
-              "sha": "af587c49b7157b8539570e08dcdb8d1b28c85c13",
-              "short_sha": "af587c4",
-              "subject": "Merge branch 'main' into chore/changelog-official-update"
             }
           ]
         },
@@ -3496,22 +2859,6 @@
           ]
         },
         {
-          "pr": 52,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T03:32:06Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/52",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "02c4ec4f68e240bd583ab3a64bddd59a7bf90eb9",
-              "short_sha": "02c4ec4",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 53,
           "title": "ci(sonar): drop unnecessary composer install from analysis job",
           "author": "mbetixz",
@@ -3540,22 +2887,6 @@
               "sha": "7e549b226efa8d8828be5c7d9f48f3622bb4b294",
               "short_sha": "7e549b2",
               "subject": "ci(sonar): drop broken composer install step and bridge coverage on every event"
-            }
-          ]
-        },
-        {
-          "pr": 56,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T03:56:15Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/56",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "99fa748bdc543281f8902e37db20ef5609062c18",
-              "short_sha": "99fa748",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -3593,22 +2924,6 @@
               "sha": "fb05b0a1f71989f5088593308f66acf6a2f9c150",
               "short_sha": "fb05b0a",
               "subject": "ci: keep lane names whole in the CI Strict aggregator"
-            }
-          ]
-        },
-        {
-          "pr": 60,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T04:42:10Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/60",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "69e1989a0072eec47229919f38451a3b7578626d",
-              "short_sha": "69e1989",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -3660,27 +2975,6 @@
           ]
         },
         {
-          "pr": 64,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T05:53:46Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/64",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "1f8934ce902390116e4a66289ec1e9f132418e69",
-              "short_sha": "1f8934c",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            },
-            {
-              "sha": "5520ca97d5672fcb77209bfee90baa42f8153575",
-              "short_sha": "5520ca9",
-              "subject": "Merge branch 'main' into chore/changelog-official-update"
-            }
-          ]
-        },
-        {
           "pr": 67,
           "title": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)",
           "author": "mbetixz",
@@ -3693,22 +2987,6 @@
               "sha": "c52b359ff54321af84a7beacf71a195196ae527d",
               "short_sha": "c52b359",
               "subject": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)"
-            }
-          ]
-        },
-        {
-          "pr": 68,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T14:18:42Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/68",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "578b8cb6524f36c283397c63f6e345c5084e456d",
-              "short_sha": "578b8cb",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -3729,22 +3007,6 @@
           ]
         },
         {
-          "pr": 72,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T14:49:48Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/72",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "dd563a426164cb8e7f25add976375d931a06e37b",
-              "short_sha": "dd563a4",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 74,
           "title": "docs(roadmap): refresh ROADMAP-STATUS header to current main",
           "author": "mbetixz",
@@ -3761,22 +3023,6 @@
           ]
         },
         {
-          "pr": 75,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T23:25:48Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/75",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "405b5a71d068269dcd07c1086e856471dafbe7e8",
-              "short_sha": "405b5a7",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 77,
           "title": "docs(roadmap): add ROADMAP-HISTORY grouped by roadmap area",
           "author": "mbetixz",
@@ -3789,22 +3035,6 @@
               "sha": "a21a0eeba4d4115c72eceaf0ebcea30a64d49d42",
               "short_sha": "a21a0ee",
               "subject": "docs(roadmap): add ROADMAP-HISTORY grouped by roadmap area"
-            }
-          ]
-        },
-        {
-          "pr": 78,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-08T23:45:45Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/78",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "e0410e3e895e9a474a0a2b364719365aa1590c4d",
-              "short_sha": "e0410e3",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -3872,22 +3102,6 @@
           ]
         },
         {
-          "pr": 83,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T00:19:09Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/83",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "b208d1dff619416b09641922797b4bf7c42885a8",
-              "short_sha": "b208d1d",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 84,
           "title": "docs(readme): document the quality gates",
           "author": "mbetixz",
@@ -3934,22 +3148,6 @@
           ]
         },
         {
-          "pr": 85,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T01:07:40Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/85",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "ac1bf86036aa05e96e495144368668f4b636369d",
-              "short_sha": "ac1bf86",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 87,
           "title": "ci(actions): bump remaining checkout pins to node24",
           "author": "mbetixz",
@@ -3971,27 +3169,6 @@
           ]
         },
         {
-          "pr": 88,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T01:29:46Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/88",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "2802e953e01cee646e6f43f54e5f88f70ff6d7f5",
-              "short_sha": "2802e95",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            },
-            {
-              "sha": "399f5a5ded7487e03149b2930890fc7229efb6b8",
-              "short_sha": "399f5a5",
-              "subject": "Merge branch 'main' into chore/changelog-official-update"
-            }
-          ]
-        },
-        {
           "pr": 90,
           "title": "ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN",
           "author": "mbetixz",
@@ -4004,22 +3181,6 @@
               "sha": "12f27dc1f4ce92604b5a8a7f3a3ca41f3574a459",
               "short_sha": "12f27dc",
               "subject": "ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN"
-            }
-          ]
-        },
-        {
-          "pr": 91,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T02:21:39Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/91",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "22ad970147b5c01ef6e9049e82f4cb4175ba91b0",
-              "short_sha": "22ad970",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -4138,22 +3299,6 @@
           ]
         },
         {
-          "pr": 97,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T03:41:31Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/97",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "78c183aa8bf42de40aa857df79b831e255a24e10",
-              "short_sha": "78c183a",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 98,
           "title": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator",
           "author": "mbetixz",
@@ -4166,22 +3311,6 @@
               "sha": "970715d39899fd8e4cbbd0b9515ce1fe7ecc57ec",
               "short_sha": "970715d",
               "subject": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator"
-            }
-          ]
-        },
-        {
-          "pr": 99,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T13:36:47Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/99",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "5507c64b08004f44e142138868ab4b14b78c508d",
-              "short_sha": "5507c64",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -4720,22 +3849,6 @@
           ]
         },
         {
-          "pr": 117,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T14:54:26Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/117",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "9187def3f86758ceea1d612687aff25e6353d1a6",
-              "short_sha": "9187def",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 119,
           "title": "ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane",
           "author": "mbetixz",
@@ -4767,38 +3880,6 @@
           ]
         },
         {
-          "pr": 120,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T15:43:44Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/120",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "07a632d6439135000d7dea4fc3e89a4e09c9737a",
-              "short_sha": "07a632d",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
-          "pr": 122,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T16:15:46Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/122",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "52eb1eb0b96a256eabfaa371517db4cdae947308",
-              "short_sha": "52eb1eb",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 124,
           "title": "ci(security): remove CodeQL in favor of DeepSource/SonarCloud/PhpCodeArcheology",
           "author": "mbetixz",
@@ -4821,22 +3902,6 @@
               "sha": "f3b0facde8936d533ebf096118ae426492d78819",
               "short_sha": "f3b0fac",
               "subject": "Merge branch 'main' into ci/remove-codeql"
-            }
-          ]
-        },
-        {
-          "pr": 125,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T16:31:53Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/125",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "982de7a57526f5ee9c7801021f0dbe2f0f128404",
-              "short_sha": "982de7a",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -4920,22 +3985,6 @@
           ]
         },
         {
-          "pr": 130,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T17:02:10Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/130",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "c950b72b3c3ed4e43d3f4e2df9ed3ec8588546db",
-              "short_sha": "c950b72",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 131,
           "title": "fix(ci): supersede stale CI Strict runs to unblock auto-merge",
           "author": "mbetixz",
@@ -4983,22 +4032,6 @@
               "sha": "efff803bb1a6ac81483218f9862b94139aaa7d2a",
               "short_sha": "efff803",
               "subject": "fix(ci): unblock auto-merge by superseding stale CI Strict runs"
-            }
-          ]
-        },
-        {
-          "pr": 132,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T18:55:32Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/132",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "5c6cad35f0e1a1786c3c2f209947aaf44a2e7cb3",
-              "short_sha": "5c6cad3",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -5070,27 +4103,6 @@
           ]
         },
         {
-          "pr": 136,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T22:55:28Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/136",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "6c8788efc9025c58655ce19483ff0a35df5077fb",
-              "short_sha": "6c8788e",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            },
-            {
-              "sha": "4beb9f7e7573f9881f6bd73c7ed35f73ce8cfaf4",
-              "short_sha": "4beb9f7",
-              "subject": "Merge branch 'main' into chore/changelog-official-update"
-            }
-          ]
-        },
-        {
           "pr": 137,
           "title": "ci(strict): add workflow-concurrency regression gate",
           "author": "mbetixz",
@@ -5132,27 +4144,6 @@
           ]
         },
         {
-          "pr": 139,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "github-actions[bot]",
-          "category": "Maintenance",
-          "merged_at": "2026-10-09T23:34:27Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/139",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "ba0f1d23cba99f49bcca8e6428ace98086663344",
-              "short_sha": "ba0f1d2",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            },
-            {
-              "sha": "1d75089b3a861276c00ea5eecf7a885aef254aae",
-              "short_sha": "1d75089",
-              "subject": "Merge branch 'main' into chore/changelog-official-update"
-            }
-          ]
-        },
-        {
           "pr": 141,
           "title": "fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)",
           "author": "mbetixz",
@@ -5165,22 +4156,6 @@
               "sha": "792c21d5efa9d775319a9df8bc703bfccc373498",
               "short_sha": "792c21d",
               "subject": "fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)"
-            }
-          ]
-        },
-        {
-          "pr": 142,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "mbetixz",
-          "category": "Maintenance",
-          "merged_at": "2026-10-10T02:17:07Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/142",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "5951a75e35efcb662ecc870b85210a75dd78b50e",
-              "short_sha": "5951a75",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -5206,22 +4181,6 @@
           ]
         },
         {
-          "pr": 145,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "mbetixz",
-          "category": "Maintenance",
-          "merged_at": "2026-10-10T06:32:49Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/145",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "b7abb71e299b72ff89b95b0e1612202c5bd8ba1e",
-              "short_sha": "b7abb71",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 147,
           "title": "docs(CONTRIBUTING.md): Add mandatory rules for contribution guidelines)",
           "author": "mbetixz",
@@ -5234,22 +4193,6 @@
               "sha": "88649fed52e916e240dba0a10dc04dcad23d76ac",
               "short_sha": "88649fe",
               "subject": "Add mandatory rules for contribution guidelines"
-            }
-          ]
-        },
-        {
-          "pr": 148,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "mbetixz",
-          "category": "Maintenance",
-          "merged_at": "2026-10-10T11:11:21Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/148",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "8aef28106abfe1e1471f1c36d3e91ddfdd5a478b",
-              "short_sha": "8aef281",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -5275,22 +4218,6 @@
           ]
         },
         {
-          "pr": 151,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "mbetixz",
-          "category": "Maintenance",
-          "merged_at": "2026-10-10T11:43:50Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/151",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "700285c96bc4abcb3ed37e65ebe9eefac60e5e0f",
-              "short_sha": "700285c",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 153,
           "title": "feat(config): immutable config repository with dot-notation access",
           "author": "mbetixz",
@@ -5312,22 +4239,6 @@
           ]
         },
         {
-          "pr": 154,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "mbetixz",
-          "category": "Maintenance",
-          "merged_at": "2026-10-10T11:59:57Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/154",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "26ffdcb5f80a71fb217564e4388664fe8768b913",
-              "short_sha": "26ffdcb",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
           "pr": 156,
           "title": "test(tooling): make the lint report sort mutant kill deterministic",
           "author": "mbetixz",
@@ -5340,22 +4251,6 @@
               "sha": "af3d3d2339a2c2f84bceb109f867c610bff3b74d",
               "short_sha": "af3d3d2",
               "subject": "test(tooling): make the lint report sort mutant kill deterministic"
-            }
-          ]
-        },
-        {
-          "pr": 157,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "mbetixz",
-          "category": "Maintenance",
-          "merged_at": "2026-10-10T12:42:21Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/157",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
-            {
-              "sha": "22136aa22588be6114822f302f6d227c7f692556",
-              "short_sha": "22136aa",
-              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         },
@@ -5397,34 +4292,23 @@
           ]
         },
         {
-          "pr": 161,
-          "title": "chore(changelog-official): regenerate official changelog",
+          "pr": 165,
+          "title": "fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)",
           "author": "mbetixz",
-          "category": "Maintenance",
-          "merged_at": "2026-10-10T13:07:25Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/161",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-10T14:07:27Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/165",
           "file": "CHANGELOG-unreleased.md",
           "commits": [
             {
-              "sha": "521830f7198a4d02f1591d0346a8aa0bd1d94a4e",
-              "short_sha": "521830f",
-              "subject": "chore(changelog-official): regenerate official changelog"
-            }
-          ]
-        },
-        {
-          "pr": 163,
-          "title": "chore(changelog-official): regenerate official changelog",
-          "author": "mbetixz",
-          "category": "Maintenance",
-          "merged_at": "2026-10-10T13:29:54Z",
-          "url": "https://github.com/Zeflous/zeflous/pull/163",
-          "file": "CHANGELOG-unreleased.md",
-          "commits": [
+              "sha": "221279297f935d29e7c27637ee02663327b2cf70",
+              "short_sha": "2212792",
+              "subject": "fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)"
+            },
             {
-              "sha": "cf67240d794530a450f92f723e990ff928b4b77e",
-              "short_sha": "cf67240",
-              "subject": "chore(changelog-official): regenerate official changelog"
+              "sha": "14d818f25b021e20c6cd470a5b6da991df9e309e",
+              "short_sha": "14d818f",
+              "subject": "Merge origin/main into fix/changelog-api-workflows"
             }
           ]
         }
