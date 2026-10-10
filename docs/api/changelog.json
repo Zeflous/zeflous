@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T18:22:41Z",
+  "as_of": "2026-10-10T19:06:31Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 93,
+  "unreleased_count": 94,
   "versions": [
     {
       "version": "Unreleased",
@@ -231,6 +231,47 @@
                 "sha": "97a3ae1032f70c9a423be89e68a062f5cfdbdcb7",
                 "short_sha": "97a3ae1",
                 "subject": "feat(changelog): render per-version changelog in github-changelog-generator style"
+              }
+            ]
+          },
+          {
+            "pr": 184,
+            "title": "feat(config): layered default-app-env configuration merge",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-10T19:06:31Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/184",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7c771b88f7a32f65e5ab63f21937de8f2026aec2",
+                "short_sha": "7c771b8",
+                "subject": "feat(config): layered default-app-env configuration merge"
+              },
+              {
+                "sha": "d449d10b0348bffd61da1dd067ad606a20716cdf",
+                "short_sha": "d449d10",
+                "subject": "Merge branch 'main' into feat/config-layered-merge"
+              },
+              {
+                "sha": "eb76ba4c566985af29cba33806739f69cf37977f",
+                "short_sha": "eb76ba4",
+                "subject": "docs(roadmap): record the layered configuration merge (#184)"
+              },
+              {
+                "sha": "1bc796e60c24ea9e44c132ee14dcbde35bf6e100",
+                "short_sha": "1bc796e",
+                "subject": "Merge branch 'main' into feat/config-layered-merge"
+              },
+              {
+                "sha": "bcf3b38062e6905aced1133f3747c1c44cef3c69",
+                "short_sha": "bcf3b38",
+                "subject": "Merge branch 'main' into feat/config-layered-merge"
+              },
+              {
+                "sha": "01b3680eb3c66b194f22b13d085520b9507858ba",
+                "short_sha": "01b3680",
+                "subject": "refactor(config): satisfy the architecture difficulty gate in the merge"
               }
             ]
           }
@@ -4639,6 +4680,47 @@
               "sha": "97a3ae1032f70c9a423be89e68a062f5cfdbdcb7",
               "short_sha": "97a3ae1",
               "subject": "feat(changelog): render per-version changelog in github-changelog-generator style"
+            }
+          ]
+        },
+        {
+          "pr": 184,
+          "title": "feat(config): layered default-app-env configuration merge",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-10T19:06:31Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/184",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7c771b88f7a32f65e5ab63f21937de8f2026aec2",
+              "short_sha": "7c771b8",
+              "subject": "feat(config): layered default-app-env configuration merge"
+            },
+            {
+              "sha": "d449d10b0348bffd61da1dd067ad606a20716cdf",
+              "short_sha": "d449d10",
+              "subject": "Merge branch 'main' into feat/config-layered-merge"
+            },
+            {
+              "sha": "eb76ba4c566985af29cba33806739f69cf37977f",
+              "short_sha": "eb76ba4",
+              "subject": "docs(roadmap): record the layered configuration merge (#184)"
+            },
+            {
+              "sha": "1bc796e60c24ea9e44c132ee14dcbde35bf6e100",
+              "short_sha": "1bc796e",
+              "subject": "Merge branch 'main' into feat/config-layered-merge"
+            },
+            {
+              "sha": "bcf3b38062e6905aced1133f3747c1c44cef3c69",
+              "short_sha": "bcf3b38",
+              "subject": "Merge branch 'main' into feat/config-layered-merge"
+            },
+            {
+              "sha": "01b3680eb3c66b194f22b13d085520b9507858ba",
+              "short_sha": "01b3680",
+              "subject": "refactor(config): satisfy the architecture difficulty gate in the merge"
             }
           ]
         }
