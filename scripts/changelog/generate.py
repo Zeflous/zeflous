@@ -11,9 +11,11 @@ disagree:
     release heading with a release/date link, a ``[Full Changelog]`` compare
     link, and ``**Category:**`` blocks of ``- <title> [#<n>](<url>)
     ([<author>](<author-url>))`` entries). Unlike the reference tool -- which
-    emits ONE flat file and lists PR titles only -- there is still one file per
-    version, and each PR keeps its commits (short SHA + subject) as an indented
-    list beneath it, so the markdown agrees with ``docs/api/changelog.json``.
+    emits ONE flat file -- there is still one file per version. Each entry is a
+    SINGLE line: the PR title with its PR link (the reference tool's shape).
+    The per-commit lines were removed because they duplicated the PR title and
+    made the file noisy; the commits remain in ``docs/api/changelog.json``, so
+    the machine-readable API is unchanged.
     ``CHANGELOG-unreleased.md`` holds the PRs merged after the newest release
     (or every PR when no release exists yet).
   * ``CHANGELOG.md``             -- a LIGHTWEIGHT INDEX only: a table of links
@@ -681,13 +683,13 @@ def render_version_markdown(
         **Features:**
 
         - <title> [#12](pr-url) ([author](author-url))
-            - `abc1234` feat: the commit subject
 
-    The PR-title/author line follows the reference tool exactly; the commit
-    list beneath each PR is retained because the machine-readable API carries
-    commits and the two must agree. ``Unreleased`` gets no tag link and no
-    date; the ``[Full Changelog]`` line appears only when an older version
-    exists to compare against.
+    Each entry is a SINGLE line -- the PR title with its PR link -- exactly the
+    reference tool's shape. The per-commit lines were removed: they duplicated
+    the PR title and made the file noisy. The commits are still carried by
+    ``docs/api/changelog.json``, so the machine-readable API is unchanged.
+    ``Unreleased`` gets no tag link and no date; the ``[Full Changelog]`` line
+    appears only when an older version exists to compare against.
     """
     name = version["version"]
     slug = _repo_slug(repo, version)
@@ -733,13 +735,6 @@ def render_version_markdown(
             lines.extend([f"**{category}:**", ""])
             for entry in entries:
                 lines.append(_render_entry_line(entry))
-                commits = entry.get("commits") or []
-                if commits:
-                    for commit in commits:
-                        subject = (commit.get("subject") or "").rstrip()
-                        lines.append(f"    - `{commit['short_sha']}` {subject}".rstrip())
-                else:
-                    lines.append("    - (no commits recorded)")
             lines.append("")
 
     lines.extend(

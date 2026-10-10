@@ -10,7 +10,8 @@
 #   * It emits ONE flat `CHANGELOG.md`. It has no "one file per release
 #     version" mode -- the exact thing the user asked for.
 #   * It lists PR titles only. It does NOT list the commits that belong to a
-#     PR, so it cannot produce the requested "PR block + commits beneath it".
+#     PR -- which is now the desired shape: the per-version lane also lists PR
+#     titles only (the commits live in the JSON API, not the markdown).
 #   * It has no JSON output (upstream issue #932 is an open feature request),
 #     so it cannot serve the machine-readable changelog API.
 #   * It lists the changelog automation's OWN bookkeeping PRs, which would make

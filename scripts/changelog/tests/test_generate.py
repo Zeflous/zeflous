@@ -631,8 +631,9 @@ def test_render_version_markdown_has_reference_style_pr_line():
         "- feat: one [#1](https://github.com/o/r/pull/1) "
         "([alice](https://github.com/alice))" in md
     )
-    # Commits stay beneath the PR so the markdown agrees with the JSON API.
-    assert f"    - `{'a' * 7}` feat: one" in md
+    # Each entry is a SINGLE line: no per-commit lines beneath the PR.
+    assert "    - `" not in md
+    assert md.count("- feat: one [#1]") == 1
     # The generated-file banner is retained.
     assert "<!-- GENERATED FILE - do not edit by hand. -->" in md
 
@@ -679,11 +680,13 @@ def test_repo_slug_prefers_explicit_repo_then_entry_url():
     assert gen._repo_slug(None, {"entries": []}) == gen.DEFAULT_REPO
 
 
-def test_render_version_markdown_without_commits():
+def test_render_version_markdown_omits_commit_lines():
+    """No per-commit lines are rendered, with or without commits recorded."""
     version = _model_with_one_pr()["versions"][0]
     version["entries"][0]["commits"] = []
     md = gen.render_version_markdown(version)
-    assert "(no commits recorded)" in md
+    assert "(no commits recorded)" not in md
+    assert "    - `" not in md
 
 
 def test_render_version_markdown_release_heading_and_compare_link():
