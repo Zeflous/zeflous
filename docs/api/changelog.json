@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-09T22:57:03Z",
+  "as_of": "2026-10-10T02:17:07Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 104,
+  "unreleased_count": 107,
   "versions": [
     {
       "version": "Unreleased",
@@ -457,6 +457,22 @@
                 "sha": "f3b1ad04c88b94e51e8a62151290e82553644b96",
                 "short_sha": "f3b1ad0",
                 "subject": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock"
+              }
+            ]
+          },
+          {
+            "pr": 141,
+            "title": "fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-10T02:15:34Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/141",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "792c21d5efa9d775319a9df8bc703bfccc373498",
+                "short_sha": "792c21d",
+                "subject": "fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)"
               }
             ]
           }
@@ -1616,6 +1632,43 @@
                 "sha": "fa5913f9d51a81961ea241ef8cd167136b67d549",
                 "short_sha": "fa5913f",
                 "subject": "fix(ci): kill the four escaped mutants and the phpcs control-structure finding"
+              }
+            ]
+          },
+          {
+            "pr": 139,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "github-actions[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-09T23:34:27Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/139",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ba0f1d23cba99f49bcca8e6428ace98086663344",
+                "short_sha": "ba0f1d2",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              },
+              {
+                "sha": "1d75089b3a861276c00ea5eecf7a885aef254aae",
+                "short_sha": "1d75089",
+                "subject": "Merge branch 'main' into chore/changelog-official-update"
+              }
+            ]
+          },
+          {
+            "pr": 142,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-10T02:17:07Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/142",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5951a75e35efcb662ecc870b85210a75dd78b50e",
+                "short_sha": "5951a75",
+                "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
           }
@@ -4829,6 +4882,59 @@
               "sha": "fa5913f9d51a81961ea241ef8cd167136b67d549",
               "short_sha": "fa5913f",
               "subject": "fix(ci): kill the four escaped mutants and the phpcs control-structure finding"
+            }
+          ]
+        },
+        {
+          "pr": 139,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "github-actions[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-09T23:34:27Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/139",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ba0f1d23cba99f49bcca8e6428ace98086663344",
+              "short_sha": "ba0f1d2",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            },
+            {
+              "sha": "1d75089b3a861276c00ea5eecf7a885aef254aae",
+              "short_sha": "1d75089",
+              "subject": "Merge branch 'main' into chore/changelog-official-update"
+            }
+          ]
+        },
+        {
+          "pr": 141,
+          "title": "fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-10T02:15:34Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/141",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "792c21d5efa9d775319a9df8bc703bfccc373498",
+              "short_sha": "792c21d",
+              "subject": "fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)"
+            }
+          ]
+        },
+        {
+          "pr": 142,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-10T02:17:07Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/142",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5951a75e35efcb662ecc870b85210a75dd78b50e",
+              "short_sha": "5951a75",
+              "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
         }

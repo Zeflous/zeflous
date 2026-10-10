@@ -464,3 +464,13 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - 923aa70 test(ci): pin the workflow-directory operand (MSI 100%)
     - ee89f43 fix(ci): harden lane concurrency per-commit and silence new-analyzer findings
     - fa5913f fix(ci): kill the four escaped mutants and the phpcs control-structure finding
+
+- PR#139 chore(changelog-official): regenerate official changelog
+    - ba0f1d2 chore(changelog-official): regenerate official changelog
+    - 1d75089 Merge branch 'main' into chore/changelog-official-update
+
+- PR#141 fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)
+    - 792c21d fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)
+
+- PR#142 chore(changelog-official): regenerate official changelog
+    - 5951a75 chore(changelog-official): regenerate official changelog
