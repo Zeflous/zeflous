@@ -91,6 +91,7 @@
     },
     "scripts": {
         "test": "phpunit",
+        "zero-deps": "@php scripts/ci/gate.php zero-deps",
         "coverage": "phpunit --coverage-text",
         "coverage:gate": [
             "@php -d pcov.enabled=1 vendor/bin/phpunit --coverage-clover build/clover.xml --log-junit build/junit.xml --coverage-text",
@@ -134,6 +135,7 @@
         ],
         "ci:static": [
             "@composer validate --strict",
+            "@composer zero-deps",
             "@composer lint",
             "@composer stan",
             "@composer stan:ratchet",
@@ -166,6 +168,7 @@
     },
     "scripts-descriptions": {
         "test": "Run the PHPUnit test suite.",
+        "zero-deps": "Assert the zero-dependency invariant: composer.json require is exactly {php: ^8.4} and composer.lock packages is empty.",
         "coverage": "Run PHPUnit with a text coverage report.",
         "coverage:gate": "Run PHPUnit coverage (pcov) and enforce the 90% line-coverage gate.",
         "format": "Apply php-cs-fixer formatting.",

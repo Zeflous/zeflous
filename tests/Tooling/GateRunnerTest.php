@@ -221,6 +221,63 @@ final class GateRunnerTest extends TestCase
         self::assertStringContainsString('Persistent-worker smoke PASSED', $gateResult->message);
     }
 
+    public function testZeroDependencyGatePassesOnACleanManifest(): void
+    {
+        file_put_contents(
+            $this->root . '/composer.json',
+            '{"require":{"php":"^8.4"},"require-dev":{"phpunit/phpunit":"^13.4"}}',
+        );
+        file_put_contents(
+            $this->root . '/composer.lock',
+            '{"packages":[],"packages-dev":[{"name":"phpstan/phpstan"}]}',
+        );
+
+        $gateResult = $this->runner()->run('zero-deps', []);
+
+        self::assertTrue($gateResult->passed);
+        self::assertStringContainsString('Zero-dependency gate PASSED', $gateResult->message);
+    }
+
+    public function testZeroDependencyGateFailsOnAProductionPackage(): void
+    {
+        file_put_contents($this->root . '/composer.json', '{"require":{"php":"^8.4"}}');
+        file_put_contents(
+            $this->root . '/composer.lock',
+            '{"packages":[{"name":"monolog/monolog"}]}',
+        );
+
+        $gateResult = $this->runner()->run('zero-deps', []);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('declares 1 production package(s)', $gateResult->message);
+    }
+
+    public function testZeroDependencyGateFailsOnAnExtraRequirement(): void
+    {
+        file_put_contents(
+            $this->root . '/composer.json',
+            '{"require":{"php":"^8.4","psr/log":"^3.0"}}',
+        );
+        file_put_contents($this->root . '/composer.lock', '{"packages":[]}');
+
+        $gateResult = $this->runner()->run('zero-deps', []);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('expected exactly {"php": "^8.4"}', $gateResult->message);
+    }
+
+    public function testZeroDependencyGateThrowsWhenComposerJsonIsMissing(): void
+    {
+        file_put_contents($this->root . '/composer.lock', '{"packages":[]}');
+
+        try {
+            $this->runner()->run('zero-deps', []);
+            self::fail('A missing composer.json must fail the gate closed.');
+        } catch (ToolingException $toolingException) {
+            self::assertStringContainsString('composer.json not found', $toolingException->getMessage());
+        }
+    }
+
     public function testUnknownGateThrows(): void
     {
         $this->expectException(ToolingException::class);
@@ -249,6 +306,7 @@ final class GateRunnerTest extends TestCase
             $root . '/src',
             $root . '/phpstan-baseline.neon',
             $root . '/composer.json',
+            $root . '/composer.lock',
         ];
 
         foreach ($paths as $path) {
