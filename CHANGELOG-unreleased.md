@@ -406,41 +406,22 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - af3d3d2 test(tooling): make the lint report sort mutant kill deterministic
 
 - PR#159 feat(config): immutable with-mutations for config entries
-    - b1c4674 feat(config): immutable with-mutations for config entries
-    - ffb51d7 docs(roadmap): record the config with-mutations implementation in the roadmap documents
+    - (no commits recorded)
 
 - PR#160 docs(contributing): require roadmap history and status updates after implementation
-    - 528fa98 docs(contributing): require roadmap history and status updates after implementation
+    - (no commits recorded)
 
 - PR#165 fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)
-    - 2212792 fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)
-    - 14d818f Merge origin/main into fix/changelog-api-workflows
+    - (no commits recorded)
 
 - PR#167 feat(config): php file and directory config loaders
-    - 9a1d20c feat(config): php file and directory config loaders
-    - 0aefe55 Merge branch 'main' into feat/config-loaders
-    - 8ce87d4 Merge branch 'main' into feat/config-loaders
-    - d1fb113 docs(roadmap): record the config loaders implementation in the roadmap documents
-    - f25cf29 Merge branch 'main' into feat/config-loaders
-    - cf71b45 fix(sonar): resolve php:S2003 with re-loadable require execution
+    - (no commits recorded)
 
 - PR#171 refactor: secure urllib usage
-    - 68d9648 refactor: secure urllib usage
-    - 617d32d fix(security): restrict urllib to http(s) schemes in the changelog generator
-    - 4c1cb85 test: satisfy DeepSource PYL-R0201 on the exploding-opener stub
+    - (no commits recorded)
 
 - PR#174 refactor: reduce cyclomatic complexity by extracting helper functions
-    - a0552b0 refactor: reduce cyclomatic complexity by extracting helper functions
-    - cccdd0d Merge branch 'main' into deepsource-autofix-9044eb68
-    - ab2e86b Merge branch 'main' into deepsource-autofix-9044eb68
-    - f2d5470 Merge branch 'main' into deepsource-autofix-9044eb68
-    - 6bf508f Merge branch 'main' into deepsource-autofix-9044eb68
-    - a3406b6 fix(changelog): repair generate.py regressions from the autofix refactor
-    - f5d5b97 Merge branch 'main' into deepsource-autofix-9044eb68
-    - 1c396e3 refactor(changelog): extract build_model helpers to cut cyclomatic complexity
+    - (no commits recorded)
 
 - PR#176 fix(config): restrict php file loading to an explicit allowlist
-    - 98cfe19 fix(config): restrict php file loading to an explicit allowlist
-    - f3b7f70 docs(roadmap): record the loader allowlist hardening (#176)
-    - 89bbb34 Merge branch 'main' into fix/config-allowlist
-    - 7f5fc3b Merge branch 'main' into fix/config-allowlist
+    - (no commits recorded)
