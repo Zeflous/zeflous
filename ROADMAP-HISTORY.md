@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-10 · `main` @ `4129492`
+**Last updated:** 2026-10-10 · `main` @ `4129492f71`
 
 **How to read this file**
 
@@ -26,13 +26,13 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | HTTP Layer | 1 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
-| Quality Gates & Tooling | 7 |
+| Quality Gates & Tooling | 6 |
 | CI / Supply chain | 34 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
-| Configuration System | 1 |
+| Configuration System | 3 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **70** |
+| **Total merged PRs** | **71** |
 
 ---
 
@@ -82,7 +82,6 @@ The in-repo gate engine (`src/Zef/Framework/Tooling/*`, `scripts/ci/*`) that eve
 | refactor(quality): fix archeology error and add SARIF code-scanning gate | #38 | 2026-10-08 | `7d5239e3a8` |
 | refactor: replace exec with Symfony Process for command execution | #40 | 2026-10-08 | `0fdc01829a` |
 | fix(ci): run gate commands through the shell in the process runner | #42 | 2026-10-08 | `98fe592a22` |
-| feat(ci): assert the zero-dependency invariant in the static gate | #150 | 2026-10-10 | `c86c4daf22` |
 
 ## 6. CI / Supply chain
 
@@ -184,11 +183,17 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 | refactor: consolidate list initialization | #41 | 2026-10-08 | `84fcb5b6a3` |
 | refactor: validate url scheme before urllib calls | #45 | 2026-10-08 | `e131320af2` |
 
-## 10. Configuration System
+---
+
+## 10. Configuration System + DSL + Radix Tree
+
+`ROADMAP.md` → **Configuration System + DSL + Radix Tree** (The Triad, layer 1).
 
 | Work item | PR | Merged | Commit |
 |---|---|---|---|
-| feat(config): immutable config repository with dot-notation access | #153 | 2026-10-10 | `a266765d6a` |
+| feat(ci): assert the zero-dependency invariant in the static gate (`ZeroDependencyGate`, `ComposerManifest`, zero-deps lane) | #150 | 2026-10-10 | `c86c4da082` |
+| feat(config): immutable config repository with dot-notation access (`Config`, `DotKey`, `ConfigInterface`, deptrac layer) | #153 | 2026-10-10 | `a2667659cb` |
+| feat(config): immutable with-mutations for config entries (`ConfigMutations` trait, `DotWriter`, `DotRemover`, `DotListWriter`, `DotListLocator`) | #159 | 2026-10-10 | `b1c46748e5` |
 
 ---
 

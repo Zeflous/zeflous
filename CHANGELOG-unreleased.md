@@ -508,8 +508,15 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#157 chore(changelog-official): regenerate official changelog
     - 22136aa chore(changelog-official): regenerate official changelog
 
+- PR#159 feat(config): immutable with-mutations for config entries
+    - b1c4674 feat(config): immutable with-mutations for config entries
+    - ffb51d7 docs(roadmap): record the config with-mutations implementation in the roadmap documents
+
 - PR#160 docs(contributing): require roadmap history and status updates after implementation
     - 528fa98 docs(contributing): require roadmap history and status updates after implementation
 
 - PR#161 chore(changelog-official): regenerate official changelog
     - 521830f chore(changelog-official): regenerate official changelog
+
+- PR#163 chore(changelog-official): regenerate official changelog
+    - cf67240 chore(changelog-official): regenerate official changelog
