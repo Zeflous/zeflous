@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T13:07:25Z",
+  "as_of": "2026-10-10T13:29:54Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 119,
+  "unreleased_count": 121,
   "versions": [
     {
       "version": "Unreleased",
@@ -153,6 +153,27 @@
                 "sha": "ff342ffce33a82383bb3907925ea33b78c377709",
                 "short_sha": "ff342ff",
                 "subject": "Merge branch 'main' into feat/config-repository"
+              }
+            ]
+          },
+          {
+            "pr": 159,
+            "title": "feat(config): immutable with-mutations for config entries",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-10T13:27:55Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/159",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b1c46748e525f84d8d759d4e1c74661fdd74803a",
+                "short_sha": "b1c4674",
+                "subject": "feat(config): immutable with-mutations for config entries"
+              },
+              {
+                "sha": "ffb51d709bc96a5125db9642be766ca4b6fdb9a0",
+                "short_sha": "ffb51d7",
+                "subject": "docs(roadmap): record the config with-mutations implementation in the roadmap documents"
               }
             ]
           }
@@ -1827,6 +1848,22 @@
               {
                 "sha": "521830f7198a4d02f1591d0346a8aa0bd1d94a4e",
                 "short_sha": "521830f",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 163,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-10T13:29:54Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/163",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cf67240d794530a450f92f723e990ff928b4b77e",
+                "short_sha": "cf67240",
                 "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
@@ -5323,6 +5360,27 @@
           ]
         },
         {
+          "pr": 159,
+          "title": "feat(config): immutable with-mutations for config entries",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-10T13:27:55Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/159",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b1c46748e525f84d8d759d4e1c74661fdd74803a",
+              "short_sha": "b1c4674",
+              "subject": "feat(config): immutable with-mutations for config entries"
+            },
+            {
+              "sha": "ffb51d709bc96a5125db9642be766ca4b6fdb9a0",
+              "short_sha": "ffb51d7",
+              "subject": "docs(roadmap): record the config with-mutations implementation in the roadmap documents"
+            }
+          ]
+        },
+        {
           "pr": 160,
           "title": "docs(contributing): require roadmap history and status updates after implementation",
           "author": "mbetixz",
@@ -5350,6 +5408,22 @@
             {
               "sha": "521830f7198a4d02f1591d0346a8aa0bd1d94a4e",
               "short_sha": "521830f",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 163,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-10T13:29:54Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/163",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cf67240d794530a450f92f723e990ff928b4b77e",
+              "short_sha": "cf67240",
               "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
