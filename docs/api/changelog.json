@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T20:36:45Z",
+  "as_of": "2026-10-10T21:10:51Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 97,
+  "unreleased_count": 98,
   "versions": [
     {
       "version": "Unreleased",
@@ -334,6 +334,37 @@
                 "sha": "e240b1ceb2eeedd8aac09aa77981875145efbc27",
                 "short_sha": "e240b1c",
                 "subject": "Merge branch 'main' into feat/config-schema-validation"
+              }
+            ]
+          },
+          {
+            "pr": 202,
+            "title": "feat(config): compiled configuration cache",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-10T21:10:51Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/202",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "fe6dc188d8efef1aa0b6f531c24b99f8d127c61f",
+                "short_sha": "fe6dc18",
+                "subject": "feat(config): compiled configuration cache"
+              },
+              {
+                "sha": "716d7421bb5f8f9d5271ce5b1e18546a14c90b2c",
+                "short_sha": "716d742",
+                "subject": "docs(roadmap): record the compiled configuration cache (#202)"
+              },
+              {
+                "sha": "8f3ca1acf1d627309e76155ac78230c1c432cfce",
+                "short_sha": "8f3ca1a",
+                "subject": "Merge branch 'main' into feat/config-compiled-cache"
+              },
+              {
+                "sha": "5423a6b637f552669a95fd8061e830f44f24b884",
+                "short_sha": "5423a6b",
+                "subject": "test(config): cover the failed-write branch of the cache dump"
               }
             ]
           }
@@ -4877,6 +4908,37 @@
               "sha": "8d7c0d72363eb81c9e8d76ddbda1548bb4f5679b",
               "short_sha": "8d7c0d7",
               "subject": "fix(changelog-official): enforce one-line PR style, no commit lines"
+            }
+          ]
+        },
+        {
+          "pr": 202,
+          "title": "feat(config): compiled configuration cache",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-10T21:10:51Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/202",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "fe6dc188d8efef1aa0b6f531c24b99f8d127c61f",
+              "short_sha": "fe6dc18",
+              "subject": "feat(config): compiled configuration cache"
+            },
+            {
+              "sha": "716d7421bb5f8f9d5271ce5b1e18546a14c90b2c",
+              "short_sha": "716d742",
+              "subject": "docs(roadmap): record the compiled configuration cache (#202)"
+            },
+            {
+              "sha": "8f3ca1acf1d627309e76155ac78230c1c432cfce",
+              "short_sha": "8f3ca1a",
+              "subject": "Merge branch 'main' into feat/config-compiled-cache"
+            },
+            {
+              "sha": "5423a6b637f552669a95fd8061e830f44f24b884",
+              "short_sha": "5423a6b",
+              "subject": "test(config): cover the failed-write branch of the cache dump"
             }
           ]
         }
