@@ -501,3 +501,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#154 chore(changelog-official): regenerate official changelog
     - 26ffdcb chore(changelog-official): regenerate official changelog
+
+- PR#156 test(tooling): make the lint report sort mutant kill deterministic
+    - af3d3d2 test(tooling): make the lint report sort mutant kill deterministic
+
+- PR#157 chore(changelog-official): regenerate official changelog
+    - 22136aa chore(changelog-official): regenerate official changelog
