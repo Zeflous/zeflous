@@ -27,9 +27,15 @@ namespace Zef\Framework\Config\Merge;
  * positions, replaced values stay at the base key's position, and keys new
  * to the later layer are appended in the later layer's order.
  *
- * The inputs are never modified (PHP copy-on-write separates the merged
- * array on first write), which keeps the merge safe to call on the arrays
- * an immutable configuration repository was built from.
+ * The fold is two passes: `array_replace()` applies the whole replace
+ * semantics in one step (later layer wins everywhere, base key order
+ * preserved, new keys appended), and the keys present in *both* layers --
+ * `array_intersect_key()` -- are then the only candidates for the map
+ * recursion, which rewrites exactly those offsets with the merged maps.
+ * No value ever binds to a variable of its own, which keeps the analysers
+ * honest without suppressions, and the inputs are never modified (PHP
+ * copy-on-write), so the merge stays safe to call on the arrays an
+ * immutable configuration repository was built from.
  */
 final readonly class ArrayMerger
 {
@@ -53,7 +59,7 @@ final readonly class ArrayMerger
     }
 
     /**
-     * Overlays the layer onto the base, later layer wins.
+     * Overlays the higher-precedence data onto the base, later layer wins.
      *
      * Recursion applies only to a string key that addresses a map on both
      * sides -- the existing value must be an array (a missing key or a
@@ -64,29 +70,27 @@ final readonly class ArrayMerger
      * the list offsets they emulate.
      *
      * @param array<array-key, mixed> $base
-     * @param array<array-key, mixed> $layer
+     * @param array<array-key, mixed> $overlay
      *
      * @return array<array-key, mixed>
      */
-    private static function mergeLayer(array $base, array $layer): array
+    private static function mergeLayer(array $base, array $overlay): array
     {
-        $merged = $base;
+        $merged = array_replace($base, $overlay);
+        $sharedKeys = array_keys(array_intersect_key($base, $overlay));
 
-        foreach (array_keys($layer) as $key) {
+        foreach ($sharedKeys as $sharedKey) {
             if (
-                \is_string($key)
-                && isset($merged[$key])
-                && \is_array($merged[$key])
-                && \is_array($layer[$key])
-                && !array_is_list($merged[$key])
-                && !array_is_list($layer[$key])
+                !\is_string($sharedKey)
+                || !\is_array($base[$sharedKey])
+                || !\is_array($overlay[$sharedKey])
+                || array_is_list($base[$sharedKey])
+                || array_is_list($overlay[$sharedKey])
             ) {
-                $merged[$key] = self::mergeLayer($merged[$key], $layer[$key]);
-
                 continue;
             }
 
-            $merged = array_replace($merged, [$key => $layer[$key]]);
+            $merged[$sharedKey] = self::mergeLayer($base[$sharedKey], $overlay[$sharedKey]);
         }
 
         return $merged;

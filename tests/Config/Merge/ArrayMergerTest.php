@@ -74,6 +74,28 @@ final class ArrayMergerTest extends TestCase
         );
     }
 
+    public function testKeepsAMapTheOverlayDoesNotTouch(): void
+    {
+        self::assertSame(
+            ['kept' => ['nested' => true], 'replaced' => 'scalar'],
+            ArrayMerger::merge(
+                ['kept' => ['nested' => true], 'replaced' => 'old'],
+                ['replaced' => 'scalar'],
+            ),
+        );
+    }
+
+    public function testMergesLaterMapKeysAfterAScalarReplacement(): void
+    {
+        self::assertSame(
+            ['a' => 'scalar', 'b' => ['x' => 1, 'y' => 2]],
+            ArrayMerger::merge(
+                ['a' => ['old' => true], 'b' => ['x' => 1]],
+                ['a' => 'scalar', 'b' => ['y' => 2]],
+            ),
+        );
+    }
+
     public function testReplacesListsInsteadOfConcatenating(): void
     {
         self::assertSame(
