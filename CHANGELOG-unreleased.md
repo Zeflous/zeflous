@@ -40,6 +40,13 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - `cf71b45` fix(sonar): resolve php:S2003 with re-loadable require execution
 - feat(changelog): render per-version changelog in github-changelog-generator style [#183](https://github.com/Zeflous/zeflous/pull/183) ([mbetixz](https://github.com/mbetixz))
     - `97a3ae1` feat(changelog): render per-version changelog in github-changelog-generator style
+- feat(config): layered default-app-env configuration merge [#184](https://github.com/Zeflous/zeflous/pull/184) ([mbetixz](https://github.com/mbetixz))
+    - `7c771b8` feat(config): layered default-app-env configuration merge
+    - `d449d10` Merge branch 'main' into feat/config-layered-merge
+    - `eb76ba4` docs(roadmap): record the layered configuration merge (#184)
+    - `1bc796e` Merge branch 'main' into feat/config-layered-merge
+    - `bcf3b38` Merge branch 'main' into feat/config-layered-merge
+    - `01b3680` refactor(config): satisfy the architecture difficulty gate in the merge
 
 **Bug Fixes:**
 
