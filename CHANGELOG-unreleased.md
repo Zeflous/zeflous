@@ -54,11 +54,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#17 feat(changelog): adopt official github-changelog-generator as a complementary lane
     - 20ad8c5 feat(changelog): adopt official github-changelog-generator as a complementary lane
 
-- PR#18 chore(changelog-official): regenerate official changelog
-    - 0b07683 chore(changelog-official): regenerate official changelog [skip ci]
-    - 6cf6ab4 probe: bot push without skip ci
-    - c80b21e Merge branch 'main' into chore/changelog-official-update
-
 - PR#19 No changes made: insufficient quota to complete coverage setup
     - e951179 Initial plan
 
@@ -95,9 +90,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#28 feat(changelog): regex category mapping + release-based versioning
     - cec2b81 feat(changelog): regex category mapping + release-based versioning
 
-- PR#30 chore(changelog-official): regenerate official changelog
-    - 3560922 chore(changelog-official): regenerate official changelog
-
 - PR#31 fix(auto-merge): approve runs on post-sync head
     - f2a90ad fix(auto-merge): approve runs on the post-sync head + retry stale sync
 
@@ -131,18 +123,11 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#42 fix(ci): run gate commands through the shell in the process runner
     - 7b53162 fix(ci): run gate commands through the shell in the process runner
 
-- PR#43 chore(changelog-official): regenerate official changelog
-    - a11c649 chore(changelog-official): regenerate official changelog
-
 - PR#45 refactor: validate url scheme before urllib calls
     - ab3ccbd refactor: validate url scheme before urllib calls
 
 - PR#46 fix(ci): make CI Strict aggregator fail when lanes fail
     - 923905d fix(ci): make CI Strict aggregator fail when lanes fail
-
-- PR#47 chore(changelog-official): regenerate official changelog
-    - 6d6e833 chore(changelog-official): regenerate official changelog
-    - af587c4 Merge branch 'main' into chore/changelog-official-update
 
 - PR#49 fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger
     - f57dc82 fix(ci): approve bot runs on every sweep via non-gated workflow_run trigger
@@ -151,17 +136,11 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - b924181 chore(ci): rename bot PAT secret to ZEF_TOKEN in auto-merge
     - c46b32d Merge branch 'main' into chore/zef-token-secret-name
 
-- PR#52 chore(changelog-official): regenerate official changelog
-    - 02c4ec4 chore(changelog-official): regenerate official changelog
-
 - PR#53 ci(sonar): drop unnecessary composer install from analysis job
     - 5109e6b ci(sonar): drop unnecessary composer install from analysis job
 
 - PR#55 ci(sonar): drop broken composer install step and bridge coverage on every event
     - 7e549b2 ci(sonar): drop broken composer install step and bridge coverage on every event
-
-- PR#56 chore(changelog-official): regenerate official changelog
-    - 99fa748 chore(changelog-official): regenerate official changelog
 
 - PR#57 ci(sonar): use full-history checkout for better analysis relevancy
     - 0e7d3a8 ci(sonar): use full-history checkout for better analysis relevancy
@@ -169,9 +148,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#59 ci: bump sonar checkout to v4.4.0 and split heavy jobs
     - 2c157c0 ci: bump sonar checkout to v4.4.0 and split heavy CI lanes into own workflows
     - fb05b0a ci: keep lane names whole in the CI Strict aggregator
-
-- PR#60 chore(changelog-official): regenerate official changelog
-    - 69e1989 chore(changelog-official): regenerate official changelog
 
 - PR#61 ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning
     - b59c395 ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning
@@ -182,33 +158,17 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#62 fix(ci): fall back to the built-in token when the bot PAT is under-scoped
     - fb57dd1 fix(ci): fall back to the built-in token when the PAT is under-scoped
 
-- PR#64 chore(changelog-official): regenerate official changelog
-    - 1f8934c chore(changelog-official): regenerate official changelog
-    - 5520ca9 Merge branch 'main' into chore/changelog-official-update
-
 - PR#67 ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)
     - c52b359 ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)
-
-- PR#68 chore(changelog-official): regenerate official changelog
-    - 578b8cb chore(changelog-official): regenerate official changelog
 
 - PR#71 ci(auto-merge): correct ZEF_TOKEN caveat comment
     - f2ccf43 ci(auto-merge): correct the token-type caveat (ZEF_TOKEN is a classic PAT)
 
-- PR#72 chore(changelog-official): regenerate official changelog
-    - dd563a4 chore(changelog-official): regenerate official changelog
-
 - PR#74 docs(roadmap): refresh ROADMAP-STATUS header to current main
     - acf5944 docs(roadmap): refresh ROADMAP-STATUS header to current main
 
-- PR#75 chore(changelog-official): regenerate official changelog
-    - 405b5a7 chore(changelog-official): regenerate official changelog
-
 - PR#77 docs(roadmap): add ROADMAP-HISTORY grouped by roadmap area
     - a21a0ee docs(roadmap): add ROADMAP-HISTORY grouped by roadmap area
-
-- PR#78 chore(changelog-official): regenerate official changelog
-    - e0410e3 chore(changelog-official): regenerate official changelog
 
 - PR#79 ci(actions): bump deprecated node20 actions to node24
     - 81e3ad2 ci(actions): bump deprecated node20 actions to node24
@@ -222,9 +182,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - d9b22a6 ci(hardening): fail-closed changelog filter, least-privilege proof-html, concurrency groups
     - 4bbbddf Merge branch 'main' into ci/hardening
 
-- PR#83 chore(changelog-official): regenerate official changelog
-    - b208d1d chore(changelog-official): regenerate official changelog
-
 - PR#84 docs(readme): document the quality gates
     - 1504bde docs(readme): document the quality gates
     - c61a054 Merge branch 'main' into docs/quality-gates
@@ -234,22 +191,12 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - 6274493 Merge branch 'main' into docs/quality-gates
     - 7cf12fe ci: re-trigger checks
 
-- PR#85 chore(changelog-official): regenerate official changelog
-    - ac1bf86 chore(changelog-official): regenerate official changelog
-
 - PR#87 ci(actions): bump remaining checkout pins to node24
     - cf8edcd ci(actions): bump remaining checkout pins to node24
     - b9211fb Merge branch 'main' into ci/checkout-node24-remaining
 
-- PR#88 chore(changelog-official): regenerate official changelog
-    - 2802e95 chore(changelog-official): regenerate official changelog
-    - 399f5a5 Merge branch 'main' into chore/changelog-official-update
-
 - PR#90 ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN
     - 12f27dc ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN
-
-- PR#91 chore(changelog-official): regenerate official changelog
-    - 22ad970 chore(changelog-official): regenerate official changelog
 
 - PR#93 docs(ci): add pipeline note 1 for auto-prs evaluation
     - 47062db docs(ci): add pipeline note 1 for auto-prs evaluation
@@ -273,14 +220,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - 98fa994 Merge branch 'main' into docs/ci-notes-4
     - d2f58a3 Merge branch 'main' into docs/ci-notes-4
 
-- PR#97 chore(changelog-official): regenerate official changelog
-    - 78c183a chore(changelog-official): regenerate official changelog
-
 - PR#98 ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator
     - 970715d ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator
-
-- PR#99 chore(changelog-official): regenerate official changelog
-    - 5507c64 chore(changelog-official): regenerate official changelog
 
 - PR#100 docs(ci): burst probe 1 for event-scoped CI Strict concurrency
     - da55186 docs(ci): burst probe 1 for event-scoped CI Strict concurrency
@@ -386,28 +327,16 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - 4b9fcd7 Merge branch 'main' into docs/ci-ruleset-verify-3
     - b25e8e1 Merge branch 'main' into docs/ci-ruleset-verify-3
 
-- PR#117 chore(changelog-official): regenerate official changelog
-    - 9187def chore(changelog-official): regenerate official changelog
-
 - PR#119 ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane
     - 75e5e79 ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane
     - fcb92e5 Merge branch 'main' into ci/stale-prs-updater
     - 308feff Merge branch 'main' into ci/stale-prs-updater
     - 77a8f0b Merge branch 'main' into ci/stale-prs-updater
 
-- PR#120 chore(changelog-official): regenerate official changelog
-    - 07a632d chore(changelog-official): regenerate official changelog
-
-- PR#122 chore(changelog-official): regenerate official changelog
-    - 52eb1eb chore(changelog-official): regenerate official changelog
-
 - PR#124 ci(security): remove CodeQL in favor of DeepSource/SonarCloud/PhpCodeArcheology
     - 3dee2e6 docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)
     - f473db5 docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)
     - f3b0fac Merge branch 'main' into ci/remove-codeql
-
-- PR#125 chore(changelog-official): regenerate official changelog
-    - 982de7a chore(changelog-official): regenerate official changelog
 
 - PR#126 docs: ci burst probe 1
     - 4e9e014 docs: add ci burst probe 1
@@ -424,9 +353,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#129 docs(security): purge remaining CodeQL references
     - 0014f9f docs(security): purge remaining CodeQL references
 
-- PR#130 chore(changelog-official): regenerate official changelog
-    - c950b72 chore(changelog-official): regenerate official changelog
-
 - PR#131 fix(ci): supersede stale CI Strict runs to unblock auto-merge
     - 0993b80 fix(ci): supersede stale CI Strict runs to unblock auto-merge
     - 549806f test(ci): harden workflow-concurrency gate to 100% MSI
@@ -436,9 +362,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - 1d8833c refactor(ci): extract MixedValue so the policy unit passes the fitness gate
     - 578a075 fix(ci): drop unused private constructor flagged by Psalm
     - efff803 fix(ci): unblock auto-merge by superseding stale CI Strict runs
-
-- PR#132 chore(changelog-official): regenerate official changelog
-    - 5c6cad3 chore(changelog-official): regenerate official changelog
 
 - PR#134 fix(ci): auto-resolve finished review conversations to unblock auto-merge
     - e2931bd fix(ci): auto-resolve finished review conversations to unblock auto-merge
@@ -453,10 +376,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#135 fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock
     - f3b1ad0 fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock
 
-- PR#136 chore(changelog-official): regenerate official changelog
-    - 6c8788e chore(changelog-official): regenerate official changelog
-    - 4beb9f7 Merge branch 'main' into chore/changelog-official-update
-
 - PR#137 ci(strict): add workflow-concurrency regression gate
     - f7fd17d ci(strict): add workflow-concurrency regression gate
     - 8a7a27d Merge branch 'main' into fix/ci-strict-per-commit-concurrency
@@ -465,48 +384,26 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - ee89f43 fix(ci): harden lane concurrency per-commit and silence new-analyzer findings
     - fa5913f fix(ci): kill the four escaped mutants and the phpcs control-structure finding
 
-- PR#139 chore(changelog-official): regenerate official changelog
-    - ba0f1d2 chore(changelog-official): regenerate official changelog
-    - 1d75089 Merge branch 'main' into chore/changelog-official-update
-
 - PR#141 fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)
     - 792c21d fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)
-
-- PR#142 chore(changelog-official): regenerate official changelog
-    - 5951a75 chore(changelog-official): regenerate official changelog
 
 - PR#144 fix(ci): report only actionable findings in the code-scanning alert feed
     - 3843f67 fix(ci): report only actionable findings in the code-scanning alert feed
     - 175a66f fix(ci): use sha256 for SARIF fingerprint ids
 
-- PR#145 chore(changelog-official): regenerate official changelog
-    - b7abb71 chore(changelog-official): regenerate official changelog
-
 - PR#147 docs(CONTRIBUTING.md): Add mandatory rules for contribution guidelines)
     - 88649fe Add mandatory rules for contribution guidelines
-
-- PR#148 chore(changelog-official): regenerate official changelog
-    - 8aef281 chore(changelog-official): regenerate official changelog
 
 - PR#150 feat(ci): assert the zero-dependency invariant in the static gate
     - 4f5d317 feat(ci): assert the zero-dependency invariant in the static gate
     - a5cac90 fix(ci): psalm-clean manifest narrowing and multi-section mutation kill
 
-- PR#151 chore(changelog-official): regenerate official changelog
-    - 700285c chore(changelog-official): regenerate official changelog
-
 - PR#153 feat(config): immutable config repository with dot-notation access
     - 44a2799 feat(config): immutable config repository with dot-notation access
     - ff342ff Merge branch 'main' into feat/config-repository
 
-- PR#154 chore(changelog-official): regenerate official changelog
-    - 26ffdcb chore(changelog-official): regenerate official changelog
-
 - PR#156 test(tooling): make the lint report sort mutant kill deterministic
     - af3d3d2 test(tooling): make the lint report sort mutant kill deterministic
-
-- PR#157 chore(changelog-official): regenerate official changelog
-    - 22136aa chore(changelog-official): regenerate official changelog
 
 - PR#159 feat(config): immutable with-mutations for config entries
     - b1c4674 feat(config): immutable with-mutations for config entries
@@ -515,8 +412,6 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#160 docs(contributing): require roadmap history and status updates after implementation
     - 528fa98 docs(contributing): require roadmap history and status updates after implementation
 
-- PR#161 chore(changelog-official): regenerate official changelog
-    - 521830f chore(changelog-official): regenerate official changelog
-
-- PR#163 chore(changelog-official): regenerate official changelog
-    - cf67240 chore(changelog-official): regenerate official changelog
+- PR#165 fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)
+    - 2212792 fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)
+    - 14d818f Merge origin/main into fix/changelog-api-workflows
