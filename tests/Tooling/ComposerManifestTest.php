@@ -170,6 +170,21 @@ final class ComposerManifestTest extends TestCase
         }
     }
 
+    public function testKeepsEveryTopLevelSectionOfTheManifest(): void
+    {
+        // A manifest whose interesting sections are NOT the first key: a
+        // regression that truncates the decoded manifest to a single entry
+        // (for example a mutated array slice) must not silently drop the
+        // sections the gate reads.
+        $manifest = $this->manifest(
+            '{"name":"zeflous/zeflous","require":{"php":"^8.4"}}',
+            '{"content-hash":"abc123","packages":[{"name":"psr/log"}]}',
+        );
+
+        self::assertSame(['php' => '^8.4'], $manifest->require);
+        self::assertSame([['name' => 'psr/log']], $manifest->packages);
+    }
+
     private function manifest(string $composerJson, string $composerLock): ComposerManifest
     {
         file_put_contents($this->composerJsonPath, $composerJson);

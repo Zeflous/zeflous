@@ -24,44 +24,31 @@ final readonly class ComposerManifest
 
     public static function fromFiles(string $composerJsonPath, string $composerLockPath): self
     {
+        $composerJson = self::decodeObjectFile($composerJsonPath, 'composer.json');
+        $composerLock = self::decodeObjectFile($composerLockPath, 'composer.lock');
+
         return new self(
-            self::requireOf(self::decodeObjectFile($composerJsonPath, 'composer.json')),
-            self::packagesOf(self::decodeObjectFile($composerLockPath, 'composer.lock')),
+            self::sectionOrThrow(
+                $composerJson['require'] ?? [],
+                'composer.json require section is malformed: it must be an object.',
+            ),
+            self::sectionOrThrow(
+                $composerLock['packages'] ?? [],
+                'composer.lock packages section is malformed: it must be an array.',
+            ),
         );
     }
 
     /**
-     * @param array<mixed> $composerJson
-     *
      * @return array<mixed>
      */
-    private static function requireOf(array $composerJson): array
+    private static function sectionOrThrow(mixed $section, string $message): array
     {
-        // An absent "require" section means no dependencies are declared; the
-        // gate then fails the exact-match check on an empty array, so no
-        // special case for the absent key is needed here.
-        $require = $composerJson['require'] ?? [];
-
-        return \is_array($require) ? $require : throw new ToolingException(
-            'composer.json require section is malformed: it must be an object.',
-        );
-    }
-
-    /**
-     * @param array<mixed> $composerLock
-     *
-     * @return array<mixed>
-     */
-    private static function packagesOf(array $composerLock): array
-    {
-        // An absent "packages" key means the lock declares no production
-        // packages; a present-but-non-array key is a broken lock and fails
-        // closed instead of silently passing the gate.
-        $packages = $composerLock['packages'] ?? [];
-
-        return \is_array($packages) ? $packages : throw new ToolingException(
-            'composer.lock packages section is malformed: it must be an array.',
-        );
+        // A present-but-non-array section is a broken manifest and fails
+        // closed instead of silently passing the gate. An absent section
+        // arrives here as an empty array and passes through: it means "no
+        // dependencies declared", which the gate then judges on its own.
+        return \is_array($section) ? $section : throw new ToolingException($message);
     }
 
     /**
@@ -76,14 +63,24 @@ final readonly class ComposerManifest
         $raw = file_get_contents($path);
         $payload = \is_string($raw) ? $raw : '';
 
+        return self::objectOrThrow(json_decode($payload, true), $label, $path);
+    }
+
+    /**
+     * @return array<mixed>
+     */
+    private static function objectOrThrow(mixed $decoded, string $label, string $path): array
+    {
         // A Composer manifest must be a JSON *object*. Decoding associatively
         // maps objects to arrays, so a scalar, null or malformed payload
         // decodes to a non-array; a non-empty list means the payload was a
         // top-level JSON array. Both shapes are rejected so a broken manifest
         // can never masquerade as an empty one and silently pass the gate.
-        $decoded = json_decode($payload, true);
+        if (!\is_array($decoded)) {
+            throw new ToolingException(\sprintf('%s does not contain a JSON object: %s', $label, $path));
+        }
 
-        if (!\is_array($decoded) || ($decoded !== [] && array_is_list($decoded))) {
+        if ($decoded !== [] && array_is_list($decoded)) {
             throw new ToolingException(\sprintf('%s does not contain a JSON object: %s', $label, $path));
         }
 
