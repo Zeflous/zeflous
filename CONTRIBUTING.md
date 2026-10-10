@@ -7,12 +7,14 @@ by convention alone — a pull request that breaks one of them cannot be merged.
 ## Table of contents
 
 - [Getting started](#getting-started)
+- [Mandatory rules](#mandatory-rules)
 - [Pull requests](#pull-requests)
 - [PR title convention (PR Validator gate)](#pr-title-convention-pr-validator-gate)
 - [Commit messages](#commit-messages)
 - [Quality gates](#quality-gates)
 - [Roadmap status](#roadmap-status)
 - [Changelog](#changelog)
+- [Pull-request checklist](#pull-request-checklist)
 
 ## Getting started
 
@@ -47,6 +49,196 @@ required status-check context is unchanged. It runs with `if: always()` and
 explicitly inspects each lane's result, so it **fails** (never silently skips)
 whenever a lane is red — a skipped required check would otherwise count as
 satisfied and let a red pull request merge.
+
+## Mandatory rules
+
+These rules are **non-negotiable**. They are part of the repository contract and
+are enforced by CI and by review. A change that violates any of them must not be
+merged. When in doubt, ask before you build — not after.
+
+### 1. Zero Composer / zero vendor at production runtime
+
+ZEF ships **zero Composer runtime dependencies**. The framework must run on a
+bare PHP 8.4 install with no `vendor/` directory present.
+
+- `composer.json` → `require` **MUST** be exactly `{ "php": "^8.4" }`. Nothing
+  else may be added to the production `require` block.
+- `composer.lock` → the production `packages` array **MUST** stay empty (`[]`).
+  Only `packages-dev` may be populated.
+- Anything normally obtained from a third-party library — YAML/TOML/XML parsers,
+  polyfills, helper packages — **MUST** be implemented as an **in-repo shim**
+  under `src/`, never pulled from Packagist.
+- Dev-only dependencies (PHPStan, Psalm, Infection, Deptrac, PhpCodeArcheology,
+  PHP-CS-Fixer, …) are allowed, but they **MUST NOT** leak into the runtime
+  `src/` tree. `src/` may depend only on PHP itself and the repository's own
+  code.
+- Enforced by the [anti-regression zero-dependency gate](#15-anti-regression-zero-dependency-gate).
+
+### 2. Roadmap order — Configuration System first, then Container
+
+The build order is fixed and must not be reordered:
+
+1. **Configuration System** (foundation) — **first**.
+2. **Container** — only **after** the Configuration foundation is complete.
+
+Do not start Container work while the Configuration foundation is unfinished.
+Container depends on configuration (global scalar parameters, environment
+variables, parameter providers, configuration merging, semantic configuration),
+so building it first would force rework. See
+[`ROADMAP.md`](ROADMAP.md) and [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
+
+### 3. Configuration System design style
+
+The Configuration System follows the API and structure of
+[`phlak/config`](https://github.com/PHLAK/Config), adapted to ZEF:
+
+- **Immutable** — unlike `phlak/config` (which is mutable), ZEF's `Config` is
+  immutable: every mutation returns a new instance (`with*`), matching the
+  `final readonly` style of `Kernel` and `Container`.
+- **Zero-dependency** — no third-party parser; see rule 1. Formats that would
+  normally need a library (YAML/TOML/XML) are either handled natively, shimmed
+  in-repo, or dropped from the initial scope.
+- **Plus three capabilities `phlak/config` does not have:** schema validation,
+  environment layering, and a compiled cache.
+
+### 4. Edge-case and corner-case awareness
+
+Code logic **MUST** be written with edge cases and corner cases in mind, not
+just the happy path. Before a change is considered done, reason explicitly about
+— and cover with tests — the boundary conditions of every branch:
+
+- empty / null / missing input, and zero-length collections;
+- single-element and maximum-size inputs;
+- off-by-one boundaries (first, last, one-past-the-end);
+- duplicate, unordered and repeated keys;
+- malformed, truncated or hostile input (wrong type, bad encoding, oversized);
+- concurrent or re-entrant use where the code is shared.
+
+A branch that cannot be reached, or a case that is silently swallowed, is a
+defect — not a simplification.
+
+### 5. Enterprise Coding Standard
+
+All code **MUST** follow the repository's Enterprise Coding Standard. In
+practice this means:
+
+- PHP 8.4 with `declare(strict_types=1);` in every file;
+- PSR-4 autoloading, PSR-12 formatting (enforced by PHP-CS-Fixer and
+  PHP_CodeSniffer + Slevomat);
+- `final` classes and `readonly` properties by default; explicit, narrow types
+  on every parameter, return value and property;
+- no `mixed` where a precise type is expressible; no suppressed errors;
+- small, single-responsibility units with clear names;
+- no dead code, no commented-out code, no debug leftovers.
+
+### 6. SonarCloud-clean logic (no new ruleKey exclusions)
+
+Code logic **MUST NOT** introduce new SonarCloud issues. Fix the underlying
+cause rather than silencing the rule:
+
+- do **not** add a new `ruleKey` exclusion, ignore pattern, or quality-profile
+  override to make a finding disappear;
+- do **not** mark a new issue as "won't fix" / "false positive" to pass the
+  gate;
+- if a rule genuinely cannot be satisfied, raise it for review **before**
+  merging — never widen the exclusion set unilaterally.
+
+The existing exclusion set is frozen; it may only shrink, never grow.
+
+### 7. Comprehensive and cohesive logic
+
+Logic **MUST** be both **comprehensive** (it handles the full problem, not a
+partial slice) and **cohesive** (each unit does one thing, and everything it
+does belongs together):
+
+- no half-implemented features, no `TODO`-as-implementation;
+- no god-classes or grab-bag helpers that mix unrelated concerns;
+- related behaviour lives together; unrelated behaviour is split apart;
+- public surface is minimal and intentional.
+
+### 8. Re-harden before pushing
+
+Before a pull request is pushed, the author **MUST** re-harden the change:
+
+- re-read the diff as an adversary — input validation, bounds, error paths,
+  resource limits, and failure modes;
+- confirm no secret, token or credential is committed;
+- confirm no new runtime dependency slipped in (see rule 1);
+- confirm the change still passes the full strict pipeline locally.
+
+Hardening is a deliberate pass, not an assumption that "it works".
+
+### 9. Unit-test coverage above 90 %
+
+Unit-test line coverage **MUST** be **greater than 90 %** (the CI gate enforces
+≥ 90 %; aim above it). New logic ships with its tests in the same pull request:
+
+- every new branch and every new edge case has a test;
+- tests assert behaviour, not implementation details;
+- no test is skipped, weakened or deleted to make the gate pass.
+
+### 10. Watch CI gates to green, then let auto-merge run
+
+After pushing, the author **MUST** watch the CI gates until **all** of them are
+green. Do not merge by hand and do not force a merge while a check is red or
+pending:
+
+- fix the failure and push again until every required check is green;
+- once every required check is green, **let auto-merge run on its own** — it is
+  armed automatically and will merge without manual intervention;
+- never bypass a red or pending check.
+
+### 11. Every conversation must be solved
+
+Every review conversation on a pull request **MUST** be resolved before merge.
+No thread may be left open, unanswered or "resolved" without an actual fix or an
+explicit, justified agreement. A pull request with an unresolved conversation is
+not ready to merge.
+
+### 12. Re-audit after merge
+
+After a pull request is merged, the change **MUST** be re-audited on `main`:
+
+- confirm the merged result matches what was reviewed (no surprise commits);
+- confirm the gates are still green on `main`;
+- confirm no regression was introduced downstream;
+- record the outcome so the next change starts from a verified baseline.
+
+### 13. Mandatory quality gates
+
+Every change **MUST** pass the full strict pipeline. The gates are:
+
+| Gate | Threshold |
+| --- | --- |
+| Line coverage | **≥ 90 %** |
+| Infection mutation score | **MSI 100** (and covered MSI 100) |
+| PHPStan | **max level** + baseline ratchet (no new errors) |
+| Psalm | **level 1** against the frozen baseline |
+| Deptrac | architecture boundaries respected |
+| `composer audit` | **strict** — fail on any advisory or non-allow-listed abandoned package |
+| `CI Strict` | green (aggregates `CI Static`, `CI Coverage`, `CI Infection`, `CI Bench`) |
+
+Do not weaken a gate, add a rule exclusion, or lower a threshold to make a
+change pass. Fix the underlying issue instead.
+
+### 14. TASK CONTINUATION MODE
+
+When revising existing work, **copy to a new version before editing** — never
+overwrite the previous version in place. Project directories use the `_vN`
+suffix (`name/` → `name_v2/` → `name_v3/`); generated media get their next
+version from the generating tool. The previous version stays intact and
+read-only. This keeps every delivered revision reproducible and reviewable.
+
+### 15. Anti-regression zero-dependency gate
+
+A CI gate **MUST** assert the zero-dependency invariant on every pull request:
+
+- `composer.json` → `require` equals `{ "php": "^8.4" }`; and
+- `composer.lock` → `packages` equals `[]`.
+
+The gate fails the build if either assertion is violated, so a runtime
+dependency can never be introduced silently. This is the enforcement arm of
+[rule 1](#1-zero-composer--zero-vendor-at-production-runtime).
 
 ## Pull requests
 
@@ -236,3 +428,36 @@ request merged into a non-default branch is excluded.
 The generator lives in `scripts/changelog/generate.py` and is driven by
 [`.github/workflows/changelog.yml`](.github/workflows/changelog.yml) on `push`
 to `main` and on `workflow_dispatch`.
+
+## Pull-request checklist
+
+Copy this into your pull-request description and tick every box before you ask
+for review. A pull request that cannot tick a box is not ready to merge.
+
+```markdown
+- [ ] Branch is up to date with `main`; one logical change only.
+- [ ] `composer ci:strict` passes locally (CI Strict, Coverage, Infection, Bench).
+- [ ] PR title is a valid Conventional-Commit header (`<type>(<scope>): <subject>`).
+- [ ] **Zero-dependency:** `composer.json` `require` is still `{ "php": "^8.4" }`.
+- [ ] **Zero-dependency:** `composer.lock` production `packages` is still `[]`.
+- [ ] No third-party runtime dependency leaked into `src/`; new formats use an in-repo shim.
+- [ ] **Roadmap order:** Configuration System work precedes Container work.
+- [ ] **Config design:** immutable (`with*`), zero-dependency, with schema validation / env layering / compiled cache where applicable.
+- [ ] **Quality gates:** coverage ≥ 90 %, Infection MSI 100, PHPStan max + ratchet, Psalm L1, Deptrac, `composer audit` strict — all green.
+- [ ] Edge cases and corner cases are handled and covered by tests.
+- [ ] Logic follows the Enterprise Coding Standard and is comprehensive and cohesive.
+- [ ] No new SonarCloud issue introduced; no new `ruleKey` exclusion added.
+- [ ] Logic re-hardened before push.
+- [ ] Unit-test coverage is above 90 %.
+- [ ] CI gates watched to green; auto-merge left to run on its own.
+- [ ] All review conversations resolved.
+- [ ] Post-merge re-audit planned.
+- [ ] No gate weakened, no rule exclusion added, no threshold lowered.
+- [ ] `ROADMAP-STATUS.md` updated if a roadmap area gained code.
+- [ ] Changelog left to the generator (not edited by hand).
+```
+
+### Notes for agents
+
+- **TASK CONTINUATION MODE:** copy to a new version before editing; never
+  overwrite a delivered version.
