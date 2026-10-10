@@ -56,6 +56,35 @@ final class DirectoryLoaderTest extends TestCase
         );
     }
 
+    public function testSkipsNonPhpAndHiddenEntriesBeforeALoadableFile(): void
+    {
+        $directory = (string) tempnam(sys_get_temp_dir(), 'zef-skip-');
+        unlink($directory);
+        mkdir($directory);
+
+        // The skippable entries are created *before* the loadable one on
+        // purpose: skipping is a per-entry decision, so a mutant that aborts
+        // the whole iteration (continue -> break) stops before last.php is
+        // ever reached and the load comes back empty. Creating the entries
+        // in this order makes that kill independent of how any filesystem
+        // orders the entries of an existing directory.
+        file_put_contents($directory . '/notes.txt', 'not php');
+        file_put_contents($directory . '/.hidden.php', '<?php return [];');
+        file_put_contents($directory . '/last.php', '<?php return ["key" => "last"];');
+
+        try {
+            self::assertSame(
+                ['last' => ['key' => 'last']],
+                new DirectoryLoader(new PhpFileLoader(['last.php']))->load($directory),
+            );
+        } finally {
+            unlink($directory . '/notes.txt');
+            unlink($directory . '/.hidden.php');
+            unlink($directory . '/last.php');
+            rmdir($directory);
+        }
+    }
+
     public function testAnEmptyDirectoryYieldsAnEmptyArray(): void
     {
         $emptyDirectory = (string) tempnam(sys_get_temp_dir(), 'zef-empty-');
