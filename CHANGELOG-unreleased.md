@@ -22,6 +22,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(changelog): render per-version changelog in github-changelog-generator style [#183](https://github.com/Zeflous/zeflous/pull/183) ([mbetixz](https://github.com/mbetixz))
 - feat(config): layered default-app-env configuration merge [#184](https://github.com/Zeflous/zeflous/pull/184) ([mbetixz](https://github.com/mbetixz))
 - feat(changelog): drop per-commit lines from per-version changelog [#190](https://github.com/Zeflous/zeflous/pull/190) ([mbetixz](https://github.com/mbetixz))
+- feat(config): strict schema validation for route configuration [#195](https://github.com/Zeflous/zeflous/pull/195) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
