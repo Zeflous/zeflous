@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T02:17:07Z",
+  "as_of": "2026-10-10T06:32:49Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 107,
+  "unreleased_count": 109,
   "versions": [
     {
       "version": "Unreleased",
@@ -473,6 +473,27 @@
                 "sha": "792c21d5efa9d775319a9df8bc703bfccc373498",
                 "short_sha": "792c21d",
                 "subject": "fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)"
+              }
+            ]
+          },
+          {
+            "pr": 144,
+            "title": "fix(ci): report only actionable findings in the code-scanning alert feed",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-10T06:30:41Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/144",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3843f67fd82cd952b2ebad3ff128595cf3f93aa8",
+                "short_sha": "3843f67",
+                "subject": "fix(ci): report only actionable findings in the code-scanning alert feed"
+              },
+              {
+                "sha": "175a66fdbf4efe25005767b6f76f24cfb7c6bd1c",
+                "short_sha": "175a66f",
+                "subject": "fix(ci): use sha256 for SARIF fingerprint ids"
               }
             ]
           }
@@ -1668,6 +1689,22 @@
               {
                 "sha": "5951a75e35efcb662ecc870b85210a75dd78b50e",
                 "short_sha": "5951a75",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 145,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-10T06:32:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/145",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b7abb71e299b72ff89b95b0e1612202c5bd8ba1e",
+                "short_sha": "b7abb71",
                 "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
@@ -4934,6 +4971,43 @@
             {
               "sha": "5951a75e35efcb662ecc870b85210a75dd78b50e",
               "short_sha": "5951a75",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 144,
+          "title": "fix(ci): report only actionable findings in the code-scanning alert feed",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-10T06:30:41Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/144",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3843f67fd82cd952b2ebad3ff128595cf3f93aa8",
+              "short_sha": "3843f67",
+              "subject": "fix(ci): report only actionable findings in the code-scanning alert feed"
+            },
+            {
+              "sha": "175a66fdbf4efe25005767b6f76f24cfb7c6bd1c",
+              "short_sha": "175a66f",
+              "subject": "fix(ci): use sha256 for SARIF fingerprint ids"
+            }
+          ]
+        },
+        {
+          "pr": 145,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-10T06:32:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/145",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b7abb71e299b72ff89b95b0e1612202c5bd8ba1e",
+              "short_sha": "b7abb71",
               "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]

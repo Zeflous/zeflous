@@ -474,3 +474,10 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#142 chore(changelog-official): regenerate official changelog
     - 5951a75 chore(changelog-official): regenerate official changelog
+
+- PR#144 fix(ci): report only actionable findings in the code-scanning alert feed
+    - 3843f67 fix(ci): report only actionable findings in the code-scanning alert feed
+    - 175a66f fix(ci): use sha256 for SARIF fingerprint ids
+
+- PR#145 chore(changelog-official): regenerate official changelog
+    - b7abb71 chore(changelog-official): regenerate official changelog
