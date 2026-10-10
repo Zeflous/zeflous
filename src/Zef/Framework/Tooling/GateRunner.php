@@ -35,6 +35,11 @@ final readonly class GateRunner
         return match ($gate) {
             'coverage' => new CoverageGate((float) ($args[0] ?? '90'))
                 ->evaluate(CoverageReport::fromCloverFile($this->root . '/build/clover.xml')),
+            'zero-deps' => new ZeroDependencyGate()
+                ->evaluate(ComposerManifest::fromFiles(
+                    $this->root . '/composer.json',
+                    $this->root . '/composer.lock',
+                )),
             'mutation' => new MutationGate((float) ($args[0] ?? '100'))
                 ->evaluate(MutationReport::fromInfectionJsonFile($this->root . '/build/infection/infection.json')),
             'baseline' => new BaselineGate()->evaluate($this->readBaseline()),
