@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T11:43:50Z",
+  "as_of": "2026-10-10T11:59:57Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 113,
+  "unreleased_count": 115,
   "versions": [
     {
       "version": "Unreleased",
@@ -132,6 +132,27 @@
                 "sha": "a5cac90d31cb161ac009af304a85bdeb9bdda95e",
                 "short_sha": "a5cac90",
                 "subject": "fix(ci): psalm-clean manifest narrowing and multi-section mutation kill"
+              }
+            ]
+          },
+          {
+            "pr": 153,
+            "title": "feat(config): immutable config repository with dot-notation access",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-10T11:58:02Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/153",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "44a2799d57c1a75fab33047bb9d802eb3d26bb14",
+                "short_sha": "44a2799",
+                "subject": "feat(config): immutable config repository with dot-notation access"
+              },
+              {
+                "sha": "ff342ffce33a82383bb3907925ea33b78c377709",
+                "short_sha": "ff342ff",
+                "subject": "Merge branch 'main' into feat/config-repository"
               }
             ]
           }
@@ -1758,6 +1779,22 @@
               {
                 "sha": "700285c96bc4abcb3ed37e65ebe9eefac60e5e0f",
                 "short_sha": "700285c",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
+          },
+          {
+            "pr": 154,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-10T11:59:57Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/154",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "26ffdcb5f80a71fb217564e4388664fe8768b913",
+                "short_sha": "26ffdcb",
                 "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
@@ -5146,6 +5183,43 @@
             {
               "sha": "700285c96bc4abcb3ed37e65ebe9eefac60e5e0f",
               "short_sha": "700285c",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 153,
+          "title": "feat(config): immutable config repository with dot-notation access",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-10T11:58:02Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/153",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "44a2799d57c1a75fab33047bb9d802eb3d26bb14",
+              "short_sha": "44a2799",
+              "subject": "feat(config): immutable config repository with dot-notation access"
+            },
+            {
+              "sha": "ff342ffce33a82383bb3907925ea33b78c377709",
+              "short_sha": "ff342ff",
+              "subject": "Merge branch 'main' into feat/config-repository"
+            }
+          ]
+        },
+        {
+          "pr": 154,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-10T11:59:57Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/154",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "26ffdcb5f80a71fb217564e4388664fe8768b913",
+              "short_sha": "26ffdcb",
               "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
