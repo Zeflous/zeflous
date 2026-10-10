@@ -6,14 +6,18 @@ namespace Zef\Test\Router;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Router\PathBraceScanner;
 use Zef\Framework\Router\PathSegment;
 use Zef\Framework\Router\RoutePath;
+use Zef\Framework\Router\RoutePathGrammar;
 use Zef\Framework\Router\RouterException;
 
 /**
  * @internal
  */
 #[CoversClass(RoutePath::class)]
+#[CoversClass(RoutePathGrammar::class)]
+#[CoversClass(PathBraceScanner::class)]
 #[CoversClass(PathSegment::class)]
 final class RoutePathTest extends TestCase
 {
@@ -22,7 +26,6 @@ final class RoutePathTest extends TestCase
         $routePath = RoutePath::parse('/');
 
         self::assertSame([], $routePath->segments());
-        self::assertFalse($routePath->hasParameters());
         self::assertSame([], $routePath->parameterNames());
         self::assertSame('/', $routePath->canonical());
     }
@@ -42,7 +45,6 @@ final class RoutePathTest extends TestCase
         $routePath = RoutePath::parse('/users/{id}');
 
         self::assertSame(['users', '{id}'], $this->render($routePath));
-        self::assertTrue($routePath->hasParameters());
         self::assertSame(['id'], $routePath->parameterNames());
     }
 
@@ -84,11 +86,6 @@ final class RoutePathTest extends TestCase
             ['a', 'b'],
             RoutePath::parse('/{a}/between/{b}/end')->parameterNames(),
         );
-    }
-
-    public function testHasParametersIsFalseForStaticPaths(): void
-    {
-        self::assertFalse(RoutePath::parse('/api/v1/users')->hasParameters());
     }
 
     public function testCanonicalRendersParametersBlind(): void

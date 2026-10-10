@@ -62,4 +62,17 @@ final readonly class PathSegment
     {
         return $this->value;
     }
+
+    /**
+     * The parameter-blind rendering: a parameter segment renders as `{}`,
+     * a static segment as its literal text.
+     *
+     * {@see RoutePath::canonical()} joins these with slashes; this is the
+     * piece the segment itself owns, so the spelling can never disagree
+     * with the kind.
+     */
+    public function canonical(): string
+    {
+        return $this->parameter ? '{}' : $this->value;
+    }
 }
