@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Config\Cache;
 
+use ParseError;
 use Zef\Framework\Config\ConfigException;
 
 /**
@@ -32,11 +33,16 @@ use Zef\Framework\Config\ConfigException;
  *
  * Every failure is fail-closed with the offending path in the message: a
  * `dump()` whose target directory does not exist, a write that fails, a
- * `load()` of a missing cache, or a cache that does not return an array
- * (a torn write, a hand edit, a truncated file) all throw a
- * {@see ConfigException} -- never a silent empty configuration. A torn
- * write from `file_put_contents()` is therefore detectable, not dangerous:
- * the next `load()` rejects it and the rebuild overwrites it.
+ * `load()` of a missing cache, a cache that does not return an array, or a
+ * cache file that is not valid PHP at all (a torn write, a hand edit, a
+ * truncated file) all throw a {@see ConfigException} -- never a silent
+ * empty configuration. The "not valid PHP" shape is the one a partial
+ * `file_put_contents()` actually produces: `require` then raises a
+ * {@see ParseError} while parsing, which `load()` catches and re-throws as
+ * a {@see ConfigException}, so the fail-closed contract covers *every*
+ * corruption shape and not only those that happen to parse. A torn write is
+ * therefore detectable, not dangerous: the next `load()` rejects it and the
+ * rebuild overwrites it.
  *
  * The class is the cache seam the kernel bootstrapper will wire (dump at
  * build time, load at boot), which is why it is marked `@api` rather than
@@ -107,7 +113,15 @@ final readonly class ConfigCache
             );
         }
 
-        return $this->asArray(require $file, $file);
+        try {
+            return $this->asArray(require $file, $file);
+        } catch (ParseError $parseError) {
+            throw new ConfigException(
+                \sprintf('The configuration cache "%s" is corrupted: it is not valid PHP.', $file),
+                0,
+                $parseError,
+            );
+        }
     }
 
     /**

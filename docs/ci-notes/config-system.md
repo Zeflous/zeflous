@@ -1,7 +1,7 @@
 # Configuration System — decision record
 
 The implementation record for the Configuration Layer (layer 1 of "The Triad":
-Configuration + DSL + Radix Tree, `ROADMAP.md`). Seven merged PRs, executed
+Configuration + DSL + Radix Tree, `ROADMAP.md`). Nine merged PRs, executed
 serially with auto-merge and zero gate weakening:
 
 | PR | Scope |

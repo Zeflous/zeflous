@@ -88,6 +88,14 @@ jobs:
         # the persistent-worker smoke test and the strict supply-chain audit.
         run: composer ci:static
 
+      - name: Roadmap documents (integrity gate)
+        # Guards the roadmap / delivery documents against the malformed-table
+        # class of defect that shipped in ROADMAP-HISTORY.md (a data row that
+        # swallowed the `---` separator, breaking the table). Pure Markdown, so
+        # no other lane would ever catch it. Also folded into the local
+        # `composer ci:static` for parity.
+        run: composer roadmap:gate
+
       - name: Psalm (static analysis, level 1 + baseline)
         # Psalm runs at its strictest level (1). The pre-existing findings are
         # frozen in `psalm-baseline.xml` -- the same "no new debt" ratchet the

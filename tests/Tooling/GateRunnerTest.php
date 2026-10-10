@@ -193,6 +193,23 @@ final class GateRunnerTest extends TestCase
         }
     }
 
+    public function testRoadmapDocGateAuditsTheDocuments(): void
+    {
+        file_put_contents(
+            $this->root . '/ROADMAP-HISTORY.md',
+            "# History\n\n| A | B |\n|---|---|\n| 1 | 2 |\n",
+        );
+
+        try {
+            $gateResult = $this->runner()->run('roadmap', []);
+
+            self::assertTrue($gateResult->passed);
+            self::assertSame('Roadmap document gate PASSED: 1 document(s) audited.', $gateResult->message);
+        } finally {
+            unlink($this->root . '/ROADMAP-HISTORY.md');
+        }
+    }
+
     public function testSmokeGateRunsThePersistentWorkerSmoke(): void
     {
         $gateResult = $this->runner()->run('smoke', []);

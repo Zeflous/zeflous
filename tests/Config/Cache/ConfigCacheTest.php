@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Test\Config\Cache;
 
 use Override;
+use ParseError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Cache\ConfigCache;
@@ -153,6 +154,31 @@ final class ConfigCacheTest extends TestCase
                     . 'is corrupted: it does not return an array.',
                 $configException->getMessage(),
             );
+        }
+    }
+
+    public function testLoadThrowsWhenTheCacheIsNotValidPhp(): void
+    {
+        // A torn write -- `file_put_contents()` interrupted part-way -- leaves a
+        // PHP file that does not even PARSE. `require` then raises a ParseError,
+        // not the return-value corruption the other cases cover; the fail-closed
+        // contract must still hold for it. The broken content is written at run
+        // time rather than committed as a fixture so the syntax-lint gate (which
+        // `php -l`s every committed `.php` file) never trips over it.
+        file_put_contents($this->file, "<?php\n\ndeclare(strict_types=1);\n\nreturn array ( 'a' => 1,\n");
+
+        $configCache = new ConfigCache($this->file);
+
+        try {
+            $configCache->load();
+            self::fail('A configuration cache that is not valid PHP must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The configuration cache "' . $this->file . '" is corrupted: it is not valid PHP.',
+                $configException->getMessage(),
+            );
+            self::assertSame(0, $configException->getCode());
+            self::assertInstanceOf(ParseError::class, $configException->getPrevious());
         }
     }
 
