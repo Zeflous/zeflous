@@ -47,10 +47,17 @@
 name: Changelog (official generator)
 
 on:
-  push:
-    branches:
-      - main
-  # Manual re-run (idempotent) to refresh the snapshot without waiting for a push.
+  # F-1 (loop fix): react to the COMPLETION of the strict pipeline on `main`,
+  # NOT to a raw `push`. A raw `push` fires for this lane's OWN merge commit
+  # too, so the lane regenerated, opened a PR, merged it, and fired again -- a
+  # non-convergent loop. Keying on `workflow_run` of `CI Strict` means the lane
+  # only reacts once the merged tree has actually been validated, and the
+  # job-level guard below drops the runs caused by the automation's own merge.
+  workflow_run:
+    workflows: ["CI Strict"]
+    types: [completed]
+    branches: [main]
+  # Manual re-run (idempotent) to refresh the snapshot without waiting for a merge.
   workflow_dispatch:
 
 # Baseline: no write authority at the workflow level.
@@ -66,9 +73,16 @@ concurrency:
 jobs:
   official:
     name: Official changelog snapshot
-    # Skip the run caused by the automation's own merge commit, so the lane
-    # cannot chase its own tail.
-    if: github.actor != 'github-actions[bot]'
+    # F-1 (loop fix): run only for a SUCCESSFUL `CI Strict` run that was itself
+    # a `push` to `main` by a NON-bot actor. A run caused by the automation's
+    # own merge (bot actor) is dropped, so the lane cannot chase its own tail.
+    # A manual dispatch always runs.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.actor.login != 'github-actions[bot]')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -90,6 +104,14 @@ jobs:
       - name: Generate the official changelog snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # F-4 (single source of truth): the automation-title pattern lives in
+          # ONE place. It MUST stay in sync with `CHANGELOG_PR_PREFIXES` in
+          # `scripts/changelog/generate.py` -- both describe the same two
+          # automation lanes (`chore(changelog):` and
+          # `chore(changelog-official):`). A regression test in
+          # `scripts/changelog/tests/test_generate.py` asserts the generator
+          # side; this variable is the workflow side of the same contract.
+          AUTOMATION_TITLE_PATTERN: 'regenerate (API|official) changelog'
         run: |
           set -euo pipefail
           mkdir -p docs/api
@@ -110,7 +132,7 @@ jobs:
           # an empty snapshot. That is a real failure (the generator produced
           # nothing usable), so fail explicitly instead of swallowing it with
           # `|| true` and writing an empty changelog.
-          grep -v -E 'regenerate (API|official) changelog' \
+          grep -v -E "${AUTOMATION_TITLE_PATTERN}" \
             docs/api/changelog-official.md > docs/api/changelog-official.md.tmp \
             || { echo "::error::official changelog snapshot is empty after filtering automation PRs."; exit 1; }
           mv docs/api/changelog-official.md.tmp docs/api/changelog-official.md

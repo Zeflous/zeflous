@@ -44,11 +44,12 @@ its own CI job so a slow lane cannot block the others:
 | Mutation testing (Infection, MSI 100) | `composer ci:infection` | `CI Infection` |
 | Micro-benchmarks | `composer ci:bench` | `CI Bench` |
 
-The `CI Strict` job is a thin aggregator that `needs` all four lanes, so the
-required status-check context is unchanged. It runs with `if: always()` and
-explicitly inspects each lane's result, so it **fails** (never silently skips)
-whenever a lane is red — a skipped required check would otherwise count as
-satisfied and let a red pull request merge.
+The `CI Strict` job is a thin aggregator that **polls** the four lane
+check-runs over the REST API (it does not use a `needs:` dependency graph),
+so the required status-check context is unchanged. It runs with `if: always()`
+and explicitly inspects each lane's result, so it **fails** (never silently
+skips) whenever a lane is red — a skipped required check would otherwise count
+as satisfied and let a red pull request merge.
 
 ## Mandatory rules
 
