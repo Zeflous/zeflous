@@ -472,32 +472,46 @@ def _version_markers(repo: str) -> tuple[list[dict], str]:
     return [], "none"
 
 
-def _get_target_version(merged_at: datetime, markers: list[dict]) -> str:
+def _get_target_version(merged_at: str, markers: list[dict]) -> str:
+    """Return the FIRST release published at or after ``merged_at``.
+
+    Anything merged after the newest release is ``Unreleased``. Both sides are
+    parsed to ``datetime`` before comparison: ``merged_at`` and
+    ``marker["date"]`` are ISO strings, so a raw comparison would be a string
+    comparison (and comparing a string to a datetime would raise ``TypeError``).
+    """
+    merged_ts = _parse_ts(merged_at)
     for marker in markers:
-        if marker["date"] >= merged_at:
+        if marker["date"] and _parse_ts(marker["date"]) >= merged_ts:
             return marker["name"]
     return UNRELEASED
 
 
-def _pr_categories(pr: dict, categories: list[dict]) -> list[str]:
-    pr_labels = {l["name"] for l in pr.get("labels", [])}
-    matched = []
-    for cat in categories:
-        if set(cat.get("labels", [])).intersection(pr_labels):
-            matched.append(cat["title"])
-    return matched
+def _build_entry(
+    pr: dict, target: str, commits: list[dict], categories: list[dict]
+) -> dict:
+    """Build one changelog entry, preserving the renderer's expected schema.
 
-
-def _build_entry(pr: dict, categories: list[dict]) -> dict:
-    entry = {
-        "pull_number": pr["number"],
-        "title": pr["title"],
-        "author": pr["user"]["login"],
-        "labels": [l["name"] for l in pr.get("labels", [])],
-        "categories": _pr_categories(pr, categories),
+    The keys here are the contract consumed by ``render_version_markdown`` and
+    ``render_json`` (``pr``, ``category``, ``commits``, ``url``, ``file`` ...);
+    changing them silently breaks the generated ``docs/api/changelog.json``.
+    """
+    cat = category_for(
+        [lbl.get("name", "") for lbl in pr.get("labels", [])],
+        pr.get("title", ""),
+        categories,
+        [c.get("subject", "") for c in commits],
+    )
+    return {
+        "pr": pr["number"],
+        "title": pr.get("title", ""),
+        "author": (pr.get("user") or {}).get("login", "unknown"),
+        "category": cat,
         "merged_at": pr["merged_at"],
+        "url": pr.get("html_url", ""),
+        "file": version_filename(target),
+        "commits": commits,
     }
-    return entry
 
 
 def build_model(repo: str, cfg: dict) -> dict:
@@ -506,6 +520,8 @@ def build_model(repo: str, cfg: dict) -> dict:
     next_release = fetch_next_release(repo)
     prs = fetch_merged_prs(repo)
 
+    # A PR belongs to the FIRST release published at or after its merge time.
+    # Anything merged after the newest release is "Unreleased".
     versions: dict[str, dict] = {}
     order: list[str] = []
 
@@ -523,45 +539,8 @@ def build_model(repo: str, cfg: dict) -> dict:
 
     for pr in prs:
         target = _get_target_version(pr["merged_at"], markers)
-        entry = _build_entry(pr, categories)
-        vb = bucket(target)
-        for cat in entry["categories"]:
-            vb["categories"].setdefault(cat, []).append(entry)
-        vb["entries"].append(entry)
-
-    model = {
-        "versions": [],
-        "version_source": version_source,
-        "next_release": next_release,
-    }
-    for version in order:
-        vb = versions[version]
-        vb["date"] = next((m["date"] for m in markers if m["name"] == version), None)
-        vb["entries"].sort(key=lambda x: x["merged_at"])
-        model["versions"].append(vb)
-
-    return model
-        for marker in markers:
-            if marker["date"] and _parse_ts(marker["date"]) >= _parse_ts(merged_at):
-                target = marker["name"]
-                break
         commits = fetch_pr_commits(repo, pr["number"])
-        cat = category_for(
-            [lbl.get("name", "") for lbl in pr.get("labels", [])],
-            pr.get("title", ""),
-            categories,
-            [c.get("subject", "") for c in commits],
-        )
-        entry = {
-            "pr": pr["number"],
-            "title": pr.get("title", ""),
-            "author": (pr.get("user") or {}).get("login", "unknown"),
-            "category": cat,
-            "merged_at": merged_at,
-            "url": pr.get("html_url", ""),
-            "file": version_filename(target),
-            "commits": commits,
-        }
+        entry = _build_entry(pr, target, commits, categories)
         b = bucket(target)
         # De-duplicate by PR number: re-running must never duplicate an entry.
         if not any(e["pr"] == entry["pr"] for e in b["entries"]):
