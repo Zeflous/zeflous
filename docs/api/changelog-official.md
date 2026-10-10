@@ -7,6 +7,7 @@
 **Merged pull requests:**
 
 - docs\(contributing\): require roadmap history and status updates after implementation [\#160](https://github.com/Zeflous/zeflous/pull/160) ([mbetixz](https://github.com/mbetixz))
+- feat\(config\): immutable with-mutations for config entries [\#159](https://github.com/Zeflous/zeflous/pull/159) ([mbetixz](https://github.com/mbetixz))
 - test\(tooling\): make the lint report sort mutant kill deterministic [\#156](https://github.com/Zeflous/zeflous/pull/156) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): immutable config repository with dot-notation access [\#153](https://github.com/Zeflous/zeflous/pull/153) ([mbetixz](https://github.com/mbetixz))
 - feat\(ci\): assert the zero-dependency invariant in the static gate [\#150](https://github.com/Zeflous/zeflous/pull/150) ([mbetixz](https://github.com/mbetixz))
