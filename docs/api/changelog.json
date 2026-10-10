@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T14:23:15Z",
+  "as_of": "2026-10-10T17:22:41Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 89,
+  "unreleased_count": 90,
   "versions": [
     {
       "version": "Unreleased",
@@ -1348,6 +1348,32 @@
                 "sha": "fa5913f9d51a81961ea241ef8cd167136b67d549",
                 "short_sha": "fa5913f",
                 "subject": "fix(ci): kill the four escaped mutants and the phpcs control-structure finding"
+              }
+            ]
+          },
+          {
+            "pr": 171,
+            "title": "refactor: secure urllib usage",
+            "author": "deepsource-autofix[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-10T17:22:41Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/171",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "68d9648066be72ac5ed19da7f19d0330db8be33b",
+                "short_sha": "68d9648",
+                "subject": "refactor: secure urllib usage"
+              },
+              {
+                "sha": "617d32da76676ed277ed842e0e661b74884729f5",
+                "short_sha": "617d32d",
+                "subject": "fix(security): restrict urllib to http(s) schemes in the changelog generator"
+              },
+              {
+                "sha": "4c1cb85acb90227ecfe58acab3f56a2110dfaa58",
+                "short_sha": "4c1cb85",
+                "subject": "test: satisfy DeepSource PYL-R0201 on the exploding-opener stub"
               }
             ]
           }
@@ -4391,6 +4417,32 @@
               "sha": "cf71b45c6b5b0a125d2ab06a798a46389721e0c7",
               "short_sha": "cf71b45",
               "subject": "fix(sonar): resolve php:S2003 with re-loadable require execution"
+            }
+          ]
+        },
+        {
+          "pr": 171,
+          "title": "refactor: secure urllib usage",
+          "author": "deepsource-autofix[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-10T17:22:41Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/171",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "68d9648066be72ac5ed19da7f19d0330db8be33b",
+              "short_sha": "68d9648",
+              "subject": "refactor: secure urllib usage"
+            },
+            {
+              "sha": "617d32da76676ed277ed842e0e661b74884729f5",
+              "short_sha": "617d32d",
+              "subject": "fix(security): restrict urllib to http(s) schemes in the changelog generator"
+            },
+            {
+              "sha": "4c1cb85acb90227ecfe58acab3f56a2110dfaa58",
+              "short_sha": "4c1cb85",
+              "subject": "test: satisfy DeepSource PYL-R0201 on the exploding-opener stub"
             }
           ]
         }

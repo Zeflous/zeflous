@@ -423,3 +423,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - d1fb113 docs(roadmap): record the config loaders implementation in the roadmap documents
     - f25cf29 Merge branch 'main' into feat/config-loaders
     - cf71b45 fix(sonar): resolve php:S2003 with re-loadable require execution
+
+- PR#171 refactor: secure urllib usage
+    - 68d9648 refactor: secure urllib usage
+    - 617d32d fix(security): restrict urllib to http(s) schemes in the changelog generator
+    - 4c1cb85 test: satisfy DeepSource PYL-R0201 on the exploding-opener stub
