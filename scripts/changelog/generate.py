@@ -15,10 +15,11 @@ disagree:
     to each per-version file. It never carries the full history, so it cannot
     grow without bound.
   * ``docs/api/changelog.json``  -- the "changelog API": a static JSON document
-    (served as-is from the repository, raw.githubusercontent.com, or GitHub
-    Pages) that tooling can consume. Each entry carries the ``file`` it lives
-    in and its ``commits`` (short SHA + subject), so a consumer never has to
-    download a large file to read one PR.
+    (served as-is from the repository, or via raw.githubusercontent.com) that
+    tooling can consume. Each entry carries the ``file`` it lives in and its
+    ``commits`` (short SHA + subject), so a consumer never has to download a
+    large file to read one PR. NOTE: this repository has no GitHub Pages
+    deployment, so the JSON is NOT served from Pages.
   * ``docs/api/changelog-index.json`` -- a small index (version -> file, counts,
     latest release) for cheap discovery.
 
@@ -117,10 +118,20 @@ API = "https://api.github.com"
 # explicit so an unlabelled PR is visible rather than silently dropped.
 FALLBACK_CATEGORY = "Other"
 
-# Title prefix used by the changelog automation's own pull requests. Such PRs
-# are bookkeeping (they only land the regenerated files) and are excluded from
-# the changelog so the document never describes its own maintenance.
-CHANGELOG_PR_PREFIX = "chore(changelog):"
+# Title prefixes used by the changelog automation's own pull requests. Such
+# PRs are bookkeeping (they only land the regenerated files) and are excluded
+# from the changelog so the document never describes its own maintenance.
+#
+# There are TWO automation lanes, so there are TWO prefixes: the per-version
+# lane opens `chore(changelog): ...` and the official-generator lane opens
+# `chore(changelog-official): ...`. Both must be excluded -- excluding only the
+# first let the official lane's bookkeeping PRs leak into the per-version
+# changelog (66 lines of self-description, observed on `main`). Kept as a tuple
+# so a future lane only has to add its prefix here.
+CHANGELOG_PR_PREFIXES: tuple[str, ...] = (
+    "chore(changelog):",
+    "chore(changelog-official):",
+)
 
 # The branch a PR must have been merged INTO to count as a change to the
 # project. A PR merged into some other branch (a release branch, a backport
@@ -328,11 +339,12 @@ def fetch_merged_prs(repo: str) -> list[dict]:
     * ``draft`` PRs are excluded: a draft is not a completed change.
     * PRs merged into a branch other than the default branch are excluded:
       they never reached the default branch.
-    * PRs authored by the changelog automation itself are excluded: the update
-      lane opens a PR to land the regenerated files, and that PR is
-      bookkeeping, not a change to the project. Including it would make the
-      changelog describe its own maintenance and would add a new entry on every
-      regeneration cycle.
+    * PRs authored by the changelog automation itself are excluded: BOTH
+      update lanes (per-version and official) open a PR to land the regenerated
+      files, and those PRs are bookkeeping, not a change to the project.
+      Including them would make the changelog describe its own maintenance and
+      would add a new entry on every regeneration cycle. The exclusion matches
+      every prefix in ``CHANGELOG_PR_PREFIXES``.
 
     GitHub's REST API does not expose an "archived" flag on a pull request
     (archiving applies to repositories, not PRs), so there is no archived-PR
@@ -349,7 +361,7 @@ def fetch_merged_prs(repo: str) -> list[dict]:
         and not p.get("draft")  # a draft is not a completed change
         and not p.get("archived")  # honoured if the API ever exposes it
         and (p.get("base") or {}).get("ref", DEFAULT_BRANCH) == DEFAULT_BRANCH
-        and not (p.get("title") or "").startswith(CHANGELOG_PR_PREFIX)
+        and not (p.get("title") or "").startswith(CHANGELOG_PR_PREFIXES)
     ]
     merged.sort(key=lambda p: p["merged_at"])
     return merged

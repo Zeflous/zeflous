@@ -11,9 +11,11 @@
 #     to each per-version file. It never carries the full history, so it cannot
 #     grow without bound as PRs accumulate.
 #   * `docs/api/changelog.json`  -- the "changelog API": a static JSON document
-#     (served as-is from the repository, raw.githubusercontent.com, or GitHub
-#     Pages) that tooling can consume. Each entry carries the `file` it lives
-#     in and its `commits` (short SHA + subject).
+#     (served as-is from the repository, or via raw.githubusercontent.com)
+#     that tooling can consume. Each entry carries the `file` it lives in and
+#     its `commits` (short SHA + subject). NOTE: this repository has no GitHub
+#     Pages deployment, so the JSON is NOT served from Pages -- the earlier
+#     "or GitHub Pages" wording was unverified and has been removed.
 #   * `docs/api/changelog-index.json` -- a small discovery index (version ->
 #     file, counts, latest release).
 #
@@ -118,10 +120,18 @@ on:
   # there is deliberately NO `pull_request` trigger here. The generator's own
   # test suite runs on pull requests in the separate, read-only
   # `.github/workflows/changelog-tests.yml`.
-  push:
-    branches:
-      - main
-  # Manual re-run (idempotent) to refresh the changelog without waiting for a push.
+  # F-1 (loop fix): react to the COMPLETION of the strict pipeline on `main`,
+  # NOT to a raw `push`. A raw `push` fires for the changelog lane's OWN merge
+  # commit too, so the lane regenerated, opened a PR, merged it, and fired
+  # again -- a non-convergent loop (26 cycles observed: #143..#162). Keying on
+  # `workflow_run` of `CI Strict` means the lane only reacts once the merged
+  # tree has actually been validated, and the job-level guard below drops the
+  # runs caused by the automation's own merge.
+  workflow_run:
+    workflows: ["CI Strict"]
+    types: [completed]
+    branches: [main]
+  # Manual re-run (idempotent) to refresh the changelog without waiting for a merge.
   workflow_dispatch:
 
 # Baseline: no write authority at the workflow level.
@@ -137,10 +147,16 @@ concurrency:
 jobs:
   update:
     name: Update changelog
-    # Skip the run caused by the automation's own merge commit, so the lane
-    # cannot chase its own tail. This workflow only runs on push to `main` and
-    # on manual dispatch, so there is no pull_request event to guard against.
-    if: github.actor != 'github-actions[bot]'
+    # F-1 (loop fix): run only for a SUCCESSFUL `CI Strict` run that was itself
+    # a `push` to `main` by a NON-bot actor. A run caused by the automation's
+    # own merge (bot actor) is dropped, so the lane cannot chase its own tail.
+    # A manual dispatch always runs.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.actor.login != 'github-actions[bot]')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

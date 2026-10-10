@@ -30,15 +30,17 @@
 name: PHPBench Performance
 
 on:
-  pull_request:
-    branches:
-      - main
-    types: [opened, synchronize, reopened]
-  # Keep the performance signal visible on the default branch and re-runnable
-  # after a tooling update.
+  # F-7 (de-duplicate the benchmark signal): this lane is the ADVISORY,
+  # post-merge performance signal. It deliberately does NOT run on
+  # `pull_request` -- the REQUIRED micro-benchmark gate on pull requests is
+  # `ci-bench.yml` (job `CI Bench`, part of the `CI Strict` aggregator). Running
+  # both on every PR executed the same `phpbench` suite twice per PR for one
+  # signal. Here it runs on `main` (post-merge regression watch) and on manual
+  # dispatch only.
   push:
     branches:
       - main
+  # Keep the performance signal re-runnable after a tooling update.
   workflow_dispatch:
 
 # Least privilege: measure, write nothing back.

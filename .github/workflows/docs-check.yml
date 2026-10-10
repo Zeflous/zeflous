@@ -88,7 +88,7 @@ jobs:
         # directory comes from doctum.php (build_dir => build/docs).
         run: composer docs
 
-      - name: Verify documentation output
+      - name: Verify documentation output (drift assertion)
         shell: bash
         run: |
           set -euo pipefail
@@ -100,4 +100,34 @@ jobs:
             exit 1
           fi
 
-          echo "API documentation generated: $(find build/docs -type f | wc -l) files under build/docs."
+          # F-3 (real assertion): the previous check only proved that SOME
+          # index.html existed, so a build that silently dropped a class still
+          # passed. Assert instead that EVERY first-party source file that
+          # DECLARES a type (class/interface/trait/enum) has a generated page --
+          # a declared type with no page is documentation drift and fails the
+          # lane. Files that declare no type (e.g. `src/autoload.php`, a
+          # bootstrap script) are not part of the API surface and are skipped.
+          # `src/Contracts/Psr/**` is excluded exactly as `doctum.php` excludes
+          # it (vendored PSR shim, not our API surface).
+          missing=0
+          checked=0
+          while IFS= read -r src; do
+            # Only files that declare a type are documented by Doctum.
+            if ! grep -qE '^[[:space:]]*(final[[:space:]]+|abstract[[:space:]]+|readonly[[:space:]]+)*(class|interface|trait|enum)[[:space:]]' "$src"; then
+              continue
+            fi
+            rel="${src#src/}"          # Zef/Framework/Config/Config.php
+            page="build/docs/${rel%.php}.html"
+            checked=$((checked + 1))
+            if [ ! -s "$page" ]; then
+              echo "::error::documentation drift: ${src} has no generated page (${page})."
+              missing=$((missing + 1))
+            fi
+          done < <(find src -type f -name '*.php' -not -path 'src/Contracts/Psr/*')
+
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::${missing} of ${checked} declared types are missing from the API documentation."
+            exit 1
+          fi
+
+          echo "API documentation generated: $(find build/docs -type f | wc -l) files under build/docs; all ${checked} declared types documented."
