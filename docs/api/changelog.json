@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T17:22:41Z",
+  "as_of": "2026-10-10T17:37:50Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 90,
+  "unreleased_count": 91,
   "versions": [
     {
       "version": "Unreleased",
@@ -619,6 +619,37 @@
                 "sha": "14d818f25b021e20c6cd470a5b6da991df9e309e",
                 "short_sha": "14d818f",
                 "subject": "Merge origin/main into fix/changelog-api-workflows"
+              }
+            ]
+          },
+          {
+            "pr": 176,
+            "title": "fix(config): restrict php file loading to an explicit allowlist",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-10T17:37:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/176",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "98cfe19191d44953d67d84f322aeac7fa1b003bf",
+                "short_sha": "98cfe19",
+                "subject": "fix(config): restrict php file loading to an explicit allowlist"
+              },
+              {
+                "sha": "f3b7f701a74df368c21eaba443187c16a17ba8fa",
+                "short_sha": "f3b7f70",
+                "subject": "docs(roadmap): record the loader allowlist hardening (#176)"
+              },
+              {
+                "sha": "89bbb3497a828c34e949ee23a45ed700ad95c5df",
+                "short_sha": "89bbb34",
+                "subject": "Merge branch 'main' into fix/config-allowlist"
+              },
+              {
+                "sha": "7f5fc3bb47bc627df513ecb889db44018e577254",
+                "short_sha": "7f5fc3b",
+                "subject": "Merge branch 'main' into fix/config-allowlist"
               }
             ]
           }
@@ -4443,6 +4474,37 @@
               "sha": "4c1cb85acb90227ecfe58acab3f56a2110dfaa58",
               "short_sha": "4c1cb85",
               "subject": "test: satisfy DeepSource PYL-R0201 on the exploding-opener stub"
+            }
+          ]
+        },
+        {
+          "pr": 176,
+          "title": "fix(config): restrict php file loading to an explicit allowlist",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-10T17:37:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/176",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "98cfe19191d44953d67d84f322aeac7fa1b003bf",
+              "short_sha": "98cfe19",
+              "subject": "fix(config): restrict php file loading to an explicit allowlist"
+            },
+            {
+              "sha": "f3b7f701a74df368c21eaba443187c16a17ba8fa",
+              "short_sha": "f3b7f70",
+              "subject": "docs(roadmap): record the loader allowlist hardening (#176)"
+            },
+            {
+              "sha": "89bbb3497a828c34e949ee23a45ed700ad95c5df",
+              "short_sha": "89bbb34",
+              "subject": "Merge branch 'main' into fix/config-allowlist"
+            },
+            {
+              "sha": "7f5fc3bb47bc627df513ecb889db44018e577254",
+              "short_sha": "7f5fc3b",
+              "subject": "Merge branch 'main' into fix/config-allowlist"
             }
           ]
         }
