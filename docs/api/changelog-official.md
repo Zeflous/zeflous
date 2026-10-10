@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(config\): compiled configuration cache [\#202](https://github.com/Zeflous/zeflous/pull/202) ([mbetixz](https://github.com/mbetixz))
 - fix\(changelog-official\): enforce one-line PR style, no commit lines [\#196](https://github.com/Zeflous/zeflous/pull/196) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): strict schema validation for route configuration [\#195](https://github.com/Zeflous/zeflous/pull/195) ([mbetixz](https://github.com/mbetixz))
 - feat\(changelog\): drop per-commit lines from per-version changelog [\#190](https://github.com/Zeflous/zeflous/pull/190) ([mbetixz](https://github.com/mbetixz))
