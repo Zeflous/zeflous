@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(ci\): report only actionable findings in the code-scanning alert feed [\#144](https://github.com/Zeflous/zeflous/pull/144) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): guarantee main validation after bot merges \(watchdog + PAT attribution\) [\#141](https://github.com/Zeflous/zeflous/pull/141) ([mbetixz](https://github.com/mbetixz))
 - ci\(strict\): add workflow-concurrency regression gate [\#137](https://github.com/Zeflous/zeflous/pull/137) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): key CI Strict concurrency per commit to stop the waiting deadlock [\#135](https://github.com/Zeflous/zeflous/pull/135) ([mbetixz](https://github.com/mbetixz))
