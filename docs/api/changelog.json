@@ -164,7 +164,18 @@
             "merged_at": "2026-10-10T13:27:55Z",
             "url": "https://github.com/Zeflous/zeflous/pull/159",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "b1c46748e525f84d8d759d4e1c74661fdd74803a",
+                "short_sha": "b1c4674",
+                "subject": "feat(config): immutable with-mutations for config entries"
+              },
+              {
+                "sha": "ffb51d709bc96a5125db9642be766ca4b6fdb9a0",
+                "short_sha": "ffb51d7",
+                "subject": "docs(roadmap): record the config with-mutations implementation in the roadmap documents"
+              }
+            ]
           },
           {
             "pr": 167,
@@ -174,7 +185,38 @@
             "merged_at": "2026-10-10T14:23:15Z",
             "url": "https://github.com/Zeflous/zeflous/pull/167",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "9a1d20c5fd6078fb173e76cbf543db3daf541fb3",
+                "short_sha": "9a1d20c",
+                "subject": "feat(config): php file and directory config loaders"
+              },
+              {
+                "sha": "0aefe55f6e7b38ae1c154dd87c470917301f4146",
+                "short_sha": "0aefe55",
+                "subject": "Merge branch 'main' into feat/config-loaders"
+              },
+              {
+                "sha": "8ce87d46c0ec252c5c6875152b4db7ee7a591e6d",
+                "short_sha": "8ce87d4",
+                "subject": "Merge branch 'main' into feat/config-loaders"
+              },
+              {
+                "sha": "d1fb113a4938c688dca8a5a1b46192c4e793e88d",
+                "short_sha": "d1fb113",
+                "subject": "docs(roadmap): record the config loaders implementation in the roadmap documents"
+              },
+              {
+                "sha": "f25cf29afb966db3dad8608a0c061e3f664b1ac1",
+                "short_sha": "f25cf29",
+                "subject": "Merge branch 'main' into feat/config-loaders"
+              },
+              {
+                "sha": "cf71b45c6b5b0a125d2ab06a798a46389721e0c7",
+                "short_sha": "cf71b45",
+                "subject": "fix(sonar): resolve php:S2003 with re-loadable require execution"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -567,7 +609,18 @@
             "merged_at": "2026-10-10T14:07:27Z",
             "url": "https://github.com/Zeflous/zeflous/pull/165",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "221279297f935d29e7c27637ee02663327b2cf70",
+                "short_sha": "2212792",
+                "subject": "fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)"
+              },
+              {
+                "sha": "14d818f25b021e20c6cd470a5b6da991df9e309e",
+                "short_sha": "14d818f",
+                "subject": "Merge origin/main into fix/changelog-api-workflows"
+              }
+            ]
           },
           {
             "pr": 176,
@@ -577,7 +630,28 @@
             "merged_at": "2026-10-10T17:37:50Z",
             "url": "https://github.com/Zeflous/zeflous/pull/176",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "98cfe19191d44953d67d84f322aeac7fa1b003bf",
+                "short_sha": "98cfe19",
+                "subject": "fix(config): restrict php file loading to an explicit allowlist"
+              },
+              {
+                "sha": "f3b7f701a74df368c21eaba443187c16a17ba8fa",
+                "short_sha": "f3b7f70",
+                "subject": "docs(roadmap): record the loader allowlist hardening (#176)"
+              },
+              {
+                "sha": "89bbb3497a828c34e949ee23a45ed700ad95c5df",
+                "short_sha": "89bbb34",
+                "subject": "Merge branch 'main' into fix/config-allowlist"
+              },
+              {
+                "sha": "7f5fc3bb47bc627df513ecb889db44018e577254",
+                "short_sha": "7f5fc3b",
+                "subject": "Merge branch 'main' into fix/config-allowlist"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -1316,7 +1390,23 @@
             "merged_at": "2026-10-10T17:22:41Z",
             "url": "https://github.com/Zeflous/zeflous/pull/171",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "68d9648066be72ac5ed19da7f19d0330db8be33b",
+                "short_sha": "68d9648",
+                "subject": "refactor: secure urllib usage"
+              },
+              {
+                "sha": "617d32da76676ed277ed842e0e661b74884729f5",
+                "short_sha": "617d32d",
+                "subject": "fix(security): restrict urllib to http(s) schemes in the changelog generator"
+              },
+              {
+                "sha": "4c1cb85acb90227ecfe58acab3f56a2110dfaa58",
+                "short_sha": "4c1cb85",
+                "subject": "test: satisfy DeepSource PYL-R0201 on the exploding-opener stub"
+              }
+            ]
           },
           {
             "pr": 174,
@@ -1326,7 +1416,48 @@
             "merged_at": "2026-10-10T17:51:49Z",
             "url": "https://github.com/Zeflous/zeflous/pull/174",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "a0552b0afc3b81c960f8a54df5f2c5e7bd7fe865",
+                "short_sha": "a0552b0",
+                "subject": "refactor: reduce cyclomatic complexity by extracting helper functions"
+              },
+              {
+                "sha": "cccdd0dd3f243a82712e09bd520ca863f4b58f47",
+                "short_sha": "cccdd0d",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "ab2e86b02716e329ac7db25182025d5d65a899c6",
+                "short_sha": "ab2e86b",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "f2d54700aafada145e96f3254a892b1a8129d107",
+                "short_sha": "f2d5470",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "6bf508f8ef4cab2cb6d6ea385ce8f89f1381b593",
+                "short_sha": "6bf508f",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "a3406b68d253a1b3e8e0d1a9189de7926c33eeff",
+                "short_sha": "a3406b6",
+                "subject": "fix(changelog): repair generate.py regressions from the autofix refactor"
+              },
+              {
+                "sha": "f5d5b9781cda72638369e2550c0bcbe30d6f7690",
+                "short_sha": "f5d5b97",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "1c396e3134a8d8278cc4e8103edf02b47fdde278",
+                "short_sha": "1c396e3",
+                "subject": "refactor(changelog): extract build_model helpers to cut cyclomatic complexity"
+              }
+            ]
           }
         ],
         "Documentation": [
@@ -2057,7 +2188,13 @@
             "merged_at": "2026-10-10T13:05:22Z",
             "url": "https://github.com/Zeflous/zeflous/pull/160",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "528fa98d69776fdbadf6210c3b19325ac1ecd00b",
+                "short_sha": "528fa98",
+                "subject": "docs(contributing): require roadmap history and status updates after implementation"
+              }
+            ]
           }
         ],
         "Tests": [
@@ -4274,7 +4411,18 @@
           "merged_at": "2026-10-10T13:27:55Z",
           "url": "https://github.com/Zeflous/zeflous/pull/159",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "b1c46748e525f84d8d759d4e1c74661fdd74803a",
+              "short_sha": "b1c4674",
+              "subject": "feat(config): immutable with-mutations for config entries"
+            },
+            {
+              "sha": "ffb51d709bc96a5125db9642be766ca4b6fdb9a0",
+              "short_sha": "ffb51d7",
+              "subject": "docs(roadmap): record the config with-mutations implementation in the roadmap documents"
+            }
+          ]
         },
         {
           "pr": 160,
@@ -4284,7 +4432,13 @@
           "merged_at": "2026-10-10T13:05:22Z",
           "url": "https://github.com/Zeflous/zeflous/pull/160",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "528fa98d69776fdbadf6210c3b19325ac1ecd00b",
+              "short_sha": "528fa98",
+              "subject": "docs(contributing): require roadmap history and status updates after implementation"
+            }
+          ]
         },
         {
           "pr": 165,
@@ -4294,7 +4448,18 @@
           "merged_at": "2026-10-10T14:07:27Z",
           "url": "https://github.com/Zeflous/zeflous/pull/165",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "221279297f935d29e7c27637ee02663327b2cf70",
+              "short_sha": "2212792",
+              "subject": "fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)"
+            },
+            {
+              "sha": "14d818f25b021e20c6cd470a5b6da991df9e309e",
+              "short_sha": "14d818f",
+              "subject": "Merge origin/main into fix/changelog-api-workflows"
+            }
+          ]
         },
         {
           "pr": 167,
@@ -4304,7 +4469,38 @@
           "merged_at": "2026-10-10T14:23:15Z",
           "url": "https://github.com/Zeflous/zeflous/pull/167",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "9a1d20c5fd6078fb173e76cbf543db3daf541fb3",
+              "short_sha": "9a1d20c",
+              "subject": "feat(config): php file and directory config loaders"
+            },
+            {
+              "sha": "0aefe55f6e7b38ae1c154dd87c470917301f4146",
+              "short_sha": "0aefe55",
+              "subject": "Merge branch 'main' into feat/config-loaders"
+            },
+            {
+              "sha": "8ce87d46c0ec252c5c6875152b4db7ee7a591e6d",
+              "short_sha": "8ce87d4",
+              "subject": "Merge branch 'main' into feat/config-loaders"
+            },
+            {
+              "sha": "d1fb113a4938c688dca8a5a1b46192c4e793e88d",
+              "short_sha": "d1fb113",
+              "subject": "docs(roadmap): record the config loaders implementation in the roadmap documents"
+            },
+            {
+              "sha": "f25cf29afb966db3dad8608a0c061e3f664b1ac1",
+              "short_sha": "f25cf29",
+              "subject": "Merge branch 'main' into feat/config-loaders"
+            },
+            {
+              "sha": "cf71b45c6b5b0a125d2ab06a798a46389721e0c7",
+              "short_sha": "cf71b45",
+              "subject": "fix(sonar): resolve php:S2003 with re-loadable require execution"
+            }
+          ]
         },
         {
           "pr": 171,
@@ -4314,7 +4510,23 @@
           "merged_at": "2026-10-10T17:22:41Z",
           "url": "https://github.com/Zeflous/zeflous/pull/171",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "68d9648066be72ac5ed19da7f19d0330db8be33b",
+              "short_sha": "68d9648",
+              "subject": "refactor: secure urllib usage"
+            },
+            {
+              "sha": "617d32da76676ed277ed842e0e661b74884729f5",
+              "short_sha": "617d32d",
+              "subject": "fix(security): restrict urllib to http(s) schemes in the changelog generator"
+            },
+            {
+              "sha": "4c1cb85acb90227ecfe58acab3f56a2110dfaa58",
+              "short_sha": "4c1cb85",
+              "subject": "test: satisfy DeepSource PYL-R0201 on the exploding-opener stub"
+            }
+          ]
         },
         {
           "pr": 174,
@@ -4324,7 +4536,48 @@
           "merged_at": "2026-10-10T17:51:49Z",
           "url": "https://github.com/Zeflous/zeflous/pull/174",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "a0552b0afc3b81c960f8a54df5f2c5e7bd7fe865",
+              "short_sha": "a0552b0",
+              "subject": "refactor: reduce cyclomatic complexity by extracting helper functions"
+            },
+            {
+              "sha": "cccdd0dd3f243a82712e09bd520ca863f4b58f47",
+              "short_sha": "cccdd0d",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "ab2e86b02716e329ac7db25182025d5d65a899c6",
+              "short_sha": "ab2e86b",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "f2d54700aafada145e96f3254a892b1a8129d107",
+              "short_sha": "f2d5470",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "6bf508f8ef4cab2cb6d6ea385ce8f89f1381b593",
+              "short_sha": "6bf508f",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "a3406b68d253a1b3e8e0d1a9189de7926c33eeff",
+              "short_sha": "a3406b6",
+              "subject": "fix(changelog): repair generate.py regressions from the autofix refactor"
+            },
+            {
+              "sha": "f5d5b9781cda72638369e2550c0bcbe30d6f7690",
+              "short_sha": "f5d5b97",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "1c396e3134a8d8278cc4e8103edf02b47fdde278",
+              "short_sha": "1c396e3",
+              "subject": "refactor(changelog): extract build_model helpers to cut cyclomatic complexity"
+            }
+          ]
         },
         {
           "pr": 176,
@@ -4334,7 +4587,28 @@
           "merged_at": "2026-10-10T17:37:50Z",
           "url": "https://github.com/Zeflous/zeflous/pull/176",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "98cfe19191d44953d67d84f322aeac7fa1b003bf",
+              "short_sha": "98cfe19",
+              "subject": "fix(config): restrict php file loading to an explicit allowlist"
+            },
+            {
+              "sha": "f3b7f701a74df368c21eaba443187c16a17ba8fa",
+              "short_sha": "f3b7f70",
+              "subject": "docs(roadmap): record the loader allowlist hardening (#176)"
+            },
+            {
+              "sha": "89bbb3497a828c34e949ee23a45ed700ad95c5df",
+              "short_sha": "89bbb34",
+              "subject": "Merge branch 'main' into fix/config-allowlist"
+            },
+            {
+              "sha": "7f5fc3bb47bc627df513ecb889db44018e577254",
+              "short_sha": "7f5fc3b",
+              "subject": "Merge branch 'main' into fix/config-allowlist"
+            }
+          ]
         }
       ]
     }
