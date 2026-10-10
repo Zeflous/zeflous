@@ -1,0 +1,236 @@
+# Main Validation Watchdog -- the scheduled invariant that the default branch
+# is ALWAYS validated, whatever merged it.
+#
+# WHY THIS FILE EXISTS (root cause, observed 2026-10-10)
+# ------------------------------------------------------
+# GitHub's recursion guard: events created by the built-in `GITHUB_TOKEN`
+# (push, pull_request, workflow_run -- everything except workflow_dispatch
+# and repository_dispatch) do NOT trigger new workflow runs. A pull request
+# whose merge is attributed to `github-actions[bot]` therefore lands on `main`
+# with ZERO `on: push` workflow runs: no `CI Strict`, no SonarCloud analysis,
+# no archeology SARIF, no coverage gate, nothing. Only the two *scheduled*
+# lanes (Auto Merge, Stale PRs Updater) keep running, and external GitHub
+# Apps (DeepSource and friends) still analyse the commit because they receive
+# webhooks directly, outside GitHub Actions. On the commits page that looks
+# exactly like "only DeepSource is active".
+#
+# This is not hypothetical -- it was measured on this repository:
+#   * 61e80e9 (PR #134, merged_by mbetixz, a human PAT): 18 check-runs.
+#   * 5943777 (PR #140, merged_by github-actions[bot]): 0 push runs.
+#   * 5df97d2 (PR #139, merged_by github-actions[bot]): 0 push runs -- the
+#     repository's HEAD sat UNVALIDATED, with only the scheduled sweeps and
+#     DeepSource touching it.
+# The changelog lanes create their pull requests with the built-in token, so
+# every changelog PR merged by native auto-merge inherits this hole. The
+# attribution is fixed lane-side (changelog.yml / changelog-official.yml now
+# prefer the `ZEF_TOKEN` PAT so their PRs are created, armed and merged as a
+# human actor and the push events fire normally). This watchdog is the
+# defence-in-depth layer that makes the invariant hold even when that PAT is
+# absent, expired, or revoked -- and for ANY other bot-merged PR, ever.
+#
+# WHAT IT DOES
+# ------------
+# Every sweep (three times an hour, off the :00/:30 peak minutes GitHub is
+# known to drop, and clear of the Auto Merge 7,27,47 and Stale PRs 13,33,53
+# slots):
+#   1. Resolve the current `main` HEAD.
+#   2. For EVERY lane that a human push to `main` would have triggered, ask
+#      the Actions API whether that workflow has a run for exactly this HEAD.
+#   3. Dispatch (`gh workflow run --ref main`) the lanes that have NO run for
+#      the HEAD -- the exact replay pattern the changelog lanes already use
+#      for their update branches (a `GITHUB_TOKEN` push fires nothing, so the
+#      checks are dispatched explicitly). `workflow_dispatch` is the one
+#      event type the recursion guard does not swallow, which is precisely
+#      why it is the correct repair channel here.
+#   4. Report, never hide: a lane that FAILED for the HEAD is listed as red
+#      in the step summary and as a `::warning::` -- it is not re-dispatched
+#      (the failure is a signal for a human, and an automatic retry loop on a
+#      genuinely red main would burn a full lane set every sweep). A lane
+#      still queued or in progress is reported as validating. A run that was
+#      CANCELLED never produced a verdict, so it counts as missing and is
+#      replayed on the next sweep (self-healing).
+#
+# Steady state -- when merges fire push events normally -- every lane already
+# has its run and the sweep dispatches nothing: the watchdog costs one short
+# API-only job, and main is exactly as validated as before. It ONLY spends
+# runner minutes when the invariant is actually broken.
+#
+# DISPATCH ORDER MATTERS
+# ----------------------
+# `ci-coverage` must be dispatched before `sonarcloud.yml`: the SonarCloud
+# lane bridges the `coverage-reports` artifact by polling the CI Coverage
+# lane's run for the same commit. The four strict lanes precede `ci-strict`
+# because the aggregator polls their check-runs with a five-minute
+# absent-grace; the list below is ordered so every dependency is dispatched
+# first. The list deliberately EXCLUDES the two changelog lanes: a bot-merged
+# changelog PR is by definition already reflected in the changelog files (the
+# generators exclude their own bookkeeping PRs), and both lanes skip runs
+# whose actor is `github-actions[bot]`.
+#
+# CONVENTIONS
+# -----------
+#   * No `uses:` at all -- the sweep is pure `gh`/REST, so there is nothing
+#     to pin and nothing for SonarCloud's `githubactions:S7637` to flag.
+#   * Least privilege: `contents: read` (API reads) + `actions: write`
+#     (dispatch workflows, list runs). Nothing else.
+#   * Like every scheduled sweep in this repository, no single lane problem
+#     may fail the job: every error path is a warning and the job exits 0.
+#     The lanes' own red runs are the visible failure signal on `main`.
+#   * The concurrency group is a constant and `cancel-in-progress` is false
+#     (a queued sweep proceeds after the current one instead of being
+#     dropped), which satisfies WorkflowConcurrencyPolicy rule 1 because a
+#     non-cancelling workflow may use any group key.
+name: Main Validation Watchdog
+
+on:
+  schedule:
+    # Off the :00/:30 peak minutes (GitHub drops cron runs that land exactly
+    # there) and clear of the Auto Merge (7,27,47) and Stale PRs (13,33,53)
+    # scheduler slots, so the three sweeps never contend for a slot.
+    - cron: '3,23,43 * * * *'
+  # Manual sweep (e.g. right after fixing a broken lane, or to replay a
+  # validation that a dropped schedule missed).
+  workflow_dispatch:
+
+# Baseline: no write authority at the workflow level.
+permissions:
+  contents: read
+  actions: write # list runs + dispatch the missing lanes
+
+# One sweep at a time; a queued sweep runs after the current one finishes,
+# so two quick sweeps cannot double-dispatch the same lane.
+concurrency:
+  group: ci-main-watchdog
+  cancel-in-progress: false
+
+jobs:
+  watchdog:
+    name: Verify main HEAD validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Replay the main-push lanes that never ran for the current HEAD
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+
+          # The lanes a HUMAN push to `main` triggers, in dependency order
+          # (strict lanes -> aggregator -> the rest -> SonarCloud last, so
+          # its coverage bridge can find the CI Coverage artifact). The two
+          # changelog lanes are deliberately absent: see the file header.
+          lanes=(
+            ci-static
+            ci-coverage
+            ci-infection
+            ci-bench
+            ci-strict
+            archeology
+            docs-check
+            phpbench
+            proof-html
+            sbom
+            release-drafter
+            sonarcloud
+          )
+
+          # Resolve the CURRENT `main` HEAD once, up front. A dispatch targets
+          # the `main` REF (the dispatch API resolves the ref at execution
+          # time), so a sweep that races a merge validates the NEWER head --
+          # the older head stays covered by having been an ancestor of a
+          # validated tree, which is the same guarantee a fast-forward human
+          # merge sequence provides.
+          head=$(gh api "repos/${GITHUB_REPOSITORY}/commits/main" --jq '.sha' 2>/dev/null) || {
+            echo "::warning::Could not resolve the main HEAD; nothing to verify this sweep."
+            exit 0
+          }
+          # Exported BEFORE the loop: the jq programs below compare each run's
+          # head_sha against it through jq's `env`.
+          export WATCHDOG_HEAD="${head}"
+          echo "main HEAD: ${head}"
+          echo ""
+
+          summary_file="${GITHUB_STEP_SUMMARY}"
+          {
+            echo "### Main Validation Watchdog"
+            echo ""
+            echo "main HEAD: \`${head:0:8}\`"
+            echo ""
+            echo "| Lane | State |"
+            echo "|------|-------|"
+          } >> "${summary_file}"
+
+          dispatched=0
+          validating=0
+          validated=0
+          red=0
+
+          for lane in "${lanes[@]}"; do
+            # The lane's own runs on `main` only. A run "covers" the HEAD
+            # only when its head_sha is EXACTLY the HEAD -- a run for an
+            # older commit never validated this tree.
+            state=$(
+              gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/${lane}.yml/runs?branch=main&per_page=30" \
+                --jq 'reduce .workflow_runs[] as $r (
+                        {found: false, live: false, green: false, red: false};
+                        if $r.head_sha == env.WATCHDOG_HEAD then
+                          .found = true
+                          | if ($r.status == "queued" or $r.status == "in_progress" or $r.status == "waiting" or $r.status == "pending" or $r.status == "requested") then .live = true
+                            elif $r.conclusion == "success" then .green = true
+                            elif $r.conclusion == "cancelled" then .
+                            else .red = true
+                            end
+                        else . end)' 2>/dev/null
+            ) || state=""
+
+
+            if [ -z "${state}" ]; then
+              echo "| ${lane} | unreadable |" >> "${summary_file}"
+              echo "::warning::Could not read the run list for ${lane}.yml."
+              continue
+            fi
+
+            found=$(printf '%s' "${state}" | jq -r '.found')
+            live=$(printf '%s' "${state}" | jq -r '.live')
+            green=$(printf '%s' "${state}" | jq -r '.green')
+            redflag=$(printf '%s' "${state}" | jq -r '.red')
+
+            if [ "${green}" = "true" ]; then
+              validated=$((validated + 1))
+              echo "| ${lane} | validated |" >> "${summary_file}"
+            elif [ "${live}" = "true" ]; then
+              validating=$((validating + 1))
+              echo "| ${lane} | validating |" >> "${summary_file}"
+              echo "${lane}: a run is already in progress for this HEAD; not re-dispatched."
+            elif [ "${redflag}" = "true" ]; then
+              # The lane RAN and concluded red for this HEAD. The validation
+              # exists; the red run on main is the signal. No auto-retry: a
+              # retry loop on a genuinely red main would re-run the whole
+              # lane set every sweep.
+              red=$((red + 1))
+              echo "| ${lane} | RED (human attention) |" >> "${summary_file}"
+              echo "::warning::Lane ${lane} concluded RED on main HEAD ${head:0:8} -- see its run."
+            else
+              # No run at all (or only cancelled runs, which never produced
+              # a verdict): replay it. This is the recursion-guard repair.
+              if gh workflow run "${lane}.yml" --ref main 2>/dev/null; then
+                dispatched=$((dispatched + 1))
+                echo "| ${lane} | dispatched (was missing) |" >> "${summary_file}"
+                echo "${lane}: no run for this HEAD -- dispatched on main."
+              else
+                echo "| ${lane} | DISPATCH FAILED |" >> "${summary_file}"
+                echo "::warning::Could not dispatch ${lane}.yml on main (disabled or renamed?)."
+              fi
+            fi
+          done
+
+          {
+            echo ""
+            echo "Sweep verdict: ${dispatched} dispatched, ${validating} validating, ${validated} already validated, ${red} red."
+          } >> "${summary_file}"
+          echo ""
+          echo "Sweep verdict: dispatched=${dispatched} validating=${validating} validated=${validated} red=${red}."
+
+          # A sweep never fails because of one lane (repo convention for
+          # scheduled sweeps); the lanes' own red runs are the visible signal.
+          exit 0
