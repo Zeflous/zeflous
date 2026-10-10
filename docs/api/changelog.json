@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T17:51:49Z",
+  "as_of": "2026-10-10T18:22:41Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 92,
+  "unreleased_count": 93,
   "versions": [
     {
       "version": "Unreleased",
@@ -215,6 +215,22 @@
                 "sha": "cf71b45c6b5b0a125d2ab06a798a46389721e0c7",
                 "short_sha": "cf71b45",
                 "subject": "fix(sonar): resolve php:S2003 with re-loadable require execution"
+              }
+            ]
+          },
+          {
+            "pr": 183,
+            "title": "feat(changelog): render per-version changelog in github-changelog-generator style",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-10T18:22:41Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/183",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "97a3ae1032f70c9a423be89e68a062f5cfdbdcb7",
+                "short_sha": "97a3ae1",
+                "subject": "feat(changelog): render per-version changelog in github-changelog-generator style"
               }
             ]
           }
@@ -4607,6 +4623,22 @@
               "sha": "7f5fc3bb47bc627df513ecb889db44018e577254",
               "short_sha": "7f5fc3b",
               "subject": "Merge branch 'main' into fix/config-allowlist"
+            }
+          ]
+        },
+        {
+          "pr": 183,
+          "title": "feat(changelog): render per-version changelog in github-changelog-generator style",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-10T18:22:41Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/183",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "97a3ae1032f70c9a423be89e68a062f5cfdbdcb7",
+              "short_sha": "97a3ae1",
+              "subject": "feat(changelog): render per-version changelog in github-changelog-generator style"
             }
           ]
         }
