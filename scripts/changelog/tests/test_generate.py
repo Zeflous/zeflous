@@ -874,7 +874,8 @@ def test_is_allowed_url_rejects_lookalikes(lookalike):
 
 def test_api_get_rejects_an_unlisted_scheme_before_opening(monkeypatch):
     class ExplodingOpener:
-        def open(self, req, timeout=30):  # pragma: no cover - must not be reached
+        @staticmethod
+        def open(req, timeout=30):  # pragma: no cover - must not be reached
             raise AssertionError("the opener must never be reached")
 
     monkeypatch.setattr(gen, "_OPENER", ExplodingOpener())
