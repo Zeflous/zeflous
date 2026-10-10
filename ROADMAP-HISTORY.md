@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-11 · `main` @ `13bcd89`
+**Last updated:** 2026-10-11 · `main` @ `e6d136d`
 
 **How to read this file**
 
@@ -30,9 +30,9 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | CI / Supply chain | 34 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
-| Configuration System | 6 |
+| Configuration System | 7 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **74** |
+| **Total merged PRs** | **75** |
 
 ---
 
@@ -197,6 +197,7 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 | feat(config): php file and directory config loaders (`ConfigLoaderInterface`, `PhpFileLoader`, `DirectoryLoader`, `ConfigLoader` director with prefix nesting) | #167 | 2026-10-10 | `9a1d20c5fd` |
 | fix(config): restrict php file loading to an explicit allowlist (basename inventory + `realpath()` canonicalisation before `require`; inventory threaded through `DirectoryLoader` and the `ConfigLoader` director) | #176 | 2026-10-10 | `98cfe19191` |
 | feat(config): layered default-app-env configuration merge (`ArrayMerger` deep merge with list-replace, `EnvSource` prefix/`__` fold with raw string values, `LayeredConfigBuilder` Default < App < Env → frozen `Config` — the director's first in-repo consumer) | #184 | 2026-10-11 | `7c771b88f` |
+| feat(config): strict schema validation for route configuration (Standard Route Schema — `SchemaViolation` + `EXPECTATIONS` vocabulary with path/expected/actual data and factories, generic fail-closed `ConfigSchema` engine with complete ordered path-carrying violations, `SchemaValueRules` checks for the four value kinds, `RouteSchema` with `path`/`method`/`handler` required and `name`/`middleware`/`constraints`/`meta` optional; unknown keys are violations) | #195 | 2026-10-11 | `e3829b6d2` |
 
 ---
 

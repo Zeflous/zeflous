@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-11 · `main` @ `13bcd89`
+**Last updated:** 2026-10-11 · `main` @ `e6d136d`
 
 ---
 
@@ -44,7 +44,7 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Configuration layer (runtime repository) | 🟡 Partial | `src/Zef/Framework/Config/Config.php` + `ConfigMutations` — immutable dot-notation repository (`get`/`has`/`split`/`toArray` plus copy-on-write `withSet`/`withUnset`/`withAppend`/`withPrepend` via `DotWriter`/`DotRemover`/`DotListWriter`/`DotListLocator`, fail-closed `ConfigException`); `Config/Loader/` adds the PHP file & directory adapters (`PhpFileLoader`, `DirectoryLoader`), the `ConfigLoaderInterface` format seam and the `ConfigLoader` director with dot-notation prefix nesting — the file adapter executes only allowlisted basenames on `realpath()`-canonicalised paths (#176); `Config/Merge/` adds the Default < App < Env layering (#184) — `ArrayMerger` (maps recurse, later layer wins; lists are full declarations, never concatenated), `EnvSource` (exact-prefix `__` fold to nested addresses, raw string values, fail-closed malformed-address rejection) and `LayeredConfigBuilder` (copy-on-write `with*` layers, the director's first in-repo consumer, `build()` → frozen `Config`); schema validation and compiled cache still open. |
+| Configuration layer (runtime repository) | 🟡 Partial | `src/Zef/Framework/Config/Config.php` + `ConfigMutations` — immutable dot-notation repository (`get`/`has`/`split`/`toArray` plus copy-on-write `withSet`/`withUnset`/`withAppend`/`withPrepend` via `DotWriter`/`DotRemover`/`DotListWriter`/`DotListLocator`, fail-closed `ConfigException`); `Config/Loader/` adds the PHP file & directory adapters (`PhpFileLoader`, `DirectoryLoader`), the `ConfigLoaderInterface` format seam and the `ConfigLoader` director with dot-notation prefix nesting — the file adapter executes only allowlisted basenames on `realpath()`-canonicalised paths (#176); `Config/Merge/` adds the Default < App < Env layering (#184) — `ArrayMerger` (maps recurse, later layer wins; lists are full declarations, never concatenated), `EnvSource` (exact-prefix `__` fold to nested addresses, raw string values, fail-closed malformed-address rejection) and `LayeredConfigBuilder` (copy-on-write `with*` layers, the director's first in-repo consumer, `build()` → frozen `Config`); `Config/Schema/` adds strict fail-closed schema validation (#195) — `SchemaViolation` (pure path/expected/actual data with the EXPECTATIONS vocabulary the layer quotes), the generic `ConfigSchema` engine (field-rule map, pure `validate()` / fail-closed `assert()` with complete ordered path-carrying violations, unknown keys rejected with the schema's field list), `SchemaValueRules` (the four value kinds: `string`, `strings`, `string-map`, `values` — degenerate emptinesses are violations) and `RouteSchema`, the Standard Route Schema of roadmap step 1 (`path`/`method`/`handler` required; `name`/`middleware`/`constraints`/`meta` optional); compiled cache still open. |
 | DSL layer, radix tree layer | ⬜ Not started | — |
 
 ## Middleware Pipeline
