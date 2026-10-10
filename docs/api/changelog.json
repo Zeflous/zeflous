@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T06:32:49Z",
+  "as_of": "2026-10-10T11:11:21Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 109,
+  "unreleased_count": 111,
   "versions": [
     {
       "version": "Unreleased",
@@ -1708,6 +1708,22 @@
                 "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
+          },
+          {
+            "pr": 148,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-10T11:11:21Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/148",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8aef28106abfe1e1471f1c36d3e91ddfdd5a478b",
+                "short_sha": "8aef281",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
           }
         ],
         "Documentation": [
@@ -2411,6 +2427,22 @@
                 "sha": "0014f9f745258504e98c6cfadae0a4c67263f0f3",
                 "short_sha": "0014f9f",
                 "subject": "docs(security): purge remaining CodeQL references"
+              }
+            ]
+          },
+          {
+            "pr": 147,
+            "title": "docs(CONTRIBUTING.md): Add mandatory rules for contribution guidelines)",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-10T11:09:44Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/147",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "88649fed52e916e240dba0a10dc04dcad23d76ac",
+                "short_sha": "88649fe",
+                "subject": "Add mandatory rules for contribution guidelines"
               }
             ]
           }
@@ -5008,6 +5040,38 @@
             {
               "sha": "b7abb71e299b72ff89b95b0e1612202c5bd8ba1e",
               "short_sha": "b7abb71",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 147,
+          "title": "docs(CONTRIBUTING.md): Add mandatory rules for contribution guidelines)",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-10T11:09:44Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/147",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "88649fed52e916e240dba0a10dc04dcad23d76ac",
+              "short_sha": "88649fe",
+              "subject": "Add mandatory rules for contribution guidelines"
+            }
+          ]
+        },
+        {
+          "pr": 148,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-10T11:11:21Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/148",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8aef28106abfe1e1471f1c36d3e91ddfdd5a478b",
+              "short_sha": "8aef281",
               "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]

@@ -481,3 +481,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#145 chore(changelog-official): regenerate official changelog
     - b7abb71 chore(changelog-official): regenerate official changelog
+
+- PR#147 docs(CONTRIBUTING.md): Add mandatory rules for contribution guidelines)
+    - 88649fe Add mandatory rules for contribution guidelines
+
+- PR#148 chore(changelog-official): regenerate official changelog
+    - 8aef281 chore(changelog-official): regenerate official changelog
