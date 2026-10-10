@@ -6,6 +6,7 @@ namespace Zef\Test;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Kernel;
 use Zef\Framework\Version;
@@ -31,5 +32,18 @@ final class KernelTest extends TestCase
     public function testReportsTheFrameworkVersion(): void
     {
         self::assertSame(Version::current(), new Kernel()->version());
+    }
+
+    public function testCreatesAnEmptyConfigurationByDefault(): void
+    {
+        self::assertSame([], new Kernel()->config()->toArray());
+    }
+
+    public function testUsesTheInjectedConfiguration(): void
+    {
+        $config = new Config(['name' => 'zef']);
+
+        self::assertSame($config, new Kernel(null, $config)->config());
+        self::assertSame('zef', new Kernel(null, $config)->config()->get('name'));
     }
 }

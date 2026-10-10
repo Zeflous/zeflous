@@ -40,6 +40,17 @@ final class ConfigCacheTest extends TestCase
         rmdir($this->directory);
     }
 
+    public function testExistsOnlyAfterADump(): void
+    {
+        $configCache = new ConfigCache($this->file);
+
+        self::assertFalse($configCache->exists());
+
+        $configCache->dump(['key' => 'value']);
+
+        self::assertTrue($configCache->exists());
+    }
+
     public function testDumpsAGeneratedPhpFileWithTheHeader(): void
     {
         new ConfigCache($this->file)->dump(['debug' => true]);

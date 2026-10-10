@@ -421,6 +421,80 @@ final class RouteSchemaTest extends TestCase
         }
     }
 
+    public function testAssertListAcceptsAValidRoutesList(): void
+    {
+        $routeSchema = $this->schema();
+
+        $routeSchema->assertList([
+            ['path' => '/health', 'method' => ['GET'], 'handler' => 'HealthController@check'],
+            [
+                'path' => '/users/{id}',
+                'method' => ['GET'],
+                'handler' => 'UserController@show',
+                'constraints' => ['id' => '[0-9]+'],
+            ],
+        ]);
+
+        self::assertSame([], $routeSchema->validate(['path' => '/health', 'method' => ['GET'], 'handler' => 'h']));
+    }
+
+    public function testAssertListAcceptsAMapOfNamedRoutes(): void
+    {
+        $routeSchema = $this->schema();
+
+        $routeSchema->assertList([
+            'health' => ['path' => '/health', 'method' => ['GET'], 'handler' => 'HealthController@check'],
+        ]);
+
+        self::assertSame([], $routeSchema->validate([
+            'path' => '/health',
+            'method' => ['GET'],
+            'handler' => 'HealthController@check',
+        ]));
+    }
+
+    public function testAssertListRejectsAValueThatIsNotAnArray(): void
+    {
+        try {
+            $this->schema()->assertList('/health');
+            self::fail('A scalar routes value must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The "routes" configuration must be a list of route entries.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testAssertListRejectsAnExplicitlyNullRoutesValue(): void
+    {
+        try {
+            $this->schema()->assertList(null);
+            self::fail('A null routes value must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The "routes" configuration must be a list of route entries.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testAssertListHaltsOnTheFirstViolatingEntry(): void
+    {
+        try {
+            $this->schema()->assertList([
+                ['path' => '/health', 'method' => ['GET'], 'handler' => 'HealthController@check'],
+                ['path' => '/users', 'method' => ['GET']],
+            ]);
+            self::fail('A routes list with a violating entry must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'Configuration failed schema validation: handler: expected a non-empty string, got missing.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
     public function testAssertAcceptsAValidRoute(): void
     {
         $route = [

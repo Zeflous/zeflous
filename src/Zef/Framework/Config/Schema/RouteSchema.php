@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Config\Schema;
 
+use Zef\Framework\Config\ConfigException;
+
 /**
  * The Standard Route Schema: the field contract every route entry in a
  * routes configuration must satisfy (roadmap step 1 of the Triad, see
@@ -83,5 +85,27 @@ final readonly class RouteSchema
     public function assert(mixed $route): void
     {
         $this->configSchema->assert($route);
+    }
+
+    /**
+     * Asserts that a `routes` configuration value is an array whose every
+     * entry satisfies the Standard Route Schema -- the shape a routes file
+     * or a cached routes table must have before the engine consumes it.
+     *
+     * A value that is not an array at all (a scalar, `null`) is rejected
+     * with its own message; each entry is then asserted individually, so
+     * the first violating entry halts with its full path context. Both a
+     * list of entries and a map of named entries validate: the schema
+     * governs the entries, not the addressing.
+     */
+    public function assertList(mixed $routes): void
+    {
+        if (!\is_array($routes)) {
+            throw new ConfigException('The "routes" configuration must be a list of route entries.');
+        }
+
+        foreach (array_keys($routes) as $entry) {
+            $this->assert($routes[$entry]);
+        }
     }
 }
