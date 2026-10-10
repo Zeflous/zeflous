@@ -494,3 +494,10 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#151 chore(changelog-official): regenerate official changelog
     - 700285c chore(changelog-official): regenerate official changelog
+
+- PR#153 feat(config): immutable config repository with dot-notation access
+    - 44a2799 feat(config): immutable config repository with dot-notation access
+    - ff342ff Merge branch 'main' into feat/config-repository
+
+- PR#154 chore(changelog-official): regenerate official changelog
+    - 26ffdcb chore(changelog-official): regenerate official changelog
