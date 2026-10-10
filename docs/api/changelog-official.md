@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(changelog-official\): enforce one-line PR style, no commit lines [\#196](https://github.com/Zeflous/zeflous/pull/196) ([mbetixz](https://github.com/mbetixz))
 - feat\(changelog\): drop per-commit lines from per-version changelog [\#190](https://github.com/Zeflous/zeflous/pull/190) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): layered default-app-env configuration merge [\#184](https://github.com/Zeflous/zeflous/pull/184) ([mbetixz](https://github.com/mbetixz))
 - feat\(changelog\): render per-version changelog in github-changelog-generator style [\#183](https://github.com/Zeflous/zeflous/pull/183) ([mbetixz](https://github.com/mbetixz))
