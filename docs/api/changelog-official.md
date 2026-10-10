@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(config\): immutable config repository with dot-notation access [\#153](https://github.com/Zeflous/zeflous/pull/153) ([mbetixz](https://github.com/mbetixz))
 - feat\(ci\): assert the zero-dependency invariant in the static gate [\#150](https://github.com/Zeflous/zeflous/pull/150) ([mbetixz](https://github.com/mbetixz))
 - docs\(CONTRIBUTING.md\): Add mandatory rules for contribution guidelines\) [\#147](https://github.com/Zeflous/zeflous/pull/147) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): report only actionable findings in the code-scanning alert feed [\#144](https://github.com/Zeflous/zeflous/pull/144) ([mbetixz](https://github.com/mbetixz))
