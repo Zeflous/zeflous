@@ -122,7 +122,18 @@
             "merged_at": "2026-10-10T11:41:45Z",
             "url": "https://github.com/Zeflous/zeflous/pull/150",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "4f5d317f5da04ff575d509e3fbe09eb2c800e64d",
+                "short_sha": "4f5d317",
+                "subject": "feat(ci): assert the zero-dependency invariant in the static gate"
+              },
+              {
+                "sha": "a5cac90d31cb161ac009af304a85bdeb9bdda95e",
+                "short_sha": "a5cac90",
+                "subject": "fix(ci): psalm-clean manifest narrowing and multi-section mutation kill"
+              }
+            ]
           },
           {
             "pr": 153,
@@ -132,7 +143,18 @@
             "merged_at": "2026-10-10T11:58:02Z",
             "url": "https://github.com/Zeflous/zeflous/pull/153",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "44a2799d57c1a75fab33047bb9d802eb3d26bb14",
+                "short_sha": "44a2799",
+                "subject": "feat(config): immutable config repository with dot-notation access"
+              },
+              {
+                "sha": "ff342ffce33a82383bb3907925ea33b78c377709",
+                "short_sha": "ff342ff",
+                "subject": "Merge branch 'main' into feat/config-repository"
+              }
+            ]
           },
           {
             "pr": 159,
@@ -142,7 +164,18 @@
             "merged_at": "2026-10-10T13:27:55Z",
             "url": "https://github.com/Zeflous/zeflous/pull/159",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "b1c46748e525f84d8d759d4e1c74661fdd74803a",
+                "short_sha": "b1c4674",
+                "subject": "feat(config): immutable with-mutations for config entries"
+              },
+              {
+                "sha": "ffb51d709bc96a5125db9642be766ca4b6fdb9a0",
+                "short_sha": "ffb51d7",
+                "subject": "docs(roadmap): record the config with-mutations implementation in the roadmap documents"
+              }
+            ]
           },
           {
             "pr": 167,
@@ -152,7 +185,38 @@
             "merged_at": "2026-10-10T14:23:15Z",
             "url": "https://github.com/Zeflous/zeflous/pull/167",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "9a1d20c5fd6078fb173e76cbf543db3daf541fb3",
+                "short_sha": "9a1d20c",
+                "subject": "feat(config): php file and directory config loaders"
+              },
+              {
+                "sha": "0aefe55f6e7b38ae1c154dd87c470917301f4146",
+                "short_sha": "0aefe55",
+                "subject": "Merge branch 'main' into feat/config-loaders"
+              },
+              {
+                "sha": "8ce87d46c0ec252c5c6875152b4db7ee7a591e6d",
+                "short_sha": "8ce87d4",
+                "subject": "Merge branch 'main' into feat/config-loaders"
+              },
+              {
+                "sha": "d1fb113a4938c688dca8a5a1b46192c4e793e88d",
+                "short_sha": "d1fb113",
+                "subject": "docs(roadmap): record the config loaders implementation in the roadmap documents"
+              },
+              {
+                "sha": "f25cf29afb966db3dad8608a0c061e3f664b1ac1",
+                "short_sha": "f25cf29",
+                "subject": "Merge branch 'main' into feat/config-loaders"
+              },
+              {
+                "sha": "cf71b45c6b5b0a125d2ab06a798a46389721e0c7",
+                "short_sha": "cf71b45",
+                "subject": "fix(sonar): resolve php:S2003 with re-loadable require execution"
+              }
+            ]
           },
           {
             "pr": 183,
@@ -162,7 +226,13 @@
             "merged_at": "2026-10-10T18:22:41Z",
             "url": "https://github.com/Zeflous/zeflous/pull/183",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "97a3ae1032f70c9a423be89e68a062f5cfdbdcb7",
+                "short_sha": "97a3ae1",
+                "subject": "feat(changelog): render per-version changelog in github-changelog-generator style"
+              }
+            ]
           },
           {
             "pr": 184,
@@ -172,7 +242,38 @@
             "merged_at": "2026-10-10T19:06:31Z",
             "url": "https://github.com/Zeflous/zeflous/pull/184",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "7c771b88f7a32f65e5ab63f21937de8f2026aec2",
+                "short_sha": "7c771b8",
+                "subject": "feat(config): layered default-app-env configuration merge"
+              },
+              {
+                "sha": "d449d10b0348bffd61da1dd067ad606a20716cdf",
+                "short_sha": "d449d10",
+                "subject": "Merge branch 'main' into feat/config-layered-merge"
+              },
+              {
+                "sha": "eb76ba4c566985af29cba33806739f69cf37977f",
+                "short_sha": "eb76ba4",
+                "subject": "docs(roadmap): record the layered configuration merge (#184)"
+              },
+              {
+                "sha": "1bc796e60c24ea9e44c132ee14dcbde35bf6e100",
+                "short_sha": "1bc796e",
+                "subject": "Merge branch 'main' into feat/config-layered-merge"
+              },
+              {
+                "sha": "bcf3b38062e6905aced1133f3747c1c44cef3c69",
+                "short_sha": "bcf3b38",
+                "subject": "Merge branch 'main' into feat/config-layered-merge"
+              },
+              {
+                "sha": "01b3680eb3c66b194f22b13d085520b9507858ba",
+                "short_sha": "01b3680",
+                "subject": "refactor(config): satisfy the architecture difficulty gate in the merge"
+              }
+            ]
           },
           {
             "pr": 190,
@@ -182,7 +283,13 @@
             "merged_at": "2026-10-10T19:27:59Z",
             "url": "https://github.com/Zeflous/zeflous/pull/190",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "ac27d01f2753250356b8997a23311b945255e4ce",
+                "short_sha": "ac27d01",
+                "subject": "feat(changelog): drop per-commit lines from per-version changelog"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -404,7 +511,13 @@
             "merged_at": "2026-10-08T04:39:09Z",
             "url": "https://github.com/Zeflous/zeflous/pull/62",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "fb57dd1bc35981dec9601d67b3c315afec1be6f2",
+                "short_sha": "fb57dd1",
+                "subject": "fix(ci): fall back to the built-in token when the PAT is under-scoped"
+              }
+            ]
           },
           {
             "pr": 131,
@@ -414,7 +527,48 @@
             "merged_at": "2026-10-09T18:53:26Z",
             "url": "https://github.com/Zeflous/zeflous/pull/131",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "0993b80fc3258237991e7c2550d7901c64d26781",
+                "short_sha": "0993b80",
+                "subject": "fix(ci): supersede stale CI Strict runs to unblock auto-merge"
+              },
+              {
+                "sha": "549806f3d8dffbec6b6fadde4cb0c30047937b6a",
+                "short_sha": "549806f",
+                "subject": "test(ci): harden workflow-concurrency gate to 100% MSI"
+              },
+              {
+                "sha": "6a64263838b93f65f60af49e94dcc726b1009bef",
+                "short_sha": "6a64263",
+                "subject": "test(ci): reach 100% MSI for the workflow-concurrency gate"
+              },
+              {
+                "sha": "4a2bc26279b8e1688f0f0307d24a32a2b90c582f",
+                "short_sha": "4a2bc26",
+                "subject": "Merge branch 'main' into fix/ci-strict-aggregator-deadlock"
+              },
+              {
+                "sha": "489ffe6141d4cd200c17459687a4af30951dd08e",
+                "short_sha": "489ffe6",
+                "subject": "refactor(ci): split workflow-concurrency rule to satisfy fitness gates"
+              },
+              {
+                "sha": "1d8833c7143b5022b05d353bfd19acd45557d254",
+                "short_sha": "1d8833c",
+                "subject": "refactor(ci): extract MixedValue so the policy unit passes the fitness gate"
+              },
+              {
+                "sha": "578a075fb2160a8b36504c0c917b844d88a19f1a",
+                "short_sha": "578a075",
+                "subject": "fix(ci): drop unused private constructor flagged by Psalm"
+              },
+              {
+                "sha": "efff803bb1a6ac81483218f9862b94139aaa7d2a",
+                "short_sha": "efff803",
+                "subject": "fix(ci): unblock auto-merge by superseding stale CI Strict runs"
+              }
+            ]
           },
           {
             "pr": 134,
@@ -424,7 +578,48 @@
             "merged_at": "2026-10-09T22:57:03Z",
             "url": "https://github.com/Zeflous/zeflous/pull/134",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "e2931bd3fc7d51553be5026f963a4af979f480f4",
+                "short_sha": "e2931bd",
+                "subject": "fix(ci): auto-resolve finished review conversations to unblock auto-merge"
+              },
+              {
+                "sha": "414443ee9282936cc8de4db09add8ef76ad80cfb",
+                "short_sha": "414443e",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+              },
+              {
+                "sha": "92de32a6357375462df78f2ee3438e390aa53c71",
+                "short_sha": "92de32a",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+              },
+              {
+                "sha": "52eefeebd8f4040981265248481a9123be73d21c",
+                "short_sha": "52eefee",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+              },
+              {
+                "sha": "1d75358452b0e322251f7048c84f8076e8c6813d",
+                "short_sha": "1d75358",
+                "subject": "fix(ci): kill the escaped mutants and silence the new-analyzer findings"
+              },
+              {
+                "sha": "e83975781a226021ff1f461011dd95b6f4edd341",
+                "short_sha": "e839757",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+              },
+              {
+                "sha": "3ac0a3fe2a4027177e29384fc3bd6cc0c15b96b0",
+                "short_sha": "3ac0a3f",
+                "subject": "test(ci): kill the four escaped factory mutants (MSI 100%)"
+              },
+              {
+                "sha": "ff86109e3757d9c7d2ba13f34b67cf277d4dc531",
+                "short_sha": "ff86109",
+                "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+              }
+            ]
           },
           {
             "pr": 135,
@@ -434,7 +629,13 @@
             "merged_at": "2026-10-09T19:38:49Z",
             "url": "https://github.com/Zeflous/zeflous/pull/135",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "f3b1ad04c88b94e51e8a62151290e82553644b96",
+                "short_sha": "f3b1ad0",
+                "subject": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock"
+              }
+            ]
           },
           {
             "pr": 141,
@@ -444,7 +645,13 @@
             "merged_at": "2026-10-10T02:15:34Z",
             "url": "https://github.com/Zeflous/zeflous/pull/141",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "792c21d5efa9d775319a9df8bc703bfccc373498",
+                "short_sha": "792c21d",
+                "subject": "fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)"
+              }
+            ]
           },
           {
             "pr": 144,
@@ -454,7 +661,18 @@
             "merged_at": "2026-10-10T06:30:41Z",
             "url": "https://github.com/Zeflous/zeflous/pull/144",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "3843f67fd82cd952b2ebad3ff128595cf3f93aa8",
+                "short_sha": "3843f67",
+                "subject": "fix(ci): report only actionable findings in the code-scanning alert feed"
+              },
+              {
+                "sha": "175a66fdbf4efe25005767b6f76f24cfb7c6bd1c",
+                "short_sha": "175a66f",
+                "subject": "fix(ci): use sha256 for SARIF fingerprint ids"
+              }
+            ]
           },
           {
             "pr": 165,
@@ -464,7 +682,18 @@
             "merged_at": "2026-10-10T14:07:27Z",
             "url": "https://github.com/Zeflous/zeflous/pull/165",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "221279297f935d29e7c27637ee02663327b2cf70",
+                "short_sha": "2212792",
+                "subject": "fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)"
+              },
+              {
+                "sha": "14d818f25b021e20c6cd470a5b6da991df9e309e",
+                "short_sha": "14d818f",
+                "subject": "Merge origin/main into fix/changelog-api-workflows"
+              }
+            ]
           },
           {
             "pr": 176,
@@ -474,7 +703,28 @@
             "merged_at": "2026-10-10T17:37:50Z",
             "url": "https://github.com/Zeflous/zeflous/pull/176",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "98cfe19191d44953d67d84f322aeac7fa1b003bf",
+                "short_sha": "98cfe19",
+                "subject": "fix(config): restrict php file loading to an explicit allowlist"
+              },
+              {
+                "sha": "f3b7f701a74df368c21eaba443187c16a17ba8fa",
+                "short_sha": "f3b7f70",
+                "subject": "docs(roadmap): record the loader allowlist hardening (#176)"
+              },
+              {
+                "sha": "89bbb3497a828c34e949ee23a45ed700ad95c5df",
+                "short_sha": "89bbb34",
+                "subject": "Merge branch 'main' into fix/config-allowlist"
+              },
+              {
+                "sha": "7f5fc3bb47bc627df513ecb889db44018e577254",
+                "short_sha": "7f5fc3b",
+                "subject": "Merge branch 'main' into fix/config-allowlist"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -797,7 +1047,18 @@
             "merged_at": "2026-10-08T04:26:43Z",
             "url": "https://github.com/Zeflous/zeflous/pull/59",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "2c157c03b5a6b868c28466c040a93f89c1aa13fb",
+                "short_sha": "2c157c0",
+                "subject": "ci: bump sonar checkout to v4.4.0 and split heavy CI lanes into own workflows"
+              },
+              {
+                "sha": "fb05b0a1f71989f5088593308f66acf6a2f9c150",
+                "short_sha": "fb05b0a",
+                "subject": "ci: keep lane names whole in the CI Strict aggregator"
+              }
+            ]
           },
           {
             "pr": 61,
@@ -807,7 +1068,28 @@
             "merged_at": "2026-10-08T04:44:42Z",
             "url": "https://github.com/Zeflous/zeflous/pull/61",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "b59c395f5149303e2a3bd68d72e15f1dd1bc63b8",
+                "short_sha": "b59c395",
+                "subject": "ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning"
+              },
+              {
+                "sha": "064741f29bc3bb87747a017fa370a19aed04b0ca",
+                "short_sha": "064741f",
+                "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+              },
+              {
+                "sha": "60483073bb9b84e500822ae124f3412b2e7ef2ba",
+                "short_sha": "6048307",
+                "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+              },
+              {
+                "sha": "4d5f206007624da68564d4b857275d25a32212c6",
+                "short_sha": "4d5f206",
+                "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+              }
+            ]
           },
           {
             "pr": 67,
@@ -817,7 +1099,13 @@
             "merged_at": "2026-10-08T14:15:56Z",
             "url": "https://github.com/Zeflous/zeflous/pull/67",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "c52b359ff54321af84a7beacf71a195196ae527d",
+                "short_sha": "c52b359",
+                "subject": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)"
+              }
+            ]
           },
           {
             "pr": 71,
@@ -827,7 +1115,13 @@
             "merged_at": "2026-10-08T14:46:47Z",
             "url": "https://github.com/Zeflous/zeflous/pull/71",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "f2ccf43cefb9f85ac1f52c674d7f363c029af51e",
+                "short_sha": "f2ccf43",
+                "subject": "ci(auto-merge): correct the token-type caveat (ZEF_TOKEN is a classic PAT)"
+              }
+            ]
           },
           {
             "pr": 79,
@@ -837,7 +1131,13 @@
             "merged_at": "2026-10-09T00:08:36Z",
             "url": "https://github.com/Zeflous/zeflous/pull/79",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "81e3ad23c9b05d52c1953e0e5ebf9c5a03726a48",
+                "short_sha": "81e3ad2",
+                "subject": "ci(actions): bump deprecated node20 actions to node24"
+              }
+            ]
           },
           {
             "pr": 80,
@@ -847,7 +1147,23 @@
             "merged_at": "2026-10-09T00:15:45Z",
             "url": "https://github.com/Zeflous/zeflous/pull/80",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "4cbeacb608030ff169cced39a2a723f1b6c948ae",
+                "short_sha": "4cbeacb",
+                "subject": "ci(setup-php): drop unrecognised cache input from the strict lanes"
+              },
+              {
+                "sha": "72bbdf30e5d97707682d5d2b85ec3a032c436be3",
+                "short_sha": "72bbdf3",
+                "subject": "Merge branch 'main' into ci/setup-php-cache-fix"
+              },
+              {
+                "sha": "d43330e2965ef87b95a5d9e3dde17d6e704e80d5",
+                "short_sha": "d43330e",
+                "subject": "Merge branch 'main' into ci/setup-php-cache-fix"
+              }
+            ]
           },
           {
             "pr": 81,
@@ -857,7 +1173,18 @@
             "merged_at": "2026-10-09T00:12:34Z",
             "url": "https://github.com/Zeflous/zeflous/pull/81",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "d9b22a63f60f35e9006aa5ec71dc876af92a1053",
+                "short_sha": "d9b22a6",
+                "subject": "ci(hardening): fail-closed changelog filter, least-privilege proof-html, concurrency groups"
+              },
+              {
+                "sha": "4bbbddf97f70461d350af9b05a711e723a984ace",
+                "short_sha": "4bbbddf",
+                "subject": "Merge branch 'main' into ci/hardening"
+              }
+            ]
           },
           {
             "pr": 87,
@@ -867,7 +1194,18 @@
             "merged_at": "2026-10-09T01:12:11Z",
             "url": "https://github.com/Zeflous/zeflous/pull/87",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "cf8edcd89c646c0cf027355e38b6b39e903239f6",
+                "short_sha": "cf8edcd",
+                "subject": "ci(actions): bump remaining checkout pins to node24"
+              },
+              {
+                "sha": "b9211fbd2f3e62ee82bdc70064afa45d35127feb",
+                "short_sha": "b9211fb",
+                "subject": "Merge branch 'main' into ci/checkout-node24-remaining"
+              }
+            ]
           },
           {
             "pr": 90,
@@ -877,7 +1215,13 @@
             "merged_at": "2026-10-09T02:19:30Z",
             "url": "https://github.com/Zeflous/zeflous/pull/90",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "12f27dc1f4ce92604b5a8a7f3a3ca41f3574a459",
+                "short_sha": "12f27dc",
+                "subject": "ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN"
+              }
+            ]
           },
           {
             "pr": 98,
@@ -887,7 +1231,13 @@
             "merged_at": "2026-10-09T08:49:14Z",
             "url": "https://github.com/Zeflous/zeflous/pull/98",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "970715d39899fd8e4cbbd0b9515ce1fe7ecc57ec",
+                "short_sha": "970715d",
+                "subject": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator"
+              }
+            ]
           },
           {
             "pr": 104,
@@ -897,7 +1247,13 @@
             "merged_at": "2026-10-09T09:15:04Z",
             "url": "https://github.com/Zeflous/zeflous/pull/104",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "5ad32e49d03f9d589cfa7ba556cf2f4e0187b5f3",
+                "short_sha": "5ad32e4",
+                "subject": "ci: scope concurrency groups per event across all lanes for uniform gate behavior"
+              }
+            ]
           },
           {
             "pr": 109,
@@ -907,7 +1263,28 @@
             "merged_at": "2026-10-09T14:26:16Z",
             "url": "https://github.com/Zeflous/zeflous/pull/109",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "1ad24e4ebb69bf0e67f2db22e145625cd16dea9d",
+                "short_sha": "1ad24e4",
+                "subject": "ci(security): harden auto-merge lane (pull_request_target + actor isolation)"
+              },
+              {
+                "sha": "775e6f01b3c4c5d4db8a9945f1a9b1184c76724b",
+                "short_sha": "775e6f0",
+                "subject": "ci(security): drop duplicate auto-update-prs.yml (superseded by auto-merge.yml)"
+              },
+              {
+                "sha": "4a78bbea3c30bd90141fcdf30b84bf009da25259",
+                "short_sha": "4a78bbe",
+                "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
+              },
+              {
+                "sha": "bce114cd07d5e704de213c7f0e730385629bc294",
+                "short_sha": "bce114c",
+                "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
+              }
+            ]
           },
           {
             "pr": 110,
@@ -917,7 +1294,68 @@
             "merged_at": "2026-10-09T15:53:34Z",
             "url": "https://github.com/Zeflous/zeflous/pull/110",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "76229baa366403008411a8ce0e60da7a0796203f",
+                "short_sha": "76229ba",
+                "subject": "chore(governance): add CODEOWNERS to satisfy require_code_owner_review"
+              },
+              {
+                "sha": "8f75e063d43e8fc3fdc4d2b2ff91e515512cb1c0",
+                "short_sha": "8f75e06",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "909a798ef41874264355ca1f284a259c027d0ec0",
+                "short_sha": "909a798",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "37f312a21cf4ff2287bade1e6ffc904e6dfba543",
+                "short_sha": "37f312a",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "db74ec00b81a6b6bb504a49d0eaafbb094189a09",
+                "short_sha": "db74ec0",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "8f69122006c81de562cb13e1aaa1debf6b660080",
+                "short_sha": "8f69122",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "5a284e4d981cc51f05361ac0b25621b321e19472",
+                "short_sha": "5a284e4",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "b5a14c0969ab8d6b75dca62f64c6555c03f06381",
+                "short_sha": "b5a14c0",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "9a89c4bade210c3fb9d9a2db431d88d99fd7e7ee",
+                "short_sha": "9a89c4b",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "f207bdfa543f2e86176e7ca77a1baadb2625f4b4",
+                "short_sha": "f207bdf",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "bd9b8b20a74be50a2fbd7f9d9dfb092440befc3d",
+                "short_sha": "bd9b8b2",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              },
+              {
+                "sha": "86350a78cf3e9fa1969194f118945a386f556af2",
+                "short_sha": "86350a7",
+                "subject": "Merge branch 'main' into chore/governance-codeowners"
+              }
+            ]
           },
           {
             "pr": 119,
@@ -927,7 +1365,28 @@
             "merged_at": "2026-10-09T15:38:30Z",
             "url": "https://github.com/Zeflous/zeflous/pull/119",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "75e5e79cd33a6509fbc134b996b8f176364ba6ab",
+                "short_sha": "75e5e79",
+                "subject": "ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane"
+              },
+              {
+                "sha": "fcb92e5065262372e54f49e2b01ab479ab4c7212",
+                "short_sha": "fcb92e5",
+                "subject": "Merge branch 'main' into ci/stale-prs-updater"
+              },
+              {
+                "sha": "308feff692efc2203f0418ef7df9ad530e6eaca6",
+                "short_sha": "308feff",
+                "subject": "Merge branch 'main' into ci/stale-prs-updater"
+              },
+              {
+                "sha": "77a8f0bbb1db0a41aa829a93df1b524d16126480",
+                "short_sha": "77a8f0b",
+                "subject": "Merge branch 'main' into ci/stale-prs-updater"
+              }
+            ]
           },
           {
             "pr": 124,
@@ -937,7 +1396,23 @@
             "merged_at": "2026-10-09T16:18:54Z",
             "url": "https://github.com/Zeflous/zeflous/pull/124",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "3dee2e650dd815cdbff811afd396bb66a5ba1a5a",
+                "short_sha": "3dee2e6",
+                "subject": "docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)"
+              },
+              {
+                "sha": "f473db5b35ae1b6ede917bd17a96d529bae9095a",
+                "short_sha": "f473db5",
+                "subject": "docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)"
+              },
+              {
+                "sha": "f3b0facde8936d533ebf096118ae426492d78819",
+                "short_sha": "f3b0fac",
+                "subject": "Merge branch 'main' into ci/remove-codeql"
+              }
+            ]
           },
           {
             "pr": 137,
@@ -947,7 +1422,38 @@
             "merged_at": "2026-10-09T22:49:10Z",
             "url": "https://github.com/Zeflous/zeflous/pull/137",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "f7fd17d6ab83b52dc0f13b73387f3ed7af2fb6cd",
+                "short_sha": "f7fd17d",
+                "subject": "ci(strict): add workflow-concurrency regression gate"
+              },
+              {
+                "sha": "8a7a27da982f53e1b8827c05ab4f09645d875775",
+                "short_sha": "8a7a27d",
+                "subject": "Merge branch 'main' into fix/ci-strict-per-commit-concurrency"
+              },
+              {
+                "sha": "b89572aee739d25cec3ce45f449fe59e7c395f4c",
+                "short_sha": "b89572a",
+                "subject": "test(ci): kill the remaining workflow-concurrency mutants (MSI 100%)"
+              },
+              {
+                "sha": "923aa7005f2ee8d513a4d28707c611d9bebcaffd",
+                "short_sha": "923aa70",
+                "subject": "test(ci): pin the workflow-directory operand (MSI 100%)"
+              },
+              {
+                "sha": "ee89f435a6cd3aaf15d51f3bf021fea128285478",
+                "short_sha": "ee89f43",
+                "subject": "fix(ci): harden lane concurrency per-commit and silence new-analyzer findings"
+              },
+              {
+                "sha": "fa5913f9d51a81961ea241ef8cd167136b67d549",
+                "short_sha": "fa5913f",
+                "subject": "fix(ci): kill the four escaped mutants and the phpcs control-structure finding"
+              }
+            ]
           },
           {
             "pr": 171,
@@ -957,7 +1463,23 @@
             "merged_at": "2026-10-10T17:22:41Z",
             "url": "https://github.com/Zeflous/zeflous/pull/171",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "68d9648066be72ac5ed19da7f19d0330db8be33b",
+                "short_sha": "68d9648",
+                "subject": "refactor: secure urllib usage"
+              },
+              {
+                "sha": "617d32da76676ed277ed842e0e661b74884729f5",
+                "short_sha": "617d32d",
+                "subject": "fix(security): restrict urllib to http(s) schemes in the changelog generator"
+              },
+              {
+                "sha": "4c1cb85acb90227ecfe58acab3f56a2110dfaa58",
+                "short_sha": "4c1cb85",
+                "subject": "test: satisfy DeepSource PYL-R0201 on the exploding-opener stub"
+              }
+            ]
           },
           {
             "pr": 174,
@@ -967,7 +1489,48 @@
             "merged_at": "2026-10-10T17:51:49Z",
             "url": "https://github.com/Zeflous/zeflous/pull/174",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "a0552b0afc3b81c960f8a54df5f2c5e7bd7fe865",
+                "short_sha": "a0552b0",
+                "subject": "refactor: reduce cyclomatic complexity by extracting helper functions"
+              },
+              {
+                "sha": "cccdd0dd3f243a82712e09bd520ca863f4b58f47",
+                "short_sha": "cccdd0d",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "ab2e86b02716e329ac7db25182025d5d65a899c6",
+                "short_sha": "ab2e86b",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "f2d54700aafada145e96f3254a892b1a8129d107",
+                "short_sha": "f2d5470",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "6bf508f8ef4cab2cb6d6ea385ce8f89f1381b593",
+                "short_sha": "6bf508f",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "a3406b68d253a1b3e8e0d1a9189de7926c33eeff",
+                "short_sha": "a3406b6",
+                "subject": "fix(changelog): repair generate.py regressions from the autofix refactor"
+              },
+              {
+                "sha": "f5d5b9781cda72638369e2550c0bcbe30d6f7690",
+                "short_sha": "f5d5b97",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "1c396e3134a8d8278cc4e8103edf02b47fdde278",
+                "short_sha": "1c396e3",
+                "subject": "refactor(changelog): extract build_model helpers to cut cyclomatic complexity"
+              }
+            ]
           }
         ],
         "Documentation": [
@@ -995,7 +1558,13 @@
             "merged_at": "2026-10-08T23:23:47Z",
             "url": "https://github.com/Zeflous/zeflous/pull/74",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "acf59440fc5ce51d478f94212d3e237c7308820d",
+                "short_sha": "acf5944",
+                "subject": "docs(roadmap): refresh ROADMAP-STATUS header to current main"
+              }
+            ]
           },
           {
             "pr": 77,
@@ -1005,7 +1574,13 @@
             "merged_at": "2026-10-08T23:41:57Z",
             "url": "https://github.com/Zeflous/zeflous/pull/77",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "a21a0eeba4d4115c72eceaf0ebcea30a64d49d42",
+                "short_sha": "a21a0ee",
+                "subject": "docs(roadmap): add ROADMAP-HISTORY grouped by roadmap area"
+              }
+            ]
           },
           {
             "pr": 84,
@@ -1015,7 +1590,43 @@
             "merged_at": "2026-10-09T01:04:24Z",
             "url": "https://github.com/Zeflous/zeflous/pull/84",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "1504bde7bee6168b59a6643579af88659ccddbfa",
+                "short_sha": "1504bde",
+                "subject": "docs(readme): document the quality gates"
+              },
+              {
+                "sha": "c61a054bb7b432a0f1e52e9b428163f8fdd0d65c",
+                "short_sha": "c61a054",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "b5ec7c5e5d0899bc1a3ccec97e775eb75e638fef",
+                "short_sha": "b5ec7c5",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "9ba4ff0565efffba0c0e7ea327e555de0bada4c2",
+                "short_sha": "9ba4ff0",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "81cd99090c8d7ea802e47d107fe771f34a39dcd8",
+                "short_sha": "81cd990",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "627449371092e4673276ef312e527c639aaaca45",
+                "short_sha": "6274493",
+                "subject": "Merge branch 'main' into docs/quality-gates"
+              },
+              {
+                "sha": "7cf12feaf0b9fb9d2e6b041b9bbcedb13cac3737",
+                "short_sha": "7cf12fe",
+                "subject": "ci: re-trigger checks"
+              }
+            ]
           },
           {
             "pr": 93,
@@ -1025,7 +1636,18 @@
             "merged_at": "2026-10-09T03:29:33Z",
             "url": "https://github.com/Zeflous/zeflous/pull/93",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "47062db3eb7ffe24e5268920cde9362f25e787fc",
+                "short_sha": "47062db",
+                "subject": "docs(ci): add pipeline note 1 for auto-prs evaluation"
+              },
+              {
+                "sha": "4d654195acb7ca4ab750cadcabb5b9434e351c2f",
+                "short_sha": "4d65419",
+                "subject": "Merge branch 'main' into docs/ci-notes-1"
+              }
+            ]
           },
           {
             "pr": 94,
@@ -1035,7 +1657,23 @@
             "merged_at": "2026-10-09T03:33:00Z",
             "url": "https://github.com/Zeflous/zeflous/pull/94",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "cdbfdfd6c02b2ebd528e6e9ea5601231651b3c8b",
+                "short_sha": "cdbfdfd",
+                "subject": "docs(ci): add pipeline note 2 for auto-prs evaluation"
+              },
+              {
+                "sha": "f17ff78312124e0df5623cec9534bb21c1c13c6f",
+                "short_sha": "f17ff78",
+                "subject": "Merge branch 'main' into docs/ci-notes-2"
+              },
+              {
+                "sha": "f762c9af97dbd3840efee926da005de454124e83",
+                "short_sha": "f762c9a",
+                "subject": "Merge branch 'main' into docs/ci-notes-2"
+              }
+            ]
           },
           {
             "pr": 95,
@@ -1045,7 +1683,28 @@
             "merged_at": "2026-10-09T03:35:51Z",
             "url": "https://github.com/Zeflous/zeflous/pull/95",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "5c00ce186cd9871288186d44f2e1e0e0e7a988fc",
+                "short_sha": "5c00ce1",
+                "subject": "docs(ci): add pipeline note 3 for auto-prs evaluation"
+              },
+              {
+                "sha": "dbcbb820948189caf778ac6ee7a2302b33b5af1c",
+                "short_sha": "dbcbb82",
+                "subject": "Merge branch 'main' into docs/ci-notes-3"
+              },
+              {
+                "sha": "a7fca2b0ef3753c47820eef0451e79901d64db17",
+                "short_sha": "a7fca2b",
+                "subject": "Merge branch 'main' into docs/ci-notes-3"
+              },
+              {
+                "sha": "0396952696e7c1612aab4ef1fe43cab997ecb0ef",
+                "short_sha": "0396952",
+                "subject": "Merge branch 'main' into docs/ci-notes-3"
+              }
+            ]
           },
           {
             "pr": 96,
@@ -1055,7 +1714,33 @@
             "merged_at": "2026-10-09T03:38:53Z",
             "url": "https://github.com/Zeflous/zeflous/pull/96",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "8503c652e73f0b3cd690d875acb60947d00b157d",
+                "short_sha": "8503c65",
+                "subject": "docs(ci): add pipeline note 4 for auto-prs evaluation"
+              },
+              {
+                "sha": "8c2bc604849f6e1f6927915d7f99c787ccc8e3b9",
+                "short_sha": "8c2bc60",
+                "subject": "Merge branch 'main' into docs/ci-notes-4"
+              },
+              {
+                "sha": "489286ae620bfff04aaa311c3824b5cb5a8c5185",
+                "short_sha": "489286a",
+                "subject": "Merge branch 'main' into docs/ci-notes-4"
+              },
+              {
+                "sha": "98fa994d4cce0555b78b49ca64f0b357824d363b",
+                "short_sha": "98fa994",
+                "subject": "Merge branch 'main' into docs/ci-notes-4"
+              },
+              {
+                "sha": "d2f58a3f4f23e4c322b9b15759cf7d7de00fbfec",
+                "short_sha": "d2f58a3",
+                "subject": "Merge branch 'main' into docs/ci-notes-4"
+              }
+            ]
           },
           {
             "pr": 100,
@@ -1065,7 +1750,13 @@
             "merged_at": "2026-10-09T08:52:49Z",
             "url": "https://github.com/Zeflous/zeflous/pull/100",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "da55186a376e3785624a9fddbe910264b1cb1f10",
+                "short_sha": "da55186",
+                "subject": "docs(ci): burst probe 1 for event-scoped CI Strict concurrency"
+              }
+            ]
           },
           {
             "pr": 101,
@@ -1075,7 +1766,23 @@
             "merged_at": "2026-10-09T08:59:41Z",
             "url": "https://github.com/Zeflous/zeflous/pull/101",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "d8ece2f919a6afe4ea9688bd00f62ffc984fdda3",
+                "short_sha": "d8ece2f",
+                "subject": "docs(ci): burst probe 2 for event-scoped CI Strict concurrency"
+              },
+              {
+                "sha": "80fddd517e210cb100af08b9d6d81caf1715ea2d",
+                "short_sha": "80fddd5",
+                "subject": "Merge branch 'main' into docs/ci-burst-2"
+              },
+              {
+                "sha": "a4420e5381894d8dcd6ff22ec7a185489be95242",
+                "short_sha": "a4420e5",
+                "subject": "Merge branch 'main' into docs/ci-burst-2"
+              }
+            ]
           },
           {
             "pr": 102,
@@ -1085,7 +1792,28 @@
             "merged_at": "2026-10-09T09:03:17Z",
             "url": "https://github.com/Zeflous/zeflous/pull/102",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "1a03f97beaa6e855a19ebdb1402640ec664d3aff",
+                "short_sha": "1a03f97",
+                "subject": "docs(ci): burst probe 3 for event-scoped CI Strict concurrency"
+              },
+              {
+                "sha": "4c3e12821898ff9a308eedfed313544aa0346dcf",
+                "short_sha": "4c3e128",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              },
+              {
+                "sha": "c4379b526a464c1b6290dce92ab6200631ab9254",
+                "short_sha": "c4379b5",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              },
+              {
+                "sha": "bdd15b7830782f5a926a9f1d781335c01b791171",
+                "short_sha": "bdd15b7",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              }
+            ]
           },
           {
             "pr": 103,
@@ -1095,7 +1823,18 @@
             "merged_at": "2026-10-09T08:56:32Z",
             "url": "https://github.com/Zeflous/zeflous/pull/103",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "e339d5be1e3bc5625450bae6b8f2ebd16455b858",
+                "short_sha": "e339d5b",
+                "subject": "docs(ci): burst probe 4 for event-scoped CI Strict concurrency"
+              },
+              {
+                "sha": "b76f4e9adbec4cda3882cde397f820c835e1df8c",
+                "short_sha": "b76f4e9",
+                "subject": "Merge branch 'main' into docs/ci-burst-4"
+              }
+            ]
           },
           {
             "pr": 105,
@@ -1105,7 +1844,13 @@
             "merged_at": "2026-10-09T09:20:35Z",
             "url": "https://github.com/Zeflous/zeflous/pull/105",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "aca5b35de0aa12e3f23e04d6a2eb4e243d8cbd1b",
+                "short_sha": "aca5b35",
+                "subject": "docs(ci): note 1 for per-event concurrency scoping"
+              }
+            ]
           },
           {
             "pr": 106,
@@ -1115,7 +1860,18 @@
             "merged_at": "2026-10-09T09:23:49Z",
             "url": "https://github.com/Zeflous/zeflous/pull/106",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "ae2e398b6cd101ea88ea1a52eeebceacdc518fea",
+                "short_sha": "ae2e398",
+                "subject": "docs(ci): note 2 for per-event concurrency scoping"
+              },
+              {
+                "sha": "f5fec62eb32630c164de413f80e5d99f2e1fd7e3",
+                "short_sha": "f5fec62",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-2"
+              }
+            ]
           },
           {
             "pr": 107,
@@ -1125,7 +1881,38 @@
             "merged_at": "2026-10-09T14:30:06Z",
             "url": "https://github.com/Zeflous/zeflous/pull/107",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "3b2781285b975ddaa77be7fb831c8e04bfe187c9",
+                "short_sha": "3b27812",
+                "subject": "docs(ci): note 3 for per-event concurrency scoping"
+              },
+              {
+                "sha": "7400e6eb57f9dc0cc24ee90610055144e21f6a20",
+                "short_sha": "7400e6e",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              },
+              {
+                "sha": "b55b40d8f8f18dbe072939e326d76a3d4a67436f",
+                "short_sha": "b55b40d",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              },
+              {
+                "sha": "c87750cadcfa055a322683ae7090aafee43d1a4d",
+                "short_sha": "c87750c",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              },
+              {
+                "sha": "c4d48b3b232879f68cd09403dce47411436d3a73",
+                "short_sha": "c4d48b3",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              },
+              {
+                "sha": "4206aad2dff0407528929935a50d573d71fb9a02",
+                "short_sha": "4206aad",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+              }
+            ]
           },
           {
             "pr": 108,
@@ -1135,7 +1922,73 @@
             "merged_at": "2026-10-09T15:50:52Z",
             "url": "https://github.com/Zeflous/zeflous/pull/108",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "bc2eabeba00a7b54342fce2caa5064f462d48bb9",
+                "short_sha": "bc2eabe",
+                "subject": "docs(ci): note 4 for per-event concurrency scoping"
+              },
+              {
+                "sha": "879528f78001cd4da512fe58218f14b061a1a5e1",
+                "short_sha": "879528f",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "957686a24518c5901ca13a41c33d73a0965eac49",
+                "short_sha": "957686a",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "9a772529148e3d687cedf1070485bcaaf3e3115d",
+                "short_sha": "9a77252",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "99020551fd5c5bd3451ab22264eac773509a0b47",
+                "short_sha": "9902055",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "e48dcfbdf31111db9bd45ed439dfcc0527f23cc0",
+                "short_sha": "e48dcfb",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "8caaf0add7ab67451ba459981b7c41e7a490d8dc",
+                "short_sha": "8caaf0a",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "57999e798fb20b5d7b5c4e75421ff580cbc24d82",
+                "short_sha": "57999e7",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "f3e0bb589bafeac75756c70bb7c69f61ffc02401",
+                "short_sha": "f3e0bb5",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "b3765067984f4e31b354785331ab5992dd4c3794",
+                "short_sha": "b376506",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "415dc0827d7496b77d0b2e537639800eba8834ad",
+                "short_sha": "415dc08",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "844ce4fa8f19feae0390c3377600c139c0e96ff3",
+                "short_sha": "844ce4f",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              },
+              {
+                "sha": "8e285c46142fda0f0ddfb831cfcc6769d4fee6ee",
+                "short_sha": "8e285c4",
+                "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+              }
+            ]
           },
           {
             "pr": 114,
@@ -1145,7 +1998,53 @@
             "merged_at": "2026-10-09T15:48:12Z",
             "url": "https://github.com/Zeflous/zeflous/pull/114",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "a29d1d62b5bc2ea964da3376cfdfe41a9fa8e559",
+                "short_sha": "a29d1d6",
+                "subject": "docs(ci): add docs/ci-ruleset-verify-1.md probe"
+              },
+              {
+                "sha": "ecb04fe60f04d5635553ca1c351753f2c4a5e22d",
+                "short_sha": "ecb04fe",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "e113fd256c15e139588a02d297593e35db29b114",
+                "short_sha": "e113fd2",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "96ae2271211712e05c5e21d9f7b8ac88f4affaaf",
+                "short_sha": "96ae227",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "486246f5f6d2e5d9961b940bd0ee308b58a3d2d0",
+                "short_sha": "486246f",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "3087c3ad94c28a8af8ef8d2d35945ba074297c0c",
+                "short_sha": "3087c3a",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "67f6b5d0127e6e126bf6e7cfd7ec426204c325c3",
+                "short_sha": "67f6b5d",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "27213e9b464ecb57f709c6f4e0e8675c57a9ae7a",
+                "short_sha": "27213e9",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              },
+              {
+                "sha": "954433b24c7e85710d9fcde1bd56ae59a7f96398",
+                "short_sha": "954433b",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+              }
+            ]
           },
           {
             "pr": 115,
@@ -1155,7 +2054,68 @@
             "merged_at": "2026-10-09T15:56:04Z",
             "url": "https://github.com/Zeflous/zeflous/pull/115",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "985e043300ad4b3d909a88f241cb2f507ea300ae",
+                "short_sha": "985e043",
+                "subject": "docs(ci): add docs/ci-ruleset-verify-2.md probe"
+              },
+              {
+                "sha": "3c5b40f170eac8b045a217800237e585ba08b983",
+                "short_sha": "3c5b40f",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "837f7bc9d6be80d0425f633baa16dadc9aff99a8",
+                "short_sha": "837f7bc",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "0127f4f74c05326608ed07ff82578ae7e4756f14",
+                "short_sha": "0127f4f",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "8619ae82952aa27777947c2100e13321102103f1",
+                "short_sha": "8619ae8",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "93efbdd428ee367798f987269d3ab41489fde2a5",
+                "short_sha": "93efbdd",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "c3a347b1ad9c6993e58b262affee75dae584246b",
+                "short_sha": "c3a347b",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "87ba3dd13fd23fdfa73b330655f25780f4821127",
+                "short_sha": "87ba3dd",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "eca576c3141b264c698c35babac277bb761ec900",
+                "short_sha": "eca576c",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "654d268d56fb6242ecfdce7424488ae6f43a81de",
+                "short_sha": "654d268",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "fcd3ebbd0a9e0adf3629c8e29d7144d192ded2aa",
+                "short_sha": "fcd3ebb",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              },
+              {
+                "sha": "bde6203e446ef13c5e0a596e1a589525ab091fac",
+                "short_sha": "bde6203",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+              }
+            ]
           },
           {
             "pr": 116,
@@ -1165,7 +2125,38 @@
             "merged_at": "2026-10-09T15:32:01Z",
             "url": "https://github.com/Zeflous/zeflous/pull/116",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "cb4fd584a7de0463a486aabd2830af6499edff9a",
+                "short_sha": "cb4fd58",
+                "subject": "docs(ci): add docs/ci-ruleset-verify-3.md probe"
+              },
+              {
+                "sha": "178959c6d4c977c40193cc1b8464335a85cb17cf",
+                "short_sha": "178959c",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              },
+              {
+                "sha": "6d2ed8c310026db9a99b9f7af9fbcdb44c1a6cd4",
+                "short_sha": "6d2ed8c",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              },
+              {
+                "sha": "2e816e456b2918205a18b4674548c72c720684f3",
+                "short_sha": "2e816e4",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              },
+              {
+                "sha": "4b9fcd7fd3b1a4aa3e504b1f7ad6781203c7cc5d",
+                "short_sha": "4b9fcd7",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              },
+              {
+                "sha": "b25e8e1091596914adfe552f20da85000610d1f9",
+                "short_sha": "b25e8e1",
+                "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+              }
+            ]
           },
           {
             "pr": 126,
@@ -1175,7 +2166,13 @@
             "merged_at": "2026-10-09T16:23:37Z",
             "url": "https://github.com/Zeflous/zeflous/pull/126",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "4e9e014496192cfc20c5a213fff22134bd5cfd13",
+                "short_sha": "4e9e014",
+                "subject": "docs: add ci burst probe 1"
+              }
+            ]
           },
           {
             "pr": 127,
@@ -1185,7 +2182,18 @@
             "merged_at": "2026-10-09T16:25:29Z",
             "url": "https://github.com/Zeflous/zeflous/pull/127",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "b65793829adde9f7c3fe95d020535f299116fe50",
+                "short_sha": "b657938",
+                "subject": "docs: add ci burst probe 2"
+              },
+              {
+                "sha": "dfb458e3927a185ff5da7a3f4c43c11a18cfe07d",
+                "short_sha": "dfb458e",
+                "subject": "Merge branch 'main' into docs/ci-burst-2"
+              }
+            ]
           },
           {
             "pr": 128,
@@ -1195,7 +2203,23 @@
             "merged_at": "2026-10-09T16:28:26Z",
             "url": "https://github.com/Zeflous/zeflous/pull/128",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "2c54c313d29e868bb8d78848b46d6c0bf9fa839d",
+                "short_sha": "2c54c31",
+                "subject": "docs: add ci burst probe 3"
+              },
+              {
+                "sha": "048b3bc32fb07f8187677dedf64c0be6196c6b21",
+                "short_sha": "048b3bc",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              },
+              {
+                "sha": "85cf66ccae15d4aebac2ce95ade9082e3de5d5b5",
+                "short_sha": "85cf66c",
+                "subject": "Merge branch 'main' into docs/ci-burst-3"
+              }
+            ]
           },
           {
             "pr": 129,
@@ -1205,7 +2229,13 @@
             "merged_at": "2026-10-09T16:59:23Z",
             "url": "https://github.com/Zeflous/zeflous/pull/129",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "0014f9f745258504e98c6cfadae0a4c67263f0f3",
+                "short_sha": "0014f9f",
+                "subject": "docs(security): purge remaining CodeQL references"
+              }
+            ]
           },
           {
             "pr": 147,
@@ -1215,7 +2245,13 @@
             "merged_at": "2026-10-10T11:09:44Z",
             "url": "https://github.com/Zeflous/zeflous/pull/147",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "88649fed52e916e240dba0a10dc04dcad23d76ac",
+                "short_sha": "88649fe",
+                "subject": "Add mandatory rules for contribution guidelines"
+              }
+            ]
           },
           {
             "pr": 160,
@@ -1225,7 +2261,13 @@
             "merged_at": "2026-10-10T13:05:22Z",
             "url": "https://github.com/Zeflous/zeflous/pull/160",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "528fa98d69776fdbadf6210c3b19325ac1ecd00b",
+                "short_sha": "528fa98",
+                "subject": "docs(contributing): require roadmap history and status updates after implementation"
+              }
+            ]
           }
         ],
         "Tests": [
@@ -1237,7 +2279,13 @@
             "merged_at": "2026-10-10T12:40:44Z",
             "url": "https://github.com/Zeflous/zeflous/pull/156",
             "file": "CHANGELOG-unreleased.md",
-            "commits": []
+            "commits": [
+              {
+                "sha": "af3d3d2339a2c2f84bceb109f867c610bff3b74d",
+                "short_sha": "af3d3d2",
+                "subject": "test(tooling): make the lint report sort mutant kill deterministic"
+              }
+            ]
           }
         ],
         "Other": [
@@ -2088,7 +3136,18 @@
           "merged_at": "2026-10-08T04:26:43Z",
           "url": "https://github.com/Zeflous/zeflous/pull/59",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "2c157c03b5a6b868c28466c040a93f89c1aa13fb",
+              "short_sha": "2c157c0",
+              "subject": "ci: bump sonar checkout to v4.4.0 and split heavy CI lanes into own workflows"
+            },
+            {
+              "sha": "fb05b0a1f71989f5088593308f66acf6a2f9c150",
+              "short_sha": "fb05b0a",
+              "subject": "ci: keep lane names whole in the CI Strict aggregator"
+            }
+          ]
         },
         {
           "pr": 61,
@@ -2098,7 +3157,28 @@
           "merged_at": "2026-10-08T04:44:42Z",
           "url": "https://github.com/Zeflous/zeflous/pull/61",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "b59c395f5149303e2a3bd68d72e15f1dd1bc63b8",
+              "short_sha": "b59c395",
+              "subject": "ci(sonar): pin checkout to v7.0.1 to actually drop the Node.js 20 warning"
+            },
+            {
+              "sha": "064741f29bc3bb87747a017fa370a19aed04b0ca",
+              "short_sha": "064741f",
+              "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+            },
+            {
+              "sha": "60483073bb9b84e500822ae124f3412b2e7ef2ba",
+              "short_sha": "6048307",
+              "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+            },
+            {
+              "sha": "4d5f206007624da68564d4b857275d25a32212c6",
+              "short_sha": "4d5f206",
+              "subject": "Merge branch 'main' into ci/sonar-checkout-node24"
+            }
+          ]
         },
         {
           "pr": 62,
@@ -2108,7 +3188,13 @@
           "merged_at": "2026-10-08T04:39:09Z",
           "url": "https://github.com/Zeflous/zeflous/pull/62",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "fb57dd1bc35981dec9601d67b3c315afec1be6f2",
+              "short_sha": "fb57dd1",
+              "subject": "fix(ci): fall back to the built-in token when the PAT is under-scoped"
+            }
+          ]
         },
         {
           "pr": 67,
@@ -2118,7 +3204,13 @@
           "merged_at": "2026-10-08T14:15:56Z",
           "url": "https://github.com/Zeflous/zeflous/pull/67",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "c52b359ff54321af84a7beacf71a195196ae527d",
+              "short_sha": "c52b359",
+              "subject": "ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs)"
+            }
+          ]
         },
         {
           "pr": 71,
@@ -2128,7 +3220,13 @@
           "merged_at": "2026-10-08T14:46:47Z",
           "url": "https://github.com/Zeflous/zeflous/pull/71",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "f2ccf43cefb9f85ac1f52c674d7f363c029af51e",
+              "short_sha": "f2ccf43",
+              "subject": "ci(auto-merge): correct the token-type caveat (ZEF_TOKEN is a classic PAT)"
+            }
+          ]
         },
         {
           "pr": 74,
@@ -2138,7 +3236,13 @@
           "merged_at": "2026-10-08T23:23:47Z",
           "url": "https://github.com/Zeflous/zeflous/pull/74",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "acf59440fc5ce51d478f94212d3e237c7308820d",
+              "short_sha": "acf5944",
+              "subject": "docs(roadmap): refresh ROADMAP-STATUS header to current main"
+            }
+          ]
         },
         {
           "pr": 77,
@@ -2148,7 +3252,13 @@
           "merged_at": "2026-10-08T23:41:57Z",
           "url": "https://github.com/Zeflous/zeflous/pull/77",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "a21a0eeba4d4115c72eceaf0ebcea30a64d49d42",
+              "short_sha": "a21a0ee",
+              "subject": "docs(roadmap): add ROADMAP-HISTORY grouped by roadmap area"
+            }
+          ]
         },
         {
           "pr": 79,
@@ -2158,7 +3268,13 @@
           "merged_at": "2026-10-09T00:08:36Z",
           "url": "https://github.com/Zeflous/zeflous/pull/79",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "81e3ad23c9b05d52c1953e0e5ebf9c5a03726a48",
+              "short_sha": "81e3ad2",
+              "subject": "ci(actions): bump deprecated node20 actions to node24"
+            }
+          ]
         },
         {
           "pr": 80,
@@ -2168,7 +3284,23 @@
           "merged_at": "2026-10-09T00:15:45Z",
           "url": "https://github.com/Zeflous/zeflous/pull/80",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "4cbeacb608030ff169cced39a2a723f1b6c948ae",
+              "short_sha": "4cbeacb",
+              "subject": "ci(setup-php): drop unrecognised cache input from the strict lanes"
+            },
+            {
+              "sha": "72bbdf30e5d97707682d5d2b85ec3a032c436be3",
+              "short_sha": "72bbdf3",
+              "subject": "Merge branch 'main' into ci/setup-php-cache-fix"
+            },
+            {
+              "sha": "d43330e2965ef87b95a5d9e3dde17d6e704e80d5",
+              "short_sha": "d43330e",
+              "subject": "Merge branch 'main' into ci/setup-php-cache-fix"
+            }
+          ]
         },
         {
           "pr": 81,
@@ -2178,7 +3310,18 @@
           "merged_at": "2026-10-09T00:12:34Z",
           "url": "https://github.com/Zeflous/zeflous/pull/81",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "d9b22a63f60f35e9006aa5ec71dc876af92a1053",
+              "short_sha": "d9b22a6",
+              "subject": "ci(hardening): fail-closed changelog filter, least-privilege proof-html, concurrency groups"
+            },
+            {
+              "sha": "4bbbddf97f70461d350af9b05a711e723a984ace",
+              "short_sha": "4bbbddf",
+              "subject": "Merge branch 'main' into ci/hardening"
+            }
+          ]
         },
         {
           "pr": 84,
@@ -2188,7 +3331,43 @@
           "merged_at": "2026-10-09T01:04:24Z",
           "url": "https://github.com/Zeflous/zeflous/pull/84",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "1504bde7bee6168b59a6643579af88659ccddbfa",
+              "short_sha": "1504bde",
+              "subject": "docs(readme): document the quality gates"
+            },
+            {
+              "sha": "c61a054bb7b432a0f1e52e9b428163f8fdd0d65c",
+              "short_sha": "c61a054",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "b5ec7c5e5d0899bc1a3ccec97e775eb75e638fef",
+              "short_sha": "b5ec7c5",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "9ba4ff0565efffba0c0e7ea327e555de0bada4c2",
+              "short_sha": "9ba4ff0",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "81cd99090c8d7ea802e47d107fe771f34a39dcd8",
+              "short_sha": "81cd990",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "627449371092e4673276ef312e527c639aaaca45",
+              "short_sha": "6274493",
+              "subject": "Merge branch 'main' into docs/quality-gates"
+            },
+            {
+              "sha": "7cf12feaf0b9fb9d2e6b041b9bbcedb13cac3737",
+              "short_sha": "7cf12fe",
+              "subject": "ci: re-trigger checks"
+            }
+          ]
         },
         {
           "pr": 87,
@@ -2198,7 +3377,18 @@
           "merged_at": "2026-10-09T01:12:11Z",
           "url": "https://github.com/Zeflous/zeflous/pull/87",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "cf8edcd89c646c0cf027355e38b6b39e903239f6",
+              "short_sha": "cf8edcd",
+              "subject": "ci(actions): bump remaining checkout pins to node24"
+            },
+            {
+              "sha": "b9211fbd2f3e62ee82bdc70064afa45d35127feb",
+              "short_sha": "b9211fb",
+              "subject": "Merge branch 'main' into ci/checkout-node24-remaining"
+            }
+          ]
         },
         {
           "pr": 90,
@@ -2208,7 +3398,13 @@
           "merged_at": "2026-10-09T02:19:30Z",
           "url": "https://github.com/Zeflous/zeflous/pull/90",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "12f27dc1f4ce92604b5a8a7f3a3ca41f3574a459",
+              "short_sha": "12f27dc",
+              "subject": "ci(auto-prs): port auto-update-prs workflow from zef-framework with ZEF_TOKEN"
+            }
+          ]
         },
         {
           "pr": 93,
@@ -2218,7 +3414,18 @@
           "merged_at": "2026-10-09T03:29:33Z",
           "url": "https://github.com/Zeflous/zeflous/pull/93",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "47062db3eb7ffe24e5268920cde9362f25e787fc",
+              "short_sha": "47062db",
+              "subject": "docs(ci): add pipeline note 1 for auto-prs evaluation"
+            },
+            {
+              "sha": "4d654195acb7ca4ab750cadcabb5b9434e351c2f",
+              "short_sha": "4d65419",
+              "subject": "Merge branch 'main' into docs/ci-notes-1"
+            }
+          ]
         },
         {
           "pr": 94,
@@ -2228,7 +3435,23 @@
           "merged_at": "2026-10-09T03:33:00Z",
           "url": "https://github.com/Zeflous/zeflous/pull/94",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "cdbfdfd6c02b2ebd528e6e9ea5601231651b3c8b",
+              "short_sha": "cdbfdfd",
+              "subject": "docs(ci): add pipeline note 2 for auto-prs evaluation"
+            },
+            {
+              "sha": "f17ff78312124e0df5623cec9534bb21c1c13c6f",
+              "short_sha": "f17ff78",
+              "subject": "Merge branch 'main' into docs/ci-notes-2"
+            },
+            {
+              "sha": "f762c9af97dbd3840efee926da005de454124e83",
+              "short_sha": "f762c9a",
+              "subject": "Merge branch 'main' into docs/ci-notes-2"
+            }
+          ]
         },
         {
           "pr": 95,
@@ -2238,7 +3461,28 @@
           "merged_at": "2026-10-09T03:35:51Z",
           "url": "https://github.com/Zeflous/zeflous/pull/95",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "5c00ce186cd9871288186d44f2e1e0e0e7a988fc",
+              "short_sha": "5c00ce1",
+              "subject": "docs(ci): add pipeline note 3 for auto-prs evaluation"
+            },
+            {
+              "sha": "dbcbb820948189caf778ac6ee7a2302b33b5af1c",
+              "short_sha": "dbcbb82",
+              "subject": "Merge branch 'main' into docs/ci-notes-3"
+            },
+            {
+              "sha": "a7fca2b0ef3753c47820eef0451e79901d64db17",
+              "short_sha": "a7fca2b",
+              "subject": "Merge branch 'main' into docs/ci-notes-3"
+            },
+            {
+              "sha": "0396952696e7c1612aab4ef1fe43cab997ecb0ef",
+              "short_sha": "0396952",
+              "subject": "Merge branch 'main' into docs/ci-notes-3"
+            }
+          ]
         },
         {
           "pr": 96,
@@ -2248,7 +3492,33 @@
           "merged_at": "2026-10-09T03:38:53Z",
           "url": "https://github.com/Zeflous/zeflous/pull/96",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "8503c652e73f0b3cd690d875acb60947d00b157d",
+              "short_sha": "8503c65",
+              "subject": "docs(ci): add pipeline note 4 for auto-prs evaluation"
+            },
+            {
+              "sha": "8c2bc604849f6e1f6927915d7f99c787ccc8e3b9",
+              "short_sha": "8c2bc60",
+              "subject": "Merge branch 'main' into docs/ci-notes-4"
+            },
+            {
+              "sha": "489286ae620bfff04aaa311c3824b5cb5a8c5185",
+              "short_sha": "489286a",
+              "subject": "Merge branch 'main' into docs/ci-notes-4"
+            },
+            {
+              "sha": "98fa994d4cce0555b78b49ca64f0b357824d363b",
+              "short_sha": "98fa994",
+              "subject": "Merge branch 'main' into docs/ci-notes-4"
+            },
+            {
+              "sha": "d2f58a3f4f23e4c322b9b15759cf7d7de00fbfec",
+              "short_sha": "d2f58a3",
+              "subject": "Merge branch 'main' into docs/ci-notes-4"
+            }
+          ]
         },
         {
           "pr": 98,
@@ -2258,7 +3528,13 @@
           "merged_at": "2026-10-09T08:49:14Z",
           "url": "https://github.com/Zeflous/zeflous/pull/98",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "970715d39899fd8e4cbbd0b9515ce1fe7ecc57ec",
+              "short_sha": "970715d",
+              "subject": "ci(strict): adopt zef-framework ci.yaml concurrency method to fix pending aggregator"
+            }
+          ]
         },
         {
           "pr": 100,
@@ -2268,7 +3544,13 @@
           "merged_at": "2026-10-09T08:52:49Z",
           "url": "https://github.com/Zeflous/zeflous/pull/100",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "da55186a376e3785624a9fddbe910264b1cb1f10",
+              "short_sha": "da55186",
+              "subject": "docs(ci): burst probe 1 for event-scoped CI Strict concurrency"
+            }
+          ]
         },
         {
           "pr": 101,
@@ -2278,7 +3560,23 @@
           "merged_at": "2026-10-09T08:59:41Z",
           "url": "https://github.com/Zeflous/zeflous/pull/101",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "d8ece2f919a6afe4ea9688bd00f62ffc984fdda3",
+              "short_sha": "d8ece2f",
+              "subject": "docs(ci): burst probe 2 for event-scoped CI Strict concurrency"
+            },
+            {
+              "sha": "80fddd517e210cb100af08b9d6d81caf1715ea2d",
+              "short_sha": "80fddd5",
+              "subject": "Merge branch 'main' into docs/ci-burst-2"
+            },
+            {
+              "sha": "a4420e5381894d8dcd6ff22ec7a185489be95242",
+              "short_sha": "a4420e5",
+              "subject": "Merge branch 'main' into docs/ci-burst-2"
+            }
+          ]
         },
         {
           "pr": 102,
@@ -2288,7 +3586,28 @@
           "merged_at": "2026-10-09T09:03:17Z",
           "url": "https://github.com/Zeflous/zeflous/pull/102",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "1a03f97beaa6e855a19ebdb1402640ec664d3aff",
+              "short_sha": "1a03f97",
+              "subject": "docs(ci): burst probe 3 for event-scoped CI Strict concurrency"
+            },
+            {
+              "sha": "4c3e12821898ff9a308eedfed313544aa0346dcf",
+              "short_sha": "4c3e128",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            },
+            {
+              "sha": "c4379b526a464c1b6290dce92ab6200631ab9254",
+              "short_sha": "c4379b5",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            },
+            {
+              "sha": "bdd15b7830782f5a926a9f1d781335c01b791171",
+              "short_sha": "bdd15b7",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            }
+          ]
         },
         {
           "pr": 103,
@@ -2298,7 +3617,18 @@
           "merged_at": "2026-10-09T08:56:32Z",
           "url": "https://github.com/Zeflous/zeflous/pull/103",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "e339d5be1e3bc5625450bae6b8f2ebd16455b858",
+              "short_sha": "e339d5b",
+              "subject": "docs(ci): burst probe 4 for event-scoped CI Strict concurrency"
+            },
+            {
+              "sha": "b76f4e9adbec4cda3882cde397f820c835e1df8c",
+              "short_sha": "b76f4e9",
+              "subject": "Merge branch 'main' into docs/ci-burst-4"
+            }
+          ]
         },
         {
           "pr": 104,
@@ -2308,7 +3638,13 @@
           "merged_at": "2026-10-09T09:15:04Z",
           "url": "https://github.com/Zeflous/zeflous/pull/104",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "5ad32e49d03f9d589cfa7ba556cf2f4e0187b5f3",
+              "short_sha": "5ad32e4",
+              "subject": "ci: scope concurrency groups per event across all lanes for uniform gate behavior"
+            }
+          ]
         },
         {
           "pr": 105,
@@ -2318,7 +3654,13 @@
           "merged_at": "2026-10-09T09:20:35Z",
           "url": "https://github.com/Zeflous/zeflous/pull/105",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "aca5b35de0aa12e3f23e04d6a2eb4e243d8cbd1b",
+              "short_sha": "aca5b35",
+              "subject": "docs(ci): note 1 for per-event concurrency scoping"
+            }
+          ]
         },
         {
           "pr": 106,
@@ -2328,7 +3670,18 @@
           "merged_at": "2026-10-09T09:23:49Z",
           "url": "https://github.com/Zeflous/zeflous/pull/106",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "ae2e398b6cd101ea88ea1a52eeebceacdc518fea",
+              "short_sha": "ae2e398",
+              "subject": "docs(ci): note 2 for per-event concurrency scoping"
+            },
+            {
+              "sha": "f5fec62eb32630c164de413f80e5d99f2e1fd7e3",
+              "short_sha": "f5fec62",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-2"
+            }
+          ]
         },
         {
           "pr": 107,
@@ -2338,7 +3691,38 @@
           "merged_at": "2026-10-09T14:30:06Z",
           "url": "https://github.com/Zeflous/zeflous/pull/107",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "3b2781285b975ddaa77be7fb831c8e04bfe187c9",
+              "short_sha": "3b27812",
+              "subject": "docs(ci): note 3 for per-event concurrency scoping"
+            },
+            {
+              "sha": "7400e6eb57f9dc0cc24ee90610055144e21f6a20",
+              "short_sha": "7400e6e",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            },
+            {
+              "sha": "b55b40d8f8f18dbe072939e326d76a3d4a67436f",
+              "short_sha": "b55b40d",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            },
+            {
+              "sha": "c87750cadcfa055a322683ae7090aafee43d1a4d",
+              "short_sha": "c87750c",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            },
+            {
+              "sha": "c4d48b3b232879f68cd09403dce47411436d3a73",
+              "short_sha": "c4d48b3",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            },
+            {
+              "sha": "4206aad2dff0407528929935a50d573d71fb9a02",
+              "short_sha": "4206aad",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-3"
+            }
+          ]
         },
         {
           "pr": 108,
@@ -2348,7 +3732,73 @@
           "merged_at": "2026-10-09T15:50:52Z",
           "url": "https://github.com/Zeflous/zeflous/pull/108",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "bc2eabeba00a7b54342fce2caa5064f462d48bb9",
+              "short_sha": "bc2eabe",
+              "subject": "docs(ci): note 4 for per-event concurrency scoping"
+            },
+            {
+              "sha": "879528f78001cd4da512fe58218f14b061a1a5e1",
+              "short_sha": "879528f",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "957686a24518c5901ca13a41c33d73a0965eac49",
+              "short_sha": "957686a",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "9a772529148e3d687cedf1070485bcaaf3e3115d",
+              "short_sha": "9a77252",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "99020551fd5c5bd3451ab22264eac773509a0b47",
+              "short_sha": "9902055",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "e48dcfbdf31111db9bd45ed439dfcc0527f23cc0",
+              "short_sha": "e48dcfb",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "8caaf0add7ab67451ba459981b7c41e7a490d8dc",
+              "short_sha": "8caaf0a",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "57999e798fb20b5d7b5c4e75421ff580cbc24d82",
+              "short_sha": "57999e7",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "f3e0bb589bafeac75756c70bb7c69f61ffc02401",
+              "short_sha": "f3e0bb5",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "b3765067984f4e31b354785331ab5992dd4c3794",
+              "short_sha": "b376506",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "415dc0827d7496b77d0b2e537639800eba8834ad",
+              "short_sha": "415dc08",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "844ce4fa8f19feae0390c3377600c139c0e96ff3",
+              "short_sha": "844ce4f",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            },
+            {
+              "sha": "8e285c46142fda0f0ddfb831cfcc6769d4fee6ee",
+              "short_sha": "8e285c4",
+              "subject": "Merge branch 'main' into docs/ci-lane-scope-4"
+            }
+          ]
         },
         {
           "pr": 109,
@@ -2358,7 +3808,28 @@
           "merged_at": "2026-10-09T14:26:16Z",
           "url": "https://github.com/Zeflous/zeflous/pull/109",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "1ad24e4ebb69bf0e67f2db22e145625cd16dea9d",
+              "short_sha": "1ad24e4",
+              "subject": "ci(security): harden auto-merge lane (pull_request_target + actor isolation)"
+            },
+            {
+              "sha": "775e6f01b3c4c5d4db8a9945f1a9b1184c76724b",
+              "short_sha": "775e6f0",
+              "subject": "ci(security): drop duplicate auto-update-prs.yml (superseded by auto-merge.yml)"
+            },
+            {
+              "sha": "4a78bbea3c30bd90141fcdf30b84bf009da25259",
+              "short_sha": "4a78bbe",
+              "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
+            },
+            {
+              "sha": "bce114cd07d5e704de213c7f0e730385629bc294",
+              "short_sha": "bce114c",
+              "subject": "Merge branch 'main' into ci/unify-auto-merge-hardening"
+            }
+          ]
         },
         {
           "pr": 110,
@@ -2368,7 +3839,68 @@
           "merged_at": "2026-10-09T15:53:34Z",
           "url": "https://github.com/Zeflous/zeflous/pull/110",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "76229baa366403008411a8ce0e60da7a0796203f",
+              "short_sha": "76229ba",
+              "subject": "chore(governance): add CODEOWNERS to satisfy require_code_owner_review"
+            },
+            {
+              "sha": "8f75e063d43e8fc3fdc4d2b2ff91e515512cb1c0",
+              "short_sha": "8f75e06",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "909a798ef41874264355ca1f284a259c027d0ec0",
+              "short_sha": "909a798",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "37f312a21cf4ff2287bade1e6ffc904e6dfba543",
+              "short_sha": "37f312a",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "db74ec00b81a6b6bb504a49d0eaafbb094189a09",
+              "short_sha": "db74ec0",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "8f69122006c81de562cb13e1aaa1debf6b660080",
+              "short_sha": "8f69122",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "5a284e4d981cc51f05361ac0b25621b321e19472",
+              "short_sha": "5a284e4",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "b5a14c0969ab8d6b75dca62f64c6555c03f06381",
+              "short_sha": "b5a14c0",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "9a89c4bade210c3fb9d9a2db431d88d99fd7e7ee",
+              "short_sha": "9a89c4b",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "f207bdfa543f2e86176e7ca77a1baadb2625f4b4",
+              "short_sha": "f207bdf",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "bd9b8b20a74be50a2fbd7f9d9dfb092440befc3d",
+              "short_sha": "bd9b8b2",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            },
+            {
+              "sha": "86350a78cf3e9fa1969194f118945a386f556af2",
+              "short_sha": "86350a7",
+              "subject": "Merge branch 'main' into chore/governance-codeowners"
+            }
+          ]
         },
         {
           "pr": 114,
@@ -2378,7 +3910,53 @@
           "merged_at": "2026-10-09T15:48:12Z",
           "url": "https://github.com/Zeflous/zeflous/pull/114",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "a29d1d62b5bc2ea964da3376cfdfe41a9fa8e559",
+              "short_sha": "a29d1d6",
+              "subject": "docs(ci): add docs/ci-ruleset-verify-1.md probe"
+            },
+            {
+              "sha": "ecb04fe60f04d5635553ca1c351753f2c4a5e22d",
+              "short_sha": "ecb04fe",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "e113fd256c15e139588a02d297593e35db29b114",
+              "short_sha": "e113fd2",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "96ae2271211712e05c5e21d9f7b8ac88f4affaaf",
+              "short_sha": "96ae227",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "486246f5f6d2e5d9961b940bd0ee308b58a3d2d0",
+              "short_sha": "486246f",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "3087c3ad94c28a8af8ef8d2d35945ba074297c0c",
+              "short_sha": "3087c3a",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "67f6b5d0127e6e126bf6e7cfd7ec426204c325c3",
+              "short_sha": "67f6b5d",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "27213e9b464ecb57f709c6f4e0e8675c57a9ae7a",
+              "short_sha": "27213e9",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            },
+            {
+              "sha": "954433b24c7e85710d9fcde1bd56ae59a7f96398",
+              "short_sha": "954433b",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-1"
+            }
+          ]
         },
         {
           "pr": 115,
@@ -2388,7 +3966,68 @@
           "merged_at": "2026-10-09T15:56:04Z",
           "url": "https://github.com/Zeflous/zeflous/pull/115",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "985e043300ad4b3d909a88f241cb2f507ea300ae",
+              "short_sha": "985e043",
+              "subject": "docs(ci): add docs/ci-ruleset-verify-2.md probe"
+            },
+            {
+              "sha": "3c5b40f170eac8b045a217800237e585ba08b983",
+              "short_sha": "3c5b40f",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "837f7bc9d6be80d0425f633baa16dadc9aff99a8",
+              "short_sha": "837f7bc",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "0127f4f74c05326608ed07ff82578ae7e4756f14",
+              "short_sha": "0127f4f",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "8619ae82952aa27777947c2100e13321102103f1",
+              "short_sha": "8619ae8",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "93efbdd428ee367798f987269d3ab41489fde2a5",
+              "short_sha": "93efbdd",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "c3a347b1ad9c6993e58b262affee75dae584246b",
+              "short_sha": "c3a347b",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "87ba3dd13fd23fdfa73b330655f25780f4821127",
+              "short_sha": "87ba3dd",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "eca576c3141b264c698c35babac277bb761ec900",
+              "short_sha": "eca576c",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "654d268d56fb6242ecfdce7424488ae6f43a81de",
+              "short_sha": "654d268",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "fcd3ebbd0a9e0adf3629c8e29d7144d192ded2aa",
+              "short_sha": "fcd3ebb",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            },
+            {
+              "sha": "bde6203e446ef13c5e0a596e1a589525ab091fac",
+              "short_sha": "bde6203",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-2"
+            }
+          ]
         },
         {
           "pr": 116,
@@ -2398,7 +4037,38 @@
           "merged_at": "2026-10-09T15:32:01Z",
           "url": "https://github.com/Zeflous/zeflous/pull/116",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "cb4fd584a7de0463a486aabd2830af6499edff9a",
+              "short_sha": "cb4fd58",
+              "subject": "docs(ci): add docs/ci-ruleset-verify-3.md probe"
+            },
+            {
+              "sha": "178959c6d4c977c40193cc1b8464335a85cb17cf",
+              "short_sha": "178959c",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            },
+            {
+              "sha": "6d2ed8c310026db9a99b9f7af9fbcdb44c1a6cd4",
+              "short_sha": "6d2ed8c",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            },
+            {
+              "sha": "2e816e456b2918205a18b4674548c72c720684f3",
+              "short_sha": "2e816e4",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            },
+            {
+              "sha": "4b9fcd7fd3b1a4aa3e504b1f7ad6781203c7cc5d",
+              "short_sha": "4b9fcd7",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            },
+            {
+              "sha": "b25e8e1091596914adfe552f20da85000610d1f9",
+              "short_sha": "b25e8e1",
+              "subject": "Merge branch 'main' into docs/ci-ruleset-verify-3"
+            }
+          ]
         },
         {
           "pr": 119,
@@ -2408,7 +4078,28 @@
           "merged_at": "2026-10-09T15:38:30Z",
           "url": "https://github.com/Zeflous/zeflous/pull/119",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "75e5e79cd33a6509fbc134b996b8f176364ba6ab",
+              "short_sha": "75e5e79",
+              "subject": "ci(automation): add stale-PR queue updater with auto-labeling, integrated with auto-merge lane"
+            },
+            {
+              "sha": "fcb92e5065262372e54f49e2b01ab479ab4c7212",
+              "short_sha": "fcb92e5",
+              "subject": "Merge branch 'main' into ci/stale-prs-updater"
+            },
+            {
+              "sha": "308feff692efc2203f0418ef7df9ad530e6eaca6",
+              "short_sha": "308feff",
+              "subject": "Merge branch 'main' into ci/stale-prs-updater"
+            },
+            {
+              "sha": "77a8f0bbb1db0a41aa829a93df1b524d16126480",
+              "short_sha": "77a8f0b",
+              "subject": "Merge branch 'main' into ci/stale-prs-updater"
+            }
+          ]
         },
         {
           "pr": 124,
@@ -2418,7 +4109,23 @@
           "merged_at": "2026-10-09T16:18:54Z",
           "url": "https://github.com/Zeflous/zeflous/pull/124",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "3dee2e650dd815cdbff811afd396bb66a5ba1a5a",
+              "short_sha": "3dee2e6",
+              "subject": "docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)"
+            },
+            {
+              "sha": "f473db5b35ae1b6ede917bd17a96d529bae9095a",
+              "short_sha": "f473db5",
+              "subject": "docs: drop CodeQL row (CodeQL removed in favor of DeepSource/SonarCloud/PhpCodeArcheology)"
+            },
+            {
+              "sha": "f3b0facde8936d533ebf096118ae426492d78819",
+              "short_sha": "f3b0fac",
+              "subject": "Merge branch 'main' into ci/remove-codeql"
+            }
+          ]
         },
         {
           "pr": 126,
@@ -2428,7 +4135,13 @@
           "merged_at": "2026-10-09T16:23:37Z",
           "url": "https://github.com/Zeflous/zeflous/pull/126",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "4e9e014496192cfc20c5a213fff22134bd5cfd13",
+              "short_sha": "4e9e014",
+              "subject": "docs: add ci burst probe 1"
+            }
+          ]
         },
         {
           "pr": 127,
@@ -2438,7 +4151,18 @@
           "merged_at": "2026-10-09T16:25:29Z",
           "url": "https://github.com/Zeflous/zeflous/pull/127",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "b65793829adde9f7c3fe95d020535f299116fe50",
+              "short_sha": "b657938",
+              "subject": "docs: add ci burst probe 2"
+            },
+            {
+              "sha": "dfb458e3927a185ff5da7a3f4c43c11a18cfe07d",
+              "short_sha": "dfb458e",
+              "subject": "Merge branch 'main' into docs/ci-burst-2"
+            }
+          ]
         },
         {
           "pr": 128,
@@ -2448,7 +4172,23 @@
           "merged_at": "2026-10-09T16:28:26Z",
           "url": "https://github.com/Zeflous/zeflous/pull/128",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "2c54c313d29e868bb8d78848b46d6c0bf9fa839d",
+              "short_sha": "2c54c31",
+              "subject": "docs: add ci burst probe 3"
+            },
+            {
+              "sha": "048b3bc32fb07f8187677dedf64c0be6196c6b21",
+              "short_sha": "048b3bc",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            },
+            {
+              "sha": "85cf66ccae15d4aebac2ce95ade9082e3de5d5b5",
+              "short_sha": "85cf66c",
+              "subject": "Merge branch 'main' into docs/ci-burst-3"
+            }
+          ]
         },
         {
           "pr": 129,
@@ -2458,7 +4198,13 @@
           "merged_at": "2026-10-09T16:59:23Z",
           "url": "https://github.com/Zeflous/zeflous/pull/129",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "0014f9f745258504e98c6cfadae0a4c67263f0f3",
+              "short_sha": "0014f9f",
+              "subject": "docs(security): purge remaining CodeQL references"
+            }
+          ]
         },
         {
           "pr": 131,
@@ -2468,7 +4214,48 @@
           "merged_at": "2026-10-09T18:53:26Z",
           "url": "https://github.com/Zeflous/zeflous/pull/131",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "0993b80fc3258237991e7c2550d7901c64d26781",
+              "short_sha": "0993b80",
+              "subject": "fix(ci): supersede stale CI Strict runs to unblock auto-merge"
+            },
+            {
+              "sha": "549806f3d8dffbec6b6fadde4cb0c30047937b6a",
+              "short_sha": "549806f",
+              "subject": "test(ci): harden workflow-concurrency gate to 100% MSI"
+            },
+            {
+              "sha": "6a64263838b93f65f60af49e94dcc726b1009bef",
+              "short_sha": "6a64263",
+              "subject": "test(ci): reach 100% MSI for the workflow-concurrency gate"
+            },
+            {
+              "sha": "4a2bc26279b8e1688f0f0307d24a32a2b90c582f",
+              "short_sha": "4a2bc26",
+              "subject": "Merge branch 'main' into fix/ci-strict-aggregator-deadlock"
+            },
+            {
+              "sha": "489ffe6141d4cd200c17459687a4af30951dd08e",
+              "short_sha": "489ffe6",
+              "subject": "refactor(ci): split workflow-concurrency rule to satisfy fitness gates"
+            },
+            {
+              "sha": "1d8833c7143b5022b05d353bfd19acd45557d254",
+              "short_sha": "1d8833c",
+              "subject": "refactor(ci): extract MixedValue so the policy unit passes the fitness gate"
+            },
+            {
+              "sha": "578a075fb2160a8b36504c0c917b844d88a19f1a",
+              "short_sha": "578a075",
+              "subject": "fix(ci): drop unused private constructor flagged by Psalm"
+            },
+            {
+              "sha": "efff803bb1a6ac81483218f9862b94139aaa7d2a",
+              "short_sha": "efff803",
+              "subject": "fix(ci): unblock auto-merge by superseding stale CI Strict runs"
+            }
+          ]
         },
         {
           "pr": 134,
@@ -2478,7 +4265,48 @@
           "merged_at": "2026-10-09T22:57:03Z",
           "url": "https://github.com/Zeflous/zeflous/pull/134",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "e2931bd3fc7d51553be5026f963a4af979f480f4",
+              "short_sha": "e2931bd",
+              "subject": "fix(ci): auto-resolve finished review conversations to unblock auto-merge"
+            },
+            {
+              "sha": "414443ee9282936cc8de4db09add8ef76ad80cfb",
+              "short_sha": "414443e",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            },
+            {
+              "sha": "92de32a6357375462df78f2ee3438e390aa53c71",
+              "short_sha": "92de32a",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            },
+            {
+              "sha": "52eefeebd8f4040981265248481a9123be73d21c",
+              "short_sha": "52eefee",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            },
+            {
+              "sha": "1d75358452b0e322251f7048c84f8076e8c6813d",
+              "short_sha": "1d75358",
+              "subject": "fix(ci): kill the escaped mutants and silence the new-analyzer findings"
+            },
+            {
+              "sha": "e83975781a226021ff1f461011dd95b6f4edd341",
+              "short_sha": "e839757",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            },
+            {
+              "sha": "3ac0a3fe2a4027177e29384fc3bd6cc0c15b96b0",
+              "short_sha": "3ac0a3f",
+              "subject": "test(ci): kill the four escaped factory mutants (MSI 100%)"
+            },
+            {
+              "sha": "ff86109e3757d9c7d2ba13f34b67cf277d4dc531",
+              "short_sha": "ff86109",
+              "subject": "Merge branch 'main' into fix/review-thread-auto-resolve"
+            }
+          ]
         },
         {
           "pr": 135,
@@ -2488,7 +4316,13 @@
           "merged_at": "2026-10-09T19:38:49Z",
           "url": "https://github.com/Zeflous/zeflous/pull/135",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "f3b1ad04c88b94e51e8a62151290e82553644b96",
+              "short_sha": "f3b1ad0",
+              "subject": "fix(ci): key CI Strict concurrency per commit to stop the waiting deadlock"
+            }
+          ]
         },
         {
           "pr": 137,
@@ -2498,7 +4332,38 @@
           "merged_at": "2026-10-09T22:49:10Z",
           "url": "https://github.com/Zeflous/zeflous/pull/137",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "f7fd17d6ab83b52dc0f13b73387f3ed7af2fb6cd",
+              "short_sha": "f7fd17d",
+              "subject": "ci(strict): add workflow-concurrency regression gate"
+            },
+            {
+              "sha": "8a7a27da982f53e1b8827c05ab4f09645d875775",
+              "short_sha": "8a7a27d",
+              "subject": "Merge branch 'main' into fix/ci-strict-per-commit-concurrency"
+            },
+            {
+              "sha": "b89572aee739d25cec3ce45f449fe59e7c395f4c",
+              "short_sha": "b89572a",
+              "subject": "test(ci): kill the remaining workflow-concurrency mutants (MSI 100%)"
+            },
+            {
+              "sha": "923aa7005f2ee8d513a4d28707c611d9bebcaffd",
+              "short_sha": "923aa70",
+              "subject": "test(ci): pin the workflow-directory operand (MSI 100%)"
+            },
+            {
+              "sha": "ee89f435a6cd3aaf15d51f3bf021fea128285478",
+              "short_sha": "ee89f43",
+              "subject": "fix(ci): harden lane concurrency per-commit and silence new-analyzer findings"
+            },
+            {
+              "sha": "fa5913f9d51a81961ea241ef8cd167136b67d549",
+              "short_sha": "fa5913f",
+              "subject": "fix(ci): kill the four escaped mutants and the phpcs control-structure finding"
+            }
+          ]
         },
         {
           "pr": 141,
@@ -2508,7 +4373,13 @@
           "merged_at": "2026-10-10T02:15:34Z",
           "url": "https://github.com/Zeflous/zeflous/pull/141",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "792c21d5efa9d775319a9df8bc703bfccc373498",
+              "short_sha": "792c21d",
+              "subject": "fix(ci): guarantee main validation after bot merges (watchdog + PAT attribution)"
+            }
+          ]
         },
         {
           "pr": 144,
@@ -2518,7 +4389,18 @@
           "merged_at": "2026-10-10T06:30:41Z",
           "url": "https://github.com/Zeflous/zeflous/pull/144",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "3843f67fd82cd952b2ebad3ff128595cf3f93aa8",
+              "short_sha": "3843f67",
+              "subject": "fix(ci): report only actionable findings in the code-scanning alert feed"
+            },
+            {
+              "sha": "175a66fdbf4efe25005767b6f76f24cfb7c6bd1c",
+              "short_sha": "175a66f",
+              "subject": "fix(ci): use sha256 for SARIF fingerprint ids"
+            }
+          ]
         },
         {
           "pr": 147,
@@ -2528,7 +4410,13 @@
           "merged_at": "2026-10-10T11:09:44Z",
           "url": "https://github.com/Zeflous/zeflous/pull/147",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "88649fed52e916e240dba0a10dc04dcad23d76ac",
+              "short_sha": "88649fe",
+              "subject": "Add mandatory rules for contribution guidelines"
+            }
+          ]
         },
         {
           "pr": 150,
@@ -2538,7 +4426,18 @@
           "merged_at": "2026-10-10T11:41:45Z",
           "url": "https://github.com/Zeflous/zeflous/pull/150",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "4f5d317f5da04ff575d509e3fbe09eb2c800e64d",
+              "short_sha": "4f5d317",
+              "subject": "feat(ci): assert the zero-dependency invariant in the static gate"
+            },
+            {
+              "sha": "a5cac90d31cb161ac009af304a85bdeb9bdda95e",
+              "short_sha": "a5cac90",
+              "subject": "fix(ci): psalm-clean manifest narrowing and multi-section mutation kill"
+            }
+          ]
         },
         {
           "pr": 153,
@@ -2548,7 +4447,18 @@
           "merged_at": "2026-10-10T11:58:02Z",
           "url": "https://github.com/Zeflous/zeflous/pull/153",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "44a2799d57c1a75fab33047bb9d802eb3d26bb14",
+              "short_sha": "44a2799",
+              "subject": "feat(config): immutable config repository with dot-notation access"
+            },
+            {
+              "sha": "ff342ffce33a82383bb3907925ea33b78c377709",
+              "short_sha": "ff342ff",
+              "subject": "Merge branch 'main' into feat/config-repository"
+            }
+          ]
         },
         {
           "pr": 156,
@@ -2558,7 +4468,13 @@
           "merged_at": "2026-10-10T12:40:44Z",
           "url": "https://github.com/Zeflous/zeflous/pull/156",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "af3d3d2339a2c2f84bceb109f867c610bff3b74d",
+              "short_sha": "af3d3d2",
+              "subject": "test(tooling): make the lint report sort mutant kill deterministic"
+            }
+          ]
         },
         {
           "pr": 159,
@@ -2568,7 +4484,18 @@
           "merged_at": "2026-10-10T13:27:55Z",
           "url": "https://github.com/Zeflous/zeflous/pull/159",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "b1c46748e525f84d8d759d4e1c74661fdd74803a",
+              "short_sha": "b1c4674",
+              "subject": "feat(config): immutable with-mutations for config entries"
+            },
+            {
+              "sha": "ffb51d709bc96a5125db9642be766ca4b6fdb9a0",
+              "short_sha": "ffb51d7",
+              "subject": "docs(roadmap): record the config with-mutations implementation in the roadmap documents"
+            }
+          ]
         },
         {
           "pr": 160,
@@ -2578,7 +4505,13 @@
           "merged_at": "2026-10-10T13:05:22Z",
           "url": "https://github.com/Zeflous/zeflous/pull/160",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "528fa98d69776fdbadf6210c3b19325ac1ecd00b",
+              "short_sha": "528fa98",
+              "subject": "docs(contributing): require roadmap history and status updates after implementation"
+            }
+          ]
         },
         {
           "pr": 165,
@@ -2588,7 +4521,18 @@
           "merged_at": "2026-10-10T14:07:27Z",
           "url": "https://github.com/Zeflous/zeflous/pull/165",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "221279297f935d29e7c27637ee02663327b2cf70",
+              "short_sha": "2212792",
+              "subject": "fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)"
+            },
+            {
+              "sha": "14d818f25b021e20c6cd470a5b6da991df9e309e",
+              "short_sha": "14d818f",
+              "subject": "Merge origin/main into fix/changelog-api-workflows"
+            }
+          ]
         },
         {
           "pr": 167,
@@ -2598,7 +4542,38 @@
           "merged_at": "2026-10-10T14:23:15Z",
           "url": "https://github.com/Zeflous/zeflous/pull/167",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "9a1d20c5fd6078fb173e76cbf543db3daf541fb3",
+              "short_sha": "9a1d20c",
+              "subject": "feat(config): php file and directory config loaders"
+            },
+            {
+              "sha": "0aefe55f6e7b38ae1c154dd87c470917301f4146",
+              "short_sha": "0aefe55",
+              "subject": "Merge branch 'main' into feat/config-loaders"
+            },
+            {
+              "sha": "8ce87d46c0ec252c5c6875152b4db7ee7a591e6d",
+              "short_sha": "8ce87d4",
+              "subject": "Merge branch 'main' into feat/config-loaders"
+            },
+            {
+              "sha": "d1fb113a4938c688dca8a5a1b46192c4e793e88d",
+              "short_sha": "d1fb113",
+              "subject": "docs(roadmap): record the config loaders implementation in the roadmap documents"
+            },
+            {
+              "sha": "f25cf29afb966db3dad8608a0c061e3f664b1ac1",
+              "short_sha": "f25cf29",
+              "subject": "Merge branch 'main' into feat/config-loaders"
+            },
+            {
+              "sha": "cf71b45c6b5b0a125d2ab06a798a46389721e0c7",
+              "short_sha": "cf71b45",
+              "subject": "fix(sonar): resolve php:S2003 with re-loadable require execution"
+            }
+          ]
         },
         {
           "pr": 171,
@@ -2608,7 +4583,23 @@
           "merged_at": "2026-10-10T17:22:41Z",
           "url": "https://github.com/Zeflous/zeflous/pull/171",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "68d9648066be72ac5ed19da7f19d0330db8be33b",
+              "short_sha": "68d9648",
+              "subject": "refactor: secure urllib usage"
+            },
+            {
+              "sha": "617d32da76676ed277ed842e0e661b74884729f5",
+              "short_sha": "617d32d",
+              "subject": "fix(security): restrict urllib to http(s) schemes in the changelog generator"
+            },
+            {
+              "sha": "4c1cb85acb90227ecfe58acab3f56a2110dfaa58",
+              "short_sha": "4c1cb85",
+              "subject": "test: satisfy DeepSource PYL-R0201 on the exploding-opener stub"
+            }
+          ]
         },
         {
           "pr": 174,
@@ -2618,7 +4609,48 @@
           "merged_at": "2026-10-10T17:51:49Z",
           "url": "https://github.com/Zeflous/zeflous/pull/174",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "a0552b0afc3b81c960f8a54df5f2c5e7bd7fe865",
+              "short_sha": "a0552b0",
+              "subject": "refactor: reduce cyclomatic complexity by extracting helper functions"
+            },
+            {
+              "sha": "cccdd0dd3f243a82712e09bd520ca863f4b58f47",
+              "short_sha": "cccdd0d",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "ab2e86b02716e329ac7db25182025d5d65a899c6",
+              "short_sha": "ab2e86b",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "f2d54700aafada145e96f3254a892b1a8129d107",
+              "short_sha": "f2d5470",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "6bf508f8ef4cab2cb6d6ea385ce8f89f1381b593",
+              "short_sha": "6bf508f",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "a3406b68d253a1b3e8e0d1a9189de7926c33eeff",
+              "short_sha": "a3406b6",
+              "subject": "fix(changelog): repair generate.py regressions from the autofix refactor"
+            },
+            {
+              "sha": "f5d5b9781cda72638369e2550c0bcbe30d6f7690",
+              "short_sha": "f5d5b97",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "1c396e3134a8d8278cc4e8103edf02b47fdde278",
+              "short_sha": "1c396e3",
+              "subject": "refactor(changelog): extract build_model helpers to cut cyclomatic complexity"
+            }
+          ]
         },
         {
           "pr": 176,
@@ -2628,7 +4660,28 @@
           "merged_at": "2026-10-10T17:37:50Z",
           "url": "https://github.com/Zeflous/zeflous/pull/176",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "98cfe19191d44953d67d84f322aeac7fa1b003bf",
+              "short_sha": "98cfe19",
+              "subject": "fix(config): restrict php file loading to an explicit allowlist"
+            },
+            {
+              "sha": "f3b7f701a74df368c21eaba443187c16a17ba8fa",
+              "short_sha": "f3b7f70",
+              "subject": "docs(roadmap): record the loader allowlist hardening (#176)"
+            },
+            {
+              "sha": "89bbb3497a828c34e949ee23a45ed700ad95c5df",
+              "short_sha": "89bbb34",
+              "subject": "Merge branch 'main' into fix/config-allowlist"
+            },
+            {
+              "sha": "7f5fc3bb47bc627df513ecb889db44018e577254",
+              "short_sha": "7f5fc3b",
+              "subject": "Merge branch 'main' into fix/config-allowlist"
+            }
+          ]
         },
         {
           "pr": 183,
@@ -2638,7 +4691,13 @@
           "merged_at": "2026-10-10T18:22:41Z",
           "url": "https://github.com/Zeflous/zeflous/pull/183",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "97a3ae1032f70c9a423be89e68a062f5cfdbdcb7",
+              "short_sha": "97a3ae1",
+              "subject": "feat(changelog): render per-version changelog in github-changelog-generator style"
+            }
+          ]
         },
         {
           "pr": 184,
@@ -2648,7 +4707,38 @@
           "merged_at": "2026-10-10T19:06:31Z",
           "url": "https://github.com/Zeflous/zeflous/pull/184",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "7c771b88f7a32f65e5ab63f21937de8f2026aec2",
+              "short_sha": "7c771b8",
+              "subject": "feat(config): layered default-app-env configuration merge"
+            },
+            {
+              "sha": "d449d10b0348bffd61da1dd067ad606a20716cdf",
+              "short_sha": "d449d10",
+              "subject": "Merge branch 'main' into feat/config-layered-merge"
+            },
+            {
+              "sha": "eb76ba4c566985af29cba33806739f69cf37977f",
+              "short_sha": "eb76ba4",
+              "subject": "docs(roadmap): record the layered configuration merge (#184)"
+            },
+            {
+              "sha": "1bc796e60c24ea9e44c132ee14dcbde35bf6e100",
+              "short_sha": "1bc796e",
+              "subject": "Merge branch 'main' into feat/config-layered-merge"
+            },
+            {
+              "sha": "bcf3b38062e6905aced1133f3747c1c44cef3c69",
+              "short_sha": "bcf3b38",
+              "subject": "Merge branch 'main' into feat/config-layered-merge"
+            },
+            {
+              "sha": "01b3680eb3c66b194f22b13d085520b9507858ba",
+              "short_sha": "01b3680",
+              "subject": "refactor(config): satisfy the architecture difficulty gate in the merge"
+            }
+          ]
         },
         {
           "pr": 190,
@@ -2658,7 +4748,13 @@
           "merged_at": "2026-10-10T19:27:59Z",
           "url": "https://github.com/Zeflous/zeflous/pull/190",
           "file": "CHANGELOG-unreleased.md",
-          "commits": []
+          "commits": [
+            {
+              "sha": "ac27d01f2753250356b8997a23311b945255e4ce",
+              "short_sha": "ac27d01",
+              "subject": "feat(changelog): drop per-commit lines from per-version changelog"
+            }
+          ]
         }
       ]
     }
