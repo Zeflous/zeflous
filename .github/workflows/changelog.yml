@@ -4,9 +4,11 @@
 # WHAT IT PRODUCES
 # ----------------
 #   * `CHANGELOG-vX.Y.Z.md`      -- ONE FILE PER RELEASE VERSION. Each merged
-#     PR is one block: the PR number + title, then the commits that belong to
-#     that PR (short SHA + subject). `CHANGELOG-unreleased.md` holds the PRs
-#     merged after the newest RELEASE (or every PR when no release exists yet).
+#     PR is one line: the PR title with its PR link (the reference tool's
+#     shape). The per-commit lines were removed because they duplicated the PR
+#     title; the commits remain in `docs/api/changelog.json`.
+#     `CHANGELOG-unreleased.md` holds the PRs merged after the newest RELEASE
+#     (or every PR when no release exists yet).
 #   * `CHANGELOG.md`             -- a LIGHTWEIGHT INDEX only: a table of links
 #     to each per-version file. It never carries the full history, so it cannot
 #     grow without bound as PRs accumulate.
