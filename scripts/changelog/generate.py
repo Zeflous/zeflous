@@ -472,16 +472,57 @@ def _version_markers(repo: str) -> tuple[list[dict], str]:
     return [], "none"
 
 
-def build_model(repo: str, cfg: dict) -> dict:
-    categories = cfg.get("categories") or []
-    markers, version_source = _version_markers(repo)
-    next_release = fetch_next_release(repo)
-    prs = fetch_merged_prs(repo)
+def _get_target_version(merged_at: str, markers: list[dict]) -> str:
+    """Return the FIRST release published at or after ``merged_at``.
 
-    # A PR belongs to the FIRST release published at or after its merge time.
-    # Anything merged after the newest release is "Unreleased".
+    Anything merged after the newest release is ``Unreleased``. Both sides are
+    parsed to ``datetime`` before comparison: ``merged_at`` and
+    ``marker["date"]`` are ISO strings, so a raw comparison would be a string
+    comparison (and comparing a string to a datetime would raise ``TypeError``).
+    """
+    merged_ts = _parse_ts(merged_at)
+    for marker in markers:
+        if marker["date"] and _parse_ts(marker["date"]) >= merged_ts:
+            return marker["name"]
+    return UNRELEASED
+
+
+def _build_entry(
+    pr: dict, target: str, commits: list[dict], categories: list[dict]
+) -> dict:
+    """Build one changelog entry, preserving the renderer's expected schema.
+
+    The keys here are the contract consumed by ``render_version_markdown`` and
+    ``render_json`` (``pr``, ``category``, ``commits``, ``url``, ``file`` ...);
+    changing them silently breaks the generated ``docs/api/changelog.json``.
+    """
+    cat = category_for(
+        [lbl.get("name", "") for lbl in pr.get("labels", [])],
+        pr.get("title", ""),
+        categories,
+        [c.get("subject", "") for c in commits],
+    )
+    return {
+        "pr": pr["number"],
+        "title": pr.get("title", ""),
+        "author": (pr.get("user") or {}).get("login", "unknown"),
+        "category": cat,
+        "merged_at": pr["merged_at"],
+        "url": pr.get("html_url", ""),
+        "file": version_filename(target),
+        "commits": commits,
+    }
+
+
+def _collect_versions(
+    repo: str, prs: list[dict], markers: list[dict], categories: list[dict]
+) -> dict[str, dict]:
+    """Bucket every merged PR into its target version, de-duplicated by PR number.
+
+    A PR belongs to the FIRST release published at or after its merge time;
+    anything merged after the newest release is ``Unreleased``.
+    """
     versions: dict[str, dict] = {}
-    order: list[str] = []
 
     def bucket(version: str) -> dict:
         if version not in versions:
@@ -492,52 +533,32 @@ def build_model(repo: str, cfg: dict) -> dict:
                 "categories": {},
                 "entries": [],
             }
-            order.append(version)
         return versions[version]
 
     for pr in prs:
-        merged_at = pr["merged_at"]
-        target = UNRELEASED
-        for marker in markers:
-            if marker["date"] and _parse_ts(marker["date"]) >= _parse_ts(merged_at):
-                target = marker["name"]
-                break
+        target = _get_target_version(pr["merged_at"], markers)
         commits = fetch_pr_commits(repo, pr["number"])
-        cat = category_for(
-            [lbl.get("name", "") for lbl in pr.get("labels", [])],
-            pr.get("title", ""),
-            categories,
-            [c.get("subject", "") for c in commits],
-        )
-        entry = {
-            "pr": pr["number"],
-            "title": pr.get("title", ""),
-            "author": (pr.get("user") or {}).get("login", "unknown"),
-            "category": cat,
-            "merged_at": merged_at,
-            "url": pr.get("html_url", ""),
-            "file": version_filename(target),
-            "commits": commits,
-        }
+        entry = _build_entry(pr, target, commits, categories)
         b = bucket(target)
         # De-duplicate by PR number: re-running must never duplicate an entry.
         if not any(e["pr"] == entry["pr"] for e in b["entries"]):
             b["entries"].append(entry)
+    return versions
 
-    # Attach each version's date from its release/tag (Unreleased has none).
-    marker_dates = {m["name"]: m["date"] for m in markers}
-    for name, b in versions.items():
-        b["date"] = marker_dates.get(name)
 
-    # Order: Unreleased first, then releases newest-first.
+def _order_versions(versions: dict[str, dict], markers: list[dict]) -> list[dict]:
+    """Order: Unreleased first, then releases newest-first."""
     ordered = []
     if UNRELEASED in versions:
         ordered.append(versions[UNRELEASED])
     for marker in reversed(markers):
         if marker["name"] in versions:
             ordered.append(versions[marker["name"]])
+    return ordered
 
-    # Group each version's entries by category, in the configured order.
+
+def _group_by_category(ordered: list[dict], categories: list[dict]) -> None:
+    """Group each version's entries by category, in the configured order."""
     cat_titles = [str(c.get("title")) for c in categories] + [FALLBACK_CATEGORY]
     for b in ordered:
         grouped: dict[str, list] = {t: [] for t in cat_titles}
@@ -545,6 +566,23 @@ def build_model(repo: str, cfg: dict) -> dict:
             grouped.setdefault(entry["category"], []).append(entry)
         b["categories"] = {k: v for k, v in grouped.items() if v}
         b["entries"] = sorted(b["entries"], key=lambda e: e["pr"])
+
+
+def build_model(repo: str, cfg: dict) -> dict:
+    categories = cfg.get("categories") or []
+    markers, version_source = _version_markers(repo)
+    next_release = fetch_next_release(repo)
+    prs = fetch_merged_prs(repo)
+
+    versions = _collect_versions(repo, prs, markers, categories)
+
+    # Attach each version's date from its release/tag (Unreleased has none).
+    marker_dates = {m["name"]: m["date"] for m in markers}
+    for name, b in versions.items():
+        b["date"] = marker_dates.get(name)
+
+    ordered = _order_versions(versions, markers)
+    _group_by_category(ordered, categories)
 
     latest = markers[-1]["name"] if markers else None
     # `as_of` is the newest merge timestamp in the model, NOT the wall clock.
