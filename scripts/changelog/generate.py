@@ -6,11 +6,16 @@ WHAT THIS PRODUCES
 A single in-memory model is rendered into several artifacts, so they can never
 disagree:
 
-  * ``CHANGELOG-vX.Y.Z.md``      -- one file PER RELEASE VERSION. Each merged
-    PR is one block: the PR number + title, then the list of commits that
-    belong to that PR (short SHA + subject). ``CHANGELOG-unreleased.md`` holds
-    the PRs merged after the newest release (or every PR when no release exists
-    yet).
+  * ``CHANGELOG-vX.Y.Z.md``      -- one file PER RELEASE VERSION, written in
+    the STYLE of the reference project github-changelog-generator (a ``##``
+    release heading with a release/date link, a ``[Full Changelog]`` compare
+    link, and ``**Category:**`` blocks of ``- <title> [#<n>](<url>)
+    ([<author>](<author-url>))`` entries). Unlike the reference tool -- which
+    emits ONE flat file and lists PR titles only -- there is still one file per
+    version, and each PR keeps its commits (short SHA + subject) as an indented
+    list beneath it, so the markdown agrees with ``docs/api/changelog.json``.
+    ``CHANGELOG-unreleased.md`` holds the PRs merged after the newest release
+    (or every PR when no release exists yet).
   * ``CHANGELOG.md``             -- a LIGHTWEIGHT INDEX only: a table of links
     to each per-version file. It never carries the full history, so it cannot
     grow without bound.
@@ -604,37 +609,147 @@ def build_model(repo: str, cfg: dict) -> dict:
     }
 
 
-def render_version_markdown(version: dict) -> str:
-    """Render ONE per-version file: a block per PR, commits beneath it."""
+def _repo_slug(repo: str | None, version: dict) -> str:
+    """The ``owner/name`` slug used to build links inside a per-version file.
+
+    The model carries ``repository``; when the renderer is called directly
+    (tests) without it, the slug is inferred from an entry's PR URL, so the
+    links stay correct for any repository. ``DEFAULT_REPO`` is the last resort.
+    """
+    if repo:
+        return repo
+    for entry in version.get("entries", []):
+        match = re.match(
+            r"https?://github\.com/([^/]+/[^/]+)/pull/\d+", entry.get("url") or ""
+        )
+        if match:
+            return match.group(1)
+    return DEFAULT_REPO
+
+
+def _grouped_entries(version: dict) -> dict[str, list]:
+    """Return ``version``'s entries grouped by category, in the model's order.
+
+    ``version["categories"]`` holds the configured category ORDER, but a
+    hand-built model (tests) may leave it empty while still carrying entries,
+    so the grouping is rebuilt from ``entries`` and merely ordered by that
+    mapping. A category present only in the entries is appended last.
+    """
+    order = list(version.get("categories", {}).keys())
+    grouped: dict[str, list] = {}
+    for entry in version.get("entries", []):
+        grouped.setdefault(entry.get("category") or FALLBACK_CATEGORY, []).append(entry)
+    ordered = {cat: grouped.pop(cat) for cat in order if cat in grouped}
+    ordered.update(grouped)
+    return ordered
+
+
+def _render_entry_line(entry: dict) -> str:
+    """One reference-style entry line.
+
+    ``- <title> [#<n>](<pr-url>) ([<author>](<author-url>))`` -- the shape
+    github-changelog-generator emits, so the two tools read alike. A missing PR
+    URL degrades to a bare ``#<n>`` and a missing author to ``unknown``.
+    """
+    title = (entry.get("title") or "").strip()
+    line = f"- {title}"
+    url = entry.get("url") or ""
+    if url:
+        line += f" [#{entry['pr']}]({url})"
+    else:
+        line += f" #{entry['pr']}"
+    author = entry.get("author") or "unknown"
+    line += f" ([{author}](https://github.com/{author}))"
+    return line
+
+
+def render_version_markdown(
+    version: dict, repo: str | None = None, previous: str | None = None
+) -> str:
+    """Render ONE per-version file in the github-changelog-generator style.
+
+    The layout mirrors the reference project's ``CHANGELOG.md`` (see
+    github-changelog-generator/github-changelog-generator) but is scoped to a
+    SINGLE version per file, as this repository requires::
+
+        # Changelog
+
+        ## [v1.2.3](release-url) (YYYY-MM-DD)
+
+        [Full Changelog](compare-url)
+
+        **Features:**
+
+        - <title> [#12](pr-url) ([author](author-url))
+            - `abc1234` feat: the commit subject
+
+    The PR-title/author line follows the reference tool exactly; the commit
+    list beneath each PR is retained because the machine-readable API carries
+    commits and the two must agree. ``Unreleased`` gets no tag link and no
+    date; the ``[Full Changelog]`` line appears only when an older version
+    exists to compare against.
+    """
     name = version["version"]
+    slug = _repo_slug(repo, version)
+    is_release = name != UNRELEASED
+
     lines = [
-        f"# CHANGELOG {name}",
+        "# Changelog",
         "",
         "<!-- GENERATED FILE - do not edit by hand. -->",
         "<!-- Regenerated by .github/workflows/changelog.yml from merged pull requests. -->",
         "",
-    ]
-    if version.get("date"):
-        lines.append(f"Release date: {version['date'][:10]}")
-        lines.append("")
-    lines.append(
         "Index: [`CHANGELOG.md`](CHANGELOG.md) \u00b7 "
-        "API: [`docs/api/changelog.json`](docs/api/changelog.json)"
+        "API: [`docs/api/changelog.json`](docs/api/changelog.json)",
+        "",
+    ]
+
+    # `## [vX.Y.Z](tree-url) (YYYY-MM-DD)` for a release; a bare `## Unreleased`
+    # for the not-yet-released bucket, which has neither a tag nor a date.
+    if is_release:
+        heading = f"## [{name}](https://github.com/{slug}/tree/{name})"
+        if version.get("date"):
+            heading += f" ({version['date'][:10]})"
+    else:
+        heading = "## Unreleased"
+    lines.extend([heading, ""])
+
+    # `[Full Changelog](compare-url)` -- only when an older version exists.
+    # `Unreleased` compares up to HEAD; a release compares to its own tag.
+    if previous:
+        target = name if is_release else "HEAD"
+        lines.extend(
+            [
+                f"[Full Changelog](https://github.com/{slug}/compare/{previous}...{target})",
+                "",
+            ]
+        )
+
+    grouped = _grouped_entries(version)
+    if not grouped:
+        lines.extend(["- Tidak ada perubahan.", ""])
+    else:
+        for category, entries in grouped.items():
+            lines.extend([f"**{category}:**", ""])
+            for entry in entries:
+                lines.append(_render_entry_line(entry))
+                commits = entry.get("commits") or []
+                if commits:
+                    for commit in commits:
+                        subject = (commit.get("subject") or "").rstrip()
+                        lines.append(f"    - `{commit['short_sha']}` {subject}".rstrip())
+                else:
+                    lines.append("    - (no commits recorded)")
+            lines.append("")
+
+    lines.extend(
+        [
+            "\\* *This file was generated automatically by "
+            "[`scripts/changelog/generate.py`](scripts/changelog/generate.py) "
+            "from merged pull requests.*",
+            "",
+        ]
     )
-    lines.append("")
-    if not version["entries"]:
-        lines.append("- Tidak ada perubahan.")
-        lines.append("")
-        return "\n".join(lines).rstrip() + "\n"
-    for entry in version["entries"]:
-        lines.append(f"- PR#{entry['pr']:02d} {entry['title']}")
-        if entry.get("commits"):
-            for commit in entry["commits"]:
-                subject = commit.get("subject") or ""
-                lines.append(f"    - {commit['short_sha']} {subject}".rstrip())
-        else:
-            lines.append("    - (no commits recorded)")
-        lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -699,8 +814,15 @@ def _all_outputs(model: dict) -> dict[Path, str]:
         CHANGELOG_JSON: render_json(model),
         CHANGELOG_INDEX_JSON: render_index_json(model),
     }
-    for version in model["versions"]:
-        outputs[REPO_ROOT / version["file"]] = render_version_markdown(version)
+    versions = model["versions"]
+    for index, version in enumerate(versions):
+        # Versions are ordered newest-first, so the NEXT entry is the older
+        # release to compare against (the `[Full Changelog]` link). The oldest
+        # version has none.
+        previous = versions[index + 1]["version"] if index + 1 < len(versions) else None
+        outputs[REPO_ROOT / version["file"]] = render_version_markdown(
+            version, repo=model.get("repository"), previous=previous
+        )
     return outputs
 
 
