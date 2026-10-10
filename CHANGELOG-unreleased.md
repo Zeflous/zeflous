@@ -507,3 +507,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#157 chore(changelog-official): regenerate official changelog
     - 22136aa chore(changelog-official): regenerate official changelog
+
+- PR#160 docs(contributing): require roadmap history and status updates after implementation
+    - 528fa98 docs(contributing): require roadmap history and status updates after implementation
+
+- PR#161 chore(changelog-official): regenerate official changelog
+    - 521830f chore(changelog-official): regenerate official changelog

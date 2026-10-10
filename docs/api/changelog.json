@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T12:42:21Z",
+  "as_of": "2026-10-10T13:07:25Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 117,
+  "unreleased_count": 119,
   "versions": [
     {
       "version": "Unreleased",
@@ -1814,6 +1814,22 @@
                 "subject": "chore(changelog-official): regenerate official changelog"
               }
             ]
+          },
+          {
+            "pr": 161,
+            "title": "chore(changelog-official): regenerate official changelog",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-10T13:07:25Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/161",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "521830f7198a4d02f1591d0346a8aa0bd1d94a4e",
+                "short_sha": "521830f",
+                "subject": "chore(changelog-official): regenerate official changelog"
+              }
+            ]
           }
         ],
         "Documentation": [
@@ -2533,6 +2549,22 @@
                 "sha": "88649fed52e916e240dba0a10dc04dcad23d76ac",
                 "short_sha": "88649fe",
                 "subject": "Add mandatory rules for contribution guidelines"
+              }
+            ]
+          },
+          {
+            "pr": 160,
+            "title": "docs(contributing): require roadmap history and status updates after implementation",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-10T13:05:22Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/160",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "528fa98d69776fdbadf6210c3b19325ac1ecd00b",
+                "short_sha": "528fa98",
+                "subject": "docs(contributing): require roadmap history and status updates after implementation"
               }
             ]
           }
@@ -5286,6 +5318,38 @@
             {
               "sha": "22136aa22588be6114822f302f6d227c7f692556",
               "short_sha": "22136aa",
+              "subject": "chore(changelog-official): regenerate official changelog"
+            }
+          ]
+        },
+        {
+          "pr": 160,
+          "title": "docs(contributing): require roadmap history and status updates after implementation",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-10T13:05:22Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/160",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "528fa98d69776fdbadf6210c3b19325ac1ecd00b",
+              "short_sha": "528fa98",
+              "subject": "docs(contributing): require roadmap history and status updates after implementation"
+            }
+          ]
+        },
+        {
+          "pr": 161,
+          "title": "chore(changelog-official): regenerate official changelog",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-10T13:07:25Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/161",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "521830f7198a4d02f1591d0346a8aa0bd1d94a4e",
+              "short_sha": "521830f",
               "subject": "chore(changelog-official): regenerate official changelog"
             }
           ]
