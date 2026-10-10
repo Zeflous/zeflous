@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T21:10:51Z",
+  "as_of": "2026-10-10T21:34:44Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 98,
+  "unreleased_count": 99,
   "versions": [
     {
       "version": "Unreleased",
@@ -365,6 +365,37 @@
                 "sha": "5423a6b637f552669a95fd8061e830f44f24b884",
                 "short_sha": "5423a6b",
                 "subject": "test(config): cover the failed-write branch of the cache dump"
+              }
+            ]
+          },
+          {
+            "pr": 205,
+            "title": "feat(kernel): bootstrap the config repository into the kernel",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-10T21:34:44Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/205",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "64bb213ad3ff6ce8b9f431a3cbe94fdfc62cd5a5",
+                "short_sha": "64bb213",
+                "subject": "feat(kernel): bootstrap the config repository into the kernel"
+              },
+              {
+                "sha": "2f9ec18ae76d6b643b4579d64776c52ab1f9ed2e",
+                "short_sha": "2f9ec18",
+                "subject": "Merge branch 'main' into feat/kernel-config-bootstrap"
+              },
+              {
+                "sha": "21b7b18b3dee9a7196467f4d561fd73d26912420",
+                "short_sha": "21b7b18",
+                "subject": "docs(roadmap): record the kernel config bootstrap and close the configuration layer (#205)"
+              },
+              {
+                "sha": "3e8e1bdf9b5f55a689caecaf9268638591ffe059",
+                "short_sha": "3e8e1bd",
+                "subject": "docs(roadmap): reference the bootstrap feature commit in the #205 history row"
               }
             ]
           }
@@ -4939,6 +4970,37 @@
               "sha": "5423a6b637f552669a95fd8061e830f44f24b884",
               "short_sha": "5423a6b",
               "subject": "test(config): cover the failed-write branch of the cache dump"
+            }
+          ]
+        },
+        {
+          "pr": 205,
+          "title": "feat(kernel): bootstrap the config repository into the kernel",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-10T21:34:44Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/205",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "64bb213ad3ff6ce8b9f431a3cbe94fdfc62cd5a5",
+              "short_sha": "64bb213",
+              "subject": "feat(kernel): bootstrap the config repository into the kernel"
+            },
+            {
+              "sha": "2f9ec18ae76d6b643b4579d64776c52ab1f9ed2e",
+              "short_sha": "2f9ec18",
+              "subject": "Merge branch 'main' into feat/kernel-config-bootstrap"
+            },
+            {
+              "sha": "21b7b18b3dee9a7196467f4d561fd73d26912420",
+              "short_sha": "21b7b18",
+              "subject": "docs(roadmap): record the kernel config bootstrap and close the configuration layer (#205)"
+            },
+            {
+              "sha": "3e8e1bdf9b5f55a689caecaf9268638591ffe059",
+              "short_sha": "3e8e1bd",
+              "subject": "docs(roadmap): reference the bootstrap feature commit in the #205 history row"
             }
           ]
         }
