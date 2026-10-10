@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(config\): restrict php file loading to an explicit allowlist [\#176](https://github.com/Zeflous/zeflous/pull/176) ([mbetixz](https://github.com/mbetixz))
 - refactor: secure urllib usage [\#171](https://github.com/Zeflous/zeflous/pull/171) ([deepsource-autofix[bot]](https://github.com/apps/deepsource-autofix))
 - feat\(config\): php file and directory config loaders [\#167](https://github.com/Zeflous/zeflous/pull/167) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): resolve changelog and api workflow anomalies \(F-1..F-9\) [\#165](https://github.com/Zeflous/zeflous/pull/165) ([mbetixz](https://github.com/mbetixz))
