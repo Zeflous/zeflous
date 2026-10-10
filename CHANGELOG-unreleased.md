@@ -428,3 +428,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - 68d9648 refactor: secure urllib usage
     - 617d32d fix(security): restrict urllib to http(s) schemes in the changelog generator
     - 4c1cb85 test: satisfy DeepSource PYL-R0201 on the exploding-opener stub
+
+- PR#176 fix(config): restrict php file loading to an explicit allowlist
+    - 98cfe19 fix(config): restrict php file loading to an explicit allowlist
+    - f3b7f70 docs(roadmap): record the loader allowlist hardening (#176)
+    - 89bbb34 Merge branch 'main' into fix/config-allowlist
+    - 7f5fc3b Merge branch 'main' into fix/config-allowlist
