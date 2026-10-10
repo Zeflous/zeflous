@@ -116,6 +116,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 **Tests:**
 
 - test(tooling): make the lint report sort mutant kill deterministic [#156](https://github.com/Zeflous/zeflous/pull/156) ([mbetixz](https://github.com/mbetixz))
+- test(config): kill the directory-loader skip mutants deterministically [#208](https://github.com/Zeflous/zeflous/pull/208) ([mbetixz](https://github.com/mbetixz))
 
 **Other:**
 

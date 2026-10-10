@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T21:34:44Z",
+  "as_of": "2026-10-10T23:21:53Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 99,
+  "unreleased_count": 100,
   "versions": [
     {
       "version": "Unreleased",
@@ -2408,6 +2408,27 @@
                 "sha": "af3d3d2339a2c2f84bceb109f867c610bff3b74d",
                 "short_sha": "af3d3d2",
                 "subject": "test(tooling): make the lint report sort mutant kill deterministic"
+              }
+            ]
+          },
+          {
+            "pr": 208,
+            "title": "test(config): kill the directory-loader skip mutants deterministically",
+            "author": "mbetixz",
+            "category": "Tests",
+            "merged_at": "2026-10-10T23:21:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/208",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "561efbc0195ce0e83c2e52fb59889497a6348a5c",
+                "short_sha": "561efbc",
+                "subject": "test(config): kill the directory-loader skip mutants deterministically"
+              },
+              {
+                "sha": "5e2aeba86086b8e8e729868bc24f86e263470336",
+                "short_sha": "5e2aeba",
+                "subject": "Merge branch 'main' into test/loader-skip-order"
               }
             ]
           }
@@ -5001,6 +5022,27 @@
               "sha": "3e8e1bdf9b5f55a689caecaf9268638591ffe059",
               "short_sha": "3e8e1bd",
               "subject": "docs(roadmap): reference the bootstrap feature commit in the #205 history row"
+            }
+          ]
+        },
+        {
+          "pr": 208,
+          "title": "test(config): kill the directory-loader skip mutants deterministically",
+          "author": "mbetixz",
+          "category": "Tests",
+          "merged_at": "2026-10-10T23:21:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/208",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "561efbc0195ce0e83c2e52fb59889497a6348a5c",
+              "short_sha": "561efbc",
+              "subject": "test(config): kill the directory-loader skip mutants deterministically"
+            },
+            {
+              "sha": "5e2aeba86086b8e8e729868bc24f86e263470336",
+              "short_sha": "5e2aeba",
+              "subject": "Merge branch 'main' into test/loader-skip-order"
             }
           ]
         }
