@@ -29,6 +29,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Message\\#'
+    - name: Router
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Router\\#'
     - name: Kernel
       collectors:
         - type: classNameRegex
@@ -56,6 +60,12 @@ deptrac:
       - Contracts
       - Exception
     Message:
+      - Exception
+    # The router (radix tree) engine compiles plain route arrays: it depends
+    # only on the exception root. The configuration-layer integration
+    # (loader -> engine -> dispatcher) arrives with the integration step of
+    # the Triad, not with the engine itself.
+    Router:
       - Exception
     Kernel:
       - Container
