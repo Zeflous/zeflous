@@ -119,6 +119,16 @@ jobs:
           # (strict lanes -> aggregator -> the rest -> SonarCloud last, so
           # its coverage bridge can find the CI Coverage artifact). The two
           # changelog lanes are deliberately absent: see the file header.
+          #
+          # F-5: the two SCHEDULED sweeps (`ci-main-watchdog` itself and
+          # `auto-merge`) are included so the "main is always validated"
+          # invariant covers them too. Both are idempotent under replay: a
+          # sweep only dispatches a lane that has NO run for the current HEAD,
+          # and a scheduled run's `head_sha` is the `main` HEAD at run time, so
+          # in steady state the previous sweep already covers the HEAD and
+          # nothing is re-dispatched (at most one extra dispatch per HEAD
+          # change). `auto-merge` is a pure arm-the-merge sweep; re-running it
+          # is a no-op once the PR is armed.
           lanes=(
             ci-static
             ci-coverage
@@ -132,6 +142,8 @@ jobs:
             sbom
             release-drafter
             sonarcloud
+            auto-merge
+            ci-main-watchdog
           )
 
           # Resolve the CURRENT `main` HEAD once, up front. A dispatch targets

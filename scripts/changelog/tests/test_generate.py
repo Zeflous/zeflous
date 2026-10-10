@@ -229,6 +229,54 @@ def test_fetch_merged_prs_excludes_changelog_automation(monkeypatch):
     assert [p["number"] for p in merged] == [1]
 
 
+def test_fetch_merged_prs_excludes_official_changelog_automation(monkeypatch):
+    """The OFFICIAL changelog lane's bookkeeping PRs must be excluded too.
+
+    Regression guard for the reported leak: the exclusion used to match only
+    ``chore(changelog):``, so the official lane's ``chore(changelog-official):``
+    PRs leaked into the per-version changelog (66 lines of self-description on
+    ``main``). Both automation prefixes must be filtered.
+    """
+    monkeypatch.setattr(
+        gen,
+        "_api_get_all",
+        lambda path: [
+            _pr(1, "feat: real", "2026-01-01T00:00:00Z"),
+            _pr(2, "chore(changelog): regenerate API changelog", "2026-01-02T00:00:00Z"),
+            _pr(3, "chore(changelog-official): regenerate official changelog", "2026-01-03T00:00:00Z"),
+        ],
+    )
+    merged = gen.fetch_merged_prs("o/r")
+    assert [p["number"] for p in merged] == [1]
+
+
+def test_changelog_pr_prefixes_cover_both_lanes():
+    """Both automation lanes must be represented in the exclusion tuple."""
+    assert "chore(changelog):" in gen.CHANGELOG_PR_PREFIXES
+    assert "chore(changelog-official):" in gen.CHANGELOG_PR_PREFIXES
+
+
+def test_official_workflow_pattern_covers_both_automation_lanes():
+    """F-4: the workflow's automation-title pattern must cover BOTH lanes.
+
+    The official lane filters its snapshot with a regex held in
+    ``.github/workflows/changelog-official.yml`` (``AUTOMATION_TITLE_PATTERN``).
+    That regex and ``CHANGELOG_PR_PREFIXES`` describe the same two automation
+    lanes; this test fails if the workflow pattern stops matching either lane's
+    PR title, so the two sides of the contract cannot drift silently.
+    """
+    import re
+
+    workflow = (
+        REPO_ROOT / ".github" / "workflows" / "changelog-official.yml"
+    ).read_text(encoding="utf-8")
+    match = re.search(r"AUTOMATION_TITLE_PATTERN:\s*'([^']+)'", workflow)
+    assert match, "AUTOMATION_TITLE_PATTERN not found in changelog-official.yml"
+    pattern = re.compile(match.group(1))
+    assert pattern.search("chore(changelog): regenerate API changelog")
+    assert pattern.search("chore(changelog-official): regenerate official changelog")
+
+
 def test_fetch_merged_prs_excludes_closed_without_merge(monkeypatch):
     """A PR closed WITHOUT being merged must never enter the changelog.
 

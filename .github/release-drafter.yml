@@ -65,7 +65,9 @@ autolabeler:
     title: '^ci(\([^)]*\))?:'
   - label: "test"
     title: '^test(\([^)]*\))?:'
-  - label: "documentation"
-    files: ["*.md", "docs/**"]
+  # F-8: the `documentation` label is already applied by the `^docs(...):`
+  # title rule above; the duplicate `files:` rule was removed so the labeler
+  # does not process the same label twice. Markdown/doc-file changes are still
+  # labelled by the title rule when the PR is a `docs:` change.
   - label: "dependencies"
     files: ["composer.json", "composer.lock"]
