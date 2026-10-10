@@ -17,21 +17,21 @@ final class ConfigLoaderTest extends TestCase
 {
     public function testFileLoadsAConfigurationFile(): void
     {
-        $data = ConfigLoader::file(__DIR__ . '/fixtures/app.php');
+        $data = ConfigLoader::file(__DIR__ . '/fixtures/app.php', ['app.php']);
 
         self::assertSame(['name' => 'zef', 'debug' => true], $data);
     }
 
     public function testFileReturnsTheDataUnchangedWithoutAPrefix(): void
     {
-        $data = ConfigLoader::file(__DIR__ . '/fixtures/app.php', '');
+        $data = ConfigLoader::file(__DIR__ . '/fixtures/app.php', ['app.php'], '');
 
         self::assertSame(['name' => 'zef', 'debug' => true], $data);
     }
 
     public function testFileNestsTheDataUnderASingleSegmentPrefix(): void
     {
-        $data = ConfigLoader::file(__DIR__ . '/fixtures/app.php', 'custom');
+        $data = ConfigLoader::file(__DIR__ . '/fixtures/app.php', ['app.php'], 'custom');
 
         self::assertSame(
             ['custom' => ['name' => 'zef', 'debug' => true]],
@@ -41,7 +41,7 @@ final class ConfigLoaderTest extends TestCase
 
     public function testFileNestsTheDataUnderAMultiSegmentPrefix(): void
     {
-        $data = ConfigLoader::file(__DIR__ . '/fixtures/app.php', 'runtime.sources');
+        $data = ConfigLoader::file(__DIR__ . '/fixtures/app.php', ['app.php'], 'runtime.sources');
 
         self::assertSame(
             ['runtime' => ['sources' => ['name' => 'zef', 'debug' => true]]],
@@ -52,7 +52,7 @@ final class ConfigLoaderTest extends TestCase
     public function testFileRejectsAMalformedPrefix(): void
     {
         try {
-            ConfigLoader::file(__DIR__ . '/fixtures/app.php', 'a..b');
+            ConfigLoader::file(__DIR__ . '/fixtures/app.php', ['app.php'], 'a..b');
             self::fail('A malformed prefix must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(
@@ -67,11 +67,26 @@ final class ConfigLoaderTest extends TestCase
         $path = __DIR__ . '/fixtures/missing.php';
 
         try {
-            ConfigLoader::file($path);
+            ConfigLoader::file($path, ['missing.php']);
             self::fail('A missing configuration file must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(
-                \sprintf('The configuration file "%s" is not a regular file.', $path),
+                \sprintf('The configuration file "%s" could not be resolved.', $path),
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testFileRejectsANotAllowedFile(): void
+    {
+        $path = __DIR__ . '/fixtures/app.php';
+
+        try {
+            ConfigLoader::file($path, ['database.php']);
+            self::fail('A configuration file outside the allowlist must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                \sprintf('The configuration file "%s" is not allowed.', $path),
                 $configException->getMessage(),
             );
         }
@@ -79,7 +94,7 @@ final class ConfigLoaderTest extends TestCase
 
     public function testDirectoryLoadsEveryPhpFileUnderItsBasename(): void
     {
-        $data = ConfigLoader::directory(__DIR__ . '/fixtures/project');
+        $data = ConfigLoader::directory(__DIR__ . '/fixtures/project', ['app.php', 'database.php']);
 
         self::assertSame(
             [
@@ -92,7 +107,7 @@ final class ConfigLoaderTest extends TestCase
 
     public function testDirectoryReturnsTheDataUnchangedWithoutAPrefix(): void
     {
-        $data = ConfigLoader::directory(__DIR__ . '/fixtures/project', '');
+        $data = ConfigLoader::directory(__DIR__ . '/fixtures/project', ['app.php', 'database.php'], '');
 
         self::assertSame(
             [
@@ -105,7 +120,7 @@ final class ConfigLoaderTest extends TestCase
 
     public function testDirectoryNestsTheDataUnderAPrefix(): void
     {
-        $data = ConfigLoader::directory(__DIR__ . '/fixtures/project', 'sources');
+        $data = ConfigLoader::directory(__DIR__ . '/fixtures/project', ['app.php', 'database.php'], 'sources');
 
         self::assertSame(
             [
@@ -123,7 +138,7 @@ final class ConfigLoaderTest extends TestCase
         $path = __DIR__ . '/fixtures/missing-directory';
 
         try {
-            ConfigLoader::directory($path);
+            ConfigLoader::directory($path, ['app.php']);
             self::fail('A missing configuration directory must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(

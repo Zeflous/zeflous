@@ -15,12 +15,17 @@ use Zef\Framework\Config\ConfigException;
  * Every direct `*.php` child becomes one top-level entry named after the file
  * minus its extension, so `config/app.php` yields the `app` key -- the flat
  * one-level layout the roadmap fixes for the configuration directory. The
- * scan is deliberately narrow and deterministic:
+ * scan is deliberately narrow and deterministic, and the file loader (and
+ * with it the basename allowlist) is injected so the directory's inventory
+ * stays an explicit, owner-declared list:
  *
  * - entries whose extension is not exactly `php` are skipped (documented, not
  *   an error: a configuration directory may hold notes and templates);
  * - hidden entries (a leading dot) are skipped, which also covers the `.php`
  *   edge case that would otherwise produce an empty key;
+ * - every surviving `*.php` child is delegated to the file loader, so the
+ *   injected allowlist is the directory's declared inventory: a child whose
+ *   basename is not allowed fails closed instead of silently vanishing;
  * - nested directories are not traversed: an entry named `*.php` that is not
  *   a regular file is delegated to the file loader, which rejects it -- fail
  *   closed instead of silently skipping a source that looks like one;
@@ -30,7 +35,7 @@ use Zef\Framework\Config\ConfigException;
 final readonly class DirectoryLoader implements ConfigLoaderInterface
 {
     public function __construct(
-        private ConfigLoaderInterface $configLoader = new PhpFileLoader(),
+        private ConfigLoaderInterface $configLoader,
     ) {
     }
 
