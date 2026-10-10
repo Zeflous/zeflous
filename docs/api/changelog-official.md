@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(ci\): assert the zero-dependency invariant in the static gate [\#150](https://github.com/Zeflous/zeflous/pull/150) ([mbetixz](https://github.com/mbetixz))
 - docs\(CONTRIBUTING.md\): Add mandatory rules for contribution guidelines\) [\#147](https://github.com/Zeflous/zeflous/pull/147) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): report only actionable findings in the code-scanning alert feed [\#144](https://github.com/Zeflous/zeflous/pull/144) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): guarantee main validation after bot merges \(watchdog + PAT attribution\) [\#141](https://github.com/Zeflous/zeflous/pull/141) ([mbetixz](https://github.com/mbetixz))
