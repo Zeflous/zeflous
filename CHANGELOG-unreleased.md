@@ -38,6 +38,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - `d1fb113` docs(roadmap): record the config loaders implementation in the roadmap documents
     - `f25cf29` Merge branch 'main' into feat/config-loaders
     - `cf71b45` fix(sonar): resolve php:S2003 with re-loadable require execution
+- feat(changelog): render per-version changelog in github-changelog-generator style [#183](https://github.com/Zeflous/zeflous/pull/183) ([mbetixz](https://github.com/mbetixz))
+    - `97a3ae1` feat(changelog): render per-version changelog in github-changelog-generator style
 
 **Bug Fixes:**
 
