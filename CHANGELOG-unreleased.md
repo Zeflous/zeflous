@@ -24,6 +24,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(changelog): drop per-commit lines from per-version changelog [#190](https://github.com/Zeflous/zeflous/pull/190) ([mbetixz](https://github.com/mbetixz))
 - feat(config): strict schema validation for route configuration [#195](https://github.com/Zeflous/zeflous/pull/195) ([mbetixz](https://github.com/mbetixz))
 - feat(config): compiled configuration cache [#202](https://github.com/Zeflous/zeflous/pull/202) ([mbetixz](https://github.com/mbetixz))
+- feat(kernel): bootstrap the config repository into the kernel [#205](https://github.com/Zeflous/zeflous/pull/205) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
