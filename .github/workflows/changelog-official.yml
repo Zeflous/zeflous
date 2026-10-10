@@ -137,6 +137,17 @@ jobs:
             docs/api/changelog-official.md > docs/api/changelog-official.md.tmp \
             || { echo "::error::official changelog snapshot is empty after filtering automation PRs."; exit 1; }
           mv docs/api/changelog-official.md.tmp docs/api/changelog-official.md
+          # ONE-LINE STYLE GUARD (fail-closed). The per-version lane renders
+          # each entry as a SINGLE line (PR title + PR link); the official
+          # snapshot must match that shape. The pinned gem (1.18.0) lists PR
+          # titles only, so this holds today -- but if a future gem version
+          # starts emitting per-commit lines beneath each PR, the snapshot
+          # would silently drift from the per-version style. Fail loudly
+          # instead: a per-commit line is `    - \`<sha>\` <subject>`.
+          if grep -qE '^[[:space:]]+- `[0-9a-f]{7,}`' docs/api/changelog-official.md; then
+            echo "::error::official changelog snapshot contains per-commit lines; the one-line style regressed."
+            exit 1
+          fi
 
       - name: Open or update the official changelog pull request
         env:
