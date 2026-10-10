@@ -61,6 +61,7 @@ deptrac:
       - Container
       - Health
       - Message
+      - Config
       - Contracts
       - Exception
     # Tooling gates are developer/CI utilities: they may use the kernel and the

@@ -82,6 +82,16 @@ final readonly class ConfigCache
     }
 
     /**
+     * Whether a cache artifact is present for this path -- the bootstrapper's
+     * fast-path probe: an existing cache is loaded (and never rebuilt),
+     * a missing one is built from sources and compiled.
+     */
+    public function exists(): bool
+    {
+        return is_file($this->file);
+    }
+
+    /**
      * Loads the compiled configuration; the cache must exist and return an
      * array, otherwise the configuration layer failed, not defaulted.
      *
