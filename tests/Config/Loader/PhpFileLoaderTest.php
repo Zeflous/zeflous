@@ -49,6 +49,15 @@ final class PhpFileLoaderTest extends TestCase
         self::assertSame([], $data);
     }
 
+    public function testLoadsTheSameFileTwice(): void
+    {
+        $phpFileLoader = new PhpFileLoader();
+        $path = __DIR__ . '/fixtures/app.php';
+
+        self::assertSame(['name' => 'zef', 'debug' => true], $phpFileLoader->load($path));
+        self::assertSame(['name' => 'zef', 'debug' => true], $phpFileLoader->load($path));
+    }
+
     public function testRejectsAMissingFile(): void
     {
         $path = __DIR__ . '/fixtures/missing.php';

@@ -17,6 +17,15 @@ use Zef\Framework\Config\ConfigException;
  * a {@see ConfigException} that names the offending path: a missing file, a
  * directory, another extension, or a scalar / null / missing return value are
  * all errors, never a silent fallback to an empty configuration.
+ *
+ * The file is executed with `require` (not `require_once`/`include_once`)
+ * deliberately: a configuration file must be re-loadable within one process
+ * -- loading the same file under two prefixes, or re-loading after a cache
+ * miss, must return the array again. The `*_once` forms return `true` for an
+ * already-executed file, which would turn every legitimate re-load into a
+ * spurious "must return an array" error. The existence of the file is proven
+ * before the call, so `require`'s engine-level failure only remains for the
+ * unreadable-file edge, which halts the bootstrap either way.
  */
 final class PhpFileLoader implements ConfigLoaderInterface
 {
@@ -35,13 +44,13 @@ final class PhpFileLoader implements ConfigLoaderInterface
             );
         }
 
-        return $this->asArray(include $path, $path);
+        return $this->asArray(require $path, $path);
     }
 
     /**
-     * Narrows the raw include result to a configuration array.
+     * Narrows the raw require result to a configuration array.
      *
-     * The include result is passed straight into the `mixed` parameter and
+     * The raw result is passed straight into the `mixed` parameter and
      * narrowed here, which keeps the calling scope free of `mixed` assignments.
      *
      * @return array<array-key, mixed>
