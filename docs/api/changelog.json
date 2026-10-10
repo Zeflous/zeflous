@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T19:27:59Z",
+  "as_of": "2026-10-10T20:25:26Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 95,
+  "unreleased_count": 96,
   "versions": [
     {
       "version": "Unreleased",
@@ -723,6 +723,22 @@
                 "sha": "7f5fc3bb47bc627df513ecb889db44018e577254",
                 "short_sha": "7f5fc3b",
                 "subject": "Merge branch 'main' into fix/config-allowlist"
+              }
+            ]
+          },
+          {
+            "pr": 196,
+            "title": "fix(changelog-official): enforce one-line PR style, no commit lines",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-10T20:25:26Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/196",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8d7c0d72363eb81c9e8d76ddbda1548bb4f5679b",
+                "short_sha": "8d7c0d7",
+                "subject": "fix(changelog-official): enforce one-line PR style, no commit lines"
               }
             ]
           }
@@ -4753,6 +4769,22 @@
               "sha": "ac27d01f2753250356b8997a23311b945255e4ce",
               "short_sha": "ac27d01",
               "subject": "feat(changelog): drop per-commit lines from per-version changelog"
+            }
+          ]
+        },
+        {
+          "pr": 196,
+          "title": "fix(changelog-official): enforce one-line PR style, no commit lines",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-10T20:25:26Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/196",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8d7c0d72363eb81c9e8d76ddbda1548bb4f5679b",
+              "short_sha": "8d7c0d7",
+              "subject": "fix(changelog-official): enforce one-line PR style, no commit lines"
             }
           ]
         }

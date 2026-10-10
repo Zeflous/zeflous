@@ -43,6 +43,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(ci): report only actionable findings in the code-scanning alert feed [#144](https://github.com/Zeflous/zeflous/pull/144) ([mbetixz](https://github.com/mbetixz))
 - fix(ci): resolve changelog and api workflow anomalies (F-1..F-9) [#165](https://github.com/Zeflous/zeflous/pull/165) ([mbetixz](https://github.com/mbetixz))
 - fix(config): restrict php file loading to an explicit allowlist [#176](https://github.com/Zeflous/zeflous/pull/176) ([mbetixz](https://github.com/mbetixz))
+- fix(changelog-official): enforce one-line PR style, no commit lines [#196](https://github.com/Zeflous/zeflous/pull/196) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
