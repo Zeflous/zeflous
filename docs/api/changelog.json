@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T17:37:50Z",
+  "as_of": "2026-10-10T17:51:49Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 91,
+  "unreleased_count": 92,
   "versions": [
     {
       "version": "Unreleased",
@@ -1405,6 +1405,57 @@
                 "sha": "4c1cb85acb90227ecfe58acab3f56a2110dfaa58",
                 "short_sha": "4c1cb85",
                 "subject": "test: satisfy DeepSource PYL-R0201 on the exploding-opener stub"
+              }
+            ]
+          },
+          {
+            "pr": 174,
+            "title": "refactor: reduce cyclomatic complexity by extracting helper functions",
+            "author": "deepsource-autofix[bot]",
+            "category": "Maintenance",
+            "merged_at": "2026-10-10T17:51:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/174",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a0552b0afc3b81c960f8a54df5f2c5e7bd7fe865",
+                "short_sha": "a0552b0",
+                "subject": "refactor: reduce cyclomatic complexity by extracting helper functions"
+              },
+              {
+                "sha": "cccdd0dd3f243a82712e09bd520ca863f4b58f47",
+                "short_sha": "cccdd0d",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "ab2e86b02716e329ac7db25182025d5d65a899c6",
+                "short_sha": "ab2e86b",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "f2d54700aafada145e96f3254a892b1a8129d107",
+                "short_sha": "f2d5470",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "6bf508f8ef4cab2cb6d6ea385ce8f89f1381b593",
+                "short_sha": "6bf508f",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "a3406b68d253a1b3e8e0d1a9189de7926c33eeff",
+                "short_sha": "a3406b6",
+                "subject": "fix(changelog): repair generate.py regressions from the autofix refactor"
+              },
+              {
+                "sha": "f5d5b9781cda72638369e2550c0bcbe30d6f7690",
+                "short_sha": "f5d5b97",
+                "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+              },
+              {
+                "sha": "1c396e3134a8d8278cc4e8103edf02b47fdde278",
+                "short_sha": "1c396e3",
+                "subject": "refactor(changelog): extract build_model helpers to cut cyclomatic complexity"
               }
             ]
           }
@@ -4474,6 +4525,57 @@
               "sha": "4c1cb85acb90227ecfe58acab3f56a2110dfaa58",
               "short_sha": "4c1cb85",
               "subject": "test: satisfy DeepSource PYL-R0201 on the exploding-opener stub"
+            }
+          ]
+        },
+        {
+          "pr": 174,
+          "title": "refactor: reduce cyclomatic complexity by extracting helper functions",
+          "author": "deepsource-autofix[bot]",
+          "category": "Maintenance",
+          "merged_at": "2026-10-10T17:51:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/174",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a0552b0afc3b81c960f8a54df5f2c5e7bd7fe865",
+              "short_sha": "a0552b0",
+              "subject": "refactor: reduce cyclomatic complexity by extracting helper functions"
+            },
+            {
+              "sha": "cccdd0dd3f243a82712e09bd520ca863f4b58f47",
+              "short_sha": "cccdd0d",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "ab2e86b02716e329ac7db25182025d5d65a899c6",
+              "short_sha": "ab2e86b",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "f2d54700aafada145e96f3254a892b1a8129d107",
+              "short_sha": "f2d5470",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "6bf508f8ef4cab2cb6d6ea385ce8f89f1381b593",
+              "short_sha": "6bf508f",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "a3406b68d253a1b3e8e0d1a9189de7926c33eeff",
+              "short_sha": "a3406b6",
+              "subject": "fix(changelog): repair generate.py regressions from the autofix refactor"
+            },
+            {
+              "sha": "f5d5b9781cda72638369e2550c0bcbe30d6f7690",
+              "short_sha": "f5d5b97",
+              "subject": "Merge branch 'main' into deepsource-autofix-9044eb68"
+            },
+            {
+              "sha": "1c396e3134a8d8278cc4e8103edf02b47fdde278",
+              "short_sha": "1c396e3",
+              "subject": "refactor(changelog): extract build_model helpers to cut cyclomatic complexity"
             }
           ]
         },

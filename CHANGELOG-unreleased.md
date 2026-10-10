@@ -429,6 +429,16 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
     - 617d32d fix(security): restrict urllib to http(s) schemes in the changelog generator
     - 4c1cb85 test: satisfy DeepSource PYL-R0201 on the exploding-opener stub
 
+- PR#174 refactor: reduce cyclomatic complexity by extracting helper functions
+    - a0552b0 refactor: reduce cyclomatic complexity by extracting helper functions
+    - cccdd0d Merge branch 'main' into deepsource-autofix-9044eb68
+    - ab2e86b Merge branch 'main' into deepsource-autofix-9044eb68
+    - f2d5470 Merge branch 'main' into deepsource-autofix-9044eb68
+    - 6bf508f Merge branch 'main' into deepsource-autofix-9044eb68
+    - a3406b6 fix(changelog): repair generate.py regressions from the autofix refactor
+    - f5d5b97 Merge branch 'main' into deepsource-autofix-9044eb68
+    - 1c396e3 refactor(changelog): extract build_model helpers to cut cyclomatic complexity
+
 - PR#176 fix(config): restrict php file loading to an explicit allowlist
     - 98cfe19 fix(config): restrict php file loading to an explicit allowlist
     - f3b7f70 docs(roadmap): record the loader allowlist hardening (#176)
