@@ -87,6 +87,7 @@ import os
 import re
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime
 from pathlib import Path
@@ -156,20 +157,79 @@ def _token() -> str | None:
     return os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 
 
+# The only URL schemes this script may ever open. `urllib.request.urlopen`
+# happily honours `file://`, `ftp://` and custom schemes, so a URL that an
+# external party can influence would otherwise let the CI runner read local
+# files (`file:///etc/...`). The API base (`API`) is HTTPS and callers only pass
+# `API`-relative paths or absolute API URLs, so nothing legitimate needs a
+# scheme outside this allow-list. Named at module level so the guard and its
+# tests share one source of truth.
+ALLOWED_URL_SCHEMES = ("http", "https")
+
+
+def _is_allowed_url(url: str) -> bool:
+    """Return True when ``url`` uses an absolute, allow-listed scheme.
+
+    ``urllib.parse.urlsplit`` is used instead of a substring check so a
+    look-alike such as ``httpsomething://`` -- or a scheme hidden behind the
+    leading whitespace that ``urlopen`` would ignore -- cannot slip through:
+    ``urlsplit`` strips those characters, then reports the real scheme.
+    """
+    return urllib.parse.urlsplit(url).scheme in ALLOWED_URL_SCHEMES
+
+
+# Handlers that can open something other than an http(s) URL. They are stripped
+# from the opener below, so the opener can only ever speak HTTP(S).
+_BLOCKED_URL_HANDLERS = (
+    urllib.request.FileHandler,
+    urllib.request.FTPHandler,
+    urllib.request.DataHandler,
+)
+
+
+def _build_http_only_opener() -> urllib.request.OpenerDirector:
+    """Build an ``OpenerDirector`` that can only ever open http(s) URLs.
+
+    ``urllib.request.build_opener()`` installs ``FileHandler``, ``FTPHandler``
+    and ``DataHandler`` among its defaults, and passing extra handler classes
+    does NOT remove them -- it only prepends. A ``file://`` URL handed to such
+    an opener would therefore read a local file on the CI runner, which is the
+    very risk the scheme guard above exists to prevent. This strips the blocked
+    handlers AND their protocol registrations, so ``open('file:...')`` fails
+    with ``URLError`` (unknown url type) instead of touching the disk. The
+    scheme allow-list is the first line of defence; this opener is the second.
+    """
+
+    opener = urllib.request.build_opener()
+
+    for handler in list(opener.handlers):
+        if isinstance(handler, _BLOCKED_URL_HANDLERS):
+            opener.handlers.remove(handler)
+
+    for protocol in ("file", "ftp", "data"):
+        opener.handle_open.pop(protocol, None)
+
+    return opener
+
+
+# HTTP(S)-only opener. Both defences are covered by regression tests so neither
+# can be removed silently.
+_OPENER = _build_http_only_opener()
+
+
 def _api_get(path: str) -> object:
     """GET a GitHub API path, following pagination for list endpoints."""
     url = path if path.startswith("http") else f"{API}{path}"
-    if url.lower().startswith(("http://", "https://")):
-        req = urllib.request.Request(url)
-        req.add_header("Accept", "application/vnd.github+json")
-        req.add_header("X-GitHub-Api-Version", "2022-11-28")
-        token = _token()
-        if token:
-            req.add_header("Authorization", f"Bearer {token}")
-        with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310
-            return json.loads(resp.read().decode("utf-8"))
-    else:
+    if not _is_allowed_url(url):
         raise ValueError(f"Unsupported URL scheme: {url}")
+    req = urllib.request.Request(url)
+    req.add_header("Accept", "application/vnd.github+json")
+    req.add_header("X-GitHub-Api-Version", "2022-11-28")
+    token = _token()
+    if token:
+        req.add_header("Authorization", f"Bearer {token}")
+    with _OPENER.open(req, timeout=30) as resp:  # noqa: S310 - scheme-guarded, HTTP(S)-only opener
+        return json.loads(resp.read().decode("utf-8"))
 
 
 def _api_get_all(path: str) -> list:

@@ -802,14 +802,28 @@ def test_token_absent(monkeypatch):
     assert gen._token() is None
 
 
+class _RecordingOpener:
+    """Stand-in for the module opener that records the outgoing request.
+
+    Production code opens URLs through the module-level ``_OPENER`` (an
+    HTTP(S)-only ``OpenerDirector``) rather than ``urllib.request.urlopen``, so
+    that is the seam the tests patch.
+    """
+
+    def __init__(self, captured, payload):
+        self._captured = captured
+        self._payload = payload
+
+    def open(self, req, timeout=30):
+        self._captured["headers"] = dict(req.header_items())
+        self._captured["url"] = req.full_url
+        self._captured["timeout"] = timeout
+        return _FakeResponse(self._payload)
+
+
 def test_api_get_sends_auth_header_when_token_present(monkeypatch):
     captured = {}
-
-    def fake_urlopen(req, timeout=30):
-        captured["headers"] = dict(req.header_items())
-        return _FakeResponse({"ok": True})
-
-    monkeypatch.setattr(gen.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(gen, "_OPENER", _RecordingOpener(captured, {"ok": True}))
     monkeypatch.setenv("GITHUB_TOKEN", "secret-value")
     assert gen._api_get("/x") == {"ok": True}
     assert any(k.lower() == "authorization" for k in captured["headers"])
@@ -817,16 +831,76 @@ def test_api_get_sends_auth_header_when_token_present(monkeypatch):
 
 def test_api_get_omits_auth_header_without_token(monkeypatch):
     captured = {}
-
-    def fake_urlopen(req, timeout=30):
-        captured["headers"] = dict(req.header_items())
-        return _FakeResponse([])
-
-    monkeypatch.setattr(gen.urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(gen, "_OPENER", _RecordingOpener(captured, []))
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.delenv("GH_TOKEN", raising=False)
     gen._api_get("/x")
     assert not any(k.lower() == "authorization" for k in captured["headers"])
+
+
+def test_api_get_applies_a_bounded_timeout(monkeypatch):
+    captured = {}
+    monkeypatch.setattr(gen, "_OPENER", _RecordingOpener(captured, {}))
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    gen._api_get("/x")
+    assert captured["timeout"] == 30
+    assert captured["url"].startswith(gen.API + "/")
+
+
+@pytest.mark.parametrize(
+    "bad_url",
+    ["file:///etc/passwd", "ftp://example.com/x", "data:text/plain,x"],
+)
+def test_is_allowed_url_rejects_non_http_schemes(bad_url):
+    assert gen._is_allowed_url(bad_url) is False
+
+
+@pytest.mark.parametrize(
+    "good_url",
+    ["http://api.github.com", "https://api.github.com/x", "HTTPS://API.GITHUB.COM/x"],
+)
+def test_is_allowed_url_accepts_http_and_https(good_url):
+    assert gen._is_allowed_url(good_url) is True
+
+
+@pytest.mark.parametrize(
+    "lookalike",
+    ["httpsomething://x", "  file:///etc/passwd", "\tfile:///etc/passwd"],
+)
+def test_is_allowed_url_rejects_lookalikes(lookalike):
+    assert gen._is_allowed_url(lookalike) is False
+
+
+def test_api_get_rejects_an_unlisted_scheme_before_opening(monkeypatch):
+    class ExplodingOpener:
+        def open(self, req, timeout=30):  # pragma: no cover - must not be reached
+            raise AssertionError("the opener must never be reached")
+
+    monkeypatch.setattr(gen, "_OPENER", ExplodingOpener())
+    with pytest.raises(ValueError, match="Unsupported URL scheme"):
+        gen._api_get("httpfoo://evil/x")
+
+
+def test_opener_cannot_open_file_or_ftp_urls():
+    # Structural second line of defence: whatever the guard does, the module
+    # opener must not carry a handler that can open `file:`/`ftp:`/`data:` URLs.
+    handler_types = {type(handler) for handler in gen._OPENER.handlers}
+    request = gen.urllib.request
+    assert request.FileHandler not in handler_types
+    assert request.FTPHandler not in handler_types
+    assert request.DataHandler not in handler_types
+
+
+@pytest.mark.parametrize(
+    "blocked_url",
+    ["file:///etc/passwd", "ftp://example.com/x", "data:text/plain,x"],
+)
+def test_opener_refuses_non_http_urls(blocked_url):
+    # Behavioural proof that the structural check above is not cosmetic: the
+    # real opener must reject a non-http(s) URL instead of opening it.
+    with pytest.raises(gen.urllib.error.URLError):
+        gen._OPENER.open(blocked_url, timeout=5)
 
 
 def test_api_get_all_paginates(monkeypatch):
