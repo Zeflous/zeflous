@@ -89,14 +89,24 @@ jobs:
         # summary. The MCP server the tool ships is intentionally NOT used.
         run: composer archeology
 
-      - name: Normalise SARIF paths and gate on error-level findings
+      - name: Normalise, deduplicate and curate SARIF; gate on error-level findings
         # GitHub Code Scanning only accepts repository-relative URIs, and the
         # tool's own `--fail-on=error` counts the relative "effort/MI/LCOM
-        # above/below average" warnings as errors. This step rewrites the paths
-        # and fails only on genuine error-level architecture defects.
+        # above/below average" warnings as errors. This step rewrites the
+        # paths, collapses the tool's double-emitted function findings,
+        # backfills stable fingerprints, and keeps ONLY error-level results in
+        # the SARIF that reaches Code Scanning -- the warning-level relative
+        # metrics stay visible in the uploaded artifact, the health score and
+        # the refactoring roadmap, but stop masquerading as blocking code
+        # scanning alerts (see docs/ci-notes/code-scanning-alert-curation.md
+        # for the full rationale). The gate itself fails only on genuine
+        # error-level architecture defects.
         run: php scripts/ci/archeology-gate.php build/archeology/sarif/report.sarif.json
 
       - name: Upload SARIF to GitHub Code Scanning
+        # Receives the curated SARIF: error-level findings only, with
+        # repository-relative paths and stable fingerprints, so the alert feed
+        # reflects genuine architecture defects.
         uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
         with:
           sarif_file: build/archeology/sarif/report.sarif.json
