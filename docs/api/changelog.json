@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T14:07:27Z",
+  "as_of": "2026-10-10T14:23:15Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 88,
+  "unreleased_count": 89,
   "versions": [
     {
       "version": "Unreleased",
@@ -174,6 +174,47 @@
                 "sha": "ffb51d709bc96a5125db9642be766ca4b6fdb9a0",
                 "short_sha": "ffb51d7",
                 "subject": "docs(roadmap): record the config with-mutations implementation in the roadmap documents"
+              }
+            ]
+          },
+          {
+            "pr": 167,
+            "title": "feat(config): php file and directory config loaders",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-10T14:23:15Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/167",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "9a1d20c5fd6078fb173e76cbf543db3daf541fb3",
+                "short_sha": "9a1d20c",
+                "subject": "feat(config): php file and directory config loaders"
+              },
+              {
+                "sha": "0aefe55f6e7b38ae1c154dd87c470917301f4146",
+                "short_sha": "0aefe55",
+                "subject": "Merge branch 'main' into feat/config-loaders"
+              },
+              {
+                "sha": "8ce87d46c0ec252c5c6875152b4db7ee7a591e6d",
+                "short_sha": "8ce87d4",
+                "subject": "Merge branch 'main' into feat/config-loaders"
+              },
+              {
+                "sha": "d1fb113a4938c688dca8a5a1b46192c4e793e88d",
+                "short_sha": "d1fb113",
+                "subject": "docs(roadmap): record the config loaders implementation in the roadmap documents"
+              },
+              {
+                "sha": "f25cf29afb966db3dad8608a0c061e3f664b1ac1",
+                "short_sha": "f25cf29",
+                "subject": "Merge branch 'main' into feat/config-loaders"
+              },
+              {
+                "sha": "cf71b45c6b5b0a125d2ab06a798a46389721e0c7",
+                "short_sha": "cf71b45",
+                "subject": "fix(sonar): resolve php:S2003 with re-loadable require execution"
               }
             ]
           }
@@ -4309,6 +4350,47 @@
               "sha": "14d818f25b021e20c6cd470a5b6da991df9e309e",
               "short_sha": "14d818f",
               "subject": "Merge origin/main into fix/changelog-api-workflows"
+            }
+          ]
+        },
+        {
+          "pr": 167,
+          "title": "feat(config): php file and directory config loaders",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-10T14:23:15Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/167",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "9a1d20c5fd6078fb173e76cbf543db3daf541fb3",
+              "short_sha": "9a1d20c",
+              "subject": "feat(config): php file and directory config loaders"
+            },
+            {
+              "sha": "0aefe55f6e7b38ae1c154dd87c470917301f4146",
+              "short_sha": "0aefe55",
+              "subject": "Merge branch 'main' into feat/config-loaders"
+            },
+            {
+              "sha": "8ce87d46c0ec252c5c6875152b4db7ee7a591e6d",
+              "short_sha": "8ce87d4",
+              "subject": "Merge branch 'main' into feat/config-loaders"
+            },
+            {
+              "sha": "d1fb113a4938c688dca8a5a1b46192c4e793e88d",
+              "short_sha": "d1fb113",
+              "subject": "docs(roadmap): record the config loaders implementation in the roadmap documents"
+            },
+            {
+              "sha": "f25cf29afb966db3dad8608a0c061e3f664b1ac1",
+              "short_sha": "f25cf29",
+              "subject": "Merge branch 'main' into feat/config-loaders"
+            },
+            {
+              "sha": "cf71b45c6b5b0a125d2ab06a798a46389721e0c7",
+              "short_sha": "cf71b45",
+              "subject": "fix(sonar): resolve php:S2003 with re-loadable require execution"
             }
           ]
         }

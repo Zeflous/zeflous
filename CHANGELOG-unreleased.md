@@ -415,3 +415,11 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - PR#165 fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)
     - 2212792 fix(ci): resolve changelog and api workflow anomalies (F-1..F-9)
     - 14d818f Merge origin/main into fix/changelog-api-workflows
+
+- PR#167 feat(config): php file and directory config loaders
+    - 9a1d20c feat(config): php file and directory config loaders
+    - 0aefe55 Merge branch 'main' into feat/config-loaders
+    - 8ce87d4 Merge branch 'main' into feat/config-loaders
+    - d1fb113 docs(roadmap): record the config loaders implementation in the roadmap documents
+    - f25cf29 Merge branch 'main' into feat/config-loaders
+    - cf71b45 fix(sonar): resolve php:S2003 with re-loadable require execution
