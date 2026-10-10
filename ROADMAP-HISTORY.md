@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-10 · `main` @ `4129492f71`
+**Last updated:** 2026-10-10 · `main` @ `cea65167aa`
 
 **How to read this file**
 
@@ -30,9 +30,9 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | CI / Supply chain | 34 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
-| Configuration System | 3 |
+| Configuration System | 4 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **71** |
+| **Total merged PRs** | **72** |
 
 ---
 
@@ -194,6 +194,7 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 | feat(ci): assert the zero-dependency invariant in the static gate (`ZeroDependencyGate`, `ComposerManifest`, zero-deps lane) | #150 | 2026-10-10 | `c86c4da082` |
 | feat(config): immutable config repository with dot-notation access (`Config`, `DotKey`, `ConfigInterface`, deptrac layer) | #153 | 2026-10-10 | `a2667659cb` |
 | feat(config): immutable with-mutations for config entries (`ConfigMutations` trait, `DotWriter`, `DotRemover`, `DotListWriter`, `DotListLocator`) | #159 | 2026-10-10 | `b1c46748e5` |
+| feat(config): php file and directory config loaders (`ConfigLoaderInterface`, `PhpFileLoader`, `DirectoryLoader`, `ConfigLoader` director with prefix nesting) | #167 | 2026-10-10 | `9a1d20c5fd` |
 
 ---
 
