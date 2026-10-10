@@ -72,7 +72,7 @@ bare PHP 8.4 install with no `vendor/` directory present.
   PHP-CS-Fixer, …) are allowed, but they **MUST NOT** leak into the runtime
   `src/` tree. `src/` may depend only on PHP itself and the repository's own
   code.
-- Enforced by the [anti-regression zero-dependency gate](#15-anti-regression-zero-dependency-gate).
+- Enforced by the [anti-regression zero-dependency gate](#16-anti-regression-zero-dependency-gate).
 
 ### 2. Roadmap order — Configuration System first, then Container
 
@@ -204,7 +204,27 @@ After a pull request is merged, the change **MUST** be re-audited on `main`:
 - confirm no regression was introduced downstream;
 - record the outcome so the next change starts from a verified baseline.
 
-### 13. Mandatory quality gates
+### 13. Keep the roadmap documents current after implementation
+
+Every completed implementation **MUST** update **both** roadmap documents in the
+same pull request that ships the change. They are the repository's public record
+of what has actually been done and where it stands; letting them drift makes
+both unreliable.
+
+- **`ROADMAP-HISTORY.md`** — the **append-only** chronological history. Add a new
+  row for the merged pull request (work item, PR number, merge date, merge
+  commit SHA) under the roadmap area it advances, refresh the **Summary** counts
+  and the **Last updated** line. Never rewrite or delete an existing row — the
+  file only grows.
+- **`ROADMAP-STATUS.md`** — the living "roadmap meter". Set the status
+  (Implemented / Partial / Not started) of every affected area to match the
+  **current** code, update its one-line evidence pointer (file / class /
+  workflow) and the **Last updated** line. This file mirrors the present state,
+  not history, so it is edited in place.
+
+An implementation is **not** complete until both documents reflect it.
+
+### 14. Mandatory quality gates
 
 Every change **MUST** pass the full strict pipeline. The gates are:
 
@@ -221,7 +241,7 @@ Every change **MUST** pass the full strict pipeline. The gates are:
 Do not weaken a gate, add a rule exclusion, or lower a threshold to make a
 change pass. Fix the underlying issue instead.
 
-### 14. TASK CONTINUATION MODE
+### 15. TASK CONTINUATION MODE
 
 When revising existing work, **copy to a new version before editing** — never
 overwrite the previous version in place. Project directories use the `_vN`
@@ -229,7 +249,7 @@ suffix (`name/` → `name_v2/` → `name_v3/`); generated media get their next
 version from the generating tool. The previous version stays intact and
 read-only. This keeps every delivered revision reproducible and reviewable.
 
-### 15. Anti-regression zero-dependency gate
+### 16. Anti-regression zero-dependency gate
 
 A CI gate **MUST** assert the zero-dependency invariant on every pull request:
 
@@ -412,11 +432,21 @@ composer archeology:gate  # normalises SARIF paths and fails on any error-level 
 
 ## Roadmap status
 
-[`ROADMAP-STATUS.md`](ROADMAP-STATUS.md) is the living "roadmap meter": for every
-area described in [`ROADMAP.md`](ROADMAP.md) it records the current status
-(Implemented / Partial / Not started) with a one-line evidence pointer, plus the
-cross-cutting quality gates. Update it whenever a roadmap area gains code — see
-the "How to update this file" section at the bottom of that document.
+The roadmap is tracked by **two** documents, and both are updated whenever an
+implementation completes — see
+[rule 13](#13-keep-the-roadmap-documents-current-after-implementation).
+
+- [`ROADMAP-HISTORY.md`](ROADMAP-HISTORY.md) is the **append-only** chronological
+  record — a changelog mapped onto the roadmap, one row per merged pull request,
+  and never rewritten.
+- [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md) is the living "roadmap meter": for
+  every area described in [`ROADMAP.md`](ROADMAP.md) it records the current
+  status (Implemented / Partial / Not started) with a one-line evidence pointer,
+  plus the cross-cutting quality gates. It mirrors the present state and is
+  edited in place.
+
+Update both whenever a roadmap area gains code — see the "How to update this
+file" section at the bottom of each document.
 
 ## Changelog
 
@@ -453,7 +483,8 @@ for review. A pull request that cannot tick a box is not ready to merge.
 - [ ] All review conversations resolved.
 - [ ] Post-merge re-audit planned.
 - [ ] No gate weakened, no rule exclusion added, no threshold lowered.
-- [ ] `ROADMAP-STATUS.md` updated if a roadmap area gained code.
+- [ ] **Roadmap docs:** `ROADMAP-HISTORY.md` appended (row: work item, PR, merge date, merge commit) with Summary counts refreshed.
+- [ ] **Roadmap docs:** `ROADMAP-STATUS.md` reflects the current status + evidence pointer for every affected area.
 - [ ] Changelog left to the generator (not edited by hand).
 ```
 
