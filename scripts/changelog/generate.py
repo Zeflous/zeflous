@@ -159,16 +159,17 @@ def _token() -> str | None:
 def _api_get(path: str) -> object:
     """GET a GitHub API path, following pagination for list endpoints."""
     url = path if path.startswith("http") else f"{API}{path}"
-    if not url.lower().startswith("http"):
+    if url.lower().startswith(("http://", "https://")):
+        req = urllib.request.Request(url)
+        req.add_header("Accept", "application/vnd.github+json")
+        req.add_header("X-GitHub-Api-Version", "2022-11-28")
+        token = _token()
+        if token:
+            req.add_header("Authorization", f"Bearer {token}")
+        with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310
+            return json.loads(resp.read().decode("utf-8"))
+    else:
         raise ValueError(f"Unsupported URL scheme: {url}")
-    req = urllib.request.Request(url)
-    req.add_header("Accept", "application/vnd.github+json")
-    req.add_header("X-GitHub-Api-Version", "2022-11-28")
-    token = _token()
-    if token:
-        req.add_header("Authorization", f"Bearer {token}")
-    with urllib.request.urlopen(req, timeout=30) as resp:  # noqa: S310
-        return json.loads(resp.read().decode("utf-8"))
 
 
 def _api_get_all(path: str) -> list:
