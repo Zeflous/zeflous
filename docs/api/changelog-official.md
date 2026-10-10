@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(ci\): resolve changelog and api workflow anomalies \(F-1..F-9\) [\#165](https://github.com/Zeflous/zeflous/pull/165) ([mbetixz](https://github.com/mbetixz))
 - docs\(contributing\): require roadmap history and status updates after implementation [\#160](https://github.com/Zeflous/zeflous/pull/160) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): immutable with-mutations for config entries [\#159](https://github.com/Zeflous/zeflous/pull/159) ([mbetixz](https://github.com/mbetixz))
 - test\(tooling\): make the lint report sort mutant kill deterministic [\#156](https://github.com/Zeflous/zeflous/pull/156) ([mbetixz](https://github.com/mbetixz))
