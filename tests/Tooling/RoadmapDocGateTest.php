@@ -47,6 +47,21 @@ final class RoadmapDocGateTest extends TestCase
         );
     }
 
+    public function testFailsOnAnUnclosedRowAfterNonTableLines(): void
+    {
+        // A non-table line precedes the broken row. The scan must continue past
+        // it rather than stopping, otherwise the broken row is never reached.
+        $document = "# Title\n\n| A | B |\n|---|---|\n| 1 | 2 |---\n";
+
+        $gateResult = new RoadmapDocGate()->evaluate(new RoadmapDocReport(['BROKEN.md' => $document]));
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString(
+            'BROKEN.md:5 has an unclosed table row (a table row must end with "|").',
+            $gateResult->message,
+        );
+    }
+
     public function testFailsOnARaggedTableBlock(): void
     {
         // Two ragged tables in ONE document (each separated by a blank line),
