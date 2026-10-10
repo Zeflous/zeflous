@@ -17,6 +17,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Container\\#'
+    - name: Config
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Config\\#'
     - name: Health
       collectors:
         - type: classNameRegex
@@ -40,6 +44,12 @@ deptrac:
     Contracts:
       - Exception
     Container:
+      - Contracts
+      - Exception
+    # The configuration layer depends on its contract and the exception root:
+    # it is a self-contained foundation the container will consume later (the
+    # build order is fixed by CONTRIBUTING.md rule 2).
+    Config:
       - Contracts
       - Exception
     Health:

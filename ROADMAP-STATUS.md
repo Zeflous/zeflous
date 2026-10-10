@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-08 · `main` @ `ffc0cdd04c`
+**Last updated:** 2026-10-10 · `main` @ `3c1d4bd6b1`
 
 ---
 
@@ -44,7 +44,8 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Configuration layer, DSL layer, radix tree layer | ⬜ Not started | — |
+| Configuration layer (runtime repository) | 🟡 Partial | `src/Zef/Framework/Config/Config.php` — immutable dot-notation repository (`get`/`has`/`split`/`toArray`, fail-closed `ConfigException`); loaders, layered merging, schema validation and compiled cache still open. |
+| DSL layer, radix tree layer | ⬜ Not started | — |
 
 ## Middleware Pipeline
 
