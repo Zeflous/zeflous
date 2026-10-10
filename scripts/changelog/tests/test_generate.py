@@ -277,6 +277,28 @@ def test_official_workflow_pattern_covers_both_automation_lanes():
     assert pattern.search("chore(changelog-official): regenerate official changelog")
 
 
+def test_official_snapshot_has_no_per_commit_lines():
+    """The official snapshot must keep the one-line style (no commit lines).
+
+    The per-version lane renders each entry as a SINGLE line (PR title + PR
+    link). The official lane's snapshot must match that shape. The pinned gem
+    (1.18.0) lists PR titles only, so the committed artifact must never carry
+    a per-commit line -- and the workflow must carry a fail-closed guard so a
+    future gem version cannot silently reintroduce them.
+    """
+    import re
+
+    snapshot = (REPO_ROOT / "docs" / "api" / "changelog-official.md").read_text(
+        encoding="utf-8"
+    )
+    assert not re.search(r"^[ \t]+- `[0-9a-f]{7,}`", snapshot, re.MULTILINE)
+
+    workflow = (
+        REPO_ROOT / ".github" / "workflows" / "changelog-official.yml"
+    ).read_text(encoding="utf-8")
+    assert "per-commit lines" in workflow
+
+
 def test_fetch_merged_prs_excludes_closed_without_merge(monkeypatch):
     """A PR closed WITHOUT being merged must never enter the changelog.
 
