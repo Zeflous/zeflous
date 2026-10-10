@@ -487,3 +487,10 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 
 - PR#148 chore(changelog-official): regenerate official changelog
     - 8aef281 chore(changelog-official): regenerate official changelog
+
+- PR#150 feat(ci): assert the zero-dependency invariant in the static gate
+    - 4f5d317 feat(ci): assert the zero-dependency invariant in the static gate
+    - a5cac90 fix(ci): psalm-clean manifest narrowing and multi-section mutation kill
+
+- PR#151 chore(changelog-official): regenerate official changelog
+    - 700285c chore(changelog-official): regenerate official changelog
