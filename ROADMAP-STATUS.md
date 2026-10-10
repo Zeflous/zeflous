@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-10 · `main` @ `4129492f71`
+**Last updated:** 2026-10-10 · `main` @ `cea65167aa`
 
 ---
 
@@ -44,7 +44,7 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Configuration layer (runtime repository) | 🟡 Partial | `src/Zef/Framework/Config/Config.php` + `ConfigMutations` — immutable dot-notation repository (`get`/`has`/`split`/`toArray` plus copy-on-write `withSet`/`withUnset`/`withAppend`/`withPrepend` via `DotWriter`/`DotRemover`/`DotListWriter`/`DotListLocator`, fail-closed `ConfigException`); loaders, layered merging, schema validation and compiled cache still open. |
+| Configuration layer (runtime repository) | 🟡 Partial | `src/Zef/Framework/Config/Config.php` + `ConfigMutations` — immutable dot-notation repository (`get`/`has`/`split`/`toArray` plus copy-on-write `withSet`/`withUnset`/`withAppend`/`withPrepend` via `DotWriter`/`DotRemover`/`DotListWriter`/`DotListLocator`, fail-closed `ConfigException`); `Config/Loader/` adds the PHP file & directory adapters (`PhpFileLoader`, `DirectoryLoader`), the `ConfigLoaderInterface` format seam and the `ConfigLoader` director with dot-notation prefix nesting; layered merging, schema validation and compiled cache still open. |
 | DSL layer, radix tree layer | ⬜ Not started | — |
 
 ## Middleware Pipeline
