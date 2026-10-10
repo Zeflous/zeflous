@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- test\(config\): kill the directory-loader skip mutants deterministically [\#208](https://github.com/Zeflous/zeflous/pull/208) ([mbetixz](https://github.com/mbetixz))
 - feat\(kernel\): bootstrap the config repository into the kernel [\#205](https://github.com/Zeflous/zeflous/pull/205) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): compiled configuration cache [\#202](https://github.com/Zeflous/zeflous/pull/202) ([mbetixz](https://github.com/mbetixz))
 - fix\(changelog-official\): enforce one-line PR style, no commit lines [\#196](https://github.com/Zeflous/zeflous/pull/196) ([mbetixz](https://github.com/mbetixz))
