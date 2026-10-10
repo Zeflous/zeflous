@@ -47,21 +47,35 @@ final readonly class SchemaValueRules
      */
     public static function check(string $field, string $kind, mixed $value): array
     {
-        if ($kind === 'string') {
-            return self::checkString($field, $value);
+        if ($kind !== 'string') {
+            return self::collectionViolations($field, $kind, $value);
         }
 
+        return self::checkString($field, $value);
+    }
+
+    /**
+     * Checks a present collection field (`strings`, `string-map`, `values`)
+     * against its kind: the shape first, then the elements where the kind
+     * checks them.
+     *
+     * @param 'string-map'|'strings'|'values' $kind
+     *
+     * @return list<SchemaViolation>
+     */
+    private static function collectionViolations(string $field, string $kind, mixed $collection): array
+    {
         $wantsList = $kind === 'strings';
 
-        if (!\is_array($value) || $value === [] || array_is_list($value) !== $wantsList) {
-            return [new SchemaViolation($field, SchemaViolation::EXPECTATIONS[$kind], self::describe($value))];
+        if (!\is_array($collection) || $collection === [] || array_is_list($collection) !== $wantsList) {
+            return [new SchemaViolation($field, SchemaViolation::EXPECTATIONS[$kind], self::describe($collection))];
         }
 
         if ($kind === 'values') {
             return [];
         }
 
-        return self::elementViolations($field, $value);
+        return self::elementViolations($field, $collection);
     }
 
     /**
@@ -86,12 +100,12 @@ final readonly class SchemaValueRules
      *
      * @return list<SchemaViolation>
      */
-    private static function elementViolations(string $field, array $elements): array
+    private static function elementViolations(string $prefix, array $elements): array
     {
         $collected = [];
 
         foreach (array_keys($elements) as $offset) {
-            foreach (self::checkString($field . '.' . $offset, $elements[$offset]) as $elementViolation) {
+            foreach (self::checkString($prefix . '.' . $offset, $elements[$offset]) as $elementViolation) {
                 $collected[] = $elementViolation;
             }
         }
