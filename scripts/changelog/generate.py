@@ -514,16 +514,15 @@ def _build_entry(
     }
 
 
-def build_model(repo: str, cfg: dict) -> dict:
-    categories = cfg.get("categories") or []
-    markers, version_source = _version_markers(repo)
-    next_release = fetch_next_release(repo)
-    prs = fetch_merged_prs(repo)
+def _collect_versions(
+    repo: str, prs: list[dict], markers: list[dict], categories: list[dict]
+) -> dict[str, dict]:
+    """Bucket every merged PR into its target version, de-duplicated by PR number.
 
-    # A PR belongs to the FIRST release published at or after its merge time.
-    # Anything merged after the newest release is "Unreleased".
+    A PR belongs to the FIRST release published at or after its merge time;
+    anything merged after the newest release is ``Unreleased``.
+    """
     versions: dict[str, dict] = {}
-    order: list[str] = []
 
     def bucket(version: str) -> dict:
         if version not in versions:
@@ -534,7 +533,6 @@ def build_model(repo: str, cfg: dict) -> dict:
                 "categories": {},
                 "entries": [],
             }
-            order.append(version)
         return versions[version]
 
     for pr in prs:
@@ -545,21 +543,22 @@ def build_model(repo: str, cfg: dict) -> dict:
         # De-duplicate by PR number: re-running must never duplicate an entry.
         if not any(e["pr"] == entry["pr"] for e in b["entries"]):
             b["entries"].append(entry)
+    return versions
 
-    # Attach each version's date from its release/tag (Unreleased has none).
-    marker_dates = {m["name"]: m["date"] for m in markers}
-    for name, b in versions.items():
-        b["date"] = marker_dates.get(name)
 
-    # Order: Unreleased first, then releases newest-first.
+def _order_versions(versions: dict[str, dict], markers: list[dict]) -> list[dict]:
+    """Order: Unreleased first, then releases newest-first."""
     ordered = []
     if UNRELEASED in versions:
         ordered.append(versions[UNRELEASED])
     for marker in reversed(markers):
         if marker["name"] in versions:
             ordered.append(versions[marker["name"]])
+    return ordered
 
-    # Group each version's entries by category, in the configured order.
+
+def _group_by_category(ordered: list[dict], categories: list[dict]) -> None:
+    """Group each version's entries by category, in the configured order."""
     cat_titles = [str(c.get("title")) for c in categories] + [FALLBACK_CATEGORY]
     for b in ordered:
         grouped: dict[str, list] = {t: [] for t in cat_titles}
@@ -567,6 +566,23 @@ def build_model(repo: str, cfg: dict) -> dict:
             grouped.setdefault(entry["category"], []).append(entry)
         b["categories"] = {k: v for k, v in grouped.items() if v}
         b["entries"] = sorted(b["entries"], key=lambda e: e["pr"])
+
+
+def build_model(repo: str, cfg: dict) -> dict:
+    categories = cfg.get("categories") or []
+    markers, version_source = _version_markers(repo)
+    next_release = fetch_next_release(repo)
+    prs = fetch_merged_prs(repo)
+
+    versions = _collect_versions(repo, prs, markers, categories)
+
+    # Attach each version's date from its release/tag (Unreleased has none).
+    marker_dates = {m["name"]: m["date"] for m in markers}
+    for name, b in versions.items():
+        b["date"] = marker_dates.get(name)
+
+    ordered = _order_versions(versions, markers)
+    _group_by_category(ordered, categories)
 
     latest = markers[-1]["name"] if markers else None
     # `as_of` is the newest merge timestamp in the model, NOT the wall clock.
