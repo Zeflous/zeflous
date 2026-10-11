@@ -49,6 +49,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(config): restrict php file loading to an explicit allowlist [#176](https://github.com/Zeflous/zeflous/pull/176) ([mbetixz](https://github.com/mbetixz))
 - fix(changelog-official): enforce one-line PR style, no commit lines [#196](https://github.com/Zeflous/zeflous/pull/196) ([mbetixz](https://github.com/mbetixz))
 - fix(review): close F-1..F-3 from the 195/202/205 review [#212](https://github.com/Zeflous/zeflous/pull/212) ([mbetixz](https://github.com/mbetixz))
+- fix(ci): make CI Strict aggregator event-driven via workflow_run [#218](https://github.com/Zeflous/zeflous/pull/218) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
