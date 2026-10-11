@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Zef\Framework\Router;
+namespace Zef\Framework\Config\Routing;
+
+use Zef\Framework\Config\ConfigException;
 
 /**
  * The grammar mechanics below the first slash of a route path.
@@ -18,7 +20,7 @@ namespace Zef\Framework\Router;
  * Both collaborators work on whole tokens (`explode`, `str_contains`,
  * `preg_match`) rather than byte offsets, so a path with multi-byte static
  * text is judged exactly like an ASCII one. Every failure raises a
- * {@see RouterException} that names the path (and, where it narrows the
+ * {@see ConfigException} that names the path (and, where it narrows the
  * cause, the offending segment or parameter name); nothing is silently
  * repaired, defaulted or dropped.
  *
@@ -41,7 +43,7 @@ final class RoutePathGrammar
 
         foreach (\array_slice(explode('/', $path), 1) as $segment) {
             if ($segment === '') {
-                throw new RouterException(
+                throw new ConfigException(
                     \sprintf('The route path "%s" must not contain an empty segment.', $path),
                 );
             }
@@ -69,7 +71,7 @@ final class RoutePathGrammar
         }
 
         if (preg_match('/^\{([^{}]*)\}$/', $segment, $match) !== 1) {
-            throw new RouterException(
+            throw new ConfigException(
                 \sprintf(
                     'The route path "%s" has a segment "%s" whose braces do not form a whole parameter.',
                     $path,
@@ -81,19 +83,19 @@ final class RoutePathGrammar
         $name = $match[1];
 
         if ($name === '') {
-            throw new RouterException(
+            throw new ConfigException(
                 \sprintf('The route path "%s" has an empty parameter name.', $path),
             );
         }
 
         if (preg_match('/^[_A-Za-z]\w*$/', $name) !== 1) {
-            throw new RouterException(
+            throw new ConfigException(
                 \sprintf('The route path "%s" has an invalid parameter name "%s".', $path, $name),
             );
         }
 
         if (isset($names[$name])) {
-            throw new RouterException(
+            throw new ConfigException(
                 \sprintf('The route path "%s" repeats the parameter name "%s".', $path, $name),
             );
         }

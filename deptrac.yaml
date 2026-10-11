@@ -29,10 +29,6 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Message\\#'
-    - name: Router
-      collectors:
-        - type: classNameRegex
-          value: '#^Zef\\Framework\\Router\\#'
     - name: Kernel
       collectors:
         - type: classNameRegex
@@ -52,7 +48,9 @@ deptrac:
       - Exception
     # The configuration layer depends on its contract and the exception root:
     # it is a self-contained foundation the container will consume later (the
-    # build order is fixed by CONTRIBUTING.md rule 2).
+    # build order is fixed by CONTRIBUTING.md rule 2). The `Config\Routing`
+    # sub-namespace is the Triad's radix tree engine: it compiles plain route
+    # arrays (the configuration system's output) and shares the layer.
     Config:
       - Contracts
       - Exception
@@ -60,12 +58,6 @@ deptrac:
       - Contracts
       - Exception
     Message:
-      - Exception
-    # The router (radix tree) engine compiles plain route arrays: it depends
-    # only on the exception root. The configuration-layer integration
-    # (loader -> engine -> dispatcher) arrives with the integration step of
-    # the Triad, not with the engine itself.
-    Router:
       - Exception
     Kernel:
       - Container
