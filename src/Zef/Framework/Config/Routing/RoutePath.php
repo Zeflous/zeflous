@@ -44,7 +44,7 @@ final readonly class RoutePath
     /**
      * @param list<PathSegment> $segments
      */
-    private function __construct(private array $segments)
+    private function __construct(private array $segments, private string $pattern)
     {
     }
 
@@ -70,7 +70,7 @@ final readonly class RoutePath
         }
 
         if ($path === self::ROOT_PATH) {
-            return new self([]);
+            return new self([], self::ROOT_PATH);
         }
 
         if (str_ends_with($path, '/')) {
@@ -79,7 +79,15 @@ final readonly class RoutePath
             );
         }
 
-        return new self(RoutePathGrammar::segments($path));
+        return new self(RoutePathGrammar::segments($path), $path);
+    }
+
+    /**
+     * The original pattern this value was parsed from, verbatim.
+     */
+    public function pattern(): string
+    {
+        return $this->pattern;
     }
 
     /**
