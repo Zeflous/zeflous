@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zef\Framework\Router;
+namespace Zef\Framework\Config\Routing;
 
 /**
  * One segment of a parsed route path: either literal text or a parameter

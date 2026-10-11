@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Zef\Framework\Router;
+namespace Zef\Framework\Config\Routing;
+
+use Zef\Framework\Config\ConfigException;
 
 /**
  * The brace pre-scan over a whole route path.
@@ -31,7 +33,7 @@ final class PathBraceScanner
 {
     /**
      * Asserts that the path's braces are balanced, disjoint and confined to
-     * single segments; throws a {@see RouterException} naming the path and
+     * single segments; throws a {@see ConfigException} naming the path and
      * the failure otherwise.
      */
     public static function assertWellFormed(string $path): void
@@ -39,7 +41,7 @@ final class PathBraceScanner
         $parts = explode('{', $path);
 
         if (str_contains($parts[0], '}')) {
-            throw new RouterException(
+            throw new ConfigException(
                 \sprintf('The route path "%s" has an unmatched closing brace.', $path),
             );
         }
@@ -50,7 +52,7 @@ final class PathBraceScanner
             $halves = explode('}', $parts[$index], 2);
 
             if (!isset($halves[1])) {
-                throw new RouterException(
+                throw new ConfigException(
                     \sprintf(
                         'The route path "%s" has %s parameter brace.',
                         $path,
@@ -60,13 +62,13 @@ final class PathBraceScanner
             }
 
             if (str_contains($halves[0], '/')) {
-                throw new RouterException(
+                throw new ConfigException(
                     \sprintf('The route path "%s" has a parameter brace that spans more than one segment.', $path),
                 );
             }
 
             if (str_contains($halves[1], '}')) {
-                throw new RouterException(
+                throw new ConfigException(
                     \sprintf('The route path "%s" has an unmatched closing brace.', $path),
                 );
             }

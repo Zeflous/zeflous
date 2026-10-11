@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Zef\Framework\Router;
+namespace Zef\Framework\Config\Routing;
+
+use Zef\Framework\Config\ConfigException;
 
 /**
  * A parsed route path: the slash-separated segments of a URL pattern.
@@ -49,7 +51,7 @@ final readonly class RoutePath
     /**
      * Parses a route path pattern into its segments.
      *
-     * Every malformed shape raises a {@see RouterException} that names the
+     * Every malformed shape raises a {@see ConfigException} that names the
      * path (and, where it narrows the cause, the offending segment or
      * parameter name); nothing is silently repaired, defaulted or dropped.
      *
@@ -58,11 +60,11 @@ final readonly class RoutePath
     public static function parse(string $path): self
     {
         if ($path === '') {
-            throw new RouterException('The route path "" is empty.');
+            throw new ConfigException('The route path "" is empty.');
         }
 
         if (!str_starts_with($path, '/')) {
-            throw new RouterException(
+            throw new ConfigException(
                 \sprintf('The route path "%s" must start with a slash.', $path),
             );
         }
@@ -72,7 +74,7 @@ final readonly class RoutePath
         }
 
         if (str_ends_with($path, '/')) {
-            throw new RouterException(
+            throw new ConfigException(
                 \sprintf('The route path "%s" must not end with a slash.', $path),
             );
         }

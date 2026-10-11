@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Zef\Test\Router;
+namespace Zef\Test\Config\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Router\PathBraceScanner;
-use Zef\Framework\Router\PathSegment;
-use Zef\Framework\Router\RoutePath;
-use Zef\Framework\Router\RoutePathGrammar;
-use Zef\Framework\Router\RouterException;
+use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Config\Routing\PathBraceScanner;
+use Zef\Framework\Config\Routing\PathSegment;
+use Zef\Framework\Config\Routing\RoutePath;
+use Zef\Framework\Config\Routing\RoutePathGrammar;
 
 /**
  * @internal
@@ -311,9 +311,9 @@ final class RoutePathTest extends TestCase
     {
         try {
             RoutePath::parse($path);
-            self::fail(\sprintf('The route path "%s" must raise a RouterException.', $path));
-        } catch (RouterException $routerException) {
-            self::assertSame($message, $routerException->getMessage());
+            self::fail(\sprintf('The route path "%s" must raise a ConfigException.', $path));
+        } catch (ConfigException $configException) {
+            self::assertSame($message, $configException->getMessage());
         }
     }
 }
