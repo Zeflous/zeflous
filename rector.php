@@ -19,6 +19,22 @@ return RectorConfig::configure()
         __DIR__ . '/tests/Support/Http',
         // Kept authoritative by php-cs-fixer; avoid a Rector/CS-Fixer tug-of-war.
         'Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector',
+        // Kept authoritative by the vendored PSR contracts; psalm's
+        // ParamNameMismatch wins over the type-derived renaming, so an
+        // implementation of an interface method keeps the interface's
+        // parameter names (withBody(StreamInterface $body), not $stream).
+        'Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector' => [
+            __DIR__ . '/src/Zef/Framework/Http/Message.php',
+        ],
+        // The rule resolves the expected name from a method-call chain's
+        // return type differently on different environments (a fresh CI
+        // runner renames $response -> $message for an interface-typed
+        // wither while a warm local checkout wants it renamed back),
+        // which turns every run into a rename ping-pong. Test variable
+        // naming is cosmetic; the analysers and the fixer stay in charge.
+        'Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector' => [
+            __DIR__ . '/tests',
+        ],
     ])
     ->withPhpSets(php84: true)
     ->withPreparedSets(
