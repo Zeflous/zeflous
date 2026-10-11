@@ -12,6 +12,7 @@ use Zef\Framework\Http\HttpException;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\StreamMetadata;
 use Zef\Framework\Http\StreamOpener;
+use Zef\Framework\Http\StreamPosition;
 use Zef\Framework\Http\StreamTransfer;
 use Zef\Test\Support\Http\FailingStreamWrapper;
 use Zef\Test\Support\Http\NoSeekStreamWrapper;
@@ -24,6 +25,7 @@ use Zef\Test\Support\Http\WriteOnlySeekableStreamWrapper;
 #[CoversClass(Stream::class)]
 #[CoversClass(StreamOpener::class)]
 #[CoversClass(StreamMetadata::class)]
+#[CoversClass(StreamPosition::class)]
 #[CoversClass(StreamTransfer::class)]
 final class StreamTest extends TestCase
 {
