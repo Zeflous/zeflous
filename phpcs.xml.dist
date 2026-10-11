@@ -19,6 +19,13 @@
 
     <rule ref="PSR12"/>
 
+    <!-- PHP's stream-wrapper protocol mandates snake_case method names
+         (stream_open, stream_read, ...); the test fixtures that double that
+         protocol cannot follow PSR1's camel-caps rule. -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern>*/tests/Support/Http/*StreamWrapper.php</exclude-pattern>
+    </rule>
+
     <!-- Strict types -->
     <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
         <properties>
