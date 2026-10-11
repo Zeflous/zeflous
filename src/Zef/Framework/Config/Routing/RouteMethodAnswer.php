@@ -28,30 +28,13 @@ final class RouteMethodAnswer
      */
     public static function resolve(string $method, array $routes, array $captured): MatchResult
     {
-        $route = self::select($method, $routes);
-
-        if (!$route instanceof CompiledRoute) {
-            return MatchResult::methodNotAllowed(self::allowedMethods($routes));
-        }
-
-        return MatchResult::found($route, RouteParameters::zip($route, $captured));
-    }
-
-    /**
-     * The candidate route that answers the request method, in
-     * registration order, or null when none does.
-     *
-     * @param list<CompiledRoute> $routes
-     */
-    private static function select(string $method, array $routes): ?CompiledRoute
-    {
         foreach ($routes as $route) {
             if ($route->answersMethod($method)) {
-                return $route;
+                return MatchResult::found($route, RouteParameters::zip($route, $captured));
             }
         }
 
-        return null;
+        return MatchResult::methodNotAllowed(self::allowedMethods($routes));
     }
 
     /**
