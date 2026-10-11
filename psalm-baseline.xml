@@ -1,5 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="6.19.2@fa716e443b23e6fa35bf58907e67ca692ec3c00a">
+  <file src="src/Contracts/Psr/Http/Message/MessageInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[getBody]]></code>
+      <code><![CDATA[getHeader]]></code>
+      <code><![CDATA[getHeaderLine]]></code>
+      <code><![CDATA[getHeaders]]></code>
+      <code><![CDATA[getProtocolVersion]]></code>
+      <code><![CDATA[hasHeader]]></code>
+      <code><![CDATA[withAddedHeader]]></code>
+      <code><![CDATA[withBody]]></code>
+      <code><![CDATA[withHeader]]></code>
+      <code><![CDATA[withProtocolVersion]]></code>
+      <code><![CDATA[withoutHeader]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/RequestFactoryInterface.php">
+    <UnusedClass>
+      <code><![CDATA[RequestFactoryInterface]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/RequestInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[getMethod]]></code>
+      <code><![CDATA[getRequestTarget]]></code>
+      <code><![CDATA[getUri]]></code>
+      <code><![CDATA[withMethod]]></code>
+      <code><![CDATA[withRequestTarget]]></code>
+      <code><![CDATA[withUri]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
+    <UnusedClass>
+      <code><![CDATA[ResponseFactoryInterface]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/ResponseInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[getReasonPhrase]]></code>
+      <code><![CDATA[getStatusCode]]></code>
+      <code><![CDATA[withStatus]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/ServerRequestFactoryInterface.php">
+    <UnusedClass>
+      <code><![CDATA[ServerRequestFactoryInterface]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/ServerRequestInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[getAttribute]]></code>
+      <code><![CDATA[getAttributes]]></code>
+      <code><![CDATA[getCookieParams]]></code>
+      <code><![CDATA[getParsedBody]]></code>
+      <code><![CDATA[getQueryParams]]></code>
+      <code><![CDATA[getServerParams]]></code>
+      <code><![CDATA[getUploadedFiles]]></code>
+      <code><![CDATA[withAttribute]]></code>
+      <code><![CDATA[withCookieParams]]></code>
+      <code><![CDATA[withParsedBody]]></code>
+      <code><![CDATA[withQueryParams]]></code>
+      <code><![CDATA[withUploadedFiles]]></code>
+      <code><![CDATA[withoutAttribute]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/StreamFactoryInterface.php">
+    <UnusedClass>
+      <code><![CDATA[StreamFactoryInterface]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/StreamInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[close]]></code>
+      <code><![CDATA[detach]]></code>
+      <code><![CDATA[eof]]></code>
+      <code><![CDATA[getMetadata]]></code>
+      <code><![CDATA[getSize]]></code>
+      <code><![CDATA[isWritable]]></code>
+      <code><![CDATA[read]]></code>
+      <code><![CDATA[tell]]></code>
+    </PossiblyUnusedMethod>
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[int]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/UploadedFileFactoryInterface.php">
+    <UnusedClass>
+      <code><![CDATA[UploadedFileFactoryInterface]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/UploadedFileInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[getClientFilename]]></code>
+      <code><![CDATA[getClientMediaType]]></code>
+      <code><![CDATA[getError]]></code>
+      <code><![CDATA[getSize]]></code>
+      <code><![CDATA[getStream]]></code>
+      <code><![CDATA[moveTo]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/UriFactoryInterface.php">
+    <UnusedClass>
+      <code><![CDATA[UriFactoryInterface]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/UriInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[getAuthority]]></code>
+      <code><![CDATA[getFragment]]></code>
+      <code><![CDATA[getHost]]></code>
+      <code><![CDATA[getPath]]></code>
+      <code><![CDATA[getPort]]></code>
+      <code><![CDATA[getQuery]]></code>
+      <code><![CDATA[getScheme]]></code>
+      <code><![CDATA[getUserInfo]]></code>
+      <code><![CDATA[withFragment]]></code>
+      <code><![CDATA[withHost]]></code>
+      <code><![CDATA[withPath]]></code>
+      <code><![CDATA[withPort]]></code>
+      <code><![CDATA[withQuery]]></code>
+      <code><![CDATA[withScheme]]></code>
+      <code><![CDATA[withUserInfo]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Server/MiddlewareInterface.php">
+    <UnusedClass>
+      <code><![CDATA[MiddlewareInterface]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Contracts/Psr/Http/Server/RequestHandlerInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[handle]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Contracts/ServiceProviderInterface.php">
     <UnusedClass>
       <code><![CDATA[ServiceProviderInterface]]></code>
@@ -61,6 +194,11 @@
       <code><![CDATA[GateRunner]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Tooling/GraphQlErrors.php">
+    <MixedAssignment>
+      <code><![CDATA[$errors]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Tooling/PersistentWorkerSmoke.php">
     <MixedAssignment>
       <code><![CDATA[$first]]></code>
@@ -74,11 +212,6 @@
   <file src="src/Zef/Framework/Tooling/ReviewThreadFactory.php">
     <MixedAssignment>
       <code><![CDATA[$path]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Tooling/GraphQlErrors.php">
-    <MixedAssignment>
-      <code><![CDATA[$errors]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Tooling/ReviewThreadMutation.php">

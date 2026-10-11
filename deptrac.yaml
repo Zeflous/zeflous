@@ -25,6 +25,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Health\\#'
+    - name: Http
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Http\\#'
     - name: Message
       collectors:
         - type: classNameRegex
@@ -60,6 +64,11 @@ deptrac:
       - Container
     Health:
       - Contracts
+      - Exception
+    # The HTTP layer is the zero-library PSR-7/15/17 shim's implementation
+    # side: it owns the vendored message contracts' concrete classes
+    # (`ROADMAP.md`, "HTTP Layer") and depends only on the exception root.
+    Http:
       - Exception
     Message:
       - Exception

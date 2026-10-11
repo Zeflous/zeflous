@@ -13,6 +13,10 @@ return RectorConfig::configure()
     ->withSkip([
         __DIR__ . '/src/Contracts/Psr',
         __DIR__ . '/vendor',
+        // PHP's stream-wrapper protocol fixes the fixture methods' signatures
+        // (stream_open(stream read, ...)); the protocol's unused parameters
+        // must not be pruned away.
+        __DIR__ . '/tests/Support/Http',
         // Kept authoritative by php-cs-fixer; avoid a Rector/CS-Fixer tug-of-war.
         'Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector',
     ])
