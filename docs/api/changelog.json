@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T20:01:40Z",
+  "as_of": "2026-10-11T21:34:18Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 116,
+  "unreleased_count": 117,
   "versions": [
     {
       "version": "Unreleased",
@@ -717,6 +717,32 @@
                 "sha": "378e4ff7649be5df3e27a4ed2be132c91caabe8e",
                 "short_sha": "378e4ff",
                 "subject": "docs(roadmap): record the uri value object history row and evidence"
+              }
+            ]
+          },
+          {
+            "pr": 262,
+            "title": "feat(http): the psr message headers and response",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T21:34:18Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/262",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "32f7cd9cbc60c85d4e804c3bf26b2adfeb2b35ba",
+                "short_sha": "32f7cd9",
+                "subject": "feat(http): the psr message headers and response"
+              },
+              {
+                "sha": "020d40c64d14265a7b07226316c1f96ef459e8be",
+                "short_sha": "020d40c",
+                "subject": "docs(roadmap): record the message headers and response history row"
+              },
+              {
+                "sha": "1b7472b5e2336ddfb599dee79370f326ccad32a9",
+                "short_sha": "1b7472b",
+                "subject": "fix(http): keep the interface parameter names authoritative over the type-derived renames"
               }
             ]
           }
@@ -5915,6 +5941,32 @@
               "sha": "378e4ff7649be5df3e27a4ed2be132c91caabe8e",
               "short_sha": "378e4ff",
               "subject": "docs(roadmap): record the uri value object history row and evidence"
+            }
+          ]
+        },
+        {
+          "pr": 262,
+          "title": "feat(http): the psr message headers and response",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T21:34:18Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/262",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "32f7cd9cbc60c85d4e804c3bf26b2adfeb2b35ba",
+              "short_sha": "32f7cd9",
+              "subject": "feat(http): the psr message headers and response"
+            },
+            {
+              "sha": "020d40c64d14265a7b07226316c1f96ef459e8be",
+              "short_sha": "020d40c",
+              "subject": "docs(roadmap): record the message headers and response history row"
+            },
+            {
+              "sha": "1b7472b5e2336ddfb599dee79370f326ccad32a9",
+              "short_sha": "1b7472b",
+              "subject": "fix(http): keep the interface parameter names authoritative over the type-derived renames"
             }
           ]
         }
