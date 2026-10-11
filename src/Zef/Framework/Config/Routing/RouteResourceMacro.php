@@ -34,6 +34,11 @@ final class RouteResourceMacro
     private const string ID_PARAMETER = 'id';
 
     /**
+     * The path suffix that declares the `{id}` parameter.
+     */
+    private const string ID_SUFFIX = '/{id}';
+
+    /**
      * The action table: HTTP methods, path suffix, and whether the
      * entry's path carries the `{id}` parameter (and can be constrained).
      */
@@ -41,10 +46,10 @@ final class RouteResourceMacro
         ['action' => 'index', 'methods' => ['GET'], 'suffix' => '', 'constrained' => false],
         ['action' => 'create', 'methods' => ['GET'], 'suffix' => '/create', 'constrained' => false],
         ['action' => 'store', 'methods' => ['POST'], 'suffix' => '', 'constrained' => false],
-        ['action' => 'show', 'methods' => ['GET'], 'suffix' => '/{id}', 'constrained' => true],
-        ['action' => 'edit', 'methods' => ['GET'], 'suffix' => '/{id}/edit', 'constrained' => true],
-        ['action' => 'update', 'methods' => ['PUT', 'PATCH'], 'suffix' => '/{id}', 'constrained' => true],
-        ['action' => 'destroy', 'methods' => ['DELETE'], 'suffix' => '/{id}', 'constrained' => true],
+        ['action' => 'show', 'methods' => ['GET'], 'suffix' => self::ID_SUFFIX, 'constrained' => true],
+        ['action' => 'edit', 'methods' => ['GET'], 'suffix' => self::ID_SUFFIX . '/edit', 'constrained' => true],
+        ['action' => 'update', 'methods' => ['PUT', 'PATCH'], 'suffix' => self::ID_SUFFIX, 'constrained' => true],
+        ['action' => 'destroy', 'methods' => ['DELETE'], 'suffix' => self::ID_SUFFIX, 'constrained' => true],
     ];
 
     /**
