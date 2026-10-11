@@ -129,6 +129,35 @@ final readonly class CompiledRoute
     }
 
     /**
+     * Whether the route answers the request method (both spellings are
+     * upper-cased once, so case never decides a match).
+     */
+    public function answersMethod(string $method): bool
+    {
+        return \in_array(mb_strtoupper($method), $this->fields['method'], true);
+    }
+
+    /**
+     * Whether the captured segment values satisfy the route's parameter
+     * constraints, in path order: the engine's last judgement before a
+     * walked branch becomes a match.
+     *
+     * @param list<string> $captured one value per route parameter
+     */
+    public function accepts(array $captured): bool
+    {
+        foreach ($this->routePath->parameterNames() as $index => $name) {
+            if ($this->routeConstraints->check($name, $captured[$index])) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Upper-cases, de-duplicates and sorts a method list; `sort()`
      * re-indexes the map into a list, so the returned methods are keyed 0..n.
      *
