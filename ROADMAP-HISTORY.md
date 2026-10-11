@@ -30,9 +30,9 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | CI / Supply chain | 34 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 37 (4 human + 33 bot regenerations) |
 | Roadmap docs | 3 |
-| Configuration System | 17 |
+| Configuration System | 18 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **94** |
+| **Total merged PRs** | **95** |
 
 ---
 
@@ -209,6 +209,7 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 | feat(config): route dsl fluent compiler (`RouteDsl::define(Closure)` — the fluent compiler of roadmap step 4: seven verbs plus `match()` draft a chainable `PendingRoute` (`name`/`where`/`middleware`/`meta`, declare-once except middleware), `group()` composes a validated `RoutePrefix` and restores prefix+middleware state on close (a throwing closure included), scope middleware flows forward only — stacking global → group → route; archeology-sized collaborators `RouteDslScope`/`RouteDslSnapshot`/`RouteDslMethods`/`RouteDslConstraints`/`RouteDslFields`/`RouteDslMiddleware`/`RoutePrefix`; Triad-closure integration test declare → assert → compile → match → reverse-route; `LintReport` hardened with a `CallbackFilterIterator` so its skip-behaviour mutation kill no longer depends on directory iteration order) | #240 | 2026-10-11 | `9237f4672` |
 | feat(config): allow method-disjoint routes on one pattern (amends the engine's duplicate rule for the schema's one-entry-per-method model: `RouteMethodClaims` rejects only a method claimed twice on one canonical pattern — REST's `GET /photos` and `POST /photos` compile; `RadixNode` carries the method-disjoint routes, `LeafRoute` returns every constraint-accepting candidate (a constraint failure narrows candidacy route by route), `RouteMethodAnswer::resolve()` selects the method answer and unions the 405 methods sorted, the parameter zipper lives in `RouteParameters`; KDD-R5 amended in `docs/ci-notes/radix-engine.md`) | #243 | 2026-10-11 | `aa7001a83` |
 | feat(config): route dsl resource macro (`RouteDsl::resource()` — one declaration expands into the seven-route CRUD table: index/create/store/show/edit/update (one PUT+PATCH entry)/destroy with `Controller@action` handlers and `<base>.<action>` names derived by `RouteResourceName` from the path's static segments, only `{id}` constrainable, the expansion registering through the façade's public surface so prefix, middleware and every declaration-time validation apply; `RouteDslBench` records the build economics — define() linear, paid once at build/cache time; `docs/ci-notes/dsl-builder.md` decision record KDD-D1..D8 with the cross-lane engine discovery and the local-vs-CI archeology yardstick) | #247 | 2026-10-11 | `4266b088d` |
+| feat(config): the routing runtime over the frozen configuration (`RoutingRuntime::fromConfig()` — the Triad's fifth seam, roadmap step 5 Loader -> Engine: reads the route table the bootstrapper pipeline already loaded, merged, validated and cached; the engine's radix tree is compiled AT MOST ONCE per instance, lazily and memoised — compile-once-per-worker economics, a fresh instance is the hot-reload path; a missing routes key is a valid zero-routing table, a non-array fails closed, a map-addressed table is normalised to a list with the keys discarded — the entry's name field is the single source of truth; `tree()`/`match()`/`route()`/`url()` answer from the one immutable tree, the raw method travels to the engine's single upper-casing policy point; `RoutingRuntimeBench` records the economics — memoised matching flat at 4.1-5.8us across 15-300 routes vs 185-4,070us when the runtime is rebuilt per request) | #250 | 2026-10-11 | `d2557c0ea` |
 
 ## Not yet done
 
