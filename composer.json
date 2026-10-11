@@ -92,6 +92,7 @@
     "scripts": {
         "test": "phpunit",
         "zero-deps": "@php scripts/ci/gate.php zero-deps",
+        "roadmap:gate": "@php scripts/ci/gate.php roadmap",
         "coverage": "phpunit --coverage-text",
         "coverage:gate": [
             "@php -d pcov.enabled=1 vendor/bin/phpunit --coverage-clover build/clover.xml --log-junit build/junit.xml --coverage-text",
@@ -146,6 +147,7 @@
             "@composer test",
             "@composer smoke:persistent",
             "@composer workflow:concurrency",
+            "@composer roadmap:gate",
             "@composer audit:strict"
         ],
         "ci:coverage": [

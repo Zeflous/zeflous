@@ -51,6 +51,9 @@ final readonly class GateRunner
                 ->evaluate(new WorkflowConcurrencyReport(
                     new WorkflowFileCollector($this->root)->collect(),
                 )),
+            'roadmap' => new RoadmapDocGate()->evaluate(
+                new RoadmapDocReport(new RoadmapDocFileCollector($this->root)->collect()),
+            ),
             'smoke' => $this->smoke(),
             default => throw new ToolingException(\sprintf('Unknown gate "%s".', $gate)),
         };
