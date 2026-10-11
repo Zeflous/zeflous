@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T23:21:53Z",
+  "as_of": "2026-10-10T23:57:56Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 100,
+  "unreleased_count": 101,
   "versions": [
     {
       "version": "Unreleased",
@@ -396,6 +396,32 @@
                 "sha": "3e8e1bdf9b5f55a689caecaf9268638591ffe059",
                 "short_sha": "3e8e1bd",
                 "subject": "docs(roadmap): reference the bootstrap feature commit in the #205 history row"
+              }
+            ]
+          },
+          {
+            "pr": 211,
+            "title": "feat(router): parse route paths into static and parameter segments",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-10T23:57:56Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/211",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "9c4e7d99ef8dfced5af514455dba1d2bc08132c5",
+                "short_sha": "9c4e7d9",
+                "subject": "feat(router): parse route paths into static and parameter segments"
+              },
+              {
+                "sha": "aa8653b435463899a518b310b3df93d9cbc93562",
+                "short_sha": "aa8653b",
+                "subject": "Merge branch 'main' into feat/router-path-parser"
+              },
+              {
+                "sha": "533874b946e9f751bef60d4417eeed470966bcd3",
+                "short_sha": "533874b",
+                "subject": "fix(router): split the path grammar and satisfy the architecture gate"
               }
             ]
           }
@@ -5043,6 +5069,32 @@
               "sha": "5e2aeba86086b8e8e729868bc24f86e263470336",
               "short_sha": "5e2aeba",
               "subject": "Merge branch 'main' into test/loader-skip-order"
+            }
+          ]
+        },
+        {
+          "pr": 211,
+          "title": "feat(router): parse route paths into static and parameter segments",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-10T23:57:56Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/211",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "9c4e7d99ef8dfced5af514455dba1d2bc08132c5",
+              "short_sha": "9c4e7d9",
+              "subject": "feat(router): parse route paths into static and parameter segments"
+            },
+            {
+              "sha": "aa8653b435463899a518b310b3df93d9cbc93562",
+              "short_sha": "aa8653b",
+              "subject": "Merge branch 'main' into feat/router-path-parser"
+            },
+            {
+              "sha": "533874b946e9f751bef60d4417eeed470966bcd3",
+              "short_sha": "533874b",
+              "subject": "fix(router): split the path grammar and satisfy the architecture gate"
             }
           ]
         }
