@@ -312,8 +312,8 @@ final class RoutePathTest extends TestCase
         try {
             RoutePath::parse($path);
             self::fail(\sprintf('The route path "%s" must raise a ConfigException.', $path));
-        } catch (ConfigException $exception) {
-            self::assertSame($message, $exception->getMessage());
+        } catch (ConfigException $configException) {
+            self::assertSame($message, $configException->getMessage());
         }
     }
 }
