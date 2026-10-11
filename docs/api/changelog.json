@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T14:12:14Z",
+  "as_of": "2026-10-11T14:53:33Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 113,
+  "unreleased_count": 114,
   "versions": [
     {
       "version": "Unreleased",
@@ -629,6 +629,42 @@
                 "sha": "f3a432cfeae7a408854340ebfc712e419a7d2cb8",
                 "short_sha": "f3a432c",
                 "subject": "docs(roadmap): pin the routing runtime history row to pull request 250"
+              }
+            ]
+          },
+          {
+            "pr": 253,
+            "title": "feat(config): dispatch matched routes to container handlers",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T14:53:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/253",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "925f2a006db0194e05e4ecc5263ac3fbcba71a0f",
+                "short_sha": "925f2a0",
+                "subject": "feat(config): dispatch matched routes to container handlers"
+              },
+              {
+                "sha": "bdc45157657612b8ac123bac7077777491354394",
+                "short_sha": "bdc4515",
+                "subject": "docs(roadmap): record the integration lane closeout"
+              },
+              {
+                "sha": "6664754c62f925fc383cd9cb4436035936b05919",
+                "short_sha": "6664754",
+                "subject": "docs(roadmap): pin the dispatcher history row to pull request 253"
+              },
+              {
+                "sha": "08fa6482b0c39d88089b1b7222aac0cd84f0beff",
+                "short_sha": "08fa648",
+                "subject": "Merge branch 'main' into feat/config-route-dispatcher"
+              },
+              {
+                "sha": "2730158078f81c770a7253dfa25c19a24a9895ad",
+                "short_sha": "2730158",
+                "subject": "fix(config): satisfy the newline-before-assign rule in the dispatcher test"
               }
             ]
           }
@@ -5739,6 +5775,42 @@
               "sha": "f3a432cfeae7a408854340ebfc712e419a7d2cb8",
               "short_sha": "f3a432c",
               "subject": "docs(roadmap): pin the routing runtime history row to pull request 250"
+            }
+          ]
+        },
+        {
+          "pr": 253,
+          "title": "feat(config): dispatch matched routes to container handlers",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T14:53:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/253",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "925f2a006db0194e05e4ecc5263ac3fbcba71a0f",
+              "short_sha": "925f2a0",
+              "subject": "feat(config): dispatch matched routes to container handlers"
+            },
+            {
+              "sha": "bdc45157657612b8ac123bac7077777491354394",
+              "short_sha": "bdc4515",
+              "subject": "docs(roadmap): record the integration lane closeout"
+            },
+            {
+              "sha": "6664754c62f925fc383cd9cb4436035936b05919",
+              "short_sha": "6664754",
+              "subject": "docs(roadmap): pin the dispatcher history row to pull request 253"
+            },
+            {
+              "sha": "08fa6482b0c39d88089b1b7222aac0cd84f0beff",
+              "short_sha": "08fa648",
+              "subject": "Merge branch 'main' into feat/config-route-dispatcher"
+            },
+            {
+              "sha": "2730158078f81c770a7253dfa25c19a24a9895ad",
+              "short_sha": "2730158",
+              "subject": "fix(config): satisfy the newline-before-assign rule in the dispatcher test"
             }
           ]
         }
