@@ -277,6 +277,7 @@ final class RouteDispatcherTest extends TestCase
     {
         $container = new Container();
         $container->set(ArrayIterator::class, static fn (): ArrayIterator => new ArrayIterator([]));
+
         $dispatcher = $this->dispatcher([
             ['path' => '/pairs', 'method' => ['GET'], 'handler' => ArrayIterator::class . '@count@x'],
         ], $container);
