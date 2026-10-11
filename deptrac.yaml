@@ -50,10 +50,14 @@ deptrac:
     # it is a self-contained foundation the container will consume later (the
     # build order is fixed by CONTRIBUTING.md rule 2). The `Config\Routing`
     # sub-namespace is the Triad's radix tree engine: it compiles plain route
-    # arrays (the configuration system's output) and shares the layer.
+    # arrays (the configuration system's output) and shares the layer. Its
+    # runtime seam (the dispatcher of roadmap step 5) resolves route handlers
+    # through the container -- a one-way widening mirroring `Kernel += Config`
+    # (the container itself never depends on the configuration layer).
     Config:
       - Contracts
       - Exception
+      - Container
     Health:
       - Contracts
       - Exception
