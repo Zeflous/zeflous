@@ -11,7 +11,8 @@ namespace Zef\Framework\Config\Routing;
  * node's anonymous parameter edge (creating it when absent); a static
  * run is delegated to {@see StaticRunInserter}, which descends and
  * splits the static children so shared prefixes are stored exactly once.
- * An exhausted stream settles the route on the node it reached.
+ * An exhausted stream settles the route on the node it reached
+ * (beside the method-disjoint routes that may already be there).
  *
  * @internal
  */
@@ -25,7 +26,7 @@ final class RouteNodeInserter
     public function insert(RadixNode $radixNode, array $tokens, CompiledRoute $compiledRoute): void
     {
         if ($tokens === []) {
-            $radixNode->setRoute($compiledRoute);
+            $radixNode->addRoute($compiledRoute);
 
             return;
         }

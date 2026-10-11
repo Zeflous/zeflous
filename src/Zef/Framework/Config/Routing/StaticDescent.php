@@ -17,9 +17,11 @@ final class StaticDescent
 {
     /**
      * Walks the static child whose prefix continues the path at the
-     * position, or null when no static child starts there.
+     * position: the routes the child's subtree settles, or none.
      *
      * @param list<string> $captured the values captured so far (by reference)
+     *
+     * @return list<CompiledRoute>
      */
     public static function descend(
         RadixNode $radixNode,
@@ -27,11 +29,11 @@ final class StaticDescent
         int $position,
         array &$captured,
         RouteMatcher $routeMatcher,
-    ): ?CompiledRoute {
+    ): array {
         $child = $radixNode->staticChild(mb_substr($path, $position, 1));
 
         if (!$child instanceof RadixNode) {
-            return null;
+            return [];
         }
 
         return $routeMatcher->walk($child, $path, $position, $captured);

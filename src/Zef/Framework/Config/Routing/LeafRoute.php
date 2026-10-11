@@ -5,31 +5,40 @@ declare(strict_types=1);
 namespace Zef\Framework\Config\Routing;
 
 /**
- * The route settled at a fully consumed node.
+ * The routes settled at a fully consumed node.
  *
- * A walk that exhausts the path ends here: the node's route answers
- * only when the captured values satisfy its constraints, so a
- * constraint failure makes this branch of the walk a miss, exactly like
- * a structural mismatch.
+ * A walk that exhausts the path ends here: every route whose captured
+ * values satisfy its constraints is a candidate, and the method answer
+ * is chosen from them ({@see RouteMethodAnswer}). A route whose
+ * constraints reject the captured values leaves the candidacy without
+ * killing the node's other routes -- and when no candidate remains,
+ * the branch is a miss, exactly like a structural mismatch.
  *
  * @internal
  */
 final class LeafRoute
 {
     /**
-     * The node's route when the captured values satisfy its constraints,
-     * or null when the node holds no route or the constraints reject it.
+     * The routes settled at the node whose constraints accept the
+     * captured values, in registration order; empty when the node holds
+     * no route or every constraint rejects the values.
      *
      * @param list<string> $captured
+     *
+     * @return list<CompiledRoute>
      */
-    public static function accepting(RadixNode $radixNode, array $captured): ?CompiledRoute
+    public static function accepting(RadixNode $radixNode, array $captured): array
     {
-        $route = $radixNode->route();
+        $candidates = [];
 
-        if (!$route instanceof CompiledRoute || !$route->accepts($captured)) {
-            return null;
+        foreach ($radixNode->routes() as $compiledRoute) {
+            if (!$compiledRoute->accepts($captured)) {
+                continue;
+            }
+
+            $candidates[] = $compiledRoute;
         }
 
-        return $route;
+        return $candidates;
     }
 }

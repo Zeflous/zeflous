@@ -1,0 +1,57 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zef\Framework\Config\Routing;
+
+use Zef\Framework\Config\ConfigException;
+
+/**
+ * The method claims of a route table: which registration first claimed
+ * each method on each canonical pattern.
+ *
+ * Several routes may share one parameter-blind pattern when their
+ * method sets are disjoint (the REST convention -- `GET /photos` and
+ * `POST /photos` are different resources), but a method claimed twice
+ * on the same pattern would own the same tree position with the same
+ * method: an ambiguity, not a merge, refused here with the method and
+ * the first claimant in the message.
+ *
+ * @internal
+ */
+final class RouteMethodClaims
+{
+    /**
+     * The claims: canonical pattern => method => the pattern that first
+     * claimed it.
+     *
+     * @var array<string, array<string, string>>
+     */
+    private array $claims = [];
+
+    /**
+     * Claims the route's methods on its canonical pattern.
+     */
+    public function claim(CompiledRoute $compiledRoute): void
+    {
+        $pattern = $compiledRoute->path()->pattern();
+        $canonical = $compiledRoute->path()->canonical();
+
+        foreach ($compiledRoute->methods() as $method) {
+            $registeredBy = $this->claims[$canonical][$method] ?? null;
+
+            if ($registeredBy !== null) {
+                throw new ConfigException(
+                    \sprintf(
+                        'The route pattern "%s" duplicates the method "%s" of the registered pattern "%s".',
+                        $pattern,
+                        $method,
+                        $registeredBy,
+                    ),
+                );
+            }
+
+            $this->claims[$canonical][$method] = $pattern;
+        }
+    }
+}
