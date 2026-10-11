@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(config\): route dsl resource macro and lane closeout [\#247](https://github.com/Zeflous/zeflous/pull/247) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): allow method-disjoint routes on one pattern [\#243](https://github.com/Zeflous/zeflous/pull/243) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): route dsl fluent compiler [\#240](https://github.com/Zeflous/zeflous/pull/240) ([mbetixz](https://github.com/mbetixz))
 - chore\(ci\): remove unreferenced mutation:ci composer script [\#236](https://github.com/Zeflous/zeflous/pull/236) ([mbetixz](https://github.com/mbetixz))
