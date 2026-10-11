@@ -30,9 +30,9 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | CI / Supply chain | 34 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
-| Configuration System | 12 |
+| Configuration System | 13 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **80** |
+| **Total merged PRs** | **81** |
 
 ---
 
@@ -203,6 +203,7 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 | feat(router): parse route paths into static and parameter segments (route path grammar — `RoutePath::parse()` shape rules, `RoutePathGrammar` + `PathBraceScanner` brace/segment/name rules, `PathSegment` value object, `RouterException`; landed under a mis-scoped Router namespace) | #211 | 2026-10-10 | `97d6b110f` |
 | refactor(config): move the radix route grammar under the configuration system (relocates the #211 slice `Zef\\Framework\\Router` → `Zef\\Framework\\Config\\Routing`; `RouterException` folded into `ConfigException`; deptrac Router layer removed — the Config collector covers the Routing sub-namespace) | #223 | 2026-10-11 | `71c3d1784` |
 | feat(config): compile route entries into validated route records (`CompiledRoute::fromArray(mixed)` — the engine's consumption view of the Standard Route Schema: `RouteEntryShape` known-fields + required-field shape checks, `RouteEntryCollections` string/list/constraints-map value rules with the `CONSTRAINTS` field-name constant, `RouteEntryMeta` free-form meta map, `RouteConstraints` name-validated fully-anchored patterns with a compilability probe, method upper-case + de-duplicate + sort, `RoutePath::pattern()` verbatim accessor) | #217 | 2026-10-11 | `4c34cd6e9` |
+| feat(config): compile routes into an immutable radix tree (`RadixTree::compile(array)`/`match(method, path)` — the Triad's engine: `RoutePatternTokens` tokenises a parsed path into static runs and parameter edges, `RouteTreeBuilder` + `RouteNodeInserter`/`StaticRunInserter`/`SharedPrefixLength` build the prefix-compressed tree (immutable after compile), `RouteMatcher`/`PrefixConsumption`/`StaticDescent`/`SegmentCapture`/`LeafRoute` walk it depth-first with full backtracking (static child first, then the parameter edge), `RouteTableRegistry` rejects duplicate canonical patterns and names, `MatchResult` found/notFound/methodNotAllowed with sorted allowed methods; `CompiledRoute::answersMethod()`/`accepts()` judge method case and constraints) | next | 2026-10-11 | `90916958e` |
 
 ## Not yet done
 
