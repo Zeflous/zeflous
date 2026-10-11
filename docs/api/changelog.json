@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T01:19:47Z",
+  "as_of": "2026-10-11T02:33:50Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 104,
+  "unreleased_count": 105,
   "versions": [
     {
       "version": "Unreleased",
@@ -1752,6 +1752,32 @@
                 "sha": "5346687bc5ed13f071aabe7087e70bc23091a8c3",
                 "short_sha": "5346687",
                 "subject": "chore(ci): add --logger-github to the infection composer script"
+              }
+            ]
+          },
+          {
+            "pr": 223,
+            "title": "refactor(config): move the radix route grammar under the configuration system",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-11T02:33:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/223",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e3789f84c2ce46a582f6abcb6700c25fa02dedad",
+                "short_sha": "e3789f8",
+                "subject": "refactor(config): move the radix route grammar under the configuration system"
+              },
+              {
+                "sha": "3e6b7be93e2fe92c2d20ed39f31d4ad92ea23aa7",
+                "short_sha": "3e6b7be",
+                "subject": "docs(roadmap): track the radix grammar slice under the configuration system"
+              },
+              {
+                "sha": "dc0c1c8eb6086a4c26ed90d337ec164d0b0c4a39",
+                "short_sha": "dc0c1c8",
+                "subject": "test(config): match the catch variable name to the exception type"
               }
             ]
           }
@@ -5241,6 +5267,32 @@
               "sha": "5346687bc5ed13f071aabe7087e70bc23091a8c3",
               "short_sha": "5346687",
               "subject": "chore(ci): add --logger-github to the infection composer script"
+            }
+          ]
+        },
+        {
+          "pr": 223,
+          "title": "refactor(config): move the radix route grammar under the configuration system",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-11T02:33:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/223",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e3789f84c2ce46a582f6abcb6700c25fa02dedad",
+              "short_sha": "e3789f8",
+              "subject": "refactor(config): move the radix route grammar under the configuration system"
+            },
+            {
+              "sha": "3e6b7be93e2fe92c2d20ed39f31d4ad92ea23aa7",
+              "short_sha": "3e6b7be",
+              "subject": "docs(roadmap): track the radix grammar slice under the configuration system"
+            },
+            {
+              "sha": "dc0c1c8eb6086a4c26ed90d337ec164d0b0c4a39",
+              "short_sha": "dc0c1c8",
+              "subject": "test(config): match the catch variable name to the exception type"
             }
           ]
         }
