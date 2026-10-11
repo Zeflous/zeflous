@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-11 · `main` @ `71c3d1784` (pre-#217)
+**Last updated:** 2026-10-11 · `main` @ `ca6ce131b`
 
 **How to read this file**
 
@@ -26,13 +26,13 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | HTTP Layer | 1 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
-| Quality Gates & Tooling | 6 |
+| Quality Gates & Tooling | 7 |
 | CI / Supply chain | 34 (incl. auto-merge + Sonar lanes) |
-| Changelog automation | 29 (4 human + 25 bot regenerations) |
+| Changelog automation | 37 (4 human + 33 bot regenerations) |
 | Roadmap docs | 3 |
-| Configuration System | 14 |
+| Configuration System | 17 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **82** |
+| **Total merged PRs** | **94** |
 
 ---
 
@@ -82,6 +82,7 @@ The in-repo gate engine (`src/Zef/Framework/Tooling/*`, `scripts/ci/*`) that eve
 | refactor(quality): fix archeology error and add SARIF code-scanning gate | #38 | 2026-10-08 | `7d5239e3a8` |
 | refactor: replace exec with Symfony Process for command execution | #40 | 2026-10-08 | `0fdc01829a` |
 | fix(ci): run gate commands through the shell in the process runner | #42 | 2026-10-08 | `98fe592a22` |
+| chore(ci): remove unreferenced mutation:ci composer script (dead configuration removal — the CI Infection lane runs `ci:infection` → `mutation` + `mutation:zones`; the `mutation:ci` variant carried the same flags unreferenced by any workflow, script, Makefile or doc) | #236 | 2026-10-11 | `952f6cfd5` |
 
 ## 6. CI / Supply chain
 
@@ -205,6 +206,9 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 | feat(config): compile route entries into validated route records (`CompiledRoute::fromArray(mixed)` — the engine's consumption view of the Standard Route Schema: `RouteEntryShape` known-fields + required-field shape checks, `RouteEntryCollections` string/list/constraints-map value rules with the `CONSTRAINTS` field-name constant, `RouteEntryMeta` free-form meta map, `RouteConstraints` name-validated fully-anchored patterns with a compilability probe, method upper-case + de-duplicate + sort, `RoutePath::pattern()` verbatim accessor) | #217 | 2026-10-11 | `4c34cd6e9` |
 | feat(config): compile routes into an immutable radix tree (`RadixTree::compile(array)`/`match(method, path)` — the Triad's engine: `RoutePatternTokens` tokenises a parsed path into static runs and parameter edges, `RouteTreeBuilder` + `RouteNodeInserter`/`StaticRunInserter`/`SharedPrefixLength` build the prefix-compressed tree (immutable after compile), `RouteMatcher`/`PrefixConsumption`/`StaticDescent`/`SegmentCapture`/`LeafRoute` walk it depth-first with full backtracking (static child first, then the parameter edge), `RouteTableRegistry` rejects duplicate canonical patterns and names, `MatchResult` found/notFound/methodNotAllowed with sorted allowed methods; `CompiledRoute::answersMethod()`/`accepts()` judge method case and constraints) | #229 | 2026-10-11 | `90916958e` |
 | feat(config): reverse routing url generation (`RadixTree::route(name)` fail-closed + compile-time name index via `RouteTableRegistry::namedRoutes()`; `RouteUrlGenerator::generate(name, params)` — `RouteUrlSegments` walk, `RouteParameterRenderer` (given + string-form + constraint + `rawurlencode`), `RouteParameterString` narrowing, `RouteParameterSet` excess rejection; round-trip self-validation; `RouterBench` tree-vs-linear flat-cost evidence; `docs/ci-notes/radix-engine.md` decision record KDD-R1..R9 with the scope correction) | #232 | 2026-10-11 | `2d45dc48f` |
+| feat(config): route dsl fluent compiler (`RouteDsl::define(Closure)` — the fluent compiler of roadmap step 4: seven verbs plus `match()` draft a chainable `PendingRoute` (`name`/`where`/`middleware`/`meta`, declare-once except middleware), `group()` composes a validated `RoutePrefix` and restores prefix+middleware state on close (a throwing closure included), scope middleware flows forward only — stacking global → group → route; archeology-sized collaborators `RouteDslScope`/`RouteDslSnapshot`/`RouteDslMethods`/`RouteDslConstraints`/`RouteDslFields`/`RouteDslMiddleware`/`RoutePrefix`; Triad-closure integration test declare → assert → compile → match → reverse-route; `LintReport` hardened with a `CallbackFilterIterator` so its skip-behaviour mutation kill no longer depends on directory iteration order) | #240 | 2026-10-11 | `9237f4672` |
+| feat(config): allow method-disjoint routes on one pattern (amends the engine's duplicate rule for the schema's one-entry-per-method model: `RouteMethodClaims` rejects only a method claimed twice on one canonical pattern — REST's `GET /photos` and `POST /photos` compile; `RadixNode` carries the method-disjoint routes, `LeafRoute` returns every constraint-accepting candidate (a constraint failure narrows candidacy route by route), `RouteMethodAnswer::resolve()` selects the method answer and unions the 405 methods sorted, the parameter zipper lives in `RouteParameters`; KDD-R5 amended in `docs/ci-notes/radix-engine.md`) | #243 | 2026-10-11 | `aa7001a83` |
+| feat(config): route dsl resource macro (`RouteDsl::resource()` — one declaration expands into the seven-route CRUD table: index/create/store/show/edit/update (one PUT+PATCH entry)/destroy with `Controller@action` handlers and `<base>.<action>` names derived by `RouteResourceName` from the path's static segments, only `{id}` constrainable, the expansion registering through the façade's public surface so prefix, middleware and every declaration-time validation apply; `RouteDslBench` records the build economics — define() linear, paid once at build/cache time; `docs/ci-notes/dsl-builder.md` decision record KDD-D1..D8 with the cross-lane engine discovery and the local-vs-CI archeology yardstick) | #247 | 2026-10-11 | `4266b088d` |
 
 ## Not yet done
 

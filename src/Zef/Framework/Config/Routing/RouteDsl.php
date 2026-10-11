@@ -170,6 +170,25 @@ final readonly class RouteDsl
     }
 
     /**
+     * Declares a resource: the seven-route CRUD table (index, create,
+     * store, show, edit, update, destroy) for one controller, carrying
+     * the group prefix and scope middleware in force (roadmap "DSL
+     * Layer", rule D -- one declaration, many configuration entries).
+     *
+     * The generated routes are named `<base>.<action>` from the path's
+     * static segments, and only the `{id}` parameter the macro creates
+     * can be constrained.
+     *
+     * @param array<array-key, mixed> $constraints the `id` constraint, if any
+     */
+    public function resource(string $path, string $controller, array $constraints = []): static
+    {
+        RouteResourceMacro::expand($this, $path, $controller, $constraints);
+
+        return $this;
+    }
+
+    /**
      * Declares scope middleware: it attaches to every route registered
      * after this declaration (and to groups opened after it), in
      * outer-to-inner order with the route's own middleware last.
