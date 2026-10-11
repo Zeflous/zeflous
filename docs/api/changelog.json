@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T09:48:27Z",
+  "as_of": "2026-10-11T14:12:14Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 112,
+  "unreleased_count": 113,
   "versions": [
     {
       "version": "Unreleased",
@@ -603,6 +603,32 @@
                 "sha": "bb04367f0f092546f27c8221fd338f01b297a354",
                 "short_sha": "bb04367",
                 "subject": "fix(config): define the id suffix constant and close the status row"
+              }
+            ]
+          },
+          {
+            "pr": 250,
+            "title": "feat(config): the routing runtime over the frozen configuration",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T14:12:14Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/250",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d2557c0ea9b3a11806ea086fc7670ae923fb13fc",
+                "short_sha": "d2557c0",
+                "subject": "feat(config): the routing runtime over the frozen configuration"
+              },
+              {
+                "sha": "115efd35433d6af3b4be82c5ef1ade81b7ab210a",
+                "short_sha": "115efd3",
+                "subject": "docs(roadmap): record the routing runtime seam"
+              },
+              {
+                "sha": "f3a432cfeae7a408854340ebfc712e419a7d2cb8",
+                "short_sha": "f3a432c",
+                "subject": "docs(roadmap): pin the routing runtime history row to pull request 250"
               }
             ]
           }
@@ -5687,6 +5713,32 @@
               "sha": "bb04367f0f092546f27c8221fd338f01b297a354",
               "short_sha": "bb04367",
               "subject": "fix(config): define the id suffix constant and close the status row"
+            }
+          ]
+        },
+        {
+          "pr": 250,
+          "title": "feat(config): the routing runtime over the frozen configuration",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T14:12:14Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/250",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d2557c0ea9b3a11806ea086fc7670ae923fb13fc",
+              "short_sha": "d2557c0",
+              "subject": "feat(config): the routing runtime over the frozen configuration"
+            },
+            {
+              "sha": "115efd35433d6af3b4be82c5ef1ade81b7ab210a",
+              "short_sha": "115efd3",
+              "subject": "docs(roadmap): record the routing runtime seam"
+            },
+            {
+              "sha": "f3a432cfeae7a408854340ebfc712e419a7d2cb8",
+              "short_sha": "f3a432c",
+              "subject": "docs(roadmap): pin the routing runtime history row to pull request 250"
             }
           ]
         }
