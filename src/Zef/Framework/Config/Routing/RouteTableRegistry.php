@@ -24,8 +24,8 @@ final class RouteTableRegistry
     /** @var array<string, string> canonical pattern => original pattern */
     private array $canonicalPatterns = [];
 
-    /** @var array<string, string> route name => original pattern */
-    private array $names = [];
+    /** @var array<string, CompiledRoute> route name => the named route */
+    private array $namedRoutes = [];
 
     /**
      * Registers one route, rejecting pattern and name duplicates.
@@ -53,16 +53,26 @@ final class RouteTableRegistry
             return;
         }
 
-        if (isset($this->names[$name])) {
+        if (isset($this->namedRoutes[$name])) {
             throw new ConfigException(
                 \sprintf(
                     'The route name "%s" duplicates the name of the pattern "%s".',
                     $name,
-                    $this->names[$name],
+                    $this->namedRoutes[$name]->path()->pattern(),
                 ),
             );
         }
 
-        $this->names[$name] = $pattern;
+        $this->namedRoutes[$name] = $compiledRoute;
+    }
+
+    /**
+     * The registered routes keyed by name: the reverse-routing index.
+     *
+     * @return array<string, CompiledRoute>
+     */
+    public function namedRoutes(): array
+    {
+        return $this->namedRoutes;
     }
 }

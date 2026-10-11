@@ -36,8 +36,13 @@ use Zef\Framework\Config\ConfigException;
  */
 final readonly class RadixTree
 {
-    public function __construct(private RadixNode $radixNode)
-    {
+    /**
+     * @param array<string, CompiledRoute> $namedRoutes the reverse-routing index
+     */
+    public function __construct(
+        private RadixNode $radixNode,
+        private array $namedRoutes = [],
+    ) {
     }
 
     /**
@@ -57,7 +62,24 @@ final readonly class RadixTree
             $compiledRoutes[] = CompiledRoute::fromArray($routes[$index]);
         }
 
-        return new self(new RouteTreeBuilder()->build($compiledRoutes));
+        $routeTreeBuilder = new RouteTreeBuilder();
+
+        return new self(
+            $routeTreeBuilder->build($compiledRoutes),
+            $routeTreeBuilder->registry()->namedRoutes(),
+        );
+    }
+
+    /**
+     * The route registered under a name -- the reverse-routing entry
+     * point. A name nothing was registered under is a defect in the
+     * caller's table of names, so it fails closed with the name in the
+     * message.
+     */
+    public function route(string $name): CompiledRoute
+    {
+        return $this->namedRoutes[$name]
+            ?? throw new ConfigException(\sprintf('The route name "%s" is not registered.', $name));
     }
 
     /**

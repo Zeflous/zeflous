@@ -44,6 +44,19 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(CompiledRoute::class)]
 final class RadixTreeTest extends TestCase
 {
+    public function testARegistryCannotBeReadBeforeTheTreeIsBuilt(): void
+    {
+        try {
+            new RouteTreeBuilder()->registry();
+            self::fail('Reading the registry before the build must raise an invariant violation.');
+        } catch (InvariantViolationException $invariantViolationException) {
+            self::assertSame(
+                'The route tree has not been built yet.',
+                $invariantViolationException->getMessage(),
+            );
+        }
+    }
+
     public function testMatchesAStaticRoute(): void
     {
         $radixTree = RadixTree::compile([

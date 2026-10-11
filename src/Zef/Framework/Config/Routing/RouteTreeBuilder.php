@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Config\Routing;
 
+use Zef\Framework\Exception\InvariantViolationException;
+
 /**
  * Builds the radix tree from validated routes.
  *
@@ -23,6 +25,8 @@ namespace Zef\Framework\Config\Routing;
  */
 final class RouteTreeBuilder
 {
+    private ?RouteTableRegistry $routeTableRegistry = null;
+
     /**
      * Builds the tree root holding every route.
      *
@@ -32,6 +36,8 @@ final class RouteTreeBuilder
     {
         $radixNode = new RadixNode('');
         $routeTableRegistry = new RouteTableRegistry();
+        $this->routeTableRegistry = $routeTableRegistry;
+
         $routeNodeInserter = new RouteNodeInserter();
 
         foreach ($routes as $route) {
@@ -40,5 +46,15 @@ final class RouteTreeBuilder
         }
 
         return $radixNode;
+    }
+
+    /**
+     * The registration bookkeeping of the last build: the duplicate
+     * rejection and the reverse-routing name index share one registry.
+     */
+    public function registry(): RouteTableRegistry
+    {
+        return $this->routeTableRegistry
+            ?? throw new InvariantViolationException('The route tree has not been built yet.');
     }
 }
