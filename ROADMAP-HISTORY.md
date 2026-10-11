@@ -23,7 +23,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap area | Completed items |
 |---|---|
 | Container | 2 |
-| HTTP Layer | 2 |
+| HTTP Layer | 3 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 7 |
@@ -32,7 +32,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 19 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **97** |
+| **Total merged PRs** | **98** |
 
 ---
 
@@ -54,6 +54,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 |---|---|---|---|
 | Composer scaffold — introduces the immutable `Message` envelope (`src/Zef/Framework/Message/Message.php`) | #1 | 2026-10-07 | `f6aa0dbeb8` |
 | Vendored PSR-7/15/17 message contracts (`src/Contracts/Psr/Http/{Message,Server}/`) and the PSR-7 stream engine (`Zef\Framework\Http\`: `Stream` + `StreamOpener`/`StreamMetadata`/`StreamTransfer`/`StreamPosition` collaborators + `HttpException` root, deep-branch engine tests) | #256 | 2026-10-11 | `PENDING` |
+| The PSR-7 URI value object (`Zef\Framework\Http\`: `Uri` + `UriParser`/`UriGrammar`/`UriHostGrammar`/`UriEncoder`/`UriAuthority`/`UriString`/`UriMutations`, Kelvin-sign case-map fold tests, percent-triple boundary matrix, per-wither immutability) | #259 | 2026-10-12 | `PENDING` |
 
 ## 3. Error Handling
 
