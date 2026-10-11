@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-11 · `main` @ `6ab59dc`
+**Last updated:** 2026-10-11 · `main` @ `71c3d1784` (pre-#217)
 
 **How to read this file**
 
@@ -30,9 +30,9 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | CI / Supply chain | 34 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
-| Configuration System | 9 |
+| Configuration System | 12 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **77** |
+| **Total merged PRs** | **80** |
 
 ---
 
@@ -200,6 +200,9 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 | feat(config): strict schema validation for route configuration (Standard Route Schema — `SchemaViolation` + `EXPECTATIONS` vocabulary with path/expected/actual data and factories, generic fail-closed `ConfigSchema` engine with complete ordered path-carrying violations, `SchemaValueRules` checks for the four value kinds, `RouteSchema` with `path`/`method`/`handler` required and `name`/`middleware`/`constraints`/`meta` optional; unknown keys are violations) | #195 | 2026-10-11 | `e3829b6d2` |
 | feat(config): compiled configuration cache (`ConfigCache` — `dump()` compiles a configuration array into a plain PHP file behind a generated-file header via `var_export`, `load()` executes it back with `require`; identity round trip, mtime-free by decision (KDD-6), fail-closed on missing directory / failed write / missing cache / non-array corruption) | #202 | 2026-10-11 | `fe6dc188d` |
 | feat(kernel): bootstrap the config repository into the kernel (`ConfigBootstrapper` — load+merge via the layered builder, validate via `RouteSchema::assertList()` over the routes key, cache hit short-circuits the builder entirely / miss compiles after validation; `ConfigCache::exists()`; `Kernel::__construct(?Container, ?Config)` + `config()` backward-compatible; deptrac Kernel += Config; `ConfigBench` dot-notation vs direct access; `docs/ci-notes/config-system.md` decision record KDD-1..7 with PHLAK attribution) | #205 | 2026-10-11 | `64bb213ad` |
+| feat(router): parse route paths into static and parameter segments (route path grammar — `RoutePath::parse()` shape rules, `RoutePathGrammar` + `PathBraceScanner` brace/segment/name rules, `PathSegment` value object, `RouterException`; landed under a mis-scoped Router namespace) | #211 | 2026-10-10 | `97d6b110f` |
+| refactor(config): move the radix route grammar under the configuration system (relocates the #211 slice `Zef\\Framework\\Router` → `Zef\\Framework\\Config\\Routing`; `RouterException` folded into `ConfigException`; deptrac Router layer removed — the Config collector covers the Routing sub-namespace) | #223 | 2026-10-11 | `71c3d1784` |
+| feat(config): compile route entries into validated route records (`CompiledRoute::fromArray(mixed)` — the engine's consumption view of the Standard Route Schema: `RouteEntryShape` known-fields + required-field shape checks, `RouteEntryCollections` string/list/constraints-map value rules with the `CONSTRAINTS` field-name constant, `RouteEntryMeta` free-form meta map, `RouteConstraints` name-validated fully-anchored patterns with a compilability probe, method upper-case + de-duplicate + sort, `RoutePath::pattern()` verbatim accessor) | #217 | 2026-10-11 | `4c34cd6e9` |
 
 ## Not yet done
 
