@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T08:20:19Z",
+  "as_of": "2026-10-11T09:15:37Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 110,
+  "unreleased_count": 111,
   "versions": [
     {
       "version": "Unreleased",
@@ -536,6 +536,42 @@
                 "sha": "fe1085819bc4b2870461327c6c1d21bbbd8cb055",
                 "short_sha": "fe10858",
                 "subject": "Merge branch 'main' into feat/config-route-dsl"
+              }
+            ]
+          },
+          {
+            "pr": 243,
+            "title": "feat(config): allow method-disjoint routes on one pattern",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T09:15:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/243",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "aa7001a83c5660acaac666453b4f20c3f3e04fee",
+                "short_sha": "aa7001a",
+                "subject": "feat(config): allow method-disjoint routes on one pattern"
+              },
+              {
+                "sha": "a9b19a2f5873699fb81d7053fcb96de1b1d66add",
+                "short_sha": "a9b19a2",
+                "subject": "Merge branch 'main' into feat/config-method-disjoint-routes"
+              },
+              {
+                "sha": "23dddd4cabb0cf77f3cab40303f8ac58d4210ca6",
+                "short_sha": "23dddd4",
+                "subject": "fix(config): keep the radix tree facade under the archeology difficulty limit"
+              },
+              {
+                "sha": "82ecced6372c1c7baf0969dc9a1663b6ed57fd74",
+                "short_sha": "82ecced",
+                "subject": "fix(config): extract the route parameter zipper"
+              },
+              {
+                "sha": "9cb8deca641956aa25415d321e25d2a2e13e31b2",
+                "short_sha": "9cb8dec",
+                "subject": "fix(config): inline the method selection into the resolve seam"
               }
             ]
           }
@@ -5553,6 +5589,42 @@
               "sha": "fe1085819bc4b2870461327c6c1d21bbbd8cb055",
               "short_sha": "fe10858",
               "subject": "Merge branch 'main' into feat/config-route-dsl"
+            }
+          ]
+        },
+        {
+          "pr": 243,
+          "title": "feat(config): allow method-disjoint routes on one pattern",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T09:15:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/243",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "aa7001a83c5660acaac666453b4f20c3f3e04fee",
+              "short_sha": "aa7001a",
+              "subject": "feat(config): allow method-disjoint routes on one pattern"
+            },
+            {
+              "sha": "a9b19a2f5873699fb81d7053fcb96de1b1d66add",
+              "short_sha": "a9b19a2",
+              "subject": "Merge branch 'main' into feat/config-method-disjoint-routes"
+            },
+            {
+              "sha": "23dddd4cabb0cf77f3cab40303f8ac58d4210ca6",
+              "short_sha": "23dddd4",
+              "subject": "fix(config): keep the radix tree facade under the archeology difficulty limit"
+            },
+            {
+              "sha": "82ecced6372c1c7baf0969dc9a1663b6ed57fd74",
+              "short_sha": "82ecced",
+              "subject": "fix(config): extract the route parameter zipper"
+            },
+            {
+              "sha": "9cb8deca641956aa25415d321e25d2a2e13e31b2",
+              "short_sha": "9cb8dec",
+              "subject": "fix(config): inline the method selection into the resolve seam"
             }
           ]
         }
