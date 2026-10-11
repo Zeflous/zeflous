@@ -34,6 +34,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(config): route dsl resource macro and lane closeout [#247](https://github.com/Zeflous/zeflous/pull/247) ([mbetixz](https://github.com/mbetixz))
 - feat(config): the routing runtime over the frozen configuration [#250](https://github.com/Zeflous/zeflous/pull/250) ([mbetixz](https://github.com/mbetixz))
 - feat(config): dispatch matched routes to container handlers [#253](https://github.com/Zeflous/zeflous/pull/253) ([mbetixz](https://github.com/mbetixz))
+- feat(http): vendor the psr message contracts and the stream engine [#256](https://github.com/Zeflous/zeflous/pull/256) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
