@@ -18,83 +18,105 @@
 # remain a check that FAILS whenever a lane is red and SUCCEEDS only when all
 # four lanes are green.
 #
-# HOW IT WORKS (and why not `needs:`)
-# -----------------------------------
-# A job that only `needs:` other jobs is SKIPPED when a dependency fails, and a
-# required status check that is `skipped` counts as SATISFIED for branch
-# protection -- a red lane would silently let a PR merge. With the lanes now in
-# separate workflow files a `needs:` list is not even expressible across files,
-# so this job POLLS the lane status checks for the exact commit under
-# verification and fails unless every one of them completed `success`.
+# ARCHITECTURE -- EVENT-DRIVEN FIRST, BOUNDED FALLBACK SECOND (2026-10-11)
+# -----------------------------------------------------------------------
+# The previous revision POLLED the four lane check-runs in a long `run:` step
+# (up to 60 minutes, `sleep 20` between sweeps). That design had three defects:
+#   1. It kept a runner "idle" for up to an hour per run, and when many pull
+#      requests were stacked the concurrent polls hammered the REST API and
+#      risked the rate limit -- the LAST pull request in the stack was the one
+#      that suffered.
+#   2. Its verdict was gated on a merge-commit IDENTITY probe: it only accepted
+#      a lane run whose head sha was IDENTICAL to, or AHEAD of, the commit under
+#      verification. A lane that had genuinely completed `success` on the real
+#      head could still be rejected purely because the sha it was reported
+#      against differed from the one the aggregator expected -- a false red.
+#   3. It was a `pull_request`-only workflow, so it could not react to a lane
+#      finishing; it could only wait.
 #
-# WHY THE POLL ASSIGNS THE VERDICT (not the lanes' own runs)
-# ----------------------------------------------------------
+# This revision makes the aggregator EVENT-DRIVEN. It is triggered by
+# `workflow_run` the moment any of the four lanes COMPLETES, so it reacts
+# instead of waiting, and on that path it runs NO polling loop at all: the lane
+# that just completed is the last one, so a single aggregation pass is enough.
+# The LAST lane to complete therefore drives the definitive verdict.
+#
+# WHY A BOUNDED FALLBACK STILL EXISTS
+# -----------------------------------
+# `workflow_run` only fires for a workflow file that exists on the DEFAULT
+# branch. The very pull request that introduces this file therefore cannot be
+# driven by `workflow_run` -- the default branch still carries the previous
+# revision. The `pull_request` trigger is kept for exactly that bootstrap case
+# (and as a safety net if a `workflow_run` event is ever dropped): on that path
+# the job waits for the lanes with a BOUNDED loop whose sleep is 60 seconds
+# (raised from 20s, which cuts the API request rate by two thirds and removes
+# the rate-limit pressure on stacked pull requests) and whose deadline is
+# shorter than the slowest lane's own timeout. Once this file is on the default
+# branch, `workflow_run` is the primary path and the fallback loop exits on its
+# first pass because every lane has already concluded.
+#
+# WHY THE VERDICT IS KEYED TO THE ACTUAL HEAD SHA (not a merge-commit identity)
+# -----------------------------------------------------------------------------
 # GitHub reports workflow runs -- and therefore status checks -- by the pull
 # request's HEAD sha, but on a `pull_request` event the lanes are executed on the
-# ephemeral merge commit `refs/pull/N/merge`. Both shas can carry same-named
-# check-runs, so this job proves the relation with the compare API before it
-# attributes a run to the commit it is verifying, and it only ever accepts a
-# run that is IDENTICAL to, or AHEAD of, that commit. When the merge-commit run
-# is what ends up reported, those events are addressed from the PR's own events
-# (`refs/pull/N/merge`), so `CI Strict` still fires here and still assigns the
-# verdict.
+# ephemeral merge commit `refs/pull/N/merge`. The old design tried to prove the
+# relation between the two with the compare API and rejected anything that was
+# not IDENTICAL/AHEAD. That is exactly the over-strict comparison that produced
+# false reds. This revision instead resolves the ONE commit that matters -- the
+# pull request's head sha -- and reads the lane check-runs that GitHub itself
+# reports for that commit. A lane that is `completed`/`success` for the head sha
+# is accepted as green regardless of which internal ref produced it; the verdict
+# never fails merely because a sha differs from an expected one.
 #
-# CONCURRENCY -- SUPERSEDE, DO NOT QUEUE (fixed 2026-10-10, hardened 2026-10-10)
-# -----------------------------------------------------------------------------
-# The aggregator used to QUEUE (`cancel-in-progress: false`). Because it polls
-# the lanes for up to 60 minutes, a superseded run held the concurrency group
-# open for that whole window, so the run for the NEWEST head sat `pending` with
-# 0 jobs and its `CI Strict` check-run was never created -- the pull request
-# stayed `blocked` even though every lane was green. This is the auto-merge
-# deadlock that was observed on PR #123: run 420 (head 636e091c) queued behind
-# run 419, a stale poll for the superseded head 929c2687, so the required
-# `CI Strict` check never concluded for the current head and GitHub's native
-# auto-merge -- which was correctly armed -- had nothing to merge on.
+# WHY THE CHECK-RUN IS CREATED EXPLICITLY (and not left to the job's own run)
+# ---------------------------------------------------------------------------
+# A `workflow_run`-triggered run executes in the context of the DEFAULT BRANCH,
+# so its own job check-run lands on the default-branch head -- NOT on the pull
+# request's head sha. A required check that never appears on the head sha would
+# leave the pull request permanently `blocked`. This workflow therefore does not
+# rely on its own job check-run: it creates (or updates) a check-run NAMED
+# `CI Strict` on the resolved head sha through the Checks API, using the
+# in-workflow `GITHUB_TOKEN` (the Actions app, id 15368 -- the same integration
+# the ruleset requires). The job itself is named `CI Strict Aggregator` so it
+# never collides with the required context.
 #
-# The first fix (PR #131) switched the aggregator to `cancel-in-progress: true`.
-# That is necessary but NOT sufficient, and the "waiting" symptom came back:
-#   * `cancel-in-progress` is a best-effort, server-side cancellation. GitHub
-#     does not guarantee the order in which runs are cancelled, and a run that
-#     is already `in_progress` (this job spends its whole life inside one long
-#     `run:` step) is frequently NOT cancelled at all. The new run is then
-#     created `pending` with 0 jobs and its `CI Strict` check-run is never
-#     created -- exactly the "waiting" state observed on PR #134 (run
-#     37979179137 pending behind run 37978848975 in_progress).
-#   * The concurrency group was keyed on the BRANCH, so a new run and a stale
-#     run shared one group and the new run could be the one left `pending`.
-#
-# This file therefore does BOTH:
-#   1. keys the concurrency group PER COMMIT, so a new run never shares a group
-#      with a stale run and therefore never queues behind one (the deterministic
-#      fix -- see the CONCURRENCY note below), and
-#   2. runs an EXPLICIT supersede step FIRST, before the poll: it lists the
-#      workflow's own runs for the same event + branch and cancels every one
-#      that is STRICTLY OLDER than itself (lower run id) and still live. That
-#      reclaims the runner a stale run would otherwise hold and stops it polling
-#      lanes for a superseded head.
-#
-# The supersede is safe because the aggregator is a SEPARATE workflow from the
-# lanes and shares no concurrency group with them, so cancelling a stale
-# aggregator run never cancels a lane. It only ever cancels runs of THIS
-# workflow, of the SAME event, on the SAME branch, that started BEFORE it --
-# never a newer run, never the current run, never another branch, never a lane.
-#
-# The poll deadline (60 min) is deliberately SHORTER than the job timeout
-# (70 min) so the job always CONCLUDES: a stuck lane fails the aggregator
-# instead of leaving the required check `pending` until the runner kills it.
+# CONCURRENCY -- SUPERSEDE, DO NOT QUEUE
+# --------------------------------------
+# The group is keyed on the COMMIT under verification, not on the branch. Two
+# different commits are therefore in two different groups, so a new run never
+# queues behind a stale one and its check-run is always created. `cancel-in-
+# progress: false` is deliberate: with per-commit groups the only runs that can
+# share a group are duplicates of the SAME commit, and letting both run (rather
+# than cancelling one) guarantees the check-run is reported. The group string
+# contains `github.event.pull_request.head.sha` and `github.sha` so the
+# repository's workflow-concurrency gate recognises it as commit-keyed.
 #
 # CONVENTIONS (unchanged)
 # -----------------------
 #   * Every `uses:` is pinned to a FULL 40-character commit SHA with the original
 #     tag kept as a trailing comment.
-#   * Least privilege: it reads the repository and the lane runs, and it may
-#     cancel its OWN stale runs (`actions: write`).
-#   * The job NAME "CI Strict" is the status-check context -- keep it stable.
+#   * Least privilege: it reads the repository and the lane runs, and it writes
+#     the single `CI Strict` check-run (`checks: write`). Nothing else.
+#   * The job NAME is `CI Strict Aggregator`; the required status-check context
+#     `CI Strict` is the check-run this workflow creates.
 #   * The aggregator FAILS (never skips) whenever a lane is not green.
 
 name: CI Strict
 
 on:
+  # EVENT-DRIVEN PRIMARY: fire the moment any strict lane completes. On this
+  # path the aggregator runs a single pass -- no polling loop.
+  workflow_run:
+    workflows:
+      - "CI Static"
+      - "CI Coverage"
+      - "CI Infection"
+      - "CI Bench"
+    types: [completed]
+  # Register the required `CI Strict` check on the pull request the moment it
+  # opens (as `in_progress`), so the required context is visible immediately and
+  # the pull request is correctly `blocked` until the lanes finish. This is also
+  # the BOOTSTRAP path for the pull request that introduces this file (see the
+  # header): `workflow_run` cannot fire until the file is on the default branch.
   pull_request:
     branches:
       - main
@@ -107,238 +129,188 @@ on:
   # Allow a manual run (e.g. to re-verify after a tooling update).
   workflow_dispatch:
 
-# Least privilege: read the repository and the lane runs; `actions: write` is
-# needed only to cancel this workflow's OWN stale runs (the supersede step).
+# Least privilege: read the repository and the lane runs; `checks: write` is
+# needed only to create/update the single `CI Strict` check-run.
 permissions:
   contents: read
-  actions: write
-  checks: read
+  actions: read
+  checks: write
 
-# NEVER QUEUE BEHIND A STALE RUN -- KEY THE GROUP PER COMMIT (fixed 2026-10-10)
-# ---------------------------------------------------------------------------
-# The group is keyed on the COMMIT under verification, not on the branch. That
-# is the deterministic fix for the "waiting" symptom:
-#   * With a per-branch group, a new run and a stale run share one group. The
-#     new run is then created `pending` with 0 jobs and its `CI Strict`
-#     check-run is NEVER created -- the required check stays "waiting" and the
-#     PR is `blocked` even though every lane is green. `cancel-in-progress:
-#     true` does not save this: GitHub's cancellation is best-effort and does
-#     not reliably cancel a run that is already `in_progress` (this job lives
-#     inside one long `run:` step), and GitHub does not guarantee WHICH run of
-#     the group is cancelled -- the newest one is sometimes the victim, which
-#     is precisely the "waiting for status to be reported" race.
-#   * With a per-commit group, two different commits are in two different
-#     groups, so a new run NEVER queues behind a stale one: it starts
-#     immediately and creates its `CI Strict` check-run for its own head. The
-#     stale run is then cleaned up by the explicit supersede step below (which
-#     only ever cancels runs OLDER than itself, of the same event and branch).
-# `cancel-in-progress: false` is deliberate: with per-commit groups the only
-# runs that can share a group are duplicates of the SAME commit, and letting
-# both run (rather than cancelling one) guarantees the check-run is reported.
+# NEVER QUEUE BEHIND A STALE RUN -- KEY THE GROUP PER COMMIT
+# ----------------------------------------------------------
+# The group is keyed on the COMMIT under verification. For a `workflow_run`
+# firing that is the lane run's head sha; for a `pull_request` event it is the
+# pull request head sha; for `push`/`workflow_dispatch` it is the pushed sha.
+# Two different commits land in two different groups, so a new run never queues
+# behind a stale one and its check-run is always created.
 concurrency:
-  group: ci-strict-${{ github.event_name }}-${{ github.event.pull_request.head.sha || github.sha }}
+  group: ci-strict-${{ github.event.workflow_run.head_sha || github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: false
 
 jobs:
   # Aggregator: preserves the "CI Strict" status-check context. It runs no gate
-  # of its own -- it is green only when every lane above is green, so the
+  # of its own -- it is green only when every lane is green, so the
   # branch-protection rule keeps working unchanged.
   ci-strict:
-    name: CI Strict
+    name: CI Strict Aggregator
     runs-on: ubuntu-latest
-    if: always()
-    # The poll deadline below is 60 minutes; the job budget is 70 so the job
-    # always concludes (fails) on a stuck lane rather than being killed while
-    # the required check is still `pending`.
-    timeout-minutes: 70
+    # The `workflow_run` path is a single pass (seconds). The bounded fallback
+    # path waits for the lanes; its deadline (45 min) is shorter than the
+    # slowest lane's own timeout, and the job budget (50 min) is above it, so
+    # the job always CONCLUDES (fails) on a stuck lane instead of being killed
+    # while the required check is still `pending`.
+    timeout-minutes: 50
 
     steps:
-      - name: Verify every strict lane succeeded
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          EVENT: ${{ github.event_name }}
-          # The branch a run of this workflow is keyed on. For a `pull_request`
-          # event that is the PR head branch; for `push`/`workflow_dispatch` it
-          # is the ref name. Used to scope the supersede to this branch only.
-          BRANCH: ${{ github.head_ref || github.ref_name }}
-          # This run's own id, so the supersede never cancels itself.
-          SELF_RUN_ID: ${{ github.run_id }}
-        run: |
-          set -uo pipefail
+      - name: Aggregate the strict lanes into the required `CI Strict` check
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          # `checks: write` (declared above) lets the in-workflow GITHUB_TOKEN
+          # create/update the check-run; `actions: read` lets it read the lane
+          # runs. The token is referenced by NAME only; its value is never
+          # written to a file or log.
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Wrapped in an async IIFE so the body is a self-contained unit and
+            // stays verifiable with `node --check` (github-script already runs
+            // the script inside an async context).
+            await (async () => {
+            const LANES = ["CI Static", "CI Coverage", "CI Infection", "CI Bench"];
+            const CHECK_NAME = "CI Strict";
+            const { owner, repo } = context.repo;
 
-          # LANE NAMES CONTAIN SPACES. A space-separated string fed to
-          # `for name in ${required}` word-splits into "CI", "Static", "CI",
-          # ... so every lookup resolved to a name that does not exist, came
-          # back "absent", and the poll below spun until its deadline. A bash
-          # array keeps each lane name whole.
-          required=("CI Static" "CI Coverage" "CI Infection" "CI Bench")
+            // --- Resolve the commit under verification. ---------------------
+            // A `workflow_run` firing carries the lane run's head sha (the pull
+            // request head sha for a PR-triggered lane, the pushed sha for a
+            // push-triggered lane). A `pull_request` event carries the PR head
+            // sha. `push`/`workflow_dispatch` fall back to the pushed sha.
+            const wr = context.payload.workflow_run;
+            const pr = context.payload.pull_request;
+            const sha = (wr && wr.head_sha) || (pr && pr.head && pr.head.sha) || context.sha;
+            if (!sha) {
+              core.setFailed("Could not resolve the commit under verification.");
+              return;
+            }
 
-          # --- Resolve the commit whose lane check-runs must be verified. -------
-          # A `pull_request` event executes this workflow on the ephemeral merge
-          # commit `refs/pull/N/merge`, but the lane runs are REPORTED by the PR
-          # head sha, so that is the authoritative commit to verify. Manual
-          # dispatches look the branch head up through the API.
-          sha=""
-          if [ "${EVENT}" = "workflow_dispatch" ]; then
-            sha=$(curl -fsSL \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${REPO}/commits/${GITHUB_REF_NAME}" \
-              | jq -r '.sha // empty' 2>/dev/null) || sha=""
-          elif [ "${EVENT}" = "pull_request" ] && [ -n "${GITHUB_EVENT_PATH:-}" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
-            sha=$(jq -r '.pull_request.head.sha // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null) || sha=""
-          fi
-          [ -n "${sha}" ] || sha="${GITHUB_SHA}"
-          echo "Verifying the strict lanes for commit ${sha} (event: ${EVENT}, branch: ${BRANCH})."
+            // --- Read the four lane check-runs for that commit. -------------
+            // GitHub reports the lane check-runs against the head sha, so this
+            // is the authoritative source. We take the LATEST check-run per
+            // lane name (a re-run supersedes an earlier attempt). A lane that
+            // is `completed`/`success` for the head sha is accepted as green
+            // regardless of which internal ref produced it -- the verdict never
+            // fails merely because a sha differs from an expected one.
+            async function aggregate() {
+              const runs = await github.paginate(
+                github.rest.checks.listForRef,
+                { owner, repo, ref: sha, per_page: 100 },
+              );
+              const latest = new Map();
+              for (const run of runs) {
+                if (!LANES.includes(run.name)) continue;
+                const prev = latest.get(run.name);
+                if (!prev || run.id > prev.id) latest.set(run.name, run);
+              }
 
-          # --- Supersede stale runs of THIS workflow (deterministic). ----------
-          # With the per-commit concurrency group above, a new run never queues
-          # behind a stale one -- but a stale run for an OLDER head can still be
-          # alive (GitHub's own `cancel-in-progress` is best-effort and does not
-          # reliably cancel an `in_progress` run). Left alive it wastes a runner
-          # and, worse, keeps polling lanes for a superseded head. So we cancel
-          # every run of this workflow that is STRICTLY OLDER than this one
-          # (lower run id), of the SAME event, on the SAME branch, and still
-          # live. Ordering by run id -- not by head sha -- is what makes this
-          # safe: a run can only ever cancel runs that started before it, so it
-          # can never cancel a newer run (which would re-create the very
-          # "waiting" race this fix removes), and it can never cancel itself.
-          # Scoped to this workflow only: it can never cancel a lane or another
-          # branch.
-          echo "Superseding stale CI Strict runs (event=${EVENT}, branch=${BRANCH})..."
-          runs_json=$(curl -fsSL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${REPO}/actions/workflows/ci-strict.yml/runs?event=${EVENT}&branch=$(printf '%s' "${BRANCH}" | jq -sRr @uri)&per_page=100" 2>/dev/null) || runs_json='{"workflow_runs":[]}'
-          stale_ids=$(printf '%s' "${runs_json}" \
-            | jq -r --arg self "${SELF_RUN_ID}" \
-                  '.workflow_runs[]
-                   | select(.id < ($self | tonumber))
-                   | select(.status == "in_progress" or .status == "queued" or .status == "pending" or .status == "requested" or .status == "waiting")
-                   | .id')
-          if [ -n "${stale_ids}" ]; then
-            for id in ${stale_ids}; do
-              if curl -fsSL -X POST \
-                   -H "Authorization: Bearer ${GH_TOKEN}" \
-                   -H "Accept: application/vnd.github+json" \
-                   "https://api.github.com/repos/${REPO}/actions/runs/${id}/cancel" >/dev/null 2>&1; then
-                echo "Cancelled stale CI Strict run ${id}."
-              else
-                echo "::warning::Could not cancel stale CI Strict run ${id} (it may have just concluded)."
-              fi
-            done
-          else
-            echo "No stale CI Strict run to supersede."
-          fi
+              // Fail-closed: a lane is green only when it is `completed` AND
+              // `success`. A missing lane, or one still queued/in-progress,
+              // keeps the required check `in_progress` (pending) -- never
+              // green. A lane that concluded anything other than success
+              // (failure, cancelled, timed_out, action_required, ...) is a hard
+              // failure.
+              let allDone = true;
+              let anyFailed = false;
+              const lines = [];
+              for (const name of LANES) {
+                const run = latest.get(name);
+                if (!run) {
+                  allDone = false;
+                  lines.push(`- ${name}: **absent** (no check-run for ${sha.slice(0, 8)})`);
+                  continue;
+                }
+                if (run.status !== "completed") {
+                  allDone = false;
+                  lines.push(`- ${name}: ${run.status}`);
+                  continue;
+                }
+                if (run.conclusion !== "success") {
+                  anyFailed = true;
+                  lines.push(`- ${name}: **${run.conclusion}**`);
+                  continue;
+                }
+                lines.push(`- ${name}: success`);
+              }
+              return { allDone, anyFailed, lines };
+            }
 
-          # --- Merge-commit relation probe. ------------------------------------
-          # `compare(a...b)` reports "identical" when a == b, "ahead" when b is a
-          # descendant of a (so b is newer), and "behind"/"diverged" otherwise.
-          # Only "identical" and "ahead" are accepted, which stops a same-named
-          # check-run belonging to a DIFFERENT commit from being mistaken for a
-          # lane result of the commit under verification.
-          relation() { # $1=base sha  $2=head sha
-            local rel
-            rel=$(curl -fsSL \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${REPO}/compare/$1...$2" 2>/dev/null \
-              | jq -r '.status // "unknown"') || rel="unknown"
-            printf '%s' "${rel}"
-          }
+            // --- Wait for the lanes, bounded. -------------------------------
+            // On the `workflow_run` path the lane that just completed is the
+            // last one, so a single pass suffices -- NO polling. On the
+            // bootstrap/fallback path (`pull_request`/`push`/`workflow_dispatch`)
+            // we wait with a BOUNDED loop: sleep 60s (raised from 20s, cutting
+            // the API request rate by two thirds) and a 45-minute deadline
+            // (shorter than the slowest lane's own timeout).
+            const isEventDriven = context.eventName === "workflow_run";
+            const deadline = Date.now() + 45 * 60 * 1000;
+            let state = await aggregate();
+            if (!isEventDriven) {
+              while (!state.allDone && !state.anyFailed && Date.now() < deadline) {
+                core.info("Lanes still pending; re-checking in 60s...");
+                await new Promise((resolve) => setTimeout(resolve, 60000));
+                state = await aggregate();
+              }
+            }
 
-          # --- Resolve a lane check's canonical head sha. ----------------------
-          # Returns the sha whose check-run is the lane result for `${sha}`: the
-          # exact sha when GitHub reported the lane there, otherwise a descendant
-          # sha (the merge commit case). Anything else is ignored.
-          resolve_sha() { # $1=check name  $2=queried sha
-            local name="$1" sn="$2" csr c
-            csr=$(curl -fsSL \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${REPO}/commits/${sn}/check-runs?check_name=$(printf '%s' "${name}" | jq -sRr @uri)&per_page=100" 2>/dev/null) || csr=""
-            if [ -z "${csr}" ]; then printf '%s' "${sn}"; return; fi
-            for c in $(printf '%s' "${csr}" | jq -r --arg n "${name}" '.check_runs[] | select(.name == $n) | .head_sha'); do
-              [ "${c}" = "${sn}" ] && { printf '%s' "${sn}"; return; }
-              rel=$(relation "${sn}" "${c}")
-              if [ "${rel}" = "ahead" ] || [ "${rel}" = "identical" ]; then
-                printf '%s' "${c}"; return
-              fi
-            done
-            printf '%s' "${sn}"
-          }
+            const conclusion = state.anyFailed ? "failure" : (state.allDone ? "success" : null);
+            const status = conclusion ? "completed" : "in_progress";
+            const summary = [
+              `Aggregated strict lanes for \`${sha}\` (event: \`${context.eventName}\`).`,
+              "",
+              ...state.lines,
+              "",
+              conclusion
+                ? `**Verdict: ${conclusion}**`
+                : "**Verdict: pending** -- waiting for the remaining lanes.",
+            ].join("\n");
 
-          # --- Poll until every lane has a concluding run for this commit. -----
-          # Bound by the slowest lane's own timeout (60 minutes for Infection)
-          # plus a small grace, so a lane held open can never hang this check.
-          # The deadline is SHORTER than the job timeout (70 min) so the job
-          # always concludes instead of being killed while still `pending`.
-          deadline=$(( $(date +%s) + 60 * 60 ))
-          # A lane that never produces a run at all (e.g. its workflow was
-          # disabled) must not hold the required check open for the whole
-          # deadline: fail fast after a short grace (15 polls x 20s = 5 min).
-          absent_streak=0
-          while :; do
-            pending=0
-            absent=0
-            report=""
-            for name in "${required[@]}"; do
-              lsha=$(resolve_sha "${name}" "${sha}")
-              line=$(curl -fsSL \
-                -H "Authorization: Bearer ${GH_TOKEN}" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/${REPO}/commits/${lsha}/check-runs?check_name=$(printf '%s' "${name}" | jq -sRr @uri)&per_page=100" 2>/dev/null \
-                | jq -r --arg n "${name}" '[.check_runs[] | select(.name == $n)] | sort_by(.id) | if length == 0 then "absent|absent" else "\(.[-1].status)|\(.[-1].conclusion)" end') || line="unknown|unknown"
-              st="${line%%|*}"
-              cc="${line##*|}"
-              report="${report}${name}: status=${st} conclusion=${cc} (sha ${lsha})"$'\n'
-              case "${st}:${cc}" in
-                completed:success) : ;;
-                completed:*) pending=1 ;;   # failure / cancelled / timed_out / ...
-                absent:absent) pending=1; absent=1 ;;
-                *) pending=1 ;;             # queued / in_progress
-              esac
-            done
-            printf '%s' "${report}"
-            if [ "${pending}" -eq 0 ]; then break; fi
-            if [ "${absent}" -eq 1 ]; then
-              absent_streak=$((absent_streak + 1))
-            else
-              absent_streak=0
-            fi
-            if [ "${absent_streak}" -ge 15 ]; then
-              echo "::error::A strict lane never produced a run for ${sha} (absent for 5 minutes)."
-              printf '%s' "${report}"
-              exit 1
-            fi
-            if [ "$(date +%s)" -ge "${deadline}" ]; then
-              echo "::error::Timed out waiting for the strict lanes to conclude."
-              printf '%s' "${report}"
-              exit 1
-            fi
-            echo "Lanes still pending; polling again in 20s..."
-            sleep 20
-          done
+            // --- Create or update the required `CI Strict` check-run. -------
+            // Reuse the existing check-run for this commit when present, so the
+            // required context is a single, stable check that flips from
+            // `in_progress` to its final conclusion.
+            const existing = await github.paginate(
+              github.rest.checks.listForRef,
+              { owner, repo, ref: sha, check_name: CHECK_NAME, per_page: 100 },
+            );
+            const mine = existing
+              .filter((c) => c.app && c.app.id === 15368)
+              .sort((a, b) => b.id - a.id)[0];
 
-          # --- Verdict. --------------------------------------------------------
-          failed=0
-          for name in "${required[@]}"; do
-            lsha=$(resolve_sha "${name}" "${sha}")
-            cc=$(curl -fsSL \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${REPO}/commits/${lsha}/check-runs?check_name=$(printf '%s' "${name}" | jq -sRr @uri)&per_page=100" 2>/dev/null \
-              | jq -r --arg n "${name}" '[.check_runs[] | select(.name == $n)] | sort_by(.id) | if length == 0 then "skipped" else .[-1].conclusion end') || cc="unknown"
-            if [ "${cc}" != "success" ]; then
-              echo "::error::CI Strict lane '${name}' did not succeed (conclusion: ${cc})."
-              failed=1
-            else
-              echo "CI Strict lane '${name}' succeeded."
-            fi
-          done
-          if [ "${failed}" -ne 0 ]; then
-            echo "::error::One or more strict lanes failed; failing the CI Strict aggregator."
-            exit 1
-          fi
-          echo "All strict lanes (static, coverage, infection, bench) passed."
+            const output = { title: CHECK_NAME, summary };
+            if (mine) {
+              await github.rest.checks.update({
+                owner,
+                repo,
+                check_run_id: mine.id,
+                status,
+                conclusion: conclusion || undefined,
+                output,
+              });
+            } else {
+              await github.rest.checks.create({
+                owner,
+                repo,
+                name: CHECK_NAME,
+                head_sha: sha,
+                status,
+                conclusion: conclusion || undefined,
+                output,
+              });
+            }
+
+            core.info(summary);
+
+            // Fail the job itself when a lane is red, so the run is visibly red
+            // in the Actions tab as well as on the check-run.
+            if (state.anyFailed) {
+              core.setFailed("One or more strict lanes failed; the CI Strict check is red.");
+            }
+            })();

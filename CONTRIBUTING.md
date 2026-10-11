@@ -44,12 +44,17 @@ its own CI job so a slow lane cannot block the others:
 | Mutation testing (Infection, MSI 100) | `composer ci:infection` | `CI Infection` |
 | Micro-benchmarks | `composer ci:bench` | `CI Bench` |
 
-The `CI Strict` job is a thin aggregator that **polls** the four lane
-check-runs over the REST API (it does not use a `needs:` dependency graph),
-so the required status-check context is unchanged. It runs with `if: always()`
-and explicitly inspects each lane's result, so it **fails** (never silently
-skips) whenever a lane is red — a skipped required check would otherwise count
-as satisfied and let a red pull request merge.
+The `CI Strict` job is a thin aggregator that is **event-driven**: it is
+triggered by `workflow_run` the moment any of the four lanes completes, so it
+reacts instead of waiting (it does not use a `needs:` dependency graph, and it
+runs no long polling loop). On every firing it re-reads the four lane
+check-runs for the commit under verification and creates/updates the required
+`CI Strict` check-run on that commit's head sha through the Checks API, so the
+required status-check context is unchanged. It **fails** (never silently skips)
+whenever a lane is red — a skipped required check would otherwise count as
+satisfied and let a red pull request merge. A bounded fallback loop (60-second
+sleep, 45-minute deadline) covers the bootstrap case where `workflow_run` cannot
+yet fire because the file is not on the default branch.
 
 ## Mandatory rules
 
@@ -369,7 +374,7 @@ are **required** — the rest are advisory signals.
 
 | Check | What it enforces |
 | --- | --- |
-| `CI Strict` | Aggregator: green only when `CI Static`, `CI Coverage`, `CI Infection` and `CI Bench` are all green. It runs with `if: always()` and fails (never skips) if any lane did not succeed. |
+| `CI Strict` | Aggregator: green only when `CI Static`, `CI Coverage`, `CI Infection` and `CI Bench` are all green. It is event-driven (`workflow_run`) and fails (never skips) if any lane did not succeed. |
 | `CI Static` | `composer ci:static` — PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector, PHPUnit, the persistent-worker smoke test and the strict supply-chain audit — plus Psalm (level 1 + baseline), Progpilot (static security analysis) and PhpCodeArcheology (architecture & maintainability gate). |
 | `CI Coverage` | `composer ci:coverage` — the 90% line-coverage gate. |
 | `CI Infection` | `composer ci:infection` — Infection mutation testing (MSI 100) and the mutation-score floor. |
