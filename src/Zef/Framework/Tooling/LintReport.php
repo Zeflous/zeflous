@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Tooling;
 
+use CallbackFilterIterator;
 use FilesystemIterator;
+use Iterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
@@ -39,12 +41,20 @@ final readonly class LintReport
                 new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS),
             );
 
-            foreach ($iterator as $file) {
-                if (!($file instanceof SplFileInfo) || $file->getExtension() !== 'php') {
-                    continue;
-                }
+            /**
+             * The filter's own guarantee: every yielded value passed the
+             * `instanceof SplFileInfo` check, so the iteration below is
+             * typed without re-narrowing it.
+             *
+             * @var Iterator<SplFileInfo> $phpFiles
+             */
+            $phpFiles = new CallbackFilterIterator(
+                $iterator,
+                static fn (mixed $file): bool => $file instanceof SplFileInfo && $file->getExtension() === 'php',
+            );
 
-                $files[] = $file->getPathname();
+            foreach ($phpFiles as $phpFile) {
+                $files[] = $phpFile->getPathname();
             }
         }
 
