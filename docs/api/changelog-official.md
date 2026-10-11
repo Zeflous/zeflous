@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(router\): parse route paths into static and parameter segments [\#211](https://github.com/Zeflous/zeflous/pull/211) ([mbetixz](https://github.com/mbetixz))
 - test\(config\): kill the directory-loader skip mutants deterministically [\#208](https://github.com/Zeflous/zeflous/pull/208) ([mbetixz](https://github.com/mbetixz))
 - feat\(kernel\): bootstrap the config repository into the kernel [\#205](https://github.com/Zeflous/zeflous/pull/205) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): compiled configuration cache [\#202](https://github.com/Zeflous/zeflous/pull/202) ([mbetixz](https://github.com/mbetixz))
