@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T04:28:15Z",
+  "as_of": "2026-10-11T05:04:32Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 107,
+  "unreleased_count": 108,
   "versions": [
     {
       "version": "Unreleased",
@@ -484,6 +484,37 @@
                 "sha": "8187e457c9f958d7f24a842f513d0d6dab593f5f",
                 "short_sha": "8187e45",
                 "subject": "fix(config): keep the matcher returns within the sonar budget and order the node's private mutator"
+              }
+            ]
+          },
+          {
+            "pr": 232,
+            "title": "feat(config): reverse routing url generation",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T05:04:32Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/232",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "2d45dc48fcf27403cd99640664f952515bea0b8c",
+                "short_sha": "2d45dc4",
+                "subject": "feat(config): reverse routing url generation"
+              },
+              {
+                "sha": "0803f0cbff5ed0c9a7da41597f8efe4b915061ca",
+                "short_sha": "0803f0c",
+                "subject": "docs(roadmap): record the reverse routing closeout of the radix engine lane"
+              },
+              {
+                "sha": "b88c3e111dadf876229c1b6eda3293d90b2897a8",
+                "short_sha": "b88c3e1",
+                "subject": "docs(roadmap): pin the reverse routing history row to pull request 232"
+              },
+              {
+                "sha": "8951297fdc74e6688130c352612d86382ce76178",
+                "short_sha": "8951297",
+                "subject": "Merge branch 'main' into feat/config-reverse-routing"
               }
             ]
           }
@@ -5417,6 +5448,37 @@
               "sha": "8187e457c9f958d7f24a842f513d0d6dab593f5f",
               "short_sha": "8187e45",
               "subject": "fix(config): keep the matcher returns within the sonar budget and order the node's private mutator"
+            }
+          ]
+        },
+        {
+          "pr": 232,
+          "title": "feat(config): reverse routing url generation",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T05:04:32Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/232",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "2d45dc48fcf27403cd99640664f952515bea0b8c",
+              "short_sha": "2d45dc4",
+              "subject": "feat(config): reverse routing url generation"
+            },
+            {
+              "sha": "0803f0cbff5ed0c9a7da41597f8efe4b915061ca",
+              "short_sha": "0803f0c",
+              "subject": "docs(roadmap): record the reverse routing closeout of the radix engine lane"
+            },
+            {
+              "sha": "b88c3e111dadf876229c1b6eda3293d90b2897a8",
+              "short_sha": "b88c3e1",
+              "subject": "docs(roadmap): pin the reverse routing history row to pull request 232"
+            },
+            {
+              "sha": "8951297fdc74e6688130c352612d86382ce76178",
+              "short_sha": "8951297",
+              "subject": "Merge branch 'main' into feat/config-reverse-routing"
             }
           ]
         }
