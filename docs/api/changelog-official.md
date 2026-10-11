@@ -9,6 +9,7 @@
 - refactor\(config\): move the radix route grammar under the configuration system [\#223](https://github.com/Zeflous/zeflous/pull/223) ([mbetixz](https://github.com/mbetixz))
 - chore\(ci\): add --logger-github to the infection composer script [\#220](https://github.com/Zeflous/zeflous/pull/220) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): make CI Strict aggregator event-driven via workflow\_run [\#218](https://github.com/Zeflous/zeflous/pull/218) ([mbetixz](https://github.com/mbetixz))
+- feat\(config\): compile route entries into validated route records [\#217](https://github.com/Zeflous/zeflous/pull/217) ([mbetixz](https://github.com/mbetixz))
 - fix\(review\): close F-1..F-3 from the 195/202/205 review [\#212](https://github.com/Zeflous/zeflous/pull/212) ([mbetixz](https://github.com/mbetixz))
 - feat\(router\): parse route paths into static and parameter segments [\#211](https://github.com/Zeflous/zeflous/pull/211) ([mbetixz](https://github.com/mbetixz))
 - test\(config\): kill the directory-loader skip mutants deterministically [\#208](https://github.com/Zeflous/zeflous/pull/208) ([mbetixz](https://github.com/mbetixz))
