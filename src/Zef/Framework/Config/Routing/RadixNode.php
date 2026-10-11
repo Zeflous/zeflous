@@ -89,14 +89,6 @@ final class RadixNode
     }
 
     /**
-     * Adds a static child under its first character (builder-only).
-     */
-    private function appendStaticChild(self $node): void
-    {
-        $this->staticChildren[mb_substr($node->prefix(), 0, 1)] = $node;
-    }
-
-    /**
      * Creates a child owning a whole static run and attaches it under
      * the run's first character (builder-only).
      */
@@ -126,5 +118,13 @@ final class RadixNode
         $this->parameterChild = null;
         $this->compiledRoute = null;
         $this->appendStaticChild($remainder);
+    }
+
+    /**
+     * Adds a static child under its first character (builder-only).
+     */
+    private function appendStaticChild(self $node): void
+    {
+        $this->staticChildren[mb_substr($node->prefix(), 0, 1)] = $node;
     }
 }

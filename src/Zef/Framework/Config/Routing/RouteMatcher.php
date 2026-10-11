@@ -43,12 +43,7 @@ final class RouteMatcher
             return LeafRoute::accepting($radixNode, $captured);
         }
 
-        $route = StaticDescent::descend($radixNode, $path, $position, $captured, $this);
-
-        if ($route instanceof CompiledRoute) {
-            return $route;
-        }
-
-        return SegmentCapture::walkParameterEdge($radixNode, $path, $position, $captured, $this);
+        return StaticDescent::descend($radixNode, $path, $position, $captured, $this)
+            ?? SegmentCapture::walkParameterEdge($radixNode, $path, $position, $captured, $this);
     }
 }

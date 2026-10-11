@@ -46,12 +46,10 @@ final class SegmentCapture
         $captured[] = mb_substr($path, $position, $end - $position);
         $route = $routeMatcher->walk($parameterChild, $path, $end, $captured);
 
-        if ($route instanceof CompiledRoute) {
-            return $route;
+        if (!$route instanceof CompiledRoute) {
+            array_pop($captured);
         }
 
-        array_pop($captured);
-
-        return null;
+        return $route;
     }
 }
