@@ -66,11 +66,6 @@
       <code><![CDATA[GateRunner]]></code>
     </UnusedClass>
   </file>
-  <file src="src/Zef/Framework/Tooling/LintReport.php">
-    <MixedAssignment>
-      <code><![CDATA[$file]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Tooling/PersistentWorkerSmoke.php">
     <MixedAssignment>
       <code><![CDATA[$first]]></code>
