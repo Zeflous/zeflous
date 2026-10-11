@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-10T23:57:56Z",
+  "as_of": "2026-10-11T00:20:00Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 101,
+  "unreleased_count": 102,
   "versions": [
     {
       "version": "Unreleased",
@@ -873,6 +873,47 @@
                 "sha": "8d7c0d72363eb81c9e8d76ddbda1548bb4f5679b",
                 "short_sha": "8d7c0d7",
                 "subject": "fix(changelog-official): enforce one-line PR style, no commit lines"
+              }
+            ]
+          },
+          {
+            "pr": 212,
+            "title": "fix(review): close F-1..F-3 from the 195/202/205 review",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-11T00:20:00Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/212",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "965ac8cd80b85d2ccadd5e737f67e77c9b1c81e5",
+                "short_sha": "965ac8c",
+                "subject": "fix(review): close F-1..F-3 from the 195/202/205 review"
+              },
+              {
+                "sha": "62509a97693e9cc0464526da9db74c1609c32de0",
+                "short_sha": "62509a9",
+                "subject": "Merge branch 'main' into fix/review-findings-195-202-205"
+              },
+              {
+                "sha": "841a979a5892023e940aa5454a297e5ba398ac6d",
+                "short_sha": "841a979",
+                "subject": "Merge branch 'main' into fix/review-findings-195-202-205"
+              },
+              {
+                "sha": "0ae720ebb764359f7895f11ed7da4be51e9840aa",
+                "short_sha": "0ae720e",
+                "subject": "fix(review): close F-1..F-3 from the 195/202/205 review"
+              },
+              {
+                "sha": "f5cca5c6f1884c5583a8446c7161326566bd128b",
+                "short_sha": "f5cca5c",
+                "subject": "Merge branch 'main' into fix/review-findings-195-202-205"
+              },
+              {
+                "sha": "fdab536e9eed246f1b069c0d50690ab33d635d19",
+                "short_sha": "fdab536",
+                "subject": "Merge branch 'main' into fix/review-findings-195-202-205"
               }
             ]
           }
@@ -5095,6 +5136,47 @@
               "sha": "533874b946e9f751bef60d4417eeed470966bcd3",
               "short_sha": "533874b",
               "subject": "fix(router): split the path grammar and satisfy the architecture gate"
+            }
+          ]
+        },
+        {
+          "pr": 212,
+          "title": "fix(review): close F-1..F-3 from the 195/202/205 review",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-11T00:20:00Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/212",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "965ac8cd80b85d2ccadd5e737f67e77c9b1c81e5",
+              "short_sha": "965ac8c",
+              "subject": "fix(review): close F-1..F-3 from the 195/202/205 review"
+            },
+            {
+              "sha": "62509a97693e9cc0464526da9db74c1609c32de0",
+              "short_sha": "62509a9",
+              "subject": "Merge branch 'main' into fix/review-findings-195-202-205"
+            },
+            {
+              "sha": "841a979a5892023e940aa5454a297e5ba398ac6d",
+              "short_sha": "841a979",
+              "subject": "Merge branch 'main' into fix/review-findings-195-202-205"
+            },
+            {
+              "sha": "0ae720ebb764359f7895f11ed7da4be51e9840aa",
+              "short_sha": "0ae720e",
+              "subject": "fix(review): close F-1..F-3 from the 195/202/205 review"
+            },
+            {
+              "sha": "f5cca5c6f1884c5583a8446c7161326566bd128b",
+              "short_sha": "f5cca5c",
+              "subject": "Merge branch 'main' into fix/review-findings-195-202-205"
+            },
+            {
+              "sha": "fdab536e9eed246f1b069c0d50690ab33d635d19",
+              "short_sha": "fdab536",
+              "subject": "Merge branch 'main' into fix/review-findings-195-202-205"
             }
           ]
         }
