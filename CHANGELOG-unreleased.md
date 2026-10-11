@@ -30,6 +30,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(config): compile routes into an immutable radix tree [#229](https://github.com/Zeflous/zeflous/pull/229) ([mbetixz](https://github.com/mbetixz))
 - feat(config): reverse routing url generation [#232](https://github.com/Zeflous/zeflous/pull/232) ([mbetixz](https://github.com/mbetixz))
 - feat(config): route dsl fluent compiler [#240](https://github.com/Zeflous/zeflous/pull/240) ([mbetixz](https://github.com/mbetixz))
+- feat(config): allow method-disjoint routes on one pattern [#243](https://github.com/Zeflous/zeflous/pull/243) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
