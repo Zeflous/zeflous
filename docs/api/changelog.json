@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T02:33:50Z",
+  "as_of": "2026-10-11T03:19:11Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 105,
+  "unreleased_count": 106,
   "versions": [
     {
       "version": "Unreleased",
@@ -422,6 +422,32 @@
                 "sha": "533874b946e9f751bef60d4417eeed470966bcd3",
                 "short_sha": "533874b",
                 "subject": "fix(router): split the path grammar and satisfy the architecture gate"
+              }
+            ]
+          },
+          {
+            "pr": 217,
+            "title": "feat(config): compile route entries into validated route records",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T03:19:11Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/217",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4c34cd65ebc364411b2e59e6719c94ff96b372b8",
+                "short_sha": "4c34cd6",
+                "subject": "feat(config): compile route entries into validated route records"
+              },
+              {
+                "sha": "5192002747b0fe1f0be9160054a8561caec20564",
+                "short_sha": "5192002",
+                "subject": "docs(roadmap): record the radix grammar, its relocation and the route records slice"
+              },
+              {
+                "sha": "1319ebbb4ae72b3abf5afff877c4d64d74a0c420",
+                "short_sha": "1319ebb",
+                "subject": "Merge branch 'main' into feat/router-route-records"
               }
             ]
           }
@@ -5235,6 +5261,32 @@
               "sha": "fdab536e9eed246f1b069c0d50690ab33d635d19",
               "short_sha": "fdab536",
               "subject": "Merge branch 'main' into fix/review-findings-195-202-205"
+            }
+          ]
+        },
+        {
+          "pr": 217,
+          "title": "feat(config): compile route entries into validated route records",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T03:19:11Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/217",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4c34cd65ebc364411b2e59e6719c94ff96b372b8",
+              "short_sha": "4c34cd6",
+              "subject": "feat(config): compile route entries into validated route records"
+            },
+            {
+              "sha": "5192002747b0fe1f0be9160054a8561caec20564",
+              "short_sha": "5192002",
+              "subject": "docs(roadmap): record the radix grammar, its relocation and the route records slice"
+            },
+            {
+              "sha": "1319ebbb4ae72b3abf5afff877c4d64d74a0c420",
+              "short_sha": "1319ebb",
+              "subject": "Merge branch 'main' into feat/router-route-records"
             }
           ]
         },
