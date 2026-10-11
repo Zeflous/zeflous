@@ -98,30 +98,6 @@ final readonly class RadixTree
             return MatchResult::notFound();
         }
 
-        $route = RouteMethodAnswer::select($method, $routes);
-
-        if (!$route instanceof CompiledRoute) {
-            return MatchResult::methodNotAllowed(RouteMethodAnswer::allowedMethods($routes));
-        }
-
-        return MatchResult::found($route, $this->parameters($route, $captured));
-    }
-
-    /**
-     * Zips the route's parameter names with the captured segment values.
-     *
-     * @param list<string> $captured
-     *
-     * @return array<string, string>
-     */
-    private function parameters(CompiledRoute $compiledRoute, array $captured): array
-    {
-        $parameters = [];
-
-        foreach ($compiledRoute->path()->parameterNames() as $index => $name) {
-            $parameters[$name] = $captured[$index];
-        }
-
-        return $parameters;
+        return RouteMethodAnswer::resolve($method, $routes, $captured);
     }
 }

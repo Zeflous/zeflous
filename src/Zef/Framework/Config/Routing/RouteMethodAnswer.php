@@ -18,12 +18,32 @@ namespace Zef\Framework\Config\Routing;
 final class RouteMethodAnswer
 {
     /**
+     * Resolves the match of a walked path: the candidate answering the
+     * request method with its parameters zipped from the captured
+     * values, or the method-not-allowed answer carrying every method
+     * the candidates do answer.
+     *
+     * @param list<CompiledRoute> $routes   the constraint-accepting candidates
+     * @param list<string>        $captured the values the walk captured
+     */
+    public static function resolve(string $method, array $routes, array $captured): MatchResult
+    {
+        $route = self::select($method, $routes);
+
+        if (!$route instanceof CompiledRoute) {
+            return MatchResult::methodNotAllowed(self::allowedMethods($routes));
+        }
+
+        return MatchResult::found($route, self::parameters($route, $captured));
+    }
+
+    /**
      * The candidate route that answers the request method, in
      * registration order, or null when none does.
      *
      * @param list<CompiledRoute> $routes
      */
-    public static function select(string $method, array $routes): ?CompiledRoute
+    private static function select(string $method, array $routes): ?CompiledRoute
     {
         foreach ($routes as $route) {
             if ($route->answersMethod($method)) {
@@ -42,7 +62,7 @@ final class RouteMethodAnswer
      *
      * @return list<string>
      */
-    public static function allowedMethods(array $routes): array
+    private static function allowedMethods(array $routes): array
     {
         $allowedMethods = [];
 
@@ -55,5 +75,23 @@ final class RouteMethodAnswer
         sort($allowedMethods, \SORT_STRING);
 
         return $allowedMethods;
+    }
+
+    /**
+     * Zips the selected route's parameter names with the captured values.
+     *
+     * @param list<string> $captured
+     *
+     * @return array<string, string>
+     */
+    private static function parameters(CompiledRoute $compiledRoute, array $captured): array
+    {
+        $parameters = [];
+
+        foreach ($compiledRoute->path()->parameterNames() as $index => $name) {
+            $parameters[$name] = $captured[$index];
+        }
+
+        return $parameters;
     }
 }
