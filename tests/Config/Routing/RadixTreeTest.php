@@ -14,7 +14,10 @@ use Zef\Framework\Config\Routing\PrefixConsumption;
 use Zef\Framework\Config\Routing\RadixNode;
 use Zef\Framework\Config\Routing\RadixTree;
 use Zef\Framework\Config\Routing\RouteMatcher;
+use Zef\Framework\Config\Routing\RouteMethodAnswer;
+use Zef\Framework\Config\Routing\RouteMethodClaims;
 use Zef\Framework\Config\Routing\RouteNodeInserter;
+use Zef\Framework\Config\Routing\RouteParameters;
 use Zef\Framework\Config\Routing\RoutePatternTokens;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
@@ -31,6 +34,9 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(RadixNode::class)]
 #[CoversClass(RouteTreeBuilder::class)]
 #[CoversClass(RouteTableRegistry::class)]
+#[CoversClass(RouteMethodClaims::class)]
+#[CoversClass(RouteParameters::class)]
+#[CoversClass(RouteMethodAnswer::class)]
 #[CoversClass(RoutePatternTokens::class)]
 #[CoversClass(RouteNodeInserter::class)]
 #[CoversClass(StaticRunInserter::class)]
@@ -632,20 +638,107 @@ final class RadixTreeTest extends TestCase
         }
     }
 
-    public function testRejectsADuplicateLiteralPattern(): void
+    public function testRejectsADuplicateMethodOnOnePattern(): void
     {
         try {
             RadixTree::compile([
                 ['path' => '/x', 'method' => ['GET'], 'handler' => 'X@one'],
-                ['path' => '/x', 'method' => ['POST'], 'handler' => 'X@two'],
+                ['path' => '/x', 'method' => ['GET'], 'handler' => 'X@two'],
             ]);
-            self::fail('A duplicated pattern must raise a ConfigException.');
+            self::fail('A duplicated method on one pattern must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(
-                'The route pattern "/x" duplicates the registered pattern "/x".',
+                'The route pattern "/x" duplicates the method "GET" of the registered pattern "/x".',
                 $configException->getMessage(),
             );
         }
+    }
+
+    public function testAllowsMethodDisjointRoutesOnOnePattern(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/photos', 'method' => ['GET'], 'handler' => 'Photos@index'],
+            ['path' => '/photos', 'method' => ['POST'], 'handler' => 'Photos@store'],
+            ['path' => '/photos', 'method' => ['PUT', 'PATCH'], 'handler' => 'Photos@update'],
+        ]);
+
+        self::assertSame('Photos@index', $radixTree->match('GET', '/photos')->route()->handler());
+        self::assertSame('Photos@store', $radixTree->match('POST', '/photos')->route()->handler());
+        self::assertSame('Photos@update', $radixTree->match('PUT', '/photos')->route()->handler());
+        self::assertSame('Photos@update', $radixTree->match('PATCH', '/photos')->route()->handler());
+    }
+
+    public function testMethodNotAllowedUnionsEveryMethodOnThePattern(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/photos', 'method' => ['GET'], 'handler' => 'Photos@index'],
+            ['path' => '/photos', 'method' => ['POST'], 'handler' => 'Photos@store'],
+            ['path' => '/photos', 'method' => ['PUT', 'PATCH'], 'handler' => 'Photos@update'],
+        ]);
+
+        $matchResult = $radixTree->match('DELETE', '/photos');
+
+        self::assertTrue($matchResult->isMethodNotAllowed());
+        self::assertSame(['GET', 'PATCH', 'POST', 'PUT'], $matchResult->allowedMethods());
+    }
+
+    public function testRejectsAMethodOverlapBetweenMethodSets(): void
+    {
+        try {
+            RadixTree::compile([
+                ['path' => '/x', 'method' => ['GET', 'POST'], 'handler' => 'X@any'],
+                ['path' => '/x', 'method' => ['POST'], 'handler' => 'X@store'],
+            ]);
+            self::fail('An overlapping method set on one pattern must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The route pattern "/x" duplicates the method "POST" of the registered pattern "/x".',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testDisjointRoutesKeepTheirOwnReverseRoutingNames(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'X@show', 'name' => 'x.show'],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'X@store', 'name' => 'x.store'],
+        ]);
+
+        self::assertSame('X@show', $radixTree->route('x.show')->handler());
+        self::assertSame('X@store', $radixTree->route('x.store')->handler());
+    }
+
+    public function testConstraintFailuresNarrowCandidacyRouteByRoute(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/n/{id}', 'method' => ['GET'], 'handler' => 'N@show', 'constraints' => ['id' => '[0-9]+']],
+            ['path' => '/n/{id}', 'method' => ['POST'], 'handler' => 'N@store'],
+        ]);
+
+        self::assertSame('N@store', $radixTree->match('POST', '/n/abc')->route()->handler());
+        self::assertSame('N@show', $radixTree->match('GET', '/n/42')->route()->handler());
+        self::assertSame('N@store', $radixTree->match('POST', '/n/42')->route()->handler());
+
+        $matchResult = $radixTree->match('GET', '/n/abc');
+
+        self::assertTrue($matchResult->isMethodNotAllowed());
+        self::assertSame(['POST'], $matchResult->allowedMethods());
+    }
+
+    public function testAMiddleConstraintFailureKeepsLaterCandidates(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/m/{id}', 'method' => ['GET'], 'handler' => 'M@show', 'constraints' => ['id' => '[0-9]+']],
+            ['path' => '/m/{id}', 'method' => ['POST'], 'handler' => 'M@store', 'constraints' => ['id' => '[a-z]+']],
+            ['path' => '/m/{id}', 'method' => ['PUT'], 'handler' => 'M@update'],
+        ]);
+
+        $matchResult = $radixTree->match('PUT', '/m/42');
+
+        self::assertTrue($matchResult->isFound());
+        self::assertSame('M@update', $matchResult->route()->handler());
+        self::assertSame(['id' => '42'], $matchResult->parameters());
     }
 
     public function testRejectsADuplicateCanonicalPattern(): void
@@ -658,7 +751,7 @@ final class RadixTreeTest extends TestCase
             self::fail('A parameter-blind duplicated pattern must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(
-                'The route pattern "/x/{b}" duplicates the registered pattern "/x/{a}".',
+                'The route pattern "/x/{b}" duplicates the method "GET" of the registered pattern "/x/{a}".',
                 $configException->getMessage(),
             );
         }

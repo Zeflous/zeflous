@@ -16,8 +16,10 @@ namespace Zef\Framework\Config\Routing;
  * A node owns a static text prefix (`/users/`, possibly spanning several
  * segments -- the radix compression merges runs of shared text), at most
  * one anonymous parameter edge (it consumes one whole non-empty request
- * segment, whatever its value), and at most one route payload: the route
- * whose pattern ends exactly at this node.
+ * segment, whatever its value), and the routes whose patterns end
+ * exactly at this node: several may settle here, and
+ * {@see RouteTableRegistry} guarantees their method sets never overlap,
+ * so the method answer is unambiguous ({@see RouteMethodAnswer}).
  *
  * All string arithmetic is character-based (`mb_*`), so a tree built from
  * multi-byte static text matches exactly like ASCII text.
@@ -31,7 +33,13 @@ final class RadixNode
 
     private ?self $parameterChild = null;
 
-    private ?CompiledRoute $compiledRoute = null;
+    /**
+     * The routes whose patterns end at this node, in registration order;
+     * their method sets are disjoint by the registry's rule.
+     *
+     * @var list<CompiledRoute>
+     */
+    private array $compiledRoutes = [];
 
     public function __construct(private string $prefix)
     {
@@ -63,20 +71,22 @@ final class RadixNode
     }
 
     /**
-     * The route whose pattern ends at this node, or null.
+     * The routes whose patterns end at this node.
+     *
+     * @return list<CompiledRoute>
      */
-    public function route(): ?CompiledRoute
+    public function routes(): array
     {
-        return $this->compiledRoute;
+        return $this->compiledRoutes;
     }
 
     /**
      * Registers a route whose pattern ends exactly at this node
      * (builder-only).
      */
-    public function setRoute(CompiledRoute $compiledRoute): void
+    public function addRoute(CompiledRoute $compiledRoute): void
     {
-        $this->compiledRoute = $compiledRoute;
+        $this->compiledRoutes[] = $compiledRoute;
     }
 
     /**
@@ -104,19 +114,19 @@ final class RadixNode
      * Splits this node's prefix: the node keeps the first `$length`
      * characters, and a new node is attached beneath it owning the rest
      * together with everything this node used to hold (children,
-     * parameter edge, route) (builder-only).
+     * parameter edge, routes) (builder-only).
      */
     public function splitAt(int $length): void
     {
         $remainder = new self(mb_substr($this->prefix, $length));
         $remainder->staticChildren = $this->staticChildren;
         $remainder->parameterChild = $this->parameterChild;
-        $remainder->compiledRoute = $this->compiledRoute;
+        $remainder->compiledRoutes = $this->compiledRoutes;
 
         $this->prefix = mb_substr($this->prefix, 0, $length);
         $this->staticChildren = [];
         $this->parameterChild = null;
-        $this->compiledRoute = null;
+        $this->compiledRoutes = [];
         $this->appendStaticChild($remainder);
     }
 

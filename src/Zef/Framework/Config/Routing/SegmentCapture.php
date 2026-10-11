@@ -22,6 +22,8 @@ final class SegmentCapture
      * continue the walk from its end, undo the capture on failure.
      *
      * @param list<string> $captured the values captured so far (by reference)
+     *
+     * @return list<CompiledRoute>
      */
     public static function walkParameterEdge(
         RadixNode $radixNode,
@@ -29,27 +31,27 @@ final class SegmentCapture
         int $position,
         array &$captured,
         RouteMatcher $routeMatcher,
-    ): ?CompiledRoute {
+    ): array {
         $parameterChild = $radixNode->parameterChild();
 
         if (!$parameterChild instanceof RadixNode) {
-            return null;
+            return [];
         }
 
         $boundary = mb_strpos($path, '/', $position);
         $end = $boundary === false ? mb_strlen($path) : $boundary;
 
         if ($end === $position) {
-            return null;
+            return [];
         }
 
         $captured[] = mb_substr($path, $position, $end - $position);
-        $route = $routeMatcher->walk($parameterChild, $path, $end, $captured);
+        $routes = $routeMatcher->walk($parameterChild, $path, $end, $captured);
 
-        if (!$route instanceof CompiledRoute) {
+        if ($routes === []) {
             array_pop($captured);
         }
 
-        return $route;
+        return $routes;
     }
 }

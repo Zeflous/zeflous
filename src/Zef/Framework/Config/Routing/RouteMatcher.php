@@ -12,12 +12,14 @@ namespace Zef\Framework\Config\Routing;
  * prefix starts with the current character is tried first
  * ({@see StaticDescent} -- longest shared prefix), then the anonymous
  * parameter edge ({@see SegmentCapture}), with full backtracking. An
- * exhausted path settles on the node's route when the captured values
- * satisfy its constraints ({@see LeafRoute}).
+ * exhausted path settles on the node's routes -- every route whose
+ * constraints accept the captured values ({@see LeafRoute}) -- and the
+ * method answer is chosen from them by {@see RouteMethodAnswer}.
  *
  * The captured values travel by reference through the recursion only;
- * the public entry returns the route together with its captured values
- * as one immutable tuple, so no state is shared between walks.
+ * the public entry returns the candidate routes together with their
+ * captured values as one immutable tuple, so no state is shared between
+ * walks.
  *
  * @internal
  */
@@ -30,20 +32,27 @@ final class RouteMatcher
      * starts the walk at the root and owns the tuple the result carries.
      *
      * @param list<string> $captured the values captured so far (by reference)
+     *
+     * @return list<CompiledRoute> the constraint-accepting routes settled
+     *                             at the fully consumed position, empty
+     *                             when the path misses
      */
-    public function walk(RadixNode $radixNode, string $path, int $offset, array &$captured): ?CompiledRoute
+    public function walk(RadixNode $radixNode, string $path, int $offset, array &$captured): array
     {
         $position = PrefixConsumption::positionAfterPrefix($radixNode, $path, $offset);
 
         if ($position === null) {
-            return null;
+            return [];
         }
 
         if ($position === mb_strlen($path)) {
             return LeafRoute::accepting($radixNode, $captured);
         }
 
-        return StaticDescent::descend($radixNode, $path, $position, $captured, $this)
-            ?? SegmentCapture::walkParameterEdge($radixNode, $path, $position, $captured, $this);
+        $routes = StaticDescent::descend($radixNode, $path, $position, $captured, $this);
+
+        return $routes !== []
+            ? $routes
+            : SegmentCapture::walkParameterEdge($radixNode, $path, $position, $captured, $this);
     }
 }

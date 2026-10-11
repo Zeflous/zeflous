@@ -11,7 +11,7 @@ use Zef\Framework\Config\ConfigException;
  *
  * {@see self::compile()} turns a route table (a list of Standard Route
  * Schema entries) into an immutable tree: each entry is validated into a
- * {@see CompiledRoute}, duplicates are rejected by
+ * {@see CompiledRoute}, method overlaps are rejected by
  * {@see RouteTableRegistry}, and {@see RouteTreeBuilder} stores every
  * pattern's static runs once (shared prefixes split and merge) with
  * anonymous parameter edges between them. Nothing is matched, validated
@@ -19,13 +19,17 @@ use Zef\Framework\Config\ConfigException;
  * saji": plain, pre-judged data.
  *
  * {@see self::match()} delegates the walk to {@see RouteMatcher} and
- * judges only the method: the request method is upper-cased once, by
- * {@see CompiledRoute::answersMethod()} (the single owner of the case
- * policy), and a path that matches a route whose methods exclude the
+ * judges only the method: the walk settles the routes whose pattern
+ * ended the path and whose constraints accept the captured values, and
+ * {@see RouteMethodAnswer} selects the one answering the request method
+ * (the request method is upper-cased once, by
+ * {@see CompiledRoute::answersMethod()} -- the single owner of the case
+ * policy). A path that matched while no settled route answers the
  * request method yields the method-not-allowed result carrying the
- * sorted methods it does answer. Match-time inputs never raise: a
- * hostile URL is runtime data, not a defect in the route table (that is
- * what {@see ConfigException} is reserved for).
+ * sorted, de-duplicated union of the methods those routes do answer.
+ * Match-time inputs never raise: a hostile URL is runtime data, not a
+ * defect in the route table (that is what {@see ConfigException} is
+ * reserved for).
  *
  * A request path that is empty or lacks the leading slash is structurally
  * unreachable: the root node carries no route (every pattern contributes
@@ -88,34 +92,12 @@ final readonly class RadixTree
     public function match(string $method, string $path): MatchResult
     {
         $captured = [];
-        $route = new RouteMatcher()->walk($this->radixNode, $path, 0, $captured);
+        $routes = new RouteMatcher()->walk($this->radixNode, $path, 0, $captured);
 
-        if (!$route instanceof CompiledRoute) {
+        if ($routes === []) {
             return MatchResult::notFound();
         }
 
-        if (!$route->answersMethod($method)) {
-            return MatchResult::methodNotAllowed($route->methods());
-        }
-
-        return MatchResult::found($route, $this->parameters($route, $captured));
-    }
-
-    /**
-     * Zips the route's parameter names with the captured segment values.
-     *
-     * @param list<string> $captured
-     *
-     * @return array<string, string>
-     */
-    private function parameters(CompiledRoute $compiledRoute, array $captured): array
-    {
-        $parameters = [];
-
-        foreach ($compiledRoute->path()->parameterNames() as $index => $name) {
-            $parameters[$name] = $captured[$index];
-        }
-
-        return $parameters;
+        return RouteMethodAnswer::resolve($method, $routes, $captured);
     }
 }

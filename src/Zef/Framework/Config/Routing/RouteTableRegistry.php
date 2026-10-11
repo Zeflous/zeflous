@@ -7,45 +7,36 @@ namespace Zef\Framework\Config\Routing;
 use Zef\Framework\Config\ConfigException;
 
 /**
- * The registration bookkeeping of a route table: one route per
- * parameter-blind pattern, one route per name.
+ * The registration bookkeeping of a route table: a pattern's methods are
+ * claimed once ({@see RouteMethodClaims}), and a route name is claimed
+ * once.
  *
  * Registration is where the table is judged fail-closed (see `ROADMAP.md`,
- * "Router" -- duplicate detection happens "saat registrasi"): a second
- * route with the same canonical pattern -- whatever it names its
- * parameters -- would own the same tree position, so the tree refuses it
- * before anything is built; a second route with the same name would make
- * reverse routing ambiguous, so it is refused for the same reason.
+ * "Router" -- duplicate detection happens "saat registrasi"): a method
+ * claimed twice on one pattern would make the answer ambiguous, and a
+ * second route with the same name would make reverse routing ambiguous
+ * -- both are refused before anything is built.
  *
  * @internal
  */
 final class RouteTableRegistry
 {
-    /** @var array<string, string> canonical pattern => original pattern */
-    private array $canonicalPatterns = [];
+    private readonly RouteMethodClaims $routeMethodClaims;
 
     /** @var array<string, CompiledRoute> route name => the named route */
     private array $namedRoutes = [];
 
+    public function __construct()
+    {
+        $this->routeMethodClaims = new RouteMethodClaims();
+    }
+
     /**
-     * Registers one route, rejecting pattern and name duplicates.
+     * Registers one route, rejecting method and name duplicates.
      */
     public function register(CompiledRoute $compiledRoute): void
     {
-        $pattern = $compiledRoute->path()->pattern();
-        $canonical = $compiledRoute->path()->canonical();
-
-        if (isset($this->canonicalPatterns[$canonical])) {
-            throw new ConfigException(
-                \sprintf(
-                    'The route pattern "%s" duplicates the registered pattern "%s".',
-                    $pattern,
-                    $this->canonicalPatterns[$canonical],
-                ),
-            );
-        }
-
-        $this->canonicalPatterns[$canonical] = $pattern;
+        $this->routeMethodClaims->claim($compiledRoute);
 
         $name = $compiledRoute->name();
 
