@@ -34,7 +34,7 @@ final class RouteMethodAnswer
             return MatchResult::methodNotAllowed(self::allowedMethods($routes));
         }
 
-        return MatchResult::found($route, self::parameters($route, $captured));
+        return MatchResult::found($route, RouteParameters::zip($route, $captured));
     }
 
     /**
@@ -75,23 +75,5 @@ final class RouteMethodAnswer
         sort($allowedMethods, \SORT_STRING);
 
         return $allowedMethods;
-    }
-
-    /**
-     * Zips the selected route's parameter names with the captured values.
-     *
-     * @param list<string> $captured
-     *
-     * @return array<string, string>
-     */
-    private static function parameters(CompiledRoute $compiledRoute, array $captured): array
-    {
-        $parameters = [];
-
-        foreach ($compiledRoute->path()->parameterNames() as $index => $name) {
-            $parameters[$name] = $captured[$index];
-        }
-
-        return $parameters;
     }
 }

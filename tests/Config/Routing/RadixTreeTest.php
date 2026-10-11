@@ -17,6 +17,7 @@ use Zef\Framework\Config\Routing\RouteMatcher;
 use Zef\Framework\Config\Routing\RouteMethodAnswer;
 use Zef\Framework\Config\Routing\RouteMethodClaims;
 use Zef\Framework\Config\Routing\RouteNodeInserter;
+use Zef\Framework\Config\Routing\RouteParameters;
 use Zef\Framework\Config\Routing\RoutePatternTokens;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
@@ -34,6 +35,7 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(RouteTreeBuilder::class)]
 #[CoversClass(RouteTableRegistry::class)]
 #[CoversClass(RouteMethodClaims::class)]
+#[CoversClass(RouteParameters::class)]
 #[CoversClass(RouteMethodAnswer::class)]
 #[CoversClass(RoutePatternTokens::class)]
 #[CoversClass(RouteNodeInserter::class)]
