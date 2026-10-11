@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T05:04:32Z",
+  "as_of": "2026-10-11T07:43:01Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 108,
+  "unreleased_count": 109,
   "versions": [
     {
       "version": "Unreleased",
@@ -1871,6 +1871,22 @@
                 "sha": "dc0c1c8eb6086a4c26ed90d337ec164d0b0c4a39",
                 "short_sha": "dc0c1c8",
                 "subject": "test(config): match the catch variable name to the exception type"
+              }
+            ]
+          },
+          {
+            "pr": 236,
+            "title": "chore(ci): remove unreferenced mutation:ci composer script",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-11T07:43:01Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/236",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a8185af6e6c0571fce1965f393b5295c512bc523",
+                "short_sha": "a8185af",
+                "subject": "chore(ci): remove unreferenced mutation:ci composer script"
               }
             ]
           }
@@ -5479,6 +5495,22 @@
               "sha": "8951297fdc74e6688130c352612d86382ce76178",
               "short_sha": "8951297",
               "subject": "Merge branch 'main' into feat/config-reverse-routing"
+            }
+          ]
+        },
+        {
+          "pr": 236,
+          "title": "chore(ci): remove unreferenced mutation:ci composer script",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-11T07:43:01Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/236",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a8185af6e6c0571fce1965f393b5295c512bc523",
+              "short_sha": "a8185af",
+              "subject": "chore(ci): remove unreferenced mutation:ci composer script"
             }
           ]
         }
