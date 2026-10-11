@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T09:15:37Z",
+  "as_of": "2026-10-11T09:48:27Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 111,
+  "unreleased_count": 112,
   "versions": [
     {
       "version": "Unreleased",
@@ -572,6 +572,37 @@
                 "sha": "9cb8deca641956aa25415d321e25d2a2e13e31b2",
                 "short_sha": "9cb8dec",
                 "subject": "fix(config): inline the method selection into the resolve seam"
+              }
+            ]
+          },
+          {
+            "pr": 247,
+            "title": "feat(config): route dsl resource macro and lane closeout",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T09:48:27Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/247",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4266b088d3da94e7049978d7a3a146fdc48965d7",
+                "short_sha": "4266b08",
+                "subject": "feat(config): route dsl resource macro"
+              },
+              {
+                "sha": "55d54650bdb454afd7ef04fe80a747471151a4ec",
+                "short_sha": "55d5465",
+                "subject": "docs(roadmap): record the dsl builder lane closeout"
+              },
+              {
+                "sha": "7722f7020e51509929b2e9c7d8f1c449f4f60c90",
+                "short_sha": "7722f70",
+                "subject": "Merge branch 'main' into feat/config-resource-macro"
+              },
+              {
+                "sha": "bb04367f0f092546f27c8221fd338f01b297a354",
+                "short_sha": "bb04367",
+                "subject": "fix(config): define the id suffix constant and close the status row"
               }
             ]
           }
@@ -5625,6 +5656,37 @@
               "sha": "9cb8deca641956aa25415d321e25d2a2e13e31b2",
               "short_sha": "9cb8dec",
               "subject": "fix(config): inline the method selection into the resolve seam"
+            }
+          ]
+        },
+        {
+          "pr": 247,
+          "title": "feat(config): route dsl resource macro and lane closeout",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T09:48:27Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/247",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4266b088d3da94e7049978d7a3a146fdc48965d7",
+              "short_sha": "4266b08",
+              "subject": "feat(config): route dsl resource macro"
+            },
+            {
+              "sha": "55d54650bdb454afd7ef04fe80a747471151a4ec",
+              "short_sha": "55d5465",
+              "subject": "docs(roadmap): record the dsl builder lane closeout"
+            },
+            {
+              "sha": "7722f7020e51509929b2e9c7d8f1c449f4f60c90",
+              "short_sha": "7722f70",
+              "subject": "Merge branch 'main' into feat/config-resource-macro"
+            },
+            {
+              "sha": "bb04367f0f092546f27c8221fd338f01b297a354",
+              "short_sha": "bb04367",
+              "subject": "fix(config): define the id suffix constant and close the status row"
             }
           ]
         }
