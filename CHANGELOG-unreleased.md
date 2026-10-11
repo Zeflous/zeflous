@@ -88,6 +88,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - refactor: secure urllib usage [#171](https://github.com/Zeflous/zeflous/pull/171) ([deepsource-autofix[bot]](https://github.com/deepsource-autofix[bot]))
 - refactor: reduce cyclomatic complexity by extracting helper functions [#174](https://github.com/Zeflous/zeflous/pull/174) ([deepsource-autofix[bot]](https://github.com/deepsource-autofix[bot]))
 - chore(ci): add --logger-github to the infection composer script [#220](https://github.com/Zeflous/zeflous/pull/220) ([mbetixz](https://github.com/mbetixz))
+- refactor(config): move the radix route grammar under the configuration system [#223](https://github.com/Zeflous/zeflous/pull/223) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 
