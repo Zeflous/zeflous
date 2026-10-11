@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- chore\(ci\): remove unreferenced mutation:ci composer script [\#236](https://github.com/Zeflous/zeflous/pull/236) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): reverse routing url generation [\#232](https://github.com/Zeflous/zeflous/pull/232) ([mbetixz](https://github.com/mbetixz))
 - feat\(config\): compile routes into an immutable radix tree [\#229](https://github.com/Zeflous/zeflous/pull/229) ([mbetixz](https://github.com/mbetixz))
 - refactor\(config\): move the radix route grammar under the configuration system [\#223](https://github.com/Zeflous/zeflous/pull/223) ([mbetixz](https://github.com/mbetixz))
