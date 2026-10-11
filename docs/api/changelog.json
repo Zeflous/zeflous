@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T07:43:01Z",
+  "as_of": "2026-10-11T08:20:19Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 109,
+  "unreleased_count": 110,
   "versions": [
     {
       "version": "Unreleased",
@@ -515,6 +515,27 @@
                 "sha": "8951297fdc74e6688130c352612d86382ce76178",
                 "short_sha": "8951297",
                 "subject": "Merge branch 'main' into feat/config-reverse-routing"
+              }
+            ]
+          },
+          {
+            "pr": 240,
+            "title": "feat(config): route dsl fluent compiler",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T08:20:19Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/240",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "9237f467288b426057e212ba78b50d76cbb5d520",
+                "short_sha": "9237f46",
+                "subject": "feat(config): route dsl fluent compiler"
+              },
+              {
+                "sha": "fe1085819bc4b2870461327c6c1d21bbbd8cb055",
+                "short_sha": "fe10858",
+                "subject": "Merge branch 'main' into feat/config-route-dsl"
               }
             ]
           }
@@ -5511,6 +5532,27 @@
               "sha": "a8185af6e6c0571fce1965f393b5295c512bc523",
               "short_sha": "a8185af",
               "subject": "chore(ci): remove unreferenced mutation:ci composer script"
+            }
+          ]
+        },
+        {
+          "pr": 240,
+          "title": "feat(config): route dsl fluent compiler",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T08:20:19Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/240",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "9237f467288b426057e212ba78b50d76cbb5d520",
+              "short_sha": "9237f46",
+              "subject": "feat(config): route dsl fluent compiler"
+            },
+            {
+              "sha": "fe1085819bc4b2870461327c6c1d21bbbd8cb055",
+              "short_sha": "fe10858",
+              "subject": "Merge branch 'main' into feat/config-route-dsl"
             }
           ]
         }
