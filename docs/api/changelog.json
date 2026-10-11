@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T14:53:33Z",
+  "as_of": "2026-10-11T16:51:57Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 114,
+  "unreleased_count": 115,
   "versions": [
     {
       "version": "Unreleased",
@@ -665,6 +665,32 @@
                 "sha": "2730158078f81c770a7253dfa25c19a24a9895ad",
                 "short_sha": "2730158",
                 "subject": "fix(config): satisfy the newline-before-assign rule in the dispatcher test"
+              }
+            ]
+          },
+          {
+            "pr": 256,
+            "title": "feat(http): vendor the psr message contracts and the stream engine",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T16:51:57Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/256",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f361e3f4e360eff01aa9d4592982f1879c545a42",
+                "short_sha": "f361e3f",
+                "subject": "feat(http): vendor the psr message contracts and the stream engine"
+              },
+              {
+                "sha": "8ce6e8d0ce2b5c5a9f2a82002f41648e008b7fdd",
+                "short_sha": "8ce6e8d",
+                "subject": "docs(roadmap): pin the stream engine history row to pull request 256"
+              },
+              {
+                "sha": "2dc85426b9c2b39857b19b18c7a8922929fad15c",
+                "short_sha": "2dc8542",
+                "subject": "test(http): declare the stream position collaborator as covered"
               }
             ]
           }
@@ -5811,6 +5837,32 @@
               "sha": "2730158078f81c770a7253dfa25c19a24a9895ad",
               "short_sha": "2730158",
               "subject": "fix(config): satisfy the newline-before-assign rule in the dispatcher test"
+            }
+          ]
+        },
+        {
+          "pr": 256,
+          "title": "feat(http): vendor the psr message contracts and the stream engine",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T16:51:57Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/256",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f361e3f4e360eff01aa9d4592982f1879c545a42",
+              "short_sha": "f361e3f",
+              "subject": "feat(http): vendor the psr message contracts and the stream engine"
+            },
+            {
+              "sha": "8ce6e8d0ce2b5c5a9f2a82002f41648e008b7fdd",
+              "short_sha": "8ce6e8d",
+              "subject": "docs(roadmap): pin the stream engine history row to pull request 256"
+            },
+            {
+              "sha": "2dc85426b9c2b39857b19b18c7a8922929fad15c",
+              "short_sha": "2dc8542",
+              "subject": "test(http): declare the stream position collaborator as covered"
             }
           ]
         }
