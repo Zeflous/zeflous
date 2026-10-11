@@ -28,6 +28,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(router): parse route paths into static and parameter segments [#211](https://github.com/Zeflous/zeflous/pull/211) ([mbetixz](https://github.com/mbetixz))
 - feat(config): compile route entries into validated route records [#217](https://github.com/Zeflous/zeflous/pull/217) ([mbetixz](https://github.com/mbetixz))
 - feat(config): compile routes into an immutable radix tree [#229](https://github.com/Zeflous/zeflous/pull/229) ([mbetixz](https://github.com/mbetixz))
+- feat(config): reverse routing url generation [#232](https://github.com/Zeflous/zeflous/pull/232) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
