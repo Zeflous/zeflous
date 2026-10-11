@@ -28,6 +28,15 @@ final class RoutePathTest extends TestCase
         self::assertSame([], $routePath->segments());
         self::assertSame([], $routePath->parameterNames());
         self::assertSame('/', $routePath->canonical());
+        self::assertSame('/', $routePath->pattern());
+    }
+
+    public function testKeepsThePatternVerbatim(): void
+    {
+        $routePath = RoutePath::parse('/users/{id}/posts');
+
+        self::assertSame('/users/{id}/posts', $routePath->pattern());
+        self::assertSame('/users/{}/posts', $routePath->canonical());
     }
 
     public function testParsesAStaticPath(): void
