@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T03:19:11Z",
+  "as_of": "2026-10-11T04:28:15Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 106,
+  "unreleased_count": 107,
   "versions": [
     {
       "version": "Unreleased",
@@ -448,6 +448,42 @@
                 "sha": "1319ebbb4ae72b3abf5afff877c4d64d74a0c420",
                 "short_sha": "1319ebb",
                 "subject": "Merge branch 'main' into feat/router-route-records"
+              }
+            ]
+          },
+          {
+            "pr": 229,
+            "title": "feat(config): compile routes into an immutable radix tree",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T04:28:15Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/229",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "90916958e2acee289d7276bc603e4aee1388fdf7",
+                "short_sha": "9091695",
+                "subject": "feat(config): compile routes into an immutable radix tree"
+              },
+              {
+                "sha": "de1a7b8a571db87f1e422b335a03c65a519c8d84",
+                "short_sha": "de1a7b8",
+                "subject": "docs(roadmap): record the radix tree engine core"
+              },
+              {
+                "sha": "8e2bbb21e68e0d8738e703c97e9a95db2ac34789",
+                "short_sha": "8e2bbb2",
+                "subject": "docs(roadmap): pin the radix engine history row to pull request 229"
+              },
+              {
+                "sha": "419a365fc463f3edc67c604f76407e85a53f4908",
+                "short_sha": "419a365",
+                "subject": "Merge branch 'main' into feat/config-radix-tree"
+              },
+              {
+                "sha": "8187e457c9f958d7f24a842f513d0d6dab593f5f",
+                "short_sha": "8187e45",
+                "subject": "fix(config): keep the matcher returns within the sonar budget and order the node's private mutator"
               }
             ]
           }
@@ -5345,6 +5381,42 @@
               "sha": "dc0c1c8eb6086a4c26ed90d337ec164d0b0c4a39",
               "short_sha": "dc0c1c8",
               "subject": "test(config): match the catch variable name to the exception type"
+            }
+          ]
+        },
+        {
+          "pr": 229,
+          "title": "feat(config): compile routes into an immutable radix tree",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T04:28:15Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/229",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "90916958e2acee289d7276bc603e4aee1388fdf7",
+              "short_sha": "9091695",
+              "subject": "feat(config): compile routes into an immutable radix tree"
+            },
+            {
+              "sha": "de1a7b8a571db87f1e422b335a03c65a519c8d84",
+              "short_sha": "de1a7b8",
+              "subject": "docs(roadmap): record the radix tree engine core"
+            },
+            {
+              "sha": "8e2bbb21e68e0d8738e703c97e9a95db2ac34789",
+              "short_sha": "8e2bbb2",
+              "subject": "docs(roadmap): pin the radix engine history row to pull request 229"
+            },
+            {
+              "sha": "419a365fc463f3edc67c604f76407e85a53f4908",
+              "short_sha": "419a365",
+              "subject": "Merge branch 'main' into feat/config-radix-tree"
+            },
+            {
+              "sha": "8187e457c9f958d7f24a842f513d0d6dab593f5f",
+              "short_sha": "8187e45",
+              "subject": "fix(config): keep the matcher returns within the sonar budget and order the node's private mutator"
             }
           ]
         }

@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(config\): compile routes into an immutable radix tree [\#229](https://github.com/Zeflous/zeflous/pull/229) ([mbetixz](https://github.com/mbetixz))
 - refactor\(config\): move the radix route grammar under the configuration system [\#223](https://github.com/Zeflous/zeflous/pull/223) ([mbetixz](https://github.com/mbetixz))
 - chore\(ci\): add --logger-github to the infection composer script [\#220](https://github.com/Zeflous/zeflous/pull/220) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): make CI Strict aggregator event-driven via workflow\_run [\#218](https://github.com/Zeflous/zeflous/pull/218) ([mbetixz](https://github.com/mbetixz))
