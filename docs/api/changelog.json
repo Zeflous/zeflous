@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T16:51:57Z",
+  "as_of": "2026-10-11T20:01:40Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 115,
+  "unreleased_count": 116,
   "versions": [
     {
       "version": "Unreleased",
@@ -691,6 +691,32 @@
                 "sha": "2dc85426b9c2b39857b19b18c7a8922929fad15c",
                 "short_sha": "2dc8542",
                 "subject": "test(http): declare the stream position collaborator as covered"
+              }
+            ]
+          },
+          {
+            "pr": 259,
+            "title": "feat(http): the psr uri value object",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-11T20:01:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/259",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "810d8ba6f7c0cbf110957de03df6bd29555a155d",
+                "short_sha": "810d8ba",
+                "subject": "feat(http): the psr uri value object"
+              },
+              {
+                "sha": "02ba9dc2a40f79068598ad2119f09a595fc9861e",
+                "short_sha": "02ba9dc",
+                "subject": "Merge branch 'main' into feat/http-uri-value-object"
+              },
+              {
+                "sha": "378e4ff7649be5df3e27a4ed2be132c91caabe8e",
+                "short_sha": "378e4ff",
+                "subject": "docs(roadmap): record the uri value object history row and evidence"
               }
             ]
           }
@@ -5863,6 +5889,32 @@
               "sha": "2dc85426b9c2b39857b19b18c7a8922929fad15c",
               "short_sha": "2dc8542",
               "subject": "test(http): declare the stream position collaborator as covered"
+            }
+          ]
+        },
+        {
+          "pr": 259,
+          "title": "feat(http): the psr uri value object",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-11T20:01:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/259",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "810d8ba6f7c0cbf110957de03df6bd29555a155d",
+              "short_sha": "810d8ba",
+              "subject": "feat(http): the psr uri value object"
+            },
+            {
+              "sha": "02ba9dc2a40f79068598ad2119f09a595fc9861e",
+              "short_sha": "02ba9dc",
+              "subject": "Merge branch 'main' into feat/http-uri-value-object"
+            },
+            {
+              "sha": "378e4ff7649be5df3e27a4ed2be132c91caabe8e",
+              "short_sha": "378e4ff",
+              "subject": "docs(roadmap): record the uri value object history row and evidence"
             }
           ]
         }
