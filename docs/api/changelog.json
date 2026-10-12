@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-12T19:10:04Z",
+  "as_of": "2026-10-12T19:26:33Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 126,
+  "unreleased_count": 127,
   "versions": [
     {
       "version": "Unreleased",
@@ -3066,6 +3066,27 @@
                 "sha": "b82f6ead4cfe651114798ec59b01aee4582c7bb8",
                 "short_sha": "b82f6ea",
                 "subject": "docs(roadmap): pin the superglobal request factory history row to pull request 284"
+              }
+            ]
+          },
+          {
+            "pr": 292,
+            "title": "docs(roadmap): pin the sapi response emitter history row to pull request 289",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-12T19:26:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/292",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d721c8a6663afe77b55b8d5f581192238938a3ff",
+                "short_sha": "d721c8a",
+                "subject": "docs(roadmap): pin the sapi response emitter history row to pull request 289"
+              },
+              {
+                "sha": "c72c6398e9b97909c60884d1c595052e522c1b19",
+                "short_sha": "c72c639",
+                "subject": "Merge branch 'main' into docs/roadmap-emitter-row"
               }
             ]
           }
@@ -6395,6 +6416,27 @@
               "sha": "3b9fd4cae25998f968fd76c30e92c47f164f0c0b",
               "short_sha": "3b9fd4c",
               "subject": "feat(http): the sapi response emitter"
+            }
+          ]
+        },
+        {
+          "pr": 292,
+          "title": "docs(roadmap): pin the sapi response emitter history row to pull request 289",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-12T19:26:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/292",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d721c8a6663afe77b55b8d5f581192238938a3ff",
+              "short_sha": "d721c8a",
+              "subject": "docs(roadmap): pin the sapi response emitter history row to pull request 289"
+            },
+            {
+              "sha": "c72c6398e9b97909c60884d1c595052e522c1b19",
+              "short_sha": "c72c639",
+              "subject": "Merge branch 'main' into docs/roadmap-emitter-row"
             }
           ]
         }
