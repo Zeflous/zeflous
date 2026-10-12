@@ -70,14 +70,9 @@
   </file>
   <file src="src/Contracts/Psr/Http/Message/StreamInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[close]]></code>
       <code><![CDATA[detach]]></code>
-      <code><![CDATA[eof]]></code>
       <code><![CDATA[getMetadata]]></code>
-      <code><![CDATA[getSize]]></code>
       <code><![CDATA[isWritable]]></code>
-      <code><![CDATA[read]]></code>
-      <code><![CDATA[tell]]></code>
     </PossiblyUnusedMethod>
     <PossiblyUnusedReturnValue>
       <code><![CDATA[int]]></code>
