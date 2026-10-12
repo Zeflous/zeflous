@@ -116,3 +116,45 @@ archeology gate PASSED, baseline psalm dipangkas seiring konsumen mendarat. Yang
 (milik fase/lane lain): runtime adapter superglobal→ServerRequest + emitter (Fase 2),
 `MiddlewareInterface`/`RequestHandlerInterface` konsumsi pipeline (lane 3), security
 (trustedHosts, CORS, ETag, request-body policy — Fase 3), bench hot-path (menunggu emitter).
+
+## Fase 2 — KDD-H10/H11 (superglobal request factory)
+
+**H10 — klaim key-folding PSR bag.** PHP melipat numeric-string array key ke bentuk integer
+pada setiap insert, sehingga kunci integer sebuah bag SAPI ADALAH bentuk kanonik engine dari
+numeric-string key-nya — dua key `0` dan `'0'` tidak dapat dibedakan lewat observasi PHP
+mana pun. Kontrak PSR vendored mendeklarasikan bag-bag itu `array<string, mixed>`; parameter
+factory tetap jujur array-keyed, dan empat seam `@var` (satu di `fromGlobals` untuk `$_SERVER`,
+tiga di `fromServer` untuk cookie/query/uploads) menyatakan klaim kontrak pada titik temu —
+pola standar ekosistem PSR, tanpa kode runtime, sehingga bebas mutant (CastString pada
+re-keying runtime akan menjadi mutant identitas yang abadi).
+
+**H11 — grammar-collaborator melawan mutant MBString posisi.** Rector mengonversi
+`strpos/substr/strlen/strtolower` ke `mb_*`; mutator MBString (aktif dalam `@default` lewat
+`@extensions`) mencongkelnya kembali ke versi byte. Untuk semantik Unicode (case fold, trim)
+mutan itu terbunuh lewat boundary Unicode (Kelvin sign U+212A, long-s U+017F, NBSP). Untuk
+POSISI pada konteks yang input multibyte-nya pasti invalid (host/label), mutan versi byte
+bersifat identik-observabel (abadi) — maka kolaborator grammar ditulis sebagai satu pattern
+anchored (`BracketedAuthority`, `DnsHost`) atau explode+count (`BareAuthority`), mengikuti
+gaya rumah UriParser/HeaderGrammar (parse_url + preg_match, bukan fungsi posisi). Fungsi
+`mb_trim`/`mb_rtrim` TIDAK termasuk daftar konversi mutator — bebas mutan secara gratis.
+
+Pola battle tambahan lane ini:
+
+- **Mutasi tertutupi normalisasi Uri**: port default (`:80`/`:443`) dinormalkan oleh `Uri`
+  sendiri (PSR-7 getPort null untuk port standar) — mutan `isDefaultSchemePort` tertutupi
+  pada observasi uri-string; dibunuh lewat unit test langsung `ServerPort::resolve` (matriks
+  11 kasus), bukan lewat fromServer.
+- **Mut early-return ekuivalen-jatuh**: `return false`/`return ''` yang jalur jatuhnya
+  (fall-through) menghasilkan jawaban sama bersifat abadi — direstrukturisasi (flatten
+  ekspresi, gabung guard) atau dibunuh lewat kasus yang mengekspos determinasi berlebih
+  (mis. `SCRIPT_NAME='/'` → `basename('/')=''` membuka flip `(A||B)&&C`).
+- **Mutan Coalesce port vs authority**: `$authorityPort ?? resolve(...)` dibalik mutan —
+  dibunuh lewat kasus authority-port-vs-SERVER_PORT (8443 menang atas 8080).
+- **Ghost-downgrade menutupi koersi error**: error `'4'` (NO_FILE) menjadikan mutan koersi
+  tak-terbedakan — matriks koersi memakai `'7'` (CANT_WRITE) + payload nyata.
+- **Continue_→break pada passthrough**: dibunuh lewat leaf pra-ternormalisasi (objek
+  UploadedFile langsung di `$_FILES`) SEBELUM field spec — break menghentikan walk field
+  berikutnya.
+- **Karakter kontrol authority**: pre-check `[\x00-\x20\x7f@\/?#]` legacy terbukti redundan
+  secara observabel (semua byte itu juga gagal grammar IP/DNS) — dilipat ke delegasi
+  validitas, pesan exception identik.
