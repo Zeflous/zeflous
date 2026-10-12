@@ -14,11 +14,6 @@
       <code><![CDATA[withoutHeader]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Contracts/Psr/Http/Message/RequestFactoryInterface.php">
-    <UnusedClass>
-      <code><![CDATA[RequestFactoryInterface]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/Contracts/Psr/Http/Message/RequestInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getMethod]]></code>
@@ -29,22 +24,12 @@
       <code><![CDATA[withUri]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
-    <UnusedClass>
-      <code><![CDATA[ResponseFactoryInterface]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/Contracts/Psr/Http/Message/ResponseInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getReasonPhrase]]></code>
       <code><![CDATA[getStatusCode]]></code>
       <code><![CDATA[withStatus]]></code>
     </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Contracts/Psr/Http/Message/ServerRequestFactoryInterface.php">
-    <UnusedClass>
-      <code><![CDATA[ServerRequestFactoryInterface]]></code>
-    </UnusedClass>
   </file>
   <file src="src/Contracts/Psr/Http/Message/ServerRequestInterface.php">
     <PossiblyUnusedMethod>
@@ -63,11 +48,6 @@
       <code><![CDATA[withoutAttribute]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Contracts/Psr/Http/Message/StreamFactoryInterface.php">
-    <UnusedClass>
-      <code><![CDATA[StreamFactoryInterface]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/Contracts/Psr/Http/Message/StreamInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[detach]]></code>
@@ -77,11 +57,6 @@
     <PossiblyUnusedReturnValue>
       <code><![CDATA[int]]></code>
     </PossiblyUnusedReturnValue>
-  </file>
-  <file src="src/Contracts/Psr/Http/Message/UploadedFileFactoryInterface.php">
-    <UnusedClass>
-      <code><![CDATA[UploadedFileFactoryInterface]]></code>
-    </UnusedClass>
   </file>
   <file src="src/Contracts/Psr/Http/Message/UploadedFileInterface.php">
     <PossiblyUnusedMethod>
@@ -93,10 +68,37 @@
       <code><![CDATA[moveTo]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Contracts/Psr/Http/Message/RequestFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createRequest]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createResponse]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/ServerRequestFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createServerRequest]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/StreamFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createStream]]></code>
+      <code><![CDATA[createStreamFromFile]]></code>
+      <code><![CDATA[createStreamFromResource]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/UploadedFileFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createUploadedFile]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Contracts/Psr/Http/Message/UriFactoryInterface.php">
-    <UnusedClass>
-      <code><![CDATA[UriFactoryInterface]]></code>
-    </UnusedClass>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createUri]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Contracts/Psr/Http/Message/UriInterface.php">
     <PossiblyUnusedMethod>
