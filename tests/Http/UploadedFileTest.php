@@ -113,7 +113,7 @@ final class UploadedFileTest extends TestCase
 
         $uploadedFile->moveTo($target);
 
-        self::assertStringEqualsFile($target, 'uploaded payload');
+        self::assertSame('uploaded payload', file_get_contents($target));
         self::assertSame([], glob(\dirname($target) . '/*.zef-tmp-*'));
         $this->assertThrows('Stream detached.', static function () use ($stream): void {
             $stream->tell();
@@ -133,7 +133,7 @@ final class UploadedFileTest extends TestCase
 
         $uploadedFile->moveTo($target);
 
-        self::assertStringEqualsFile($target, 'AB');
+        self::assertSame('AB', file_get_contents($target));
     }
 
     public function testMoveToRejectsAnEmptyTargetPath(): void
