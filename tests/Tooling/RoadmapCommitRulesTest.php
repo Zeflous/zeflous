@@ -93,6 +93,80 @@ final class RoadmapCommitRulesTest extends TestCase
         self::assertSame([], RoadmapCommitRules::invalidCommitCells('CLEAN.md', $lines));
     }
 
+    public function testDoesNotTreatANonSeparatorRowAsASeparator(): void
+    {
+        // A data row whose cells merely END with `---` (or merely START with
+        // `---`) is NOT a separator row: the separator pattern is anchored on
+        // both ends. If either anchor is dropped, this row is misclassified as
+        // a separator and its invalid Commit cell escapes the rule.
+        $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| x--- | y--- | z--- | w--- |\n";
+        $lines = explode("\n", $document);
+
+        $failures = RoadmapCommitRules::invalidCommitCells('BROKEN.md', $lines);
+
+        self::assertCount(1, $failures);
+        self::assertSame(
+            'BROKEN.md:3 has a Commit cell that is not a merge SHA ("w---").',
+            $failures[0],
+        );
+    }
+
+    public function testScansPastNonTableLinesBeforeABrokenRow(): void
+    {
+        // A non-table line precedes the broken table. The scan must CONTINUE
+        // past it (not break), otherwise the invalid Commit cell is never
+        // reached and the defect escapes.
+        $document = "# Title\n\n| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| a | #1 | 2026-10-07 | `PENDING` |\n";
+        $lines = explode("\n", $document);
+
+        $failures = RoadmapCommitRules::invalidCommitCells('BROKEN.md', $lines);
+
+        self::assertCount(1, $failures);
+        self::assertSame(
+            'BROKEN.md:5 has a Commit cell that is not a merge SHA ("`PENDING`").',
+            $failures[0],
+        );
+    }
+
+    public function testRejectsACellWithTrailingJunkAfterAValidPrefix(): void
+    {
+        // A cell that STARTS with a valid SHA but carries trailing junk is not
+        // a SHA: the pattern is anchored at the end. If `$` is dropped, this
+        // cell is accepted and the defect escapes.
+        $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| a | #1 | 2026-10-07 | `f6aa0dbeb8x` |\n";
+        $lines = explode("\n", $document);
+
+        $failures = RoadmapCommitRules::invalidCommitCells('BROKEN.md', $lines);
+
+        self::assertCount(1, $failures);
+        self::assertSame(
+            'BROKEN.md:3 has a Commit cell that is not a merge SHA ("`f6aa0dbeb8x`").',
+            $failures[0],
+        );
+    }
+
+    public function testDoesNotTreatACellWithTrailingJunkAsASeparator(): void
+    {
+        // A cell that STARTS with `---` but carries trailing junk is not a
+        // separator: the separator pattern is anchored at the end. If `$` is
+        // dropped, the row is misclassified as a separator and its invalid
+        // Commit cell escapes.
+        $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| ---x | ---x | ---x | ---x |\n";
+        $lines = explode("\n", $document);
+
+        $failures = RoadmapCommitRules::invalidCommitCells('BROKEN.md', $lines);
+
+        self::assertCount(1, $failures);
+        self::assertSame(
+            'BROKEN.md:3 has a Commit cell that is not a merge SHA ("---x").',
+            $failures[0],
+        );
+    }
+
     public function testAcceptsAFullFortyCharacterSha(): void
     {
         $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"

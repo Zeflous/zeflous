@@ -86,7 +86,7 @@ final class RoadmapCommitRules
     private static function commitColumn(array $cells): ?int
     {
         foreach ($cells as $position => $cell) {
-            if (mb_strtolower($cell) === 'commit') {
+            if (strcasecmp($cell, 'commit') === 0) {
                 return $position;
             }
         }
