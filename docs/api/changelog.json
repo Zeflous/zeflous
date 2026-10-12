@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-12T06:40:00Z",
+  "as_of": "2026-10-12T09:20:39Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 119,
+  "unreleased_count": 121,
   "versions": [
     {
       "version": "Unreleased",
@@ -769,6 +769,42 @@
                 "sha": "c356b176a3556023a0058ad8b42c3773d99ad34e",
                 "short_sha": "c356b17",
                 "subject": "fix(http): scope the abstract-or-final sniff for the request hierarchy"
+              }
+            ]
+          },
+          {
+            "pr": 271,
+            "title": "feat(http): the psr uploaded file",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-12T09:03:08Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/271",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "bec1cf9e804ca456c3eeadc649e2cd7ee7722e56",
+                "short_sha": "bec1cf9",
+                "subject": "feat(http): the psr uploaded file"
+              },
+              {
+                "sha": "ed086b4fbac712ff7c477498203209d64e96e40f",
+                "short_sha": "ed086b4",
+                "subject": "docs(roadmap): record the psr uploaded file history row"
+              },
+              {
+                "sha": "35bab14c5c3a1d1e3e8e1d4674b024f54599b93d",
+                "short_sha": "35bab14",
+                "subject": "Revert \"docs(roadmap): record the psr uploaded file history row\""
+              },
+              {
+                "sha": "3603011316976a60178ed308f42df09522d741fb",
+                "short_sha": "3603011",
+                "subject": "docs(roadmap): extend the status evidence for the uploaded file object"
+              },
+              {
+                "sha": "1bf2595a1f0814949e8c23516fa7bec864932b78",
+                "short_sha": "1bf2595",
+                "subject": "fix(http): assert the moved payload through assertSame over file_get_contents"
               }
             ]
           }
@@ -2914,6 +2950,27 @@
                 "sha": "528fa98d69776fdbadf6210c3b19325ac1ecd00b",
                 "short_sha": "528fa98",
                 "subject": "docs(contributing): require roadmap history and status updates after implementation"
+              }
+            ]
+          },
+          {
+            "pr": 272,
+            "title": "docs(roadmap): pin the uploaded file history row to pull request 271",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-12T09:20:39Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/272",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "af73a36dc379bece415ece2766b535b2c989efd0",
+                "short_sha": "af73a36",
+                "subject": "docs(roadmap): pin the uploaded file history row to pull request 271"
+              },
+              {
+                "sha": "8cd2d815f9b3a82ea2efc40ec8112f3d348e3f2e",
+                "short_sha": "8cd2d81",
+                "subject": "Merge branch 'main' into docs/roadmap-uploaded-file-row"
               }
             ]
           }
@@ -6091,6 +6148,63 @@
               "sha": "a05c2ad2e6e68e4a24daf2dd1921dd882cc32635",
               "short_sha": "a05c2ad",
               "subject": "test(roadmap): kill the CI-reported escaped mutants (continue-past-valid, caret anchor)"
+            }
+          ]
+        },
+        {
+          "pr": 271,
+          "title": "feat(http): the psr uploaded file",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-12T09:03:08Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/271",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "bec1cf9e804ca456c3eeadc649e2cd7ee7722e56",
+              "short_sha": "bec1cf9",
+              "subject": "feat(http): the psr uploaded file"
+            },
+            {
+              "sha": "ed086b4fbac712ff7c477498203209d64e96e40f",
+              "short_sha": "ed086b4",
+              "subject": "docs(roadmap): record the psr uploaded file history row"
+            },
+            {
+              "sha": "35bab14c5c3a1d1e3e8e1d4674b024f54599b93d",
+              "short_sha": "35bab14",
+              "subject": "Revert \"docs(roadmap): record the psr uploaded file history row\""
+            },
+            {
+              "sha": "3603011316976a60178ed308f42df09522d741fb",
+              "short_sha": "3603011",
+              "subject": "docs(roadmap): extend the status evidence for the uploaded file object"
+            },
+            {
+              "sha": "1bf2595a1f0814949e8c23516fa7bec864932b78",
+              "short_sha": "1bf2595",
+              "subject": "fix(http): assert the moved payload through assertSame over file_get_contents"
+            }
+          ]
+        },
+        {
+          "pr": 272,
+          "title": "docs(roadmap): pin the uploaded file history row to pull request 271",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-12T09:20:39Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/272",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "af73a36dc379bece415ece2766b535b2c989efd0",
+              "short_sha": "af73a36",
+              "subject": "docs(roadmap): pin the uploaded file history row to pull request 271"
+            },
+            {
+              "sha": "8cd2d815f9b3a82ea2efc40ec8112f3d348e3f2e",
+              "short_sha": "8cd2d81",
+              "subject": "Merge branch 'main' into docs/roadmap-uploaded-file-row"
             }
           ]
         }
