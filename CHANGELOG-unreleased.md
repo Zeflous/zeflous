@@ -138,6 +138,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the uploaded file history row to pull request 271 [#272](https://github.com/Zeflous/zeflous/pull/272) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the psr message factory history row to pull request 279 [#282](https://github.com/Zeflous/zeflous/pull/282) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the superglobal request factory history row to pull request 284 [#285](https://github.com/Zeflous/zeflous/pull/285) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the sapi response emitter history row to pull request 289 [#292](https://github.com/Zeflous/zeflous/pull/292) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
