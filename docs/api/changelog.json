@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-12T19:26:33Z",
+  "as_of": "2026-10-12T21:51:55Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 127,
+  "unreleased_count": 129,
   "versions": [
     {
       "version": "Unreleased",
@@ -868,6 +868,22 @@
                 "sha": "3b9fd4cae25998f968fd76c30e92c47f164f0c0b",
                 "short_sha": "3b9fd4c",
                 "subject": "feat(http): the sapi response emitter"
+              }
+            ]
+          },
+          {
+            "pr": 294,
+            "title": "feat(http): the request body policy and limited input stream",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-12T21:41:19Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/294",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "71b0875637587c1f21083827d7b8fcb5b3b09425",
+                "short_sha": "71b0875",
+                "subject": "feat(http): the request body policy and limited input stream"
               }
             ]
           }
@@ -3087,6 +3103,22 @@
                 "sha": "c72c6398e9b97909c60884d1c595052e522c1b19",
                 "short_sha": "c72c639",
                 "subject": "Merge branch 'main' into docs/roadmap-emitter-row"
+              }
+            ]
+          },
+          {
+            "pr": 295,
+            "title": "docs(roadmap): pin the request body policy history row to pull request 294",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-12T21:51:55Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/295",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b64600d98723ce0df45dfadd589acf34cb7216f5",
+                "short_sha": "b64600d",
+                "subject": "docs(roadmap): pin the request body policy history row to pull request 294"
               }
             ]
           }
@@ -6437,6 +6469,38 @@
               "sha": "c72c6398e9b97909c60884d1c595052e522c1b19",
               "short_sha": "c72c639",
               "subject": "Merge branch 'main' into docs/roadmap-emitter-row"
+            }
+          ]
+        },
+        {
+          "pr": 294,
+          "title": "feat(http): the request body policy and limited input stream",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-12T21:41:19Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/294",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "71b0875637587c1f21083827d7b8fcb5b3b09425",
+              "short_sha": "71b0875",
+              "subject": "feat(http): the request body policy and limited input stream"
+            }
+          ]
+        },
+        {
+          "pr": 295,
+          "title": "docs(roadmap): pin the request body policy history row to pull request 294",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-12T21:51:55Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/295",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b64600d98723ce0df45dfadd589acf34cb7216f5",
+              "short_sha": "b64600d",
+              "subject": "docs(roadmap): pin the request body policy history row to pull request 294"
             }
           ]
         }
