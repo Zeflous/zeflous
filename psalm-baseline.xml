@@ -4,7 +4,6 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[getBody]]></code>
       <code><![CDATA[getHeader]]></code>
-      <code><![CDATA[getHeaderLine]]></code>
       <code><![CDATA[getHeaders]]></code>
       <code><![CDATA[getProtocolVersion]]></code>
       <code><![CDATA[hasHeader]]></code>
@@ -108,10 +107,6 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[getAuthority]]></code>
       <code><![CDATA[getFragment]]></code>
-      <code><![CDATA[getHost]]></code>
-      <code><![CDATA[getPath]]></code>
-      <code><![CDATA[getPort]]></code>
-      <code><![CDATA[getQuery]]></code>
       <code><![CDATA[getScheme]]></code>
       <code><![CDATA[getUserInfo]]></code>
       <code><![CDATA[withFragment]]></code>

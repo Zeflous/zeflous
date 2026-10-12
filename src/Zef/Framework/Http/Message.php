@@ -21,10 +21,18 @@ use Psr\Http\Message\StreamInterface;
  */
 abstract class Message implements MessageInterface
 {
+    /**
+     * Shared with the request half of the hierarchy: the request line
+     * bootstraps the Host header from the URI on construction and
+     * refreshes it through `withUri()`, both as a copy-on-write over the
+     * same immutable store the message mutations use (a clone plus one
+     * assignment, the seam the reference implementation's
+     * `addInitialHeader()` used to expose).
+     */
+    protected HeaderStore $headerStore;
+
     /** @var non-empty-string */
     private string $protocolVersion;
-
-    private HeaderStore $headerStore;
 
     private StreamInterface $stream;
 

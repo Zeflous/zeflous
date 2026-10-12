@@ -27,6 +27,17 @@
     </rule>
 
     <!-- Strict types -->
+    <!--
+        The PSR-7 interface hierarchy (RequestInterface <- ServerRequestInterface)
+        is mirrored by the implementation classes: Request is the deliberately
+        non-final parent of ServerRequest, because the repository carries zero
+        traits, so the legacy RequestTrait's shared request-line behaviour
+        became inheritance. A concrete instantiable outgoing request cannot be
+        abstract, so this one class stays neither abstract nor final.
+    -->
+    <rule ref="SlevomatCodingStandard.Classes.RequireAbstractOrFinal.ClassNeitherAbstractNorFinal">
+        <exclude-pattern>*/src/Zef/Framework/Http/Request.php</exclude-pattern>
+    </rule>
     <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
         <properties>
             <property name="declareOnFirstLine" value="false"/>
