@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(http\): the psr uploaded file [\#271](https://github.com/Zeflous/zeflous/pull/271) ([mbetixz](https://github.com/mbetixz))
 - fix\(roadmap\): close F-1..F-3 from the PR \#240-262 review [\#266](https://github.com/Zeflous/zeflous/pull/266) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the psr request objects [\#265](https://github.com/Zeflous/zeflous/pull/265) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the psr message headers and response [\#262](https://github.com/Zeflous/zeflous/pull/262) ([mbetixz](https://github.com/mbetixz))
