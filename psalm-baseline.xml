@@ -2,16 +2,18 @@
 <files psalm-version="6.19.2@fa716e443b23e6fa35bf58907e67ca692ec3c00a">
   <file src="src/Contracts/Psr/Http/Message/MessageInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[getBody]]></code>
       <code><![CDATA[getHeader]]></code>
-      <code><![CDATA[getHeaders]]></code>
       <code><![CDATA[getProtocolVersion]]></code>
       <code><![CDATA[hasHeader]]></code>
       <code><![CDATA[withAddedHeader]]></code>
       <code><![CDATA[withBody]]></code>
       <code><![CDATA[withHeader]]></code>
       <code><![CDATA[withProtocolVersion]]></code>
-      <code><![CDATA[withoutHeader]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/RequestFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createRequest]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Contracts/Psr/Http/Message/RequestInterface.php">
@@ -24,11 +26,20 @@
       <code><![CDATA[withUri]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createResponse]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Contracts/Psr/Http/Message/ResponseInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getReasonPhrase]]></code>
-      <code><![CDATA[getStatusCode]]></code>
       <code><![CDATA[withStatus]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Contracts/Psr/Http/Message/ServerRequestFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createServerRequest]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Contracts/Psr/Http/Message/ServerRequestInterface.php">
@@ -48,6 +59,13 @@
       <code><![CDATA[withoutAttribute]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Contracts/Psr/Http/Message/StreamFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createStream]]></code>
+      <code><![CDATA[createStreamFromFile]]></code>
+      <code><![CDATA[createStreamFromResource]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Contracts/Psr/Http/Message/StreamInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[detach]]></code>
@@ -58,6 +76,11 @@
       <code><![CDATA[int]]></code>
     </PossiblyUnusedReturnValue>
   </file>
+  <file src="src/Contracts/Psr/Http/Message/UploadedFileFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createUploadedFile]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Contracts/Psr/Http/Message/UploadedFileInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getClientFilename]]></code>
@@ -66,33 +89,6 @@
       <code><![CDATA[getSize]]></code>
       <code><![CDATA[getStream]]></code>
       <code><![CDATA[moveTo]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Contracts/Psr/Http/Message/RequestFactoryInterface.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[createRequest]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[createResponse]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Contracts/Psr/Http/Message/ServerRequestFactoryInterface.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[createServerRequest]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Contracts/Psr/Http/Message/StreamFactoryInterface.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[createStream]]></code>
-      <code><![CDATA[createStreamFromFile]]></code>
-      <code><![CDATA[createStreamFromResource]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Contracts/Psr/Http/Message/UploadedFileFactoryInterface.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[createUploadedFile]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Contracts/Psr/Http/Message/UriFactoryInterface.php">
@@ -141,24 +137,24 @@
       <code><![CDATA[isHealthy]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Kernel.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[version]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Zef/Framework/Http/RequestFactory.php">
     <UnusedClass>
       <code><![CDATA[RequestFactory]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Http/ServerProtocol.php">
-    <MoreSpecificReturnType>
-      <code><![CDATA[non-empty-string]]></code>
-    </MoreSpecificReturnType>
     <LessSpecificReturnStatement>
       <code><![CDATA[$matches[1]]]></code>
       <code><![CDATA[$matches[1]]]></code>
     </LessSpecificReturnStatement>
+    <MoreSpecificReturnType>
+      <code><![CDATA[non-empty-string]]></code>
+    </MoreSpecificReturnType>
+  </file>
+  <file src="src/Zef/Framework/Kernel.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[version]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Message/Message.php">
     <UnusedClass>

@@ -19,7 +19,21 @@
         "configDir": "."
     },
     "mutators": {
-        "@default": true
+        "@default": true,
+        // The SAPI header() call is the one function whose removal no test
+        // process can observe: the CLI SAPI silently discards header fields
+        // (headers_list() stays empty even while headers_sent() answers
+        // false -- verified against the engine), so the real-branch call in
+        // SapiTransmitter::field() is executed for coverage but is
+        // structurally unverifiable in a phpunit process. The neighbouring
+        // http_response_code() call stays under the mutator: the CLI keeps
+        // its state observable and its removal is killed by the real-SAPI
+        // test. This ignore is scoped to that single method.
+        "FunctionCallRemoval": {
+            "ignore": [
+                "Zef\\Framework\\Http\\SapiTransmitter::field"
+            ]
+        }
     },
     "minMsi": 100,
     "minCoveredMsi": 100,
