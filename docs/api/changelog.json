@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-12T06:15:12Z",
+  "as_of": "2026-10-12T06:40:00Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 118,
+  "unreleased_count": 119,
   "versions": [
     {
       "version": "Unreleased",
@@ -1277,6 +1277,42 @@
                 "sha": "3ca8f86007c587bcb63e8eb69447dc9d072a9703",
                 "short_sha": "3ca8f86",
                 "subject": "fix(ci): make CI Strict aggregator event-driven via workflow_run"
+              }
+            ]
+          },
+          {
+            "pr": 266,
+            "title": "fix(roadmap): close F-1..F-3 from the PR #240-262 review",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-12T06:40:00Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/266",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4726397ba9dedfa3a2db2f4937a044e526f74e3a",
+                "short_sha": "4726397",
+                "subject": "fix(roadmap): correct PENDING placeholders, align Not-yet-done, refresh pointers (F-1..F-3)"
+              },
+              {
+                "sha": "4f6ec612f8755e7049185f8c5bd90910d290e9a8",
+                "short_sha": "4f6ec61",
+                "subject": "test(roadmap): kill the escaped commit-cell mutants (MSI 100)"
+              },
+              {
+                "sha": "0589fa8d013869d34463581f2b86d5b1c274814f",
+                "short_sha": "0589fa8",
+                "subject": "Merge branch 'main' into fix/roadmap-f1-f3"
+              },
+              {
+                "sha": "c1a8722fe4fda9441ec28c3c4c1738d9d774b939",
+                "short_sha": "c1a8722",
+                "subject": "Merge branch 'main' into fix/roadmap-f1-f3"
+              },
+              {
+                "sha": "a05c2ad2e6e68e4a24daf2dd1921dd882cc32635",
+                "short_sha": "a05c2ad",
+                "subject": "test(roadmap): kill the CI-reported escaped mutants (continue-past-valid, caret anchor)"
               }
             ]
           }
@@ -6019,6 +6055,42 @@
               "sha": "c356b176a3556023a0058ad8b42c3773d99ad34e",
               "short_sha": "c356b17",
               "subject": "fix(http): scope the abstract-or-final sniff for the request hierarchy"
+            }
+          ]
+        },
+        {
+          "pr": 266,
+          "title": "fix(roadmap): close F-1..F-3 from the PR #240-262 review",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-12T06:40:00Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/266",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4726397ba9dedfa3a2db2f4937a044e526f74e3a",
+              "short_sha": "4726397",
+              "subject": "fix(roadmap): correct PENDING placeholders, align Not-yet-done, refresh pointers (F-1..F-3)"
+            },
+            {
+              "sha": "4f6ec612f8755e7049185f8c5bd90910d290e9a8",
+              "short_sha": "4f6ec61",
+              "subject": "test(roadmap): kill the escaped commit-cell mutants (MSI 100)"
+            },
+            {
+              "sha": "0589fa8d013869d34463581f2b86d5b1c274814f",
+              "short_sha": "0589fa8",
+              "subject": "Merge branch 'main' into fix/roadmap-f1-f3"
+            },
+            {
+              "sha": "c1a8722fe4fda9441ec28c3c4c1738d9d774b939",
+              "short_sha": "c1a8722",
+              "subject": "Merge branch 'main' into fix/roadmap-f1-f3"
+            },
+            {
+              "sha": "a05c2ad2e6e68e4a24daf2dd1921dd882cc32635",
+              "short_sha": "a05c2ad",
+              "subject": "test(roadmap): kill the CI-reported escaped mutants (continue-past-valid, caret anchor)"
             }
           ]
         }
