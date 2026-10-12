@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-11 · `main` @ `ca6ce131b`
+**Last updated:** 2026-10-12 · `main` @ `e247c83`
 
 **How to read this file**
 
@@ -53,10 +53,10 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Work item | PR | Merged | Commit |
 |---|---|---|---|
 | Composer scaffold — introduces the immutable `Message` envelope (`src/Zef/Framework/Message/Message.php`) | #1 | 2026-10-07 | `f6aa0dbeb8` |
-| Vendored PSR-7/15/17 message contracts (`src/Contracts/Psr/Http/{Message,Server}/`) and the PSR-7 stream engine (`Zef\Framework\Http\`: `Stream` + `StreamOpener`/`StreamMetadata`/`StreamTransfer`/`StreamPosition` collaborators + `HttpException` root, deep-branch engine tests) | #256 | 2026-10-11 | `PENDING` |
-| The PSR-7 URI value object (`Zef\Framework\Http\`: `Uri` + `UriParser`/`UriGrammar`/`UriHostGrammar`/`UriEncoder`/`UriAuthority`/`UriString`/`UriMutations`, Kelvin-sign case-map fold tests, percent-triple boundary matrix, per-wither immutability) | #259 | 2026-10-12 | `PENDING` |
-| The PSR-7 message headers and response (`Zef\Framework\Http\`: `Message` abstract + `Response` + `HeaderStore`/`HeaderGrammar`/`HeaderIndex`/`HeaderTable`/`HeaderAppender`/`HttpVersion`/`HttpStatusLine`/`HttpReasonPhrases`, strcasecmp case-insensitive single-map resolution, RFC 9110 token/field-value/reason-phrase grammars, per-wither immutability) | #262 | 2026-10-12 | `PENDING` |
-| The PSR-7 request objects (`Zef\Framework\Http\`: `Request` + `ServerRequest` over `HttpMethod`/`RequestTarget`/`HostLine`/`UriHostPolicy`/`ParsedBody`/`UploadedTree`, origin-form target derivation + explicit origin/absolute/asterisk overrides with control-byte rejection, Host bootstrap + PSR-7 preserve-host refresh through the protected header-store seam, validated parsed-body/upload-tree bags, per-wither immutability) | #265 | 2026-10-12 | `PENDING` |
+| Vendored PSR-7/15/17 message contracts (`src/Contracts/Psr/Http/{Message,Server}/`) and the PSR-7 stream engine (`Zef\Framework\Http\`: `Stream` + `StreamOpener`/`StreamMetadata`/`StreamTransfer`/`StreamPosition` collaborators + `HttpException` root, deep-branch engine tests) | #256 | 2026-10-11 | `e0d5a32f8` |
+| The PSR-7 URI value object (`Zef\Framework\Http\`: `Uri` + `UriParser`/`UriGrammar`/`UriHostGrammar`/`UriEncoder`/`UriAuthority`/`UriString`/`UriMutations`, Kelvin-sign case-map fold tests, percent-triple boundary matrix, per-wither immutability) | #259 | 2026-10-12 | `c02dad321` |
+| The PSR-7 message headers and response (`Zef\Framework\Http\`: `Message` abstract + `Response` + `HeaderStore`/`HeaderGrammar`/`HeaderIndex`/`HeaderTable`/`HeaderAppender`/`HttpVersion`/`HttpStatusLine`/`HttpReasonPhrases`, strcasecmp case-insensitive single-map resolution, RFC 9110 token/field-value/reason-phrase grammars, per-wither immutability) | #262 | 2026-10-12 | `ec9ab3b6f` |
+| The PSR-7 request objects (`Zef\Framework\Http\`: `Request` + `ServerRequest` over `HttpMethod`/`RequestTarget`/`HostLine`/`UriHostPolicy`/`ParsedBody`/`UploadedTree`, origin-form target derivation + explicit origin/absolute/asterisk overrides with control-byte rejection, Host bootstrap + PSR-7 preserve-host refresh through the protected header-store seam, validated parsed-body/upload-tree bags, per-wither immutability) | #265 | 2026-10-12 | `e247c83f1` |
 
 ## 3. Error Handling
 
@@ -223,7 +223,7 @@ These roadmap areas have **no merged work** yet (see `ROADMAP-STATUS.md` for the
 - **Container** — autowiring, autoconfiguration, injectors, tags, decorator/proxy, compiler passes, DI extension points, PSR-11 service locator.
 - **Router (Radix Tree)** — not started.
 - **Middleware Pipeline** — not started.
-- **HTTP Layer (Zero-Library Shim)** — not started beyond the PSR container shim.
+- **HTTP Layer (Zero-Library Shim)** — the PSR-7/17/15 contract surface is vendored and the first implementation slices have merged (#256 stream engine, #259 URI, #262 message headers + response, #265 request objects); the PSR-17 factory, the runtime adapter (superglobal extraction, emitter) and the security/performance phases remain.
 - **Event Source System** — not started.
 - **Module Integration System** — not started beyond the `ServiceProviderInterface` contract.
 - **Adapters Layer** (view engine, database) — not started.

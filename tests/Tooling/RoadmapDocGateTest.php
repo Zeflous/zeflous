@@ -127,6 +127,31 @@ final class RoadmapDocGateTest extends TestCase
         self::assertStringContainsString('B.md:3', $gateResult->message);
     }
 
+    public function testFailsOnAPlaceholderCommitCell(): void
+    {
+        // The shipped defect: a literal `PENDING` placeholder in the Commit
+        // column. The structural rules accept it, so the gate must catch it
+        // through the commit-cell rule.
+        $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n| a | #1 | 2026-10-07 | `PENDING` |\n";
+
+        $gateResult = new RoadmapDocGate()->evaluate(new RoadmapDocReport(['BROKEN.md' => $document]));
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString(
+            'BROKEN.md:3 has a Commit cell that is not a merge SHA ("`PENDING`").',
+            $gateResult->message,
+        );
+    }
+
+    public function testPassesOnARealCommitCell(): void
+    {
+        $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n| a | #1 | 2026-10-07 | `f6aa0dbeb8` |\n";
+
+        $gateResult = new RoadmapDocGate()->evaluate(new RoadmapDocReport(['CLEAN.md' => $document]));
+
+        self::assertTrue($gateResult->passed);
+    }
+
     public function testPassesOnAnEmptyReport(): void
     {
         $gateResult = new RoadmapDocGate()->evaluate(new RoadmapDocReport([]));
