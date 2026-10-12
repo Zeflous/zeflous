@@ -31,18 +31,33 @@ namespace Zef\Framework\Http;
  * stay honestly array-keyed; the constructor seams re-type the three bags
  * into the contracts' refined view -- the single point where the engine's
  * loose superglobal typing meets the vendored contracts' stricter one.
+ *
+ * The ingress policy closes the input validation gate's eager half: every
+ * request body is served under a {@see RequestBodyPolicy} -- the caller's
+ * or the default two-mebibyte posture, never unlimited -- and the
+ * `Content-Length` claim is judged before the body is even opened, so an
+ * oversized claim fails fast ({@see RequestBodyPolicy::claimExceeds()})
+ * while the delivered stream stays lazily policed by the
+ * {@see LimitedInputStream} wrapper (the eager and the lazy halves are the
+ * same limit; a lying or absent header only decides WHICH half throws).
  */
 final class RequestFactory
 {
     /**
      * Builds the request from the SAPI superglobals.
      *
+     * @param null|RequestBodyPolicy $requestBodyPolicy the ingress policy for the
+     *                                                  request body; null answers the
+     *                                                  default two-mebibyte limit
+     *
      * @return ServerRequest the inbound request the SAPI state describes
      *
      * @throws HttpException when any derived component fails the layer's
      *                       validation (method grammar, target grammar, ...)
+     *                       or the `Content-Length` claim already exceeds the
+     *                       ingress policy
      */
-    public static function fromGlobals(): ServerRequest
+    public static function fromGlobals(?RequestBodyPolicy $requestBodyPolicy = null): ServerRequest
     {
         /** @var array<string, mixed> $server the engine's process state (keys fold: class docblock) */
         $server = $_SERVER;
@@ -53,6 +68,7 @@ final class RequestFactory
             $_COOKIE,
             $_POST !== [] ? $_POST : null,
             $_FILES,
+            $requestBodyPolicy,
         );
     }
 
@@ -64,16 +80,20 @@ final class RequestFactory
      * only for the two form media types -- every other content type starts
      * null and is decoded downstream.
      *
-     * @param array<string, mixed>          $server        the SAPI server entries, typically $_SERVER
-     * @param null|array<mixed>             $query         the query bag, typically $_GET
-     * @param null|array<mixed>             $cookies       the cookie bag, typically $_COOKIE
-     * @param null|array<mixed>             $parsedBody    the SAPI-decoded form body, typically $_POST
-     * @param null|array<int|string, mixed> $uploadedFiles the upload specification, typically $_FILES
+     * @param array<string, mixed>          $server            the SAPI server entries, typically $_SERVER
+     * @param null|array<mixed>             $query             the query bag, typically $_GET
+     * @param null|array<mixed>             $cookies           the cookie bag, typically $_COOKIE
+     * @param null|array<mixed>             $parsedBody        the SAPI-decoded form body, typically $_POST
+     * @param null|array<int|string, mixed> $uploadedFiles     the upload specification, typically $_FILES
+     * @param null|RequestBodyPolicy        $requestBodyPolicy the ingress policy for the request body;
+     *                                                         null answers the default two-mebibyte limit
      *
      * @return ServerRequest the inbound request the sources describe
      *
      * @throws HttpException when any derived component fails the layer's
      *                       validation (method grammar, target grammar, ...)
+     *                       or the `Content-Length` claim already exceeds the
+     *                       ingress policy
      */
     public static function fromServer(
         array $server,
@@ -81,8 +101,14 @@ final class RequestFactory
         ?array $cookies = null,
         ?array $parsedBody = null,
         ?array $uploadedFiles = null,
+        ?RequestBodyPolicy $requestBodyPolicy = null,
     ): ServerRequest {
         $headers = ServerHeaders::extract($server);
+
+        $requestBodyPolicy ??= new RequestBodyPolicy();
+        if ($requestBodyPolicy->claimExceeds($headers['content-length'][0] ?? '')) {
+            throw new HttpException('Request body exceeds configured size limit.');
+        }
 
         /** @var array<string, mixed> $cookieBag the cookie bag (keys fold: class docblock) */
         $cookieBag = $cookies ?? [];
@@ -102,7 +128,10 @@ final class RequestFactory
             $uploads,
             self::formBody($headers, $parsedBody),
             $headers,
-            new Stream(StreamOpener::open('php://input', 'rb')),
+            new LimitedInputStream(
+                new Stream(StreamOpener::open('php://input', 'rb')),
+                $requestBodyPolicy,
+            ),
             ServerProtocol::version(ServerValues::text($server, 'SERVER_PROTOCOL', 'HTTP/1.1')),
             ServerValues::text($server, 'REQUEST_URI', ''),
         );

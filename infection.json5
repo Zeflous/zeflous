@@ -33,6 +33,21 @@
             "ignore": [
                 "Zef\\Framework\\Http\\SapiTransmitter::field"
             ]
+        },
+        // The byte-length measurement in BodyBudget::refuses() is the one
+        // call the MBString mutator can rewrite without any observable
+        // difference: mb_strlen($data, '8bit') and strlen($data) both
+        // answer the exact byte count of $data for every possible input
+        // (the '8bit' encoding IS byte semantics; verified by running the
+        // full suite under the manually applied mutation -- the complete
+        // suite passes). The neighbouring mb_substr calls elsewhere in
+        // the layer stay under the mutator: dropping their encoding
+        // argument changes character semantics on binary payloads and
+        // tests kill those. This ignore is scoped to that single method.
+        "MBString": {
+            "ignore": [
+                "Zef\\Framework\\Http\\BodyBudget::refuses"
+            ]
         }
     },
     "minMsi": 100,
