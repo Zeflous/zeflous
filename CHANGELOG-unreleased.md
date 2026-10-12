@@ -41,6 +41,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the psr uploaded file [#271](https://github.com/Zeflous/zeflous/pull/271) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the psr message factory [#279](https://github.com/Zeflous/zeflous/pull/279) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the superglobal request factory [#284](https://github.com/Zeflous/zeflous/pull/284) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the sapi response emitter [#289](https://github.com/Zeflous/zeflous/pull/289) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
