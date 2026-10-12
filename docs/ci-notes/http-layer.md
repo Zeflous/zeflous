@@ -3,7 +3,8 @@
 Decision record untuk lane 1 arah user **"HTTP Layer -> Container -> Middleware"** di bawah
 area ROADMAP **HTTP Layer** + **HTTP Layer — Zero-Library Shim**. Dokumen ini menutup Fase 1
 (inti PSR-7/17: contracts, stream, Uri, message/response, request objects, uploaded file,
-factory). Fase 2 (runtime adapter: `fromGlobals` + emitter) menyusul dengan RENCANA sendiri.
+factory), Fase 2 (runtime adapter: `fromGlobals` + emitter, KDD-H10..H12) dan potongan
+security Fase 3 pertama (input validation gate, KDD-H13).
 Dokumen ini melengkapi `docs/ci-notes/config-system.md` (KDD-1..7), `radix-engine.md` (KDD-R1..R9),
 `dsl-builder.md` (KDD-D1..D8) dan `integration.md` (KDD-I1..I6) — pola yang sama, lane yang lain.
 
@@ -240,3 +241,88 @@ field, tak ada observabel jalur body yang berubah.
   (diverifikasi worktree main 0d7c091 — set identik) — kelas flake lokal yang dibunuh CI
   (PHP 8.4.26, runner segar), keluarga yang sama dengan flake ksort DirectoryLoader yang
   terdokumentasi; bukan regresi lane ini.
+
+## Fase 3 — KDD-H13 (request body policy: input validation gate)
+
+**H13 — dua paruh satu limit di ingress.** Roadmap "Security & Hardening" 2.1 menuntut
+max body size enforcement "di level adapter sebelum parsing". Kebijakan satu objek
+(`RequestBodyPolicy`, default 2 MiB, fail-closed pada maxBytes < 1) dijalankan dua
+paruh yang MENJAWAB LIMIT YANG SAMA:
+
+- **Paruh eager (klaim)**: `RequestFactory::fromServer/fromGlobals` menerima `?RequestBodyPolicy`
+  (null = postur default, TIDAK pernah tak-terbatas) dan menilai header `Content-Length`
+  SEBELUM `php://input` dibuka — claim ter-OWS di-trim dulu (Audit #329 legacy: `' 123'`
+  pernah lolos ctype_digit), hanya digit-string well-formed yang dibandingkan; claim
+  malformed BUKAN sinyal ukuran (dibiarkan ke paruh lazy — engine juga tidak percaya header).
+- **Paruh lazy (byte nyata)**: body disajikan sebagai `LimitedInputStream` (decorator read-only
+  atas stream inner) dengan dua kolaborator depth-split ala stream engine (gate archeology
+  D 32.06 → 20.17/11.64/18.00 — senjata pertama selalu split, bukan Suppress): `BodyBudget`
+  memegang counter + aritmetika policy — probe minta maksimal SATU byte melewati sisa budget
+  (`min(length, max(1, remaining+1))`) — byte ekstra itulah yang membedakan "tepat di limit"
+  (short read compliant) dari "melewati limit" tanpa pernah menampung lebih dari budget;
+  `refuses()` yang melintas meracuni counter ke `maxBytes + REFUSED_OVERSHOOT` sehingga read
+  berikutnya ikut gagal (sticky — konstanta bernama, bukan literal inline: infection TIDAK
+  memutasi deklarasi konstanta kelas, dan kedalaman racun memang tak-terobservabel); 
+  seek/rewind re-base counter (bug fix #1 legacy: read+rewind+read tidak double-charge, clamp
+  `max(0, tell())` menolak kursor negatif); `effectiveSize()` menjawab ukuran efektif
+  `min(inner, maxBytes)` (N-8 legacy: PSR consumer menalar "berapa byte yang BISA diantar").
+  `BodyTransfer` memegang transfer terjaga (mirror policy-aware dari `StreamTransfer`):
+  guard panjang + probe + refuse, dan drain 8192-chunk dengan break defensif `''`.
+  Write ditolak langsung di wrapper (`'Limited input stream is read-only.'`).
+
+Sebuah header bohong/absen/hitam hanya menentukan PARUH MANA yang melempar — keduanya
+melempar `HttpException` `'Request body exceeds configured size limit.'` (413 semantics
+milik error-mapping shim fase berikutnya). Deviasi terdokumentasi vs legacy: tiga sinyal
+legacy (`PayloadTooLargeException`/`StreamNotWritableException`/`InvalidArgumentException`)
+dilipat ke satu akar layer (H2), pesan byte-identik; `validateIngress()` legacy (read-ahead
+maxBytes+1 untuk request yang SUDAH dibangun — jalur worker persisten) ditunda ke PR
+host-validation (butuh trustedHosts yang bukan bagian slice ini).
+
+Atribusi legacy: `Adapters/Http/RequestBodyPolicy.php` + `Adapters/Http/LimitedInputStream.php`
++ wiring `RequestFactory` (move-verbatim behaviour).
+
+### Pola battle tambahan slice ini
+
+- **CastInt mutan abadi pada `(int) $digits > $int`**: string-digit numerik vs int dibandingkan
+  numerik oleh PHP — hasil identik dengan cast untuk SEMUA input digit, jadi penghapusan cast
+  tidak terobservasi. Solusi idiom rumah: cast hidup DI BELAKANG return type `int` helper
+  sendiri (`claimedBytes(): int { return (int) $digits; }`) — CastInt men-skip node cast
+  yang removal-nya ber-TypedError di scope strict_types (param Arg / Return bertipe). Bentuk
+  inline dalam comparison TIDAK dilindungi; ServerPort/UploadCoercion selamat karena cast-nya
+  mengalir ke return bertipe, bukan karena kebetulan.
+- **Probe = senjata mutant ganda**: journal `RecordingStream` pada inner membuat ukuran probe
+  dan chunk 8192 ter-assert ([8192, 8192, 3617] untuk drain tepat-di-limit) — membunuh
+  IncrementInteger (8192→8193), Plus→Minus pada `remaining+1` (probe 3615), dan menuangkan
+  probe-shrink ke data. Tanpa journal, mutant ukuran-chunk identik-observabel selamanya.
+- **Break defensif `''` di drain loop**: untuk stream jujur, loop keluar lewat kondisi eof
+  dulu — break terlihat mati dan mutant break-removal identik. Double `NeverEndingEofStream`
+  (eof() selalu false, payload sekali lalu '') membuat break SATU-SATUNYA jalan keluar —
+  tanpanya infinite loop → timeout-kill by design.
+- **Boundary compliance = kill GreaterThanOrEqual**: read tepat ke limit ('abcde', policy 5,
+  read(5)) HARUS sukses — mutant `>`→`>=` melempar pada kasus tepat-itupun; drain
+  tepat-di-limit (policy 20000, body 20000) memastikan jalur compliant juga hidup di getContents.
+- **Sticky assertion ganda**: setelah overflow, read KEDUA tetap melempar walaupun inner sudah
+  EOF — membunuh Plus→Minus pada racun `maxBytes + REFUSED_OVERSHOOT` (racun `-1` akan
+  menyisakan budget 1 byte). Literal racun sendiri HIDUP DI KONSTANTA kelas: Decrement/
+  IncrementInteger pada deklarasi const TIDAK digenerate infection (diverifikasi empiris —
+  `COPY_CHUNK_SIZE = 8192` UploadedTransfer tak pernah termutasi), dan kedalaman racun
+  memang tak-terobservabel — konstanta menghapus kedua mutant sekaligus tanpa ignore.
+- **Mutan Throw_ pada guard duplikat**: guard panjang-negatif di wrapper dan di `Stream` inner
+  melempar PESAN IDENTIK — penghapusan throw wrapper jatuh ke guard inner yang menjawab sama.
+  Kill: inner TANPA self-guard (`NeverEndingEofStream`) + journal — mutant menjalani probe
+  min(-1, ...)=-1 → journal terisi, tak ada exception → assertThrows gagal.
+- **Mutan MBString `mb_strlen(x, '8bit')` → `strlen(x)` = ABADI MATEMATIS**: keduanya menghitung
+  byte untuk SEMUA input ('8bit' memang semantik byte) — suite penuh lolos pada mutasi manual
+  (diverifikasi). Ignore ter-scoped per-method di infection.json5 berpreseden H12
+  (`SapiTransmitter::field`), berkomentar dengan bukti; tetangga `mb_substr` TETAP di bawah
+  mutator (encoding-arg yang hilang mengubah semantik karakter pada payload biner — test
+  membunuhnya).
+- **Journal + clamp `max(0, tell())`**: DecrementInteger (0→-1) pada clamp hanya terbedakan
+  lewat journal probe (compose `RecordingStream(CursoredStream(null, -5))` — tell negatif,
+  read berjournal); IncrementInteger (0→1) dibunuh lewat boundary seek(0) + read(100) yang
+  HARUS sukses tepat-di-limit (mutant melempar).
+- **`?? ''` pada header lookup**: mutant penghapus coalesce memicu undefined-key warning pada
+  kasus TANPA content-length → failOnWarning phpunit membunuhnya gratis.
+- **max/min tidak termutasi infection** (RoundingFamily hanya floor/ceil/round) — `max(0, tell())`
+  defensif dan clamp `min(size, maxBytes)` bebas mutant struktural; kejujuran mereka dijamin
+  test nilai, bukan test mutan.

@@ -9,13 +9,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\AuthorityPort;
 use Zef\Framework\Http\BareAuthority;
+use Zef\Framework\Http\BodyBudget;
+use Zef\Framework\Http\BodyTransfer;
 use Zef\Framework\Http\BracketedAuthority;
 use Zef\Framework\Http\DnsHost;
 use Zef\Framework\Http\FrontController;
 use Zef\Framework\Http\HostAuthority;
 use Zef\Framework\Http\HostComparison;
 use Zef\Framework\Http\HttpException;
+use Zef\Framework\Http\LimitedInputStream;
 use Zef\Framework\Http\NonOriginTarget;
+use Zef\Framework\Http\RequestBodyPolicy;
 use Zef\Framework\Http\RequestFactory;
 use Zef\Framework\Http\ScriptEntry;
 use Zef\Framework\Http\ServerHeaders;
@@ -38,12 +42,16 @@ use Zef\Framework\Http\UploadNode;
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(AuthorityPort::class)]
 #[CoversClass(BareAuthority::class)]
+#[CoversClass(BodyBudget::class)]
+#[CoversClass(BodyTransfer::class)]
 #[CoversClass(BracketedAuthority::class)]
 #[CoversClass(DnsHost::class)]
 #[CoversClass(FrontController::class)]
 #[CoversClass(HostAuthority::class)]
 #[CoversClass(HostComparison::class)]
+#[CoversClass(LimitedInputStream::class)]
 #[CoversClass(NonOriginTarget::class)]
+#[CoversClass(RequestBodyPolicy::class)]
 #[CoversClass(ScriptEntry::class)]
 #[CoversClass(ServerHeaders::class)]
 #[CoversClass(ServerPort::class)]
@@ -1068,6 +1076,184 @@ final class RequestFactoryTest extends TestCase
                 $avatar->getStream();
             },
         );
+    }
+
+    public function testAServerClaimAboveTheDefaultPolicyFailsFast(): void
+    {
+        $this->assertThrows(
+            'Request body exceeds configured size limit.',
+            static function (): void {
+                RequestFactory::fromServer([
+                    'REQUEST_METHOD' => 'POST',
+                    'REQUEST_URI' => '/',
+                    'HTTP_HOST' => 'zef.io',
+                    'CONTENT_LENGTH' => '2097153',
+                ]);
+            },
+        );
+    }
+
+    /**
+     * The claim that lands exactly on the default limit is compliant: the
+     * guard is a strict comparison, never an off-by-one.
+     */
+    public function testAServerClaimAtExactlyTheDefaultPolicyIsAccepted(): void
+    {
+        $request = RequestFactory::fromServer([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI' => '/',
+            'HTTP_HOST' => 'zef.io',
+            'CONTENT_LENGTH' => '2097152',
+        ]);
+
+        self::assertInstanceOf(LimitedInputStream::class, $request->getBody());
+    }
+
+    public function testAServerClaimAboveACustomPolicyFailsFast(): void
+    {
+        $this->assertThrows(
+            'Request body exceeds configured size limit.',
+            static function (): void {
+                RequestFactory::fromServer(
+                    [
+                        'REQUEST_METHOD' => 'POST',
+                        'REQUEST_URI' => '/',
+                        'HTTP_HOST' => 'zef.io',
+                        'CONTENT_LENGTH' => '101',
+                    ],
+                    null,
+                    null,
+                    null,
+                    null,
+                    new RequestBodyPolicy(100),
+                );
+            },
+        );
+    }
+
+    /**
+     * A field value may legally carry surrounding OWS; the claim is judged
+     * after the whitespace is trimmed away, so padded oversize claims fail
+     * just like bare ones.
+     */
+    public function testAServerClaimCarryingSurroundingWhitespaceIsTrimmed(): void
+    {
+        $this->assertThrows(
+            'Request body exceeds configured size limit.',
+            static function (): void {
+                RequestFactory::fromServer(
+                    [
+                        'REQUEST_METHOD' => 'POST',
+                        'REQUEST_URI' => '/',
+                        'HTTP_HOST' => 'zef.io',
+                        'CONTENT_LENGTH' => ' 101 ',
+                    ],
+                    null,
+                    null,
+                    null,
+                    null,
+                    new RequestBodyPolicy(100),
+                );
+            },
+        );
+    }
+
+    /**
+     * A malformed claim is never a size signal by itself: it is left to the
+     * lazy half's byte counting over the delivered stream.
+     */
+    public function testAMalformedClaimIsLeftToTheLazyHalf(): void
+    {
+        $request = RequestFactory::fromServer(
+            [
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_URI' => '/',
+                'HTTP_HOST' => 'zef.io',
+                'CONTENT_LENGTH' => '101abc',
+            ],
+            null,
+            null,
+            null,
+            null,
+            new RequestBodyPolicy(100),
+        );
+
+        self::assertInstanceOf(LimitedInputStream::class, $request->getBody());
+    }
+
+    /**
+     * A corrupt (non-string) claim entry is absence, like any other server
+     * value -- the extraction's own reading policy, not a size signal.
+     */
+    public function testACorruptClaimEntryCarriesNoSizeSignal(): void
+    {
+        $request = RequestFactory::fromServer([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI' => '/',
+            'HTTP_HOST' => 'zef.io',
+            'CONTENT_LENGTH' => 3145728,
+        ]);
+
+        self::assertInstanceOf(LimitedInputStream::class, $request->getBody());
+    }
+
+    /**
+     * Secure by default: even the policy-less caller gets a bounded body,
+     * and the CLI's empty `php://input` drains to '' under the wrapper.
+     */
+    public function testTheBodyIsServedUnderTheIngressPolicy(): void
+    {
+        $request = RequestFactory::fromServer([
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI' => '/',
+            'HTTP_HOST' => 'zef.io',
+        ]);
+
+        $body = $request->getBody();
+
+        self::assertInstanceOf(LimitedInputStream::class, $body);
+        self::assertFalse($body->isWritable());
+        self::assertSame('', $body->getContents());
+    }
+
+    /**
+     * The superglobal adapter threads the caller's policy through: an
+     * oversize claim against the custom limit fails before the body is
+     * even opened.
+     */
+    public function testFromGlobalsThreadsThePolicyThrough(): void
+    {
+        $server = $_SERVER;
+        $get = $_GET;
+        $cookie = $_COOKIE;
+        $post = $_POST;
+        $files = $_FILES;
+
+        $_SERVER = [
+            'REQUEST_METHOD' => 'POST',
+            'REQUEST_URI' => '/',
+            'HTTP_HOST' => 'zef.io',
+            'CONTENT_LENGTH' => '5',
+        ];
+        $_GET = [];
+        $_COOKIE = [];
+        $_POST = [];
+        $_FILES = [];
+
+        try {
+            $this->assertThrows(
+                'Request body exceeds configured size limit.',
+                static function (): void {
+                    RequestFactory::fromGlobals(new RequestBodyPolicy(4));
+                },
+            );
+        } finally {
+            $_SERVER = $server;
+            $_GET = $get;
+            $_COOKIE = $cookie;
+            $_POST = $post;
+            $_FILES = $files;
+        }
     }
 
     public function testFromGlobalsReadsTheSuperglobals(): void
