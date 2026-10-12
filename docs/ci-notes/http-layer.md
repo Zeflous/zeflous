@@ -158,3 +158,85 @@ Pola battle tambahan lane ini:
 - **Karakter kontrol authority**: pre-check `[\x00-\x20\x7f@\/?#]` legacy terbukti redundan
   secara observabel (semua byte itu juga gagal grammar IP/DNS) — dilipat ke delegasi
   validitas, pesan exception identik.
+
+## Fase 2 — KDD-H12 (SAPI response emitter)
+
+**H12 — transmisi SAPI sebagai seam ber-sink.** Eksperimen engine (tersimpan
+`/home/z/my-project/scripts/sapi-emitter-experiment.php` di sisi riset): CLI SAPI
+**membuang `header()` secara diam-diam** — `headers_list()` selalu kosong bahkan saat
+`headers_sent()` menjawab false — sehingga cabang real `header()` bisa DIEKSEKUSI di
+phpunit (PHPUnit menjaga satu output buffer terbuka, `headers_sent()` tetap false) tetapi
+tidak pernah terobservasi. Sebaliknya `http_response_code()` TERobservasi di CLI
+(set/get round-trip). Konsekuensi desain: `SapiTransmitter` adalah seam yang menerima
+tiga sink closure opsional di konstruktor (field/status/sent); versi default memanggil
+SAPI asli, versi rekaman mengubah void-write menjadi nilai sehingga call-site emission
+tetap jujur-mutan (flag replace, ejaan baris field, dan status yang dikirim semuanya
+menjadi assertable) TANPA menumbuhkan API test-only di layer (psalm findUnusedCode hanya
+menganalisis src). Dua pengecualian yang diambil dengan sengaja dan terdokumentasi:
+
+- `header($line, $replace)` di cabang real = satu-satunya panggilan fungsi yang
+  penghapusannya tak terobservasi oleh proses test mana pun — `FunctionCallRemoval`
+  di-skip SATU method itu di `infection.json5` (preseden config-artefak: skip-rule
+  `rector.php`, `single_line=false` fixer, exclusion phpcs). Tetangganya
+  `http_response_code()` tetap di bawah mutator dan penghapusannya dibunuh test SAPI-real.
+- Keluarga mutan `UnwrapArray*` (array_values/array_filter/array_map pada normalizer
+  murni) bersifat abadi — foreach tidak melihat kunci. Emission loop direstrukturisasi
+  menjadi `array_walk` bersarang dengan closure ber-parameter `mixed` (pola
+  `UploadedTree::assert`): tanpa normalizer, tanpa cast, tanpa `@var` seam, dan
+  penghapusan `array_walk` itu sendiri terobservasi (jurnal kosong).
+
+Atribusi legacy (`Adapters/Kernel/ResponseEmitter.php`, move-verbatim): urutan
+rewind-before-headers (middleware inspektor body seperti ETag meninggalkan kursor di EOF),
+guard `headers_sent()`, revalidasi status 100..599 fail-closed untuk implementasi asing,
+rekonsiliasi Content-Length terhadap sisa stream (aritmetika `max(0, size - tell)` +
+clamp nol + stream tak terukur kalah header — anti CL.CL smuggling RFC 9110 §8.6),
+skip-on-invalid per field (catch-Throwable legacy dilipat ke gerbang boolean
+`HeaderGrammar::acceptable()` yang tak-bisa-lempar), body eligibility 1xx/204/205/304,
+chunk 8192 dengan ''-break defensif, dan `closeBody` di `finally`. Deviasi terdokumentasi
+vs legacy: (a) anggota field non-string DI-DROP, bukan dikoersi string — aturan no-coercion
+toko header (PR-C) dan resolusi uri (PR-F) diperpanjang ke jalur emission; (b) aliran
+return `emitHeaders()` legacy dilipat ke `void` — strip CL hanya berdampak pada emission
+field, tak ada observabel jalur body yang berubah.
+
+### Hasil experiment sandbox (SAPI, menopang H12)
+
+- `headers_sent()` di CLI pristine = **false**; byte output PERTAMA (bahkan `var_dump`)
+  langsung membaliknya ke true; selama test PHPUnit = **false** (buffer output phpunit).
+- `header()` di CLI: tidak pernah warning selama `headers_sent()` false, tetapi
+  `headers_list()` **selalu kosong** — tidak ada channel observasi.
+- `http_response_code(201)` di CLI/phpunit: set sukses, get round-trip ✓ — satu-satunya
+  state SAPI yang terobservasi.
+- `php://temp` kosong menjawab `eof() = false` SEBELUM read pertama — ''-break emitter
+  adalah jalur WAJIB untuk body kosong (bukan sekadar defensif), terverifikasi lewat
+  `RecordingStream` ([8192] pada stream kosong).
+- `fread($h, 8192)` meminta PANJANG penuh walau bytes tersisa kurang — matriks ukuran
+  chunk adalah [8192, 8192, 8192] untuk payload 20000 (panjang permintaan, bukan
+  panjang balasan).
+
+### Battle tambahan emitter
+
+- **Mutant abadi → restrukturisasi, bukan ignore** (kecuali `header()` di atas): CastString
+  pada `(string) $name` dibunuh lewat kunci integer engine — `withHeader('123', 'v')` pada
+  `Response` sendiri melipat kunci numeric-string ke int saat insert (KDD-H10) dan
+  `getHeaders()` menjawab `[123 => ['v']]`; mutan menghapus cast → `acceptable(int)` →
+  TypeError. Jalur ini MENEMUKAN bug riil PR-C: `HeaderIndex::storedName` strcasecmp
+  pada kunci terlipat → TypeError pada semua lookup — diperbaiki dengan cast + klaim
+  param dilebarkan jujur (`array<array-key, list<string>>`), regresi dipinkan
+  `ResponseTest::testResolvesNumericHeaderNamesThroughTheEngineFoldedKey`.
+- **Mutan ReturnRemoval pada early-return ekuivalen-jatuh** (guard CL kosong): jatuhannya
+  menghitung ulang dan menjawab respons ekuivalen — dibunuh lewat SPY, bukan nilai:
+  `CursoredStream::$tellCalls` di-assert 0 (jalur tanpa-CL tak boleh konsultasi kursor).
+- **Mutan `&&`→`||` pada sisa ternary CL**: satu operand null + sisi lain terkoersi nol
+  secara diam (PHP arithmetic null→0) — dibunuh lewat deklarasi '0' + size null (real:
+  drop; mutan: max(0, null-0)=0 → keep).
+- **Mutan `||`→`&&` precedence pada guard CL**: dibunuh lewat 'abc' + sisa 0 ((int)'abc'
+  = 0 = sisa → C false, A true, B false).
+- **Mutan Continue_→break pada gate acceptable**: break menghentikan sisa nilai SATU
+  baris — dibunuh lewat baris multi-nilai dengan anggota pertama invalid
+  (`["first\nbad", 'second']` → hanya 'second' yang boleh lewat).
+- **FalseValue pada default flag emit()**: dibunuh lewat pemanggilan BARE
+  (`emit($response)`) dengan assert body terkirim + stream tetap terbuka.
+- **Mutant UploadedMove ×6** (nama sibling tmp): lolos LOKAL pada main pristine yang sama
+  (diverifikasi worktree main 0d7c091 — set identik) — kelas flake lokal yang dibunuh CI
+  (PHP 8.4.26, runner segar), keluarga yang sama dengan flake ksort DirectoryLoader yang
+  terdokumentasi; bukan regresi lane ini.

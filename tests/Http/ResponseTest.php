@@ -247,6 +247,16 @@ final class ResponseTest extends TestCase
         });
     }
 
+    public function testResolvesNumericHeaderNamesThroughTheEngineFoldedKey(): void
+    {
+        $response = new Response()->withHeader('123', 'v');
+
+        self::assertTrue($response->hasHeader('123'));
+        self::assertSame(['v'], $response->getHeader('123'));
+        self::assertSame('v', $response->getHeaderLine('123'));
+        self::assertSame([], $response->withoutHeader('123')->getHeaders());
+    }
+
     public function testBuildsABodyFromAStringAndAcceptsAStream(): void
     {
         $stream = Stream::fromString('stream body');

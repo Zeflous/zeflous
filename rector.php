@@ -35,6 +35,14 @@ return RectorConfig::configure()
         'Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector' => [
             __DIR__ . '/tests',
         ],
+        // The closure form is load-bearing: psalm narrows array_filter()
+        // through the typed closure parameter (mixed -> string), but not
+        // through the first-class callable the rule would delegate to,
+        // so the conversion trades a style win for a MixedReturnTypeCoercion
+        // regression. The analysers win.
+        'Rector\CodingStyle\Rector\ArrowFunction\ArrowFunctionDelegatingCallToFirstClassCallableRector' => [
+            __DIR__ . '/src/Zef/Framework/Http/EmittedHeaders.php',
+        ],
     ])
     ->withPhpSets(php84: true)
     ->withPreparedSets(

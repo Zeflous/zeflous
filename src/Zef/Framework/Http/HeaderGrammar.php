@@ -23,6 +23,22 @@ final class HeaderGrammar
     private const string VALUE_FORBIDDEN_PATTERN = '/[^\t\x20-\x7E\x80-\xFF]/';
 
     /**
+     * The SAPI emission path's acceptance question: whether one header
+     * field may be transmitted at all.
+     *
+     * The emitter's boolean twin of {@see normalize()}: the emission path
+     * judges fields it has already normalised to strings and must skip
+     * an unacceptable one without failing the response -- the emitter
+     * keeps shipping the well-formed neighbours -- so the gate answers
+     * with a boolean instead of throwing.
+     */
+    public static function acceptable(string $name, string $value): bool
+    {
+        return preg_match(self::NAME_PATTERN, $name) === 1
+            && preg_match(self::VALUE_FORBIDDEN_PATTERN, $value) !== 1;
+    }
+
+    /**
      * Validates a header name and normalizes its raw value(s) into a
      * list of validated strings.
      *
