@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-12T10:04:37Z",
+  "as_of": "2026-10-12T17:00:43Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 123,
+  "unreleased_count": 125,
   "versions": [
     {
       "version": "Unreleased",
@@ -836,6 +836,22 @@
                 "sha": "d0635c1f20922217558fd470fcae0fef0ada15a9",
                 "short_sha": "d0635c1",
                 "subject": "Merge branch 'main' into feat/http-psr17-factory"
+              }
+            ]
+          },
+          {
+            "pr": 284,
+            "title": "feat(http): the superglobal request factory",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-12T16:52:27Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/284",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "482780d15fbf48c3826201cbad745c6efd9eefba",
+                "short_sha": "482780d",
+                "subject": "feat(http): the superglobal request factory"
               }
             ]
           }
@@ -3018,6 +3034,22 @@
                 "sha": "1dad61a1611dfb0e6b0dbf2c1c9af37438a0edeb",
                 "short_sha": "1dad61a",
                 "subject": "docs(roadmap): pin the psr message factory history row to pull request 279"
+              }
+            ]
+          },
+          {
+            "pr": 285,
+            "title": "docs(roadmap): pin the superglobal request factory history row to pull request 284",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-12T17:00:43Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/285",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b82f6ead4cfe651114798ec59b01aee4582c7bb8",
+                "short_sha": "b82f6ea",
+                "subject": "docs(roadmap): pin the superglobal request factory history row to pull request 284"
               }
             ]
           }
@@ -6299,6 +6331,38 @@
               "sha": "1dad61a1611dfb0e6b0dbf2c1c9af37438a0edeb",
               "short_sha": "1dad61a",
               "subject": "docs(roadmap): pin the psr message factory history row to pull request 279"
+            }
+          ]
+        },
+        {
+          "pr": 284,
+          "title": "feat(http): the superglobal request factory",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-12T16:52:27Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/284",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "482780d15fbf48c3826201cbad745c6efd9eefba",
+              "short_sha": "482780d",
+              "subject": "feat(http): the superglobal request factory"
+            }
+          ]
+        },
+        {
+          "pr": 285,
+          "title": "docs(roadmap): pin the superglobal request factory history row to pull request 284",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-12T17:00:43Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/285",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b82f6ead4cfe651114798ec59b01aee4582c7bb8",
+              "short_sha": "b82f6ea",
+              "subject": "docs(roadmap): pin the superglobal request factory history row to pull request 284"
             }
           ]
         }
