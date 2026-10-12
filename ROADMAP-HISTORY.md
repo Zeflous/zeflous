@@ -23,7 +23,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap area | Completed items |
 |---|---|
 | Container | 2 |
-| HTTP Layer | 5 |
+| HTTP Layer | 6 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 7 |
@@ -32,7 +32,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 19 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **100** |
+| **Total merged PRs** | **101** |
 
 ---
 
@@ -57,6 +57,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | The PSR-7 URI value object (`Zef\Framework\Http\`: `Uri` + `UriParser`/`UriGrammar`/`UriHostGrammar`/`UriEncoder`/`UriAuthority`/`UriString`/`UriMutations`, Kelvin-sign case-map fold tests, percent-triple boundary matrix, per-wither immutability) | #259 | 2026-10-12 | `c02dad321` |
 | The PSR-7 message headers and response (`Zef\Framework\Http\`: `Message` abstract + `Response` + `HeaderStore`/`HeaderGrammar`/`HeaderIndex`/`HeaderTable`/`HeaderAppender`/`HttpVersion`/`HttpStatusLine`/`HttpReasonPhrases`, strcasecmp case-insensitive single-map resolution, RFC 9110 token/field-value/reason-phrase grammars, per-wither immutability) | #262 | 2026-10-12 | `ec9ab3b6f` |
 | The PSR-7 request objects (`Zef\Framework\Http\`: `Request` + `ServerRequest` over `HttpMethod`/`RequestTarget`/`HostLine`/`UriHostPolicy`/`ParsedBody`/`UploadedTree`, origin-form target derivation + explicit origin/absolute/asterisk overrides with control-byte rejection, Host bootstrap + PSR-7 preserve-host refresh through the protected header-store seam, validated parsed-body/upload-tree bags, per-wither immutability) | #265 | 2026-10-12 | `e247c83f1` |
+| The PSR-7 uploaded file object (`Zef\Framework\Http\`: `UploadedFile` over `UploadedMove`/`UploadedTarget`/`UploadedTransfer`/`UploadedPosition`/`ScopedDiagnostics`, the reference tmp+rename dance -- copy into a self-generated temporary sibling, flush, close, rename onto the caller's path with failure cleanup and read-position restoration -- one-shot move semantics, the full UPLOAD_ERR error-code matrix, byte-identical legacy failure messages under the single `HttpException` root, partial-write resumption through 8bit mb-string forms) | #271 | 2026-10-12 | `fe742892b` |
 
 ## 3. Error Handling
 
