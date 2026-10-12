@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-12T17:00:43Z",
+  "as_of": "2026-10-12T19:10:04Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 125,
+  "unreleased_count": 126,
   "versions": [
     {
       "version": "Unreleased",
@@ -852,6 +852,22 @@
                 "sha": "482780d15fbf48c3826201cbad745c6efd9eefba",
                 "short_sha": "482780d",
                 "subject": "feat(http): the superglobal request factory"
+              }
+            ]
+          },
+          {
+            "pr": 289,
+            "title": "feat(http): the sapi response emitter",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-12T19:10:04Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/289",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3b9fd4cae25998f968fd76c30e92c47f164f0c0b",
+                "short_sha": "3b9fd4c",
+                "subject": "feat(http): the sapi response emitter"
               }
             ]
           }
@@ -6363,6 +6379,22 @@
               "sha": "b82f6ead4cfe651114798ec59b01aee4582c7bb8",
               "short_sha": "b82f6ea",
               "subject": "docs(roadmap): pin the superglobal request factory history row to pull request 284"
+            }
+          ]
+        },
+        {
+          "pr": 289,
+          "title": "feat(http): the sapi response emitter",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-12T19:10:04Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/289",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3b9fd4cae25998f968fd76c30e92c47f164f0c0b",
+              "short_sha": "3b9fd4c",
+              "subject": "feat(http): the sapi response emitter"
             }
           ]
         }
