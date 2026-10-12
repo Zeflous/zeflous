@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the superglobal request factory history row to pull request 284 [\#285](https://github.com/Zeflous/zeflous/pull/285) ([mbetixz](https://github.com/mbetixz))
+- feat\(http\): the superglobal request factory [\#284](https://github.com/Zeflous/zeflous/pull/284) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the psr message factory history row to pull request 279 [\#282](https://github.com/Zeflous/zeflous/pull/282) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the psr message factory [\#279](https://github.com/Zeflous/zeflous/pull/279) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the uploaded file history row to pull request 271 [\#272](https://github.com/Zeflous/zeflous/pull/272) ([mbetixz](https://github.com/mbetixz))
