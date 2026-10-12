@@ -37,6 +37,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): vendor the psr message contracts and the stream engine [#256](https://github.com/Zeflous/zeflous/pull/256) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the psr uri value object [#259](https://github.com/Zeflous/zeflous/pull/259) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the psr message headers and response [#262](https://github.com/Zeflous/zeflous/pull/262) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the psr request objects [#265](https://github.com/Zeflous/zeflous/pull/265) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 

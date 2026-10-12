@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-11T21:34:18Z",
+  "as_of": "2026-10-12T06:15:12Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 117,
+  "unreleased_count": 118,
   "versions": [
     {
       "version": "Unreleased",
@@ -743,6 +743,32 @@
                 "sha": "1b7472b5e2336ddfb599dee79370f326ccad32a9",
                 "short_sha": "1b7472b",
                 "subject": "fix(http): keep the interface parameter names authoritative over the type-derived renames"
+              }
+            ]
+          },
+          {
+            "pr": 265,
+            "title": "feat(http): the psr request objects",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-12T06:15:12Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/265",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "89b7385709d4727c51cb612344ea2a37a0af53dc",
+                "short_sha": "89b7385",
+                "subject": "feat(http): the psr request objects"
+              },
+              {
+                "sha": "ad7366e74397afadf5e0942d4ec3b8af41f1bbb9",
+                "short_sha": "ad7366e",
+                "subject": "docs(roadmap): record the psr request objects history row"
+              },
+              {
+                "sha": "c356b176a3556023a0058ad8b42c3773d99ad34e",
+                "short_sha": "c356b17",
+                "subject": "fix(http): scope the abstract-or-final sniff for the request hierarchy"
               }
             ]
           }
@@ -5967,6 +5993,32 @@
               "sha": "1b7472b5e2336ddfb599dee79370f326ccad32a9",
               "short_sha": "1b7472b",
               "subject": "fix(http): keep the interface parameter names authoritative over the type-derived renames"
+            }
+          ]
+        },
+        {
+          "pr": 265,
+          "title": "feat(http): the psr request objects",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-12T06:15:12Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/265",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "89b7385709d4727c51cb612344ea2a37a0af53dc",
+              "short_sha": "89b7385",
+              "subject": "feat(http): the psr request objects"
+            },
+            {
+              "sha": "ad7366e74397afadf5e0942d4ec3b8af41f1bbb9",
+              "short_sha": "ad7366e",
+              "subject": "docs(roadmap): record the psr request objects history row"
+            },
+            {
+              "sha": "c356b176a3556023a0058ad8b42c3773d99ad34e",
+              "short_sha": "c356b17",
+              "subject": "fix(http): scope the abstract-or-final sniff for the request hierarchy"
             }
           ]
         }
