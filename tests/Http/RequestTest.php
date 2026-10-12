@@ -222,7 +222,13 @@ final class RequestTest extends TestCase
 
     public function testWithUriPreservesTheMessageHalf(): void
     {
-        $request = new Request('GET', new Uri('http://example.com/page'), ['X-Foo' => 'a'], Stream::fromString('body'), '2');
+        $request = new Request(
+            'GET',
+            new Uri('http://example.com/page'),
+            ['X-Foo' => 'a'],
+            Stream::fromString('body'),
+            '2',
+        );
         $redirected = $request->withUri(new Uri('http://other.example/other'));
 
         self::assertSame('2', $redirected->getProtocolVersion());
@@ -272,13 +278,21 @@ final class RequestTest extends TestCase
 
     public function testEveryWitherLeavesTheOriginalUntouched(): void
     {
-        $request = new Request('GET', new Uri('http://example.com/page?a=1'), ['X-Foo' => 'a'], Stream::fromString('body'));
+        $request = new Request(
+            'GET',
+            new Uri('http://example.com/page?a=1'),
+            ['X-Foo' => 'a'],
+            Stream::fromString('body'),
+        );
 
         self::assertSame('*', $request->withRequestTarget('*')->getRequestTarget());
         self::assertSame('/page?a=1', $request->getRequestTarget());
         self::assertSame('POST', $request->withMethod('POST')->getMethod());
         self::assertSame('GET', $request->getMethod());
-        self::assertSame('other.example', $request->withUri(new Uri('http://other.example/other'))->getHeaderLine('Host'));
+        self::assertSame(
+            'other.example',
+            $request->withUri(new Uri('http://other.example/other'))->getHeaderLine('Host'),
+        );
         self::assertSame('example.com', $request->getHeaderLine('Host'));
         self::assertSame('/other', $request->withUri(new Uri('http://other.example/other'))->getUri()->getPath());
         self::assertSame('/page', $request->getUri()->getPath());

@@ -189,7 +189,10 @@ final class ServerRequestTest extends TestCase
             $serverRequest->withUploadedFiles(['broken' => 'nope']);
             self::fail('HttpException expected.');
         } catch (HttpException $httpException) {
-            self::assertSame('Uploaded files must contain only UploadedFileInterface leaves.', $httpException->getMessage());
+            self::assertSame(
+                'Uploaded files must contain only UploadedFileInterface leaves.',
+                $httpException->getMessage(),
+            );
         }
 
         self::assertSame(['avatar' => $uploadedFileDouble], $serverRequest->getUploadedFiles());
@@ -311,7 +314,10 @@ final class ServerRequestTest extends TestCase
         self::assertSame(['session' => 'abc'], $serverRequest->getCookieParams());
         self::assertSame(['b' => '2'], $serverRequest->withQueryParams(['b' => '2'])->getQueryParams());
         self::assertSame(['page' => '2'], $serverRequest->getQueryParams());
-        self::assertSame(['logo' => $uploadedFileDouble], $serverRequest->withUploadedFiles(['logo' => $uploadedFileDouble])->getUploadedFiles());
+        self::assertSame(
+            ['logo' => $uploadedFileDouble],
+            $serverRequest->withUploadedFiles(['logo' => $uploadedFileDouble])->getUploadedFiles(),
+        );
         self::assertSame(['avatar' => $uploadedFileDouble], $serverRequest->getUploadedFiles());
         self::assertSame(['swapped' => true], $serverRequest->withParsedBody(['swapped' => true])->getParsedBody());
         self::assertSame(['title' => 'x'], $serverRequest->getParsedBody());
