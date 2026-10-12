@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-12 · `main` @ `8923e56`
+**Last updated:** 2026-10-12 · `main` @ `9e73660`
 
 **How to read this file**
 
@@ -23,7 +23,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap area | Completed items |
 |---|---|
 | Container | 2 |
-| HTTP Layer | 8 |
+| HTTP Layer | 9 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 7 |
@@ -60,6 +60,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | The PSR-7 uploaded file object (`Zef\Framework\Http\`: `UploadedFile` over `UploadedMove`/`UploadedTarget`/`UploadedTransfer`/`UploadedPosition`/`ScopedDiagnostics`, the reference tmp+rename dance -- copy into a self-generated temporary sibling, flush, close, rename onto the caller's path with failure cleanup and read-position restoration -- one-shot move semantics, the full UPLOAD_ERR error-code matrix, byte-identical legacy failure messages under the single `HttpException` root, partial-write resumption through 8bit mb-string forms) | #271 | 2026-10-12 | `fe742892b` |
 | The PSR-17 message factory (`Zef\Framework\Http\`: `Psr17Factory` implementing the six PSR-17 factory interfaces over the layer's own objects + `StreamMode` holding the legacy fopen-mode grammar verbatim, file opens through the `StreamOpener` seam so a missing file is a real coverable failure, resource readability reused from `StreamMetadata`, the negative-size guard delegated to `UploadedFile`'s constructor, the factories' untyped uri argument narrowed fail-closed instead of legacy's silent string coercion, psalm baseline shrunk by the six factory-interface UnusedClass entries, `docs/ci-notes/http-layer.md` recording KDD-H1..H9 + legacy attribution + the sandbox experiments -- the Phase 1 closeout) | #279 | 2026-10-12 | `81efd8f2b` |
 | The superglobal request factory -- the Fase 2 runtime adapter's first half (`Zef\Framework\Http\`: `RequestFactory::fromGlobals`/`fromServer` -- the ONLY reader of `$_SERVER`/`$_GET`/`$_COOKIE`/`$_POST`/`$_FILES` in the layer, the injectable twin never consulting process-global state -- over fourteen fail-closed collaborators: `ServerHeaders` with the CGI/1.1 `HTTP_*` anchored-prefix capture and the named body-describing fields, `ServerUri`+`HostAuthority`+`BracketedAuthority`/`BareAuthority`/`AuthorityPort`/`HostComparison`/`DnsHost` carrying the reference authority grammar reformulated as anchored patterns, `ServerPort`, `ServerPath`+`NonOriginTarget`+`FrontController`/`ScriptEntry` with the documented parse_url avoidance for origin-form targets, `ServerProtocol`, `ServerValues` as the single corruption-is-absence reading policy, `ServerUploads`+`UploadNode`/`UploadLeaf`/`UploadCoercion` walking the parallel-axis upload specification with the ghost-upload downgrade, `php://input` opened exactly once through the `StreamOpener` seam, the PSR bag key-folding claim stated at four @var seams -- KDD-H10; the grammar-collaborator reformulation against immortal MBString position mutants -- KDD-H11; `docs/ci-notes/http-layer.md` records both) | #284 | 2026-10-12 | `8923e564b` |
+| The SAPI response emitter -- the Fase 2 runtime adapter's outbound half (`Zef\Framework\Http\`: `ResponseEmitter::emit()` over `SapiTransmitter` -- the SAPI write seam holding the engine-verified fact that the CLI discards `header()` silently, its constructor-accepted sink closures being the only observable emission point while the real `http_response_code()` stays under the mutators and is killed by a real-SAPI test; `EmittedHeaders` re-validating the 100..599 status and re-judging every foreign field through `HeaderGrammar::acceptable()` with skip-on-invalid; `ContentLength` reconciling a declared length against the stream's remaining octets -- the RFC 9110 section 8.6 anti-CL.CL-smuggling arithmetic with the zero clamp and the unmeasurable-stream drop; `EmittedBody` carrying the 1xx/204/205/304 payload rules, the unreadable-body fail-closed, the fixed-size chunk pump with the defensive empty-read break and close-in-finally; the reference `Adapters/Kernel/ResponseEmitter` ordering kept move-verbatim with two documented deviations -- non-string members dropped instead of coerced, the emitHeaders return flow folded to void; the emission path's key-fold test also exposed and repaired the PR-C `HeaderIndex` numeric-name lookup defect; one documented infection ignore for the CLI-unobservable `header()` call; `docs/ci-notes/http-layer.md` KDD-H12 with the SAPI sandbox experiment results) | #289 | 2026-10-12 | `9e73660b3` |
 
 ## 3. Error Handling
 
@@ -226,7 +227,7 @@ These roadmap areas have **no merged work** yet (see `ROADMAP-STATUS.md` for the
 - **Container** — autowiring, autoconfiguration, injectors, tags, decorator/proxy, compiler passes, DI extension points, PSR-11 service locator.
 - **Router (Radix Tree)** — not started.
 - **Middleware Pipeline** — not started.
-- **HTTP Layer (Zero-Library Shim)** — the Phase 1 core is complete and merged (#256 stream engine, #259 URI, #262 message headers + response, #265 request objects, #271 uploaded file, #279 PSR-17 factory, with `docs/ci-notes/http-layer.md` as the decision record); the Fase 2 runtime adapter's superglobal half is merged (#284 the request factory); the runtime adapter's emitter and the security/performance phases remain.
+- **HTTP Layer (Zero-Library Shim)** — the Phase 1 core is complete and merged (#256 stream engine, #259 URI, #262 message headers + response, #265 request objects, #271 uploaded file, #279 PSR-17 factory, with `docs/ci-notes/http-layer.md` as the decision record); the Fase 2 runtime adapter is complete (#284 the request factory, #289 the SAPI response emitter); the security/performance phases remain.
 - **Event Source System** — not started.
 - **Module Integration System** — not started beyond the `ServiceProviderInterface` contract.
 - **Adapters Layer** (view engine, database) — not started.
