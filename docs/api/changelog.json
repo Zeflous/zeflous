@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-12T09:20:39Z",
+  "as_of": "2026-10-12T10:04:37Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 121,
+  "unreleased_count": 123,
   "versions": [
     {
       "version": "Unreleased",
@@ -805,6 +805,37 @@
                 "sha": "1bf2595a1f0814949e8c23516fa7bec864932b78",
                 "short_sha": "1bf2595",
                 "subject": "fix(http): assert the moved payload through assertSame over file_get_contents"
+              }
+            ]
+          },
+          {
+            "pr": 279,
+            "title": "feat(http): the psr message factory",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-12T09:59:01Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/279",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "67cc0ecd941a2f48300d1f76819a248f9ede9755",
+                "short_sha": "67cc0ec",
+                "subject": "feat(http): the psr message factory"
+              },
+              {
+                "sha": "ec25347acd076428c4608e643204f869611ddfb2",
+                "short_sha": "ec25347",
+                "subject": "docs(roadmap): record the http layer phase one closeout"
+              },
+              {
+                "sha": "2331c276d0d25510e202e57999421f3fa044a8bb",
+                "short_sha": "2331c27",
+                "subject": "Merge branch 'main' into feat/http-psr17-factory"
+              },
+              {
+                "sha": "d0635c1f20922217558fd470fcae0fef0ada15a9",
+                "short_sha": "d0635c1",
+                "subject": "Merge branch 'main' into feat/http-psr17-factory"
               }
             ]
           }
@@ -2971,6 +3002,22 @@
                 "sha": "8cd2d815f9b3a82ea2efc40ec8112f3d348e3f2e",
                 "short_sha": "8cd2d81",
                 "subject": "Merge branch 'main' into docs/roadmap-uploaded-file-row"
+              }
+            ]
+          },
+          {
+            "pr": 282,
+            "title": "docs(roadmap): pin the psr message factory history row to pull request 279",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-12T10:04:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/282",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1dad61a1611dfb0e6b0dbf2c1c9af37438a0edeb",
+                "short_sha": "1dad61a",
+                "subject": "docs(roadmap): pin the psr message factory history row to pull request 279"
               }
             ]
           }
@@ -6205,6 +6252,53 @@
               "sha": "8cd2d815f9b3a82ea2efc40ec8112f3d348e3f2e",
               "short_sha": "8cd2d81",
               "subject": "Merge branch 'main' into docs/roadmap-uploaded-file-row"
+            }
+          ]
+        },
+        {
+          "pr": 279,
+          "title": "feat(http): the psr message factory",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-12T09:59:01Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/279",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "67cc0ecd941a2f48300d1f76819a248f9ede9755",
+              "short_sha": "67cc0ec",
+              "subject": "feat(http): the psr message factory"
+            },
+            {
+              "sha": "ec25347acd076428c4608e643204f869611ddfb2",
+              "short_sha": "ec25347",
+              "subject": "docs(roadmap): record the http layer phase one closeout"
+            },
+            {
+              "sha": "2331c276d0d25510e202e57999421f3fa044a8bb",
+              "short_sha": "2331c27",
+              "subject": "Merge branch 'main' into feat/http-psr17-factory"
+            },
+            {
+              "sha": "d0635c1f20922217558fd470fcae0fef0ada15a9",
+              "short_sha": "d0635c1",
+              "subject": "Merge branch 'main' into feat/http-psr17-factory"
+            }
+          ]
+        },
+        {
+          "pr": 282,
+          "title": "docs(roadmap): pin the psr message factory history row to pull request 279",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-12T10:04:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/282",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1dad61a1611dfb0e6b0dbf2c1c9af37438a0edeb",
+              "short_sha": "1dad61a",
+              "subject": "docs(roadmap): pin the psr message factory history row to pull request 279"
             }
           ]
         }
