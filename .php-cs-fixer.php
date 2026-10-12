@@ -77,5 +77,12 @@ return (new Config())
         'date_time_immutable' => true,
         'mb_str_functions' => true,
         'final_internal_class' => true,
+        // The PSR-17 factory implements six PSR interfaces: the single-line
+        // form the preset prefers is 191 characters long, past the PHPCS
+        // soft limit (Generic.Files.LineLength at 120). PSR-12 allows the
+        // multi-line implements shape, so the fixer keeps each declaration
+        // as authored instead of collapsing it -- already-single-line
+        // declarations stay single-line, only multi-line ones survive.
+        'class_definition' => ['single_line' => false],
     ])
     ->setFinder($finder);
