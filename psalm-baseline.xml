@@ -146,6 +146,20 @@
       <code><![CDATA[version]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Http/RequestFactory.php">
+    <UnusedClass>
+      <code><![CDATA[RequestFactory]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Http/ServerProtocol.php">
+    <MoreSpecificReturnType>
+      <code><![CDATA[non-empty-string]]></code>
+    </MoreSpecificReturnType>
+    <LessSpecificReturnStatement>
+      <code><![CDATA[$matches[1]]]></code>
+      <code><![CDATA[$matches[1]]]></code>
+    </LessSpecificReturnStatement>
+  </file>
   <file src="src/Zef/Framework/Message/Message.php">
     <UnusedClass>
       <code><![CDATA[Message]]></code>
