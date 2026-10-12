@@ -167,6 +167,42 @@ final class RoadmapCommitRulesTest extends TestCase
         );
     }
 
+    public function testContinuesPastAValidCellToReachAnInvalidOne(): void
+    {
+        // A VALID row precedes an INVALID one in the same table. The scan must
+        // CONTINUE past the valid cell (not break), otherwise the invalid cell
+        // is never reached and the defect escapes.
+        $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| a | #1 | 2026-10-07 | `f6aa0dbeb8` |\n| b | #2 | 2026-10-08 | `PENDING` |\n";
+        $lines = explode("\n", $document);
+
+        $failures = RoadmapCommitRules::invalidCommitCells('BROKEN.md', $lines);
+
+        self::assertCount(1, $failures);
+        self::assertSame(
+            'BROKEN.md:4 has a Commit cell that is not a merge SHA ("`PENDING`").',
+            $failures[0],
+        );
+    }
+
+    public function testRejectsACellWithLeadingJunkBeforeAValidSha(): void
+    {
+        // A cell that carries leading junk before a valid SHA is not a SHA: the
+        // pattern is anchored at the start. If `^` is dropped, this cell is
+        // accepted and the defect escapes.
+        $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| a | #1 | 2026-10-07 | `zzf6aa0dbeb8` |\n";
+        $lines = explode("\n", $document);
+
+        $failures = RoadmapCommitRules::invalidCommitCells('BROKEN.md', $lines);
+
+        self::assertCount(1, $failures);
+        self::assertSame(
+            'BROKEN.md:3 has a Commit cell that is not a merge SHA ("`zzf6aa0dbeb8`").',
+            $failures[0],
+        );
+    }
+
     public function testAcceptsAFullFortyCharacterSha(): void
     {
         $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
