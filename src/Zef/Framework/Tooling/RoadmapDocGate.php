@@ -16,8 +16,9 @@ namespace Zef\Framework\Tooling;
  * by a human reading the rendered file.
  *
  * This class owns the gate's own invariant -- every table row must be CLOSED
- * with a trailing `|` -- and delegates the two neighbouring rules (uniform
- * columns, headings separated from tables) to {@see RoadmapTableRules}. The
+ * with a trailing `|` -- and delegates the neighbouring rules (uniform
+ * columns, headings separated from tables) to {@see RoadmapTableRules} and the
+ * commit-cell rule to {@see RoadmapCommitRules}. The
  * split is not cosmetic: the repository's own architecture gate
  * (`php-codearch-config.yaml`, `tooComplex.difficulty: 20`) scores a single
  * class holding all three rules above the difficulty ceiling, so each file
@@ -62,6 +63,7 @@ final readonly class RoadmapDocGate
             ...$this->unclosedRows($name, $lines),
             ...RoadmapTableRules::raggedBlocks($name, $lines),
             ...RoadmapTableRules::gluedHeadings($name, $lines),
+            ...RoadmapCommitRules::invalidCommitCells($name, $lines),
         ];
     }
 
