@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the conditional get history row to pull request 303 [\#305](https://github.com/Zeflous/zeflous/pull/305) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the conditional get etag middleware [\#303](https://github.com/Zeflous/zeflous/pull/303) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the trusted host ingress policy history row to pull request 298 [\#301](https://github.com/Zeflous/zeflous/pull/301) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the trusted host ingress policy [\#298](https://github.com/Zeflous/zeflous/pull/298) ([mbetixz](https://github.com/mbetixz))
