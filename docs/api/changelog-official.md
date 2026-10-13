@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the error mapping history row to pull request 314 [\#315](https://github.com/Zeflous/zeflous/pull/315) ([mbetixz](https://github.com/mbetixz))
+- feat\(http\): the error mapping middleware [\#314](https://github.com/Zeflous/zeflous/pull/314) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the cors origin policy history row to pull request 309 [\#310](https://github.com/Zeflous/zeflous/pull/310) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the cors origin policy middleware [\#309](https://github.com/Zeflous/zeflous/pull/309) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the conditional get history row to pull request 303 [\#305](https://github.com/Zeflous/zeflous/pull/305) ([mbetixz](https://github.com/mbetixz))
