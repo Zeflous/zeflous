@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Http;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 /**
  * Builds the inbound server request from the SAPI process state.
  *
@@ -40,6 +42,15 @@ namespace Zef\Framework\Http;
  * while the delivered stream stays lazily policed by the
  * {@see LimitedInputStream} wrapper (the eager and the lazy halves are the
  * same limit; a lying or absent header only decides WHICH half throws).
+ *
+ * The same policy is also enforced for requests that were NOT built here:
+ * {@see validateIngress()} guards an already constructed PSR-7 request --
+ * the persistent-worker path, where a foreign factory or a reused process
+ * hands the application a request nobody opened under a policy. The
+ * trusted-host half ({@see TrustedRequestHost}) pins the request's hosts
+ * to the application's allow-list through the trusted-proxy boundary, and
+ * the body half ({@see IngressBody}) re-plays the eager claim, size and
+ * read-ahead probe judgements against the delivered stream.
  */
 final class RequestFactory
 {
@@ -135,6 +146,41 @@ final class RequestFactory
             ServerProtocol::version(ServerValues::text($server, 'SERVER_PROTOCOL', 'HTTP/1.1')),
             ServerValues::text($server, 'REQUEST_URI', ''),
         );
+    }
+
+    /**
+     * Enforces the application ingress policy for an already constructed
+     * request, including persistent workers that do not pass through
+     * {@see fromServer()}.
+     *
+     * The trusted-host half runs only when an allow-list is configured (an
+     * empty list means pinning is not configured, not "trust nothing");
+     * the body half always runs.
+     *
+     * @param ServerRequestInterface $serverRequest     the request entering the application
+     *                                                  ingress
+     * @param list<string>           $trustedHosts      the trusted host allow-list
+     * @param list<string>           $trustedProxies    the trusted proxy entries
+     * @param RequestBodyPolicy      $requestBodyPolicy the ingress policy the request body serves
+     *
+     * @return ServerRequestInterface the request to dispatch (its body guarded,
+     *                                non-seekable bodies replaced by their probed
+     *                                contents -- see {@see IngressBody::guard()})
+     *
+     * @throws HttpException when either host form is untrusted, the request
+     *                       carries no host, or the body exceeds the policy
+     */
+    public static function validateIngress(
+        ServerRequestInterface $serverRequest,
+        array $trustedHosts,
+        array $trustedProxies,
+        RequestBodyPolicy $requestBodyPolicy,
+    ): ServerRequestInterface {
+        if ($trustedHosts !== []) {
+            TrustedRequestHost::assert($serverRequest, $trustedHosts, $trustedProxies);
+        }
+
+        return IngressBody::guard($serverRequest, $requestBodyPolicy);
     }
 
     /**

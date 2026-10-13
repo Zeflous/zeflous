@@ -326,3 +326,98 @@ Atribusi legacy: `Adapters/Http/RequestBodyPolicy.php` + `Adapters/Http/LimitedI
 - **max/min tidak termutasi infection** (RoundingFamily hanya floor/ceil/round) — `max(0, tell())`
   defensif dan clamp `min(size, maxBytes)` bebas mutant struktural; kejujuran mereka dijamin
   test nilai, bukan test mutan.
+
+## Fase 3 — KDD-H14 (trusted host ingress policy)
+
+**H14 — dua paruh satu gerbang di ingress yang SUDAH dibangun.** Roadmap "Host Header Validation"
+(whitelist Host terhadap domain aplikasi — pertahanan cache-poisoning/password-reset-poisoning)
+dieksekusi sebagai `RequestFactory::validateIngress(request, trustedHosts, trustedProxies,
+bodyPolicy)` — jalur worker persisten yang request-nya TIDAK melewati `fromServer()`
+(wiring legacy `Adapters/Http/RequestFactory` move-verbatim):
+
+- **Paruh host** (`TrustedRequestHost::assert()`): URI host dinilai DULU (hostless = `Missing
+  request host.`, bukan host terpercaya), lalu otoritas efektif: `X-Forwarded-Host` HANYA ketika
+  pengirim adalah proxy terpercaya (`TrustedProxyMatcher::matches(REMOTE_ADDR, ...)` — entri exact
+  atau CIDR; `REMOTE_ADDR` korup = absensi, kebijakan `ServerValues`) DAN headernya hadir; selain
+  itu Host header request; selain itu URI host (jalur HTTP/1.0 — hanya terjangkau lewat double
+  asing `ForeignServerRequest`, karena request milik sendiri selalu bootstrap Host dari URI).
+  Nilai pertama list forwarded adalah satu-satunya yang mengklaim kepercayaan (`firstForwardedValue`);
+  otoritas terpilih di-parse oleh grammar `HostAuthority` milik lapisan lalu dinilai allow-list yang
+  sama — URI host dan Host header dinilai BERDIRI SENDIRI (bentuk cache-poisoning: URI trusted +
+  Host evil melempar di paruh kedua, sebaliknya di paruh pertama; XFH spoof dari peer tak-percaya
+  TIDAK pernah sampai ke perbandingan — `&&`→`||` dibunuh test spoofing itu).
+- **Paruh body** (`IngressBody::guard()` + `IngressProbe::verify()`): klaim Content-Length
+  (`claimExceeds`), ukuran yang dinyatakan (`getSize()`), lalu probe read-ahead — rewind + drain
+  di bawah `LimitedInputStream` + restore posisi di `finally`; body non-seekable tidak bisa
+  di-restore jadi isinya menjadi body pengganti (`Stream::fromString`, seekable). `LyingSizeStream`
+  (size bohong, kursor nyata) membunuh: probe membaca DARI AWAL (tanpa rewind, sisa 12 byte lolos
+  padahal total 14 melebihi), dan restore-kursor setelah penolakan. Journal `RecordingStream`
+  membedakan lemparan eager (journal KOSONG — stream tak pernah disentuh) dari lemparan probe
+  (journal terisi). Non-seekable: `NonSeekableBody` (payload sekali, size null) — re-wrap
+  `assertNotSame` + konten, dan penolakan lewat probe.
+- **`TrustedHosts`** (legacy `TrustedHostValidator`): allow-list + `assertTrusted()` — list kosong
+  = pinning tak dikonfigurasi (default terbuka; `failClosedOnEmptyList` opt-in untuk komposisi
+  yang mewajibkan), host kosong diterima (ingress menolaknya sendiri), bentuk perbandingan =
+  trim + fold Unicode penuh (Kelvin sign — cermin Uri) + strip bracket IPv6 via satu pola anchored
+  dotall; entri di-narrow ke `list<string>` di batas ctor (`get_debug_type` fail-closed, legacy
+  issues #278/#281). FQDN root-dot TIDAK difold di sini (berbeda dari `HostComparison` — comparison
+  allow-list membandingkan ejaan apa adanya, move-verbatim).
+- **`CidrAddress` + `MaskedPrefix`**: keluarga dibaca dari ejaan alamat sendiri (filter IPv4) —
+  bukan panjang-byte `inet_pton` (idiom `isset($bin[4])` memiliki literal index yang tak-terbedakan
+  pada {4,16}-byte). Perbandingan byte-prefix = `substr_compare` (byte-semantics; `strncmp`
+  dilarang fixer mb_str; `mb_substr` KARAKTER-semantics pada biner — bytes `C2 80`/`C2 A8`
+  substitusi mbstring menyamakan 192.169.0.0 dengan 194.128.0.0!). Mask sisanya = tabel konstanta
+  `[0x80..0xFE]` — mask hasil left-shift TIDAK PERNAH membawa bit-0 (mutan `& 0xFF`→`& 0xFE`
+  abadi matematis), jadi tujuh jawaban dinyatakan sebagai tabel (idiom konstanta H13); sisa yang
+  melewati tabel akan indeks-out-of-range → warning engine → ter-observasi.
+- **deptrac/layer**: semua kelas di `Zef\Framework\Http` (Http += Exception sudah ada), tanpa
+  dependensi baru; psalm-baseline SHRINK −4 (`MessageInterface::hasHeader/withBody`,
+  `RequestInterface::getUri`, `ServerRequestInterface::getServerParams` — konsumen produksi baru,
+  H5 shrink-as-you-land).
+
+Atribusi legacy: `Domain/Validation/TrustedHostValidator.php` + `Domain/Http/TrustedProxyMatcher.php`
++ wiring `Adapters/Http/RequestFactory::validateIngress/assertTrustedRequestHost/firstForwardedValue`
+(move-verbatim behaviour, dilipat ke satu akar `HttpException` dengan pesan byte-identik — termasuk
+em-dash pada pesan allow-list-kosong).
+
+### Pola battle tambahan slice ini
+
+- **PCOV + PHPUnit 13: atribusi per-test coverage HANYA mengikuti `#[CoversClass]`**: test yang
+  mengeksekusi kelas tapi TIDAK mendeklarasikannya di CoversClass tidak mengatribusi barisnya ke
+  kelas itu → infection tidak menjalankan test itu untuk mutan kelas tersebut → mutan "escape"
+  padahal test pembunuhnya ada (ditemukan via `--coverage-xml` per-line `<covered by>`). Mutan
+  MaskedPrefix "escape" sampai `#[CoversClass(MaskedPrefix::class)]` ditambahkan ke kelas test
+  yang battery-nya membunuhnya. Pelajaran: SETIAP kelas baru yang dieksekusi sebuah kelas test
+  WAJIB masuk daftar CoversClass kelas test itu — bukan hanya kelas test yang "memilikinya".
+- **Battery non-provider untuk aritmetika**: kasus pembunuh yang dinyatakan sebagai DataProvider
+  TIDAK diatribusi per-data-set oleh PCOV (nama atribusi = level method) — kasus pembunuh kritis
+  (boundary /15-/17, bit-6, bit-0, /32-/128, high-bit base) dinyatakan sebagai SATU method test
+  non-provider berisi matriks assert (`testTheContainmentArithmeticBoundaries`) agar atribusi
+  (dan kill) dijamin.
+- **Byte-prefix compare: `substr_compare`, bukan `strncmp`/`mb_substr`**: fixer mb_str melarang
+  `substr`; `mb_substr` salah-semantik pada biner (substitusi sekuens invalid); `substr_compare`
+  bebas fixer + mutator MBString + menerima length int apa pun (psalm tidak menuntut
+  non-negatif — beda dengan `strncmp` yang minta `int<0,max>` dan memaksa clamp bermutan-abadi
+  `max(0, ...)`).
+- **Literal index `isset($bin[N])` = zona abadi untuk N∈[4..15]**: panjang packed selalu {4,16} —
+  isset[4]≡isset[5]…isset[15]; keluarga harus dibaca dari channel lain (grammar filter) agar
+  semua literal mutannya ter-observasi.
+- **Dua lemparan pesan identik = saling-menutupi**: `Missing request host.` muncul di dua titik
+  (URI hostless; otoritas efektif kosong) — mutan Throw_ pada yang pertama BERTAHAN karena lemparan
+  kedua menyelamatkan assertThrows (pesan sama). Kill: test hostless sengaja MEMBAWA Host header
+  terpercaya sehingga hanya lemparan pertama yang bisa menolak. Pola yang sama pada
+  `Untrusted host:` — pesan tetap identik (H2), pembeda adalah BENTUK request, bukan teks.
+- **`\assert($x instanceof T, 'message')` untuk narrowing**: sniff `RequireExplicitAssertion`
+  menuntut assert (bukan @var docblock — fixer phpdoc_to_comment meluruhkannya, phpstan berhenti
+  membaca); assert TANPA message dihapus Rector (`RemoveDeadInstanceOfAssertRector`) — assert
+  DENGAN message bertahan, men-narrow phpstan+psalm, nol biaya di produksi, dan gagal-keras di
+  development melawan implementasi asing yang melanggar kontrak `withBody()`-preserves-type.
+- **Mutasi regex PregMatch**: `PregMatchRemoveCaret` dibunuh dengan host yang bracket-NYA di
+  tengah mengandung nama terpercaya (`evil.com[trusted.name]` — tanpa ^, mutant meng-strip ke
+  nama terpercaya dan lolos; asli melempar); `PregMatchRemoveFlags` (dotall) dibunuh literal
+  bracket yang memuat newline.
+- **`inet_pton()` tidak pernah warning pada input invalid (diverifikasi engine PHP 8.4)** — guard
+  `filter_var` di depannya redundan perilaku; guard dihapus, `$binary === false` tetap menjadi
+  satu-satunya kanal soft-false (mutan penghapus return-nya dibunuh lewat TypeError strict-types
+  ketika family-width detour lolos: ip IPv6 valid vs network garbage → width 128=128 →
+  `MaskedPrefix::matches(valid, false)` → TypeError).
