@@ -546,3 +546,98 @@ dua belas kolaborator (wajib archeology ≤ 20: CorsPolicy 40.80 → tiga ronde 
   beban-runner (4 thread lokal), bukan regresi. Debris `/tmp/zef-*` dari run sebelumnya
   HARUS dibersihkan sebelum verifikasi (pelajaran H13 flake-glob diulang: 731 file bocor
   membuat initial-test-run pristine gagal 1 test UploadedFile).
+
+## Fase 3 — KDD-H17 (error mapping: middleware PSR-15 ketiga, slice security penutup)
+
+**H17 — slice error mapping menutup fase security, dan dua "zona abadi" baru yang ditemukan
+adalah EKUIVALENSI-NILAI intrinsic grammar, bukan kelemahan test** — keduanya dijawab dengan
+restrukturisasi + mekanisme ignore BARU line-scoped (`ignoreSourceCodeByRegex`, preseden
+perluasan dari method-level). Roadmap "error mapping" dieksekusi sebagai
+`ErrorMappingMiddleware implements MiddlewareInterface` — middleware ketiga lane — di atas
+delapan kolaborator (`CorrelationId`, `ErrorStatusMap`, `ErrorDisclosure`,
+`ErrorResponseFactory`, `RedactedResponse`→`RedactedMessage`+`RedactionCandidate`,
+`FallbackResponse`) + kontrak `Psr\Log\LoggerInterface` divendorkan (direktori
+`src/Contracts/Psr/Log/` + mapping autoload `Psr\Log\` ternyata SUDAH disiapkan sesi
+sebelumnya — .gitkeep dihapus):
+
+- **Bound panjang HIDUP DI DALAM grammar, bukan `strlen` comparison**: klaim X-Request-ID
+  legacy dicek `strlen > 128 || preg !== 1` — dua zona mutan (MBString strlen pada domain
+  ASCII-grammar abadi; IncrementInteger pada literal 128). Menulis pola
+  `/^[A-Za-z0-9._:-]{1,128}$/D` melipat KEDUANYA: bound byte dihitung pattern (byte mode),
+  klaim kosong otomatis gagal `{1,128}` (guard `!== ''` mati-redundan, dilipat ala H15-b),
+  dan TIDAK ADA strlen/comparison yang tersisa untuk dimutasi. Bonus temuan engine: `$`
+  tanpa `D` MENERIMA newline-menjuntai (`"abc\n"` match, karena `$` juga cocok tepat sebelum
+  newline final) — bug smuggling legacy yang diperbaiki deviasi-terdokumentasi + test pin
+  (`abc\n` diregenerasi; request rumah menolak nilai header demikian saat konstruksi, jadi
+  double `ForeignServerRequest` verbatim adalah pembawa jujurnya).
+- **Ekivalensi-nilai capture = zona abadi YANG TIDAK BISA dibunuh test mana pun**: dua pasang
+  indeks capture membawa nilai yang tidak-terbedakan observabel: (a) `$match[0][1]` (awal
+  match) ≡ `$match[1][1]` (awal key) — grammar menjangkarkan seluruh match di byte pertama
+  key, SELALU sama; (b) `$match[2][1]` (awal separator) ≡ `$match[3][1]` (awal region nilai)
+  sebagai TITIK LANJUT SKAN — region separator (whitespace + satu [=:]) tidak pernah bisa
+  menjadi awal kandidat (bukan byte key), jadi kandidat-berikutnya terpilih identik. Mutan
+  yang menukar anggota pasangan adalah abadi SECARA MATEMATIK — bukti disiplin rumah
+  dijalankan (suite PENUH hijau di bawah tiap mutasi terpasang manual). Jawabannya
+  restrukturisasi: `$matchStart` diekstrak ke baris sendiri (mengisolasi zona (a) ke SATU
+  baris), advance memakai capture quote `[3]` sehingga arah INCREMENT-nya membaca capture
+  TIDAK-TERDEFINISI `[4]` → error dimensi-tak-terdefinisi engine → kill BERSIH (diverifikasi:
+  6 error test), dan hanya arah decrement (ekuivalen) yang di-ignore.
+- **`ignoreSourceCodeByRegex` = mekanisme line-scoped PERTAMA di infection.json5** (pasangan
+  `IncrementInteger`/`DecrementInteger` + pola baris sumber): method-level ignore terlalu
+  kasar untuk kedua baris ini — `RedactedMessage::of()` memuat literal lain yang harus tetap
+  hidup di bawah mutator (`$offset = 0` terkill test match-at-0; `$edit[0] + $edit[1]` terkill
+  test dua-edit). DiffSourceCodeMatcher mencocokkan pola terhadap baris `-` diff
+  (`^-\s*pola$`/mu) — pola TANPA `.*` pengapit, persis baris sumbernya. Ignore bertambah
+  3 → 6 (1 method MBString + 2 regex line-scoped), semuanya berkomentar bukti.
+- **MBString abadi #3: domain ASCII-grammar pada `RedactionCandidate::edit()`** — teks match,
+  key, separator, dan token nilai semuanya ASCII BY CONSTRUCTION (kelas byte-mode), jadi
+  mb_strlen/mb_substr ≡ strlen/substr untuk SETIAP string yang grammar itu bisa serahkan
+  (bukti: suite penuh hijau di bawah keempat swap terpasang serentak). Preseden kluster yang
+  sama: BodyBudget::refuses ('8bit'), ETagMiddleware::applyConditionalGet (token GET/HEAD).
+- **Idiom advance: offset capture, bukan literal aritmetika** — `+ 1` legacy (Decrement 1→0
+  = loop-tanpa-akhir; Increment 1→2 = tak-terobservabel, keduanya mendarat di interior key)
+  diganti offset capture murni TANPA aritmetika sama sekali. Pelajaran umum: kandidat
+  berikutnya TIDAK BISA dimulai di interior key maupun region separator — rentang
+  [awal-match+1, awal-nilai] adalah zona bebas-kandidat, sehingga SETIAP offset di rentang itu
+  ekuivalen; pilih ujung yang arah mutannya membaca dimensi tak-terdefinisi.
+- **`json_encode` UTF-8 invalid = pemicu double-failure JUJUR** — fallback plain-text 500
+  (legacy `internalErrorResponse`) butuh jalur di mana factory itu sendiri gagal; final
+  `readonly` tidak bisa di-double, TAPI `json_encode($msg, JSON_THROW_ON_ERROR)` melempar
+  JsonException pada pesan yang bukan UTF-8 valid (diverifikasi sandbox) — dev-mode +
+  `RuntimeException("\xB1\x31 ...")` adalah end-to-end tanpa double: 500 text/plain +
+  correlation-id tetap terkirim. Prod tidak pernah jatuh ke situ (pesan generik ASCII).
+- **`error_log` bisa diobservasi lewat ini-routing**: last-resort "logger rusak"
+  (legacy menulis nama kelas ke SAPI error log) terlihat dengan
+  `ini_set('error_log', $tmpFile)` — error_log() type-0 MENAMBAH ke file itu (diverifikasi
+  sandbox) — assert `str_contains('ZEF logging failure: LogicException')` + tearDown restore.
+  Test pasangannya: TANPA logger → file TIDAK memuat tulisan itu (pin jalur opt-in `?->`).
+  Nullsafe `?->` = seam NOL-mutan (tidak ada mutator infection untuk `?->`): logging
+  opt-in sampai lane observability memasang sink nyata.
+- **Arsitektur catch-arm RETURN, bukan variabel-jatuh-bersama**: psalm melaporkan
+  `$status` UnusedVariable pada bentuk "assign-di-dua-catch, pakai-setelah-try" (aliran
+  return-di-dalam-try) — restrukturisasi ke `failureAnswer(Throwable, int, string)` privat:
+  tiap catch me-return langsung, 3 return tepat di batas S1142 Sonar, nol variabel bersama.
+  Nama parameter `process()` HARUS nama interface (`$request`, `$handler`) + skip
+  RenameParamToMatchTypeRector per-file (preseden Message/ETag/Cors — rector menamai dari
+  type, psalm dari interface; konflik yang sama keempat kalinya).
+- **ForeignResponse + withHeader(string) → getHeaderLine TypeError**: double verbatim
+  menyimpan nilai string di peta `list<string>`-nya — getHeaderLine memanggil getHeader yang
+  bertipe `array`. Stamp atas response asing di-assert lewat `getHeaders()` (peta mentah,
+  kunci hadir) — CORS tidak pernah mengetes jalur ini (hanya emitter membaca double itu).
+- **Pin e2e menggantikan const-bersama**: `ErrorStatusMap` mendeklarasikan teks refusal
+  (`'Request body exceeds configured size limit.'`) SEKALI lagi secara privat — duplikat
+  disengaja — karena test end-to-end MENJALANKAN `RequestFactory::validateIngress()` asli
+  atas klaim Content-Large terlalu besar dan melempar sinyal ASLI ke middleware: 413 + judul
+  'Content Too Large'. Pemetaan terpin ke throw-site nyata, bukan ke kebetulan const bersama.
+- **PHPUnit 13: provider = ATRIBUT `#[DataProvider('...')]`** — docblock `@dataProvider`
+  sudah dihapus upstream (ArgumentCountError tanpa argumen). Slevomat menuntut
+  `@return iterable<...>` eksplisit pada provider (pelajaran H13 diulang).
+- **5 timeout-kill by design pada kode baru** — Break_→continue, `=== null`→`!== null`,
+  Decrement offset [3]→[1] (re-match), Plus→Minus pada `$edit[0]+$edit[1]`, Plus→Minus pada
+  `$matchStart + mb_strlen`: semuanya loop-tanpa-akhir → timeout = kill terhitung. Bandingkan
+  pristine-main 3bae1cf pada sandbox ini: 6 escape (UploadedMove:36 ×5 + :44 — keluarga
+  flake glob /tmp yang SAMA PERSIS pada branch) + 7 timeout (DotWriter ×2, BodyTransfer,
+  EmittedBody, UploadedTransfer, UriEncoder ×2) — branch menambah 5 timeout baru SEMUANYA
+  di kode baru sebagai kill terancang; NOL escape baru. Local mutation:zones gagal pada
+  KEDUA sisi (99.79% pristine vs 99.80% branch — kondisi flake lokal yang terdokumentasi,
+  engine CI membunuhnya, preseden PR-H/K/L).

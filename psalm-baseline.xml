@@ -106,6 +106,18 @@
       <code><![CDATA[process]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Contracts/Psr/Log/LoggerInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[alert]]></code>
+      <code><![CDATA[critical]]></code>
+      <code><![CDATA[debug]]></code>
+      <code><![CDATA[emergency]]></code>
+      <code><![CDATA[info]]></code>
+      <code><![CDATA[log]]></code>
+      <code><![CDATA[notice]]></code>
+      <code><![CDATA[warning]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Contracts/ServiceProviderInterface.php">
     <UnusedClass>
       <code><![CDATA[ServiceProviderInterface]]></code>
@@ -130,6 +142,11 @@
   <file src="src/Zef/Framework/Http/ETagMiddleware.php">
     <UnusedClass>
       <code><![CDATA[ETagMiddleware]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Http/ErrorMappingMiddleware.php">
+    <UnusedClass>
+      <code><![CDATA[ErrorMappingMiddleware]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Http/RequestFactory.php">

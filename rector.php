@@ -30,6 +30,7 @@ return RectorConfig::configure()
             __DIR__ . '/src/Zef/Framework/Http/Message.php',
             __DIR__ . '/src/Zef/Framework/Http/ETagMiddleware.php',
             __DIR__ . '/src/Zef/Framework/Http/CorsMiddleware.php',
+            __DIR__ . '/src/Zef/Framework/Http/ErrorMappingMiddleware.php',
         ],
         // The rule resolves the expected name from a method-call chain's
         // return type differently on different environments (a fresh CI

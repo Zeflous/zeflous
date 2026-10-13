@@ -45,6 +45,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the request body policy and limited input stream [#294](https://github.com/Zeflous/zeflous/pull/294) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the trusted host ingress policy [#298](https://github.com/Zeflous/zeflous/pull/298) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the conditional get etag middleware [#303](https://github.com/Zeflous/zeflous/pull/303) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the cors origin policy middleware [#309](https://github.com/Zeflous/zeflous/pull/309) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the error mapping middleware [#314](https://github.com/Zeflous/zeflous/pull/314) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -145,6 +147,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the request body policy history row to pull request 294 [#295](https://github.com/Zeflous/zeflous/pull/295) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the trusted host ingress policy history row to pull request 298 [#301](https://github.com/Zeflous/zeflous/pull/301) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the conditional get history row to pull request 303 [#305](https://github.com/Zeflous/zeflous/pull/305) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the cors origin policy history row to pull request 309 [#310](https://github.com/Zeflous/zeflous/pull/310) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

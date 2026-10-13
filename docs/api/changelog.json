@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-13T12:12:51Z",
+  "as_of": "2026-10-13T17:10:42Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 133,
+  "unreleased_count": 136,
   "versions": [
     {
       "version": "Unreleased",
@@ -931,6 +931,48 @@
                 "sha": "057d1158ac26fbba401e0c5d2f144fc34efb9281",
                 "short_sha": "057d115",
                 "subject": "fix(http): keep the psr-15 parameter names on the middleware surface"
+              }
+            ]
+          },
+          {
+            "pr": 309,
+            "title": "feat(http): the cors origin policy middleware",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-13T14:09:47Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/309",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c20ad33bbc2dd535ef6f7649007b9fd1c9856c24",
+                "short_sha": "c20ad33",
+                "subject": "feat(http): the cors origin policy middleware"
+              },
+              {
+                "sha": "8e9876b781eb2c5d1b0edb191c7199785506168d",
+                "short_sha": "8e9876b",
+                "subject": "Merge branch 'main' into feat/http-cors-origin-policy"
+              },
+              {
+                "sha": "234327ce233aa8ebe60463a81fbc10f50bf66759",
+                "short_sha": "234327c",
+                "subject": "fix(http): satisfy the early-exit sniff and the sonar return budget on the cors slice"
+              }
+            ]
+          },
+          {
+            "pr": 314,
+            "title": "feat(http): the error mapping middleware",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-13T17:10:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/314",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "133f5936372924aa36eacc89d3c5397a93c9f6c3",
+                "short_sha": "133f593",
+                "subject": "feat(http): the error mapping middleware"
               }
             ]
           }
@@ -3208,6 +3250,27 @@
                 "sha": "7ce4b2db5f3006fa17a57a0a44f4929e5bf159a3",
                 "short_sha": "7ce4b2d",
                 "subject": "Merge branch 'main' into docs/roadmap-etag-row"
+              }
+            ]
+          },
+          {
+            "pr": 310,
+            "title": "docs(roadmap): pin the cors origin policy history row to pull request 309",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-13T14:31:07Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/310",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b70a2062820f34d43c0c5bad2439e836f493bc97",
+                "short_sha": "b70a206",
+                "subject": "docs(roadmap): pin the cors origin policy history row to pull request 309"
+              },
+              {
+                "sha": "59ee4b7d819f6ee56f4a78d1d25ac388e0d5efe5",
+                "short_sha": "59ee4b7",
+                "subject": "Merge branch 'main' into docs/roadmap-cors-row"
               }
             ]
           }
@@ -6679,6 +6742,69 @@
               "sha": "7ce4b2db5f3006fa17a57a0a44f4929e5bf159a3",
               "short_sha": "7ce4b2d",
               "subject": "Merge branch 'main' into docs/roadmap-etag-row"
+            }
+          ]
+        },
+        {
+          "pr": 309,
+          "title": "feat(http): the cors origin policy middleware",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-13T14:09:47Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/309",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c20ad33bbc2dd535ef6f7649007b9fd1c9856c24",
+              "short_sha": "c20ad33",
+              "subject": "feat(http): the cors origin policy middleware"
+            },
+            {
+              "sha": "8e9876b781eb2c5d1b0edb191c7199785506168d",
+              "short_sha": "8e9876b",
+              "subject": "Merge branch 'main' into feat/http-cors-origin-policy"
+            },
+            {
+              "sha": "234327ce233aa8ebe60463a81fbc10f50bf66759",
+              "short_sha": "234327c",
+              "subject": "fix(http): satisfy the early-exit sniff and the sonar return budget on the cors slice"
+            }
+          ]
+        },
+        {
+          "pr": 310,
+          "title": "docs(roadmap): pin the cors origin policy history row to pull request 309",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-13T14:31:07Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/310",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b70a2062820f34d43c0c5bad2439e836f493bc97",
+              "short_sha": "b70a206",
+              "subject": "docs(roadmap): pin the cors origin policy history row to pull request 309"
+            },
+            {
+              "sha": "59ee4b7d819f6ee56f4a78d1d25ac388e0d5efe5",
+              "short_sha": "59ee4b7",
+              "subject": "Merge branch 'main' into docs/roadmap-cors-row"
+            }
+          ]
+        },
+        {
+          "pr": 314,
+          "title": "feat(http): the error mapping middleware",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-13T17:10:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/314",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "133f5936372924aa36eacc89d3c5397a93c9f6c3",
+              "short_sha": "133f593",
+              "subject": "feat(http): the error mapping middleware"
             }
           ]
         }
