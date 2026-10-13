@@ -12,6 +12,7 @@
 - feat\(http\): the error mapping middleware [\#314](https://github.com/Zeflous/zeflous/pull/314) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the cors origin policy history row to pull request 309 [\#310](https://github.com/Zeflous/zeflous/pull/310) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the cors origin policy middleware [\#309](https://github.com/Zeflous/zeflous/pull/309) ([mbetixz](https://github.com/mbetixz))
+- fix\(roadmap\): close P-1..P-4, P-6 from the src logic re-audit [\#308](https://github.com/Zeflous/zeflous/pull/308) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the conditional get history row to pull request 303 [\#305](https://github.com/Zeflous/zeflous/pull/305) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the conditional get etag middleware [\#303](https://github.com/Zeflous/zeflous/pull/303) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the trusted host ingress policy history row to pull request 298 [\#301](https://github.com/Zeflous/zeflous/pull/301) ([mbetixz](https://github.com/mbetixz))
