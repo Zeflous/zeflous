@@ -39,11 +39,10 @@ final class CidrAddress
         $ipBinary = inet_pton($ip);
         $networkBinary = inet_pton($network);
 
-        if ($ipBinary === false || $networkBinary === false) {
-            return false;
-        }
-
-        if (self::widthOf($ip) !== self::widthOf($network)) {
+        // Two ways the addresses cannot relate: one of them packs nothing,
+        // or they belong to different address families. Both answer the
+        // same refusal.
+        if ($ipBinary === false || $networkBinary === false || self::widthOf($ip) !== self::widthOf($network)) {
             return false;
         }
 
