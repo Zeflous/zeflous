@@ -2,7 +2,6 @@
 <files psalm-version="6.19.2@fa716e443b23e6fa35bf58907e67ca692ec3c00a">
   <file src="src/Contracts/Psr/Http/Message/MessageInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[getHeader]]></code>
       <code><![CDATA[getProtocolVersion]]></code>
       <code><![CDATA[withAddedHeader]]></code>
       <code><![CDATA[withProtocolVersion]]></code>
@@ -122,6 +121,11 @@
       <code><![CDATA[checks]]></code>
       <code><![CDATA[isHealthy]]></code>
     </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Http/CorsMiddleware.php">
+    <UnusedClass>
+      <code><![CDATA[CorsMiddleware]]></code>
+    </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Http/ETagMiddleware.php">
     <UnusedClass>
