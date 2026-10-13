@@ -142,6 +142,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the superglobal request factory history row to pull request 284 [#285](https://github.com/Zeflous/zeflous/pull/285) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the sapi response emitter history row to pull request 289 [#292](https://github.com/Zeflous/zeflous/pull/292) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the request body policy history row to pull request 294 [#295](https://github.com/Zeflous/zeflous/pull/295) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the trusted host ingress policy history row to pull request 298 [#301](https://github.com/Zeflous/zeflous/pull/301) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

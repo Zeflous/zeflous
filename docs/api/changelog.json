@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-13T09:33:32Z",
+  "as_of": "2026-10-13T09:52:01Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 130,
+  "unreleased_count": 131,
   "versions": [
     {
       "version": "Unreleased",
@@ -3140,6 +3140,27 @@
                 "sha": "b64600d98723ce0df45dfadd589acf34cb7216f5",
                 "short_sha": "b64600d",
                 "subject": "docs(roadmap): pin the request body policy history row to pull request 294"
+              }
+            ]
+          },
+          {
+            "pr": 301,
+            "title": "docs(roadmap): pin the trusted host ingress policy history row to pull request 298",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-13T09:52:01Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/301",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "151fc4286e7114b18d271bb1c67527f733c7cbc3",
+                "short_sha": "151fc42",
+                "subject": "docs(roadmap): pin the trusted host ingress policy history row to pull request 298"
+              },
+              {
+                "sha": "df5920640e38d7bb1b3fbeb7aa4775395d730b68",
+                "short_sha": "df59206",
+                "subject": "Merge branch 'main' into docs/roadmap-trusted-hosts-row"
               }
             ]
           }
@@ -6543,6 +6564,27 @@
               "sha": "9db3c4ddf93c35725fd58175a056ee87177694b4",
               "short_sha": "9db3c4d",
               "subject": "fix(http): merge the unrelated-addresses guards to satisfy the return-count budget (SonarCloud S1142 on CidrAddress::contains)"
+            }
+          ]
+        },
+        {
+          "pr": 301,
+          "title": "docs(roadmap): pin the trusted host ingress policy history row to pull request 298",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-13T09:52:01Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/301",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "151fc4286e7114b18d271bb1c67527f733c7cbc3",
+              "short_sha": "151fc42",
+              "subject": "docs(roadmap): pin the trusted host ingress policy history row to pull request 298"
+            },
+            {
+              "sha": "df5920640e38d7bb1b3fbeb7aa4775395d730b68",
+              "short_sha": "df59206",
+              "subject": "Merge branch 'main' into docs/roadmap-trusted-hosts-row"
             }
           ]
         }
