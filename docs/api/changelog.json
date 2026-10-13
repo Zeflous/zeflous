@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-13T17:22:39Z",
+  "as_of": "2026-10-13T18:58:50Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 137,
+  "unreleased_count": 138,
   "versions": [
     {
       "version": "Unreleased",
@@ -973,6 +973,32 @@
                 "sha": "133f5936372924aa36eacc89d3c5397a93c9f6c3",
                 "short_sha": "133f593",
                 "subject": "feat(http): the error mapping middleware"
+              }
+            ]
+          },
+          {
+            "pr": 319,
+            "title": "feat(http): the head request middleware and the http hot-path benchmarks",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-13T18:58:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/319",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "bf2cefdfb0193c6b004eda6724be80d586ff036f",
+                "short_sha": "bf2cefd",
+                "subject": "feat(http): the head request middleware and the http hot-path benchmarks"
+              },
+              {
+                "sha": "164a2e8870d486a669cbba0005494ac0a5450b29",
+                "short_sha": "164a2e8",
+                "subject": "Merge branch 'main' into feat/http-head-middleware"
+              },
+              {
+                "sha": "aae2b43052d614f1c3842aa9b5dbd2cfb6cca0fa",
+                "short_sha": "aae2b43",
+                "subject": "fix(ci): compile assertions into the coverage runs"
               }
             ]
           }
@@ -6837,6 +6863,32 @@
               "sha": "6a31d528dfceea02b84fcbb95cc47fb4a0590000",
               "short_sha": "6a31d52",
               "subject": "docs(roadmap): pin the error mapping history row to pull request 314"
+            }
+          ]
+        },
+        {
+          "pr": 319,
+          "title": "feat(http): the head request middleware and the http hot-path benchmarks",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-13T18:58:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/319",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "bf2cefdfb0193c6b004eda6724be80d586ff036f",
+              "short_sha": "bf2cefd",
+              "subject": "feat(http): the head request middleware and the http hot-path benchmarks"
+            },
+            {
+              "sha": "164a2e8870d486a669cbba0005494ac0a5450b29",
+              "short_sha": "164a2e8",
+              "subject": "Merge branch 'main' into feat/http-head-middleware"
+            },
+            {
+              "sha": "aae2b43052d614f1c3842aa9b5dbd2cfb6cca0fa",
+              "short_sha": "aae2b43",
+              "subject": "fix(ci): compile assertions into the coverage runs"
             }
           ]
         }
