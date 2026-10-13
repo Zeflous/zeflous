@@ -641,3 +641,69 @@ sebelumnya — .gitkeep dihapus):
   di kode baru sebagai kill terancang; NOL escape baru. Local mutation:zones gagal pada
   KEDUA sisi (99.79% pristine vs 99.80% branch — kondisi flake lokal yang terdokumentasi,
   engine CI membunuhnya, preseden PR-H/K/L).
+
+## Fase 4 — KDD-H18 (HEAD request handling: middleware PSR-15 keempat + bench hot-path, slice penutup lane)
+
+**H18 — slice performance phase menutup HTTP-optimizations sekaligus jadi instrumen observabilitas
+lane, dan temuan intinya: kepekaan-huruf method adalah JAWABAN bersih atas pertanyaan
+alphabet-reachability H15/H16 — bukan mb_strtoupper.** Roadmap "Head Request Handling"
+("otomatis mengubah permintaan HEAD menjadi GET untuk mengeksekusi logika tapi membuang body")
+dieksekusi sebagai `HeadMiddleware implements MiddlewareInterface` — middleware keempat lane —
+di atas dua kolaborator mini (`HeadRequest::isHead`/`asGet` gate + reissue; `HeadResponse::view`
+head view) + dua double baru bernama (`RecordingHandler` — handler yang merekam request yang
+dijawabnya, `MiddlewareHandler` — adapter middleware→handler untuk tes komposisi pipeline):
+
+- **Gate token-exak `=== 'HEAD'` membunuh zona abadi SEBELUM lahir**: H15 membuktikan gate
+  `mb_strtoupper` GET/HEAD abadi matematis (di-ignore, kategori), H16 membuktikan OPTIONS
+  terjangkau ſ→S (dibunuh test). Audit alfabet untuk HEAD: H, E, A, D tidak terjangkau dari
+  karakter non-ASCII mana pun lewat case-map Unicode (tidak ada ſ/K/Å-analog untuk keempat
+  huruf itu; fullwidth ｈ melipat ke Ｈ, tetap fullwidth) — artinya gate mb_strtoupper untuk
+  HEAD akan menjadi ignore ke-4 tanpa jalur kill. Jawabannya BUKAN ignore: RFC 9110 §9.1
+  mendeklarasikan nama method case-sensitive — `head` huruf-kecil adalah token tak-terdaftar
+  yang BERBEDA — jadi perbandingan exak lebih benar secara kontrak DAN membawa kill channel
+  gratisnya sendiri (pin pass-through `head` lowercase: handler mengamati `head`, instance
+  request assertSame, response assertSame). Deviasi terdokumentasi: legacy
+  `HttpRequestRunner` memakai `strtoupper()` (menerima semua case-fold); preseden deviasi
+  RFC-correct atas legacy sudah ada (H17 grammar-`D` smuggling fix).
+- **Content-Length dijatuhkan di LEVEL RESPONSE, bukan di emitter**: head view
+  `withBody(Stream::fromString(''))` + `withoutHeader('Content-Length')` — port verbatim
+  `headView()` legacy (ZEF-DEEP-05): body yang dikosongkan membuat CL "berbohong" (deklarasi
+  28, tersisa 0) — emitter `ContentLength::reconcile` memang akan menjatuhkannya juga, tapi
+  menjatuhkan di level response menjaga objek KONSISTEN-INTERNAL untuk konsumen hilir mana
+  pun (forwarder verbatim RoadRunner akan mengapalkan framing basi). RFC 9110 §8.6 hanya
+  MEMPERBOLEHKAN CL pada HEAD (tidak mewajibkan) dan §9.3.2 "same header fields as GET"
+  terpenuhi untuk validator (`ETag`/`Last-Modified`) + metadata representasi (`Content-Type`).
+  Kembar struktural: `NotModifiedResponse` (304 yang sama-sama body-less + CL-less) — dan
+  bentuk CHAINED `->withBody()->withoutHeader()` + satu hop assert di seam adalah bentuk
+  STABIL: draf pertama per-hop-assert (`$bodyless`/`$headerless`) memicu ping-pong
+  RenameVariableToMatchMethodCallReturnTypeRector; bentuk rantai = nama `$message` =
+  nama yang diinginkan rector untuk return type `MessageInterface` — stabil tanpa skip.
+- **Konflik nama-param rector↔psalm KALI KEEMPAT** (H15-g/H17): `HeadMiddleware::process()`
+  + skip `RenameParamToMatchTypeRector` per-file (preseden Message/ETag/Cors/ErrorMapping) —
+  vendored `MiddlewareInterface` mendeklarasikan `($request, $handler)`. Kolaborator non-interface
+  (`HeadRequest`) TIDAK perlu skip: param di-rename rector ke `$serverRequest` — patuhi, karena
+  tidak ada kontrak interface yang dipertaruhkan.
+- **Komposisi pipeline = double bernama, bukan anonymous class** (pelajaran PR-L diulang):
+  `RecordingHandler` (nullable `?ServerRequestInterface` + assert-idiom 'handle() must be
+  called before observed()' — phpstan uninitialized-property dijawab tanpa mengubah kontrak)
+  dan `MiddlewareHandler` (middleware + terminal → handler). Test komposisi membuktikan urutan
+  yang dianjurkan docblock: Head PALING LUAR → ETag mengamati representasi PENUH → head view
+  mengosongkan badan TETAPI validator ETag selamat (hash sha256 atas representasi utuh, bukan
+  hash string-kosong — pembeda kill untuk salah-urutan).
+- **Bench hot-path = klaim jujur, bukan klaim kemenangan**: `HttpHotPathBench` (4 metode:
+  fromServer 39.4μs, wither 2.9μs, lookup 0.5μs, render URI 0.8μs) — setiap metode mengawal
+  invarian sendiri (jalan-panas rusak = lane GAGAL, bukan diam-diam melaporkan angka;
+  disiplin RouterBench). Kajian jujur atas bullet Fase 4 shim: (a) "Direct Property vs Getter"
+  N/A — getter adalah MANDAT interface PSR-7, kolaborator internal sudah readonly promoted;
+  (b) "Lazy Loading Arrays" N/A arsitektur — tas query/cookie TIBA sudah-terparse dari SAPI
+  ($_GET/$_COOKIE dibaca begitu saja; tidak ada parse_str eager untuk ditunda); (c) "String
+  Interning" terpenuhi struktural — `HttpReasonPhrases::MAP` const table + ejaan header
+  tersimpan SEKALI di store (PHP interning engine menangani sisanya); (d) "Unset on Finish"
+  = tugas lane Kernel (belakangan). Yang DAPAT dikawal sekarang: angka referensi regressi.
+- **Angka**: 20 test baru (1512→1532), 3 kelas src baru 100% lines+methods, coverage tetap
+  99.43%; filtered infection zona baru: 6 mutan SEMUA terbunuh (MSI 100); full infection vs
+  pristine-main fe929d9: +6 mutant baru semua killed, SET escape/timeout/error/syntax-error
+  IDENTIK byte-per-byte (verifikasi JSON per-mutant: 6 escape UploadedMove-flake, 12 timeout,
+  18 error, 3 syntax — SAMA PERSIS dua sisi); local mutation:zones gagal IDENTIK dua sisi
+  (99.80% vs 99.80%) — kondisi flake lokal terdokumentasi, engine CI membunuhnya (preseden
+  PR-H/K/L/M).

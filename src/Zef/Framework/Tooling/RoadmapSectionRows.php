@@ -93,15 +93,10 @@ final class RoadmapSectionRows
      */
     private static function dataRows(array $table): int
     {
-        $separator = null;
-
-        foreach ($table as $index => $row) {
-            if (RoadmapTableCells::isSeparator(RoadmapTableCells::cells($row))) {
-                $separator = $index;
-
-                break;
-            }
-        }
+        $separator = array_find_key(
+            $table,
+            static fn (string $row): bool => RoadmapTableCells::isSeparator(RoadmapTableCells::cells($row)),
+        );
 
         if ($separator === null) {
             return 0;

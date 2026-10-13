@@ -15,7 +15,6 @@
   <file src="src/Contracts/Psr/Http/Message/RequestInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getRequestTarget]]></code>
-      <code><![CDATA[withMethod]]></code>
       <code><![CDATA[withRequestTarget]]></code>
       <code><![CDATA[withUri]]></code>
     </PossiblyUnusedMethod>
@@ -147,6 +146,11 @@
   <file src="src/Zef/Framework/Http/ErrorMappingMiddleware.php">
     <UnusedClass>
       <code><![CDATA[ErrorMappingMiddleware]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Http/HeadMiddleware.php">
+    <UnusedClass>
+      <code><![CDATA[HeadMiddleware]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Http/RequestFactory.php">
