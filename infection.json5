@@ -44,9 +44,24 @@
         // the layer stay under the mutator: dropping their encoding
         // argument changes character semantics on binary payloads and
         // tests kill those. This ignore is scoped to that single method.
+        //
+        // The method-token fold in ETagMiddleware::applyConditionalGet()
+        // is the second: mb_strtoupper($method) and strtoupper($method)
+        // agree for every input whose fold can reach the GET/HEAD gate.
+        // A token that differs between the two folds must contain a
+        // non-ASCII character, and no character in the engine's case map
+        // upper-cases into the ASCII letters G, E, T, H, A or D (the
+        // non-ASCII-to-ASCII upper-case exceptions -- U+017F to S, the
+        // ff/fi/fl/ffi ligatures to their ASCII expansions -- never spell
+        // GET or HEAD), so such a token fails the gate under both folds
+        // and the response flows through untouched either way. The
+        // neighbouring mb_trim calls stay under the mutator: MBString
+        // does not target mb_trim. This ignore is scoped to that single
+        // method.
         "MBString": {
             "ignore": [
-                "Zef\\Framework\\Http\\BodyBudget::refuses"
+                "Zef\\Framework\\Http\\BodyBudget::refuses",
+                "Zef\\Framework\\Http\\ETagMiddleware::applyConditionalGet"
             ]
         }
     },
