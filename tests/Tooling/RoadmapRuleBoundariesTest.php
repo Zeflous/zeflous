@@ -40,6 +40,19 @@ final class RoadmapRuleBoundariesTest extends TestCase
         self::assertSame('a b c d e f', RepeatedWordRun::first('a b c d e f a b c d e f'));
     }
 
+    public function testSectionRowsTreatsTheFirstTableRowAsAHeader(): void
+    {
+        // The first row of a section's table is its header, never a data row:
+        // a section whose table has only a header counts as zero. This pins the
+        // `$headerSeen` initial value against a `true` regression.
+        $lines = [
+            '## 1. HTTP Layer',
+            '| Work item | PR |',
+        ];
+
+        self::assertSame(['httplayer' => 0], RoadmapSectionRows::counts($lines));
+    }
+
     public function testRepeatedRunFoldsUnicodeBeforeTokenising(): void
     {
         // U+212A KELVIN SIGN lower-cases to ASCII "k" only under the

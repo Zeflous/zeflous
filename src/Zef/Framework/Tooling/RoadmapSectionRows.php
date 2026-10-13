@@ -11,6 +11,12 @@ namespace Zef\Framework\Tooling;
  * a header counts as zero. The count is the derived value the `Summary` table
  * must agree with ({@see RoadmapCountRules}) and the evidence the contradiction
  * rule uses ({@see RoadmapContradictionRules}).
+ *
+ * The header is recognised structurally: in a Markdown table the header row is
+ * the one immediately before the `---` separator, so a row is a data row only
+ * once a separator has been seen. Tracking that fact (rather than a "first row"
+ * flag) keeps every assignment live, so the mutation gate has no dead store to
+ * rewrite.
  */
 final class RoadmapSectionRows
 {
@@ -26,13 +32,13 @@ final class RoadmapSectionRows
     {
         $counts = [];
         $current = null;
-        $headerSeen = false;
+        $afterSeparator = false;
 
         foreach ($lines as $line) {
             if (preg_match('/^## \d+\.\s+(.+)/', $line, $matches) === 1) {
                 $current = RoadmapTableCells::normalise($matches[1]);
                 $counts[$current] = 0;
-                $headerSeen = false;
+                $afterSeparator = false;
 
                 continue;
             }
@@ -44,25 +50,24 @@ final class RoadmapSectionRows
             }
 
             if ($current === null) {
-                $headerSeen = false;
+                $afterSeparator = false;
 
                 continue;
             }
 
             if (!str_starts_with($line, '|')) {
-                $headerSeen = false;
+                $afterSeparator = false;
 
                 continue;
             }
 
             if (RoadmapTableCells::isSeparator(RoadmapTableCells::cells($line))) {
+                $afterSeparator = true;
+
                 continue;
             }
 
-            if (!$headerSeen) {
-                // The first row of a table is its header; it is not a data row.
-                $headerSeen = true;
-
+            if (!$afterSeparator) {
                 continue;
             }
 
