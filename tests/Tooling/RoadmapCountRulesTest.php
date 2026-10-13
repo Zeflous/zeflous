@@ -7,12 +7,19 @@ namespace Zef\Test\Tooling;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Tooling\RoadmapCountRules;
+use Zef\Framework\Tooling\RoadmapSectionLookup;
 use Zef\Framework\Tooling\RoadmapSectionRows;
+use Zef\Framework\Tooling\RoadmapSummaryTable;
+use Zef\Framework\Tooling\RoadmapTableCells;
 
 /**
  * @internal
  */
 #[CoversClass(RoadmapCountRules::class)]
+#[CoversClass(RoadmapSectionRows::class)]
+#[CoversClass(RoadmapSummaryTable::class)]
+#[CoversClass(RoadmapSectionLookup::class)]
+#[CoversClass(RoadmapTableCells::class)]
 final class RoadmapCountRulesTest extends TestCase
 {
     public function testReportsASummaryCountThatDoesNotMatchItsSection(): void

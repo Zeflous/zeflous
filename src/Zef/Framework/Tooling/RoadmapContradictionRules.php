@@ -121,7 +121,7 @@ final class RoadmapContradictionRules
      */
     private static function declaresUnstarted(string $claim): bool
     {
-        $pattern = '/^[\s\x{00A0}]*' . preg_quote(self::UNSTARTED_MARKER, '/') . '/u';
+        $pattern = '/^[\p{Zs}\t\r\n]*' . preg_quote(self::UNSTARTED_MARKER, '/') . '/u';
 
         return preg_match($pattern, mb_strtolower($claim)) === 1;
     }
@@ -132,7 +132,7 @@ final class RoadmapContradictionRules
      */
     private static function trim(string $value): string
     {
-        return (string) preg_replace('/^[\s\x{00A0}]+|[\s\x{00A0}]+$/u', '', $value);
+        return mb_trim($value, " \t\r\n\u{00A0}");
     }
 
     /**

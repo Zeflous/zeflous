@@ -7,11 +7,15 @@ namespace Zef\Test\Tooling;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Tooling\RoadmapContradictionRules;
+use Zef\Framework\Tooling\RoadmapSectionRows;
+use Zef\Framework\Tooling\RoadmapTableCells;
 
 /**
  * @internal
  */
 #[CoversClass(RoadmapContradictionRules::class)]
+#[CoversClass(RoadmapSectionRows::class)]
+#[CoversClass(RoadmapTableCells::class)]
 final class RoadmapContradictionRulesTest extends TestCase
 {
     public function testReportsAnUnstartedAreaThatHasMergedRows(): void

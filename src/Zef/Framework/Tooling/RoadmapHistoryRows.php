@@ -32,9 +32,11 @@ final class RoadmapHistoryRows
 
             $row = self::row($line);
 
-            if ($row !== null) {
-                $rows[] = $row;
+            if ($row === null) {
+                continue;
             }
+
+            $rows[] = $row;
         }
 
         return $rows;
@@ -60,9 +62,11 @@ final class RoadmapHistoryRows
                 $pr = (int) $prMatches[1];
             }
 
-            if ($commit === '' && preg_match('/^`([0-9a-f]{7,40})`$/', $cell, $commitMatches) === 1) {
-                $commit = $commitMatches[1];
+            if ($commit !== '' || preg_match('/^`([0-9a-f]{7,40})`$/', $cell, $commitMatches) !== 1) {
+                continue;
             }
+
+            $commit = $commitMatches[1];
         }
 
         if ($date === '' || $commit === '') {

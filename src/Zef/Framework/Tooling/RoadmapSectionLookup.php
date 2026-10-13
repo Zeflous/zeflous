@@ -32,9 +32,11 @@ final class RoadmapSectionLookup
         $matches = [];
 
         foreach ($sectionRows as $section => $rows) {
-            if (str_starts_with($section, $firstWord)) {
-                $matches[] = $rows;
+            if (!str_starts_with($section, $firstWord)) {
+                continue;
             }
+
+            $matches[] = $rows;
         }
 
         return \count($matches) === 1 ? $matches[0] : null;

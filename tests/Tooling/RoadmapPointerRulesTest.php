@@ -6,12 +6,18 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Tooling\RoadmapHistoryRows;
+use Zef\Framework\Tooling\RoadmapNewestRow;
 use Zef\Framework\Tooling\RoadmapPointerRules;
+use Zef\Framework\Tooling\RoadmapTableCells;
 
 /**
  * @internal
  */
 #[CoversClass(RoadmapPointerRules::class)]
+#[CoversClass(RoadmapHistoryRows::class)]
+#[CoversClass(RoadmapNewestRow::class)]
+#[CoversClass(RoadmapTableCells::class)]
 final class RoadmapPointerRulesTest extends TestCase
 {
     public function testReportsAPointerOlderThanTheNewestRow(): void

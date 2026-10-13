@@ -25,9 +25,11 @@ final class RoadmapNewestRow
         $newest = null;
 
         foreach ($rows as $row) {
-            if ($newest === null || self::isNewer($row, $newest)) {
-                $newest = $row;
+            if ($newest !== null && !self::isNewer($row, $newest)) {
+                continue;
             }
+
+            $newest = $row;
         }
 
         return $newest;

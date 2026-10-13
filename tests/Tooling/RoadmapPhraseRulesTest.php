@@ -6,12 +6,16 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Tooling\RepeatedWordRun;
 use Zef\Framework\Tooling\RoadmapPhraseRules;
+use Zef\Framework\Tooling\RoadmapTableCells;
 
 /**
  * @internal
  */
 #[CoversClass(RoadmapPhraseRules::class)]
+#[CoversClass(RepeatedWordRun::class)]
+#[CoversClass(RoadmapTableCells::class)]
 final class RoadmapPhraseRulesTest extends TestCase
 {
     public function testReportsARepeatedPhraseInOneCell(): void
