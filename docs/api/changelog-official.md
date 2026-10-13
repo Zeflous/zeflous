@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the trusted host ingress policy history row to pull request 298 [\#301](https://github.com/Zeflous/zeflous/pull/301) ([mbetixz](https://github.com/mbetixz))
+- feat\(http\): the trusted host ingress policy [\#298](https://github.com/Zeflous/zeflous/pull/298) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the request body policy history row to pull request 294 [\#295](https://github.com/Zeflous/zeflous/pull/295) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the request body policy and limited input stream [\#294](https://github.com/Zeflous/zeflous/pull/294) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the sapi response emitter history row to pull request 289 [\#292](https://github.com/Zeflous/zeflous/pull/292) ([mbetixz](https://github.com/mbetixz))
