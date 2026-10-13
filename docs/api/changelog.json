@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-13T17:10:42Z",
+  "as_of": "2026-10-13T17:22:39Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 136,
+  "unreleased_count": 137,
   "versions": [
     {
       "version": "Unreleased",
@@ -3271,6 +3271,22 @@
                 "sha": "59ee4b7d819f6ee56f4a78d1d25ac388e0d5efe5",
                 "short_sha": "59ee4b7",
                 "subject": "Merge branch 'main' into docs/roadmap-cors-row"
+              }
+            ]
+          },
+          {
+            "pr": 315,
+            "title": "docs(roadmap): pin the error mapping history row to pull request 314",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-13T17:22:39Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/315",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6a31d528dfceea02b84fcbb95cc47fb4a0590000",
+                "short_sha": "6a31d52",
+                "subject": "docs(roadmap): pin the error mapping history row to pull request 314"
               }
             ]
           }
@@ -6805,6 +6821,22 @@
               "sha": "133f5936372924aa36eacc89d3c5397a93c9f6c3",
               "short_sha": "133f593",
               "subject": "feat(http): the error mapping middleware"
+            }
+          ]
+        },
+        {
+          "pr": 315,
+          "title": "docs(roadmap): pin the error mapping history row to pull request 314",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-13T17:22:39Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/315",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6a31d528dfceea02b84fcbb95cc47fb4a0590000",
+              "short_sha": "6a31d52",
+              "subject": "docs(roadmap): pin the error mapping history row to pull request 314"
             }
           ]
         }
