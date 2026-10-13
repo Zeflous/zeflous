@@ -70,4 +70,13 @@ final class RoadmapNotStartedBulletTest extends TestCase
     {
         self::assertFalse(RoadmapNotStartedBullet::declaresUnstarted('handler chain not started.'));
     }
+
+    public function testDeclaresUnstartedFoldsThroughMbstringCharacterSemantics(): void
+    {
+        // The long s (U+017F) lower-cases to ASCII "s" under the full Unicode
+        // map but not under the byte-wise `stripos`, so a claim whose "started"
+        // opens with it must still be recognised as the marker. This pins the
+        // mbstring fold against a byte-wise regression.
+        self::assertTrue(RoadmapNotStartedBullet::declaresUnstarted("not \u{017F}tarted."));
+    }
 }
