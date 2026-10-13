@@ -7,11 +7,10 @@ namespace Zef\Framework\Tooling;
 /**
  * Counts the data rows of each numbered section of a roadmap document.
  *
- * A section's table header and its separator row are not data rows, so a
- * section whose table has only a header counts as zero. The count is the
- * derived value the `Summary` table must agree with
- * ({@see RoadmapCountRules}) and the evidence the contradiction rule uses
- * ({@see RoadmapContradictionRules}).
+ * A section's table header is not a data row, so a section whose table has only
+ * a header counts as zero. The count is the derived value the `Summary` table
+ * must agree with ({@see RoadmapCountRules}) and the evidence the contradiction
+ * rule uses ({@see RoadmapContradictionRules}).
  */
 final class RoadmapSectionRows
 {
@@ -27,39 +26,42 @@ final class RoadmapSectionRows
     {
         $counts = [];
         $current = null;
-        $inTable = false;
+        $headerSeen = false;
 
         foreach ($lines as $line) {
-            if (preg_match('/^## \d+\.\s+(.+)$/', $line, $matches) === 1) {
+            if (preg_match('/^## \d+\.\s+(.+)/', $line, $matches) === 1) {
                 $current = RoadmapTableCells::normalise($matches[1]);
                 $counts[$current] = 0;
-                $inTable = false;
+                $headerSeen = false;
 
                 continue;
             }
 
             if (str_starts_with($line, '## ')) {
                 $current = null;
-                $inTable = false;
 
                 continue;
             }
 
-            if ($current === null || !str_starts_with($line, '|')) {
-                $inTable = false;
+            if ($current === null) {
+                $headerSeen = false;
 
                 continue;
             }
 
-            $cells = RoadmapTableCells::cells($line);
+            if (!str_starts_with($line, '|')) {
+                $headerSeen = false;
 
-            if (RoadmapTableCells::isSeparator($cells)) {
                 continue;
             }
 
-            if (!$inTable) {
+            if (RoadmapTableCells::isSeparator(RoadmapTableCells::cells($line))) {
+                continue;
+            }
+
+            if (!$headerSeen) {
                 // The first row of a table is its header; it is not a data row.
-                $inTable = true;
+                $headerSeen = true;
 
                 continue;
             }

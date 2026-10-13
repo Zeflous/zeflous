@@ -36,15 +36,15 @@ final class RoadmapNewestRow
     }
 
     /**
+     * Whether the candidate row is strictly newer than the current one: a
+     * greater merge date, or the same date and a greater pull-request number.
+     *
      * @param array{0: string, 1: int, 2: string} $candidate
      * @param array{0: string, 1: int, 2: string} $current
      */
     private static function isNewer(array $candidate, array $current): bool
     {
-        if ($candidate[0] !== $current[0]) {
-            return $candidate[0] > $current[0];
-        }
-
-        return $candidate[1] > $current[1];
+        return $candidate[0] > $current[0]
+            || ($candidate[0] === $current[0] && $candidate[1] > $current[1]);
     }
 }

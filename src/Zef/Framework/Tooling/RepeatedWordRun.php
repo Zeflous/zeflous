@@ -8,9 +8,11 @@ namespace Zef\Framework\Tooling;
  * Finds the first run of words that repeats inside one table cell.
  *
  * The phrase-duplication rule ({@see RoadmapPhraseRules}) is the only consumer.
- * The search is linear in the cell's word count: it walks the cell once and
- * remembers every {@see MIN_RUN}-word window it has seen, so the first window
- * that appears twice is the duplicated phrase.
+ * The search walks the cell's {@see MIN_RUN}-word windows in order and returns
+ * the first window that has already been seen, so the copy/pasted clause is
+ * reported at the earliest window that repeats. A window is only considered
+ * when {@see MIN_RUN} full words remain, so a short trailing window can never
+ * be read as a repeated phrase.
  */
 final class RepeatedWordRun
 {
@@ -32,19 +34,24 @@ final class RepeatedWordRun
     {
         $words = self::words($cell);
         $seen = [];
-        $limit = \count($words) - self::MIN_RUN;
+        $start = 0;
 
-        for ($start = 0; $start <= $limit; ++$start) {
-            $gram = implode(' ', \array_slice($words, $start, self::MIN_RUN));
+        while (true) {
+            $window = \array_slice($words, $start, self::MIN_RUN);
+
+            if (\count($window) < self::MIN_RUN) {
+                return null;
+            }
+
+            $gram = implode(' ', $window);
 
             if (isset($seen[$gram])) {
                 return $gram;
             }
 
-            $seen[$gram] = true;
+            $seen[$gram] = $start;
+            ++$start;
         }
-
-        return null;
     }
 
     /**

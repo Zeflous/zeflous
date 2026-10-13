@@ -65,10 +65,10 @@ final class RoadmapSummaryTable
      */
     private static function leadingInteger(string $cell): ?int
     {
-        if (preg_match('/^(\d+)/', mb_trim($cell, "`* \t"), $matches) !== 1) {
+        if (preg_match('/^\d+/', mb_trim($cell, "`* \t"), $matches) !== 1) {
             return null;
         }
 
-        return (int) $matches[1];
+        return (int) $matches[0];
     }
 }

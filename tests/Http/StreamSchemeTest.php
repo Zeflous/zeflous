@@ -59,6 +59,16 @@ final class StreamSchemeTest extends TestCase
         $this->expectNotToPerformAssertions();
     }
 
+    public function testAllowsAnUppercasePhpTarget(): void
+    {
+        // The `php://` target is folded to lower case before it is matched
+        // against the allow-list, so the permitted targets are case-insensitive.
+        StreamScheme::assert('php://TEMP');
+        StreamScheme::assert('PHP://Temp');
+
+        $this->expectNotToPerformAssertions();
+    }
+
     public function testRefusesARemoteTransport(): void
     {
         $this->assertRefused('http://example.com/', "Refusing to open the 'http://' wrapper.");
@@ -92,6 +102,22 @@ final class StreamSchemeTest extends TestCase
     public function testRefusesAnUnknownScheme(): void
     {
         $this->assertRefused('zef-unknown://resource', "Refusing to open the unknown 'zef-unknown://' wrapper.");
+    }
+
+    public function testRefusesAnUppercaseTransport(): void
+    {
+        // The scheme is case-insensitive: `HTTP://` is the `http://` transport
+        // and must be refused with the lower-cased scheme in the message.
+        $this->assertRefused('HTTP://example.com/', "Refusing to open the 'http://' wrapper.");
+    }
+
+    public function testTreatsASchemelikeSubstringOfAPlainPathAsAPlainPath(): void
+    {
+        // A plain path that merely contains `://` is still a plain path: the
+        // scheme must open the string, not appear anywhere inside it.
+        StreamScheme::assert('/tmp/weird://x');
+
+        $this->expectNotToPerformAssertions();
     }
 
     /**

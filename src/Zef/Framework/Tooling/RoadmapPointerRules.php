@@ -65,20 +65,22 @@ final class RoadmapPointerRules
      */
     public static function stalePointers(string $name, array $lines): array
     {
-        if (preg_match(self::POINTER_PATTERN, implode("\n", $lines), $matches) !== 1) {
+        $pointer = self::pointer($lines);
+
+        if ($pointer === null) {
             return [];
         }
 
         $newest = RoadmapNewestRow::of(RoadmapHistoryRows::rows($lines));
 
-        if ($newest === null || str_starts_with($newest[2], $matches[2])) {
+        if ($newest === null || str_starts_with($newest[2], $pointer[1])) {
             return [];
         }
 
         return [\sprintf(
             '%s "Last updated" points at `%s`, but the newest recorded row is `%s` (%s).',
             $name,
-            $matches[2],
+            $pointer[1],
             $newest[2],
             $newest[0],
         )];

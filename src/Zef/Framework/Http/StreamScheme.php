@@ -59,15 +59,9 @@ final class StreamScheme
 
         if ($scheme === 'php') {
             self::assertPhpTarget($uri);
-
-            return;
-        }
-
-        if (\in_array($scheme, self::TRANSPORTS, true)) {
+        } elseif (\in_array($scheme, self::TRANSPORTS, true)) {
             throw new HttpException("Refusing to open the '{$scheme}://' wrapper.");
-        }
-
-        if (!\in_array($scheme, stream_get_wrappers(), true)) {
+        } elseif (!\in_array($scheme, stream_get_wrappers(), true)) {
             throw new HttpException("Refusing to open the unknown '{$scheme}://' wrapper.");
         }
     }
@@ -89,6 +83,7 @@ final class StreamScheme
 
     /**
      * The lower-cased scheme of the URI, or an empty string for a plain path.
+     * The scheme grammar is ASCII, so an ASCII fold is the whole job.
      */
     private static function scheme(string $uri): string
     {

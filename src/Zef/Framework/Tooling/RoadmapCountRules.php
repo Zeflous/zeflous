@@ -43,10 +43,6 @@ final class RoadmapCountRules
     {
         $summary = RoadmapSummaryTable::counts($lines);
 
-        if ($summary === []) {
-            return [];
-        }
-
         $sectionRows = RoadmapSectionRows::counts($lines);
         $failures = [];
         $sum = 0;
@@ -60,7 +56,7 @@ final class RoadmapCountRules
             }
 
             $sum += $count;
-            $failures = [...$failures, ...self::areaFailure($name, $label, $count, $sectionRows)];
+            $failures = array_merge($failures, self::areaFailure($name, $label, $count, $sectionRows));
         }
 
         if ($total !== null && $total !== $sum) {
