@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-13T19:19:43Z",
+  "as_of": "2026-10-13T20:21:27Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 139,
+  "unreleased_count": 140,
   "versions": [
     {
       "version": "Unreleased",
@@ -1543,6 +1543,122 @@
                 "sha": "a05c2ad2e6e68e4a24daf2dd1921dd882cc32635",
                 "short_sha": "a05c2ad",
                 "subject": "test(roadmap): kill the CI-reported escaped mutants (continue-past-valid, caret anchor)"
+              }
+            ]
+          },
+          {
+            "pr": 308,
+            "title": "fix(roadmap): close P-1..P-4, P-6 from the src logic re-audit",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-13T20:21:27Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/308",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ccd7b09b5a2fd70725d6c9d630f8937c83ebdeb6",
+                "short_sha": "ccd7b09",
+                "subject": "fix(roadmap): close P-1..P-4, P-6 from the src logic re-audit"
+              },
+              {
+                "sha": "991bb3fec8f216200543fa1758d6c6071fcbdb61",
+                "short_sha": "991bb3f",
+                "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "a05d8388bbcdf2896bbdf09d049a2727f212cf59",
+                "short_sha": "a05d838",
+                "subject": "fix(roadmap): close CI findings on the new gate rules"
+              },
+              {
+                "sha": "6b9778411fd7f9dbd5c632472f7f062344411b19",
+                "short_sha": "6b97784",
+                "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "24e1e415aaa9ef5681d6b5db897e9871de243624",
+                "short_sha": "24e1e41",
+                "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "baa437842ddef3d446e332c4b5c0241f2610affa",
+                "short_sha": "baa4378",
+                "subject": "fix(roadmap): close F-1..F-6 from the src logic re-audit"
+              },
+              {
+                "sha": "f47a7e3241aeef3ba847e4fa71de27b838b03bee",
+                "short_sha": "f47a7e3",
+                "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "e1f250e5058f426e78bce708c81ad6a805a90724",
+                "short_sha": "e1f250e",
+                "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "8c71e31640f2792791964d091fc82373e63fc31e",
+                "short_sha": "8c71e31",
+                "subject": "refactor(roadmap): split the contradiction rule to satisfy the archeology gate"
+              },
+              {
+                "sha": "ba3534a5209c62c0b7bcbd64456721b63d867d17",
+                "short_sha": "ba3534a",
+                "subject": "test(roadmap): pin the mbstring fold in the not-started bullet helper"
+              },
+              {
+                "sha": "26e505ab506fe89fffee163d0b6eb88dff9ea579",
+                "short_sha": "26e505a",
+                "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "ffc3ba02d2d845cbc1c2213930dca6d549999fb7",
+                "short_sha": "ffc3ba0",
+                "subject": "refactor(roadmap): make the section-row counter mutation-clean"
+              },
+              {
+                "sha": "6ea3d9ddeb3b2f4bcababcc12d6b34c7de8e4ba8",
+                "short_sha": "6ea3d9d",
+                "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "2f3d732f9ab79f3bc5b602e31b322539f833fd31",
+                "short_sha": "2f3d732",
+                "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "c7fcfbdc3190132f476e8a8a73de822b38e47f0d",
+                "short_sha": "c7fcfbd",
+                "subject": "test(roadmap): kill the two escaped mutants in the new gate rules"
+              },
+              {
+                "sha": "dd744671854823016f48cd1bb915e91f8815fc66",
+                "short_sha": "dd74467",
+                "subject": "merge: sync main into the roadmap gate branch"
+              },
+              {
+                "sha": "b9ad6a8e305913e8bb6b7a1443dc2bff80b559fd",
+                "short_sha": "b9ad6a8",
+                "subject": "Merge commit '2f3d732' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "1919bb5e5778c2cd2ce8a396ceeb96796b188b2f",
+                "short_sha": "1919bb5",
+                "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "bf561f9a9004bba9e8f4e4046be26caabaddb96a",
+                "short_sha": "bf561f9",
+                "subject": "refactor(roadmap): split the section-row counter under the archeology ceiling"
+              },
+              {
+                "sha": "86973474237b23cc26c944714f4b8fb03e6c6257",
+                "short_sha": "8697347",
+                "subject": "Merge commit '1919bb5e5778c2cd2ce8a396ceeb96796b188b2f' into fix/roadmap-gate-count-freshness-rules"
+              },
+              {
+                "sha": "c29377b2936fa7b4dd343b3fd6512d8cac2892b2",
+                "short_sha": "c29377b",
+                "subject": "fix(roadmap): satisfy Psalm strict binary operands in RoadmapTableBlock"
               }
             ]
           }
@@ -6805,6 +6921,122 @@
               "sha": "7ce4b2db5f3006fa17a57a0a44f4929e5bf159a3",
               "short_sha": "7ce4b2d",
               "subject": "Merge branch 'main' into docs/roadmap-etag-row"
+            }
+          ]
+        },
+        {
+          "pr": 308,
+          "title": "fix(roadmap): close P-1..P-4, P-6 from the src logic re-audit",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-13T20:21:27Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/308",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ccd7b09b5a2fd70725d6c9d630f8937c83ebdeb6",
+              "short_sha": "ccd7b09",
+              "subject": "fix(roadmap): close P-1..P-4, P-6 from the src logic re-audit"
+            },
+            {
+              "sha": "991bb3fec8f216200543fa1758d6c6071fcbdb61",
+              "short_sha": "991bb3f",
+              "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "a05d8388bbcdf2896bbdf09d049a2727f212cf59",
+              "short_sha": "a05d838",
+              "subject": "fix(roadmap): close CI findings on the new gate rules"
+            },
+            {
+              "sha": "6b9778411fd7f9dbd5c632472f7f062344411b19",
+              "short_sha": "6b97784",
+              "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "24e1e415aaa9ef5681d6b5db897e9871de243624",
+              "short_sha": "24e1e41",
+              "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "baa437842ddef3d446e332c4b5c0241f2610affa",
+              "short_sha": "baa4378",
+              "subject": "fix(roadmap): close F-1..F-6 from the src logic re-audit"
+            },
+            {
+              "sha": "f47a7e3241aeef3ba847e4fa71de27b838b03bee",
+              "short_sha": "f47a7e3",
+              "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "e1f250e5058f426e78bce708c81ad6a805a90724",
+              "short_sha": "e1f250e",
+              "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "8c71e31640f2792791964d091fc82373e63fc31e",
+              "short_sha": "8c71e31",
+              "subject": "refactor(roadmap): split the contradiction rule to satisfy the archeology gate"
+            },
+            {
+              "sha": "ba3534a5209c62c0b7bcbd64456721b63d867d17",
+              "short_sha": "ba3534a",
+              "subject": "test(roadmap): pin the mbstring fold in the not-started bullet helper"
+            },
+            {
+              "sha": "26e505ab506fe89fffee163d0b6eb88dff9ea579",
+              "short_sha": "26e505a",
+              "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "ffc3ba02d2d845cbc1c2213930dca6d549999fb7",
+              "short_sha": "ffc3ba0",
+              "subject": "refactor(roadmap): make the section-row counter mutation-clean"
+            },
+            {
+              "sha": "6ea3d9ddeb3b2f4bcababcc12d6b34c7de8e4ba8",
+              "short_sha": "6ea3d9d",
+              "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "2f3d732f9ab79f3bc5b602e31b322539f833fd31",
+              "short_sha": "2f3d732",
+              "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "c7fcfbdc3190132f476e8a8a73de822b38e47f0d",
+              "short_sha": "c7fcfbd",
+              "subject": "test(roadmap): kill the two escaped mutants in the new gate rules"
+            },
+            {
+              "sha": "dd744671854823016f48cd1bb915e91f8815fc66",
+              "short_sha": "dd74467",
+              "subject": "merge: sync main into the roadmap gate branch"
+            },
+            {
+              "sha": "b9ad6a8e305913e8bb6b7a1443dc2bff80b559fd",
+              "short_sha": "b9ad6a8",
+              "subject": "Merge commit '2f3d732' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "1919bb5e5778c2cd2ce8a396ceeb96796b188b2f",
+              "short_sha": "1919bb5",
+              "subject": "Merge branch 'main' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "bf561f9a9004bba9e8f4e4046be26caabaddb96a",
+              "short_sha": "bf561f9",
+              "subject": "refactor(roadmap): split the section-row counter under the archeology ceiling"
+            },
+            {
+              "sha": "86973474237b23cc26c944714f4b8fb03e6c6257",
+              "short_sha": "8697347",
+              "subject": "Merge commit '1919bb5e5778c2cd2ce8a396ceeb96796b188b2f' into fix/roadmap-gate-count-freshness-rules"
+            },
+            {
+              "sha": "c29377b2936fa7b4dd343b3fd6512d8cac2892b2",
+              "short_sha": "c29377b",
+              "subject": "fix(roadmap): satisfy Psalm strict binary operands in RoadmapTableBlock"
             }
           ]
         },
