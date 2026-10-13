@@ -5,7 +5,6 @@
       <code><![CDATA[getHeader]]></code>
       <code><![CDATA[getProtocolVersion]]></code>
       <code><![CDATA[withAddedHeader]]></code>
-      <code><![CDATA[withHeader]]></code>
       <code><![CDATA[withProtocolVersion]]></code>
     </PossiblyUnusedMethod>
   </file>
@@ -16,7 +15,6 @@
   </file>
   <file src="src/Contracts/Psr/Http/Message/RequestInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[getMethod]]></code>
       <code><![CDATA[getRequestTarget]]></code>
       <code><![CDATA[withMethod]]></code>
       <code><![CDATA[withRequestTarget]]></code>
@@ -31,7 +29,6 @@
   <file src="src/Contracts/Psr/Http/Message/ResponseInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getReasonPhrase]]></code>
-      <code><![CDATA[withStatus]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Contracts/Psr/Http/Message/ServerRequestFactoryInterface.php">
@@ -106,13 +103,8 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Contracts/Psr/Http/Server/MiddlewareInterface.php">
-    <UnusedClass>
-      <code><![CDATA[MiddlewareInterface]]></code>
-    </UnusedClass>
-  </file>
-  <file src="src/Contracts/Psr/Http/Server/RequestHandlerInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[handle]]></code>
+      <code><![CDATA[process]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Contracts/ServiceProviderInterface.php">
@@ -130,6 +122,11 @@
       <code><![CDATA[checks]]></code>
       <code><![CDATA[isHealthy]]></code>
     </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Http/ETagMiddleware.php">
+    <UnusedClass>
+      <code><![CDATA[ETagMiddleware]]></code>
+    </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Http/RequestFactory.php">
     <UnusedClass>

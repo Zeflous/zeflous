@@ -421,3 +421,64 @@ em-dash pada pesan allow-list-kosong).
   satu-satunya kanal soft-false (mutan penghapus return-nya dibunuh lewat TypeError strict-types
   ketika family-width detour lolos: ip IPv6 valid vs network garbage → width 128=128 →
   `MaskedPrefix::matches(valid, false)` → TypeError).
+
+## Fase 3 — KDD-H15 (ETag conditional GET: PSR-15 middleware pertama)
+
+**H15 — middleware pertama mengonsumsi kontrak PSR-15 yang telah lamavendored.** Roadmap "ETag / 304
+Support + Conditional GET" (RFC 9110 §13) dieksekusi sebagai `ETagMiddleware implements
+MiddlewareInterface` — konsumen PERTAMA `src/Contracts/Psr/Http/Server/*` — dengan grammar evaluasi
+dipecah ke kolaborator (wajib archeology ≤ 20: orchestrator 23.56 → dua ronde split →
+`RequestPreconditions` (precedence INM-shadows-IMS P-13), `StrongEtag` (digest), `RepresentationBody`
+(read + restore-cursor audit #303), `NotModifiedResponse` (304 tanpa Content-Length), plus
+`IfNoneMatch`/`IfModifiedSince`/`HttpDate`):
+
+- **`in_array($m, ['GET','HEAD'], true)` = zona abadi flag-ketiga**: `true→false` (loose vs strict)
+  identik untuk needle/array semua-string — literal flag TIDAK punya kanal observasi. Idiom rumah:
+  perbandingan eksplisit `$m !== 'GET' && $m !== 'HEAD'` — setiap flip punya pembunuh (GET-test,
+  HEAD-test, POST-test, 201-test).
+- **Guard redundan = mutan abadi**: (a) early-return legacy "body kosong + tanpa Last-Modified"
+  jatuh-ekuivalen dengan fall-through (tidak ada validator untuk dihitung, tidak ada precondition
+  bisa cocok, tidak ada yang di-stamp) — guard dilipat; (b) dua guard `!== ''` pada lengan IMS
+  duplikat parse-null `HttpDate` (string kosong gagal grammar) — dihapus. Pelajaran umum: sebelum
+  menulis guard, tanyakan "apakah downstream SUDAH menolak nilai itu secara kanonik?" — jika ya,
+  guard hanya menambah permukaan mutan tanpa menambah semantik.
+- **Normalisasi nilai-0 ke jalur yang BISA dibandingkan**: `$errors === false || $errors['warning_count'] === 0`
+  — domain terjangkau array selalu w≥1 (clean→false), sehingga `=== 0` ↔ `=== -1` ekuivalen
+  (DecrementInteger lolos). Kill: ternary normalisasi `$count = $errors === false ? 0 : $errors['warning_count']`
+  — kini nilai 0 BENAR-BENAR hadir pada parse bersih, mutan literal pada ternary maupun pembanding
+  menjadi terobservasi (parse bersih ditolak → semua test IMS gagal). Ini generalisasi idiom
+  CastInt-di-balik-helper (H13): arahkan literal melewati jalur nilai bertipe.
+- **mb_strtoupper pada token method = abadi matematis**: tidak ada karakter Unicode yang
+  upper-case KE ASCII G/E/T/H/A/D (exception ſ→S dan ligatur tidak pernah mengeja GET/HEAD);
+  token yang berbeda antara dua fold pasti gagal gate dua-duanya → ignore ter-scoped
+  `ETagMiddleware::applyConditionalGet` di infection.json5 dengan bukti (preseden
+  BodyBudget::refuses — ignore KETIGA berkategori ini).
+- **`mb_substr` pasca-guard-ASCII ≡ `substr` KECUALI substitusi invalid-UTF-8**: prefix 'W/'
+  (2 byte ASCII) membuat offset-byte-2 ≡ offset-char-2 untuk SEMUA input yang lolos guard —
+  KECUALI remainder invalid-UTF-8 yang DISUBSTITUSI mbstring ('?' = 0x3F — diverifikasi sandbox:
+  `mb_substr("W/\xA9tag",2)` = `3f746167` vs `substr` = `a9746167`). Kill mutan MBString +
+  IncrementInteger(2→3) sekaligus: `assertTrue(matches('W/abc','abc'))` (strip TEPAT 2 char,
+  char ke-3 non-quote) + `assertFalse(matches("W/\xA9tag","\xA9tag"))` (obs-text invalid-UTF-8
+  tidak bisa match bentuk weak-nya — semantik fold karakter, terdokumentasi di kelas).
+- **`'D'` (day abbreviation) MENERIMA nama hari penuh pada engine ini** ('Monday' parse tanpa
+  warning melalui `D, d M Y H:i:s T` — diverifikasi) → format `l, ...` legacy = grammar mati
+  redundan (mutan ArrayItemRemoval-nya abadi) — DIBUANG, deviasi terdokumentasi di docblock
+  HttpDate; bentuk RFC 850 dashed ('Monday, 01-Jan-24') memang TIDAK pernah parse di legacy
+  (diverifikasi) — tidak ada yang hilang. `setTimezone(GMT)` pasca-createFromFormat juga dibuang:
+  timestamp frame-independent, mutan penghapusnya ekuivalen.
+- **`getLastErrors()` PHP 8.4 = `false` saat bersih, `array{w≥1}` saat parse-dengan-warning,
+  `date === false` saat error** — tiga-keadaan ini yang membuat normalisasi ternary (poin di atas)
+  menjadi satu-satunya struktur bebas-mutan-abadi.
+- **Fixer mb_str meluruhkan `trim`→`mb_trim` dan `strtoupper`→`mb_strtoupper` di src** —
+  mb_trim TIDAK termutasi MBString (tidak ada di tabel converter) = selamat otomatis;
+  mb_strtoupper membawa satu ignore ter-scoped (poin sebelumnya). phpcs↔fixer PING-PONG pada
+  `new readonly class(...)` anon (SpaceAfterKeyword vs pembuangan spasi) — selesaikan dengan
+  double BERNAMA di tests/Support (idiom rumah: ForeignResponse dkk), bukan anon.
+- **Baseline psalm menyusut −5 sekaligus** (implementasi MiddlewareInterface + pemanggilan
+  `handle()` + `withHeader`/`withStatus`/`getMethod`) dan BERTAMBAH +2 (`MiddlewareInterface::process`
+  — belum ada pemanggil internal; `ETagMiddleware` UnusedClass — pola entry-point opt-in yang
+  sama dengan RequestFactory): baseline = pembukuan konsumsi kontrak, bukan angka yang harus
+  monoton turun.
+- **CoversClass harus memuat SEMUA kelas baru yang dieksekusi battery** (H14 berlaku penuh):
+  ETagMiddlewareTest mendeklarasikan 10 kelas (middleware + 7 kolaborator + Response + Stream);
+  battery pembunuh aritmetika/boundary tetap non-provider.
