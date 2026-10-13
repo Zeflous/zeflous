@@ -90,9 +90,9 @@ final class ETagMiddleware implements MiddlewareInterface
             return $response;
         }
 
-        $stamped = $response->withHeader('ETag', $etag);
-        \assert($stamped instanceof ResponseInterface, 'withHeader() must preserve the response type.');
+        $message = $response->withHeader('ETag', $etag);
+        \assert($message instanceof ResponseInterface, 'withHeader() must preserve the response type.');
 
-        return $stamped;
+        return $message;
     }
 }

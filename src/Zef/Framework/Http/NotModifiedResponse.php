@@ -30,18 +30,18 @@ final class NotModifiedResponse
      */
     public static function from(ResponseInterface $response, string $etag): ResponseInterface
     {
-        $emptied = $response
+        $message = $response
             ->withStatus(304)
             ->withBody(Stream::fromString(''))
             ->withoutHeader('Content-Length')
         ;
-        \assert($emptied instanceof ResponseInterface, 'the with* chain must preserve the response type.');
+        \assert($message instanceof ResponseInterface, 'the with* chain must preserve the response type.');
 
         if ($etag === '') {
-            return $emptied;
+            return $message;
         }
 
-        $stamped = $emptied->withHeader('ETag', $etag);
+        $stamped = $message->withHeader('ETag', $etag);
         \assert($stamped instanceof ResponseInterface, 'withHeader() must preserve the response type.');
 
         return $stamped;
