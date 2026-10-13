@@ -58,10 +58,57 @@
         // neighbouring mb_trim calls stay under the mutator: MBString
         // does not target mb_trim. This ignore is scoped to that single
         // method.
+        //
+        // The credential candidate's measurements in
+        // RedactionCandidate::edit() are the third: the candidate grammar
+        // is pure ASCII by construction (byte-mode classes -- the key, the
+        // separator and the value regions can only contain ASCII bytes),
+        // so mb_strlen and mb_substr agree with strlen and substr on
+        // every string the grammar can ever hand them (verified by
+        // running the full suite under the manually applied mutations --
+        // the complete suite passes). The neighbouring strcasecmp,
+        // strcspn and substr_replace calls stay under the mutator: they
+        // are not MBString targets. This ignore is scoped to that single
+        // method.
         "MBString": {
             "ignore": [
                 "Zef\\Framework\\Http\\BodyBudget::refuses",
-                "Zef\\Framework\\Http\\ETagMiddleware::applyConditionalGet"
+                "Zef\\Framework\\Http\\ETagMiddleware::applyConditionalGet",
+                "Zef\\Framework\\Http\\RedactionCandidate::edit"
+            ]
+        },
+        // The match start's capture read in RedactionCandidate::edit() is
+        // the one integer the increment can rewrite without any
+        // observable difference: the candidate grammar anchors the whole
+        // match at the key's first byte, so $match[0][1] (the match start)
+        // and $match[1][1] (the key start) carry the same value for every
+        // possible match, and the edit's start answer cannot change
+        // (verified by running the full suite under the manually applied
+        // mutation -- the complete suite passes). The decrement direction
+        // stays under the mutator: it reads the undefined capture -1, the
+        // engine answers an undefined-dimension error, and tests kill it.
+        // The ignore is scoped to that single source line.
+        "IncrementInteger": {
+            "ignoreSourceCodeByRegex": [
+                "\\$matchStart = \\$match\\[0\\]\\[1\\];"
+            ]
+        },
+        // The scan resume's capture read in RedactedMessage::of() is the
+        // one integer the decrement can rewrite without any observable
+        // difference: the separator region between the key and the value
+        // can host no candidate start (its bytes are whitespace and one
+        // [=:], never a key byte), so resuming at the quote capture's
+        // offset -- the value region's first byte -- and resuming at the
+        // separator capture's offset select the identical next candidate
+        // for every possible message (verified by running the full suite
+        // under the manually applied mutation -- the complete suite
+        // passes). The increment direction stays under the mutator: it
+        // reads the undefined capture 4, the engine answers an
+        // undefined-dimension error, and tests kill it. The ignore is
+        // scoped to that single source line.
+        "DecrementInteger": {
+            "ignoreSourceCodeByRegex": [
+                "\\$offset = \\$match\\[3\\]\\[1\\];"
             ]
         }
     },
