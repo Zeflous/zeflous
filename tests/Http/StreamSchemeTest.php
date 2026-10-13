@@ -111,6 +111,25 @@ final class StreamSchemeTest extends TestCase
         $this->assertRefused('HTTP://example.com/', "Refusing to open the 'http://' wrapper.");
     }
 
+    public function testFoldsTheSchemeThroughMbstringCharacterSemantics(): void
+    {
+        // U+212A KELVIN SIGN lower-cases to ASCII "k" only under the multibyte
+        // fold; a byte-wise fold leaves it non-ASCII, the scheme grammar fails
+        // to match, and the whole string would be treated as a plain path. The
+        // fold must therefore be the multibyte one, and the schemeful string
+        // must be refused as an unknown wrapper.
+        $this->assertRefused("\u{212A}://resource", "Refusing to open the unknown 'k://' wrapper.");
+    }
+
+    public function testFoldsThePhpTargetThroughMbstringCharacterSemantics(): void
+    {
+        // The `php://` target is folded with the same multibyte fold, so a
+        // target that folds into a permitted one is accepted. U+212A folds to
+        // "k", which is not a permitted target, so the refusal message must
+        // carry the folded "k" -- a byte-wise fold would leave U+212A intact.
+        $this->assertRefused("php://\u{212A}", "Refusing to open the 'php://k' target.");
+    }
+
     public function testTreatsASchemelikeSubstringOfAPlainPathAsAPlainPath(): void
     {
         // A plain path that merely contains `://` is still a plain path: the

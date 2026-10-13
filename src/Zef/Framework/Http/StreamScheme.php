@@ -25,6 +25,13 @@ namespace Zef\Framework\Http;
  * transport -- the test suite registers such wrappers to exercise the failure
  * paths, and an in-process userland wrapper is not a remote transport.
  *
+ * The URI is folded to lower case exactly once, at the top of {@see assert()},
+ * and every later step reads the folded string. Folding the whole URI (rather
+ * than only a captured scheme) keeps the fold observable: a URI whose scheme
+ * opens with a character that folds into the ASCII scheme grammar (U+212A to
+ * `k`, U+017F to `s`) is recognised as schemeful and refused, where a byte-wise
+ * fold would leave it non-ASCII and treat the whole string as a plain path.
+ *
  * Static helper; the opener is its single consumer.
  */
 final class StreamScheme
@@ -51,14 +58,15 @@ final class StreamScheme
      */
     public static function assert(string $uri): void
     {
-        $scheme = self::scheme($uri);
+        $folded = mb_strtolower($uri);
+        $scheme = self::scheme($folded);
 
         if ($scheme === '' || $scheme === 'file') {
             return;
         }
 
         if ($scheme === 'php') {
-            self::assertPhpTarget($uri);
+            self::assertPhpTarget($folded);
         } elseif (\in_array($scheme, self::TRANSPORTS, true)) {
             throw new HttpException("Refusing to open the '{$scheme}://' wrapper.");
         } elseif (!\in_array($scheme, stream_get_wrappers(), true)) {
@@ -67,14 +75,13 @@ final class StreamScheme
     }
 
     /**
-     * @param non-empty-string $uri
+     * @param non-empty-string $uri the already-folded URI
      *
      * @throws HttpException when the `php://` target is not permitted
      */
     private static function assertPhpTarget(string $uri): void
     {
-        $target = mb_strtolower((string) preg_replace('/^php:\/\//i', '', $uri));
-        $target = explode('/', $target)[0];
+        $target = explode('/', (string) preg_replace('/^php:\/\//', '', $uri))[0];
 
         if (!\in_array($target, self::PHP_TARGETS, true)) {
             throw new HttpException("Refusing to open the 'php://{$target}' target.");
@@ -82,15 +89,15 @@ final class StreamScheme
     }
 
     /**
-     * The lower-cased scheme of the URI, or an empty string for a plain path.
-     * The scheme grammar is ASCII, so an ASCII fold is the whole job.
+     * The scheme of the already-folded URI, or an empty string for a plain path.
+     * The scheme grammar is ASCII, so the fold has already done the whole job.
      */
     private static function scheme(string $uri): string
     {
-        if (preg_match('/^([a-z][a-z0-9+.\-]*):\/\//i', $uri, $matches) !== 1) {
+        if (preg_match('/^([a-z][a-z0-9+.\-]*):\/\//', $uri, $matches) !== 1) {
             return '';
         }
 
-        return mb_strtolower($matches[1]);
+        return $matches[1];
     }
 }

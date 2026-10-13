@@ -51,6 +51,14 @@ final class RoadmapNotStartedBulletTest extends TestCase
         self::assertNull(RoadmapNotStartedBullet::parse('A prose line.'));
     }
 
+    public function testRejectsALineThatContainsThePatternButIsNotABullet(): void
+    {
+        // The line carries a well-formed `**Area** — claim` body but does not
+        // open with the `- **` marker, so it is not a bullet. This pins the
+        // marker guard against a fall-through to the body pattern.
+        self::assertNull(RoadmapNotStartedBullet::parse('prefix **Area** — claim'));
+    }
+
     public function testRejectsABulletWithoutTheDashSeparator(): void
     {
         self::assertNull(RoadmapNotStartedBullet::parse('- **HTTP Layer** without a dash separator'));
