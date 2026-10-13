@@ -50,10 +50,10 @@ final class ETagMiddleware implements MiddlewareInterface
 {
     #[Override]
     public function process(
-        ServerRequestInterface $serverRequest,
-        RequestHandlerInterface $requestHandler,
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler,
     ): ResponseInterface {
-        return $this->applyConditionalGet($serverRequest, $requestHandler->handle($serverRequest));
+        return $this->applyConditionalGet($request, $handler->handle($request));
     }
 
     /**
