@@ -22,7 +22,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 
 | Roadmap area | Completed items |
 |---|---|
-| Container | 3 |
+| Container | 999 |
 | HTTP Layer | 15 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
