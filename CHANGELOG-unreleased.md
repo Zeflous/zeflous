@@ -43,6 +43,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the superglobal request factory [#284](https://github.com/Zeflous/zeflous/pull/284) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the sapi response emitter [#289](https://github.com/Zeflous/zeflous/pull/289) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the request body policy and limited input stream [#294](https://github.com/Zeflous/zeflous/pull/294) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the trusted host ingress policy [#298](https://github.com/Zeflous/zeflous/pull/298) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 

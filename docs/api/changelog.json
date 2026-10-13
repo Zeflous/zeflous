@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-12T21:51:55Z",
+  "as_of": "2026-10-13T09:33:32Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 129,
+  "unreleased_count": 130,
   "versions": [
     {
       "version": "Unreleased",
@@ -884,6 +884,27 @@
                 "sha": "71b0875637587c1f21083827d7b8fcb5b3b09425",
                 "short_sha": "71b0875",
                 "subject": "feat(http): the request body policy and limited input stream"
+              }
+            ]
+          },
+          {
+            "pr": 298,
+            "title": "feat(http): the trusted host ingress policy",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-13T09:33:32Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/298",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "43e087fd70e1b5f7c230fe7754ee78ab4caeffeb",
+                "short_sha": "43e087f",
+                "subject": "feat(http): the trusted host ingress policy"
+              },
+              {
+                "sha": "9db3c4ddf93c35725fd58175a056ee87177694b4",
+                "short_sha": "9db3c4d",
+                "subject": "fix(http): merge the unrelated-addresses guards to satisfy the return-count budget (SonarCloud S1142 on CidrAddress::contains)"
               }
             ]
           }
@@ -6501,6 +6522,27 @@
               "sha": "b64600d98723ce0df45dfadd589acf34cb7216f5",
               "short_sha": "b64600d",
               "subject": "docs(roadmap): pin the request body policy history row to pull request 294"
+            }
+          ]
+        },
+        {
+          "pr": 298,
+          "title": "feat(http): the trusted host ingress policy",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-13T09:33:32Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/298",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "43e087fd70e1b5f7c230fe7754ee78ab4caeffeb",
+              "short_sha": "43e087f",
+              "subject": "feat(http): the trusted host ingress policy"
+            },
+            {
+              "sha": "9db3c4ddf93c35725fd58175a056ee87177694b4",
+              "short_sha": "9db3c4d",
+              "subject": "fix(http): merge the unrelated-addresses guards to satisfy the return-count budget (SonarCloud S1142 on CidrAddress::contains)"
             }
           ]
         }
