@@ -22,17 +22,17 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 
 | Roadmap area | Completed items |
 |---|---|
-| Container | 2 |
+| Container | 3 |
 | HTTP Layer | 12 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 7 |
-| CI / Supply chain | 34 (incl. auto-merge + Sonar lanes) |
-| Changelog automation | 37 (4 human + 33 bot regenerations) |
+| CI / Supply chain | 29 (incl. auto-merge + Sonar lanes) |
+| Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
 | Configuration System | 19 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **106** |
+| **Total merged PRs** | **110** |
 
 ---
 
