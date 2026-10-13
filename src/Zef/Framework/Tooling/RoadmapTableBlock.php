@@ -25,15 +25,15 @@ final class RoadmapTableBlock
      */
     public static function dataRows(array $table): int
     {
-        $separator = array_find_key(
+        $separators = array_keys(array_filter(
             $table,
             static fn (string $row): bool => RoadmapTableCells::isSeparator(RoadmapTableCells::cells($row)),
-        );
+        ));
 
-        if ($separator === null) {
+        if ($separators === []) {
             return 0;
         }
 
-        return \count($table) - $separator - 1;
+        return \count($table) - $separators[0] - 1;
     }
 }
