@@ -46,6 +46,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the trusted host ingress policy [#298](https://github.com/Zeflous/zeflous/pull/298) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the conditional get etag middleware [#303](https://github.com/Zeflous/zeflous/pull/303) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the cors origin policy middleware [#309](https://github.com/Zeflous/zeflous/pull/309) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the error mapping middleware [#314](https://github.com/Zeflous/zeflous/pull/314) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
