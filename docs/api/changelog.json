@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-13T09:52:01Z",
+  "as_of": "2026-10-13T12:12:51Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 131,
+  "unreleased_count": 133,
   "versions": [
     {
       "version": "Unreleased",
@@ -905,6 +905,32 @@
                 "sha": "9db3c4ddf93c35725fd58175a056ee87177694b4",
                 "short_sha": "9db3c4d",
                 "subject": "fix(http): merge the unrelated-addresses guards to satisfy the return-count budget (SonarCloud S1142 on CidrAddress::contains)"
+              }
+            ]
+          },
+          {
+            "pr": 303,
+            "title": "feat(http): the conditional get etag middleware",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-13T11:55:05Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/303",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "32eb5a7360ac6073d0e4a850d0b3f667f762f38e",
+                "short_sha": "32eb5a7",
+                "subject": "feat(http): the conditional get etag middleware"
+              },
+              {
+                "sha": "24d08dfd99eaec1002fbb61ff216681c83d14da7",
+                "short_sha": "24d08df",
+                "subject": "fix(http): rename the wither-chain variables to satisfy rector on ci"
+              },
+              {
+                "sha": "057d1158ac26fbba401e0c5d2f144fc34efb9281",
+                "short_sha": "057d115",
+                "subject": "fix(http): keep the psr-15 parameter names on the middleware surface"
               }
             ]
           }
@@ -3161,6 +3187,27 @@
                 "sha": "df5920640e38d7bb1b3fbeb7aa4775395d730b68",
                 "short_sha": "df59206",
                 "subject": "Merge branch 'main' into docs/roadmap-trusted-hosts-row"
+              }
+            ]
+          },
+          {
+            "pr": 305,
+            "title": "docs(roadmap): pin the conditional get history row to pull request 303",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-13T12:12:51Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/305",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "55e2e8e3e034b08dd57b3a5e1fa30cc509be1208",
+                "short_sha": "55e2e8e",
+                "subject": "docs(roadmap): pin the conditional get history row to pull request 303"
+              },
+              {
+                "sha": "7ce4b2db5f3006fa17a57a0a44f4929e5bf159a3",
+                "short_sha": "7ce4b2d",
+                "subject": "Merge branch 'main' into docs/roadmap-etag-row"
               }
             ]
           }
@@ -6585,6 +6632,53 @@
               "sha": "df5920640e38d7bb1b3fbeb7aa4775395d730b68",
               "short_sha": "df59206",
               "subject": "Merge branch 'main' into docs/roadmap-trusted-hosts-row"
+            }
+          ]
+        },
+        {
+          "pr": 303,
+          "title": "feat(http): the conditional get etag middleware",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-13T11:55:05Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/303",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "32eb5a7360ac6073d0e4a850d0b3f667f762f38e",
+              "short_sha": "32eb5a7",
+              "subject": "feat(http): the conditional get etag middleware"
+            },
+            {
+              "sha": "24d08dfd99eaec1002fbb61ff216681c83d14da7",
+              "short_sha": "24d08df",
+              "subject": "fix(http): rename the wither-chain variables to satisfy rector on ci"
+            },
+            {
+              "sha": "057d1158ac26fbba401e0c5d2f144fc34efb9281",
+              "short_sha": "057d115",
+              "subject": "fix(http): keep the psr-15 parameter names on the middleware surface"
+            }
+          ]
+        },
+        {
+          "pr": 305,
+          "title": "docs(roadmap): pin the conditional get history row to pull request 303",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-13T12:12:51Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/305",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "55e2e8e3e034b08dd57b3a5e1fa30cc509be1208",
+              "short_sha": "55e2e8e",
+              "subject": "docs(roadmap): pin the conditional get history row to pull request 303"
+            },
+            {
+              "sha": "7ce4b2db5f3006fa17a57a0a44f4929e5bf159a3",
+              "short_sha": "7ce4b2d",
+              "subject": "Merge branch 'main' into docs/roadmap-etag-row"
             }
           ]
         }
