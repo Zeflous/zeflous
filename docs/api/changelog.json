@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-13T18:58:50Z",
+  "as_of": "2026-10-13T19:19:43Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 138,
+  "unreleased_count": 139,
   "versions": [
     {
       "version": "Unreleased",
@@ -3313,6 +3313,27 @@
                 "sha": "6a31d528dfceea02b84fcbb95cc47fb4a0590000",
                 "short_sha": "6a31d52",
                 "subject": "docs(roadmap): pin the error mapping history row to pull request 314"
+              }
+            ]
+          },
+          {
+            "pr": 322,
+            "title": "docs(roadmap): pin the head request history row to pull request 319",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-13T19:19:43Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/322",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "95d16434a7ae938dcbc8f59e830fccde3054d8f7",
+                "short_sha": "95d1643",
+                "subject": "docs(roadmap): pin the head request history row to pull request 319"
+              },
+              {
+                "sha": "bafd92298ab7f34d600f4fe8bf77892175779882",
+                "short_sha": "bafd922",
+                "subject": "Merge branch 'main' into docs/roadmap-head-row"
               }
             ]
           }
@@ -6889,6 +6910,27 @@
               "sha": "aae2b43052d614f1c3842aa9b5dbd2cfb6cca0fa",
               "short_sha": "aae2b43",
               "subject": "fix(ci): compile assertions into the coverage runs"
+            }
+          ]
+        },
+        {
+          "pr": 322,
+          "title": "docs(roadmap): pin the head request history row to pull request 319",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-13T19:19:43Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/322",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "95d16434a7ae938dcbc8f59e830fccde3054d8f7",
+              "short_sha": "95d1643",
+              "subject": "docs(roadmap): pin the head request history row to pull request 319"
+            },
+            {
+              "sha": "bafd92298ab7f34d600f4fe8bf77892175779882",
+              "short_sha": "bafd922",
+              "subject": "Merge branch 'main' into docs/roadmap-head-row"
             }
           ]
         }
