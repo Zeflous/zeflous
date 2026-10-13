@@ -59,11 +59,7 @@ final class PreflightResponse
             return self::granted($echo, $allowMethods, $allowHeaders);
         }
 
-        if ($origin !== '') {
-            return self::denied();
-        }
-
-        return null;
+        return $origin !== '' ? self::denied() : null;
     }
 
     /**

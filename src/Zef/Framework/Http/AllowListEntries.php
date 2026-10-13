@@ -40,9 +40,11 @@ final class AllowListEntries
             }
 
             $trimmed = mb_trim($origin);
-            if ($trimmed !== '') {
-                $entries[] = $trimmed;
+            if ($trimmed === '') {
+                continue;
             }
+
+            $entries[] = $trimmed;
         }
 
         return $entries;

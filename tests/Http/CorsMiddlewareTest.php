@@ -303,14 +303,18 @@ final class CorsMiddlewareTest extends TestCase
 
     public function testEmptyStringEntriesAreSkipped(): void
     {
-        $inner = new Response(200, [], 'ok');
-        $response = $this->preflight(
-            ['Origin' => self::ORIGIN, 'Access-Control-Request-Method' => 'POST'],
-            $inner,
-            ['  ', ''],
+        $response = $this->processed(
+            'GET',
+            ['Origin' => self::ORIGIN],
+            new Response(200, [], 'ok'),
+            ['  ', '', self::ORIGIN],
         );
 
-        self::assertSame($inner, $response, 'entries that trim to nothing leave the policy unarmed');
+        self::assertSame(
+            self::ORIGIN,
+            $response->getHeaderLine('Access-Control-Allow-Origin'),
+            'entries that trim to nothing are skipped without ending the walk',
+        );
     }
 
     public function testASecondAllowListEntryStillAdmits(): void
