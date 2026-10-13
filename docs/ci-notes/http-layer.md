@@ -482,3 +482,67 @@ dipecah ke kolaborator (wajib archeology ≤ 20: orchestrator 23.56 → dua rond
 - **CoversClass harus memuat SEMUA kelas baru yang dieksekusi battery** (H14 berlaku penuh):
   ETagMiddlewareTest mendeklarasikan 10 kelas (middleware + 7 kolaborator + Response + Stream);
   battery pembunuh aritmetika/boundary tetap non-provider.
+
+## Fase 3 — KDD-H16 (CORS: middleware PSR-15 kedua, nol ignore baru)
+
+**H16 — slice CORS dieksekusi dengan kanal-kill dirancang SEBELUM kodenya ditulis, dan
+infection.json5 TIDAK berubah sama sekali** (ignores tetap 3: SapiTransmitter::field,
+BodyBudget::refuses, ETagMiddleware::applyConditionalGet). Roadmap "CORS Middleware" dieksekusi
+sebagai `CorsMiddleware implements MiddlewareInterface` — middleware kedua lane ini — dengan
+dua belas kolaborator (wajib archeology ≤ 20: CorsPolicy 40.80 → tiga ronde split →
+`AllowedOrigins` 12.50 + `AllowListEntries` 17.33 + CorsPolicy 18.67; CorsMiddleware 21.20 →
+`PreflightResponse::answer()` menyerap keputusan short-circuit → 12.54; CorsOrigin 20.67 →
+`OriginPort` diekstrak → 13.75):
+
+- **mb_strtoupper pada gate 'OPTIONS' TIDAK abadi — berbeda dari GET/HEAD (H15)**: huruf S
+  TERJANGKAU lewat peta case Unicode (ſ U+017F upper-case → S), sehingga token `optionſ` pada
+  request asing melipat menjadi `OPTIONS` di bawah mb_strtoupper tetapi TIDAK di bawah
+  strtoupper (diverifikasi sandbox: `4f5054494f4e53` vs `4f5054494f4ec5bf`) → mutan MBString
+  DIBUNUH test `testALongSTokenFoldsIntoOptions`, bukan di-ignore. GET/HEAD (H15) memang tidak
+  punya huruf yang terjangkau (ſ→S dan ligatur tidak mengeja GET/HEAD) — ignore itu tetap sah,
+  tapi setiap gate method baru harus diaudit ulang alfabet-reachability-nya, tidak diwarisi.
+  Double `ForeignMethodServerRequest` (request asing dengan token method arbitrer) adalah bentuk
+  yang membuat fold terobservasi — `HttpMethod::assert` grammar tchar ASCII menolak token
+  demikian di request rumah sendiri.
+- **Dedup case-insensitive BUTUH kill dua arah**: fold kandidat (call-site) dan fold
+  anggota-terkumpul (helper) adalah dua call-site mb_strtolower = dua mutan terpisah. Kill
+  Kelvin U+212A→`k` arah pertama (token ASCII dulu, Kelvin kedua → tereliminasi) HANYA
+  membunuh mutan call-site; mutan helper lolos sampai test ARAH KEDUA ditulis (token
+  Kelvin terkumpul dulu → fold helper-lah yang harus mengenalinya). Dua test, dua arah,
+  nol escape.
+- **Flag `s` pada pola bracket-strip = grammar MATI (poin H15 'l' diulang)**: satu-satunya
+  karakter yang dibedakan `.` dengan/sans `s` — CR/LF di dalam bracket — sudah ditolak guard
+  smuggling Origin di UPSTREAM, jadi PregMatchRemoveFlags abadi secara struktural → flag
+  DIBUANG (bukan di-ignore), deviasi terdokumentasi di docblock unbracketed(). ANCHOR `^`
+  sebaliknya TERKILL: `parse_url('http://a[b]')` menjawab host `a[b]` — tanpa anchor pola
+  menangkap `b` dan meloloskan grammar → test `testAnUnanchoredBracketPairIsNotAnIpv6Literal`
+  membunuh PregMatchRemoveCaret.
+- **`array_values(array_unique(...))` legacy pada allow-list = normalizer murni tak-terobservasi
+  (H12)**: judgment iterasi list dan menjawab pada kesetaraan pertama — duplikat
+  tak-terbedakan dari penghapusannya LALU SELURUH PIPELINE dedup dibuang (dokumentasi
+  deviasi di AllowedOrigins). Placeholder `['*']` legacy sama: flag allowAll mendominasi
+  setiap pembacaan list — state mati, dibuang. Sebagai gantinya wildcard dideteksi scan
+  `array_any` penuh TERPISAH dari normalisasi, sehingga "entri pasca-wildcard tidak
+  divalidasi" (perilaku legacy, return-awal yang tak-terbedakan) menjadi cabang yang
+  TERobservasi lewat jalur lemparan.
+- **Setiap lengan `match` butuh test perilakunya sendiri**: MatchArmRemoval lengan
+  `$allowOrigin === null => []` pada union-ctor lolos sampai test ctor-`null` eksplisit
+  ditulis (null → disabled, bukan `[null]` → lemparan). Sama untuk ArrayOneItem pada
+  list ternormalisasi: list DUA-entri dengan entri KEDUA yang diminta adalah satu-satunya
+  pembunuh — test satu-entri tidak pernah menyentuh indeks 1.
+- **`continue`→`break` pada skip-dedup hanya terkill jika token berbeda menyusul duplikat**:
+  duplikat sebagai token TERAKHIR jatuh-ekuivalen (loop berakhir keduanya) — test
+  `Accept-Encoding, accept-encoding, X-Request-ID` yang membunuh.
+- **Double `ForeignResponse` tidak bisa menampung stamp-ulang header**: `[$name => $value,
+  ...$this->headers]` menempatkan kunci LAMA menang (semantik later-key-wins PHP) — withHeader
+  atas nama yang sudah ada mempertahankan nilai lama. Response rumah menerima obs-text pada
+  nilai field, jadi test Kelvin tidak membutuhkan double asing sama sekali.
+- **`parse_url()` menjawab port sudah bertipe int engine** (port non-numerik gagal parse
+  menyeluruh) — cast `(int)` legacy adalah koersi mati, DIBUANG (phpstan/psalm mengonfirmasi
+  int) alih-alih mempertahankan permukaan CastInt no-op.
+- **Skanario pembuktian flake lokal diperluas**: pristine-main 9baaa4b pada sandbox ini =
+  2 escape DirectoryLoader + 7 TIMEOUT (DotWriter ×2, BodyTransfer, EmittedBody,
+  UploadedTransfer, UriEncoder ×2) — set yang SAMA PERSIS pada branch; timeout adalah
+  beban-runner (4 thread lokal), bukan regresi. Debris `/tmp/zef-*` dari run sebelumnya
+  HARUS dibersihkan sebelum verifikasi (pelajaran H13 flake-glob diulang: 731 file bocor
+  membuat initial-test-run pristine gagal 1 test UploadedFile).
