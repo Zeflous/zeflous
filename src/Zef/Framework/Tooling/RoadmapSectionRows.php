@@ -14,10 +14,9 @@ namespace Zef\Framework\Tooling;
  *
  * The header is recognised structurally: in a Markdown table the header row is
  * the one immediately before the `---` separator, so a row is a data row only
- * once a separator has been seen. Each contiguous run of `|` rows is collected
- * as a block and its data rows are added to the section's running count when the
- * block ends ({@see self::flush()}), so every assignment is live and the
- * mutation gate has no dead store to rewrite.
+ * once a separator has been seen. A run of `|` rows is one table block; any
+ * other line ends the block, so a prose line between two tables starts a new
+ * one ({@see RoadmapTableBlock} counts a block's data rows).
  */
 final class RoadmapSectionRows
 {
@@ -32,76 +31,54 @@ final class RoadmapSectionRows
     public static function counts(array $lines): array
     {
         $counts = [];
-        $current = null;
+        $title = null;
         $table = [];
 
         foreach ($lines as $line) {
-            if (preg_match('/^## \d+\.\s+(.+)/', $line, $matches) === 1) {
-                self::flush($counts, $current, $table);
-                $current = RoadmapTableCells::normalise($matches[1]);
-                $counts[$current] = 0;
+            if (str_starts_with($line, '|')) {
+                if ($title === null) {
+                    continue;
+                }
+
+                $table[] = $line;
 
                 continue;
             }
 
-            if (str_starts_with($line, '## ')) {
-                self::flush($counts, $current, $table);
-                $current = null;
+            self::record($counts, $title, $table);
+            $table = [];
 
+            if (!str_starts_with($line, '## ')) {
                 continue;
             }
 
-            if ($current === null) {
+            $title = RoadmapSectionHeading::title($line);
+
+            if ($title === null) {
                 continue;
             }
 
-            if (!str_starts_with($line, '|')) {
-                self::flush($counts, $current, $table);
-
-                continue;
-            }
-
-            $table[] = $line;
+            $counts[$title] = 0;
         }
 
-        self::flush($counts, $current, $table);
+        self::record($counts, $title, $table);
 
         return $counts;
     }
 
     /**
-     * Adds the current block's data rows to the section's count and starts a new
-     * block. A block with no separator contributes nothing.
+     * Adds the block's data rows to the section's count. A non-numbered heading
+     * (a null title) contributes nothing.
      *
      * @param array<string, int> $counts
      * @param list<string>       $table
      */
-    private static function flush(array &$counts, ?string $current, array &$table): void
+    private static function record(array &$counts, ?string $title, array $table): void
     {
-        if ($current !== null) {
-            $counts[$current] += self::dataRows($table);
+        if ($title === null) {
+            return;
         }
 
-        $table = [];
-    }
-
-    /**
-     * The number of data rows in a collected table block: every row after the
-     * `---` separator. A block with no separator has no data rows.
-     *
-     * @param list<string> $table
-     */
-    private static function dataRows(array $table): int
-    {
-        $separator = array_find_key(
-            $table,
-            static fn (string $row): bool => RoadmapTableCells::isSeparator(RoadmapTableCells::cells($row)),
-        );
-
-        if ($separator === null) {
-            return 0;
-        }
-
-        return \count($table) - $separator - 1;
+        $counts[$title] += RoadmapTableBlock::dataRows($table);
     }
 }
