@@ -4,9 +4,7 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[getHeader]]></code>
       <code><![CDATA[getProtocolVersion]]></code>
-      <code><![CDATA[hasHeader]]></code>
       <code><![CDATA[withAddedHeader]]></code>
-      <code><![CDATA[withBody]]></code>
       <code><![CDATA[withHeader]]></code>
       <code><![CDATA[withProtocolVersion]]></code>
     </PossiblyUnusedMethod>
@@ -20,7 +18,6 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[getMethod]]></code>
       <code><![CDATA[getRequestTarget]]></code>
-      <code><![CDATA[getUri]]></code>
       <code><![CDATA[withMethod]]></code>
       <code><![CDATA[withRequestTarget]]></code>
       <code><![CDATA[withUri]]></code>
@@ -49,7 +46,6 @@
       <code><![CDATA[getCookieParams]]></code>
       <code><![CDATA[getParsedBody]]></code>
       <code><![CDATA[getQueryParams]]></code>
-      <code><![CDATA[getServerParams]]></code>
       <code><![CDATA[getUploadedFiles]]></code>
       <code><![CDATA[withAttribute]]></code>
       <code><![CDATA[withCookieParams]]></code>
