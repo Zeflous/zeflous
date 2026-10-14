@@ -8,7 +8,11 @@ use PhpBench\Attributes\Revs;
 use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Http\RequestFactory;
 use Zef\Framework\Http\Response;
+use Zef\Framework\Http\SecurityHeadersMiddleware;
+use Zef\Framework\Http\SecurityHeadersPolicy;
+use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
+use Zef\Test\Support\Http\FixedResponseHandler;
 
 /**
  * The HTTP lane's hot-path reference suite -- the per-request costs the
@@ -33,6 +37,12 @@ final readonly class HttpHotPathBench
     private Response $response;
 
     private Uri $uri;
+
+    private SecurityHeadersMiddleware $securityHeadersMiddleware;
+
+    private ServerRequest $serverRequest;
+
+    private FixedResponseHandler $fixedResponseHandler;
 
     /** @var array<string, string> */
     private array $serverBag;
@@ -61,6 +71,13 @@ final readonly class HttpHotPathBench
         );
 
         $this->uri = new Uri('https://api.example.com/v1/users?page=2&sort=name');
+
+        $this->securityHeadersMiddleware = new SecurityHeadersMiddleware(new SecurityHeadersPolicy(
+            hsts: true,
+            contentSecurityPolicyEnabled: true,
+        ));
+        $this->serverRequest = new ServerRequest('GET', $this->uri);
+        $this->fixedResponseHandler = new FixedResponseHandler($this->response);
 
         $this->serverBag = [
             'REQUEST_METHOD' => 'GET',
@@ -122,6 +139,20 @@ final readonly class HttpHotPathBench
     {
         if ((string) $this->uri !== 'https://api.example.com/v1/users?page=2&sort=name') {
             throw new InvariantViolationException('The URI must render its components.');
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchASecurityHeadersDecorationStampsTheHardenedSet(): void
+    {
+        $response = $this->securityHeadersMiddleware->process($this->serverRequest, $this->fixedResponseHandler);
+
+        if (
+            $response->getHeaderLine('X-Content-Type-Options') !== 'nosniff'
+            || $response->getHeaderLine('Strict-Transport-Security') !== 'max-age=31536000; includeSubDomains'
+            || !$response->hasHeader('Content-Security-Policy')
+        ) {
+            throw new InvariantViolationException('The decoration must stamp the hardened set.');
         }
     }
 }

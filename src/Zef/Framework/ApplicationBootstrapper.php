@@ -7,6 +7,7 @@ namespace Zef\Framework;
 use FilesystemIterator;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zef\Framework\Config\Cache\ConfigCache;
+use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigBootstrapper;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Merge\EnvSource;
@@ -54,6 +55,13 @@ use Zef\Framework\Middleware\PipelineFactory;
  *   repository's `services` key is parsed, graph-validated and installed
  *   fail-closed.
  *
+ * Before any definition is installed, the frozen repository itself is
+ * registered as the container's `framework.config` service ({@see
+ * FrameworkDefaults::CONFIG_SERVICE} -- the identifier the profile's own
+ * registrations address) -- the one dependency a config-driven framework
+ * registration needs, and a reference any host definition may resolve
+ * through as well.
+ *
  * The result is one {@see Kernel} -- container installed, configuration
  * frozen -- and {@see self::pipeline()} composes the PSR-15 execution lane
  * over it when the host hands over its terminal handler. Host applications
@@ -96,8 +104,15 @@ final readonly class ApplicationBootstrapper
         }
 
         $config = new ConfigBootstrapper($this->configCache)->boot($builder);
+
+        $container = new Container();
+        $container->set(
+            FrameworkDefaults::CONFIG_SERVICE,
+            static fn (): Config => $config,
+        );
+
         $container = new ContainerBootstrapper($this->definitionCompiler)
-            ->bootstrap($config, new Container())
+            ->bootstrap($config, $container)
         ;
 
         return new Kernel($container, $config);

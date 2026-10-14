@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionException;
+use Zef\Framework\Container\DefinitionMap;
 use Zef\Framework\ContainerBootstrapper;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Container\ExternalFactory;
@@ -18,6 +19,7 @@ use Zef\Test\Support\Container\Greeter;
  * @internal
  */
 #[CoversClass(ContainerBootstrapper::class)]
+#[CoversClass(DefinitionMap::class)]
 final class ContainerBootstrapperTest extends TestCase
 {
     public function testAConfigurationWithoutAServicesKeyLeavesTheContainerUntouched(): void
@@ -200,5 +202,62 @@ final class ContainerBootstrapperTest extends TestCase
         $container->set('app.debug', static fn (): bool => false);
 
         self::assertFalse($container->get('app.debug'));
+    }
+
+    public function testTheFrameworkServicesMapInstallsAlongsideTheHostMap(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'framework' => [
+                    'services' => [
+                        'framework.greeter' => ['class' => Greeter::class, 'arguments' => ['Hello']],
+                    ],
+                ],
+                'services' => ['host.greeter' => ['class' => Greeter::class, 'arguments' => ['Hi']]],
+            ]),
+            $container,
+        );
+
+        self::assertInstanceOf(Greeter::class, $container->get('framework.greeter'));
+        self::assertInstanceOf(Greeter::class, $container->get('host.greeter'));
+        self::assertSame('Hello', $container->get('framework.greeter')->salutation);
+        self::assertSame('Hi', $container->get('host.greeter')->salutation);
+    }
+
+    public function testANonMapFrameworkServicesValueIsRejectedUnderItsOwnName(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(
+                new Config(['framework' => ['services' => 'nope']]),
+                new Container(),
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "The 'framework.services' configuration must be a map of definitions, string given.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAHostDefinitionWithTheFrameworkIdentifierRebindsIt(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'framework' => ['services' => ['shared.subject' => ['value' => 'from-framework']]],
+                'services' => ['shared.subject' => ['value' => 'from-host']],
+            ]),
+            $container,
+        );
+
+        self::assertSame(
+            'from-host',
+            $container->get('shared.subject'),
+            "the host's same-identifier entry wins",
+        );
     }
 }

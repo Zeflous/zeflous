@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework;
 
+use Zef\Framework\Middleware\SecurityHeadersFactory;
+
 /**
  * The framework's own configuration defaults: the code-declared profile the
  * {@see ApplicationBootstrapper} lays down as the Default layer under the
@@ -17,18 +19,39 @@ namespace Zef\Framework;
  * Laravel-style vendor-defaults seam, adapted to the layered builder the
  * configuration system already owns.
  *
- * The profile is deliberately empty today, and that is a discipline rather
- * than a gap: every key it ships must be a key a live consumer reads, so
- * no knob is declared before its subsystem exists. The growth plan is the
- * roadmap's own order -- the HTTP lane's knobs (`http.body_budget`,
- * `http.trusted_hosts`, `http.cors.allowed_origins`, ...) migrate here with
- * their wiring, the container's `aot` switch arrives with the compile/dump
- * area (roadmap area 8), and `tags` with the autoconfiguration area
- * (roadmap area 3). Until then an empty profile is also the honest one:
- * the framework ships no services, no middleware and no routes of its own.
+ * The profile now ships the security-headers family, and it ships it the
+ * way every family will arrive: the subsystem's *service registration* as
+ * a declarative entry under the reserved `framework.services` key the
+ * container's existing grammar installs (string-addressed, over the
+ * `framework.config` service the bootstrapper registers), and the
+ * subsystem's *knobs* under the family's own key. The `framework`
+ * namespace is the machinery's own -- a host's `services` key is the
+ * host's declaration surface and stays fully theirs, which is also why
+ * the registration does not live there: the merge contract counts an
+ * empty array as a clearing list, so a host's empty `services.php` would
+ * wipe the framework's own registrations out of the merged tree. The
+ * registration always exists -- a host cannot delete the framework's own
+ * machinery out from under it -- while stack membership stays the host's
+ * explicit choice: the `middleware.stack` list decides what runs, exactly
+ * as it does for any other middleware. The remaining growth follows the
+ * roadmap's order -- the rate-limit, CSRF and authentication families land
+ * here with their PRs, the HTTP lane's ingress knobs (`http.body_budget`,
+ * `http.trusted_hosts`, ...) migrate with their wiring, the container's
+ * `aot` switch arrives with the compile/dump area (roadmap area 8), and
+ * `tags` with the autoconfiguration area (roadmap area 3).
  */
 final readonly class FrameworkDefaults
 {
+    /**
+     * The container service identifier under which the frozen repository is
+     * registered at boot: the profile's own registrations address it (their
+     * factories resolve the repository through it), and the bootstrapper
+     * installs it before a single definition. The identifier lives here --
+     * with the declarations that reference it -- so the kernel's own
+     * dependency graph stays one-directional.
+     */
+    public const string CONFIG_SERVICE = 'framework.config';
+
     /**
      * The framework's default configuration profile.
      *
@@ -36,6 +59,25 @@ final readonly class FrameworkDefaults
      */
     public static function profile(): array
     {
-        return [];
+        return [
+            'framework' => [
+                'services' => [
+                    'security.headers' => [
+                        'factory' => SecurityHeadersFactory::class . '::fromConfig',
+                        'arguments' => [
+                            ['service' => self::CONFIG_SERVICE],
+                        ],
+                    ],
+                ],
+            ],
+            'security' => [
+                'headers' => [
+                    'hsts' => false,
+                    'csp' => false,
+                    'content_security_policy' => "default-src 'self'; frame-ancestors 'none'; base-uri 'self'",
+                    'permissions_policy' => true,
+                ],
+            ],
+        ];
     }
 }
