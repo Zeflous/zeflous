@@ -50,6 +50,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the head request middleware and the http hot-path benchmarks [#319](https://github.com/Zeflous/zeflous/pull/319) ([mbetixz](https://github.com/mbetixz))
 - feat(kernel): config-driven container definitions and the middleware pipeline [#328](https://github.com/Zeflous/zeflous/pull/328) ([mbetixz](https://github.com/mbetixz))
 - feat(kernel): the application config profile and the one-call boot orchestrator [#332](https://github.com/Zeflous/zeflous/pull/332) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the security headers family, config-driven [#341](https://github.com/Zeflous/zeflous/pull/341) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -156,6 +157,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the head request history row to pull request 319 [#322](https://github.com/Zeflous/zeflous/pull/322) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328 [#331](https://github.com/Zeflous/zeflous/pull/331) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332 [#333](https://github.com/Zeflous/zeflous/pull/333) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the security headers family to pull request 341 [#342](https://github.com/Zeflous/zeflous/pull/342) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
