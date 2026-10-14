@@ -26,12 +26,15 @@ return RectorConfig::configure()
         // ETagMiddleware::process() and CorsMiddleware::process() are the
         // PSR-15 face of the same rule: the vendored
         // MiddlewareInterface declares ($request, $handler).
+        // MiddlewarePipeline::handle() extends it to the pipeline's own
+        // RequestHandlerInterface::handle($request, $handler) face.
         'Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector' => [
             __DIR__ . '/src/Zef/Framework/Http/Message.php',
             __DIR__ . '/src/Zef/Framework/Http/ETagMiddleware.php',
             __DIR__ . '/src/Zef/Framework/Http/CorsMiddleware.php',
             __DIR__ . '/src/Zef/Framework/Http/ErrorMappingMiddleware.php',
             __DIR__ . '/src/Zef/Framework/Http/HeadMiddleware.php',
+            __DIR__ . '/src/Zef/Framework/Middleware/MiddlewarePipeline.php',
         ],
         // The rule resolves the expected name from a method-call chain's
         // return type differently on different environments (a fresh CI

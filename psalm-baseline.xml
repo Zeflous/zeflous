@@ -100,11 +100,6 @@
       <code><![CDATA[withUserInfo]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Contracts/Psr/Http/Server/MiddlewareInterface.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[process]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Contracts/Psr/Log/LoggerInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[alert]]></code>
@@ -116,6 +111,11 @@
       <code><![CDATA[notice]]></code>
       <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/ContainerBootstrapper.php">
+    <UnusedClass>
+      <code><![CDATA[ContainerBootstrapper]]></code>
+    </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Contracts/ServiceProviderInterface.php">
     <UnusedClass>
@@ -175,6 +175,16 @@
   <file src="src/Zef/Framework/Message/Message.php">
     <UnusedClass>
       <code><![CDATA[Message]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Middleware/MiddlewarePipeline.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[withMiddleware]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Middleware/PipelineFactory.php">
+    <UnusedClass>
+      <code><![CDATA[PipelineFactory]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Tooling/CoverageReport.php">

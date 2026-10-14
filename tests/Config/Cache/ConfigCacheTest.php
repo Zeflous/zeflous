@@ -82,14 +82,14 @@ final class ConfigCacheTest extends TestCase
 
         new ConfigCache($this->file)->dump($data);
 
-        self::assertSame($data, new ConfigCache($this->file)->load());
+        self::assertSame($data, $this->loadDumpedCache());
     }
 
     public function testRoundTripsAnEmptyConfiguration(): void
     {
         new ConfigCache($this->file)->dump([]);
 
-        self::assertSame([], new ConfigCache($this->file)->load());
+        self::assertSame([], $this->loadDumpedCache());
     }
 
     public function testADumpReplacesWhatTheCacheCarriedBefore(): void
@@ -98,7 +98,7 @@ final class ConfigCacheTest extends TestCase
         $configCache->dump(['driver' => 'mysql']);
         $configCache->dump(['driver' => 'postgres']);
 
-        self::assertSame(['driver' => 'postgres'], $configCache->load());
+        self::assertSame(['driver' => 'postgres'], $this->loadDumpedCache());
     }
 
     public function testLoadCanBeRepeatedWithinOneProcess(): void
@@ -106,8 +106,8 @@ final class ConfigCacheTest extends TestCase
         $configCache = new ConfigCache($this->file);
         $configCache->dump(['retries' => 3]);
 
-        self::assertSame(['retries' => 3], $configCache->load());
-        self::assertSame(['retries' => 3], $configCache->load());
+        self::assertSame(['retries' => 3], $this->loadDumpedCache());
+        self::assertSame(['retries' => 3], $this->loadDumpedCache());
     }
 
     public function testLoadThrowsWhenTheCacheFileIsMissing(): void
@@ -218,6 +218,29 @@ final class ConfigCacheTest extends TestCase
             );
         } finally {
             restore_error_handler();
+        }
+    }
+
+    /**
+     * Loads a cache this test just dumped. A freshly dumped cache must read
+     * back, so the fail-closed `ConfigException` becomes a clean assertion
+     * failure rather than a test error: `load()` chains the artifact's
+     * `ParseError` as the exception's previous cause, and PHPUnit prints that
+     * chain on an uncaught error -- output the mutation tooling then mistakes
+     * for a mutated-source syntax error. The round trip is the assertion; the
+     * fail-closed contract itself stays pinned by the corruption tests below.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function loadDumpedCache(): array
+    {
+        try {
+            return new ConfigCache($this->file)->load();
+        } catch (ConfigException $configException) {
+            self::fail(
+                'A freshly dumped configuration cache must load back: '
+                    . $configException->getMessage(),
+            );
         }
     }
 }

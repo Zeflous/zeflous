@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zef\Framework\Container;
+
+/**
+ * The `value` shape's parser (one of the four definition shapes; see
+ * {@see DefinitionShapes} for the dispatch).
+ *
+ * The shape is a raw scalar/array parameter registered as a service --
+ * injectable configuration ("parameter global" in the roadmap's
+ * registration area): strings, numbers, booleans, null and arrays travel
+ * through the container like any other service, so factories and class
+ * arguments can reference them uniformly. It carries no arguments: a
+ * definition that spells a value while also carrying an `arguments` key is
+ * rejected rather than silently ignoring the extra key.
+ */
+final readonly class ValueShape
+{
+    /**
+     * @param array<array-key, mixed> $entry
+     */
+    public static function fromEntry(string $id, array $entry): ValueDefinition
+    {
+        if (\array_key_exists('arguments', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries arguments on a 'value' definition "
+                . '(arguments belong to class and factory definitions only).',
+            );
+        }
+
+        return new ValueDefinition($id, $entry['value']);
+    }
+}
