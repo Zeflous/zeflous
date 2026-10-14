@@ -49,6 +49,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the error mapping middleware [#314](https://github.com/Zeflous/zeflous/pull/314) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the head request middleware and the http hot-path benchmarks [#319](https://github.com/Zeflous/zeflous/pull/319) ([mbetixz](https://github.com/mbetixz))
 - feat(kernel): config-driven container definitions and the middleware pipeline [#328](https://github.com/Zeflous/zeflous/pull/328) ([mbetixz](https://github.com/mbetixz))
+- feat(kernel): the application config profile and the one-call boot orchestrator [#332](https://github.com/Zeflous/zeflous/pull/332) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
