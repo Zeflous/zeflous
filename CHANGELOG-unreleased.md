@@ -155,6 +155,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the error mapping history row to pull request 314 [#315](https://github.com/Zeflous/zeflous/pull/315) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the head request history row to pull request 319 [#322](https://github.com/Zeflous/zeflous/pull/322) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328 [#331](https://github.com/Zeflous/zeflous/pull/331) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332 [#333](https://github.com/Zeflous/zeflous/pull/333) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
