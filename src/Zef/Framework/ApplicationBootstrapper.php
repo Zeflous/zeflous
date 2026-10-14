@@ -139,15 +139,13 @@ final readonly class ApplicationBootstrapper
 
         $configFiles = [];
         foreach (new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS) as $file) {
-            if (!($file instanceof SplFileInfo)) {
-                continue;
+            if ($file instanceof SplFileInfo) {
+                $name = $file->getFilename();
+
+                \assert($name !== '');
+
+                $configFiles[] = $name;
             }
-
-            $name = $file->getFilename();
-
-            \assert($name !== '');
-
-            $configFiles[] = $name;
         }
 
         return $configFiles;
