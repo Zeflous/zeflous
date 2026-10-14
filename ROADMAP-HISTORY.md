@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-13 · `main` @ `4071b45`
+**Last updated:** 2026-10-14 · `main` @ `7711c6a`
 
 **How to read this file**
 
@@ -24,6 +24,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 |---|---|
 | Container | 3 |
 | HTTP Layer | 15 |
+| Middleware Pipeline | 1 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 7 |
@@ -32,7 +33,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 19 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **113** |
+| **Total merged PRs** | **114** |
 
 ---
 
@@ -226,13 +227,21 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 | feat(config): the routing runtime over the frozen configuration (`RoutingRuntime::fromConfig()` — the Triad's fifth seam, roadmap step 5 Loader -> Engine: reads the route table the bootstrapper pipeline already loaded, merged, validated and cached; the engine's radix tree is compiled AT MOST ONCE per instance, lazily and memoised — compile-once-per-worker economics, a fresh instance is the hot-reload path; a missing routes key is a valid zero-routing table, a non-array fails closed, a map-addressed table is normalised to a list with the keys discarded — the entry's name field is the single source of truth; `tree()`/`match()`/`route()`/`url()` answer from the one immutable tree, the raw method travels to the engine's single upper-casing policy point; `RoutingRuntimeBench` records the economics — memoised matching flat at 4.1-5.8us across 15-300 routes vs 185-4,070us when the runtime is rebuilt per request) | #250 | 2026-10-11 | `d2557c0ea` |
 | feat(config): dispatch matched routes to container handlers (`RouteDispatcher::dispatch(method, path)` — the Triad's runtime endpoint, roadmap step 5 Engine -> Dispatcher: matches through the `RoutingRuntime`, resolves the handler through the container and invokes it with the captured parameters (one argument: the parameter map keyed by name); `RouteHandlerResolver` is container-mediated and fail-closed on every path (service id callable, or `Class@method` with the instance resolved under the class's own name -- no reflection birth, that belongs to the container's autowiring lane); `RouteHandler` normalises a resolved callable into one typed invocation contract (closing the phpstan-signature-vs-psalm-coercion standoff without a single suppress); `DispatchOutcome` carries executed (route + parameters + handler result) / notFound / methodNotAllowed with state-specific accessors failing loudly, the matched route keeping `middleware()`/`meta()` readable for the pipeline lane to come; deptrac `Config += Container` for the runtime seam, psalm baseline shrinks; `docs/ci-notes/integration.md` records KDD-I1..I6 with the legacy Dispatcher attribution) | #253 | 2026-10-11 | `925f2a006` |
 
+## 11. Middleware Pipeline
+
+`ROADMAP.md` → **MIDDLEWARE PIPELINE** (core architecture, execution engine, container integration).
+
+| Work item | PR | Merged | Commit |
+|---|---|---|---|
+| feat(kernel): config-driven container definitions and the middleware pipeline (`src/Zef/Framework/Middleware/`: `MiddlewarePipeline` the PSR-15 execution engine — final readonly, the index advanced by constructing the next stage, a terminal-less exhaustion answering the 500 plain-text response; `PipelineFactory` the construction lane over the `middleware.stack` configuration key — priority-highest-first Schwartzian ordering with an explicit declaration-order tiebreak, per-entry fail-closed resolution through the PSR-11 container, non-`MiddlewareInterface` services rejected at build time; `MiddlewareDefinition` the string/map entry grammar with the `is_numeric` priority gate and `id` as the `service` alias; plus the container's declarative definition grammar `src/Zef/Framework/Container/Definition*` — the four mutually-exclusive shapes parsed fail-closed, `['service' => id]` references, boot-time reference-graph validation (unknown targets and circular chains with the walked path) — and the `ContainerBootstrapper` config->container glue over the `services` key; deptrac Middleware layer above `[Exception, Container, Config, Http]` and the Kernel collector widened; mutation hygiene cleaning the three `X: syntax error`-misclassified mutants in the ConfigCache zone; `PipelineBench`; KDD-M1..M10 in `docs/ci-notes/middleware-pipeline.md`) | #328 | 2026-10-14 | `7711c6a20` |
+
 ## Not yet done
 
 These roadmap areas have **no merged work** yet (see `ROADMAP-STATUS.md` for the live meter):
 
-- **Container** — autowiring, autoconfiguration, injectors, tags, decorator/proxy, compiler passes, DI extension points, PSR-11 service locator.
+- **Container** — autowiring, autoconfiguration, injectors, tags, decorator/proxy, compiler passes, DI extension points, PSR-11 service locator; on the declarative-definitions lane (the grammar itself is live, #328), env values, parameter providers and the compile/dump path (area 8) are open.
 - **Router (Radix Tree)** — not started.
-- **Middleware Pipeline** — not started.
+- **Middleware Pipeline** — the core architecture and the container integration are live (#328 the config-driven declarative definitions + the PSR-15 execution pipeline and factory); the dispatcher integration (per-route inner pipelines over the matched route's `middleware()` reading), per-route fail-closed resolution, and the DX/performance slices are open.
 - **HTTP Layer (Zero-Library Shim)** — the Phase 1 core is complete and merged (#256 stream engine, #259 URI, #262 message headers + response, #265 request objects, #271 uploaded file, #279 PSR-17 factory, with `docs/ci-notes/http-layer.md` as the decision record); the Fase 2 runtime adapter is complete (#284 the request factory, #289 the SAPI response emitter); the security phase is underway (#294 the request body policy and limited input stream, #298 the trusted host ingress policy) the HTTP-optimizations slice is live (#303 the conditional GET etag middleware, the layer's first PSR-15 middleware), and the security phase's cross-origin slice is live (#309 the CORS origin policy middleware -- the preflight short-circuit, the origin grammar and the allow-list judgment over twelve collaborators); the security phase's closing slice is live (#314 the error mapping middleware -- the correlation id, the status map with the end-to-end 413 pin, the disclosure policy, the credential redactor and the double-failure fallback, over the layer's third PSR-15 middleware and the newly vendored PSR-3 seam); the performance phase is live (#319 the head request middleware -- the exact-token HEAD fold onto GET with the head view's empty body and dropped `Content-Length` over the layer's fourth PSR-15 middleware, plus the hot-path benchmark suite and the coverage-run assertion-compilation fix); the lane's remaining list is empty.
 - **Event Source System** — not started.
 - **Module Integration System** — not started beyond the `ServiceProviderInterface` contract.

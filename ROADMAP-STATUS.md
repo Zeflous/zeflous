@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-13 · `main` @ `d320155`
+**Last updated:** 2026-10-14 · `main` @ `7711c6a`
 
 ---
 
@@ -21,7 +21,7 @@ see how far the code has moved against the roadmap.
 
 | # | Area | Status | Evidence |
 |---|------|--------|----------|
-| 1 | Registration & service definition | 🟡 Partial | `src/Zef/Framework/Container/Container.php` (`set()`), `ServiceStore.php` — closure/factory registration only; array definitions, aliases, scalar params, env values, parameter providers not yet present. |
+| 1 | Registration & service definition | 🟡 Partial | `src/Zef/Framework/Container/Container.php` (`set()`), `ServiceStore.php` — closure/factory registration; plus the declarative definition grammar (#328): `Container/DefinitionKeys`+`DefinitionShapes`+the four `*Definition`/`*Shape` pairs parse the four mutually-exclusive shapes (`class`+`arguments`, `factory Target::method`+`arguments`, `alias`, `value`) fail-closed (unknown keys rejected with the known-key list, `class_exists` at parse time), `DefinitionArguments` validates the `['service' => id]` reference form, `ServiceDefinitionGraph` proves the whole set resolvable and acyclic at boot (unknown targets and circular chains reported with the walked chain) before a single definition is installed, `DefinitionCompiler` translates each shape into the container's existing `set()` closure form, and `ContainerBootstrapper` (Kernel layer, `services` configuration key) is the config->container glue — the container layer stays Config-free (deptrac unchanged). Env values, parameter providers, compile/dump (area 8) not yet present. |
 | 2 | Autowiring | ⬜ Not started | No reflection-based resolution yet. |
 | 3 | Autoconfiguration (attributes) | ⬜ Not started | — |
 | 4 | Injector (property/method injection) | ⬜ Not started | — |
@@ -51,7 +51,7 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Core architecture, execution engine, security, container integration, DX, performance | ⬜ Not started | — |
+| Core architecture, execution engine, security, container integration, DX, performance | 🟡 Partial | `src/Zef/Framework/Middleware/` (#328) — the core architecture and the container integration are live: `MiddlewarePipeline` is the PSR-15 execution engine (final readonly, the index advanced by constructing the next stage — clone-on-write, no shared-state races in a persistent worker; a terminal-less exhaustion answers the 500 plain-text response rather than failing silently), `PipelineFactory` is the construction lane over the `middleware.stack` configuration key (priority-highest-first Schwartzian ordering with an explicit declaration-order tiebreak — engine sort stability never relied on; per-entry fail-closed resolution through the PSR-11 container: an unregistered service or a non-`MiddlewareInterface` service aborts the build), `MiddlewareDefinition` parses the string/map entry grammar (`service`/`id` spellings, numeric priorities gate via `is_numeric`, null coalesces to the declaration-order default 0), and `MiddlewareException` is the lane's fail-closed root. The deptrac `Middleware` layer stands above `[Exception, Container, Config, Http]`; `PipelineBench` pins the execution/build costs in the CI bench lane; `docs/ci-notes/middleware-pipeline.md` records KDD-M1..M10 (including the mutation-tooling `X: syntax error` classification bedah). The dispatcher integration (per-route inner pipelines over the matched route's `middleware()` reading, `DispatchOutcome` already carries it), per-route fail-closed resolution, and the DX/performance slices are not yet present. |
 
 ## HTTP Layer
 
