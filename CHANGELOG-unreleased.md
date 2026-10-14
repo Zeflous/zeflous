@@ -73,6 +73,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(review): close F-1..F-3 from the 195/202/205 review [#212](https://github.com/Zeflous/zeflous/pull/212) ([mbetixz](https://github.com/mbetixz))
 - fix(ci): make CI Strict aggregator event-driven via workflow_run [#218](https://github.com/Zeflous/zeflous/pull/218) ([mbetixz](https://github.com/mbetixz))
 - fix(roadmap): close F-1..F-3 from the PR #240-262 review [#266](https://github.com/Zeflous/zeflous/pull/266) ([mbetixz](https://github.com/mbetixz))
+- fix(roadmap): close P-1..P-4, P-6 from the src logic re-audit [#308](https://github.com/Zeflous/zeflous/pull/308) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
@@ -150,6 +151,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the conditional get history row to pull request 303 [#305](https://github.com/Zeflous/zeflous/pull/305) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the cors origin policy history row to pull request 309 [#310](https://github.com/Zeflous/zeflous/pull/310) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the error mapping history row to pull request 314 [#315](https://github.com/Zeflous/zeflous/pull/315) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the head request history row to pull request 319 [#322](https://github.com/Zeflous/zeflous/pull/322) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

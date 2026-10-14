@@ -30,6 +30,8 @@ final class StreamOpener
      */
     public static function open(string $uri, string $mode): mixed
     {
+        StreamScheme::assert($uri);
+
         set_error_handler(static function (int $severity, string $message) use ($uri): never {
             throw new HttpException('Unable to open stream ' . $uri . ': ' . $message);
         });
