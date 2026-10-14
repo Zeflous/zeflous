@@ -40,7 +40,7 @@ deptrac:
     - name: Kernel
       collectors:
         - type: classNameRegex
-          value: '#^Zef\\Framework\\(Kernel|Version|ContainerBootstrapper)$#'
+          value: '#^Zef\\Framework\\(Kernel|Version|ContainerBootstrapper|ApplicationBootstrapper|FrameworkDefaults)$#'
     - name: Tooling
       collectors:
         - type: classNameRegex
@@ -87,6 +87,13 @@ deptrac:
       - Container
       - Config
       - Http
+    # The kernel is the composition layer: it owns the container, the frozen
+    # configuration, the config->container bootstrapper, the one-call
+    # application boot orchestrator (ApplicationBootstrapper, over the
+    # layered builder -> config bootstrapper -> container bootstrapper chain)
+    # and the framework's code-declared defaults profile (FrameworkDefaults,
+    # pure data). Each widening is additive: the orchestrator composes units
+    # the layers below already own.
     Kernel:
       - Container
       - Health
