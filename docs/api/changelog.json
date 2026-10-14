@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-14T17:56:42Z",
+  "as_of": "2026-10-14T18:06:44Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 143,
+  "unreleased_count": 144,
   "versions": [
     {
       "version": "Unreleased",
@@ -3528,6 +3528,22 @@
                 "sha": "201d37642bee2184ea421f64a71ebbfbce00f17a",
                 "short_sha": "201d376",
                 "subject": "docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328"
+              }
+            ]
+          },
+          {
+            "pr": 333,
+            "title": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-14T18:06:44Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/333",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b266e389ca0e129c81f1758c2146fb33b1b150a7",
+                "short_sha": "b266e38",
+                "subject": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332"
               }
             ]
           }
@@ -7319,6 +7335,22 @@
               "sha": "ae14a26af5693bbfeb5d3f815d54a965b3b61084",
               "short_sha": "ae14a26",
               "subject": "fix(kernel): narrow the inventory scan through the string cast"
+            }
+          ]
+        },
+        {
+          "pr": 333,
+          "title": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-14T18:06:44Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/333",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b266e389ca0e129c81f1758c2146fb33b1b150a7",
+              "short_sha": "b266e38",
+              "subject": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332"
             }
           ]
         }
