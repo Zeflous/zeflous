@@ -21,29 +21,35 @@ final readonly class DefinitionReferences
      */
     public static function of(ServiceDefinition $serviceDefinition): array
     {
-        if ($serviceDefinition instanceof AliasDefinition) {
-            return [$serviceDefinition->target];
+        return match (true) {
+            $serviceDefinition instanceof AliasDefinition => [$serviceDefinition->target],
+            $serviceDefinition instanceof FactoryDefinition => self::factoryReferences($serviceDefinition),
+            $serviceDefinition instanceof InstanceDefinition => self::argumentReferences($serviceDefinition->arguments),
+            default => [],
+        };
+    }
+
+    /**
+     * A factory's edges: the `['service' => id]` argument references plus
+     * the factory target itself -- the latter only when the target is *not*
+     * an existing class, because a class-named factory target is a static
+     * call rather than a container edge.
+     *
+     * @return list<string>
+     */
+    private static function factoryReferences(FactoryDefinition $factoryDefinition): array
+    {
+        [$target] = explode('::', $factoryDefinition->factory);
+
+        if (class_exists($target)) {
+            // A class-named factory target is the static-call form: not
+            // a container edge. A same-named registered service still
+            // wins at call time (the compiler's precedence), so the
+            // static fallback exists even when an edge was skipped.
+            return self::argumentReferences($factoryDefinition->arguments);
         }
 
-        if ($serviceDefinition instanceof InstanceDefinition) {
-            return self::argumentReferences($serviceDefinition->arguments);
-        }
-
-        if ($serviceDefinition instanceof FactoryDefinition) {
-            [$target] = explode('::', $serviceDefinition->factory);
-
-            if (class_exists($target)) {
-                // A class-named factory target is the static-call form: not
-                // a container edge. A same-named registered service still
-                // wins at call time (the compiler's precedence), so the
-                // static fallback exists even when an edge was skipped.
-                return self::argumentReferences($serviceDefinition->arguments);
-            }
-
-            return [$target, ...self::argumentReferences($serviceDefinition->arguments)];
-        }
-
-        return [];
+        return [$target, ...self::argumentReferences($factoryDefinition->arguments)];
     }
 
     /**
