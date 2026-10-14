@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-14T18:06:44Z",
+  "as_of": "2026-10-14T20:18:03Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 144,
+  "unreleased_count": 146,
   "versions": [
     {
       "version": "Unreleased",
@@ -1061,6 +1061,37 @@
                 "sha": "ae14a26af5693bbfeb5d3f815d54a965b3b61084",
                 "short_sha": "ae14a26",
                 "subject": "fix(kernel): narrow the inventory scan through the string cast"
+              }
+            ]
+          },
+          {
+            "pr": 341,
+            "title": "feat(http): the security headers family, config-driven",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-14T20:05:54Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/341",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0b42c92041ca307606045a6892b2d06f9e20f1e1",
+                "short_sha": "0b42c92",
+                "subject": "feat(http): the security headers family, config-driven"
+              },
+              {
+                "sha": "dcda565dd099b0e2f642d983febaee3a3e08b45a",
+                "short_sha": "dcda565",
+                "subject": "Merge branch 'main' into feat/security-headers-config-driven"
+              },
+              {
+                "sha": "b28c795803eba9b06bfe21ad88842e6f70aa4cbf",
+                "short_sha": "b28c795",
+                "subject": "fix(http): extract the knob failure suffix into one seam (Sonar S1192)"
+              },
+              {
+                "sha": "5d45d9652672c7c4c1e3b15278644b1b977f9ee7",
+                "short_sha": "5d45d96",
+                "subject": "refactor(http): extract the unknown-knob census from fromMap (archeology)"
               }
             ]
           }
@@ -3544,6 +3575,22 @@
                 "sha": "b266e389ca0e129c81f1758c2146fb33b1b150a7",
                 "short_sha": "b266e38",
                 "subject": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332"
+              }
+            ]
+          },
+          {
+            "pr": 342,
+            "title": "docs(roadmap): pin the security headers family to pull request 341",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-14T20:18:03Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/342",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "70a476db3e1ae22f34d1fc06809b85bc2ba80e92",
+                "short_sha": "70a476d",
+                "subject": "docs(roadmap): pin the security headers family to pull request 341"
               }
             ]
           }
@@ -7351,6 +7398,53 @@
               "sha": "b266e389ca0e129c81f1758c2146fb33b1b150a7",
               "short_sha": "b266e38",
               "subject": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332"
+            }
+          ]
+        },
+        {
+          "pr": 341,
+          "title": "feat(http): the security headers family, config-driven",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-14T20:05:54Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/341",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0b42c92041ca307606045a6892b2d06f9e20f1e1",
+              "short_sha": "0b42c92",
+              "subject": "feat(http): the security headers family, config-driven"
+            },
+            {
+              "sha": "dcda565dd099b0e2f642d983febaee3a3e08b45a",
+              "short_sha": "dcda565",
+              "subject": "Merge branch 'main' into feat/security-headers-config-driven"
+            },
+            {
+              "sha": "b28c795803eba9b06bfe21ad88842e6f70aa4cbf",
+              "short_sha": "b28c795",
+              "subject": "fix(http): extract the knob failure suffix into one seam (Sonar S1192)"
+            },
+            {
+              "sha": "5d45d9652672c7c4c1e3b15278644b1b977f9ee7",
+              "short_sha": "5d45d96",
+              "subject": "refactor(http): extract the unknown-knob census from fromMap (archeology)"
+            }
+          ]
+        },
+        {
+          "pr": 342,
+          "title": "docs(roadmap): pin the security headers family to pull request 341",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-14T20:18:03Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/342",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "70a476db3e1ae22f34d1fc06809b85bc2ba80e92",
+              "short_sha": "70a476d",
+              "subject": "docs(roadmap): pin the security headers family to pull request 341"
             }
           ]
         }
