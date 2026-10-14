@@ -33,10 +33,14 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Message\\#'
+    - name: Middleware
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Middleware\\#'
     - name: Kernel
       collectors:
         - type: classNameRegex
-          value: '#^Zef\\Framework\\(Kernel|Version)$#'
+          value: '#^Zef\\Framework\\(Kernel|Version|ContainerBootstrapper)$#'
     - name: Tooling
       collectors:
         - type: classNameRegex
@@ -72,6 +76,17 @@ deptrac:
       - Exception
     Message:
       - Exception
+    # The middleware pipeline is the execution lane over the HTTP layer's
+    # PSR-15 shim: it executes the vendored contracts' concrete middlewares
+    # (hence `Http`, whose `Response` is the missing-terminal fallback), reads
+    # the frozen configuration's `middleware.stack` key (`Config`, through the
+    # factory -- construction stays separate from execution) and resolves
+    # every declared middleware through the PSR-11 container (`Container`).
+    Middleware:
+      - Exception
+      - Container
+      - Config
+      - Http
     Kernel:
       - Container
       - Health
@@ -79,6 +94,7 @@ deptrac:
       - Config
       - Contracts
       - Exception
+      - Middleware
     # Tooling gates are developer/CI utilities: they may use the kernel and the
     # exception root, but no other domain layer.
     Tooling:

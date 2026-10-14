@@ -110,6 +110,22 @@
             "ignoreSourceCodeByRegex": [
                 "\\$offset = \\$match\\[3\\]\\[1\\];"
             ]
+        },
+        // The settled memo's early return in
+        // ServiceDefinitionGraph::visit() is the one return whose removal
+        // is value-equivalent: the walk is a pure function of the edge
+        // map, so re-visiting a settled node recomputes the identical
+        // acyclic verdict -- the memo is a performance guard, never a
+        // correctness branch, and the cycle detector's chain test is
+        // independent of it (verified by running the full suite under the
+        // manually applied mutation -- the complete suite passes, cycles
+        // still rejected, shared dependencies still accepted). The throw
+        // and the recursion in the same method stay under their mutators:
+        // tests kill those. This ignore is scoped to that single method.
+        "ReturnRemoval": {
+            "ignore": [
+                "Zef\\Framework\\Container\\ServiceDefinitionGraph::visit"
+            ]
         }
     },
     "minMsi": 100,
