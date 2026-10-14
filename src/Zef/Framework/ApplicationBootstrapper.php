@@ -6,7 +6,6 @@ namespace Zef\Framework;
 
 use FilesystemIterator;
 use Psr\Http\Server\RequestHandlerInterface;
-use SplFileInfo;
 use Zef\Framework\Config\Cache\ConfigCache;
 use Zef\Framework\Config\ConfigBootstrapper;
 use Zef\Framework\Config\ConfigException;
@@ -139,13 +138,11 @@ final readonly class ApplicationBootstrapper
 
         $configFiles = [];
         foreach (new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS) as $file) {
-            if ($file instanceof SplFileInfo) {
-                $name = $file->getFilename();
+            $name = \is_string($file) ? basename($file) : $file->getFilename();
 
-                \assert($name !== '');
+            \assert($name !== '');
 
-                $configFiles[] = $name;
-            }
+            $configFiles[] = $name;
         }
 
         return $configFiles;
