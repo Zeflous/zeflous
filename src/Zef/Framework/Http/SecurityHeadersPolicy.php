@@ -89,17 +89,7 @@ final readonly class SecurityHeadersPolicy
             );
         }
 
-        foreach (array_keys($map) as $knob) {
-            $known = ['hsts', 'csp', 'content_security_policy', 'permissions_policy'];
-
-            if (!\is_string($knob) || !\in_array($knob, $known, true)) {
-                throw new HttpException(
-                    "The security.headers configuration carries the unknown knob '"
-                    . (\is_string($knob) ? $knob : get_debug_type($knob))
-                    . "' (known knobs: hsts, csp, content_security_policy, permissions_policy).",
-                );
-            }
-        }
+        self::rejectUnknownKnobs($map);
 
         return new self(
             hsts: self::toggle($map['hsts'] ?? false, 'hsts'),
@@ -109,6 +99,29 @@ final readonly class SecurityHeadersPolicy
             ),
             permissionsPolicy: self::toggle($map['permissions_policy'] ?? true, 'permissions_policy'),
         );
+    }
+
+    /**
+     * The map's own key census: every knob it carries must be one of the
+     * four the family owns, named in the rejection with the known list
+     * spelled out -- a `htss` typo must never fall through to the default
+     * posture unnoticed.
+     *
+     * @param array<array-key, mixed> $map
+     */
+    private static function rejectUnknownKnobs(array $map): void
+    {
+        $known = ['hsts', 'csp', 'content_security_policy', 'permissions_policy'];
+
+        foreach (array_keys($map) as $knob) {
+            if (!\is_string($knob) || !\in_array($knob, $known, true)) {
+                throw new HttpException(
+                    "The security.headers configuration carries the unknown knob '"
+                    . (\is_string($knob) ? $knob : get_debug_type($knob))
+                    . "' (known knobs: hsts, csp, content_security_policy, permissions_policy).",
+                );
+            }
+        }
     }
 
     /**
