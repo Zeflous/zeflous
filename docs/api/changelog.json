@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-14T15:42:12Z",
+  "as_of": "2026-10-14T18:06:44Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 142,
+  "unreleased_count": 144,
   "versions": [
     {
       "version": "Unreleased",
@@ -1025,6 +1025,42 @@
                 "sha": "ff406aa80940134356ea4115dae28c00f9deb18c",
                 "short_sha": "ff406aa",
                 "subject": "refactor(container): fold the reference extraction into a match arm"
+              }
+            ]
+          },
+          {
+            "pr": 332,
+            "title": "feat(kernel): the application config profile and the one-call boot orchestrator",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-14T17:56:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/332",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8ed6d9d704ce4d6427aac9c5c47427c045108727",
+                "short_sha": "8ed6d9d",
+                "subject": "feat(kernel): the application config profile and the one-call boot orchestrator"
+              },
+              {
+                "sha": "8ea7364b85ef2bab8812f98c9cd9838628d730b4",
+                "short_sha": "8ea7364",
+                "subject": "Merge branch 'main' into feat/app-config-profile"
+              },
+              {
+                "sha": "56c86186b7782948a02e0995d0ec1c85d2b5457f",
+                "short_sha": "56c8618",
+                "subject": "fix(kernel): cover the inventory scan's instanceof guard on the Sonar new-code gate"
+              },
+              {
+                "sha": "668204a757bbf94fa384dca2a5cfe779f9b1a13a",
+                "short_sha": "668204a",
+                "subject": "fix(kernel): narrow the inventory scan without an unreachable branch"
+              },
+              {
+                "sha": "ae14a26af5693bbfeb5d3f815d54a965b3b61084",
+                "short_sha": "ae14a26",
+                "subject": "fix(kernel): narrow the inventory scan through the string cast"
               }
             ]
           }
@@ -3492,6 +3528,22 @@
                 "sha": "201d37642bee2184ea421f64a71ebbfbce00f17a",
                 "short_sha": "201d376",
                 "subject": "docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328"
+              }
+            ]
+          },
+          {
+            "pr": 333,
+            "title": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-14T18:06:44Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/333",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b266e389ca0e129c81f1758c2146fb33b1b150a7",
+                "short_sha": "b266e38",
+                "subject": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332"
               }
             ]
           }
@@ -7247,6 +7299,58 @@
               "sha": "201d37642bee2184ea421f64a71ebbfbce00f17a",
               "short_sha": "201d376",
               "subject": "docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328"
+            }
+          ]
+        },
+        {
+          "pr": 332,
+          "title": "feat(kernel): the application config profile and the one-call boot orchestrator",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-14T17:56:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/332",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8ed6d9d704ce4d6427aac9c5c47427c045108727",
+              "short_sha": "8ed6d9d",
+              "subject": "feat(kernel): the application config profile and the one-call boot orchestrator"
+            },
+            {
+              "sha": "8ea7364b85ef2bab8812f98c9cd9838628d730b4",
+              "short_sha": "8ea7364",
+              "subject": "Merge branch 'main' into feat/app-config-profile"
+            },
+            {
+              "sha": "56c86186b7782948a02e0995d0ec1c85d2b5457f",
+              "short_sha": "56c8618",
+              "subject": "fix(kernel): cover the inventory scan's instanceof guard on the Sonar new-code gate"
+            },
+            {
+              "sha": "668204a757bbf94fa384dca2a5cfe779f9b1a13a",
+              "short_sha": "668204a",
+              "subject": "fix(kernel): narrow the inventory scan without an unreachable branch"
+            },
+            {
+              "sha": "ae14a26af5693bbfeb5d3f815d54a965b3b61084",
+              "short_sha": "ae14a26",
+              "subject": "fix(kernel): narrow the inventory scan through the string cast"
+            }
+          ]
+        },
+        {
+          "pr": 333,
+          "title": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-14T18:06:44Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/333",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b266e389ca0e129c81f1758c2146fb33b1b150a7",
+              "short_sha": "b266e38",
+              "subject": "docs(roadmap): pin the application config profile and boot orchestrator row to pull request 332"
             }
           ]
         }
