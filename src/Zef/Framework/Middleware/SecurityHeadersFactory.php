@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Middleware;
 
 use Zef\Framework\Config\Config;
+use Zef\Framework\Http\SecurityFamilies;
 use Zef\Framework\Http\SecurityHeadersMiddleware;
 use Zef\Framework\Http\SecurityHeadersPolicy;
 
@@ -31,10 +32,14 @@ final readonly class SecurityHeadersFactory
     /**
      * Builds the middleware from the frozen repository's `security.headers`
      * subtree: the merged, already-defaulted knob map the layered builder
-     * produced (Default < App < Env), validated fail-closed by the policy.
+     * produced (Default < App < Env), validated fail-closed by the policy,
+     * with the `security` map's own family census rejecting an unknown
+     * sibling ({@see SecurityFamilies}) since the second family landed.
      */
     public static function fromConfig(Config $config): SecurityHeadersMiddleware
     {
-        return new SecurityHeadersMiddleware(SecurityHeadersPolicy::fromMap($config->get('security.headers')));
+        return new SecurityHeadersMiddleware(
+            SecurityHeadersPolicy::fromMap(SecurityFamilies::subtree($config->get('security'), 'headers')),
+        );
     }
 }

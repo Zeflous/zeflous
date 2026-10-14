@@ -50,6 +50,8 @@
     "suggest": {
         "ext-pcov": "Fast coverage driver required by Infection mutation testing and the coverage gate.",
         "ext-swoole": "Coroutine runtime adapter, an alternative to RoadRunner.",
+        "ext-apcu": "Shared rate-limit store for one PHP process tree (security.rate_limit store: apcu).",
+        "ext-redis": "Shared cross-host rate-limit store via phpredis (security.rate_limit store: redis).",
         "spiral/roadrunner-worker": "Persistent-worker bridge used by the RoadRunner runtime adapter."
     },
     "autoload": {

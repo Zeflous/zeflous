@@ -71,7 +71,7 @@
         // are not MBString targets. This ignore is scoped to that single
         // method.
         //
-        // The toggle fold in SecurityHeadersPolicy::toggle() is the
+        // The toggle fold in StrictToggles::read() is the
         // fourth: mb_strtolower($value) and strtolower($value) agree for
         // every input whose fold can reach the closed boolean vocabulary.
         // The vocabulary's words (true/false, on/off, yes/no, 1/0) contain
@@ -81,16 +81,30 @@
         // two-character mapping, not a pure ASCII landing) -- so a value
         // that differs between the two folds can never spell a vocabulary
         // word, fails the closed-set comparison under both folds, and is
-        // rejected with the knob named either way. The neighbouring
+        // rejected with the knob named either way. The fold lived in
+        // SecurityHeadersPolicy::toggle() until the rate-limit family
+        // needed the same reading and it was extracted to the shared seam
+        // (KDD-SC8's Q2 amendment in docs/ci-notes/security-runtime.md);
+        // the ignore target moved with it. The neighbouring
         // get_debug_type and in_array calls stay under the mutator where
         // applicable: they are not MBString targets. This ignore is
         // scoped to that single method.
+        //
+        // The store-vocabulary fold in RateLimitStores::read() is the
+        // fifth, and carries the same argument over its own vocabulary:
+        // the words memory/apcu/redis contain no ASCII `k`, so every
+        // fold-divergent value is rejected under both spellings with the
+        // value spelled out -- the zone is value-equivalent by the same
+        // construction. The neighbouring in_array call stays under the
+        // mutator: it is not an MBString target. This ignore is scoped to
+        // that single method.
         "MBString": {
             "ignore": [
                 "Zef\\Framework\\Http\\BodyBudget::refuses",
                 "Zef\\Framework\\Http\\ETagMiddleware::applyConditionalGet",
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
-                "Zef\\Framework\\Http\\SecurityHeadersPolicy::toggle"
+                "Zef\\Framework\\Http\\RateLimitStores::read",
+                "Zef\\Framework\\Http\\StrictToggles::read"
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is

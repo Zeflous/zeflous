@@ -28,7 +28,6 @@ namespace Zef\Framework\Http;
  * constructor defaults, which mirror the framework profile's own
  * declaration ({@see \Zef\Framework\FrameworkDefaults}); a dedicated boot
  * test pins the two declarations together so they cannot drift apart.
- *
  * The knobs and their defaults follow the reference implementation's
  * posture (legacy `zef-main` `Middleware/SecurityHeadersMiddleware.php`,
  * milestone E2): the six baseline hardening headers are always on and are
@@ -40,16 +39,6 @@ final readonly class SecurityHeadersPolicy
 {
     private const string DEFAULT_CONTENT_SECURITY_POLICY
         = "default-src 'self'; frame-ancestors 'none'; base-uri 'self'";
-
-    /**
-     * The strict boolean vocabulary's truth spellings, comparison form.
-     */
-    private const array TRUE_WORDS = ['1', 'true', 'on', 'yes'];
-
-    /**
-     * The strict boolean vocabulary's falsehood spellings, comparison form.
-     */
-    private const array FALSE_WORDS = ['0', 'false', 'off', 'no', ''];
 
     /**
      * @throws HttpException when the map is not a map, carries an unknown
@@ -92,12 +81,15 @@ final readonly class SecurityHeadersPolicy
         self::rejectUnknownKnobs($map);
 
         return new self(
-            hsts: self::toggle($map['hsts'] ?? false, 'hsts'),
-            contentSecurityPolicyEnabled: self::toggle($map['csp'] ?? false, 'csp'),
+            hsts: StrictToggles::read($map['hsts'] ?? false, 'security.headers hsts'),
+            contentSecurityPolicyEnabled: StrictToggles::read($map['csp'] ?? false, 'security.headers csp'),
             contentSecurityPolicy: self::policyString(
                 $map['content_security_policy'] ?? self::DEFAULT_CONTENT_SECURITY_POLICY,
             ),
-            permissionsPolicy: self::toggle($map['permissions_policy'] ?? true, 'permissions_policy'),
+            permissionsPolicy: StrictToggles::read(
+                $map['permissions_policy'] ?? true,
+                'security.headers permissions_policy',
+            ),
         );
     }
 
@@ -122,46 +114,6 @@ final readonly class SecurityHeadersPolicy
                 );
             }
         }
-    }
-
-    /**
-     * The strict boolean reading of one toggle knob's value: a native
-     * bool passes through, a string folds through the Unicode case map
-     * into the closed vocabulary, and anything else is rejected with the
-     * knob named. The call site owns the knob's default -- an absent (or
-     * explicitly null) knob never reaches this reader, because `??`
-     * already substituted the family's own default posture.
-     *
-     * The fold is value-equivalent under the MBString mutator on this
-     * method by construction: the only single-character lower-case landing
-     * into ASCII the Unicode case map carries is U+212A to `k`, no
-     * vocabulary word contains a `k`, so every fold-divergent value is
-     * rejected under both spellings -- the zone is answered with a
-     * method-scoped ignore entry argued in `infection.json5` (the
-     * ETagMiddleware method-token fold precedent).
-     */
-    private static function toggle(mixed $value, string $knob): bool
-    {
-        if (\is_bool($value)) {
-            return $value;
-        }
-
-        if (\is_string($value)) {
-            $folded = mb_strtolower($value);
-
-            if (\in_array($folded, self::TRUE_WORDS, true)) {
-                return true;
-            }
-
-            if (\in_array($folded, self::FALSE_WORDS, true)) {
-                return false;
-            }
-        }
-
-        throw new HttpException(
-            "The security.headers {$knob} knob must be a boolean or one of the boolean string "
-            . 'spellings (true/false, on/off, yes/no, 1/0), ' . self::received($value),
-        );
     }
 
     /**
