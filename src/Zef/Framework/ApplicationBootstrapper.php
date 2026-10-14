@@ -138,7 +138,7 @@ final readonly class ApplicationBootstrapper
 
         $configFiles = [];
         foreach (new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS) as $file) {
-            $name = \is_string($file) ? basename($file) : $file->getFilename();
+            $name = basename((string) $file);
 
             \assert($name !== '');
 
