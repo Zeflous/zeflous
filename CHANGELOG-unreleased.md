@@ -48,6 +48,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the cors origin policy middleware [#309](https://github.com/Zeflous/zeflous/pull/309) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the error mapping middleware [#314](https://github.com/Zeflous/zeflous/pull/314) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the head request middleware and the http hot-path benchmarks [#319](https://github.com/Zeflous/zeflous/pull/319) ([mbetixz](https://github.com/mbetixz))
+- feat(kernel): config-driven container definitions and the middleware pipeline [#328](https://github.com/Zeflous/zeflous/pull/328) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -152,6 +153,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the cors origin policy history row to pull request 309 [#310](https://github.com/Zeflous/zeflous/pull/310) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the error mapping history row to pull request 314 [#315](https://github.com/Zeflous/zeflous/pull/315) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the head request history row to pull request 319 [#322](https://github.com/Zeflous/zeflous/pull/322) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328 [#331](https://github.com/Zeflous/zeflous/pull/331) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
