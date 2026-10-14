@@ -16,6 +16,7 @@ use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Middleware\MiddlewareTrace;
@@ -58,9 +59,24 @@ final class ApplicationBootstrapperTest extends TestCase
     {
         $kernel = new ApplicationBootstrapper()->boot(self::SHIPPED_CONFIGS);
 
-        self::assertSame([], $kernel->config()->get('services'));
+        self::assertSame(
+            [],
+            $kernel->config()->get('services'),
+            "the host's declaration surface is empty and stays the host's own",
+        );
+        self::assertSame(
+            [
+                'security.headers' => [
+                    'factory' => SecurityHeadersFactory::class . '::fromConfig',
+                    'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
+                ],
+            ],
+            $kernel->config()->get('framework.services'),
+            "the default layer carries the framework's own registration in its reserved namespace",
+        );
         self::assertSame(['stack' => []], $kernel->config()->get('middleware'));
         self::assertSame([], $kernel->config()->get('routes'));
+        self::assertTrue($kernel->container()->has('security.headers'));
 
         $response = new ApplicationBootstrapper()
             ->pipeline($kernel, new FixedResponseHandler(new Response(200, [], 'answered')))
@@ -135,8 +151,9 @@ final class ApplicationBootstrapperTest extends TestCase
         $kernel = new ApplicationBootstrapper()->boot(__DIR__ . '/Kernel/fixtures/empty');
 
         self::assertSame(FrameworkDefaults::profile(), $kernel->config()->toArray());
-        self::assertNull($kernel->config()->get('services'));
+        self::assertTrue($kernel->config()->has('framework.services'));
         self::assertFalse($kernel->container()->has('anything'));
+        self::assertTrue($kernel->container()->has('security.headers'));
     }
 
     public function testAPathThatIsNotADirectoryFailsClosed(): void

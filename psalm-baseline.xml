@@ -89,7 +89,6 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[getAuthority]]></code>
       <code><![CDATA[getFragment]]></code>
-      <code><![CDATA[getScheme]]></code>
       <code><![CDATA[getUserInfo]]></code>
       <code><![CDATA[withFragment]]></code>
       <code><![CDATA[withHost]]></code>

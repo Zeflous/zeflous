@@ -7,29 +7,39 @@ namespace Zef\Framework;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionCompiler;
-use Zef\Framework\Container\DefinitionException;
-use Zef\Framework\Container\ServiceDefinition;
+use Zef\Framework\Container\DefinitionMap;
 use Zef\Framework\Container\ServiceDefinitionGraph;
 
 /**
  * Bootstraps the container from the frozen configuration repository.
  *
  * The kernel owns both the container and the configuration (`Kernel`), so
- * the composition glue lives here: this class reads the `services` key of
- * the repository the configuration layer already loaded, merged, validated
- * and cached, and installs every declarative definition into the container
- * through its existing public surface ({@see Container::set()}).
+ * the composition glue lives here: this class reads the repository's two
+ * definition maps -- the framework's own registrations under the reserved
+ * `framework.services` key (declared by {@see FrameworkDefaults}, the
+ * Default layer the host cannot delete) and the host's declarations under
+ * `services` (the `app/configs/services.php` surface, parsed by the same
+ * {@see DefinitionMap} grammar) -- and installs every declarative
+ * definition into the container through its existing public surface
+ * ({@see Container::set()}).
  *
- * The container itself never depends on the configuration layer (the deptrac
- * build order); it only knows the plain definition grammar, which is why
- * this bootstrapper -- not a container method -- is the config-driven seam.
+ * The two maps are deliberately separate: the merge contract counts an
+ * empty array as a clearing list, so a host's empty `services.php` must
+ * clear the host's own declaration surface without ever wiping the
+ * framework's own machinery; and a same-identifier collision between the
+ * maps is the host's explicit rebind of a framework registration, with
+ * the host's definition winning (framework definitions install first).
  *
- * Fail-closed at boot, in order: the `services` value must be a definition
- * map (a missing/null key is a valid empty service set); the keys must be
- * non-empty service identifiers; each entry is parsed by
- * {@see ServiceDefinition::fromArray()}; the whole set's reference graph is
- * proven resolvable and acyclic by {@see ServiceDefinitionGraph::validate()}
- * before a single definition is installed.
+ * The container itself never depends on the configuration layer (the
+ * deptrac build order); it only knows the plain definition grammar, which
+ * is why this bootstrapper -- not a container method -- is the
+ * config-driven seam.
+ *
+ * Fail-closed at boot, in order: each definition map is parsed and
+ * validated by {@see DefinitionMap::parse()} (a missing/null key is a
+ * valid empty set); the whole set's reference graph is proven resolvable
+ * and acyclic by {@see ServiceDefinitionGraph::validate()} before a
+ * single definition is installed.
  */
 final readonly class ContainerBootstrapper
 {
@@ -44,29 +54,10 @@ final readonly class ContainerBootstrapper
      */
     public function bootstrap(Config $config, Container $container): Container
     {
-        $services = $config->get('services');
-
-        if ($services === null) {
-            return $container;
-        }
-
-        if (!\is_array($services)) {
-            throw new DefinitionException(
-                "The 'services' configuration must be a map of definitions, " . get_debug_type($services) . ' given.',
-            );
-        }
-
-        $definitions = [];
-        foreach (array_keys($services) as $key) {
-            if (!\is_string($key) || $key === '') {
-                throw new DefinitionException(
-                    "The 'services' configuration keys must be non-empty service identifiers, "
-                    . get_debug_type($key) . ' given.',
-                );
-            }
-
-            $definitions[] = ServiceDefinition::fromArray($key, $services[$key]);
-        }
+        $definitions = [
+            ...DefinitionMap::parse('framework.services', $config->get('framework.services')),
+            ...DefinitionMap::parse('services', $config->get('services')),
+        ];
 
         ServiceDefinitionGraph::validate($definitions, $container);
 
