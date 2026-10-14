@@ -112,11 +112,6 @@
       <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/ContainerBootstrapper.php">
-    <UnusedClass>
-      <code><![CDATA[ContainerBootstrapper]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/Zef/Framework/Contracts/ServiceProviderInterface.php">
     <UnusedClass>
       <code><![CDATA[ServiceProviderInterface]]></code>
@@ -181,11 +176,6 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[withMiddleware]]></code>
     </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Zef/Framework/Middleware/PipelineFactory.php">
-    <UnusedClass>
-      <code><![CDATA[PipelineFactory]]></code>
-    </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Tooling/CoverageReport.php">
     <InvalidOperand>
