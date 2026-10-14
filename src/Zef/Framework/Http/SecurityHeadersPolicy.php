@@ -85,7 +85,7 @@ final readonly class SecurityHeadersPolicy
 
         if (!\is_array($map)) {
             throw new HttpException(
-                'The security.headers configuration must be a map, ' . get_debug_type($map) . ' given.',
+                'The security.headers configuration must be a map, ' . self::received($map),
             );
         }
 
@@ -147,7 +147,7 @@ final readonly class SecurityHeadersPolicy
 
         throw new HttpException(
             "The security.headers {$knob} knob must be a boolean or one of the boolean string "
-            . 'spellings (true/false, on/off, yes/no, 1/0), ' . get_debug_type($value) . ' given.',
+            . 'spellings (true/false, on/off, yes/no, 1/0), ' . self::received($value),
         );
     }
 
@@ -167,7 +167,16 @@ final readonly class SecurityHeadersPolicy
 
         throw new HttpException(
             'The security.headers content_security_policy knob must be a string, '
-            . get_debug_type($value) . ' given.',
+            . self::received($value),
         );
+    }
+
+    /**
+     * The "as the configuration carried it" suffix every knob failure
+     * closes with: the value's runtime type, in the engine's own spelling.
+     */
+    private static function received(mixed $value): string
+    {
+        return get_debug_type($value) . ' given.';
     }
 }
