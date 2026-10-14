@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(http\): the security headers family, config-driven [\#341](https://github.com/Zeflous/zeflous/pull/341) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the application config profile and boot orchestrator row to pull request 332 [\#333](https://github.com/Zeflous/zeflous/pull/333) ([mbetixz](https://github.com/mbetixz))
 - feat\(kernel\): the application config profile and the one-call boot orchestrator [\#332](https://github.com/Zeflous/zeflous/pull/332) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the container definitions and middleware pipeline rows to pull request 328 [\#331](https://github.com/Zeflous/zeflous/pull/331) ([mbetixz](https://github.com/mbetixz))
