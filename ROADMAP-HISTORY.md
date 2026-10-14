@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-14 · `main` @ `7711c6a`
+**Last updated:** 2026-10-15 · `main` @ `d41ed07`
 
 **How to read this file**
 
@@ -31,9 +31,9 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | CI / Supply chain | 29 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
-| Configuration System | 19 |
+| Configuration System | 20 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **114** |
+| **Total merged PRs** | **115** |
 
 ---
 
@@ -226,6 +226,7 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 | feat(config): route dsl resource macro (`RouteDsl::resource()` — one declaration expands into the seven-route CRUD table: index/create/store/show/edit/update (one PUT+PATCH entry)/destroy with `Controller@action` handlers and `<base>.<action>` names derived by `RouteResourceName` from the path's static segments, only `{id}` constrainable, the expansion registering through the façade's public surface so prefix, middleware and every declaration-time validation apply; `RouteDslBench` records the build economics — define() linear, paid once at build/cache time; `docs/ci-notes/dsl-builder.md` decision record KDD-D1..D8 with the cross-lane engine discovery and the local-vs-CI archeology yardstick) | #247 | 2026-10-11 | `4266b088d` |
 | feat(config): the routing runtime over the frozen configuration (`RoutingRuntime::fromConfig()` — the Triad's fifth seam, roadmap step 5 Loader -> Engine: reads the route table the bootstrapper pipeline already loaded, merged, validated and cached; the engine's radix tree is compiled AT MOST ONCE per instance, lazily and memoised — compile-once-per-worker economics, a fresh instance is the hot-reload path; a missing routes key is a valid zero-routing table, a non-array fails closed, a map-addressed table is normalised to a list with the keys discarded — the entry's name field is the single source of truth; `tree()`/`match()`/`route()`/`url()` answer from the one immutable tree, the raw method travels to the engine's single upper-casing policy point; `RoutingRuntimeBench` records the economics — memoised matching flat at 4.1-5.8us across 15-300 routes vs 185-4,070us when the runtime is rebuilt per request) | #250 | 2026-10-11 | `d2557c0ea` |
 | feat(config): dispatch matched routes to container handlers (`RouteDispatcher::dispatch(method, path)` — the Triad's runtime endpoint, roadmap step 5 Engine -> Dispatcher: matches through the `RoutingRuntime`, resolves the handler through the container and invokes it with the captured parameters (one argument: the parameter map keyed by name); `RouteHandlerResolver` is container-mediated and fail-closed on every path (service id callable, or `Class@method` with the instance resolved under the class's own name -- no reflection birth, that belongs to the container's autowiring lane); `RouteHandler` normalises a resolved callable into one typed invocation contract (closing the phpstan-signature-vs-psalm-coercion standoff without a single suppress); `DispatchOutcome` carries executed (route + parameters + handler result) / notFound / methodNotAllowed with state-specific accessors failing loudly, the matched route keeping `middleware()`/`meta()` readable for the pipeline lane to come; deptrac `Config += Container` for the runtime seam, psalm baseline shrinks; `docs/ci-notes/integration.md` records KDD-I1..I6 with the legacy Dispatcher attribution) | #253 | 2026-10-11 | `925f2a006` |
+| feat(kernel): the application config profile and the one-call boot orchestrator (`app/configs/{services,middleware,routes}.php` — the shipped default profile under the file-equals-key convention: each file's name is its repository key, each key consumed by the already-merged machinery (`services` by the `ContainerBootstrapper`, `middleware.stack` by the `PipelineFactory`, `routes` by the schema validator and the radix runtime); `FrameworkDefaults` — the framework's code-declared defaults laid down as the layered builder's Default layer under the app files and the environment, deliberately empty today (KDD-AC3: every knob must be live before it is declared — `aot` arrives with area 8, `tags` with area 3, the HTTP knobs with their migration PR); `ApplicationBootstrapper::boot(directory, ?EnvSource): Kernel` — the one-call composition of the layered builder, the config bootstrapper (validation + the optional compiled cache; KDD-6's stale-until-removed contract pinned by test) and the container bootstrapper (fail-closed definition install), plus `pipeline(kernel, terminal)` composing the PSR-15 execution lane over the booted kernel; the directory scan declares the inventory (every direct child as its own allowlist) and the directory adapter keeps the single filter ownership — an infection-killed double-filter draft never shipped; psalm baseline shrunk by the two newly consumed `UnusedClass` entries; `AppBootBench` pins the cold vs cached boot economics honestly; `docs/ci-notes/app-config-profile.md` records KDD-AC1..AC8 with the legacy attribution to the restored reference repository's Configuration System v2 and its retrofit-debt lesson) | #332 | 2026-10-15 | `d41ed07e3` |
 
 ## 11. Middleware Pipeline
 
