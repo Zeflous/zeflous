@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-13T20:21:27Z",
+  "as_of": "2026-10-14T15:42:12Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 140,
+  "unreleased_count": 142,
   "versions": [
     {
       "version": "Unreleased",
@@ -999,6 +999,32 @@
                 "sha": "aae2b43052d614f1c3842aa9b5dbd2cfb6cca0fa",
                 "short_sha": "aae2b43",
                 "subject": "fix(ci): compile assertions into the coverage runs"
+              }
+            ]
+          },
+          {
+            "pr": 328,
+            "title": "feat(kernel): config-driven container definitions and the middleware pipeline",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-14T15:28:06Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/328",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1cabbcfb20d653dfb67b9631e003c9b7e368a0bc",
+                "short_sha": "1cabbcf",
+                "subject": "feat(kernel): config-driven container definitions and the middleware pipeline"
+              },
+              {
+                "sha": "c1c329c577ada3fe13eccd94282754718ae2e0db",
+                "short_sha": "c1c329c",
+                "subject": "Merge branch 'main' into feat/config-driven-container-middleware"
+              },
+              {
+                "sha": "ff406aa80940134356ea4115dae28c00f9deb18c",
+                "short_sha": "ff406aa",
+                "subject": "refactor(container): fold the reference extraction into a match arm"
               }
             ]
           }
@@ -3450,6 +3476,22 @@
                 "sha": "bafd92298ab7f34d600f4fe8bf77892175779882",
                 "short_sha": "bafd922",
                 "subject": "Merge branch 'main' into docs/roadmap-head-row"
+              }
+            ]
+          },
+          {
+            "pr": 331,
+            "title": "docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-14T15:42:12Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/331",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "201d37642bee2184ea421f64a71ebbfbce00f17a",
+                "short_sha": "201d376",
+                "subject": "docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328"
               }
             ]
           }
@@ -7163,6 +7205,48 @@
               "sha": "bafd92298ab7f34d600f4fe8bf77892175779882",
               "short_sha": "bafd922",
               "subject": "Merge branch 'main' into docs/roadmap-head-row"
+            }
+          ]
+        },
+        {
+          "pr": 328,
+          "title": "feat(kernel): config-driven container definitions and the middleware pipeline",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-14T15:28:06Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/328",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1cabbcfb20d653dfb67b9631e003c9b7e368a0bc",
+              "short_sha": "1cabbcf",
+              "subject": "feat(kernel): config-driven container definitions and the middleware pipeline"
+            },
+            {
+              "sha": "c1c329c577ada3fe13eccd94282754718ae2e0db",
+              "short_sha": "c1c329c",
+              "subject": "Merge branch 'main' into feat/config-driven-container-middleware"
+            },
+            {
+              "sha": "ff406aa80940134356ea4115dae28c00f9deb18c",
+              "short_sha": "ff406aa",
+              "subject": "refactor(container): fold the reference extraction into a match arm"
+            }
+          ]
+        },
+        {
+          "pr": 331,
+          "title": "docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-14T15:42:12Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/331",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "201d37642bee2184ea421f64a71ebbfbce00f17a",
+              "short_sha": "201d376",
+              "subject": "docs(roadmap): pin the container definitions and middleware pipeline rows to pull request 328"
             }
           ]
         }
