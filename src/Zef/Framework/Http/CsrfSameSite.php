@@ -26,8 +26,6 @@ final class CsrfSameSite
 
     /**
      * The vocabulary's canonical forms, keyed by their folded spelling.
-     *
-     * @var array<string, 'Lax'|'None'|'Strict'>
      */
     private const array FOLDED = [
         'strict' => self::STRICT,

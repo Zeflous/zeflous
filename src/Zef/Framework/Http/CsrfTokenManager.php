@@ -87,7 +87,8 @@ final readonly class CsrfTokenManager
         $parts = explode('.', $token, 2);
         [$body, $signature] = array_pad($parts, 2, '');
 
-        if (preg_match(self::BODY_GRAMMAR, $body) !== 1
+        if (
+            preg_match(self::BODY_GRAMMAR, $body) !== 1
             || preg_match(self::SIGNATURE_GRAMMAR, $signature) !== 1
         ) {
             return false;
