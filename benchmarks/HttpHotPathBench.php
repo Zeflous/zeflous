@@ -6,6 +6,9 @@ namespace Zef\Benchmark;
 
 use PhpBench\Attributes\Revs;
 use Zef\Framework\Exception\InvariantViolationException;
+use Zef\Framework\Http\InMemoryRateLimiter;
+use Zef\Framework\Http\RateLimitMiddleware;
+use Zef\Framework\Http\RateLimitPolicy;
 use Zef\Framework\Http\RequestFactory;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\SecurityHeadersMiddleware;
@@ -39,6 +42,8 @@ final readonly class HttpHotPathBench
     private Uri $uri;
 
     private SecurityHeadersMiddleware $securityHeadersMiddleware;
+
+    private RateLimitMiddleware $rateLimitMiddleware;
 
     private ServerRequest $serverRequest;
 
@@ -76,6 +81,10 @@ final readonly class HttpHotPathBench
             hsts: true,
             contentSecurityPolicyEnabled: true,
         ));
+        $this->rateLimitMiddleware = new RateLimitMiddleware(
+            new RateLimitPolicy(enabled: true, limit: 1000000, window: 3600),
+            new InMemoryRateLimiter(now: static fn (): int => 1725168000),
+        );
         $this->serverRequest = new ServerRequest('GET', $this->uri);
         $this->fixedResponseHandler = new FixedResponseHandler($this->response);
 
@@ -153,6 +162,22 @@ final readonly class HttpHotPathBench
             || !$response->hasHeader('Content-Security-Policy')
         ) {
             throw new InvariantViolationException('The decoration must stamp the hardened set.');
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchARateLimitedRequestAccountsAndStampsTheHeaders(): void
+    {
+        $response = $this->rateLimitMiddleware->process($this->serverRequest, $this->fixedResponseHandler);
+
+        $remaining = $response->getHeaderLine('X-RateLimit-Remaining');
+
+        if (
+            $response->getHeaderLine('X-RateLimit-Limit') !== '1000000'
+            || !ctype_digit($remaining)
+            || (int) $remaining < 1000000 - 2500
+        ) {
+            throw new InvariantViolationException('The admission boundary must stamp the accounting headers.');
         }
     }
 }

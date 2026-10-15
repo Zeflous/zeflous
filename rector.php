@@ -28,8 +28,9 @@ return RectorConfig::configure()
         // MiddlewareInterface declares ($request, $handler).
         // MiddlewarePipeline::handle() extends it to the pipeline's own
         // RequestHandlerInterface::handle($request, $handler) face.
-        // SecurityHeadersMiddleware::process() is the family's fifth
-        // PSR-15 implementation and carries the same face.
+        // SecurityHeadersMiddleware::process() and RateLimitMiddleware::
+        // process() are the family's fifth and sixth PSR-15 implementations
+        // and carry the same face.
         'Rector\Naming\Rector\ClassMethod\RenameParamToMatchTypeRector' => [
             __DIR__ . '/src/Zef/Framework/Http/Message.php',
             __DIR__ . '/src/Zef/Framework/Http/ETagMiddleware.php',
@@ -37,6 +38,7 @@ return RectorConfig::configure()
             __DIR__ . '/src/Zef/Framework/Http/ErrorMappingMiddleware.php',
             __DIR__ . '/src/Zef/Framework/Http/HeadMiddleware.php',
             __DIR__ . '/src/Zef/Framework/Http/SecurityHeadersMiddleware.php',
+            __DIR__ . '/src/Zef/Framework/Http/RateLimitMiddleware.php',
             __DIR__ . '/src/Zef/Framework/Middleware/MiddlewarePipeline.php',
         ],
         // The rule resolves the expected name from a method-call chain's
@@ -47,6 +49,15 @@ return RectorConfig::configure()
         // naming is cosmetic; the analysers and the fixer stay in charge.
         'Rector\Naming\Rector\Assign\RenameVariableToMatchMethodCallReturnTypeRector' => [
             __DIR__ . '/tests',
+        ],
+        // The phpredis boundary's reply shapes are load-bearing: the
+        // RedisCommandsInterface contract declares the union the phpredis
+        // replies carry (INCR answers an int, or a numeric string under
+        // non-default reply options), and narrowing that union to the one
+        // shape this environment happens to produce would quietly break
+        // every other implementation of the seam. The interface wins.
+        'Rector\\DeadCode\\Rector\\FunctionLike\\NarrowWideUnionReturnTypeRector' => [
+            __DIR__ . '/src/Zef/Framework/Http/PhpRedisCommands.php',
         ],
         // The closure form is load-bearing: psalm narrows array_filter()
         // through the typed closure parameter (mixed -> string), but not

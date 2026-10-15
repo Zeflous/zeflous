@@ -16,6 +16,7 @@ use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Http\FixedResponseHandler;
@@ -70,9 +71,13 @@ final class ApplicationBootstrapperTest extends TestCase
                     'factory' => SecurityHeadersFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
                 ],
+                'security.rate_limit' => [
+                    'factory' => RateLimitFactory::class . '::fromConfig',
+                    'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
+                ],
             ],
             $kernel->config()->get('framework.services'),
-            "the default layer carries the framework's own registration in its reserved namespace",
+            "the default layer carries the framework's own registrations in its reserved namespace",
         );
         self::assertSame(['stack' => []], $kernel->config()->get('middleware'));
         self::assertSame([], $kernel->config()->get('routes'));

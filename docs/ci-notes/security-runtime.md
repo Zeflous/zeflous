@@ -14,11 +14,12 @@ The work log of this lane's PRs:
 | PR | Scope |
 |----|-------|
 | Q1 | The security-headers family: `SecurityHeadersMiddleware` (+ `SecurityHeadersPolicy`, `BaselineSecurityHeaders`, `ToggledSecurityHeaders`), the `SecurityHeadersFactory` construction seam, the framework profile's first service registration and knob block (`security.headers.*`), the shipped `app/configs/security.php` override surface, the `framework.config` container service, the `HttpHotPathBench` decoration subject |
+| Q2 | The rate-limit family: `RateLimitMiddleware` (+ `RateLimitPolicy`, `RateLimitDecision`, `RateLimiterInterface`, `ClientAddress`, `SecurityFamilies`, `StrictToggles`), the three stores (`InMemoryRateLimiter` bounded fixed-window with an injectable clock; `ApcuRateLimiter` over the atomic `ApcuCounterStore` primitives; `RedisRateLimiter` over `RedisSharedRateLimitStore` and the `PhpRedisCommands` boundary), the `RateLimitFactory` store-selection seam, the framework profile's second registration and knob block (`security.rate_limit.*`), the family census strictness (`security` map's unknown-child rejection), the `ext-apcu`/`ext-redis` suggestions, and the process-isolated extension-double test discipline |
 
 The remaining families, in the order the comparison surfaced them:
-rate limiting (three stores + `X-RateLimit-*`), CSRF (HMAC double-submit),
-authentication (bearer + the distributed security boundary), then the
-unified runtime boundary and the observability/runtime lanes they imply.
+CSRF (HMAC double-submit), authentication (bearer + the distributed
+security boundary), then the unified runtime boundary and the
+observability/runtime lanes they imply.
 
 ## The decisions (KDD-SC)
 
@@ -152,7 +153,166 @@ ETagMiddleware method-token fold was answered (`mb_strtoupper` over
 GET/HEAD, KDD-H15 in `docs/ci-notes/http-layer.md`): a method-scoped,
 fully argued ignore entry in `infection.json5` -- the fourth of its
 kind -- rather than a decorative test that asserts the fold accepts a
-word no operator could ever type by accident.
+word no operator could ever type by accident. **Q2 amendment:** the fold
+moved from the security-headers policy into `StrictToggles::read()` when
+the second family needed the same reading -- the extraction is
+coverage-neutral (the strict-toggles suite owns the method, and the
+ignore entry's target was renamed to the extracted seam), and the
+argument above travels with the code.
+
+## The decisions (KDD-RL, the rate-limit family)
+
+**KDD-RL1 -- Three stores behind one contract, selected by one knob,
+fail-closed without an environment-dependent branch.** The family ports
+the reference's breadth (the per-process, one-process-tree and
+cross-host stores) through this repository's decomposition:
+`RateLimiterInterface` is the verdict contract; `InMemoryRateLimiter` is
+the bounded fixed-window arithmetic with the injectable clock; the
+shared stores own only atomicity (`ApcuCounterStoreInterface`'s two
+primitives, `RedisCommandsInterface`'s three commands), and the window
+semantics above them are pure classes (`ApcuRateLimiter`,
+`RedisSharedRateLimitStore`) tested against doubles. The `security
+.rate_limit.store` knob selects the store at the factory, and a store
+the runner cannot honour fails its own honest way -- never a silent
+downgrade: the redis boundary establishes its connection at
+construction (boot time) and refuses with the endpoint and the
+remediation spelled out for *every* way the connection can fail (the
+extension's class missing, the endpoint refusing, the connection
+throwing -- one answer, one branch, covered in every environment), and
+the apcu boundary's absence surfaces through the middleware's catch-all
+(an accounting call that cannot even be made answers the fail-closed
+503, never an unaccounted admission). The reference fell back to the
+per-process limiter with an `error_log` line instead -- a silent
+downgrade that multiplies the declared limit by the worker count while
+the knob promises shared accounting, the exact "protection the operator
+believes is running" failure the strict reading exists to prevent. An
+unknown store name is rejected the same way (the reference silently
+answered its in-memory default for any typo), and the reference's
+unconnected `\Redis` (whose first request's commands fataled into its
+catch-all 503 -- an outage the operator never heard about until a client
+did) became the boot-time refusal above.
+
+The design deliberately carries **no `function_exists`/`class_exists`
+availability branch**: the CI runners carry APCu and phpredis while the
+local environment carries neither, so an extension probe is an
+environment-dependent branch -- unreachable in one of the two
+environments by construction, which would leave its mutants uncovered
+in that environment's mutation run. Fail-closedness is preserved by the
+failure paths the stores' own constructors and calls already own (the
+redis connection refusal; the middleware's catch-all), which are
+exercised identically everywhere.
+
+**KDD-RL2 -- The extension boundaries are verified through doubles
+that shadow the calls in every environment, and no eval anywhere.**
+The local test environment carries neither APCu nor phpredis; the CI
+runners carry both -- and function doubles cannot redefine the global
+functions a running process already has. The APCu boundary calls its
+functions *unqualified*, so PHP resolves them in the boundary's own
+namespace first: the doubles the suite loads there (one real, analysed
+file, `tests/Support/Http/apcu_function_doubles.php`, required once
+into the process by the support class that resets its typed state)
+shadow the global calls **whether the extension is present or not**, no
+process isolation needed. The phpredis boundary speaks the family's
+own seam: `RedisConnectionInterface` (the command surface plus the
+connection), carried as the union `\Redis|RedisConnectionInterface` --
+the extension's own class in production, engine-checked exactly as
+phpredis declares it wherever the runner carries it, and the test
+double through the interface arm: a real, autoloaded, fully analysed
+class whose answers are the suite's own in every environment, with no
+signature gymnastics against the extension's shapes at all (the double
+implements the family's seam, not the extension's class -- an earlier
+draft subclassed `\Redis` and had to carry phpredis 6's exact
+parameter list to satisfy PHP 8.4's override rules; the seam makes
+that whole discipline unnecessary). Every delegation and both
+connection-failure arms are the doubles' own answers, the coverage is
+real in both environments, and `infection.json5` gained **no** boundary
+ignore entries (the one addition is the store vocabulary's MBString
+fold, KDD-SC8's fifth, argued identically). The discipline is the
+experiment's answer, run before a line of the family was written --
+though the first draft assumed both environments lacked the
+extensions, and the CI run on the real runners corrected that
+assumption within minutes: environment-dependent test design is itself
+a defect, caught the same way. The eval'd predecessors of both doubles
+met a second discipline: the security scanner blocks `eval` outright
+(a rule this repository keeps, not suppresses), and the honest answer
+was not an inline suppression but the seam redesign above -- the
+doubles became real files the analysers read like any other code, and
+the mutation score did not move.
+
+**KDD-RL3 -- The APCu store honours the reference's contract, not its
+bug.** The reference's `SharedRateLimitStoreInterface` docblock demands
+atomicity ("implementations MUST be atomic for read-modify-write on one
+key... ApcuRateLimiter -> apcu_inc()/apcu_cas()"), but its APCu
+implementation was an `apcu_fetch`/`apcu_store` read-modify-write that
+races between workers (two workers can read the same count and both
+write the same increment, losing one). The port keeps the contract and
+replaces the bug: one `apcu_inc` step per request (atomic per key, the
+TTL initialising a fresh counter at one) plus one `apcu_add`-claimed
+reset epoch per window (set-only-if-absent, so the window's first
+request fixes the epoch everyone else reads). The documented residual:
+counter and epoch are two keys written in two steps, so a window
+boundary can skew by microseconds -- the skew only ever *lengthens* the
+reported `Retry-After` (conservative), never shortens it, and the
+aggregate count per window stays exact.
+
+**KDD-RL4 -- The in-memory store's sweep is capacity-triggered, with
+identical verdicts.** The reference swept every bucket on every check
+(O(buckets) per request at the default ten-thousand-key capacity --
+thousands of comparisons per request to reclaim space that only a *new*
+key needs). The port sweeps only when a new key arrives at capacity:
+existing-key rollovers were already answered by the per-key epoch check
+(the reference's own post-sweep `reset <= now` arm), capacity semantics
+are identical (reclaim-then-refuse, with the same exhaustion error), and
+the hot path is O(1) amortised -- the bench subject
+(`benchARateLimitedRequestAccountsAndStampsTheHeaders`) pins it.
+
+**KDD-RL5 -- The family census lands with the second family.** KDD-SC3
+deferred the `security` map's unknown-child rejection to "the PR that
+introduces a second family to know" -- this is that PR.
+`SecurityFamilies::subtree()` is the shared census (`headers`,
+`rate_limit`): every family's factory reads its subtree through it, so
+a `security.rate_limitt` typo halts at resolution with the known list
+spelled out, exactly as an unknown knob inside a family map always has.
+The census is family-additive -- the CSRF and authentication families
+append their names when they land.
+
+**KDD-RL6 -- The middleware is the admission seam; the knob arms it.**
+The reference's runtime boundary carried `rateLimitEnabled` as a policy
+field the middleware short-circuited on, and the port keeps that
+semantic deliberately: a disarmed policy is a pass-through, the
+middleware in the stack is the admission seam, and `enabled` is the
+emergency switch an env overlay can flip without touching the stack.
+This is the one toggle where "remove the middleware from the stack" is
+*not* the spelling for "off" -- removing it also removes the seam an
+operator may need to re-arm in a hurry. The denial and outage answers
+are the reference's, move-verbatim in order and clamps (429 +
+`Retry-After` + the accounting headers; a limiter failure answers the
+fail-closed 503 with `Retry-After: 1`), restructured in rendering: the
+hand-rolled JSON shape folds into the layer's one error envelope
+(`ErrorResponseFactory`), so a client correlates a 429 exactly like a
+500, and the correlation id is always present.
+
+**KDD-RL7 -- Validation at the seam, once.** The reference repeated
+input validation inside every store implementation (empty key,
+`limit < 1`, `windowSeconds < 1` -- its own in-memory limiter carried
+none of them, an asymmetry). The port validates once, where the values
+enter: the policy's constructor invariants hold the integer knobs at
+their ranges (a mistyped zero halts with the knob named -- the
+reference's `max(1, ...)` silently promoted it), the strict integer
+reading accepts a native int or an all-digit string (the environment
+overlay's spelling) and rejects everything else, the store vocabulary is
+closed and case-folded, and the address resolver guarantees a non-empty
+validated key. The stores below carry the arithmetic only -- which is
+what keeps their mutants honest: every branch a store owns is a branch
+the accounting needs, not a guard the composition already proved.
+
+**KDD-RL8 -- The clock is injectable in every store, not just the
+test-visible one.** The reference gave its in-memory limiter the
+`?\Closure $now` seam but read `time()` inline in the APCu and Redis
+limiters -- the port makes the seam family-wide (the requirement
+"clock injectable" taken literally), so the window arithmetic is
+deterministic under test for all three stores and no store's
+`Retry-After` derivation is untestable by construction.
 
 ## Legacy attribution
 

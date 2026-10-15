@@ -15,4 +15,9 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+    <!-- The optional phpredis extension's class, as the rate-limit store's
+         boundary sees it (environments without ext-redis still analyse it). -->
+    <stubs>
+        <file name="stubs/ext-redis.php" />
+    </stubs>
 </psalm>

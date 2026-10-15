@@ -10,6 +10,10 @@ parameters:
         - src
         - tests
         - benchmarks
+    # The optional phpredis extension's class, as the rate-limit store's
+    # boundary sees it (environments without ext-redis still analyse it).
+    scanFiles:
+        - stubs/ext-redis.php
     tmpDir: build/phpstan
     treatPhpDocTypesAsCertain: true
     reportUnmatchedIgnoredErrors: true
