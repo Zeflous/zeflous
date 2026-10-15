@@ -42,7 +42,6 @@
       <code><![CDATA[getParsedBody]]></code>
       <code><![CDATA[getQueryParams]]></code>
       <code><![CDATA[getUploadedFiles]]></code>
-      <code><![CDATA[withAttribute]]></code>
       <code><![CDATA[withCookieParams]]></code>
       <code><![CDATA[withParsedBody]]></code>
       <code><![CDATA[withQueryParams]]></code>
