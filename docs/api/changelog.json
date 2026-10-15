@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-15T16:18:31Z",
+  "as_of": "2026-10-15T23:05:31Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 150,
+  "unreleased_count": 151,
   "versions": [
     {
       "version": "Unreleased",
@@ -1179,6 +1179,47 @@
                 "sha": "97d3e5b7902b6f8b6de4f1b8b73492de28c75961",
                 "short_sha": "97d3e5b",
                 "subject": "fix(http): keep the csrf bench free of credential-looking literals"
+              }
+            ]
+          },
+          {
+            "pr": 357,
+            "title": "feat(http): the auth family, config-driven",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-15T23:05:31Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/357",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "147b65469c4b3fdb3848fcd414e046fbebfecc3b",
+                "short_sha": "147b654",
+                "subject": "feat(http): the auth family, config-driven"
+              },
+              {
+                "sha": "ad2961348ba81a78a29efb74eb49bf943d91d469",
+                "short_sha": "ad29613",
+                "subject": "Merge branch 'main' into feat/auth-config-driven"
+              },
+              {
+                "sha": "93a72b40100f42d260973523f50f750f0bc4aeee",
+                "short_sha": "93a72b4",
+                "subject": "fix(http): settle the auth family's phpcs findings"
+              },
+              {
+                "sha": "121a3a9bfebec63dd1fb4bbed8f9bdc901691769",
+                "short_sha": "121a3a9",
+                "subject": "fix(docs): give doctum the enum rewriter the drift gate demands"
+              },
+              {
+                "sha": "769a6e2d78263bb19e7f9abca7b5d7afa645550f",
+                "short_sha": "769a6e2",
+                "subject": "fix(http): hold the auth family's sonar return-count line"
+              },
+              {
+                "sha": "4ba320ba3e948c89a9ed9f6bb3c04304567f37fa",
+                "short_sha": "4ba320b",
+                "subject": "fix(http): share the knob shapes the third family made shared property"
               }
             ]
           }
@@ -7693,6 +7734,47 @@
               "sha": "e95133b1acb673eea524fbb59f2629465f17e29b",
               "short_sha": "e95133b",
               "subject": "Merge branch 'main' into docs/roadmap-csrf-family-pin"
+            }
+          ]
+        },
+        {
+          "pr": 357,
+          "title": "feat(http): the auth family, config-driven",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-15T23:05:31Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/357",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "147b65469c4b3fdb3848fcd414e046fbebfecc3b",
+              "short_sha": "147b654",
+              "subject": "feat(http): the auth family, config-driven"
+            },
+            {
+              "sha": "ad2961348ba81a78a29efb74eb49bf943d91d469",
+              "short_sha": "ad29613",
+              "subject": "Merge branch 'main' into feat/auth-config-driven"
+            },
+            {
+              "sha": "93a72b40100f42d260973523f50f750f0bc4aeee",
+              "short_sha": "93a72b4",
+              "subject": "fix(http): settle the auth family's phpcs findings"
+            },
+            {
+              "sha": "121a3a9bfebec63dd1fb4bbed8f9bdc901691769",
+              "short_sha": "121a3a9",
+              "subject": "fix(docs): give doctum the enum rewriter the drift gate demands"
+            },
+            {
+              "sha": "769a6e2d78263bb19e7f9abca7b5d7afa645550f",
+              "short_sha": "769a6e2",
+              "subject": "fix(http): hold the auth family's sonar return-count line"
+            },
+            {
+              "sha": "4ba320ba3e948c89a9ed9f6bb3c04304567f37fa",
+              "short_sha": "4ba320b",
+              "subject": "fix(http): share the knob shapes the third family made shared property"
             }
           ]
         }
