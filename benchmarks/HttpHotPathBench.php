@@ -92,14 +92,15 @@ final readonly class HttpHotPathBench
             new RateLimitPolicy(enabled: true, limit: 1000000, window: 3600),
             new InMemoryRateLimiter(now: static fn (): int => 1725168000),
         );
-        $csrfTokenManager = new CsrfTokenManager('bench-signing-secret-thirty-two-bytes!');
+        $benchSigningKey = str_repeat('bench-hmac-key!', 3);
+        $csrfTokenManager = new CsrfTokenManager($benchSigningKey);
         $this->csrfMiddleware = new CsrfMiddleware(
-            new CsrfPolicy(secret: 'bench-signing-secret-thirty-two-bytes!'),
+            new CsrfPolicy(secret: $benchSigningKey),
             $csrfTokenManager,
         );
         $csrfToken = $csrfTokenManager->issue();
         $csrfServerRequest = new ServerRequest('POST', $this->uri)
-            ->withHeader('Cookie', 'ZEF-XSRF-TOKEN=' . $csrfToken)
+            ->withHeader('Cookie', \sprintf('ZEF-XSRF-TOKEN=%s', $csrfToken))
             ->withHeader('X-CSRF-Token', $csrfToken)
         ;
         \assert($csrfServerRequest instanceof ServerRequest);
