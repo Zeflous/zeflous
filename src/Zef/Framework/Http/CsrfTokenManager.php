@@ -79,17 +79,6 @@ final readonly class CsrfTokenManager
     }
 
     /**
-     * The token body's fresh random bytes: the entropy the knob asked
-     * for, under the floor the constructor holds.
-     */
-    private function entropy(int $bytes): string
-    {
-        \assert($bytes >= self::MIN_TOKEN_BYTES, 'the constructor holds the entropy floor.');
-
-        return random_bytes($bytes);
-    }
-
-    /**
      * Answers whether one token carries a well-formed body and the mac
      * this secret would have signed over it.
      */
@@ -105,6 +94,17 @@ final readonly class CsrfTokenManager
         }
 
         return hash_equals($this->mac($body), $signature);
+    }
+
+    /**
+     * The token body's fresh random bytes: the entropy the knob asked
+     * for, under the floor the constructor holds.
+     */
+    private function entropy(int $bytes): string
+    {
+        \assert($bytes >= self::MIN_TOKEN_BYTES, 'the constructor holds the entropy floor.');
+
+        return random_bytes($bytes);
     }
 
     /**

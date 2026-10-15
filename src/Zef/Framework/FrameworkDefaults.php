@@ -54,6 +54,10 @@ final readonly class FrameworkDefaults
      */
     public const string CONFIG_SERVICE = 'framework.config';
 
+    /** The config-driven factories' shared construction entry, as the
+     * service registrations spell it. */
+    private const string CONFIG_FACTORY_ENTRY = '::fromConfig';
+
     /**
      * The framework's default configuration profile.
      *
@@ -65,19 +69,19 @@ final readonly class FrameworkDefaults
             'framework' => [
                 'services' => [
                     'security.headers' => [
-                        'factory' => SecurityHeadersFactory::class . '::fromConfig',
+                        'factory' => SecurityHeadersFactory::class . self::CONFIG_FACTORY_ENTRY,
                         'arguments' => [
                             ['service' => self::CONFIG_SERVICE],
                         ],
                     ],
                     'security.rate_limit' => [
-                        'factory' => RateLimitFactory::class . '::fromConfig',
+                        'factory' => RateLimitFactory::class . self::CONFIG_FACTORY_ENTRY,
                         'arguments' => [
                             ['service' => self::CONFIG_SERVICE],
                         ],
                     ],
                     'security.csrf' => [
-                        'factory' => CsrfFactory::class . '::fromConfig',
+                        'factory' => CsrfFactory::class . self::CONFIG_FACTORY_ENTRY,
                         'arguments' => [
                             ['service' => self::CONFIG_SERVICE],
                         ],

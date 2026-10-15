@@ -47,6 +47,10 @@ final readonly class CsrfPolicy
 
     private const string DEFAULT_HEADER_NAME = 'X-CSRF-Token';
 
+    /** The shared rejection suffix: the value the call site read, as the
+     * message spells it. */
+    private const string GIVEN_SUFFIX = ' given.';
+
     /**
      * The RFC 9110 token grammar a cookie or header field name must
      * carry: the reference's own validation regex, move-verbatim.
@@ -98,7 +102,7 @@ final readonly class CsrfPolicy
 
         if (!\is_array($map)) {
             throw new HttpException(
-                'The security.csrf configuration must be a map, ' . get_debug_type($map) . ' given.',
+                'The security.csrf configuration must be a map, ' . get_debug_type($map) . self::GIVEN_SUFFIX,
             );
         }
 
@@ -146,7 +150,7 @@ final readonly class CsrfPolicy
         }
 
         throw new HttpException(
-            'The security.csrf secret knob must be a string, ' . get_debug_type($value) . ' given.',
+            'The security.csrf secret knob must be a string, ' . get_debug_type($value) . self::GIVEN_SUFFIX,
         );
     }
 
@@ -165,7 +169,7 @@ final readonly class CsrfPolicy
 
         throw new HttpException(
             'The security.csrf ' . $knob . ' knob must be a header-field name (RFC 9110 token), '
-            . (\is_string($value) ? "'" . $value . "'" : get_debug_type($value)) . ' given.',
+            . (\is_string($value) ? "'" . $value . "'" : get_debug_type($value)) . self::GIVEN_SUFFIX,
         );
     }
 
