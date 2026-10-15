@@ -203,38 +203,27 @@ redis connection refusal; the middleware's catch-all), which are
 exercised identically everywhere.
 
 **KDD-RL2 -- The extension boundaries are verified through doubles
-that shadow the calls in every environment.** The local test
-environment carries neither APCu nor phpredis; the CI runners carry
-both -- and function doubles cannot redefine the global functions a
-running process already has. The APCu boundary calls its functions
-*unqualified*, so PHP resolves them in the boundary's own namespace
-first: the doubles the suite defines there (`Zef\Framework\Http\
-apcu_inc`, `apcu_add`, `apcu_fetch`, guarded against redeclaration)
-shadow the global calls **whether the extension is present or not**, and
-no process isolation is even needed. The phpredis boundary takes the
-instance route: its constructor accepts the connection as an optional
-argument, and the double is one anonymous subclass of `\Redis` -- where
-the extension is present the subclass overrides the connection and the
-three commands with exactly the signatures phpredis 6 declares
-(verified identical across the 6.1.0 through 6.3.0 releases, read from
-the extension's own upstream stub before a line of the final design was
-written), and where it is absent an eval-defined shell -- the same four
-method declarations, bodies inert -- gives the subclass the same parent
-to extend, so the double's behaviour is the test's own in every
-environment and the analysers read its shape straight off the class
-(the `stubs/ext-redis.php` surface declares the connection state the
-tests configure and the call record they read). The engine's override
-rules are why the signatures are exact: PHP 8.4 fatals when a child
-narrows an untyped parent parameter, drops a parent's optional
-parameter, or widens a parent's return -- so the double carries the
-extension's full parameter list and only narrows the returns (`int`
-for `incr`, `int` for `ttl`, `bool` for `expire`, each a legal
-covariant of phpredis 6's `Redis|int|false` and `Redis|bool` reply
-shapes). Each test runs in its own process
-(`#[RunInSeparateProcess]`) so the shell definition never leaks into
-another test's environment view -- a process that carried the shell
-would let the production construction find a `\Redis` it must not
-find. Every delegation and both
+that shadow the calls in every environment, and no eval anywhere.**
+The local test environment carries neither APCu nor phpredis; the CI
+runners carry both -- and function doubles cannot redefine the global
+functions a running process already has. The APCu boundary calls its
+functions *unqualified*, so PHP resolves them in the boundary's own
+namespace first: the doubles the suite loads there (one real, analysed
+file, `tests/Support/Http/apcu_function_doubles.php`, required once
+into the process by the support class that resets its typed state)
+shadow the global calls **whether the extension is present or not**, no
+process isolation needed. The phpredis boundary speaks the family's
+own seam: `RedisConnectionInterface` (the command surface plus the
+connection), carried as the union `\Redis|RedisConnectionInterface` --
+the extension's own class in production, engine-checked exactly as
+phpredis declares it wherever the runner carries it, and the test
+double through the interface arm: a real, autoloaded, fully analysed
+class whose answers are the suite's own in every environment, with no
+signature gymnastics against the extension's shapes at all (the double
+implements the family's seam, not the extension's class -- an earlier
+draft subclassed `\Redis` and had to carry phpredis 6's exact
+parameter list to satisfy PHP 8.4's override rules; the seam makes
+that whole discipline unnecessary). Every delegation and both
 connection-failure arms are the doubles' own answers, the coverage is
 real in both environments, and `infection.json5` gained **no** boundary
 ignore entries (the one addition is the store vocabulary's MBString
@@ -243,7 +232,12 @@ experiment's answer, run before a line of the family was written --
 though the first draft assumed both environments lacked the
 extensions, and the CI run on the real runners corrected that
 assumption within minutes: environment-dependent test design is itself
-a defect, caught the same way.
+a defect, caught the same way. The eval'd predecessors of both doubles
+met a second discipline: the security scanner blocks `eval` outright
+(a rule this repository keeps, not suppresses), and the honest answer
+was not an inline suppression but the seam redesign above -- the
+doubles became real files the analysers read like any other code, and
+the mutation score did not move.
 
 **KDD-RL3 -- The APCu store honours the reference's contract, not its
 bug.** The reference's `SharedRateLimitStoreInterface` docblock demands

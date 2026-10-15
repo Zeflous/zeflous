@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Zef\Test;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Http\HttpException;
@@ -14,6 +13,7 @@ use Zef\Framework\Http\SecurityFamilies;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\RateLimitFactory;
+use Zef\Test\Support\Http\ApcuDoubleState;
 use Zef\Test\Support\Http\ApcuFunctionDoubles;
 use Zef\Test\Support\Http\FixedResponseHandler;
 
@@ -104,12 +104,9 @@ final class RateLimitFactoryTest extends TestCase
         self::assertSame('5', $response->getHeaderLine('X-RateLimit-Limit'));
         self::assertSame('4', $response->getHeaderLine('X-RateLimit-Remaining'));
 
-        $incCalls = $GLOBALS['__apcu_inc_calls'] ?? null;
-        self::assertIsArray($incCalls);
-        self::assertNotCount(0, $incCalls, 'the accounting reached the apcu boundary');
+        self::assertNotCount(0, ApcuDoubleState::$incCalls, 'the accounting reached the apcu boundary');
     }
 
-    #[RunInSeparateProcess]
     public function testTheRedisStoreHaltsAtBootWhenUnavailable(): void
     {
         $config = new Config([

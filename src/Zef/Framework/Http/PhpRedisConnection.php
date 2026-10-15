@@ -24,8 +24,9 @@ use Throwable;
  * the operator never heard about until a client did.
  *
  * The optional third argument carries the client the test suite
- * injects (its class double); production lets it default to a fresh
- * connection.
+ * injects (its class double, {@see RedisConnectionInterface}); the
+ * production path lets it default to the extension's own `\Redis`,
+ * which the return union carries exactly as the extension declares it.
  *
  * Attribution: legacy `zef-main` `Framework/Security/
  * RedisSharedRateLimitStore.php` (the endpoint the reference's own
@@ -35,19 +36,24 @@ use Throwable;
 final class PhpRedisConnection
 {
     /**
-     * The established client connection.
+     * The established client connection: the extension's own `\Redis`
+     * by default, or the injected client once connected.
      *
-     * @param string $host  the Redis endpoint's host
-     * @param int    $port  the Redis endpoint's port
-     * @param Redis  $redis the connection to establish (a fresh one by
-     *                      default; the test suite injects its double)
+     * @param string                   $host            the Redis endpoint's host
+     * @param int                      $port            the Redis endpoint's port
+     * @param RedisConnectionInterface $redisConnection the client to establish (the
+     *                                                  extension's own by default; the
+     *                                                  test suite injects its double)
      *
      * @throws HttpException when the connection cannot be established
      */
-    public static function establish(string $host, int $port, ?Redis $redis = null): Redis
-    {
+    public static function establish(
+        string $host,
+        int $port,
+        ?RedisConnectionInterface $redisConnection = null,
+    ): Redis|RedisConnectionInterface {
         try {
-            $client = $redis ?? new Redis();
+            $client = $redisConnection ?? new Redis();
             $connected = $client->connect($host, $port);
         } catch (Throwable) {
             throw new HttpException(self::unavailable($host, $port));

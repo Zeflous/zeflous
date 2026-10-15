@@ -9,17 +9,18 @@ use Redis;
 
 /**
  * The phpredis extension's command half: the three commands ({@see
- * RedisCommandsInterface}) as real `\Redis` calls over one established
+ * RedisCommandsInterface}) as real delegations over one established
  * connection.
  *
  * This is one half of the family's phpredis boundary ({@see
- * PhpRedisConnection} is the connection half): the commands stay thin
- * enough to verify completely -- the test suite exercises them against
- * a class double in every environment (a subclass of the real `\Redis`
- * where the extension is present, an eval-defined shell where it is
- * not), injected through the constructor's connection argument, so
- * every delegation is covered regardless of the runner's extension
- * set.
+ * PhpRedisConnection} is the connection half): the member is the seam's
+ * union -- the extension's own `\Redis` in production (carried exactly
+ * as the extension declares it, engine-checked on every runner that
+ * carries it), or the test double through the interface arm ({@see
+ * RedisConnectionInterface}), a real class whose answers are the
+ * suite's own in every environment. The commands stay thin enough to
+ * verify completely, and their mutants are killed without a single
+ * ignore entry.
  *
  * Attribution: legacy `zef-main` `Framework/Security/
  * RedisSharedRateLimitStore.php` (the command surface the reference
@@ -28,20 +29,24 @@ use Redis;
  */
 final readonly class PhpRedisCommands implements RedisCommandsInterface
 {
-    private Redis $redis;
+    private Redis|RedisConnectionInterface $redis;
 
     /**
-     * @param string $host  the Redis endpoint's host
-     * @param int    $port  the Redis endpoint's port
-     * @param Redis  $redis the connection to delegate to (the
-     *                      construction establishes one by default; the
-     *                      test suite injects its double)
+     * @param string                   $host            the Redis endpoint's host
+     * @param int                      $port            the Redis endpoint's port
+     * @param RedisConnectionInterface $redisConnection the client to delegate to (the
+     *                                                  construction establishes the
+     *                                                  extension's own by default; the
+     *                                                  test suite injects its double)
      *
      * @throws HttpException when the connection cannot be established
      */
-    public function __construct(string $host, int $port, ?Redis $redis = null)
-    {
-        $this->redis = PhpRedisConnection::establish($host, $port, $redis);
+    public function __construct(
+        string $host,
+        int $port,
+        ?RedisConnectionInterface $redisConnection = null,
+    ) {
+        $this->redis = PhpRedisConnection::establish($host, $port, $redisConnection);
     }
 
     #[Override]

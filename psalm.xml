@@ -15,11 +15,9 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
-    <!-- The optional extensions' surfaces, as the rate-limit family's
-         boundaries see them (environments without them still analyse the
-         code): the phpredis class and the APCu functions. -->
+    <!-- The optional phpredis extension's class, as the rate-limit store's
+         boundary sees it (environments without ext-redis still analyse it). -->
     <stubs>
-        <file name="stubs/ext-apcu.php" />
         <file name="stubs/ext-redis.php" />
     </stubs>
 </psalm>
