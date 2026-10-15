@@ -11,8 +11,9 @@ namespace Zef\Framework\Http;
  * The interface exists so the store's window semantics are pure and
  * connection-agnostic -- testable against an in-memory double -- while the
  * extension boundary ({@see PhpRedisCommands}) stays thin enough to verify
- * through a process-isolated eval-defined class double (the test
- * environment carries no phpredis extension). Only native commands appear
+ * through an injected anonymous \Redis subclass double (the real class
+ * where the runner carries the extension, an eval-defined shell where
+ * it does not). Only native commands appear
  * (`INCR`, `TTL`, `EXPIRE`): the reference implementation's own
  * remediation note records that its first design ran a Lua script through
  * `Redis::eval()` and its second used `WATCH`/`MULTI`/`EXEC` -- both

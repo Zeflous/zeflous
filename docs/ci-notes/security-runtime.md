@@ -163,48 +163,87 @@ argument above travels with the code.
 ## The decisions (KDD-RL, the rate-limit family)
 
 **KDD-RL1 -- Three stores behind one contract, selected by one knob,
-fail-closed at boot.** The family ports the reference's breadth (the
-per-process, one-process-tree and cross-host stores) through this
-repository's decomposition: `RateLimiterInterface` is the verdict
-contract; `InMemoryRateLimiter` is the bounded fixed-window arithmetic
-with the injectable clock; the shared stores own only atomicity
-(`ApcuCounterStoreInterface`'s two primitives, `RedisCommandsInterface`'s
-four commands), and the window semantics above them are pure classes
-(`ApcuRateLimiter`, `RedisSharedRateLimitStore`) tested against doubles.
-The `security.rate_limit.store` knob selects the store at the factory,
-and selection is fail-closed: an unavailable extension halts the boot
-with the remediation spelled out (`install ext-apcu, or declare the
-memory store`). The reference fell back to the per-process limiter with
-an `error_log` line instead -- a silent downgrade that multiplies the
-declared limit by the worker count while the knob promises shared
-accounting, the exact "protection the operator believes is running"
-failure the strict reading exists to prevent. An unknown store name is
-rejected the same way (the reference silently answered its in-memory
-default for any typo), as is a refused Redis connection at boot (the
-reference constructed an unconnected `\Redis` and let the first
-request's commands fatal into its catch-all 503 -- an outage the
-operator never heard about until a client did).
+fail-closed without an environment-dependent branch.** The family ports
+the reference's breadth (the per-process, one-process-tree and
+cross-host stores) through this repository's decomposition:
+`RateLimiterInterface` is the verdict contract; `InMemoryRateLimiter` is
+the bounded fixed-window arithmetic with the injectable clock; the
+shared stores own only atomicity (`ApcuCounterStoreInterface`'s two
+primitives, `RedisCommandsInterface`'s three commands), and the window
+semantics above them are pure classes (`ApcuRateLimiter`,
+`RedisSharedRateLimitStore`) tested against doubles. The `security
+.rate_limit.store` knob selects the store at the factory, and a store
+the runner cannot honour fails its own honest way -- never a silent
+downgrade: the redis boundary establishes its connection at
+construction (boot time) and refuses with the endpoint and the
+remediation spelled out for *every* way the connection can fail (the
+extension's class missing, the endpoint refusing, the connection
+throwing -- one answer, one branch, covered in every environment), and
+the apcu boundary's absence surfaces through the middleware's catch-all
+(an accounting call that cannot even be made answers the fail-closed
+503, never an unaccounted admission). The reference fell back to the
+per-process limiter with an `error_log` line instead -- a silent
+downgrade that multiplies the declared limit by the worker count while
+the knob promises shared accounting, the exact "protection the operator
+believes is running" failure the strict reading exists to prevent. An
+unknown store name is rejected the same way (the reference silently
+answered its in-memory default for any typo), and the reference's
+unconnected `\Redis` (whose first request's commands fataled into its
+catch-all 503 -- an outage the operator never heard about until a client
+did) became the boot-time refusal above.
 
-**KDD-RL2 -- The extension boundaries are verified through
-process-isolated eval-defined doubles.** Neither the test environment
-nor the CI image carries APCu or phpredis, and function doubles cannot
-be redefined in a running process -- the classic answer is an
-uncompromising branch (ignore entries for the mutation score, holes in
-the line coverage) or a dependency the zero-dependency gate forbids
-(`require` stays exactly `{"php": "^8.4"}`; the extensions are `suggest`
-entries, the runtime-adapter precedent). This family takes the third
-road: the boundary classes (`ApcuCounterStore`, `PhpRedisCommands`) are
-thin enough to verify completely inside a child process
-(`#[RunInSeparateProcess]`) whose eval defines the doubles --
-`apcu_inc`/`apcu_add`/`apcu_fetch` functions, a `\Redis` class -- before
-the boundary's own code loads. The doubles record every call into
-`$GLOBALS`, so the coverage is real (pcov collects from the child), the
-mutants are really killed (the doubles' answers are the test's own
-data, every branch reachable), and `infection.json5` gained **no** new
-ignore entries. The discipline is the experiment's answer, run before
-a line of the family was written: process isolation + eval doubles +
-pcov + infection were all verified to compose before the design was
-allowed to depend on them.
+The design deliberately carries **no `function_exists`/`class_exists`
+availability branch**: the CI runners carry APCu and phpredis while the
+local environment carries neither, so an extension probe is an
+environment-dependent branch -- unreachable in one of the two
+environments by construction, which would leave its mutants uncovered
+in that environment's mutation run. Fail-closedness is preserved by the
+failure paths the stores' own constructors and calls already own (the
+redis connection refusal; the middleware's catch-all), which are
+exercised identically everywhere.
+
+**KDD-RL2 -- The extension boundaries are verified through doubles
+that shadow the calls in every environment.** The local test
+environment carries neither APCu nor phpredis; the CI runners carry
+both -- and function doubles cannot redefine the global functions a
+running process already has. The APCu boundary calls its functions
+*unqualified*, so PHP resolves them in the boundary's own namespace
+first: the doubles the suite defines there (`Zef\Framework\Http\
+apcu_inc`, `apcu_add`, `apcu_fetch`, guarded against redeclaration)
+shadow the global calls **whether the extension is present or not**, and
+no process isolation is even needed. The phpredis boundary takes the
+instance route: its constructor accepts the connection as an optional
+argument, and the double is one anonymous subclass of `\Redis` -- where
+the extension is present the subclass overrides the connection and the
+three commands with exactly the signatures phpredis 6 declares
+(verified identical across the 6.1.0 through 6.3.0 releases, read from
+the extension's own upstream stub before a line of the final design was
+written), and where it is absent an eval-defined shell -- the same four
+method declarations, bodies inert -- gives the subclass the same parent
+to extend, so the double's behaviour is the test's own in every
+environment and the analysers read its shape straight off the class
+(the `stubs/ext-redis.php` surface declares the connection state the
+tests configure and the call record they read). The engine's override
+rules are why the signatures are exact: PHP 8.4 fatals when a child
+narrows an untyped parent parameter, drops a parent's optional
+parameter, or widens a parent's return -- so the double carries the
+extension's full parameter list and only narrows the returns (`int`
+for `incr`, `int` for `ttl`, `bool` for `expire`, each a legal
+covariant of phpredis 6's `Redis|int|false` and `Redis|bool` reply
+shapes). Each test runs in its own process
+(`#[RunInSeparateProcess]`) so the shell definition never leaks into
+another test's environment view -- a process that carried the shell
+would let the production construction find a `\Redis` it must not
+find. Every delegation and both
+connection-failure arms are the doubles' own answers, the coverage is
+real in both environments, and `infection.json5` gained **no** boundary
+ignore entries (the one addition is the store vocabulary's MBString
+fold, KDD-SC8's fifth, argued identically). The discipline is the
+experiment's answer, run before a line of the family was written --
+though the first draft assumed both environments lacked the
+extensions, and the CI run on the real runners corrected that
+assumption within minutes: environment-dependent test design is itself
+a defect, caught the same way.
 
 **KDD-RL3 -- The APCu store honours the reference's contract, not its
 bug.** The reference's `SharedRateLimitStoreInterface` docblock demands

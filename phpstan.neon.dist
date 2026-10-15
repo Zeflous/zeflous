@@ -10,9 +10,11 @@ parameters:
         - src
         - tests
         - benchmarks
-    # The optional phpredis extension's class, as the rate-limit store's
-    # boundary sees it (environments without ext-redis still analyse it).
+    # The optional extensions' surfaces, as the rate-limit family's
+    # boundaries see them (environments without them still analyse the
+    # code): the phpredis class and the APCu functions.
     scanFiles:
+        - stubs/ext-apcu.php
         - stubs/ext-redis.php
     tmpDir: build/phpstan
     treatPhpDocTypesAsCertain: true

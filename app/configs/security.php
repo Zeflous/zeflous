@@ -66,10 +66,15 @@ declare(strict_types=1);
  *       Where the accounting lives: per-process (memory), shared across
  *       one PHP process tree (apcu -- requires ext-apcu), or shared
  *       across every host pointing at the same Redis (redis -- requires
- *       ext-redis). An unavailable extension halts the boot with the
- *       remediation spelled out: a declared shared store never silently
- *       degrades to per-process accounting, whose effective limit is the
- *       declared one multiplied by the worker count.
+ *       ext-redis and a reachable endpoint). A store the runner cannot
+ *       honour fails its own honest way, never a silent downgrade: the
+ *       redis endpoint is connected at boot and every way the connection
+ *       can fail answers one fail-closed refusal with the remediation
+ *       spelled out, and an apcu the runner cannot call surfaces through
+ *       the middleware's fail-closed 503 -- a declared shared store
+ *       never silently degrades to per-process accounting, whose
+ *       effective limit is the declared one multiplied by the worker
+ *       count.
  *
  *   'trusted_proxies'           (list<string>, default [])
  *       The exact addresses or CIDR networks allowed to supply the

@@ -22,7 +22,7 @@ namespace Zef\Framework\Http;
  * The interface exists so the fixed-window arithmetic above it ({@see
  * ApcuRateLimiter}) is pure and store-agnostic -- testable against an
  * in-memory double -- while the extension boundary ({@see
- * ApcuCounterStore}) stays thin enough to verify through process-isolated
+ * ApcuCounterStore}) stays thin enough to verify through namespace-shadowing
  * function doubles.
  */
 interface ApcuCounterStoreInterface
