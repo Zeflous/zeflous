@@ -58,6 +58,9 @@ use Throwable;
  */
 final readonly class RateLimitMiddleware implements MiddlewareInterface
 {
+    /** The invariant every with*() chain upholds: the PSR-7 instance type. */
+    private const string PRESERVED_RESPONSE_TYPE = 'withHeader() must preserve the response type.';
+
     public function __construct(
         private RateLimitPolicy $rateLimitPolicy,
         private RateLimiterInterface $rateLimiter,
@@ -73,6 +76,18 @@ final readonly class RateLimitMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
+        return $this->admission($request, $handler);
+    }
+
+    /**
+     * The armed path: resolve the address, account the request against
+     * its fixed window, and answer -- the outage refusal, the denial, or
+     * the handler's response stamped with the accounting.
+     */
+    private function admission(
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler,
+    ): ResponseInterface {
         $clientAddress = ClientAddress::resolve($request, $this->rateLimitPolicy->trustedProxies);
 
         try {
@@ -102,7 +117,7 @@ final readonly class RateLimitMiddleware implements MiddlewareInterface
             ->withHeader('Retry-After', '1')
         ;
 
-        \assert($message instanceof ResponseInterface, 'withHeader() must preserve the response type.');
+        \assert($message instanceof ResponseInterface, self::PRESERVED_RESPONSE_TYPE);
 
         return $message;
     }
@@ -121,7 +136,7 @@ final readonly class RateLimitMiddleware implements MiddlewareInterface
             ->withHeader('X-RateLimit-Remaining', '0')
         ;
 
-        \assert($message instanceof ResponseInterface, 'withHeader() must preserve the response type.');
+        \assert($message instanceof ResponseInterface, self::PRESERVED_RESPONSE_TYPE);
 
         return $message;
     }
@@ -137,7 +152,7 @@ final readonly class RateLimitMiddleware implements MiddlewareInterface
             ->withHeader('X-RateLimit-Remaining', (string) $rateLimitDecision->remaining)
         ;
 
-        \assert($message instanceof ResponseInterface, 'withHeader() must preserve the response type.');
+        \assert($message instanceof ResponseInterface, self::PRESERVED_RESPONSE_TYPE);
 
         return $message;
     }

@@ -96,6 +96,7 @@ excludes everything that is not first-party source:
 | `build/**`, `.scannerwork/**`, `node_modules/**` | generated / tooling output |
 | `.github/**`, `.git/**` and the `.*cache` files | not application code |
 | `scripts/**`, `doctum.php`, `rector.php` | dev/CI tooling with its own local gates |
+| `stubs/**` | static-analysis artifacts (phpstan scanFiles / psalm stubs): the optional extensions' snake_case function names and inert declaration bodies are not ours to rename or slim |
 | `README.md`, `ROADMAP.md`, `composer.*`, `package.json`, `index.html` | non-code files |
 
 `sonar.coverage.exclusions` additionally keeps non-instrumented trees out of
