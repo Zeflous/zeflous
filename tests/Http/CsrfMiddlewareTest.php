@@ -72,7 +72,7 @@ final class CsrfMiddlewareTest extends TestCase
         ;
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertFalse($response->hasHeader('Set-Cookie'), "no re-issue: churning the token races the page's own POSTs");
+        self::assertFalse($response->hasHeader('Set-Cookie'), "no re-issue: churning races the page's own POSTs");
     }
 
     public function testASafeRequestCarryingAnAttackerCookieIsNotReAnswered(): void
@@ -204,7 +204,7 @@ final class CsrfMiddlewareTest extends TestCase
         $setCookie = $response->getHeaderLine('Set-Cookie');
 
         self::assertStringContainsString('SameSite=Strict', $setCookie);
-        self::assertStringNotContainsString('Secure', $setCookie, 'Secure only over https, so a local bootstrap still receives its token');
+        self::assertStringNotContainsString('Secure', $setCookie, 'Secure only over https requests');
         self::assertStringContainsString('HttpOnly', $setCookie);
     }
 

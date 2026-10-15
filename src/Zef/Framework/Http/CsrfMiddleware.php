@@ -108,13 +108,14 @@ final readonly class CsrfMiddleware implements MiddlewareInterface
         \assert($this->csrfTokenManager instanceof CsrfTokenManager, 'an armed policy carries its token manager.');
 
         $cookieToken = CsrfCookieValue::from($request->getHeaderLine('Cookie'), $this->csrfPolicy->cookieName);
+        $headerName = $this->csrfPolicy->headerName;
         $issued = null;
 
         if (\in_array(mb_strtoupper($request->getMethod()), self::SAFE_METHODS, true)) {
             if ($cookieToken === null) {
                 $issued = $this->csrfTokenManager->issue();
             }
-        } elseif (!CsrfDoubleSubmit::honoured($this->csrfTokenManager, $this->csrfPolicy->headerName, $request, $cookieToken)) {
+        } elseif (!CsrfDoubleSubmit::honoured($this->csrfTokenManager, $headerName, $request, $cookieToken)) {
             return $this->refused($request);
         }
 

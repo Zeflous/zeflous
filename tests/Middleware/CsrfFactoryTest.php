@@ -42,9 +42,10 @@ final class CsrfFactoryTest extends TestCase
         $middleware = CsrfFactory::fromConfig($config);
         $token = new CsrfTokenManager(self::SECRET)->issue();
 
-        $admitted = $middleware
-            ->process($this->request('POST', $token, $token), new FixedResponseHandler(new Response(200, [], 'answered')))
-        ;
+        $admitted = $middleware->process(
+            $this->request('POST', $token, $token),
+            new FixedResponseHandler(new Response(200, [], 'answered')),
+        );
 
         self::assertSame(200, $admitted->getStatusCode());
 

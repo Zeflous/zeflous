@@ -156,7 +156,7 @@ final class CsrfTokenManagerTest extends TestCase
 
         self::assertFalse(
             $csrfTokenManager->isValid($body . '.' . $mac),
-            'the shape gate answers before the mac is computed: a body outside the alphabet never verifies, even against its own mac',
+            'a body outside the alphabet never verifies, even against its own mac',
         );
     }
 
