@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-15T11:43:39Z",
+  "as_of": "2026-10-15T16:18:31Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 148,
+  "unreleased_count": 150,
   "versions": [
     {
       "version": "Unreleased",
@@ -1138,6 +1138,47 @@
                 "sha": "12742929abd2d7961543c1a5dffc69ab555e0272",
                 "short_sha": "1274292",
                 "subject": "fix(http): drop the empty private constructor DeepSource flags"
+              }
+            ]
+          },
+          {
+            "pr": 351,
+            "title": "feat(http): the csrf family, config-driven",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-15T15:51:29Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/351",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7c9ec1db1650f5b51a2796a7ce3b2fbc6835522a",
+                "short_sha": "7c9ec1d",
+                "subject": "feat(http): the csrf family, config-driven"
+              },
+              {
+                "sha": "94ad188d0cda05d9c41ad3d3ff0847ce9e8a8c11",
+                "short_sha": "94ad188",
+                "subject": "Merge branch 'main' into feat/csrf-config-driven"
+              },
+              {
+                "sha": "90565d1da3a5596f06fa40d2d36f3572f5cad072",
+                "short_sha": "90565d1",
+                "subject": "fix(http): satisfy the sonar gate on the csrf family"
+              },
+              {
+                "sha": "ad0d12e3017f535aeed0db00924168fb7ad6e333",
+                "short_sha": "ad0d12e",
+                "subject": "fix(http): wrap the csrf family's five over-length lines"
+              },
+              {
+                "sha": "4199897d113da7d116e38bb53bf3194780e08fc7",
+                "short_sha": "4199897",
+                "subject": "fix(http): settle the last two phpcs findings on the csrf family"
+              },
+              {
+                "sha": "97d3e5b7902b6f8b6de4f1b8b73492de28c75961",
+                "short_sha": "97d3e5b",
+                "subject": "fix(http): keep the csrf bench free of credential-looking literals"
               }
             ]
           }
@@ -3653,6 +3694,27 @@
                 "sha": "ff1a1ec8019cbad897a688129a4c98bdbb24a6af",
                 "short_sha": "ff1a1ec",
                 "subject": "docs(roadmap): pin the rate-limit family to pull request 347"
+              }
+            ]
+          },
+          {
+            "pr": 352,
+            "title": "docs(roadmap): pin the csrf family to pull request 351",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-15T16:18:31Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/352",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "dcc10f915cf0f09aed92aaee7d77ff099a497937",
+                "short_sha": "dcc10f9",
+                "subject": "docs(roadmap): pin the csrf family to pull request 351"
+              },
+              {
+                "sha": "e95133b1acb673eea524fbb59f2629465f17e29b",
+                "short_sha": "e95133b",
+                "subject": "Merge branch 'main' into docs/roadmap-csrf-family-pin"
               }
             ]
           }
@@ -7569,6 +7631,68 @@
               "sha": "ff1a1ec8019cbad897a688129a4c98bdbb24a6af",
               "short_sha": "ff1a1ec",
               "subject": "docs(roadmap): pin the rate-limit family to pull request 347"
+            }
+          ]
+        },
+        {
+          "pr": 351,
+          "title": "feat(http): the csrf family, config-driven",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-15T15:51:29Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/351",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7c9ec1db1650f5b51a2796a7ce3b2fbc6835522a",
+              "short_sha": "7c9ec1d",
+              "subject": "feat(http): the csrf family, config-driven"
+            },
+            {
+              "sha": "94ad188d0cda05d9c41ad3d3ff0847ce9e8a8c11",
+              "short_sha": "94ad188",
+              "subject": "Merge branch 'main' into feat/csrf-config-driven"
+            },
+            {
+              "sha": "90565d1da3a5596f06fa40d2d36f3572f5cad072",
+              "short_sha": "90565d1",
+              "subject": "fix(http): satisfy the sonar gate on the csrf family"
+            },
+            {
+              "sha": "ad0d12e3017f535aeed0db00924168fb7ad6e333",
+              "short_sha": "ad0d12e",
+              "subject": "fix(http): wrap the csrf family's five over-length lines"
+            },
+            {
+              "sha": "4199897d113da7d116e38bb53bf3194780e08fc7",
+              "short_sha": "4199897",
+              "subject": "fix(http): settle the last two phpcs findings on the csrf family"
+            },
+            {
+              "sha": "97d3e5b7902b6f8b6de4f1b8b73492de28c75961",
+              "short_sha": "97d3e5b",
+              "subject": "fix(http): keep the csrf bench free of credential-looking literals"
+            }
+          ]
+        },
+        {
+          "pr": 352,
+          "title": "docs(roadmap): pin the csrf family to pull request 351",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-15T16:18:31Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/352",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "dcc10f915cf0f09aed92aaee7d77ff099a497937",
+              "short_sha": "dcc10f9",
+              "subject": "docs(roadmap): pin the csrf family to pull request 351"
+            },
+            {
+              "sha": "e95133b1acb673eea524fbb59f2629465f17e29b",
+              "short_sha": "e95133b",
+              "subject": "Merge branch 'main' into docs/roadmap-csrf-family-pin"
             }
           ]
         }
