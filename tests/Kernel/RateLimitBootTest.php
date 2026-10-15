@@ -138,7 +138,7 @@ final class RateLimitBootTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 "The security configuration carries the unknown family 'rate_limitt'"
-                . ' (known families: headers, rate_limit).',
+                . ' (known families: headers, rate_limit, csrf).',
                 $httpException->getMessage(),
             );
         }

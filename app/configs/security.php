@@ -85,15 +85,59 @@ declare(strict_types=1);
  *   'redis_port'                (int, default 6379)
  *       The redis store's endpoint, connected (and refused) at boot.
  *
+ * The `csrf` family -- the double-submit boundary middleware
+ * (`security.csrf`, the service the framework registers and the stack
+ * composes):
+ *
+ *   'enabled'                   (bool, default true)
+ *       The family's arm. The reference's fail-safe default-on, kept:
+ *       a deployment that adds the middleware to its stack is protected
+ *       without flipping anything. This is the emergency switch an env
+ *       overlay can flip without touching the stack -- the one spelling
+ *       of "off" besides removing the middleware from the stack.
+ *
+ *   'secret'                    (string, default '')
+ *       The HMAC-SHA256 signing secret (at least 32 bytes). No secret
+ *       ships in the profile: the empty default is the "not configured"
+ *       an ARMED family halts on at boot, with the remediation spelled
+ *       out -- never a secret the framework made up and never a silently
+ *       disabled boundary. The value is runtime material, not posture:
+ *       the environment overlay (APP_SECURITY__CSRF__SECRET) is the
+ *       place it belongs, since committed configuration files travel
+ *       through version control -- a file still works, the merge is
+ *       yours to shape, but a secret in a committed file is a leak with
+ *       a history.
+ *
+ *   'cookie_name'               (string, default 'ZEF-XSRF-TOKEN')
+ *   'header_name'               (string, default 'X-CSRF-Token')
+ *       The double submit's two channels: the cookie the boundary
+ *       issues on a token-less safe request, and the header the unsafe
+ *       request must echo it in. Both must be RFC 9110 tokens.
+ *
+ *   'token_bytes'               (int, default 32)
+ *       The per-token entropy, 16 minimum.
+ *
+ *   'cookie_secure'             (bool, default true)
+ *       Emit the Secure attribute -- only over https requests, so a
+ *       local http bootstrap still receives its token.
+ *
+ *   'cookie_http_only'          (bool, default true)
+ *       Emit the HttpOnly attribute.
+ *
+ *   'same_site'                 ('Strict'|'Lax'|'None', default 'Strict')
+ *       The SameSite attribute's vocabulary. None requires
+ *       cookie_secure, exactly as the reference demanded.
+ *
  * Environment overlay spelling (prefix + `__` as the dot, values strictly
  * typed): APP_SECURITY__HEADERS__HSTS=1, APP_SECURITY__RATE_LIMIT__
  * ENABLED=on, APP_SECURITY__RATE_LIMIT__LIMIT=200, APP_SECURITY__
- * RATE_LIMIT__STORE=redis.
+ * RATE_LIMIT__STORE=redis, APP_SECURITY__CSRF__SECRET=<32+ bytes>,
+ * APP_SECURITY__CSRF__ENABLED=off, APP_SECURITY__CSRF__SAME_SITE=lax.
  *
  * The shipped profile declares no overrides -- the defaults are the
  * posture -- and an application fills this file with the knobs it wants
- * adjusted. Later families (CSRF, authentication) grow their own
- * subtrees under this key with their pull requests.
+ * adjusted. Later families (authentication) grow their own subtrees
+ * under this key with their pull requests.
  */
 
 return [];
