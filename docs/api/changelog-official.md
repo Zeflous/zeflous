@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the csrf family to pull request 351 [\#352](https://github.com/Zeflous/zeflous/pull/352) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the csrf family, config-driven [\#351](https://github.com/Zeflous/zeflous/pull/351) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the rate-limit family to pull request 347 [\#349](https://github.com/Zeflous/zeflous/pull/349) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the rate-limit family, config-driven [\#347](https://github.com/Zeflous/zeflous/pull/347) ([mbetixz](https://github.com/mbetixz))
