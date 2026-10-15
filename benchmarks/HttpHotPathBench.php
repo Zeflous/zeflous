@@ -6,6 +6,11 @@ namespace Zef\Benchmark;
 
 use PhpBench\Attributes\Revs;
 use Zef\Framework\Exception\InvariantViolationException;
+use Zef\Framework\Http\AllowScopePolicy;
+use Zef\Framework\Http\AuthBoundary;
+use Zef\Framework\Http\AuthMiddleware;
+use Zef\Framework\Http\AuthPolicy;
+use Zef\Framework\Http\BoundedReplayProtector;
 use Zef\Framework\Http\CsrfMiddleware;
 use Zef\Framework\Http\CsrfPolicy;
 use Zef\Framework\Http\CsrfTokenManager;
@@ -17,6 +22,7 @@ use Zef\Framework\Http\Response;
 use Zef\Framework\Http\SecurityHeadersMiddleware;
 use Zef\Framework\Http\SecurityHeadersPolicy;
 use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\StaticCredentialProvider;
 use Zef\Framework\Http\Uri;
 use Zef\Test\Support\Http\FixedResponseHandler;
 
@@ -51,6 +57,10 @@ final readonly class HttpHotPathBench
     private CsrfMiddleware $csrfMiddleware;
 
     private ServerRequest $csrfServerRequest;
+
+    private AuthMiddleware $authMiddleware;
+
+    private ServerRequest $authServerRequest;
 
     private ServerRequest $serverRequest;
 
@@ -105,6 +115,21 @@ final readonly class HttpHotPathBench
         ;
         \assert($csrfServerRequest instanceof ServerRequest);
         $this->csrfServerRequest = $csrfServerRequest;
+        $benchBearerToken = str_repeat('bench-bearer-token.', 3);
+        $this->authMiddleware = new AuthMiddleware(
+            new AuthPolicy(tokens: [$benchBearerToken]),
+            new AuthBoundary(
+                new StaticCredentialProvider([$benchBearerToken]),
+                new AllowScopePolicy('api'),
+                new BoundedReplayProtector(1024, 300_000),
+            ),
+            static fn (): int => 1725168000000,
+        );
+        $authServerRequest = new ServerRequest('POST', $this->uri)
+            ->withHeader('Authorization', \sprintf('Bearer %s', $benchBearerToken))
+        ;
+        \assert($authServerRequest instanceof ServerRequest);
+        $this->authServerRequest = $authServerRequest;
         $this->serverRequest = new ServerRequest('GET', $this->uri);
         $this->fixedResponseHandler = new FixedResponseHandler($this->response);
 
@@ -211,6 +236,19 @@ final readonly class HttpHotPathBench
             || $response->hasHeader('Set-Cookie')
         ) {
             throw new InvariantViolationException('The double-submit boundary must admit the honoured submit.');
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchAnAuthenticatedRequestResolvesTheBearerAndAdmits(): void
+    {
+        $response = $this->authMiddleware->process($this->authServerRequest, $this->fixedResponseHandler);
+
+        if (
+            $response->getStatusCode() !== 200
+            || $response->hasHeader('WWW-Authenticate')
+        ) {
+            throw new InvariantViolationException('The bearer boundary must admit the table token.');
         }
     }
 }

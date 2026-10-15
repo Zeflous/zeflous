@@ -119,8 +119,54 @@
         // map lookup stays under the mutator where applicable: it is not
         // an MBString target. This ignore is scoped to that single
         // method.
+        //
+        // The anonymous-principal fold in AllowScopePolicy::authorize()
+        // is the eighth, and carries the same argument over its own
+        // comparison: the word anonymous contains no ASCII `k`, and
+        // the only single-character lower-case landing from non-ASCII
+        // into ASCII in the Unicode case map is the Kelvin sign's
+        // landing on `k` (U+0130 lands on `i` plus a combining dot,
+        // a two-character mapping, not a pure ASCII landing), so no
+        // principal id folds to anonymous under mb_strtolower()
+        // without being the same ASCII spelling that folds to it
+        // under strtolower() -- every fold-divergent principal misses
+        // the comparison under both spellings and takes the scope
+        // path either way. The neighbouring mb_trim calls stay under
+        // the mutator: MBString does not target mb_trim. This ignore
+        // is scoped to that single method.
+        //
+        // The bearer-line length read in AuthCredential::fromBearerLine()
+        // is the ninth: the extraction grammar itself guarantees the
+        // equivalence. BEARER_GRAMMAR matches without the `u`
+        // modifier, so its character classes -- the token68
+        // vocabulary and the trailing-only padding -- are ASCII byte
+        // classes, and every byte sequence they admit is pure ASCII:
+        // a multi-byte token cannot match the grammar at all and
+        // answers null before the length read runs. For every token
+        // that reaches the read, strlen() and mb_strlen() carry the
+        // same value, so the mutant is value-equivalent by the
+        // grammar's own construction. The neighbouring mb_trim call
+        // stays under the mutator: MBString does not target mb_trim.
+        // This ignore is scoped to that single method.
+        //
+        // The method fold in AuthMiddleware::admission() is the
+        // tenth, and the request's own constructor guarantees this
+        // one: every method the middleware can see passed
+        // HttpMethod::assert() at request construction, whose RFC
+        // 7230 token grammar (`[!#$%&'*+.^_`|~0-9A-Za-z-]+`) admits
+        // ASCII bytes only, and ASCII case folding is identical under
+        // mb_strtoupper() and strtoupper() (both map A-Z and leave
+        // every other ASCII byte untouched) -- no fold-divergent
+        // method can reach the fold, so both spellings of it answer
+        // the same folded method for every request the layer can
+        // construct. This ignore is scoped to the fold's own source
+        // line: the neighbouring replay-id length read in the same
+        // method measures arbitrary client bytes, stays under the
+        // mutator, and is killed by the multi-byte replay-id test.
         "MBString": {
             "ignore": [
+                "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
+                "Zef\\Framework\\Http\\AuthCredential::fromBearerLine",
                 "Zef\\Framework\\Http\\BodyBudget::refuses",
                 "Zef\\Framework\\Http\\CsrfMiddleware::enforce",
                 "Zef\\Framework\\Http\\CsrfSameSite::read",
@@ -128,6 +174,9 @@
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
                 "Zef\\Framework\\Http\\RateLimitStores::read",
                 "Zef\\Framework\\Http\\StrictToggles::read"
+            ],
+            "ignoreSourceCodeByRegex": [
+                "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);"
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is

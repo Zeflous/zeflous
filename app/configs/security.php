@@ -128,16 +128,75 @@ declare(strict_types=1);
  *       The SameSite attribute's vocabulary. None requires
  *       cookie_secure, exactly as the reference demanded.
  *
+ * The `auth` family -- the bearer boundary middleware (`security
+ * .auth`, the service the framework registers and the stack
+ * composes): every request the middleware sees is admitted through
+ * the distributed security boundary -- the `Authorization: Bearer`
+ * credential is resolved, the authenticated principal is authorized
+ * against the required scope, and the `X-Replay-Id` header a
+ * state-mutating client echoes is held single-use inside its window.
+ *
+ *   'enabled'                   (bool, default true)
+ *       The family's arm. The reference's fail-safe default-on, kept
+ *       (the CSRF family's own argument): a deployment that adds the
+ *       middleware to its stack is protected without flipping
+ *       anything. This is the emergency switch an env overlay can
+ *       flip without touching the stack.
+ *
+ *   'tokens'                    (list<string>, default [])
+ *       The static bearer token table -- the bootstrap-grade
+ *       credential provider. Each entry must be an RFC 6750 token68
+ *       value of 32 to 512 characters (`token68`: letters, digits,
+ *       - . _ ~ + /, with = padding at the end only). No token ships
+ *       in the profile: the empty default is the "not configured" an
+ *       ARMED family halts on at boot, with the remediation spelled
+ *       out -- never a token the framework made up. The values are
+ *       runtime material, not posture: the environment overlay
+ *       (APP_SECURITY__AUTH__TOKENS, comma-separated) is the place
+ *       they belong, the same argument as the CSRF family's secret --
+ *       a token in a committed file is a leak with a history.
+ *
+ *   'principal'                 (string, default 'api')
+ *       The principal every table token resolves to.
+ *
+ *   'scope'                     (string, default 'api')
+ *       The credential scope granted to that principal,
+ *       comma-separated to grant several.
+ *
+ *   'required_scope'            (string, default 'api')
+ *       The scope the authorization policy requires -- a principal
+ *       whose granted list does not carry it is answered 403.
+ *
+ *   'allow_anonymous'           (bool, default false)
+ *       Whether a credential-less SAFE method (GET, HEAD, OPTIONS,
+ *       TRACE) resolves as the anonymous principal -- read-only
+ *       anonymous access. Off, every request through the boundary
+ *       carries a credential. Anonymous never reaches an unsafe
+ *       method: the 401 fires first.
+ *
+ *   'replay_capacity'           (int, default 1024)
+ *       The replay seen-table's entry ceiling, per worker process. A
+ *       full table answers the fail-closed 503 rather than admitting
+ *       an untracked replay id.
+ *
+ *   'replay_window'             (int seconds, default 300)
+ *       The window inside which a replay id is single-use. The
+ *       in-memory table is per-process; a deployment that runs a
+ *       process tree behind the boundary composes its own shared
+ *       protector through the family's interface seam.
+ *
  * Environment overlay spelling (prefix + `__` as the dot, values strictly
  * typed): APP_SECURITY__HEADERS__HSTS=1, APP_SECURITY__RATE_LIMIT__
  * ENABLED=on, APP_SECURITY__RATE_LIMIT__LIMIT=200, APP_SECURITY__
  * RATE_LIMIT__STORE=redis, APP_SECURITY__CSRF__SECRET=<32+ bytes>,
- * APP_SECURITY__CSRF__ENABLED=off, APP_SECURITY__CSRF__SAME_SITE=lax.
+ * APP_SECURITY__CSRF__ENABLED=off, APP_SECURITY__CSRF__SAME_SITE=lax,
+ * APP_SECURITY__AUTH__TOKENS=<comma-separated 32+ char tokens>,
+ * APP_SECURITY__AUTH__ALLOW_ANONYMOUS=on, APP_SECURITY__AUTH__
+ * REPLAY_WINDOW=600.
  *
  * The shipped profile declares no overrides -- the defaults are the
  * posture -- and an application fills this file with the knobs it wants
- * adjusted. Later families (authentication) grow their own subtrees
- * under this key with their pull requests.
+ * adjusted.
  */
 
 return [];

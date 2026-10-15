@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework;
 
+use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
@@ -21,8 +22,8 @@ use Zef\Framework\Middleware\SecurityHeadersFactory;
  * Laravel-style vendor-defaults seam, adapted to the layered builder the
  * configuration system already owns.
  *
- * The profile now ships the security-headers, rate-limit and CSRF
- * families, and it ships them the way every family will arrive: the
+ * The profile now ships the security-headers, rate-limit, CSRF and
+ * auth families, and it ships them the way every family will arrive: the
  * subsystem's *service registration* as a declarative entry under the reserved
  * `framework.services` key the container's existing grammar installs
  * (string-addressed, over the `framework.config` service the bootstrapper
@@ -36,9 +37,8 @@ use Zef\Framework\Middleware\SecurityHeadersFactory;
  * machinery out from under it -- while stack membership stays the host's
  * explicit choice: the `middleware.stack` list decides what runs, exactly
  * as it does for any other middleware. The remaining growth follows the
- * roadmap's order -- the authentication family lands here with its PR, the
- * HTTP lane's ingress knobs (`http.body_budget`, `http.trusted_hosts`, ...)
- * migrate with their wiring, the container's
+ * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
+ * `http.trusted_hosts`, ...) migrate with their wiring, the container's
  * `aot` switch arrives with the compile/dump area (roadmap area 8), and
  * `tags` with the autoconfiguration area (roadmap area 3).
  */
@@ -86,6 +86,12 @@ final readonly class FrameworkDefaults
                             ['service' => self::CONFIG_SERVICE],
                         ],
                     ],
+                    'security.auth' => [
+                        'factory' => AuthFactory::class . self::CONFIG_FACTORY_ENTRY,
+                        'arguments' => [
+                            ['service' => self::CONFIG_SERVICE],
+                        ],
+                    ],
                 ],
             ],
             'security' => [
@@ -114,6 +120,16 @@ final readonly class FrameworkDefaults
                     'cookie_secure' => true,
                     'cookie_http_only' => true,
                     'same_site' => 'Strict',
+                ],
+                'auth' => [
+                    'enabled' => true,
+                    'tokens' => [],
+                    'principal' => 'api',
+                    'scope' => 'api',
+                    'required_scope' => 'api',
+                    'allow_anonymous' => false,
+                    'replay_capacity' => 1024,
+                    'replay_window' => 300,
                 ],
             ],
         ];

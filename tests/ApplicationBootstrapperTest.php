@@ -16,6 +16,7 @@ use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
@@ -78,6 +79,10 @@ final class ApplicationBootstrapperTest extends TestCase
                 ],
                 'security.csrf' => [
                     'factory' => CsrfFactory::class . '::fromConfig',
+                    'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
+                ],
+                'security.auth' => [
+                    'factory' => AuthFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
                 ],
             ],
