@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-15T23:05:31Z",
+  "as_of": "2026-10-15T23:21:30Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 151,
+  "unreleased_count": 152,
   "versions": [
     {
       "version": "Unreleased",
@@ -3756,6 +3756,22 @@
                 "sha": "e95133b1acb673eea524fbb59f2629465f17e29b",
                 "short_sha": "e95133b",
                 "subject": "Merge branch 'main' into docs/roadmap-csrf-family-pin"
+              }
+            ]
+          },
+          {
+            "pr": 358,
+            "title": "docs(roadmap): pin the auth family to pull request 357",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-15T23:21:30Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/358",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "408956ff7b2a2508ece3f0081c154c20b3b8b79d",
+                "short_sha": "408956f",
+                "subject": "docs(roadmap): pin the auth family to pull request 357"
               }
             ]
           }
@@ -7775,6 +7791,22 @@
               "sha": "4ba320ba3e948c89a9ed9f6bb3c04304567f37fa",
               "short_sha": "4ba320b",
               "subject": "fix(http): share the knob shapes the third family made shared property"
+            }
+          ]
+        },
+        {
+          "pr": 358,
+          "title": "docs(roadmap): pin the auth family to pull request 357",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-15T23:21:30Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/358",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "408956ff7b2a2508ece3f0081c154c20b3b8b79d",
+              "short_sha": "408956f",
+              "subject": "docs(roadmap): pin the auth family to pull request 357"
             }
           ]
         }
