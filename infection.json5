@@ -98,9 +98,32 @@
         // construction. The neighbouring in_array call stays under the
         // mutator: it is not an MBString target. This ignore is scoped to
         // that single method.
+        //
+        // The method fold in CsrfMiddleware::enforce() is the seventh,
+        // over the safe-method vocabulary: the words GET/HEAD/OPTIONS/
+        // TRACE are all-ASCII, and no Unicode upper-case mapping lands
+        // in ASCII, so a method that folds into the vocabulary under
+        // mb_strtoupper() is the same ASCII spelling that folds into it
+        // under strtoupper() -- every fold-divergent method misses the
+        // closed set under both spellings and takes the unsafe path
+        // either way. The neighbouring in_array call stays under the
+        // mutator: it is not an MBString target. This ignore is scoped
+        // to that single method.
+        //
+        // The SameSite-vocabulary fold in CsrfSameSite::read() is the
+        // sixth, and carries the same argument over its own vocabulary:
+        // the words strict/lax/none contain no ASCII `k`, so every
+        // fold-divergent value misses the folded map under both spellings
+        // and is rejected with the value spelled out -- the zone is
+        // value-equivalent by the same construction. The neighbouring
+        // map lookup stays under the mutator where applicable: it is not
+        // an MBString target. This ignore is scoped to that single
+        // method.
         "MBString": {
             "ignore": [
                 "Zef\\Framework\\Http\\BodyBudget::refuses",
+                "Zef\\Framework\\Http\\CsrfMiddleware::enforce",
+                "Zef\\Framework\\Http\\CsrfSameSite::read",
                 "Zef\\Framework\\Http\\ETagMiddleware::applyConditionalGet",
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
                 "Zef\\Framework\\Http\\RateLimitStores::read",
@@ -118,9 +141,39 @@
         // stays under the mutator: it reads the undefined capture -1, the
         // engine answers an undefined-dimension error, and tests kill it.
         // The ignore is scoped to that single source line.
+        //
+        // The two literal `2`s in CsrfCookieValue::from()'s pair
+        // split are the next integers the increment can rewrite without
+        // any observable difference: raising explode's limit to 3 only
+        // matters for a value carrying a second `=`, and the token
+        // grammar (base64url body, hex signature) admits no `=` at all,
+        // so every such value is invalid under both spellings and is
+        // refused identically; raising array_pad's size to 3 only appends
+        // an element the destructuring never reads, for every pair shape.
+        // The decrement direction stays under the mutator on both
+        // literals: a limit of 1 reads the whole pair as the key, so the
+        // cookie answers absent and the issuance test kills it, and a
+        // pad size of 1 truncates the value arm, so the destructuring
+        // warns and the suite fails on warnings. The ignore is scoped to
+        // that single source line.
+        // The literal `2` in CsrfTokenManager::isValid()'s array_pad is
+        // the next integer the increment can rewrite without any
+        // observable difference: raising the pad size to 3 only appends
+        // an arm the destructuring never reads, for every parts shape
+        // (explode with a limit answers one or two arms, and padding a
+        // two-arm list to three adds the unread third). The decrement
+        // direction stays under the mutator: a pad size of 1 truncates
+        // the signature arm, the empty-string padding stops arriving,
+        // and the shape-gate test on the separator-less token kills it.
+        // The explode limit two lines up stays under the mutator too:
+        // raising that limit to 3 splits the signature at the second
+        // dot, the trailing-suffix test kills it. This ignore is scoped
+        // to that single source line.
         "IncrementInteger": {
             "ignoreSourceCodeByRegex": [
-                "\\$matchStart = \\$match\\[0\\]\\[1\\];"
+                "\\$matchStart = \\$match\\[0\\]\\[1\\];",
+                "\\[\\$body, \\$signature\\] = array_pad\\(\\$parts, 2, ''\\);",
+                "\\[\\$key, \\$value\\] = array_pad\\(explode\\('=', mb_trim\\(\\$pair\\), 2\\), 2, ''\\);"
             ]
         },
         // The scan resume's capture read in RedactedMessage::of() is the

@@ -16,6 +16,7 @@ use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Test\Support\Container\Announcer;
@@ -73,6 +74,10 @@ final class ApplicationBootstrapperTest extends TestCase
                 ],
                 'security.rate_limit' => [
                     'factory' => RateLimitFactory::class . '::fromConfig',
+                    'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
+                ],
+                'security.csrf' => [
+                    'factory' => CsrfFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
                 ],
             ],

@@ -19,16 +19,15 @@ namespace Zef\Framework\Http;
  * fall through to the default posture unnoticed, exactly as an unknown
  * knob inside a family map never does.
  *
- * The census is family-additive: the CSRF and authentication families
- * append their names here when they land, and the rejection message
- * grows with the tree.
+ * The census is family-additive: the CSRF family is the third, and the
+ * authentication family appends its name when it lands.
  */
 final class SecurityFamilies
 {
     /**
      * The legitimate children of the `security` map, in landing order.
      */
-    private const array FAMILIES = ['headers', 'rate_limit'];
+    private const array FAMILIES = ['headers', 'rate_limit', 'csrf'];
 
     /**
      * Reads one family's subtree out of the merged `security` map.

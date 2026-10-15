@@ -6,6 +6,9 @@ namespace Zef\Benchmark;
 
 use PhpBench\Attributes\Revs;
 use Zef\Framework\Exception\InvariantViolationException;
+use Zef\Framework\Http\CsrfMiddleware;
+use Zef\Framework\Http\CsrfPolicy;
+use Zef\Framework\Http\CsrfTokenManager;
 use Zef\Framework\Http\InMemoryRateLimiter;
 use Zef\Framework\Http\RateLimitMiddleware;
 use Zef\Framework\Http\RateLimitPolicy;
@@ -44,6 +47,10 @@ final readonly class HttpHotPathBench
     private SecurityHeadersMiddleware $securityHeadersMiddleware;
 
     private RateLimitMiddleware $rateLimitMiddleware;
+
+    private CsrfMiddleware $csrfMiddleware;
+
+    private ServerRequest $csrfServerRequest;
 
     private ServerRequest $serverRequest;
 
@@ -85,6 +92,18 @@ final readonly class HttpHotPathBench
             new RateLimitPolicy(enabled: true, limit: 1000000, window: 3600),
             new InMemoryRateLimiter(now: static fn (): int => 1725168000),
         );
+        $csrfTokenManager = new CsrfTokenManager('bench-signing-secret-thirty-two-bytes!');
+        $this->csrfMiddleware = new CsrfMiddleware(
+            new CsrfPolicy(secret: 'bench-signing-secret-thirty-two-bytes!'),
+            $csrfTokenManager,
+        );
+        $csrfToken = $csrfTokenManager->issue();
+        $csrfServerRequest = new ServerRequest('POST', $this->uri)
+            ->withHeader('Cookie', 'ZEF-XSRF-TOKEN=' . $csrfToken)
+            ->withHeader('X-CSRF-Token', $csrfToken)
+        ;
+        \assert($csrfServerRequest instanceof ServerRequest);
+        $this->csrfServerRequest = $csrfServerRequest;
         $this->serverRequest = new ServerRequest('GET', $this->uri);
         $this->fixedResponseHandler = new FixedResponseHandler($this->response);
 
@@ -178,6 +197,19 @@ final readonly class HttpHotPathBench
             || (int) $remaining < 1000000 - 2500
         ) {
             throw new InvariantViolationException('The admission boundary must stamp the accounting headers.');
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchACsrfProtectedRequestValidatesTheDoubleSubmit(): void
+    {
+        $response = $this->csrfMiddleware->process($this->csrfServerRequest, $this->fixedResponseHandler);
+
+        if (
+            $response->getStatusCode() !== 200
+            || $response->hasHeader('Set-Cookie')
+        ) {
+            throw new InvariantViolationException('The double-submit boundary must admit the honoured submit.');
         }
     }
 }
