@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-14T20:18:03Z",
+  "as_of": "2026-10-15T11:43:39Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 146,
+  "unreleased_count": 148,
   "versions": [
     {
       "version": "Unreleased",
@@ -1092,6 +1092,52 @@
                 "sha": "5d45d9652672c7c4c1e3b15278644b1b977f9ee7",
                 "short_sha": "5d45d96",
                 "subject": "refactor(http): extract the unknown-knob census from fromMap (archeology)"
+              }
+            ]
+          },
+          {
+            "pr": 347,
+            "title": "feat(http): the rate-limit family, config-driven",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-15T11:29:22Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/347",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ede5f72c9cd9aa330776d0c7117eda7416ec29cd",
+                "short_sha": "ede5f72",
+                "subject": "feat(http): the rate-limit family, config-driven"
+              },
+              {
+                "sha": "521da438a6f7ed9b55ce53ade20ea8bfd969076a",
+                "short_sha": "521da43",
+                "subject": "Merge branch 'main' into feat/rate-limit-config-driven"
+              },
+              {
+                "sha": "bcaf14fbf063399a97cd973dc79e8937bb12a228",
+                "short_sha": "bcaf14f",
+                "subject": "fix(http): make the extension boundaries environment-agnostic"
+              },
+              {
+                "sha": "5e62e0160dc11abb6491ed3edb92ef501e2b76ca",
+                "short_sha": "5e62e01",
+                "subject": "Merge branch 'main' into feat/rate-limit-config-driven"
+              },
+              {
+                "sha": "4ee5d3c24a3625279e00a2940ea8fc8643afc1e0",
+                "short_sha": "4ee5d3c",
+                "subject": "fix(http): satisfy the sonar gate on the rate-limit family"
+              },
+              {
+                "sha": "540611747ed4750bbc74d869aaeda04ba7692b36",
+                "short_sha": "5406117",
+                "subject": "fix(http): remove the eval from the extension doubles through the seam"
+              },
+              {
+                "sha": "12742929abd2d7961543c1a5dffc69ab555e0272",
+                "short_sha": "1274292",
+                "subject": "fix(http): drop the empty private constructor DeepSource flags"
               }
             ]
           }
@@ -3591,6 +3637,22 @@
                 "sha": "70a476db3e1ae22f34d1fc06809b85bc2ba80e92",
                 "short_sha": "70a476d",
                 "subject": "docs(roadmap): pin the security headers family to pull request 341"
+              }
+            ]
+          },
+          {
+            "pr": 349,
+            "title": "docs(roadmap): pin the rate-limit family to pull request 347",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-15T11:43:39Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/349",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ff1a1ec8019cbad897a688129a4c98bdbb24a6af",
+                "short_sha": "ff1a1ec",
+                "subject": "docs(roadmap): pin the rate-limit family to pull request 347"
               }
             ]
           }
@@ -7445,6 +7507,68 @@
               "sha": "70a476db3e1ae22f34d1fc06809b85bc2ba80e92",
               "short_sha": "70a476d",
               "subject": "docs(roadmap): pin the security headers family to pull request 341"
+            }
+          ]
+        },
+        {
+          "pr": 347,
+          "title": "feat(http): the rate-limit family, config-driven",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-15T11:29:22Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/347",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ede5f72c9cd9aa330776d0c7117eda7416ec29cd",
+              "short_sha": "ede5f72",
+              "subject": "feat(http): the rate-limit family, config-driven"
+            },
+            {
+              "sha": "521da438a6f7ed9b55ce53ade20ea8bfd969076a",
+              "short_sha": "521da43",
+              "subject": "Merge branch 'main' into feat/rate-limit-config-driven"
+            },
+            {
+              "sha": "bcaf14fbf063399a97cd973dc79e8937bb12a228",
+              "short_sha": "bcaf14f",
+              "subject": "fix(http): make the extension boundaries environment-agnostic"
+            },
+            {
+              "sha": "5e62e0160dc11abb6491ed3edb92ef501e2b76ca",
+              "short_sha": "5e62e01",
+              "subject": "Merge branch 'main' into feat/rate-limit-config-driven"
+            },
+            {
+              "sha": "4ee5d3c24a3625279e00a2940ea8fc8643afc1e0",
+              "short_sha": "4ee5d3c",
+              "subject": "fix(http): satisfy the sonar gate on the rate-limit family"
+            },
+            {
+              "sha": "540611747ed4750bbc74d869aaeda04ba7692b36",
+              "short_sha": "5406117",
+              "subject": "fix(http): remove the eval from the extension doubles through the seam"
+            },
+            {
+              "sha": "12742929abd2d7961543c1a5dffc69ab555e0272",
+              "short_sha": "1274292",
+              "subject": "fix(http): drop the empty private constructor DeepSource flags"
+            }
+          ]
+        },
+        {
+          "pr": 349,
+          "title": "docs(roadmap): pin the rate-limit family to pull request 347",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-15T11:43:39Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/349",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ff1a1ec8019cbad897a688129a4c98bdbb24a6af",
+              "short_sha": "ff1a1ec",
+              "subject": "docs(roadmap): pin the rate-limit family to pull request 347"
             }
           ]
         }
