@@ -8,7 +8,8 @@ namespace Zef\Framework\Http;
  * The auth family's knob census: the eight knobs the family owns, and
  * the rejection an unknown key in the family map answers with --
  * following the CSRF family's own {@see CsrfKnobs} lineage, which
- * followed the rate-limit family's.
+ * followed the rate-limit family's, over the shared {@see
+ * StrictKnobs} census the third family made shared property.
  *
  * The known list is spelled out in the rejection: a `principle` typo
  * must never fall through to the default posture unnoticed -- the
@@ -40,17 +41,6 @@ final class AuthKnobs
      */
     public static function rejectUnknown(array $map): void
     {
-        foreach (array_keys($map) as $knob) {
-            if (\is_string($knob) && \in_array($knob, self::KNOWN, true)) {
-                continue;
-            }
-
-            throw new HttpException(
-                "The security.auth configuration carries the unknown knob '"
-                . (\is_string($knob) ? $knob : get_debug_type($knob))
-                . "' (known knobs: enabled, tokens, principal, scope, required_scope,"
-                . ' allow_anonymous, replay_capacity, replay_window).',
-            );
-        }
+        StrictKnobs::rejectUnknown($map, 'auth', self::KNOWN);
     }
 }

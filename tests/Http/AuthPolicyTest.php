@@ -14,6 +14,8 @@ use Zef\Framework\Http\AuthKnobs;
 use Zef\Framework\Http\AuthPolicy;
 use Zef\Framework\Http\AuthTokenKnobs;
 use Zef\Framework\Http\HttpException;
+use Zef\Framework\Http\ListKnobs;
+use Zef\Framework\Http\StrictKnobs;
 
 /**
  * The auth family's knob reading, on its own terms: the default
@@ -30,6 +32,8 @@ use Zef\Framework\Http\HttpException;
 #[CoversClass(AuthFieldKnobs::class)]
 #[CoversClass(AuthBounds::class)]
 #[CoversClass(FrameworkDefaults::class)]
+#[CoversClass(ListKnobs::class)]
+#[CoversClass(StrictKnobs::class)]
 final class AuthPolicyTest extends TestCase
 {
     private const string TOKEN = 'dGFibGUtdG9rZW4tZnJvbS10aGUtdGVzdC1zdWl0ZQ';
