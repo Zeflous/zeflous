@@ -130,7 +130,11 @@ final class AllowScopePolicyTest extends TestCase
     {
         $authorizationResult = new AuthorizationResult(AuthVerdict::DENY, str_repeat('é', 65));
 
-        self::assertSame(str_repeat('é', 65), $authorizationResult->policyCode, '65 characters are 130 bytes, and the bound is 128 characters');
+        self::assertSame(
+            str_repeat('é', 65),
+            $authorizationResult->policyCode,
+            '65 characters are 130 bytes, and the bound is 128 characters',
+        );
     }
 
     public function testAnEmptyPolicyCodeIsRefused(): void

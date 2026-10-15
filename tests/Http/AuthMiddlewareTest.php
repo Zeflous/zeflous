@@ -345,7 +345,10 @@ final class AuthMiddlewareTest extends TestCase
 
         $authMiddleware->process($this->request('POST', self::TOKEN, 'replay-1'), $this->fixedResponseHandler);
 
-        $response = $authMiddleware->process($this->request('POST', self::TOKEN, 'replay-2'), $this->fixedResponseHandler);
+        $response = $authMiddleware->process(
+            $this->request('POST', self::TOKEN, 'replay-2'),
+            $this->fixedResponseHandler,
+        );
 
         self::assertSame(503, $response->getStatusCode());
         self::assertSame('1', $response->getHeaderLine('Retry-After'));

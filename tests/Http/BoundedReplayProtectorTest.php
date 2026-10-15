@@ -107,6 +107,21 @@ final class BoundedReplayProtectorTest extends TestCase
         );
     }
 
+    public function testTheSweepKeepsWalkingPastAFreshEntryToExpireTheStaleOneBehindIt(): void
+    {
+        $boundedReplayProtector = new BoundedReplayProtector(1024, 100);
+
+        $boundedReplayProtector->check('fresh-first', 5000);
+        $boundedReplayProtector->check('stale-second', 1000);
+        $boundedReplayProtector->check('probe', 5050);
+
+        self::assertSame(
+            ReplayDecision::ACCEPT,
+            $boundedReplayProtector->check('stale-second', 5050),
+            'the sweep must keep walking past the fresh entry to expire the stale one behind it',
+        );
+    }
+
     public function testAFullTableAnswersUnavailable(): void
     {
         $boundedReplayProtector = new BoundedReplayProtector(2, self::WINDOW);
@@ -169,7 +184,11 @@ final class BoundedReplayProtectorTest extends TestCase
         $boundedReplayProtector = new BoundedReplayProtector(1, 1);
 
         self::assertSame(ReplayDecision::ACCEPT, $boundedReplayProtector->check('replay-1', 1000));
-        self::assertSame(ReplayDecision::ACCEPT, $boundedReplayProtector->check('replay-1', 1002), 'one millisecond past the one-millisecond window');
+        self::assertSame(
+            ReplayDecision::ACCEPT,
+            $boundedReplayProtector->check('replay-1', 1002),
+            'one millisecond past the one-millisecond window',
+        );
     }
 
     public function testAMultiByteIdIsMeasuredInCharacters(): void

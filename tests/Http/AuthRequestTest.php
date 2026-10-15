@@ -196,7 +196,10 @@ final class AuthRequestTest extends TestCase
             new AuthRequest('POST /health', '/health', 'POST', null, ['k' => 'v', '' => 'empty']);
             self::fail('The bound must halt the reading.');
         } catch (HttpException $httpException) {
-            self::assertSame('The security.auth request carries an invalid attribute key.', $httpException->getMessage());
+            self::assertSame(
+                'The security.auth request carries an invalid attribute key.',
+                $httpException->getMessage(),
+            );
         }
     }
 
@@ -206,7 +209,10 @@ final class AuthRequestTest extends TestCase
             new AuthRequest('POST /health', '/health', 'POST', null, [str_repeat('k', 65) => 'v']);
             self::fail('The bound must halt the reading.');
         } catch (HttpException $httpException) {
-            self::assertSame('The security.auth request carries an invalid attribute key.', $httpException->getMessage());
+            self::assertSame(
+                'The security.auth request carries an invalid attribute key.',
+                $httpException->getMessage(),
+            );
         }
     }
 
@@ -256,7 +262,11 @@ final class AuthRequestTest extends TestCase
     {
         $authRequest = new AuthRequest('POST /health', '/health', str_repeat('é', 33));
 
-        self::assertSame(str_repeat('é', 33), $authRequest->action, '33 characters are 66 bytes, and the bound is 64 characters');
+        self::assertSame(
+            str_repeat('é', 33),
+            $authRequest->action,
+            '33 characters are 66 bytes, and the bound is 64 characters',
+        );
     }
 
     public function testAnIntegerAttributeKeyIsRefused(): void
@@ -265,7 +275,10 @@ final class AuthRequestTest extends TestCase
             new AuthRequest('POST /health', '/health', 'POST', null, [7 => 'v']);
             self::fail('The bound must halt the reading.');
         } catch (HttpException $httpException) {
-            self::assertSame('The security.auth request carries an invalid attribute key.', $httpException->getMessage());
+            self::assertSame(
+                'The security.auth request carries an invalid attribute key.',
+                $httpException->getMessage(),
+            );
         }
     }
 
@@ -289,14 +302,22 @@ final class AuthRequestTest extends TestCase
     {
         $authRequest = new AuthRequest('POST /health', '/health', 'POST', null, [str_repeat('é', 33) => 'v']);
 
-        self::assertCount(1, $authRequest->attributes, '33 characters are 66 bytes, and the key bound is 64 characters');
+        self::assertCount(
+            1,
+            $authRequest->attributes,
+            '33 characters are 66 bytes, and the key bound is 64 characters',
+        );
     }
 
     public function testAMultiByteAttributeValueIsMeasuredInCharacters(): void
     {
         $authRequest = new AuthRequest('POST /health', '/health', 'POST', null, ['k' => str_repeat('é', 129)]);
 
-        self::assertCount(1, $authRequest->attributes, '129 characters are 258 bytes, and the value bound is 256 characters');
+        self::assertCount(
+            1,
+            $authRequest->attributes,
+            '129 characters are 258 bytes, and the value bound is 256 characters',
+        );
     }
 
     public function testTheAttributeBudgetCountsCharactersNotBytes(): void
@@ -309,7 +330,11 @@ final class AuthRequestTest extends TestCase
 
         $authRequest = new AuthRequest('POST /health', '/health', 'POST', null, $attributes);
 
-        self::assertCount(16, $authRequest->attributes, '4080 characters are 8080 bytes, and the budget is 4096 characters');
+        self::assertCount(
+            16,
+            $authRequest->attributes,
+            '4080 characters are 8080 bytes, and the budget is 4096 characters',
+        );
     }
 
     public function testTheAttributeBudgetHoldsAtItsExactEdge(): void
@@ -373,7 +398,8 @@ final class AuthRequestTest extends TestCase
         self::assertCount(
             16,
             $authRequest->attributes,
-            'the keys sit at their own 64-character bound and spend 1024 characters of the 4096-character budget even though they spend 2032 bytes',
+            'the keys sit at their own 64-character bound and spend 1024'
+                . 'characters of the 4096-character budget even though they spend 2032 bytes',
         );
     }
 
@@ -403,17 +429,20 @@ final class AuthRequestTest extends TestCase
         self::assertSame(
             str_repeat('a', 63) . str_repeat('Ö', 32),
             $authRequest->operationClass,
-            'the operation label carries 127 bytes: the 128th byte is the first half of a 33rd Ö, and mb_strcut backs off to the character boundary',
+            'the operation label carries 127 bytes: the 128th byte is the first'
+                . 'half of a 33rd Ö, and mb_strcut backs off to the character boundary',
         );
         self::assertSame(
             str_repeat('a', 127),
             $authRequest->resource,
-            'the resource label carries 127 bytes: the 128th byte is the first half of an Ö, and the cut backs off to the boundary',
+            'the resource label carries 127 bytes: the 128th byte is'
+                . 'the first half of an Ö, and the cut backs off to the boundary',
         );
         self::assertSame(
             str_repeat('a', 63),
             $authRequest->action,
-            'the action label carries 63 bytes: the 64th byte is the first half of an Ö, and the cut backs off to the boundary',
+            'the action label carries 63 bytes: the 64th byte is the'
+                . 'first half of an Ö, and the cut backs off to the boundary',
         );
         self::assertSame('replay-1', $authRequest->replayId);
     }

@@ -77,8 +77,16 @@ final class AuthPolicyTest extends TestCase
     {
         $authPolicy = new AuthPolicy(tokens: [self::TOKEN], replayCapacity: 1, replayWindow: 1);
 
-        self::assertSame(1, $authPolicy->replayCapacity, 'a capacity of exactly one is the floor the protector itself holds');
-        self::assertSame(1, $authPolicy->replayWindow, 'a window of exactly one millisecond is the floor the protector itself holds');
+        self::assertSame(
+            1,
+            $authPolicy->replayCapacity,
+            'a capacity of exactly one is the floor the protector itself holds',
+        );
+        self::assertSame(
+            1,
+            $authPolicy->replayWindow,
+            'a window of exactly one millisecond is the floor the protector itself holds',
+        );
     }
 
     public function testTheTokenTableKeepsEveryEntry(): void
@@ -118,7 +126,8 @@ final class AuthPolicyTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 "The security.auth configuration carries the unknown knob 'bogus'"
-                . ' (known knobs: enabled, tokens, principal, scope, required_scope, allow_anonymous, replay_capacity, replay_window).',
+                . ' (known knobs: enabled, tokens, principal, scope, required_scope,'
+                . ' allow_anonymous, replay_capacity, replay_window).',
                 $httpException->getMessage(),
             );
         }
@@ -149,7 +158,8 @@ final class AuthPolicyTest extends TestCase
                 'The security.auth tokens knob carries a token that is not a bearer credential'
                 . ' (RFC 6750 token68: letters, digits, - . _ ~ + /, with = padding at the end only).',
                 $httpException->getMessage(),
-                '257 characters are 514 bytes: the ceiling counts characters, so the byte spelling must not trip it early',
+                '257 characters are 514 bytes: the ceiling counts'
+                    . 'characters, so the byte spelling must not trip it early',
             );
         }
     }
@@ -214,7 +224,10 @@ final class AuthPolicyTest extends TestCase
             AuthPolicy::fromMap('auth');
             self::fail('The bound must halt the reading.');
         } catch (HttpException $httpException) {
-            self::assertSame('The security.auth configuration must be a map, string given.', $httpException->getMessage());
+            self::assertSame(
+                'The security.auth configuration must be a map, string given.',
+                $httpException->getMessage(),
+            );
         }
     }
 
@@ -224,7 +237,12 @@ final class AuthPolicyTest extends TestCase
             AuthPolicy::fromMap(['principle' => 'service']);
             self::fail('The bound must halt the reading.');
         } catch (HttpException $httpException) {
-            self::assertSame("The security.auth configuration carries the unknown knob 'principle'" . ' (known knobs: enabled, tokens, principal, scope, required_scope, allow_anonymous, replay_capacity, replay_window).', $httpException->getMessage());
+            self::assertSame(
+                "The security.auth configuration carries the unknown knob 'principle'"
+                . ' (known knobs: enabled, tokens, principal, scope, required_scope,'
+                . ' allow_anonymous, replay_capacity, replay_window).',
+                $httpException->getMessage(),
+            );
         }
     }
 
@@ -408,7 +426,10 @@ final class AuthPolicyTest extends TestCase
             new AuthPolicy(replayCapacity: 0);
             self::fail('The bound must halt the reading.');
         } catch (HttpException $httpException) {
-            self::assertSame('The security.auth replay_capacity knob must be 1 or above.', $httpException->getMessage());
+            self::assertSame(
+                'The security.auth replay_capacity knob must be 1 or above.',
+                $httpException->getMessage(),
+            );
         }
     }
 

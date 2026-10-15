@@ -100,6 +100,10 @@ final class AuthAttributes
     {
         $normalizedKey = mb_strtolower($key);
 
-        return array_any(self::FORBIDDEN_KEY_FRAGMENTS, static fn (string $forbidden): bool => $normalizedKey === $forbidden || str_contains($normalizedKey, $forbidden));
+        return array_any(
+            self::FORBIDDEN_KEY_FRAGMENTS,
+            static fn (string $forbidden): bool => $normalizedKey === $forbidden
+                || str_contains($normalizedKey, $forbidden),
+        );
     }
 }

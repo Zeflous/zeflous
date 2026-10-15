@@ -63,8 +63,10 @@ final class AuthBoundaryTest extends TestCase
      * @dataProvider provideTheNonAuthenticatedStatusesFailTheirOwnWayCases
      */
     #[DataProvider('provideTheNonAuthenticatedStatusesFailTheirOwnWayCases')]
-    public function testTheNonAuthenticatedStatusesFailTheirOwnWay(AuthStatus $authStatus, AuthFailure $authFailure): void
-    {
+    public function testTheNonAuthenticatedStatusesFailTheirOwnWay(
+        AuthStatus $authStatus,
+        AuthFailure $authFailure,
+    ): void {
         $this->recordingCredentialProvider->result = new AuthResult($authStatus);
 
         $admission = $this->admit();
@@ -303,7 +305,11 @@ final class AuthBoundaryTest extends TestCase
     {
         $authContext = new AuthContext(str_repeat('é', 65), 'static-bearer', 'route', 'api', null);
 
-        self::assertSame(str_repeat('é', 65), $authContext->principalId, '65 characters are 130 bytes, and the bound is 128 characters');
+        self::assertSame(
+            str_repeat('é', 65),
+            $authContext->principalId,
+            '65 characters are 130 bytes, and the bound is 128 characters',
+        );
     }
 
     public function testAnOverLongContextFieldIsRefused(): void

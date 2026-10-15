@@ -34,7 +34,10 @@ final class StaticCredentialProviderTest extends TestCase
             'api:read',
         );
 
-        $result = $staticCredentialProvider->resolve(new AuthCredential(self::FIRST_TOKEN, 'bearer', \PHP_INT_MAX), 1000);
+        $result = $staticCredentialProvider->resolve(
+            new AuthCredential(self::FIRST_TOKEN, 'bearer', \PHP_INT_MAX),
+            1000,
+        );
 
         self::assertSame(AuthStatus::AUTHENTICATED, $result->status);
         self::assertNotNull($result->context);
@@ -49,7 +52,10 @@ final class StaticCredentialProviderTest extends TestCase
     {
         $staticCredentialProvider = new StaticCredentialProvider([self::FIRST_TOKEN, self::SECOND_TOKEN]);
 
-        $second = $staticCredentialProvider->resolve(new AuthCredential(self::SECOND_TOKEN, 'bearer', \PHP_INT_MAX), 1000);
+        $second = $staticCredentialProvider->resolve(
+            new AuthCredential(self::SECOND_TOKEN, 'bearer', \PHP_INT_MAX),
+            1000,
+        );
 
         self::assertSame(AuthStatus::AUTHENTICATED, $second->status, 'the second entry is table material too');
     }
@@ -58,7 +64,10 @@ final class StaticCredentialProviderTest extends TestCase
     {
         $staticCredentialProvider = new StaticCredentialProvider([self::FIRST_TOKEN]);
 
-        $result = $staticCredentialProvider->resolve(new AuthCredential(self::SECOND_TOKEN, 'bearer', \PHP_INT_MAX), 1000);
+        $result = $staticCredentialProvider->resolve(
+            new AuthCredential(self::SECOND_TOKEN, 'bearer', \PHP_INT_MAX),
+            1000,
+        );
 
         self::assertSame(AuthStatus::FAILED, $result->status);
         self::assertNull($result->context);
@@ -119,7 +128,10 @@ final class StaticCredentialProviderTest extends TestCase
             new StaticCredentialProvider([]);
             self::fail('The bound must halt the reading.');
         } catch (HttpException $httpException) {
-            self::assertSame('The security.auth static token table requires at least one token.', $httpException->getMessage());
+            self::assertSame(
+                'The security.auth static token table requires at least one token.',
+                $httpException->getMessage(),
+            );
         }
     }
 
@@ -139,7 +151,10 @@ final class StaticCredentialProviderTest extends TestCase
             new StaticCredentialProvider([self::FIRST_TOKEN], 'api', str_repeat('s', 129));
             self::fail('The bound must halt the reading.');
         } catch (HttpException $httpException) {
-            self::assertSame('The security.auth context credentialScope exceeds its bound.', $httpException->getMessage());
+            self::assertSame(
+                'The security.auth context credentialScope exceeds its bound.',
+                $httpException->getMessage(),
+            );
         }
     }
 }

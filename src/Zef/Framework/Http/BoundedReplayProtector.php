@@ -78,9 +78,11 @@ final class BoundedReplayProtector implements ReplayProtectorInterface
         $cutoff = $nowMs - $this->windowMs;
 
         foreach ($this->seen as $id => $seenAt) {
-            if ($seenAt < $cutoff) {
-                unset($this->seen[$id]);
+            if ($seenAt >= $cutoff) {
+                continue;
             }
+
+            unset($this->seen[$id]);
         }
 
         if (isset($this->seen[$replayId])) {

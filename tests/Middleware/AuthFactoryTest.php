@@ -152,7 +152,11 @@ final class AuthFactoryTest extends TestCase
             AuthFactory::fromConfig($config);
             self::fail('The bound must halt the reading.');
         } catch (HttpException $httpException) {
-            self::assertSame("The security configuration carries the unknown family 'autth'" . ' (known families: headers, rate_limit, csrf, auth).', $httpException->getMessage());
+            self::assertSame(
+                "The security configuration carries the unknown family 'autth'"
+                . ' (known families: headers, rate_limit, csrf, auth).',
+                $httpException->getMessage(),
+            );
         }
     }
 

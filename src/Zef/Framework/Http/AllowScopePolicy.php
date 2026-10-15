@@ -65,9 +65,11 @@ final readonly class AllowScopePolicy implements AuthorizationPolicyInterface
         foreach (explode(',', $credentialScope) as $scope) {
             $scope = mb_trim($scope);
 
-            if ($scope !== '') {
-                $granted[] = $scope;
+            if ($scope === '') {
+                continue;
             }
+
+            $granted[] = $scope;
         }
 
         return $granted;

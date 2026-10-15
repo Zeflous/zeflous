@@ -7,6 +7,7 @@ namespace Zef\Test\Support\Http;
 use Override;
 use Zef\Framework\Http\AuthCredential;
 use Zef\Framework\Http\AuthResult;
+use Zef\Framework\Http\AuthStatus;
 use Zef\Framework\Http\CredentialProviderInterface;
 
 /**
@@ -24,7 +25,7 @@ final class RecordingCredentialProvider implements CredentialProviderInterface
 
     public function __construct(?AuthResult $result = null)
     {
-        $this->result = $result ?? new AuthResult(\Zef\Framework\Http\AuthStatus::FAILED);
+        $this->result = $result ?? new AuthResult(AuthStatus::FAILED);
     }
 
     #[Override]

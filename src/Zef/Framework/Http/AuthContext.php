@@ -53,9 +53,11 @@ final readonly class AuthContext
         $this->assertBounded($this->authorizationContext, self::MAX_AUTHZ_CONTEXT_CHARS, 'authorizationContext');
         $this->assertBounded($this->credentialScope, self::MAX_CREDENTIAL_SCOPE_CHARS, 'credentialScope');
 
-        if ($this->peerIdentity !== null) {
-            $this->assertBounded($this->peerIdentity, self::MAX_PEER_IDENTITY_CHARS, 'peerIdentity');
+        if ($this->peerIdentity === null) {
+            return;
         }
+
+        $this->assertBounded($this->peerIdentity, self::MAX_PEER_IDENTITY_CHARS, 'peerIdentity');
     }
 
     /**
