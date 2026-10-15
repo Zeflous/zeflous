@@ -81,7 +81,17 @@ final readonly class AuthBoundary
 
         \assert($authResult->context instanceof AuthContext, 'an authenticated result carries its context.');
 
-        $authorizationResult = $this->authorizationPolicy->authorize($authResult->context, $authRequest);
+        return $this->authorized($authResult->context, $authRequest, $nowMs);
+    }
+
+    /**
+     * The authenticated principal's own gauntlet: the authorisation
+     * rule first, the replay window second -- each refusal answering
+     * before the next collaborator is consulted.
+     */
+    private function authorized(AuthContext $authContext, AuthRequest $authRequest, int $nowMs): AuthAdmission
+    {
+        $authorizationResult = $this->authorizationPolicy->authorize($authContext, $authRequest);
 
         if ($authorizationResult->verdict !== AuthVerdict::ALLOW) {
             return $this->refused(AuthFailure::AUTHORIZATION_DENIED);
@@ -93,7 +103,7 @@ final readonly class AuthBoundary
             return $this->refused(AuthFailure::replay($replayDecision));
         }
 
-        return new AuthAdmission(AuthVerdict::ALLOW, AuthFailure::NONE, false, $authResult->context);
+        return new AuthAdmission(AuthVerdict::ALLOW, AuthFailure::NONE, false, $authContext);
     }
 
     /**

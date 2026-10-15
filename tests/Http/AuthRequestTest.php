@@ -399,7 +399,7 @@ final class AuthRequestTest extends TestCase
             16,
             $authRequest->attributes,
             'the keys sit at their own 64-character bound and spend 1024'
-                . 'characters of the 4096-character budget even though they spend 2032 bytes',
+                . ' characters of the 4096-character budget even though they spend 2032 bytes',
         );
     }
 
@@ -430,19 +430,19 @@ final class AuthRequestTest extends TestCase
             str_repeat('a', 63) . str_repeat('Ö', 32),
             $authRequest->operationClass,
             'the operation label carries 127 bytes: the 128th byte is the first'
-                . 'half of a 33rd Ö, and mb_strcut backs off to the character boundary',
+                . ' half of a 33rd Ö, and mb_strcut backs off to the character boundary',
         );
         self::assertSame(
             str_repeat('a', 127),
             $authRequest->resource,
             'the resource label carries 127 bytes: the 128th byte is'
-                . 'the first half of an Ö, and the cut backs off to the boundary',
+                . ' the first half of an Ö, and the cut backs off to the boundary',
         );
         self::assertSame(
             str_repeat('a', 63),
             $authRequest->action,
             'the action label carries 63 bytes: the 64th byte is the'
-                . 'first half of an Ö, and the cut backs off to the boundary',
+                . ' first half of an Ö, and the cut backs off to the boundary',
         );
         self::assertSame('replay-1', $authRequest->replayId);
     }
@@ -458,5 +458,31 @@ final class AuthRequestTest extends TestCase
         ]);
 
         self::assertCount(5, $authRequest->attributes);
+    }
+
+    public function testTheMalformedReplayIdShapes(): void
+    {
+        self::assertTrue(AuthRequest::carriesAMalformedReplayId(''), 'the empty spelling is malformed');
+        self::assertTrue(
+            AuthRequest::carriesAMalformedReplayId(str_repeat('r', 129)),
+            'a 129-character id is over the ceiling',
+        );
+    }
+
+    public function testTheWellFormedReplayIdShapes(): void
+    {
+        self::assertFalse(AuthRequest::carriesAMalformedReplayId('replay-1'), 'an ordinary id is well formed');
+        self::assertFalse(
+            AuthRequest::carriesAMalformedReplayId(str_repeat('r', 128)),
+            'an id of exactly the ceiling is well formed',
+        );
+        self::assertFalse(
+            AuthRequest::carriesAMalformedReplayId(str_repeat('é', 65)),
+            '65 characters are 130 bytes, and the ceiling is 128 characters',
+        );
+        self::assertFalse(
+            AuthRequest::carriesAMalformedReplayId(str_repeat('é', 64)),
+            '64 characters are 128 bytes, and the ceiling is 128 characters',
+        );
     }
 }

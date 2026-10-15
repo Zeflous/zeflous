@@ -131,15 +131,12 @@ final readonly class AuthMiddleware implements MiddlewareInterface
 
         $method = mb_strtoupper($request->getMethod());
         $credential = AuthCredential::fromBearerLine($request->getHeaderLine('Authorization'));
-
-        if (!\in_array($method, self::SAFE_METHODS, true) && !$credential instanceof AuthCredential) {
-            return AuthRefusal::unauthenticated()->response($request);
-        }
-
         $replayId = $request->getHeaderLine('X-Replay-Id');
 
-        if ($replayId !== '' && mb_strlen($replayId) > AuthRequest::MAX_REPLAY_ID_CHARS) {
-            return AuthRefusal::for(AuthFailure::REPLAY_REJECTED)->response($request);
+        $inputRefusal = $this->refuseInput($method, $credential, $replayId);
+
+        if ($inputRefusal instanceof AuthRefusal) {
+            return $inputRefusal->response($request);
         }
 
         $authAdmission = $this->authBoundary->admit(
@@ -157,5 +154,25 @@ final readonly class AuthMiddleware implements MiddlewareInterface
         return $handler->handle(
             $request->withAttribute(self::PRINCIPAL_ATTRIBUTE, $authAdmission->context->principalId),
         );
+    }
+
+    /**
+     * The input-shape seam, fail-closed both ways the reference
+     * crashed: an unsafe method without a credential is refused
+     * before the boundary runs, and an `X-Replay-Id` longer than the
+     * request value object's own bound is refused as the replay
+     * rejection it is -- null when the input carries no refusal.
+     */
+    private function refuseInput(string $method, ?AuthCredential $credential, string $replayId): ?AuthRefusal
+    {
+        if (!\in_array($method, self::SAFE_METHODS, true) && !$credential instanceof AuthCredential) {
+            return AuthRefusal::unauthenticated();
+        }
+
+        if ($replayId !== '' && mb_strlen($replayId) > AuthRequest::MAX_REPLAY_ID_CHARS) {
+            return AuthRefusal::for(AuthFailure::REPLAY_REJECTED);
+        }
+
+        return null;
     }
 }

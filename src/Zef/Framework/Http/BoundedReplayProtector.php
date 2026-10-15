@@ -71,20 +71,26 @@ final class BoundedReplayProtector implements ReplayProtectorInterface
             return ReplayDecision::NOT_REQUIRED;
         }
 
-        if ($replayId === '' || mb_strlen($replayId) > AuthRequest::MAX_REPLAY_ID_CHARS) {
+        if (AuthRequest::carriesAMalformedReplayId($replayId)) {
             return ReplayDecision::REJECTED;
         }
 
         $cutoff = $nowMs - $this->windowMs;
 
-        foreach ($this->seen as $id => $seenAt) {
-            if ($seenAt >= $cutoff) {
-                continue;
-            }
+        $this->seen = array_filter(
+            $this->seen,
+            static fn (int $seenAt): bool => $seenAt >= $cutoff,
+        );
 
-            unset($this->seen[$id]);
-        }
+        return $this->sight($replayId, $nowMs);
+    }
 
+    /**
+     * The well-formed id's own verdict: the duplicate answer, the
+     * fail-closed capacity, the fresh sight's acceptance.
+     */
+    private function sight(string $replayId, int $nowMs): ReplayDecision
+    {
         if (isset($this->seen[$replayId])) {
             return ReplayDecision::DUPLICATE;
         }

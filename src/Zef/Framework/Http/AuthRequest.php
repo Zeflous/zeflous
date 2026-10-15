@@ -54,8 +54,8 @@ final readonly class AuthRequest
         $this->assertBounded($this->resource, self::MAX_RESOURCE_CHARS, 'resource');
         $this->assertBounded($this->action, self::MAX_ACTION_CHARS, 'action');
 
-        if ($this->replayId !== null) {
-            $this->assertBounded($this->replayId, self::MAX_REPLAY_ID_CHARS, 'replayId');
+        if (self::carriesAMalformedReplayId($this->replayId)) {
+            throw new HttpException('The security.auth request replayId exceeds its bound.');
         }
 
         AuthAttributes::census($this->attributes);
@@ -82,6 +82,23 @@ final readonly class AuthRequest
             mb_strcut($method, 0, self::MAX_ACTION_CHARS),
             $replayLine === '' ? null : $replayLine,
         );
+    }
+
+    /**
+     * Whether a replay id is malformed at the request's own bound: the
+     * empty spelling or one over the ceiling -- null (no id carried)
+     * is never malformed, exactly as the constructor holds it. The
+     * replay protector reads this fail-closed ({@see
+     * BoundedReplayProtector}), and this value object's own
+     * constructor reads it the same way.
+     */
+    public static function carriesAMalformedReplayId(?string $replayId): bool
+    {
+        if ($replayId === null) {
+            return false;
+        }
+
+        return $replayId === '' || mb_strlen($replayId) > self::MAX_REPLAY_ID_CHARS;
     }
 
     /**
