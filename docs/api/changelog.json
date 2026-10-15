@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-15T15:51:29Z",
+  "as_of": "2026-10-15T16:18:31Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 149,
+  "unreleased_count": 150,
   "versions": [
     {
       "version": "Unreleased",
@@ -3694,6 +3694,27 @@
                 "sha": "ff1a1ec8019cbad897a688129a4c98bdbb24a6af",
                 "short_sha": "ff1a1ec",
                 "subject": "docs(roadmap): pin the rate-limit family to pull request 347"
+              }
+            ]
+          },
+          {
+            "pr": 352,
+            "title": "docs(roadmap): pin the csrf family to pull request 351",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-15T16:18:31Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/352",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "dcc10f915cf0f09aed92aaee7d77ff099a497937",
+                "short_sha": "dcc10f9",
+                "subject": "docs(roadmap): pin the csrf family to pull request 351"
+              },
+              {
+                "sha": "e95133b1acb673eea524fbb59f2629465f17e29b",
+                "short_sha": "e95133b",
+                "subject": "Merge branch 'main' into docs/roadmap-csrf-family-pin"
               }
             ]
           }
@@ -7651,6 +7672,27 @@
               "sha": "97d3e5b7902b6f8b6de4f1b8b73492de28c75961",
               "short_sha": "97d3e5b",
               "subject": "fix(http): keep the csrf bench free of credential-looking literals"
+            }
+          ]
+        },
+        {
+          "pr": 352,
+          "title": "docs(roadmap): pin the csrf family to pull request 351",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-15T16:18:31Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/352",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "dcc10f915cf0f09aed92aaee7d77ff099a497937",
+              "short_sha": "dcc10f9",
+              "subject": "docs(roadmap): pin the csrf family to pull request 351"
+            },
+            {
+              "sha": "e95133b1acb673eea524fbb59f2629465f17e29b",
+              "short_sha": "e95133b",
+              "subject": "Merge branch 'main' into docs/roadmap-csrf-family-pin"
             }
           ]
         }
