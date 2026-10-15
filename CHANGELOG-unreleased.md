@@ -52,6 +52,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(kernel): the application config profile and the one-call boot orchestrator [#332](https://github.com/Zeflous/zeflous/pull/332) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the security headers family, config-driven [#341](https://github.com/Zeflous/zeflous/pull/341) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the rate-limit family, config-driven [#347](https://github.com/Zeflous/zeflous/pull/347) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the csrf family, config-driven [#351](https://github.com/Zeflous/zeflous/pull/351) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
