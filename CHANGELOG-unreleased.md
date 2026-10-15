@@ -53,6 +53,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the security headers family, config-driven [#341](https://github.com/Zeflous/zeflous/pull/341) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the rate-limit family, config-driven [#347](https://github.com/Zeflous/zeflous/pull/347) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the csrf family, config-driven [#351](https://github.com/Zeflous/zeflous/pull/351) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the auth family, config-driven [#357](https://github.com/Zeflous/zeflous/pull/357) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
