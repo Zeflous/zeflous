@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(telemetry\): the hygiene-and-export family, config-driven [\#375](https://github.com/Zeflous/zeflous/pull/375) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the correlation family to pull request 371 [\#372](https://github.com/Zeflous/zeflous/pull/372) ([mbetixz](https://github.com/mbetixz))
 - feat\(telemetry\): the correlation family, config-driven [\#371](https://github.com/Zeflous/zeflous/pull/371) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the tracing core to pull request 366 [\#367](https://github.com/Zeflous/zeflous/pull/367) ([mbetixz](https://github.com/mbetixz))
