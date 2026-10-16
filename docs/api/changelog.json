@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-16T09:32:12Z",
+  "as_of": "2026-10-16T17:55:02Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 156,
+  "unreleased_count": 158,
   "versions": [
     {
       "version": "Unreleased",
@@ -1267,6 +1267,32 @@
                 "sha": "b8338781e800311665b4d3baa1e1f88cfaf0eff1",
                 "short_sha": "b833878",
                 "subject": "fix(telemetry): the tracing core's coverage metadata and the fold's unicode pin"
+              }
+            ]
+          },
+          {
+            "pr": 371,
+            "title": "feat(telemetry): the correlation family, config-driven",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-16T17:34:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/371",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e6cbdbbfcdae904bfb9d4857601969773c86fccf",
+                "short_sha": "e6cbdbb",
+                "subject": "feat(telemetry): the correlation family, config-driven"
+              },
+              {
+                "sha": "7baaf3612442244a7b62c49d94352d11e490e54a",
+                "short_sha": "7baaf36",
+                "subject": "fix(telemetry): the correlation family's CI line widths"
+              },
+              {
+                "sha": "6267a9c287c4c5eb126fa38ee565d9638f93c1b7",
+                "short_sha": "6267a9c",
+                "subject": "refactor(telemetry): the correlation family's Sonar findings, structurally"
               }
             ]
           }
@@ -3851,6 +3877,22 @@
                 "sha": "cae475f713284fdd5a4579fb671fd0555861cc5f",
                 "short_sha": "cae475f",
                 "subject": "docs(roadmap): pin the tracing core to pull request 366"
+              }
+            ]
+          },
+          {
+            "pr": 372,
+            "title": "docs(roadmap): pin the correlation family to pull request 371",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-16T17:55:02Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/372",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ee45ecb088e8f241501132bff181d503e5259fb3",
+                "short_sha": "ee45ecb",
+                "subject": "docs(roadmap): pin the correlation family to pull request 371"
               }
             ]
           }
@@ -7965,6 +8007,48 @@
               "sha": "cae475f713284fdd5a4579fb671fd0555861cc5f",
               "short_sha": "cae475f",
               "subject": "docs(roadmap): pin the tracing core to pull request 366"
+            }
+          ]
+        },
+        {
+          "pr": 371,
+          "title": "feat(telemetry): the correlation family, config-driven",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-16T17:34:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/371",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e6cbdbbfcdae904bfb9d4857601969773c86fccf",
+              "short_sha": "e6cbdbb",
+              "subject": "feat(telemetry): the correlation family, config-driven"
+            },
+            {
+              "sha": "7baaf3612442244a7b62c49d94352d11e490e54a",
+              "short_sha": "7baaf36",
+              "subject": "fix(telemetry): the correlation family's CI line widths"
+            },
+            {
+              "sha": "6267a9c287c4c5eb126fa38ee565d9638f93c1b7",
+              "short_sha": "6267a9c",
+              "subject": "refactor(telemetry): the correlation family's Sonar findings, structurally"
+            }
+          ]
+        },
+        {
+          "pr": 372,
+          "title": "docs(roadmap): pin the correlation family to pull request 371",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-16T17:55:02Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/372",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ee45ecb088e8f241501132bff181d503e5259fb3",
+              "short_sha": "ee45ecb",
+              "subject": "docs(roadmap): pin the correlation family to pull request 371"
             }
           ]
         }
