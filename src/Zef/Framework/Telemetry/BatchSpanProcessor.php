@@ -122,6 +122,9 @@ final class BatchSpanProcessor
         try {
             $this->spanExporter->shutdown();
         } catch (Throwable) {
+            // The sink failed to close: the drain already completed,
+            // and a failing close takes nothing else with it -- the
+            // same one-attempt posture the drain itself carries.
         }
 
         $this->queue = [];

@@ -26,6 +26,7 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
  * @internal
  */
 #[CoversClass(Tracer::class)]
+#[CoversClass(Span::class)]
 final class TracerTest extends TestCase
 {
     private const string PARENT_TRACE_ID = '4bf92f3577b34da6a3ce929d0e0e4736';

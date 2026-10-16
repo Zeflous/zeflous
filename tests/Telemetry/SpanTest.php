@@ -10,6 +10,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Telemetry\Span;
 use Zef\Framework\Telemetry\SpanContext;
+use Zef\Framework\Telemetry\SpanData;
+use Zef\Framework\Telemetry\SpanRecording;
+use Zef\Framework\Telemetry\SpanStatus;
+use Zef\Framework\Telemetry\SpanTimeline;
 use Zef\Test\Support\Telemetry\RecordingEnd;
 use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 
@@ -24,6 +28,10 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
  * @internal
  */
 #[CoversClass(Span::class)]
+#[CoversClass(SpanData::class)]
+#[CoversClass(SpanRecording::class)]
+#[CoversClass(SpanStatus::class)]
+#[CoversClass(SpanTimeline::class)]
 final class SpanTest extends TestCase
 {
     private const string TRACE_ID = '4bf92f3577b34da6a3ce929d0e0e4736';
@@ -198,6 +206,20 @@ final class SpanTest extends TestCase
         $record = $this->recordingEnd->records[0];
         self::assertSame('OK', $record->status);
         self::assertNull($record->statusDescription);
+    }
+
+    public function testTheStatusFoldCarriesTheUnicodeCaseMap(): void
+    {
+        $span = $this->span('request');
+
+        // The long s (U+017F) upper-cases to ASCII S through the
+        // Unicode case map only: the fold that lands it in the
+        // vocabulary is the multi-byte one, and a byte-wise fold
+        // would refuse it.
+        $span->setStatus("un\u{017F}et");
+        $span->end();
+
+        self::assertSame('UNSET', $this->recordingEnd->records[0]->status);
     }
 
     public function testAnUnknownStatusIsRefusedWithTheKnownList(): void
