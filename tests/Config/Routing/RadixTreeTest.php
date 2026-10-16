@@ -501,6 +501,27 @@ final class RadixTreeTest extends TestCase
         self::assertTrue($radixTree->match('GET', '/users/42')->isFound());
     }
 
+    public function testRejectsATrailingNewlineAConstraintMustNotWavePast(): void
+    {
+        // The audit probe itself: "/users/12\n" reaching the leaf with
+        // the captured segment "12\n" -- a `$`-anchored constraint
+        // would accept it (`$` matches before a trailing newline),
+        // handing the handler a parameter no whole-value grammar ever
+        // admitted. The `\z` anchor refuses it; the walk backtracks
+        // and answers not-found.
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/users/{id}',
+                'method' => ['GET'],
+                'handler' => 'Users@show',
+                'constraints' => ['id' => '[0-9]+'],
+            ],
+        ]);
+
+        self::assertFalse($radixTree->match('GET', "/users/12\n")->isFound());
+        self::assertTrue($radixTree->match('GET', '/users/12')->isFound());
+    }
+
     public function testRejectsAMiddleParameterConstraintViolation(): void
     {
         $radixTree = RadixTree::compile([
