@@ -63,6 +63,25 @@ final class CompiledRouteTest extends TestCase
         self::assertFalse($compiledRoute->constraints()->check('id', '42a'));
     }
 
+    public function testAConstraintRefusesATrailingNewline(): void
+    {
+        // A `$` anchor matches before a trailing newline -- the one
+        // value a fully-anchored constraint must never wave past
+        // itself: the segment "42\n" is not a value `[0-9]+` matched
+        // whole, so the constraint's own contract refuses it. The
+        // anchor is `\z`, the absolute end.
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/users/{id}',
+            'method' => ['GET'],
+            'handler' => 'Users@show',
+            'constraints' => ['id' => '[0-9]+'],
+        ]);
+
+        self::assertFalse($compiledRoute->constraints()->check('id', "42\n"));
+        self::assertFalse($compiledRoute->constraints()->check('id', "42\n\n"));
+        self::assertTrue($compiledRoute->constraints()->check('id', '42'));
+    }
+
     public function testNormalizesMethodsUpperCasedAndSorted(): void
     {
         $compiledRoute = CompiledRoute::fromArray([
