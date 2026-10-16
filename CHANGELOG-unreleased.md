@@ -57,6 +57,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the timing family, config-driven [#362](https://github.com/Zeflous/zeflous/pull/362) ([mbetixz](https://github.com/mbetixz))
 - feat(telemetry): the tracing core, config-driven [#366](https://github.com/Zeflous/zeflous/pull/366) ([mbetixz](https://github.com/mbetixz))
 - feat(telemetry): the correlation family, config-driven [#371](https://github.com/Zeflous/zeflous/pull/371) ([mbetixz](https://github.com/mbetixz))
+- feat(telemetry): the hygiene-and-export family, config-driven [#375](https://github.com/Zeflous/zeflous/pull/375) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -83,6 +84,10 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(ci): make CI Strict aggregator event-driven via workflow_run [#218](https://github.com/Zeflous/zeflous/pull/218) ([mbetixz](https://github.com/mbetixz))
 - fix(roadmap): close F-1..F-3 from the PR #240-262 review [#266](https://github.com/Zeflous/zeflous/pull/266) ([mbetixz](https://github.com/mbetixz))
 - fix(roadmap): close P-1..P-4, P-6 from the src logic re-audit [#308](https://github.com/Zeflous/zeflous/pull/308) ([mbetixz](https://github.com/mbetixz))
+- fix(container): the runtime cycle guard behind ServiceStore::resolve [#380](https://github.com/Zeflous/zeflous/pull/380) ([mbetixz](https://github.com/mbetixz))
+- fix(routing): anchor the constraints at the absolute end, not the dollar [#381](https://github.com/Zeflous/zeflous/pull/381) ([mbetixz](https://github.com/mbetixz))
+- fix(telemetry): the tracestate grammar the spec's own ABNF spells [#382](https://github.com/Zeflous/zeflous/pull/382) ([mbetixz](https://github.com/mbetixz))
+- fix(tests): the namespaces the directories declare [#383](https://github.com/Zeflous/zeflous/pull/383) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
@@ -170,6 +175,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the timing family to pull request 362 [#363](https://github.com/Zeflous/zeflous/pull/363) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the tracing core to pull request 366 [#367](https://github.com/Zeflous/zeflous/pull/367) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the correlation family to pull request 371 [#372](https://github.com/Zeflous/zeflous/pull/372) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the hygiene-and-export family to pull request 375 [#376](https://github.com/Zeflous/zeflous/pull/376) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the audit campaign to pull requests 380, 381, 382 and 383 [#385](https://github.com/Zeflous/zeflous/pull/385) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

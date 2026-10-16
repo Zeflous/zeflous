@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-16T17:55:02Z",
+  "as_of": "2026-10-16T23:22:51Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 158,
+  "unreleased_count": 165,
   "versions": [
     {
       "version": "Unreleased",
@@ -1295,6 +1295,27 @@
                 "subject": "refactor(telemetry): the correlation family's Sonar findings, structurally"
               }
             ]
+          },
+          {
+            "pr": 375,
+            "title": "feat(telemetry): the hygiene-and-export family, config-driven",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-16T21:26:52Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/375",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6b6d949f810c86de95b1a6d3d51e7fab5ff22369",
+                "short_sha": "6b6d949",
+                "subject": "feat(telemetry): the hygiene-and-export family, config-driven"
+              },
+              {
+                "sha": "575e20876b95c3b3cd666ffd896a8a6860bcc8b2",
+                "short_sha": "575e208",
+                "subject": "Merge branch 'main' into feat/observability-export-family"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -1953,6 +1974,115 @@
                 "sha": "c29377b2936fa7b4dd343b3fd6512d8cac2892b2",
                 "short_sha": "c29377b",
                 "subject": "fix(roadmap): satisfy Psalm strict binary operands in RoadmapTableBlock"
+              }
+            ]
+          },
+          {
+            "pr": 380,
+            "title": "fix(container): the runtime cycle guard behind ServiceStore::resolve",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-16T22:31:55Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/380",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "97198a0af297336bdcd8cb2e8eab033494ef0401",
+                "short_sha": "97198a0",
+                "subject": "fix(container): the runtime cycle guard behind ServiceStore::resolve"
+              },
+              {
+                "sha": "22c9d3f6e2ee2ef8a2e7f72fcfef45c7e884929e",
+                "short_sha": "22c9d3f",
+                "subject": "Merge branch 'main' into fix/container-cycle-guard"
+              },
+              {
+                "sha": "f9223deedc7ae47dddcf97d370443551338251c2",
+                "short_sha": "f9223de",
+                "subject": "Merge branch 'main' into fix/container-cycle-guard"
+              }
+            ]
+          },
+          {
+            "pr": 381,
+            "title": "fix(routing): anchor the constraints at the absolute end, not the dollar",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-16T22:52:56Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/381",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f28a5881f40e6b5bb6e825bb5f1629ffd86ddd5d",
+                "short_sha": "f28a588",
+                "subject": "fix(routing): anchor the constraints at the absolute end, not the dollar"
+              },
+              {
+                "sha": "70bc1a835981fc0fab86e9c2fab3943b4dabbca2",
+                "short_sha": "70bc1a8",
+                "subject": "Merge branch 'main' into fix/route-constraint-absolute-anchor"
+              },
+              {
+                "sha": "2abaf6149acaeacfe2df88e9eb03832d19ba543a",
+                "short_sha": "2abaf61",
+                "subject": "Merge branch 'main' into fix/route-constraint-absolute-anchor"
+              },
+              {
+                "sha": "b9730c4a549e7fd285aac70f0aa7dacb3d6c9d23",
+                "short_sha": "b9730c4",
+                "subject": "Merge branch 'main' into fix/route-constraint-absolute-anchor"
+              }
+            ]
+          },
+          {
+            "pr": 382,
+            "title": "fix(telemetry): the tracestate grammar the spec's own ABNF spells",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-16T22:42:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/382",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1fa1ad319e1078bc596f2473762b73a4ca5cad6c",
+                "short_sha": "1fa1ad3",
+                "subject": "fix(telemetry): the tracestate grammar the spec's own ABNF spells"
+              },
+              {
+                "sha": "a65f299eb3973f0e13f426b9d70f61a943f5b94e",
+                "short_sha": "a65f299",
+                "subject": "Merge branch 'main' into fix/tracestate-w3c-grammar"
+              }
+            ]
+          },
+          {
+            "pr": 383,
+            "title": "fix(tests): the namespaces the directories declare",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-16T23:05:14Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/383",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1b20ed9a05f4f269372abbc7f7b800e328cfc816",
+                "short_sha": "1b20ed9",
+                "subject": "fix(tests): the namespaces the directories declare"
+              },
+              {
+                "sha": "4e3eae8c4dc5fac1c71dac3d75ac578837b1cdd1",
+                "short_sha": "4e3eae8",
+                "subject": "Merge branch 'main' into fix/test-namespaces-match-directories"
+              },
+              {
+                "sha": "6fcf6b5cf2ace4ea5244cc93ac5866744a7c1a4f",
+                "short_sha": "6fcf6b5",
+                "subject": "Merge branch 'main' into fix/test-namespaces-match-directories"
+              },
+              {
+                "sha": "abb85fdd93c3280b549b069ca8666c93c6a21382",
+                "short_sha": "abb85fd",
+                "subject": "Merge branch 'main' into fix/test-namespaces-match-directories"
               }
             ]
           }
@@ -3893,6 +4023,43 @@
                 "sha": "ee45ecb088e8f241501132bff181d503e5259fb3",
                 "short_sha": "ee45ecb",
                 "subject": "docs(roadmap): pin the correlation family to pull request 371"
+              }
+            ]
+          },
+          {
+            "pr": 376,
+            "title": "docs(roadmap): pin the hygiene-and-export family to pull request 375",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-16T21:57:54Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/376",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "2fbf22fa08daa5795a57d0a27f836df7dd447e6c",
+                "short_sha": "2fbf22f",
+                "subject": "docs(roadmap): pin the hygiene-and-export family to pull request 375"
+              },
+              {
+                "sha": "2898aee92038e369299ae85940bfcf80da37f718",
+                "short_sha": "2898aee",
+                "subject": "Merge branch 'main' into docs/roadmap-export-family-pin"
+              }
+            ]
+          },
+          {
+            "pr": 385,
+            "title": "docs(roadmap): pin the audit campaign to pull requests 380, 381, 382 and 383",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-16T23:22:51Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/385",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "adcc724b3cddaddeb15e32156a0bf9f15fc13cbf",
+                "short_sha": "adcc724",
+                "subject": "docs(roadmap): pin the audit campaign to pull requests 380, 381, 382 and 383"
               }
             ]
           }
@@ -8049,6 +8216,173 @@
               "sha": "ee45ecb088e8f241501132bff181d503e5259fb3",
               "short_sha": "ee45ecb",
               "subject": "docs(roadmap): pin the correlation family to pull request 371"
+            }
+          ]
+        },
+        {
+          "pr": 375,
+          "title": "feat(telemetry): the hygiene-and-export family, config-driven",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-16T21:26:52Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/375",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6b6d949f810c86de95b1a6d3d51e7fab5ff22369",
+              "short_sha": "6b6d949",
+              "subject": "feat(telemetry): the hygiene-and-export family, config-driven"
+            },
+            {
+              "sha": "575e20876b95c3b3cd666ffd896a8a6860bcc8b2",
+              "short_sha": "575e208",
+              "subject": "Merge branch 'main' into feat/observability-export-family"
+            }
+          ]
+        },
+        {
+          "pr": 376,
+          "title": "docs(roadmap): pin the hygiene-and-export family to pull request 375",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-16T21:57:54Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/376",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "2fbf22fa08daa5795a57d0a27f836df7dd447e6c",
+              "short_sha": "2fbf22f",
+              "subject": "docs(roadmap): pin the hygiene-and-export family to pull request 375"
+            },
+            {
+              "sha": "2898aee92038e369299ae85940bfcf80da37f718",
+              "short_sha": "2898aee",
+              "subject": "Merge branch 'main' into docs/roadmap-export-family-pin"
+            }
+          ]
+        },
+        {
+          "pr": 380,
+          "title": "fix(container): the runtime cycle guard behind ServiceStore::resolve",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-16T22:31:55Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/380",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "97198a0af297336bdcd8cb2e8eab033494ef0401",
+              "short_sha": "97198a0",
+              "subject": "fix(container): the runtime cycle guard behind ServiceStore::resolve"
+            },
+            {
+              "sha": "22c9d3f6e2ee2ef8a2e7f72fcfef45c7e884929e",
+              "short_sha": "22c9d3f",
+              "subject": "Merge branch 'main' into fix/container-cycle-guard"
+            },
+            {
+              "sha": "f9223deedc7ae47dddcf97d370443551338251c2",
+              "short_sha": "f9223de",
+              "subject": "Merge branch 'main' into fix/container-cycle-guard"
+            }
+          ]
+        },
+        {
+          "pr": 381,
+          "title": "fix(routing): anchor the constraints at the absolute end, not the dollar",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-16T22:52:56Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/381",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f28a5881f40e6b5bb6e825bb5f1629ffd86ddd5d",
+              "short_sha": "f28a588",
+              "subject": "fix(routing): anchor the constraints at the absolute end, not the dollar"
+            },
+            {
+              "sha": "70bc1a835981fc0fab86e9c2fab3943b4dabbca2",
+              "short_sha": "70bc1a8",
+              "subject": "Merge branch 'main' into fix/route-constraint-absolute-anchor"
+            },
+            {
+              "sha": "2abaf6149acaeacfe2df88e9eb03832d19ba543a",
+              "short_sha": "2abaf61",
+              "subject": "Merge branch 'main' into fix/route-constraint-absolute-anchor"
+            },
+            {
+              "sha": "b9730c4a549e7fd285aac70f0aa7dacb3d6c9d23",
+              "short_sha": "b9730c4",
+              "subject": "Merge branch 'main' into fix/route-constraint-absolute-anchor"
+            }
+          ]
+        },
+        {
+          "pr": 382,
+          "title": "fix(telemetry): the tracestate grammar the spec's own ABNF spells",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-16T22:42:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/382",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1fa1ad319e1078bc596f2473762b73a4ca5cad6c",
+              "short_sha": "1fa1ad3",
+              "subject": "fix(telemetry): the tracestate grammar the spec's own ABNF spells"
+            },
+            {
+              "sha": "a65f299eb3973f0e13f426b9d70f61a943f5b94e",
+              "short_sha": "a65f299",
+              "subject": "Merge branch 'main' into fix/tracestate-w3c-grammar"
+            }
+          ]
+        },
+        {
+          "pr": 383,
+          "title": "fix(tests): the namespaces the directories declare",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-16T23:05:14Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/383",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1b20ed9a05f4f269372abbc7f7b800e328cfc816",
+              "short_sha": "1b20ed9",
+              "subject": "fix(tests): the namespaces the directories declare"
+            },
+            {
+              "sha": "4e3eae8c4dc5fac1c71dac3d75ac578837b1cdd1",
+              "short_sha": "4e3eae8",
+              "subject": "Merge branch 'main' into fix/test-namespaces-match-directories"
+            },
+            {
+              "sha": "6fcf6b5cf2ace4ea5244cc93ac5866744a7c1a4f",
+              "short_sha": "6fcf6b5",
+              "subject": "Merge branch 'main' into fix/test-namespaces-match-directories"
+            },
+            {
+              "sha": "abb85fdd93c3280b549b069ca8666c93c6a21382",
+              "short_sha": "abb85fd",
+              "subject": "Merge branch 'main' into fix/test-namespaces-match-directories"
+            }
+          ]
+        },
+        {
+          "pr": 385,
+          "title": "docs(roadmap): pin the audit campaign to pull requests 380, 381, 382 and 383",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-16T23:22:51Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/385",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "adcc724b3cddaddeb15e32156a0bf9f15fc13cbf",
+              "short_sha": "adcc724",
+              "subject": "docs(roadmap): pin the audit campaign to pull requests 380, 381, 382 and 383"
             }
           ]
         }
