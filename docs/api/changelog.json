@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-15T23:21:30Z",
+  "as_of": "2026-10-16T01:46:48Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 152,
+  "unreleased_count": 154,
   "versions": [
     {
       "version": "Unreleased",
@@ -1220,6 +1220,32 @@
                 "sha": "4ba320ba3e948c89a9ed9f6bb3c04304567f37fa",
                 "short_sha": "4ba320b",
                 "subject": "fix(http): share the knob shapes the third family made shared property"
+              }
+            ]
+          },
+          {
+            "pr": 362,
+            "title": "feat(http): the timing family, config-driven",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-16T01:34:55Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/362",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "05f1c42f4f23737c82030752bfd19e5efb9aee75",
+                "short_sha": "05f1c42",
+                "subject": "feat(http): the timing family, config-driven"
+              },
+              {
+                "sha": "d2d8c58e742166e194e348e85f5ccc51c913d573",
+                "short_sha": "d2d8c58",
+                "subject": "Merge branch 'main' into feat/observability-timing-family"
+              },
+              {
+                "sha": "e6d02f24f5075bf2c74e4310e43c5c23f52d7915",
+                "short_sha": "e6d02f2",
+                "subject": "fix(http): keep the timing family's process face on the interface's names"
               }
             ]
           }
@@ -3772,6 +3798,22 @@
                 "sha": "408956ff7b2a2508ece3f0081c154c20b3b8b79d",
                 "short_sha": "408956f",
                 "subject": "docs(roadmap): pin the auth family to pull request 357"
+              }
+            ]
+          },
+          {
+            "pr": 363,
+            "title": "docs(roadmap): pin the timing family to pull request 362",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-16T01:46:48Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/363",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "41070764a0de622966d19d9fa0600e22c9650567",
+                "short_sha": "4107076",
+                "subject": "docs(roadmap): pin the timing family to pull request 362"
               }
             ]
           }
@@ -7807,6 +7849,48 @@
               "sha": "408956ff7b2a2508ece3f0081c154c20b3b8b79d",
               "short_sha": "408956f",
               "subject": "docs(roadmap): pin the auth family to pull request 357"
+            }
+          ]
+        },
+        {
+          "pr": 362,
+          "title": "feat(http): the timing family, config-driven",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-16T01:34:55Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/362",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "05f1c42f4f23737c82030752bfd19e5efb9aee75",
+              "short_sha": "05f1c42",
+              "subject": "feat(http): the timing family, config-driven"
+            },
+            {
+              "sha": "d2d8c58e742166e194e348e85f5ccc51c913d573",
+              "short_sha": "d2d8c58",
+              "subject": "Merge branch 'main' into feat/observability-timing-family"
+            },
+            {
+              "sha": "e6d02f24f5075bf2c74e4310e43c5c23f52d7915",
+              "short_sha": "e6d02f2",
+              "subject": "fix(http): keep the timing family's process face on the interface's names"
+            }
+          ]
+        },
+        {
+          "pr": 363,
+          "title": "docs(roadmap): pin the timing family to pull request 362",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-16T01:46:48Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/363",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "41070764a0de622966d19d9fa0600e22c9650567",
+              "short_sha": "4107076",
+              "subject": "docs(roadmap): pin the timing family to pull request 362"
             }
           ]
         }
