@@ -6,6 +6,11 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the audit campaign to pull requests 380, 381, 382 and 383 [\#385](https://github.com/Zeflous/zeflous/pull/385) ([mbetixz](https://github.com/mbetixz))
+- fix\(tests\): the namespaces the directories declare [\#383](https://github.com/Zeflous/zeflous/pull/383) ([mbetixz](https://github.com/mbetixz))
+- fix\(telemetry\): the tracestate grammar the spec's own ABNF spells [\#382](https://github.com/Zeflous/zeflous/pull/382) ([mbetixz](https://github.com/mbetixz))
+- fix\(routing\): anchor the constraints at the absolute end, not the dollar [\#381](https://github.com/Zeflous/zeflous/pull/381) ([mbetixz](https://github.com/mbetixz))
+- fix\(container\): the runtime cycle guard behind ServiceStore::resolve [\#380](https://github.com/Zeflous/zeflous/pull/380) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the hygiene-and-export family to pull request 375 [\#376](https://github.com/Zeflous/zeflous/pull/376) ([mbetixz](https://github.com/mbetixz))
 - feat\(telemetry\): the hygiene-and-export family, config-driven [\#375](https://github.com/Zeflous/zeflous/pull/375) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the correlation family to pull request 371 [\#372](https://github.com/Zeflous/zeflous/pull/372) ([mbetixz](https://github.com/mbetixz))
