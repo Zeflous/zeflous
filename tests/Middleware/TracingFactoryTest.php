@@ -11,6 +11,7 @@ use Zef\Framework\Http\HttpException;
 use Zef\Framework\Middleware\TracingFactory;
 use Zef\Framework\Telemetry\NoopSpan;
 use Zef\Framework\Telemetry\Span;
+use Zef\Test\Support\Telemetry\OtlpMockServer;
 
 /**
  * The tracing construction seam, on its own terms: the build from
@@ -19,6 +20,14 @@ use Zef\Framework\Telemetry\Span;
  * fail-closed arm, and the two census halts -- the unknown family
  * and the unknown knob -- through the factory the profile's own
  * service registration names.
+ *
+ * The export family widened the same seam, and the widening is
+ * pinned the real-path way: an armed export family swaps the
+ * delivery lane's sink for the OTLP exporter a real loopback
+ * collector answers ({@see OtlpMockServer}), a disarmed family
+ * delivers nothing over the wire, and the retry lane reads the
+ * family's own knobs -- the collector's leading 500 answered by
+ * the declared backoff's second attempt.
  *
  * @internal
  */
@@ -41,6 +50,126 @@ final class TracingFactoryTest extends TestCase
         self::assertMatchesRegularExpression('/^[0-9a-f]{32}$/D', $span->getContext()->traceId);
         self::assertMatchesRegularExpression('/^[0-9a-f]{16}$/D', $span->getContext()->spanId);
         self::assertTrue($span->getContext()->sampled);
+    }
+
+    public function testAnArmedExportFamilySwapsTheSinkTheRealCollectorAnswers(): void
+    {
+        $otlpMockServer = new OtlpMockServer();
+        $endpoint = $otlpMockServer->start();
+
+        $config = new Config([
+            'observability' => [
+                'tracing' => [
+                    'enabled' => true,
+                ],
+                'export' => [
+                    'enabled' => true,
+                    'endpoint' => $endpoint,
+                    'service_name' => 'factory-test',
+                ],
+            ],
+        ]);
+
+        $tracer = TracingFactory::fromConfig($config);
+        $tracer->startSpan('request')->end();
+        $tracer->flush();
+
+        $bodies = $otlpMockServer->receivedBodies();
+        self::assertCount(1, $bodies, 'the armed family delivers the drained batch to the collector');
+
+        $payload = json_decode($bodies[0], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($payload);
+        $resourceSpans = $payload['resourceSpans'];
+        self::assertIsArray($resourceSpans);
+        $resourceSpan = $resourceSpans[0];
+        self::assertIsArray($resourceSpan);
+        $resource = $resourceSpan['resource'];
+        self::assertIsArray($resource);
+        $attributes = $resource['attributes'];
+        self::assertIsArray($attributes);
+        $serviceIdentity = $attributes[0];
+        self::assertIsArray($serviceIdentity);
+        $value = $serviceIdentity['value'];
+        self::assertIsArray($value);
+
+        self::assertSame(
+            'factory-test',
+            $value['stringValue'],
+            'the service identity the knob declared rides the resource block',
+        );
+
+        $otlpMockServer->stop();
+    }
+
+    public function testADisarmedExportFamilyNeverOpensTheWireLane(): void
+    {
+        // The collector is real and listening: a disarmed family
+        // that still built the OTLP exporter would deliver the
+        // drained batch to it. The in-memory sink is the honest
+        // default a family without a collector declaration gets,
+        // and nothing crosses the wire.
+        $otlpMockServer = new OtlpMockServer();
+        $endpoint = $otlpMockServer->start();
+
+        $config = new Config([
+            'observability' => [
+                'tracing' => [
+                    'enabled' => true,
+                ],
+                'export' => [
+                    'enabled' => false,
+                    'endpoint' => $endpoint,
+                ],
+            ],
+        ]);
+
+        $tracer = TracingFactory::fromConfig($config);
+        $tracer->startSpan('request')->end();
+        $tracer->flush();
+
+        self::assertSame(
+            0,
+            $otlpMockServer->requests(),
+            'the disarmed family delivers nothing -- the drain stays in-process',
+        );
+
+        $otlpMockServer->stop();
+    }
+
+    public function testTheRetryLaneReadsTheFamilysOwnKnobs(): void
+    {
+        // The collector's leading answer is the transient 500 the
+        // lane's own exception carries, and the declared backoff
+        // earns the batch its second attempt -- one millisecond, so
+        // the suite never waits the deployment-grade delays.
+        $otlpMockServer = new OtlpMockServer(failFirst: 1);
+        $endpoint = $otlpMockServer->start();
+
+        $config = new Config([
+            'observability' => [
+                'tracing' => [
+                    'enabled' => true,
+                ],
+                'export' => [
+                    'enabled' => true,
+                    'endpoint' => $endpoint,
+                    'max_retries' => 2,
+                    'retry_delay_ms' => 1,
+                ],
+            ],
+        ]);
+
+        $tracer = TracingFactory::fromConfig($config);
+        $tracer->startSpan('request')->end();
+        $tracer->flush();
+
+        self::assertSame(
+            2,
+            $otlpMockServer->requests(),
+            'the leading 500 earned its retry, and the second attempt delivered',
+        );
+
+        $otlpMockServer->stop();
     }
 
     public function testTheFactoryBuildsTheFailClosedArmFromTheAbsentFamily(): void
@@ -77,7 +206,7 @@ final class TracingFactoryTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 "The observability configuration carries the unknown family 'trcing'"
-                . ' (known families: timing, tracing, correlation).',
+                . ' (known families: timing, tracing, correlation, export).',
                 $httpException->getMessage(),
             );
         }

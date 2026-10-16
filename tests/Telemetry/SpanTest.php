@@ -20,10 +20,12 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 /**
  * The live span's lifecycle, on its own terms: the timeline the
  * injected clock freezes (the monotonic start, the wall start, every
- * event's wall timestamp, the monotonic end), the recording contract
- * (verbatim attributes, ignored writes once ended), the status
- * vocabulary's fold and refusal, and the one handoff -- the frozen
- * record, with its derived wall end, delivered exactly once.
+ * event's wall timestamp, the monotonic end), the recording
+ * contract (the hygiene census every recording point reads -- a
+ * sensitive key is a refusal, a value answers its clamp -- ignored
+ * writes once ended), the status vocabulary's fold and refusal,
+ * and the one handoff -- the frozen record, with its derived wall
+ * end, delivered exactly once.
  *
  * @internal
  */
@@ -116,12 +118,20 @@ final class SpanTest extends TestCase
         self::assertTrue($span->isEnded());
     }
 
-    public function testOpeningAttributesAreRecordedVerbatim(): void
+    public function testOpeningAttributesFilterThroughTheHygieneCensus(): void
     {
+        // The hygiene lane has landed, exactly where the recording
+        // half reserved it: the opening map reads the same census
+        // every later write does -- a sensitive key is a refusal,
+        // not a redaction, because a recorded credential never
+        // exists in the collection.
         $span = $this->span('request', [
             'http.method' => 'GET',
             'attempts' => 2,
             'nested' => ['db', 'cache'],
+            'authorization' => 'Bearer abc',
+            'db_password' => 'hunter2',
+            '' => 'void',
         ]);
 
         $span->end();
@@ -129,7 +139,7 @@ final class SpanTest extends TestCase
         self::assertSame(
             ['http.method' => 'GET', 'attempts' => 2, 'nested' => ['db', 'cache']],
             $this->recordingEnd->records[0]->attributes,
-            'the recording is verbatim until the hygiene lane lands',
+            'the opening map filters through the census every later write reads',
         );
     }
 
@@ -140,6 +150,57 @@ final class SpanTest extends TestCase
         $span->end();
 
         self::assertSame([], $this->recordingEnd->records[0]->attributes);
+    }
+
+    public function testALaterSensitiveWriteIsARefusalAndAValueClamps(): void
+    {
+        $span = $this->span('request');
+
+        $span->setAttribute('api_token', 'abc123');
+        $span->setAttribute('note', "a\x01b");
+        $span->setAttribute('correlation.payload', str_repeat('x', 3000));
+
+        $span->end();
+
+        $record = $this->recordingEnd->records[0];
+        self::assertArrayNotHasKey('api_token', $record->attributes, 'the sensitive write never records');
+        self::assertSame('ab', $record->attributes['note'], 'the control byte never rides the value');
+        self::assertSame(
+            str_repeat('x', 2045) . '…',
+            $record->attributes['correlation.payload'],
+            'the over-budget value truncates at the character boundary with the cut marked',
+        );
+    }
+
+    public function testEventAttributesFilterThroughTheSameCensus(): void
+    {
+        $span = $this->span('request');
+
+        $span->addEvent('login', ['password' => 'hunter2', 'attempts' => 2]);
+
+        $span->end();
+
+        $event = $this->recordingEnd->records[0]->events[0];
+        self::assertSame(
+            ['attempts' => 2],
+            $event['attributes'],
+            'the sensitive key never rides an event, and the honest pair keeps',
+        );
+    }
+
+    public function testTheStatusDescriptionClampsToItsOwnBudget(): void
+    {
+        $span = $this->span('request');
+
+        $span->setStatus('ERROR', str_repeat('x', 2000));
+
+        $span->end();
+
+        self::assertSame(
+            str_repeat('x', 1021) . '…',
+            $this->recordingEnd->records[0]->statusDescription,
+            'the description answers its own thousand-and-twenty-four byte budget',
+        );
     }
 
     public function testTheRecordingChainsReturnTheSpan(): void

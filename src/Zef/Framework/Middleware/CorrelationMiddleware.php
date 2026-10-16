@@ -63,6 +63,19 @@ use Zef\Framework\Telemetry\TracerInterface;
  * duration attribute is dropped, because the span's own timeline
  * already measures it and a second inline clock pair would
  * duplicate the one measurement the record owns.
+ *
+ * The export family's cadence lands here, at the boundary that
+ * owns the request span's lifecycle ({@see CorrelationRequestSpan}'s
+ * own record): when the deployment's flush-per-request knob is
+ * armed, the finally drains the collection after the span's
+ * record has joined the queue -- the span ends first, the drain
+ * delivers second, the ordering the one finally block owns. The
+ * knob ships off ({@see \Zef\Framework\Http\ExportPolicy}'s own
+ * record): a per-request flush puts the delivery's own latency
+ * inside the request path, the third fail-closed decision in the
+ * campaign's chain, and the drain the boundary triggers is the
+ * tracer's own face ({@see TracerInterface::flush()}), never the
+ * processor the boundary does not hold.
  */
 final readonly class CorrelationMiddleware implements MiddlewareInterface
 {
@@ -73,10 +86,15 @@ final readonly class CorrelationMiddleware implements MiddlewareInterface
      * @param CorrelationPolicy $correlationPolicy the family's frozen knob set
      * @param TracerInterface   $tracer            the tracing engine whose
      *                                             spans the boundary opens
+     * @param bool              $flushPerRequest   the export family's drain
+     *                                             cadence -- the finally's
+     *                                             flush, armed by the
+     *                                             deployment
      */
     public function __construct(
         private CorrelationPolicy $correlationPolicy,
         private TracerInterface $tracer,
+        private bool $flushPerRequest = false,
     ) {
     }
 
@@ -114,6 +132,10 @@ final readonly class CorrelationMiddleware implements MiddlewareInterface
             throw $throwable;
         } finally {
             $correlationRequestSpan->end();
+
+            if ($this->flushPerRequest) {
+                $this->tracer->flush();
+            }
         }
     }
 }

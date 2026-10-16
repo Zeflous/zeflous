@@ -177,7 +177,6 @@
   </file>
   <file src="src/Zef/Framework/Telemetry/BatchSpanProcessor.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[flush]]></code>
       <code><![CDATA[shutdown]]></code>
     </PossiblyUnusedMethod>
   </file>
@@ -216,6 +215,11 @@
       <code><![CDATA[NoopTracer]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Telemetry/OtlpJsonPayloadEncoder.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Telemetry/SpanContext.php">
     <PossiblyUnusedProperty>
       <code><![CDATA[$traceState]]></code>
@@ -225,17 +229,6 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[durationSeconds]]></code>
     </PossiblyUnusedMethod>
-    <PossiblyUnusedProperty>
-      <code><![CDATA[$attributes]]></code>
-      <code><![CDATA[$context]]></code>
-      <code><![CDATA[$endUnixNano]]></code>
-      <code><![CDATA[$events]]></code>
-      <code><![CDATA[$name]]></code>
-      <code><![CDATA[$parent]]></code>
-      <code><![CDATA[$startUnixNano]]></code>
-      <code><![CDATA[$status]]></code>
-      <code><![CDATA[$statusDescription]]></code>
-    </PossiblyUnusedProperty>
   </file>
   <file src="src/Zef/Framework/Telemetry/SpanInterface.php">
     <PossiblyUnusedMethod>
@@ -250,6 +243,14 @@
   </file>
   <file src="src/Zef/Framework/Telemetry/SpanRecording.php">
     <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/TelemetrySanitizer.php">
+    <MixedAssignment>
+      <code><![CDATA[$entry]]></code>
+      <code><![CDATA[$sanitized[$key]]]></code>
+      <code><![CDATA[$sanitized[$name]]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>

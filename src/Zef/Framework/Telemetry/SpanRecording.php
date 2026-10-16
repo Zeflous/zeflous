@@ -18,18 +18,28 @@ namespace Zef\Framework\Telemetry;
  * empty-name guard runs before the reading, so a non-recording
  * costs no clock read. The status arrives un-folded -- {@see
  * SpanStatus::fold()} is the one vocabulary the recording reads
- * through. This is the class the campaign's hygiene lane widens
- * when it lands: the sanitizer's filtering and clamping belong at
- * exactly these recording points ({@see self::setAttribute()},
- * {@see self::addEvent()}, {@see self::setStatus()}), and the
- * separation is what keeps that arrival a widening rather than a
- * rewrite.
+ * through.
+ *
+ * The hygiene lane has landed, exactly where this class reserved
+ * the arrival: every recording point reads the family's census
+ * ({@see TelemetrySanitizer}) -- a sensitive key is not a
+ * recording (the credential never exists in the collection, not
+ * even redacted), a recorded value answers the clamp (control
+ * bytes stripped, over-budget bytes truncated at a character
+ * boundary, NaN and infinities in their string spellings), an
+ * event's attributes filter through the same refusal, and the
+ * status description clamps to its own budget. The hygiene is
+ * structural, not a knob: there is no honest posture in which
+ * the collection carries credential material, so no deployment
+ * decision exists to make about it.
  *
  * Ported from the reference implementation (legacy `zef-main`
  * `Application/Observability/Span.php`): the recording behaviour
- * moves verbatim in this class -- the verbatim value storage, the
- * empty-key and empty-name non-recordings, the status fold -- with
- * the guards the span owns lifted out.
+ * moves verbatim in this class -- the verbatim value storage the
+ * reference's evolved successor sanitised at these same points
+ * (the `zef-framework-src` Span), the empty-key and empty-name
+ * non-recordings, the status fold -- with the guards the span
+ * owns lifted out.
  */
 final class SpanRecording
 {
@@ -45,7 +55,9 @@ final class SpanRecording
 
     /**
      * @param array<string,mixed> $attributes the attributes the span
-     *                                        opens with
+     *                                        opens with -- sanitised
+     *                                        through the same census
+     *                                        every later write reads
      */
     public function __construct(
         private readonly SpanTimeline $spanTimeline,
@@ -55,15 +67,17 @@ final class SpanRecording
     }
 
     /**
-     * Records one attribute; an empty key is not a recording.
+     * Records one attribute: an empty key is not a recording, a
+     * sensitive key is a refusal -- and the value answers the
+     * clamp either way.
      */
     public function setAttribute(string $key, mixed $value): void
     {
-        if ($key === '') {
+        if ($key === '' || TelemetrySanitizer::isSensitiveKey($key)) {
             return;
         }
 
-        $this->attributes[$key] = $value;
+        $this->attributes[$key] = TelemetrySanitizer::value($value);
     }
 
     /**
@@ -80,7 +94,10 @@ final class SpanRecording
 
     /**
      * Records one timestamped event; an empty name is not a
-     * recording -- and never a clock read.
+     * recording -- and never a clock read. The event's attributes
+     * filter through the same census the span's own attributes
+     * do: a sensitive key never rides an event, and every kept
+     * value answers the clamp.
      *
      * @param array<string,mixed> $attributes
      */
@@ -93,17 +110,20 @@ final class SpanRecording
         $this->events[] = [
             'name' => $name,
             'time_unix_nano' => $this->spanTimeline->wallNow(),
-            'attributes' => $attributes,
+            'attributes' => TelemetrySanitizer::attributes($attributes),
         ];
     }
 
     /**
-     * Sets the lifecycle status, folded through the vocabulary.
+     * Sets the lifecycle status, folded through the vocabulary,
+     * with the description clamped to its own budget.
      */
     public function setStatus(string $status, ?string $description): void
     {
         $this->status = SpanStatus::fold($status);
-        $this->statusDescription = $description;
+        $this->statusDescription = $description === null
+            ? null
+            : TelemetrySanitizer::string($description, 1024);
     }
 
     /**

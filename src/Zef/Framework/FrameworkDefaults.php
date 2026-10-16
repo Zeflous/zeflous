@@ -26,10 +26,11 @@ use Zef\Framework\Middleware\TracingFactory;
  * configuration system already owns.
  *
  * The profile now ships the security-headers, rate-limit, CSRF and
- * auth families, and the observability campaign's first two
- * families (timing, then the tracing core) -- and it ships them the
- * way every family will arrive: the
- * subsystem's *service registration* as a declarative entry under the reserved
+ * auth families, and the observability campaign's first three
+ * families (timing, the tracing core, then the correlation
+ * boundary) plus the export family's knob block -- and it ships
+ * them the way every family will arrive: the subsystem's *service
+ * registration* as a declarative entry under the reserved
  * `framework.services` key the container's existing grammar installs
  * (string-addressed, over the `framework.config` service the bootstrapper
  * registers), and the subsystem's *knobs* under the family's own key. The `framework`
@@ -41,7 +42,12 @@ use Zef\Framework\Middleware\TracingFactory;
  * registration always exists -- a host cannot delete the framework's own
  * machinery out from under it -- while stack membership stays the host's
  * explicit choice: the `middleware.stack` list decides what runs, exactly
- * as it does for any other middleware. The remaining growth follows the
+ * as it does for any other middleware. The export family ships no
+ * registration of its own -- the lane is the tracing family's sink and
+ * retry posture, wired by the `TracingFactory` seam the tracing
+ * registration already names, and the drain cadence rides the
+ * correlation boundary's own registration -- so its knob block is the
+ * family's whole declaration here. The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
  * `http.trusted_hosts`, ...) migrate with their wiring, the container's
  * `aot` switch arrives with the compile/dump area (roadmap area 8), and
@@ -169,6 +175,16 @@ final readonly class FrameworkDefaults
                 'correlation' => [
                     'enabled' => false,
                     'echo_traceparent' => false,
+                ],
+                'export' => [
+                    'enabled' => false,
+                    'endpoint' => '',
+                    'timeout_ms' => 500,
+                    'service_name' => 'zef-application',
+                    'max_retries' => 0,
+                    'retry_delay_ms' => 100,
+                    'retry_delay_cap_ms' => 1000,
+                    'flush_per_request' => false,
                 ],
             ],
         ];

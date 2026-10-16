@@ -8,9 +8,15 @@ use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use Zef\Framework\Telemetry\BatchRetryLane;
 use Zef\Framework\Telemetry\BatchSpanProcessor;
+use Zef\Framework\Telemetry\OtlpExporterException;
+use Zef\Framework\Telemetry\RetryBackoffPolicy;
+use Zef\Framework\Telemetry\SpanBatchQueue;
 use Zef\Framework\Telemetry\SpanContext;
 use Zef\Framework\Telemetry\SpanData;
+use Zef\Test\Support\Telemetry\FlakySpanExporter;
 use Zef\Test\Support\Telemetry\RecordingSpanExporter;
 
 /**
@@ -18,12 +24,17 @@ use Zef\Test\Support\Telemetry\RecordingSpanExporter;
  * own refusals, the queue cap's silent drop, the batch splice's
  * exact slicing, the one-attempt delivery that swallows the
  * exporter's failures and never takes the process down with it,
- * and the shutdown's ordering -- drain, close, refuse, exactly
- * once.
+ * the retry lane the export family lands on the same seam -- the
+ * transient failure's earned backoff, the permanent rejection's
+ * single attempt, the exhausted lane's lost batch -- observed
+ * through the sleeper seam the wait hides behind, and the
+ * shutdown's ordering -- drain, close, refuse, exactly once.
  *
  * @internal
  */
 #[CoversClass(BatchSpanProcessor::class)]
+#[CoversClass(BatchRetryLane::class)]
+#[CoversClass(SpanBatchQueue::class)]
 final class BatchSpanProcessorTest extends TestCase
 {
     private const string TRACE_ID = '4bf92f3577b34da6a3ce929d0e0e4736';
@@ -152,6 +163,128 @@ final class BatchSpanProcessorTest extends TestCase
         self::assertSame(['d'], $this->names(), 'the drain is healthy after the failure');
     }
 
+    public function testATransientFailureEarnsTheRetriesThePolicyDeclares(): void
+    {
+        // The lane's own exception is the transient failure the
+        // retries exist for, and the waits between the attempts are
+        // the policy's own curve -- the initial delay, its doubling,
+        // and the cap the doubling clamps at -- observed through the
+        // sleeper seam, never a blocking call the suite would wait
+        // on for real.
+        $sleeps = [];
+        $flakySpanExporter = new FlakySpanExporter([
+            new OtlpExporterException('OTLP exporter transient rejection.'),
+            new OtlpExporterException('OTLP exporter transient rejection.'),
+            new OtlpExporterException('OTLP exporter transient rejection.'),
+        ]);
+        $batchSpanProcessor = new BatchSpanProcessor(
+            $flakySpanExporter,
+            2048,
+            2,
+            new RetryBackoffPolicy(3, 5, 20),
+            static function (int $milliseconds) use (&$sleeps): void {
+                $sleeps[] = $milliseconds;
+            },
+        );
+
+        $this->queue($batchSpanProcessor, ['a']);
+        $batchSpanProcessor->flush();
+
+        self::assertSame(4, $flakySpanExporter->exports, 'one attempt plus the three declared retries');
+        self::assertSame(['a'], $this->flakyNames($flakySpanExporter), 'the fourth attempt delivered the batch');
+        self::assertSame([5, 10, 20], $sleeps, 'the backoff doubles from the initial delay and clamps at the cap');
+    }
+
+    public function testThePermanentRejectionIsNeverRetried(): void
+    {
+        // The plain InvalidArgumentException is the permanent
+        // rejection -- an answer no retry addresses -- so the batch
+        // earns exactly one attempt and no wait, whatever the policy
+        // declares.
+        $sleeps = [];
+        $flakySpanExporter = new FlakySpanExporter([
+            new InvalidArgumentException('OTLP exporter permanent rejection.'),
+        ]);
+        $batchSpanProcessor = new BatchSpanProcessor(
+            $flakySpanExporter,
+            2048,
+            2,
+            new RetryBackoffPolicy(3, 5, 20),
+            static function (int $milliseconds) use (&$sleeps): void {
+                $sleeps[] = $milliseconds;
+            },
+        );
+
+        $this->queue($batchSpanProcessor, ['a']);
+        $batchSpanProcessor->flush();
+
+        self::assertSame(1, $flakySpanExporter->exports, 'the permanent rejection earns no retry');
+        self::assertSame([], $flakySpanExporter->delivered, 'the batch is lost');
+        self::assertSame([], $sleeps, 'no wait ever happens');
+    }
+
+    public function testTheExhaustedLaneLosesTheBatchAndTheDrainContinues(): void
+    {
+        // Any other throwable is transient too -- the runtime's own
+        // socket failure rides the same lane -- and a batch whose
+        // retries run out is lost while the drain walks on to the
+        // next batch, which the recovered sink delivers.
+        $sleeps = [];
+        $flakySpanExporter = new FlakySpanExporter([
+            new RuntimeException('connection reset'),
+            new RuntimeException('connection reset'),
+            new RuntimeException('connection reset'),
+        ]);
+        $batchSpanProcessor = new BatchSpanProcessor(
+            $flakySpanExporter,
+            2048,
+            1,
+            new RetryBackoffPolicy(2, 5, 40),
+            static function (int $milliseconds) use (&$sleeps): void {
+                $sleeps[] = $milliseconds;
+            },
+        );
+
+        $this->queue($batchSpanProcessor, ['a', 'b']);
+        $batchSpanProcessor->flush();
+
+        self::assertSame(
+            4,
+            $flakySpanExporter->exports,
+            'the first batch spent its three attempts, the second delivered',
+        );
+        self::assertSame(['b'], $this->flakyNames($flakySpanExporter), 'only the second batch was delivered');
+        self::assertSame([5, 10], $sleeps, 'the exhausted batch waited the policy-declared backoff first');
+    }
+
+    public function testTheZeroRetryPolicyIsTheOneAttemptPosture(): void
+    {
+        // The shipped default, spelled as the explicit policy the
+        // composition seam wires: a zero-retry declaration earns one
+        // attempt and never a wait -- the posture the core shipped
+        // before the lane arrived, unchanged.
+        $sleeps = [];
+        $flakySpanExporter = new FlakySpanExporter([
+            new OtlpExporterException('OTLP exporter transient rejection.'),
+        ]);
+        $batchSpanProcessor = new BatchSpanProcessor(
+            $flakySpanExporter,
+            2048,
+            2,
+            new RetryBackoffPolicy(0, 5, 40),
+            static function (int $milliseconds) use (&$sleeps): void {
+                $sleeps[] = $milliseconds;
+            },
+        );
+
+        $this->queue($batchSpanProcessor, ['a']);
+        $batchSpanProcessor->flush();
+
+        self::assertSame(1, $flakySpanExporter->exports, 'the zero-retry posture attempts once');
+        self::assertSame([], $flakySpanExporter->delivered, 'the failed batch is lost');
+        self::assertSame([], $sleeps, 'no wait ever happens');
+    }
+
     public function testTheShutdownDrainsClosesAndRefuses(): void
     {
         $batchSpanProcessor = new BatchSpanProcessor($this->recordingSpanExporter, 2048, 2);
@@ -273,5 +406,19 @@ final class BatchSpanProcessorTest extends TestCase
     private function batchSizes(): array
     {
         return array_map(\count(...), $this->recordingSpanExporter->batches);
+    }
+
+    /**
+     * The flaky double's delivered spans' names, flattened across
+     * the batches its successful attempts carried.
+     *
+     * @return list<string>
+     */
+    private function flakyNames(FlakySpanExporter $flakySpanExporter): array
+    {
+        return array_map(
+            static fn (SpanData $spanData): string => $spanData->name,
+            array_merge([], ...$flakySpanExporter->delivered),
+        );
     }
 }

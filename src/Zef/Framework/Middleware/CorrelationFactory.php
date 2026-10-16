@@ -6,6 +6,7 @@ namespace Zef\Framework\Middleware;
 
 use Zef\Framework\Config\Config;
 use Zef\Framework\Http\CorrelationPolicy;
+use Zef\Framework\Http\ExportPolicy;
 use Zef\Framework\Http\ObservabilityFamilies;
 use Zef\Framework\Telemetry\TracerInterface;
 
@@ -44,6 +45,14 @@ use Zef\Framework\Telemetry\TracerInterface;
  * themselves, and a deployment that flips either does so as an
  * explicit, validated knob write.
  *
+ * The export family's cadence composes here because the boundary
+ * owns the request span's lifecycle ({@see CorrelationMiddleware}'s
+ * own record): the flush-per-request knob ({@see ExportPolicy}) is
+ * the delivery lane's third decision, and the boundary that ends
+ * the request span is the one place a per-request drain can
+ * honestly trigger -- over the tracer's own drain face, the same
+ * instance the registration already wired.
+ *
  * @api
  */
 final readonly class CorrelationFactory
@@ -51,14 +60,22 @@ final readonly class CorrelationFactory
     /**
      * Builds the propagation boundary from the frozen repository's
      * `observability.correlation` subtree over the tracing family's
-     * own tracer service.
+     * own tracer service, carrying the export family's drain
+     * cadence.
      */
     public static function fromConfig(Config $config, TracerInterface $tracer): CorrelationMiddleware
     {
         $correlationPolicy = CorrelationPolicy::fromMap(
             ObservabilityFamilies::subtree($config->get('observability'), 'correlation'),
         );
+        $exportPolicy = ExportPolicy::fromMap(
+            ObservabilityFamilies::subtree($config->get('observability'), 'export'),
+        );
 
-        return new CorrelationMiddleware($correlationPolicy, $tracer);
+        return new CorrelationMiddleware(
+            $correlationPolicy,
+            $tracer,
+            $exportPolicy->flushPerRequest,
+        );
     }
 }

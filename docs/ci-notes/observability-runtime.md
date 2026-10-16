@@ -309,6 +309,112 @@ campaign's first to spell a second service argument -- the tracing
 family's own tracer, not a copy minted here, so the boundary's
 spans drain through the one processor the deployment configured.
 
+**KDD-OB20 -- The hygiene is structural, not a knob.** The export
+family lands the campaign's hygiene census as a unit with no
+configuration surface at all: a sensitive key is never a recording
+(the credential never exists in the collection, not even redacted),
+a recorded value never carries control bytes or more than its
+payload budget, and the status description answers its own clamp --
+read at exactly the three recording points the tracing core's own
+porting notes reserved (`SpanRecording`'s setAttribute, addEvent,
+setStatus). There is no honest deployment posture in which the
+collection carries credential material, so no deployment decision
+exists to make about it: the auth boundary refuses it outright, the
+correlation table digests it into pointers, and the recording
+surface drops it before it exists. A knob that toggles hygiene is
+an admission somewhere upstream records what it should not, and
+this family refuses to be that admission.
+
+**KDD-OB21 -- The chain is triple fail-closed, and every link is a
+named knob.** The campaign's arms compose: the collection arms
+explicitly (`tracing.enabled`, off), the delivery lane arms
+explicitly (`export.enabled`, off -- the in-memory sink is the
+honest default a family without a collector declaration gets), and
+the drain cadence arms explicitly (`export.flush_per_request`, off
+-- a per-request flush puts the delivery's own latency inside the
+request path). Three decisions, three knobs, none taken on the
+host's behalf: a deployment that wants telemetry out of the
+process writes all three, and every intermediate posture is a state
+the deployment chose and can name. The chain is also why the
+cadence knob lives on the export family while its trigger lands on
+the correlation boundary -- the boundary already owns the request's
+finally, and the cadence is the one export decision whose timing
+belongs to the request lifecycle, not the delivery lane.
+
+**KDD-OB22 -- The retry lane ships at zero.** The reference's
+evolved exporter defaulted its backoff to two retries; the port
+inverts it deliberately. A blocking backoff inside the drain is a
+latency posture the deployment decides on, not one a framework
+smuggles in through a default -- the one-attempt posture the
+processor's own bounded queue already implied is preserved as the
+shipped `max_retries=0`, and a deployment that wants the lane to
+retry writes the three knobs. The queue's own bound is part of the
+same honesty: a queue that cannot hold the backlog cannot honestly
+promise to redeliver it either.
+
+**KDD-OB23 -- Permanent versus transient is the failure's own
+type.** The drain's triage reads no status codes and no error
+strings: a 4xx answers the plain `InvalidArgumentException` no
+retry addresses (the permanent rejection -- the batch is lost, the
+drain continues), and everything else -- the lane's own
+`OtlpExporterException`, the runtime's socket failures -- is a
+transient failure the declared backoff earns retries for. The type
+is the contract because the exporter owns the wire and the
+processor owns the discipline: the exporter translates the answer
+into the two throwables, and the processor's two catch arms are the
+whole policy.
+
+**KDD-OB24 -- The transport's diagnostics ride the lane redacted,
+and the pair grammar knows a diagnostic's own structure.** An
+engine warning is a free-form diagnostic string, and the transport's
+text is exactly where a credential-bearing URL would otherwise leak
+-- so the failure's reason passes the hygiene unit's redaction
+before it becomes exception text. The port's own widening beyond
+the reference's P-21 grammar: the pair value stops at the `?`, `&`
+and `)` a diagnostic's own structure carries, because without those
+separators one earlier pair's value swallows every later pair that
+rides the same URL -- the `http:` a refused transport's warning
+spells would consume `//host/v1/traces?token=secret` as its own
+value, and the credential-bearing pair the vocabulary exists to
+scrub would ride out unredacted, hidden inside a pair nobody judged
+sensitive. The signal-path fold learned the same lesson from the
+same wire: the query string belongs after the path, never folded
+into it, where the transport would address the query as part of
+the path.
+
+**KDD-OB25 -- The wait hides behind a seam.** The backoff's
+blocking `usleep` never runs inline in the drain: the composition
+seam wires the blocking closure, the suite wires its recording
+double, and the drain's blocking is observable -- the same seam
+discipline the clock read before it. The retry curve itself is
+frozen data (`RetryBackoffPolicy`, the exponential doubling the
+reference carried, clamped at the cap), read through the two
+judgements a drain makes per failed attempt, and the suite pins
+the whole curve through the seam without ever waiting a real
+deployment-grade delay.
+
+**KDD-OB26 -- The armed endpoint halts the resolution.** The
+family's fail-loud seam follows the CSRF lineage
+(`CsrfBounds::assertUsableSecret`): an ARMED family with an
+unusable endpoint -- empty, relative, a scheme the transport does
+not speak, or credentials embedded in the URL -- halts the boot
+with the remediation spelled out, while the disarmed policy stays
+readable data so an absent family and an explicit disarm are never
+confused. The credential-bearing URL is its own refusal arm
+because the transport's own failure diagnostics would echo it into
+exception text (KDD-OB24's whole reason, refused one layer
+earlier).
+
+**KDD-OB27 -- The environment is the config overlay's business.**
+The reference constructed its retry policy from three `ZEF_OTEL_*`
+environment variables, read statically inside the drain itself;
+the port carries the fold the tracing core already made: the knobs
+are configuration, read strictly over the layered builder's
+`observability.export` subtree with the environment overlay
+included, and the engine never reads the environment. The
+composition seam is the one place the two meet, exactly as every
+other family's knobs already met it there.
+
 ## Legacy attribution
 
 The reference implementation is the GitLab snapshot `zeflous/zef`
@@ -340,6 +446,26 @@ void-context echo refusal (KDD-OB16), the double fail-closed knobs
 lands (the same sequencing the in-memory exporter's facade consumer
 took) -- follow this repository's own family discipline, not the
 reference's monolithic arrival order.
+
+The export family's reference is the GitHub archive
+`zeflous/zef-framework-src`'s evolved observability lane
+(`Application/Observability/TelemetrySanitizer.php` -- the UTF-8
+scrub, the NaN/INF string forms, the P-21 pair-redaction widening;
+`Infrastructure/Observability/OtlpHttpJsonExporter.php`,
+`OtlpJsonPayloadEncoder.php`, `OtlpExporterFactory.php`,
+`OtlpExporterException.php` -- the signal-path suffix rule, the
+scoped transport-error capture, the answer triage, the idempotent
+shutdown, the endpoint validation and the resource map) and the
+same GitLab snapshot's `Application/Observability/
+BatchSpanProcessor.php` retry lane with its `RetryBackoffPolicy`.
+The port deviations -- the span lane alone (the metrics and logs
+contracts belong to the campaign's metrics family, the exporter
+widens when they arrive), the environment fold into the config
+overlay (KDD-OB27), the retry default inverted to zero
+(KDD-OB22), the sleeper seam under the wait (KDD-OB25), the pair
+grammar's structural separators and the signal path's query fold
+(KDD-OB24) -- follow this repository's own family discipline, not
+the reference's arrival shape.
 
 The tracing core's reference is the same snapshot's
 `Domain/Observability` hexagon (`SpanContext`, `SpanData`,

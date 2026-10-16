@@ -31,11 +31,13 @@ use Zef\Framework\Telemetry\TracerInterface;
  * or multi-value header degrades to one line the extractor's
  * grammar judges; the extraction's null (no parent, or a parent
  * the W3C grammar refuses) mints a fresh trace, which is the
- * honest answer to both. The failure's record is verbatim -- the
- * exception's type and message as given -- because the hygiene
- * lane that will sanitise these recording points is a later family
- * in the campaign, and recording what was given is the honest
- * contract until it lands.
+ * honest answer to both. The failure's record is bounded by the
+ * hygiene lane that has landed on the recording points the span
+ * owns ({@see \Zef\Framework\Telemetry\TelemetrySanitizer}): the
+ * exception's type and message as given, the message clamped to
+ * its own payload budget -- the verbatim era the correlation
+ * family's own roadmap row documented is over, exactly on the
+ * schedule it named.
  */
 final readonly class CorrelationRequestSpan
 {
@@ -106,8 +108,10 @@ final readonly class CorrelationRequestSpan
 
     /**
      * The failure's record: the error status with the exception's
-     * type as its description, and the exception event -- verbatim,
-     * the hygiene lane that will sanitise it being a later family.
+     * type as its description, and the exception event -- the
+     * message clamped to its own payload budget by the hygiene
+     * census the recording points read, so an over-long failure
+     * text is bounded before it ever reaches a queue.
      */
     public function recordFailure(Throwable $throwable): void
     {

@@ -84,6 +84,53 @@ final class CorrelationFactoryTest extends TestCase
         self::assertContains('zef.http.request', $names, "the boundary's spans drain through the given tracer");
     }
 
+    public function testTheFactoryArmsTheDrainCadenceFromTheExportSubtree(): void
+    {
+        // The drain cadence is the export family's knob, read on the
+        // correlation boundary's own construction seam: an armed
+        // flush_per_request answers the request with the queue
+        // already drained -- no later flush, the middleware's own
+        // finally did the work.
+        $middleware = CorrelationFactory::fromConfig(
+            new Config([
+                'observability' => [
+                    'correlation' => ['enabled' => true],
+                    'export' => ['flush_per_request' => true],
+                ],
+            ]),
+            $this->tracer(true),
+        );
+
+        $middleware->process($this->request(), new FixedResponseHandler(new Response(200)));
+
+        self::assertCount(
+            1,
+            $this->inMemorySpanExporter->spans(),
+            'the request boundary itself drained the span -- the cadence the export family armed',
+        );
+    }
+
+    public function testTheFactoryLeavesTheAbsentCadenceToTheDeployment(): void
+    {
+        $middleware = CorrelationFactory::fromConfig(
+            new Config([
+                'observability' => [
+                    'correlation' => ['enabled' => true],
+                    'export' => ['flush_per_request' => false],
+                ],
+            ]),
+            $this->tracer(true),
+        );
+
+        $middleware->process($this->request(), new FixedResponseHandler(new Response(200)));
+
+        self::assertSame(
+            [],
+            $this->inMemorySpanExporter->spans(),
+            'the absent cadence ships the drain OFF -- the queue holds the span for the deployment own drain',
+        );
+    }
+
     public function testTheFactoryBuildsTheFailClosedArmFromTheAbsentFamily(): void
     {
         $middleware = CorrelationFactory::fromConfig(new Config([]), $this->tracer(false));
@@ -111,7 +158,7 @@ final class CorrelationFactoryTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 "The observability configuration carries the unknown family 'correlaton'"
-                . ' (known families: timing, tracing, correlation).',
+                . ' (known families: timing, tracing, correlation, export).',
                 $httpException->getMessage(),
             );
         }

@@ -61,4 +61,17 @@ final class NoopSpanTest extends TestCase
 
         self::assertSame(NoopSpan::instance(), $span);
     }
+
+    public function testTheVoidTracersFlushDrainsNothingAndTouchesNothing(): void
+    {
+        // The drain face the export family lands reaches the void
+        // tracer too -- the queue it would drain is empty by
+        // construction, so the call is the no-op the interface's
+        // own contract spells, and no double exists to observe.
+        $noopTracer = new NoopTracer();
+
+        $noopTracer->flush();
+
+        self::addToAssertionCount(1);
+    }
 }

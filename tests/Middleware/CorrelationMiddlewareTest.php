@@ -339,7 +339,7 @@ final class CorrelationMiddlewareTest extends TestCase
         self::assertNotNull($record->events[0] ?? null, 'the failure is an event on the span');
     }
 
-    public function testTheFailedSpanCarriesTheExceptionEventVerbatim(): void
+    public function testTheFailedSpanCarriesTheExceptionEventClampedByTheHygieneCensus(): void
     {
         try {
             $this->middleware(enabled: true, echo: false)->process(
@@ -358,6 +358,84 @@ final class CorrelationMiddlewareTest extends TestCase
         self::assertSame('exception', $event['name']);
         self::assertSame(RuntimeException::class, $event['attributes']['exception.type']);
         self::assertSame('boom-message', $event['attributes']['exception.message']);
+    }
+
+    public function testAnOverLongFailureMessageIsBoundedBeforeTheQueue(): void
+    {
+        // The verbatim era the correlation family's own roadmap row
+        // documented is over: the recording points the request span
+        // writes through clamp every value to its payload budget,
+        // so a failure text the handler spelled with three thousand
+        // bytes arrives at the queue already bounded.
+        try {
+            $this->middleware(enabled: true, echo: false)->process(
+                $this->request(self::PARENT_TRACEPARENT),
+                new ThrowingHandler(new RuntimeException(str_repeat('x', 3000))),
+            );
+        } catch (RuntimeException) {
+            self::addToAssertionCount(1);
+        }
+
+        $this->flush();
+
+        $event = $this->theRequestRecord()->events[0] ?? null;
+        self::assertNotNull($event);
+        self::assertSame(
+            str_repeat('x', 2045) . '…',
+            $event['attributes']['exception.message'],
+            'the failure message answers the recording points own budget',
+        );
+    }
+
+    public function testTheFlushPerRequestCadenceDrainsAtTheRequestsOwnEnd(): void
+    {
+        // The drain cadence is the export family's third fail-closed
+        // knob, and the boundary is the one place it lands: an armed
+        // cadence flushes the tracer at the request's own end, in the
+        // finally that closes the span -- the delivery's own latency
+        // inside the request path is the deployment's decision, and
+        // this test spells it with the drain already observed, not
+        // the later manual flush the other tests read.
+        $correlationMiddleware = new CorrelationMiddleware(
+            CorrelationPolicy::fromMap(['enabled' => true, 'echo_traceparent' => false]),
+            $this->armedTracer(),
+            flushPerRequest: true,
+        );
+
+        $correlationMiddleware->process(
+            $this->request(self::PARENT_TRACEPARENT),
+            new FixedResponseHandler(new Response(200)),
+        );
+
+        self::assertCount(
+            1,
+            $this->inMemorySpanExporter->spans(),
+            'the request its own end already drained -- no later flush was called',
+        );
+    }
+
+    public function testTheShippedCadenceLeavesTheDrainToTheDeployment(): void
+    {
+        // The two-argument construction the family's own shipped
+        // posture spells: the cadence knob's default is the OFF the
+        // export family declared, so the span sits in the queue and
+        // the drain belongs to the deployment -- never to a default
+        // the boundary took on the host's behalf.
+        $correlationMiddleware = new CorrelationMiddleware(
+            CorrelationPolicy::fromMap(['enabled' => true, 'echo_traceparent' => false]),
+            $this->armedTracer(),
+        );
+
+        $correlationMiddleware->process(
+            $this->request(self::PARENT_TRACEPARENT),
+            new FixedResponseHandler(new Response(200)),
+        );
+
+        self::assertSame(
+            [],
+            $this->inMemorySpanExporter->spans(),
+            'the shipped cadence holds the span in the queue -- the drain is the deployments own',
+        );
     }
 
     public function testTheSpanEndsExactlyOnceEitherWay(): void
