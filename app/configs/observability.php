@@ -96,6 +96,65 @@ declare(strict_types=1);
  *       The largest batch one delivery call carries: the queue
  *       drains in slices of at most this many completed spans.
  *
+ * The `export` family -- the OTLP delivery lane (`observability.export`,
+ * no service of its own: the family swaps the tracing service's sink
+ * and arms its retry posture, and the drain cadence rides the
+ * correlation boundary that owns the request span):
+ *
+ *   'enabled'                   (bool, default false)
+ *       The family's arm. OFF by default: the in-memory sink is the
+ *       honest default a deployment without a collector declaration
+ *       gets, and the second decision in the campaign's fail-closed
+ *       chain -- the collection arms (tracing), then the lane arms
+ *       (export), then the cadence arms (flush_per_request): three
+ *       decisions, three knobs, none taken on the host's behalf.
+ *       An ARMED family requires a usable endpoint and a non-empty
+ *       service name -- the resolution halts with the remediation
+ *       spelled out otherwise (the CSRF family's fail-loud
+ *       lineage).
+ *
+ *   'endpoint'                  (string, default '')
+ *       The collector's absolute HTTP/HTTPS URL (the `/v1/traces`
+ *       signal path is appended unless the endpoint already names
+ *       it). Validated when the family is armed: relative URLs,
+ *       wrong schemes and embedded credentials
+ *       (https://user:pass@collector) are each a named halt -- the
+ *       last because the transport's own failure diagnostics would
+ *       echo the credentials into exception text.
+ *
+ *   'timeout_ms'                (int, default 500, 1..10000)
+ *       One delivery exchange's own wait.
+ *
+ *   'service_name'              (string, default 'zef-application')
+ *       The resource block's service identity -- the one attribute
+ *       every collector groups by. Non-empty when the family is
+ *       armed.
+ *
+ *   'max_retries'               (int, default 0, 0..10)
+ *       The retry lane's additional attempts per failed batch --
+ *       a transient failure (a refused connection, a timed-out
+ *       exchange, a collector's 5xx) earns them, a permanent
+ *       rejection (a 4xx) earns none. ZERO by default: the
+ *       one-attempt posture the bounded queue already implied, the
+ *       shipped posture a deployment that wants a retrying lane
+ *       writes explicitly -- a blocking backoff in the drain is a
+ *       latency posture the deployment decides on.
+ *
+ *   'retry_delay_ms'            (int, default 100, 0..10000)
+ *       The first retry's wait, in milliseconds.
+ *
+ *   'retry_delay_cap_ms'        (int, default 1000, 0..60000)
+ *       The wait's cap -- the exponential doubling clamps here.
+ *       Never below the initial delay (the halt is knob-named).
+ *
+ *   'flush_per_request'         (bool, default false)
+ *       The drain cadence: when armed, the correlation boundary
+ *       flushes the completed-span queue after the request span
+ *       ends -- the span's record joins the queue first, the
+ *       delivery fires second. OFF by default because a per-request
+ *       flush puts the delivery's own latency inside the request
+ *       path.
+ *
  * Environment overlay spelling (prefix + `__` as the dot, values
  * strictly typed): APP_OBSERVABILITY__TIMING__ENABLED=1,
  * APP_OBSERVABILITY__TIMING__EMIT_HEADER=on,
@@ -103,7 +162,15 @@ declare(strict_types=1);
  * APP_OBSERVABILITY__TRACING__MAX_QUEUE=512,
  * APP_OBSERVABILITY__TRACING__BATCH_SIZE=64,
  * APP_OBSERVABILITY__CORRELATION__ENABLED=on,
- * APP_OBSERVABILITY__CORRELATION__ECHO_TRACEPARENT=1.
+ * APP_OBSERVABILITY__CORRELATION__ECHO_TRACEPARENT=1,
+ * APP_OBSERVABILITY__EXPORT__ENABLED=1,
+ * APP_OBSERVABILITY__EXPORT__ENDPOINT=http://collector:4318,
+ * APP_OBSERVABILITY__EXPORT__TIMEOUT_MS=250,
+ * APP_OBSERVABILITY__EXPORT__SERVICE_NAME=my-service,
+ * APP_OBSERVABILITY__EXPORT__MAX_RETRIES=3,
+ * APP_OBSERVABILITY__EXPORT__RETRY_DELAY_MS=50,
+ * APP_OBSERVABILITY__EXPORT__RETRY_DELAY_CAP_MS=2000,
+ * APP_OBSERVABILITY__EXPORT__FLUSH_PER_REQUEST=on.
  *
  * The shipped profile declares no overrides -- the defaults are the
  * posture -- and an application fills this file with the knobs it

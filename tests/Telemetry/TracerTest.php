@@ -136,6 +136,24 @@ final class TracerTest extends TestCase
         self::assertSame(0, $this->steppingTelemetryClock->wallReadCount(), 'a disarmed family never opens a timeline');
     }
 
+    public function testTheFlushDrainsThroughTheProcessorsOwnFace(): void
+    {
+        $tracer = $this->tracer();
+
+        $tracer->startSpan('request')->end();
+
+        $queuedBeforeFlush = \count($this->inMemorySpanExporter->spans());
+        self::assertSame(0, $queuedBeforeFlush, 'the ended span sits in the queue, undelivered');
+
+        $tracer->flush();
+
+        self::assertSame(
+            'request',
+            $this->inMemorySpanExporter->spans()[0]->name,
+            'the drain face the export family lands delivers the queue',
+        );
+    }
+
     public function testTheDefaultArmIsEnabled(): void
     {
         $tracer = new Tracer($this->batchSpanProcessor, $this->steppingTelemetryClock);

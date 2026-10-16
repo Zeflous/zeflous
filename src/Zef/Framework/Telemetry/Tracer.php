@@ -29,11 +29,20 @@ use Override;
  * exactly as the security families' inert middlewares are
  * pass-throughs rather than absent.
  *
+ * The drain face ({@see self::flush()}) is the engine-level
+ * delegation the export family's cadence reads: the tracer owns
+ * the processor, so draining the collection is one call through
+ * the face the callers already hold -- the request boundary's
+ * flush-per-request knob and the facade the campaign's later
+ * family lands both read it here, never the processor directly.
+ *
  * Ported from the reference implementation (legacy `zef-main`
  * `Application/Observability/Tracer.php`): the minting, the parent
  * inheritance and the disabled path move verbatim; the clock moves
  * from static reads into the injected seam the span's whole
- * timeline reads ({@see TelemetryClockInterface}).
+ * timeline reads ({@see TelemetryClockInterface}), and the drain
+ * face moves from the reference's facade into the tracer the
+ * boundary holds.
  */
 final readonly class Tracer implements TracerInterface
 {
@@ -72,5 +81,11 @@ final readonly class Tracer implements TracerInterface
             $this->batchSpanProcessor->onEnd(...),
             $attributes,
         );
+    }
+
+    #[Override]
+    public function flush(): void
+    {
+        $this->batchSpanProcessor->flush();
     }
 }

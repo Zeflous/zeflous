@@ -189,6 +189,32 @@
         // census's own fold in CorrelationRedaction::isSensitiveKey
         // stays under the mutator for the same reason -- the
         // kelvin-sign spelling test kills it.
+        //
+        // The export family adds two sites of the same two classes.
+        // The clamp's byte accounting in TelemetrySanitizer::string()
+        // spells mb_strlen($x, '8bit') -- the '8bit' encoding IS byte
+        // semantics, the BodyBudget class above already proved, and
+        // strlen answers the identical count for every input; the
+        // neighbouring mb_strcut call stays under the mutator where
+        // applicable: it is not an MBString target. The scheme fold in
+        // ExportPolicy::assertUsableEndpoint() is guarded by the URL
+        // grammar's own construction: parse_url's scheme component
+        // accepts ASCII letters, digits and the two separators only
+        // (the RFC 3986 grammar the parser carries), so a
+        // fold-divergent scheme -- one whose bytes include a non-ASCII
+        // character whose Unicode fold lands in ASCII, the kelvin sign
+        // or the Turkish dotted capital -- cannot parse as a scheme at
+        // all, and the absolute-URL refusal ahead of the fold rejects
+        // it before either spelling of the fold ever reads it. Every
+        // scheme the fold can see is pure ASCII, and the two folds
+        // agree on every ASCII letter. The neighbouring parse_url and
+        // isset calls stay under the mutator: they are not MBString
+        // targets.
+        //
+        // The scheme fold ignore above follows its method's own move:
+        // the seam landed in ExportPolicy and the archaeology gate's
+        // split moved it whole into ExportBounds -- the grammar's
+        // argument is the method's own, wherever it lives.
         "MBString": {
             "ignore": [
                 "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
@@ -197,6 +223,8 @@
                 "Zef\\Framework\\Http\\CsrfMiddleware::enforce",
                 "Zef\\Framework\\Http\\CsrfSameSite::read",
                 "Zef\\Framework\\Http\\ETagMiddleware::applyConditionalGet",
+                "Zef\\Framework\\Http\\ExportBounds::assertUsableEndpoint",
+                "Zef\\Framework\\Http\\ExportPolicy::assertUsableEndpoint",
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
                 "Zef\\Framework\\Http\\RateLimitStores::read",
                 "Zef\\Framework\\Http\\StrictToggles::read",
@@ -207,6 +235,7 @@
                 "Zef\\Framework\\Telemetry\\CorrelationIdentity::validateTraceState",
                 "Zef\\Framework\\Telemetry\\CorrelationInboundPair::acceptedLine",
                 "Zef\\Framework\\Telemetry\\CorrelationInboundPair::identityFromLine",
+                "Zef\\Framework\\Telemetry\\TelemetrySanitizer::string",
                 "Zef\\Framework\\Telemetry\\TraceContextPropagator::extract"
             ],
             "ignoreSourceCodeByRegex": [
@@ -273,12 +302,30 @@
         // literal lives on the constant's declaration line, not this
         // one, so the exact-span matrix keeps it under this mutator.
         // This ignore is scoped to that single source line.
+        //
+        // The default retry policy's delay cap in
+        // BatchSpanProcessor::__construct() is the next integer the
+        // increment can rewrite without any observable difference,
+        // and the reachability is the whole reason: the shipped
+        // default policy is the zero-retry posture, so shouldRetry()
+        // answers false for every index a failed attempt can carry,
+        // the drain breaks before delayMs() is ever consulted, and no
+        // default-constructed processor can read the ceiling at all
+        // -- the composition seam wires the deployment's own policy
+        // explicitly, and the suite's retry tests construct theirs
+        // (verified by running the full suite under the manually
+        // applied mutation -- the complete suite passes). The
+        // neighbouring queue and batch bounds stay under the mutator:
+        // the default-bounds test kills those. This ignore is scoped
+        // to that single source line.
         "IncrementInteger": {
             "ignoreSourceCodeByRegex": [
                 "\\$matchStart = \\$match\\[0\\]\\[1\\];",
                 "\\[\\$body, \\$signature\\] = array_pad\\(\\$parts, 2, ''\\);",
                 "\\[\\$key, \\$value\\] = array_pad\\(explode\\('=', mb_trim\\(\\$pair\\), 2\\), 2, ''\\);",
-                "\\$milliseconds = max\\(0, \\$elapsedNs\\) / self::NANOSECONDS_PER_MILLISECOND;"
+                "\\$milliseconds = max\\(0, \\$elapsedNs\\) / self::NANOSECONDS_PER_MILLISECOND;",
+                "private readonly RetryBackoffPolicy \\$retryBackoffPolicy = new RetryBackoffPolicy\\(0, 0, 0\\),",
+                "RetryBackoffPolicy \\$retryBackoffPolicy = new RetryBackoffPolicy\\(0, 0, 0\\),"
             ]
         },
         // The scan resume's capture read in RedactedMessage::of() is the
@@ -310,9 +357,21 @@
         // still rejected, shared dependencies still accepted). The throw
         // and the recursion in the same method stay under their mutators:
         // tests kill those. This ignore is scoped to that single method.
+        //
+        // The valid-encoding early return in
+        // TelemetrySanitizer::scrubbed() is the same class of guard:
+        // mb_scrub() over a string that already carries valid UTF-8
+        // answers the identical bytes, so the fallthrough recomputes
+        // the same value the early return carried (verified by running
+        // the full suite under the manually applied mutation -- the
+        // complete suite passes, the invalid-byte scrub still lands).
+        // The early return is a performance guard on the hot clamp
+        // path, never a correctness branch. This ignore is scoped to
+        // that single method.
         "ReturnRemoval": {
             "ignore": [
-                "Zef\\Framework\\Container\\ServiceDefinitionGraph::visit"
+                "Zef\\Framework\\Container\\ServiceDefinitionGraph::visit",
+                "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed"
             ]
         },
         // The correlation pair's tolerant extraction is a chain of
