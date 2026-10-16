@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zef\Test;
+namespace Zef\Test\Http;
 
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
