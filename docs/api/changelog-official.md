@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(telemetry\): the tracing core, config-driven [\#366](https://github.com/Zeflous/zeflous/pull/366) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the timing family to pull request 362 [\#363](https://github.com/Zeflous/zeflous/pull/363) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the timing family, config-driven [\#362](https://github.com/Zeflous/zeflous/pull/362) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the auth family to pull request 357 [\#358](https://github.com/Zeflous/zeflous/pull/358) ([mbetixz](https://github.com/mbetixz))
