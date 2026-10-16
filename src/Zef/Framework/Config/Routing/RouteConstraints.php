@@ -18,11 +18,14 @@ use Zef\Framework\Config\ConfigException;
  * Radix Tree" -- constraint validation happens "saat registrasi, bukan
  * saat runtime").
  *
- * Each pattern is stored fully anchored (`^(?:pattern)$`): a constraint
+ * Each pattern is stored fully anchored (`^(?:pattern)\z`): a constraint
  * matches a whole captured segment or it does not match at all, so
- * `[0-9]+` never lets `12a` through. At match time {@see self::check()}
- * is the single seam -- one anchored `preg_match` per captured value, and
- * `true` when the parameter carries no constraint at all.
+ * `[0-9]+` never lets `12a` through -- and never lets `12\n` through
+ * either, the one value a `$` anchor would wave past itself (a `$`
+ * matches before a trailing newline, an end the captured value did
+ * not reach). At match time {@see self::check()} is the single seam
+ * -- one anchored `preg_match` per captured value, and `true` when
+ * the parameter carries no constraint at all.
  *
  * @api
  */
@@ -56,7 +59,7 @@ final readonly class RouteConstraints
                 );
             }
 
-            $anchored = '/^(?:' . $pattern . ')$/';
+            $anchored = '/^(?:' . $pattern . ')\z/';
 
             if (!self::isCompilable($anchored)) {
                 throw new ConfigException(
