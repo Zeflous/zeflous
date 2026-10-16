@@ -29,13 +29,18 @@ use InvalidArgumentException;
  *
  * Ported from the reference implementation (legacy `zef-main`
  * `Framework/Observability/CorrelationContext.php`): the four
- * identity validators, the `tracestate` member grammar, the
- * `traceparent` render, the separator-inclusive accounting and the
- * hard wire ceiling move verbatim, in the identity's own class --
- * with the port's one deviation, the dropped empty-tracestate
- * guard, which the port's own mutation campaign proved
- * unreachable-in-effect: the member grammar refuses the empty
- * companion with the same refusal.
+ * identity validators, the `traceparent` render, the
+ * separator-inclusive accounting and the hard wire ceiling move
+ * verbatim, in the identity's own class -- with the port's recorded
+ * deviations: the dropped empty-tracestate guard, which the port's
+ * own mutation campaign proved unreachable-in-effect (the member
+ * grammar refuses the empty companion with the same refusal), and
+ * the member grammar itself, replaced with the spec's own ABNF after
+ * the audit proved the reference's approximation refuses W3C-valid
+ * lines outright (the multi-tenant `tenant@system` keys, the `> \ { }`
+ * value characters, the spaces a value may carry) while accepting
+ * lines the spec forbids (a digit-headed simple key, an empty value,
+ * an equals inside a value, a trailing newline past a `$` anchor).
  */
 final readonly class CorrelationIdentity
 {
@@ -49,14 +54,37 @@ final readonly class CorrelationIdentity
     public const int MAX_TRACESTATE_BYTES = 512;
 
     /**
-     * The W3C `tracestate` grammar: a list of `key=value` members,
-     * the keys lowercase vendor-prefixed identifiers, the values
-     * printable ASCII without the separators, the members joined by
-     * an optional space after the comma.
+     * The W3C `tracestate` key grammar: the simple key (a lowercase
+     * identifier up to 256 characters) or the multi-tenant key -- the
+     * tenant id up to 241 characters, the `@`, the system id up to 14
+     * -- the form a tenant-partitioned tracing system's entries ride
+     * under (`tenant@system=value`), which the vendor-key-only
+     * approximation the reference shipped refused outright.
+     */
+    private const string TRACESTATE_KEY
+        = '(?:[a-z0-9][a-z0-9_\-*\/]{0,240}@[a-z][a-z0-9_\-*\/]{0,13}|[a-z][a-z0-9_\-*\/]{0,255})';
+
+    /**
+     * The W3C `tracestate` value grammar: up to 255 characters of the
+     * printable set plus the space, closed by one non-space character
+     * -- the whole printable ASCII range minus the comma and the
+     * equals (the separators), `> \ { }` included, spaces allowed
+     * anywhere but the tail.
+     */
+    private const string TRACESTATE_VALUE
+        = '[\x20\x21-\x2B\x2D-\x3C\x3E-\x7E]{0,255}[\x21-\x2B\x2D-\x3C\x3E-\x7E]';
+
+    /**
+     * The W3C `tracestate` grammar: up to 32 `key=value` members, the
+     * members joined by optional whitespace around the comma (spaces
+     * and tabs both), the whole line anchored at the absolute start
+     * and end (`\z`, never a `$` that would wave a trailing newline
+     * past itself) -- the list the spec's own ABNF spells, not the
+     * approximation the reference shipped.
      */
     private const string TRACESTATE_GRAMMAR
-        = '/^[a-z0-9][_a-z0-9\-*\/]{0,255}=[!#$%&\x27*+\-.\/0-9:<=>?@A-Z\^_`a-z|~]*'
-        . '(?:, ?[a-z0-9][_a-z0-9\-*\/]{0,255}=[!#$%&\x27*+\-.\/0-9:<=>?@A-Z\^_`a-z|~]*)*$/';
+        = '/^(?:' . self::TRACESTATE_KEY . '=' . self::TRACESTATE_VALUE . ')'
+        . '(?:[ \t]*,[ \t]*(?:' . self::TRACESTATE_KEY . '=' . self::TRACESTATE_VALUE . ')){0,31}\z/';
 
     /**
      * @param string      $traceId    32 lowercase hex characters

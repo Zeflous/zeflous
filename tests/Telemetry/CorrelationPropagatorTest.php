@@ -76,7 +76,11 @@ final class CorrelationPropagatorTest extends TestCase
 
     public function testExtractsTheCompanionAtItsCeiling(): void
     {
-        $atCeiling = 'k=' . str_repeat('a', CorrelationIdentity::MAX_TRACESTATE_BYTES - 2);
+        // Two members, not one: the spec's own value bound (256
+        // characters per member) caps a single member under the
+        // companion's 512-byte ceiling, so the ceiling is reached as
+        // a list -- the way the wire reaches it.
+        $atCeiling = 'k=' . str_repeat('a', 254) . ',k=' . str_repeat('a', 253);
 
         $context = CorrelationPropagator::extract(self::TRACE_PARENT, $atCeiling, 'orders.create');
 
