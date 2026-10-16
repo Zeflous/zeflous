@@ -79,14 +79,14 @@ final readonly class TimingMiddleware implements MiddlewareInterface
 
     #[Override]
     public function process(
-        ServerRequestInterface $serverRequest,
-        RequestHandlerInterface $requestHandler,
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler,
     ): ResponseInterface {
         if (!$this->timingPolicy->enabled || !$this->timingPolicy->emitHeader) {
-            return $requestHandler->handle($serverRequest);
+            return $handler->handle($request);
         }
 
-        return $this->measured($serverRequest, $requestHandler);
+        return $this->measured($request, $handler);
     }
 
     /**
@@ -95,11 +95,11 @@ final readonly class TimingMiddleware implements MiddlewareInterface
      * as the response-time header.
      */
     private function measured(
-        ServerRequestInterface $serverRequest,
-        RequestHandlerInterface $requestHandler,
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler,
     ): ResponseInterface {
         $startNs = ($this->nowNs)();
-        $response = $requestHandler->handle($serverRequest);
+        $response = $handler->handle($request);
 
         $message = $response->withHeader(
             ResponseTime::HEADER,
