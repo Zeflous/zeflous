@@ -19,10 +19,13 @@ use Zef\Framework\Http\RateLimitMiddleware;
 use Zef\Framework\Http\RateLimitPolicy;
 use Zef\Framework\Http\RequestFactory;
 use Zef\Framework\Http\Response;
+use Zef\Framework\Http\ResponseTime;
 use Zef\Framework\Http\SecurityHeadersMiddleware;
 use Zef\Framework\Http\SecurityHeadersPolicy;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\StaticCredentialProvider;
+use Zef\Framework\Http\TimingMiddleware;
+use Zef\Framework\Http\TimingPolicy;
 use Zef\Framework\Http\Uri;
 use Zef\Test\Support\Http\FixedResponseHandler;
 
@@ -61,6 +64,8 @@ final readonly class HttpHotPathBench
     private AuthMiddleware $authMiddleware;
 
     private ServerRequest $authServerRequest;
+
+    private TimingMiddleware $timingMiddleware;
 
     private ServerRequest $serverRequest;
 
@@ -130,6 +135,10 @@ final readonly class HttpHotPathBench
         ;
         \assert($authServerRequest instanceof ServerRequest);
         $this->authServerRequest = $authServerRequest;
+        $this->timingMiddleware = new TimingMiddleware(
+            new TimingPolicy(emitHeader: true),
+            static fn (): int => 1725168000000000000,
+        );
         $this->serverRequest = new ServerRequest('GET', $this->uri);
         $this->fixedResponseHandler = new FixedResponseHandler($this->response);
 
@@ -249,6 +258,19 @@ final readonly class HttpHotPathBench
             || $response->hasHeader('WWW-Authenticate')
         ) {
             throw new InvariantViolationException('The bearer boundary must admit the table token.');
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchATimedRequestMeasuresAndStampsTheHeader(): void
+    {
+        $response = $this->timingMiddleware->process($this->serverRequest, $this->fixedResponseHandler);
+
+        if (
+            $response->getStatusCode() !== 200
+            || $response->getHeaderLine(ResponseTime::HEADER) !== '0.00ms'
+        ) {
+            throw new InvariantViolationException('The timing boundary must stamp the measured span.');
         }
     }
 }
