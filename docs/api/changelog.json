@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-16T01:46:48Z",
+  "as_of": "2026-10-16T09:32:12Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 154,
+  "unreleased_count": 156,
   "versions": [
     {
       "version": "Unreleased",
@@ -1246,6 +1246,27 @@
                 "sha": "e6d02f24f5075bf2c74e4310e43c5c23f52d7915",
                 "short_sha": "e6d02f2",
                 "subject": "fix(http): keep the timing family's process face on the interface's names"
+              }
+            ]
+          },
+          {
+            "pr": 366,
+            "title": "feat(telemetry): the tracing core, config-driven",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-16T09:21:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/366",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "80d68d5f24dca63754c974d0477cbfa021b3618a",
+                "short_sha": "80d68d5",
+                "subject": "feat(telemetry): the tracing core, config-driven"
+              },
+              {
+                "sha": "b8338781e800311665b4d3baa1e1f88cfaf0eff1",
+                "short_sha": "b833878",
+                "subject": "fix(telemetry): the tracing core's coverage metadata and the fold's unicode pin"
               }
             ]
           }
@@ -3814,6 +3835,22 @@
                 "sha": "41070764a0de622966d19d9fa0600e22c9650567",
                 "short_sha": "4107076",
                 "subject": "docs(roadmap): pin the timing family to pull request 362"
+              }
+            ]
+          },
+          {
+            "pr": 367,
+            "title": "docs(roadmap): pin the tracing core to pull request 366",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-16T09:32:12Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/367",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cae475f713284fdd5a4579fb671fd0555861cc5f",
+                "short_sha": "cae475f",
+                "subject": "docs(roadmap): pin the tracing core to pull request 366"
               }
             ]
           }
@@ -7891,6 +7928,43 @@
               "sha": "41070764a0de622966d19d9fa0600e22c9650567",
               "short_sha": "4107076",
               "subject": "docs(roadmap): pin the timing family to pull request 362"
+            }
+          ]
+        },
+        {
+          "pr": 366,
+          "title": "feat(telemetry): the tracing core, config-driven",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-16T09:21:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/366",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "80d68d5f24dca63754c974d0477cbfa021b3618a",
+              "short_sha": "80d68d5",
+              "subject": "feat(telemetry): the tracing core, config-driven"
+            },
+            {
+              "sha": "b8338781e800311665b4d3baa1e1f88cfaf0eff1",
+              "short_sha": "b833878",
+              "subject": "fix(telemetry): the tracing core's coverage metadata and the fold's unicode pin"
+            }
+          ]
+        },
+        {
+          "pr": 367,
+          "title": "docs(roadmap): pin the tracing core to pull request 366",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-16T09:32:12Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/367",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cae475f713284fdd5a4579fb671fd0555861cc5f",
+              "short_sha": "cae475f",
+              "subject": "docs(roadmap): pin the tracing core to pull request 366"
             }
           ]
         }
