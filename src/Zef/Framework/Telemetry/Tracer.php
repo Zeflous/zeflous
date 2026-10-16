@@ -1,0 +1,76 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zef\Framework\Telemetry;
+
+use Override;
+
+/**
+ * The live tracer: the tracing core's entry point -- it mints the
+ * span's identity, wires the processor's handoff into the span it
+ * opens, and owns the family's arm.
+ *
+ * Identity minting follows the W3C trace-context shape: a fresh trace
+ * id is 16 random bytes (32 hex characters), a span id is 8 random
+ * bytes (16 hex characters), and a span opened under a parent
+ * context inherits the parent's trace id -- the parent's own span id
+ * stays in the parent, and the child's {@see SpanData} carries the
+ * parent context whole. A child span is always minted sampled: the
+ * reference had no sampler, and the sampling decision the
+ * trace-context's flag carries is the propagation lane's question (a
+ * later family in this campaign), not the minting's.
+ *
+ * The arm ({@see self::$enabled}) is the family's fail-closed
+ * posture: a disabled tracer answers the void span ({@see
+ * NoopSpan}) for every {@see TracerInterface::startSpan()} call --
+ * no identity minted, no clock read, no allocation beyond the
+ * singleton -- and the caller's code path is identical either way,
+ * exactly as the security families' inert middlewares are
+ * pass-throughs rather than absent.
+ *
+ * Ported from the reference implementation (legacy `zef-main`
+ * `Application/Observability/Tracer.php`): the minting, the parent
+ * inheritance and the disabled path move verbatim; the clock moves
+ * from static reads into the injected seam the span's whole
+ * timeline reads ({@see TelemetryClockInterface}).
+ */
+final readonly class Tracer implements TracerInterface
+{
+    /**
+     * @param BatchSpanProcessor      $batchSpanProcessor the completed-span queue
+     *                                                    the spans' records drain
+     *                                                    through
+     * @param TelemetryClockInterface $telemetryClock     the seam every span's
+     *                                                    timeline reads
+     * @param bool                    $enabled            the family's arm -- false
+     *                                                    answers the void span
+     */
+    public function __construct(
+        private BatchSpanProcessor $batchSpanProcessor,
+        private TelemetryClockInterface $telemetryClock,
+        private bool $enabled = true,
+    ) {
+    }
+
+    #[Override]
+    public function startSpan(string $name, array $attributes = [], ?SpanContext $spanContext = null): SpanInterface
+    {
+        if (!$this->enabled) {
+            return NoopSpan::instance();
+        }
+
+        $traceId = $spanContext->traceId ?? bin2hex(random_bytes(16));
+        $spanId = bin2hex(random_bytes(8));
+        $context = new SpanContext($traceId, $spanId, true);
+
+        return new Span(
+            $name,
+            $context,
+            $spanContext,
+            $this->telemetryClock,
+            $this->batchSpanProcessor->onEnd(...),
+            $attributes,
+        );
+    }
+}

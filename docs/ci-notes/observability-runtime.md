@@ -18,14 +18,16 @@ The work log of this lane's PRs:
 | PR | Scope |
 |----|-------|
 | R1 | The timing family: `TimingMiddleware` (the HTTP layer's ninth PSR-15 middleware -- the response-time boundary), `TimingPolicy`/`TimingKnobs`/`ObservabilityFamilies` (the family's own strict reading over the shared census, widened to the full dotted path), `ResponseTime` (the `%.2fms` shape value object), `TimingClock` (the monotonic seam), the `TimingFactory` construction seam, the framework profile's fifth registration and first `observability.*` knob block, the shipped `app/configs/observability.php` override surface, the `HttpHotPathBench` timed-request subject |
+| R2 | The tracing core: the `Telemetry` layer's own thirteen classes (`SpanContext`/`SpanData` the W3C value objects, `SpanInterface`/`TracerInterface`/`SpanExporterInterface`/`TelemetryClockInterface` the contracts, `Span`/`Tracer` the live engine, `NoopSpan`/`NoopTracer` the void path, `BatchSpanProcessor` the bounded queue, `InMemorySpanExporter` the in-process sink, `TelemetryClock` the system clock), `TracingPolicy`/`TracingKnobs` (the family's strict reading, the campaign's second family in the census), the `TracingFactory` construction seam, the framework profile's sixth registration, the `TelemetrySpanBench` span-lifecycle subject |
 
 The remaining families, in the order the reference's hexagon surfaces
-them: the tracing core (the `TracerInterface`/`SpanInterface` family
-with the W3C trace-context value objects), the correlation lane (the
-`CorrelationContext`/`CorrelationHeaders` propagation pair), the
-telemetry hygiene and OTLP export lane (the sanitizer, the JSON payload
-encoder, the HTTP exporter with its retry policy), and the metrics and
-health lane (the `MeterInterface`/`CounterMeter` pair, the Prometheus
+them: the correlation lane (the `CorrelationContext`/
+`CorrelationHeaders` propagation pair, over the tracing core's
+identities), the telemetry hygiene and OTLP export lane (the
+sanitizer, the JSON payload encoder, the HTTP exporter with its
+retry policy -- the lane that will widen the tracing core's
+recording points and delivery seam), and the metrics and health
+lane (the `MeterInterface`/`CounterMeter` pair, the Prometheus
 renderer, the grouped health indicators over this repository's own
 already-live `Health` seam).
 
@@ -122,6 +124,110 @@ decision is the shipped-off default (KDD-OB1) plus the strict reading
 therefore the reading alone, and inventing a halt would be ceremony,
 not protection.
 
+**KDD-OB8 -- The tracing core is its own layer, and it is
+config-blind.** The timing family lives in the HTTP layer because its
+face is a PSR-15 middleware; the tracing core has no HTTP face at
+all -- it is a runtime subsystem the propagation middleware (a later
+family) will consume. The port gives it the `Telemetry` layer the
+`Health` layer already models: value objects, contracts, live and
+void implementations, depending only on the exception root. The
+family's *config face* stays where every family's config face lives
+(`Http`: `TracingPolicy`/`TracingKnobs`, over the shared strict
+readers), and the *composition seam* stays where every family's
+composition seam lives (`Middleware`: `TracingFactory`, which is what
+widens the lane to the new layer). The direction is one-way and it
+is the whole point: the engine never knows the config face exists,
+so the tracing core is constructible, testable and reusable with no
+configuration system in the process at all -- and the deptrac layer
+comment records the widening as composition, not as the engine
+reaching out.
+
+**KDD-OB9 -- The collection ships OFF: a collection with no consumer
+is the deployment's decision, not the framework's.** The timing
+family arms by default because its inert posture costs nothing
+(KDD-OB2's zero-read guard); the tracing family's armed posture is
+never free -- every span is an allocation, two clock reads, an
+identity mint and a queue append -- and the collection it feeds has
+no delivery consumer until the export lane lands. The reference's
+own environment posture agrees (`ZEF_OTEL_ENABLED` defaulted false);
+the port keeps the fail-closed side in the file-first profile:
+`observability.tracing enabled = false`, and a disabled family
+answers the void span (`NoopSpan`, one singleton read, the caller's
+code path identical either way -- the same armed/inert
+interchangeability the security families' middlewares carry). The
+inversion of the timing example is deliberate and recorded in the
+knob's own documentation, because a reader who knows why timing is
+armed deserves to know why tracing is not.
+
+**KDD-OB10 -- One clock seam owns both time domains, and the span
+owns its whole timeline.** The reference read the clock statically
+three times across two classes (the tracer took the start pair, the
+span took the end and every event's timestamp); the port injects one
+`TelemetryClockInterface` whose two faces are the two domains
+(`monotonicNs()` the duration domain, `unixNano()` the timestamp
+domain) and hands it to the span, which takes its own start, its
+events' timestamps and its own end through it. The seam is an
+interface rather than the timing family's closure because the two
+domains are one clock's two faces -- a closure per reading would
+scatter the seam across the tracer and the span, and the mutation
+run cannot reach what it cannot name. The suite freezes the entire
+record with one stepping double whose two counters pin the exact
+read sequence (`start-monotonic, start-wall, [event-wall...],
+end-monotonic`), which is what makes the derived-wall discipline of
+KDD-OB11 assertable at all.
+
+**KDD-OB11 -- The wall end is derived, not read; the clamp is
+observable through it.** A span reads the wall clock exactly once
+(its start); the wall end is `startUnixNano + (endNs - startNs)`,
+the monotonic delta doing the measuring -- so a wall-clock
+adjustment between the two monotonic reads cannot bend a span's
+apparent duration, and one wall reading per span is all the timeline
+alignment ever needs. The end clamp (`max(startNs, endNs)`) keeps
+the derived wall end at or after the wall start even when an
+explicit end reading lands before the start (a broken clock, never a
+negative duration): the clamp's own removal is killed through the
+*wall* record, not the duration (the duration render clamps
+independently at `SpanData::durationSeconds()`, so only the derived
+wall end can distinguish a clamped span from a negative one) -- two
+clamps, two observables, no immortal mutant.
+
+**KDD-OB12 -- The queue is bounded and the delivery is one honest
+attempt.** An unbounded queue under load is a memory leak the
+observability subsystem would inflict on the application it
+instruments; the processor ships a named bound (`max_queue`, spans
+beyond it dropped -- a dropped span is a lost measurement, never a
+lost request) and a batch slice (`batch_size`). The delivery is
+single-attempt and swallows the exporter's failures: the tracing
+core must never take the request path down with it, because every
+consumer of a span sits inside the application's own work. The
+reference's retry-with-backoff (and its permanent-rejection
+distinction) is the campaign's hygiene-and-export lane and lands
+there with its own knobs; this core ships the one-attempt posture
+the bounded queue already implies -- a queue that cannot hold the
+backlog cannot honestly promise to redeliver it either. The flush is
+inert after shutdown *by construction* -- the shutdown drains fully
+and the closed flag refuses every later enqueue, so there is nothing
+left for a guard to guard (the reference guarded explicitly because
+its deadline-bounded drain could leave a residue; a full drain
+cannot).
+
+**KDD-OB13 -- The lifecycle and the record are different types, and
+the recording is verbatim until the hygiene lane lands.** The
+mutable `Span` and the frozen `SpanData` are separate classes on
+purpose: the end hands the record over exactly once (idempotent
+close, every later write ignored), and nothing downstream can reach
+back into a span that has finished and quietly rewrite what was
+measured. The port records attribute and event values verbatim --
+the reference filtered sensitive keys and clamped value shapes
+through its telemetry sanitizer, which is this campaign's
+hygiene-and-export lane (a later family), and the sequencing is
+deliberate: the sanitizer will arrive at this core's recording
+points (`Span::setAttribute()`/`addEvent()`/`setStatus()`), widening
+the behaviour in the lane that owns it, rather than landing here as
+a half-forgotten helper with no consumer of its policy. Until then
+the core's contract is honest about what it does: it records what
+it is given.
+
 ## Legacy attribution
 
 The reference implementation is the GitLab snapshot `zeflous/zef`
@@ -134,3 +240,22 @@ conditional measurement (KDD-OB2), the value-object render with the
 clamp and the dropped redundant round (KDD-OB3), the injectable clock
 seam (KDD-OB4) -- follow this repository's own family discipline
 (the CSRF/auth lineages), not the reference's demo shape.
+
+The tracing core's reference is the same snapshot's
+`Domain/Observability` hexagon (`SpanContext`, `SpanData`,
+`SpanInterface`, `TracerInterface`, `SpanExporterInterface`) and
+`Application/Observability` lane (`Span`, `Tracer`, `NoopSpan`,
+`NoopTracer`, `BatchSpanProcessor`, `InMemorySpanExporter`,
+`TelemetryClock`): the W3C grammar and the `traceparent` render, the
+record's shape and the duration render, the status vocabulary, the
+identity minting and the parent-TraceId inheritance, the bounded
+queue and the batch splice all move verbatim. The port deviations
+-- the config-blind `Telemetry` layer behind the family's own
+config face (KDD-OB8), the inverted collection default (KDD-OB9),
+the one clock seam owning both domains with the span owning its
+whole timeline (KDD-OB10), the observable clamp discipline
+(KDD-OB11), the one-attempt delivery posture without the
+environment-shaped retry policy (KDD-OB12), the verbatim recording
+until the hygiene lane lands (KDD-OB13) -- follow this repository's
+own campaign sequencing, not the reference's monolithic arrival
+order.

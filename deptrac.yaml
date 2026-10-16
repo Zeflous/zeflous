@@ -25,6 +25,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Health\\#'
+    - name: Telemetry
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Telemetry\\#'
     - name: Http
       collectors:
         - type: classNameRegex
@@ -69,6 +73,20 @@ deptrac:
     Health:
       - Contracts
       - Exception
+    # The telemetry layer is the tracing core: the W3C trace-context
+    # value objects, the span/tracer/exporter contracts and their
+    # live, noop and in-process implementations -- a self-contained
+    # runtime subsystem the same way the Health layer is, depending
+    # only on the exception root. The layer owns no configuration
+    # reading of its own: the observability campaign's families read
+    # their knobs through the HTTP layer's shared census (the
+    # `StrictToggles`/`StrictIntegers`/`StrictKnobs` lineage), and the
+    # composition seam that wires the engine lives in Middleware
+    # (the `TracingFactory` construction lane, exactly as the security
+    # and timing families' do). The dependency direction is one-way:
+    # the engine never knows the config face exists.
+    Telemetry:
+      - Exception
     # The HTTP layer is the zero-library PSR-7/15/17 shim's implementation
     # side: it owns the vendored message contracts' concrete classes
     # (`ROADMAP.md`, "HTTP Layer") and depends only on the exception root.
@@ -82,11 +100,16 @@ deptrac:
     # the frozen configuration's `middleware.stack` key (`Config`, through the
     # factory -- construction stays separate from execution) and resolves
     # every declared middleware through the PSR-11 container (`Container`).
+    # The tracing core's construction seam (`TracingFactory`) widens the lane
+    # to `Telemetry`: the factory composes the tracing engine the
+    # observability campaign's second family registers -- the engine's own
+    # layer stays config-blind, and only this composition lane joins the two.
     Middleware:
       - Exception
       - Container
       - Config
       - Http
+      - Telemetry
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the

@@ -11,12 +11,14 @@ namespace Zef\Framework\Http;
  * SecurityFamilies} reader the security campaign landed per family.
  *
  * The campaign's shape: the `timing` family (the response-time
- * boundary, {@see TimingPolicy}) is live, and each later family
- * (tracing, the OTLP export lane, metrics) grows this list as it
- * lands -- an unknown child halts the boot with the known families
- * spelled out, exactly as the security map's own census does, so a
- * `timming` typo in a host's override file is a named refusal rather
- * than a silently absent family.
+ * boundary, {@see TimingPolicy}) and the `tracing` family (the
+ * tracing core's config face, {@see TracingPolicy}) are live, and
+ * each later family (the correlation lane, the OTLP export lane,
+ * metrics) grows this list as it lands -- an unknown child halts
+ * the boot with the known families spelled out, exactly as the
+ * security map's own census does, so a `timming` typo in a host's
+ * override file is a named refusal rather than a silently absent
+ * family.
  */
 final class ObservabilityFamilies
 {
@@ -24,7 +26,7 @@ final class ObservabilityFamilies
      * The legitimate children of the `observability` map, in landing
      * order.
      */
-    private const array FAMILIES = ['timing'];
+    private const array FAMILIES = ['timing', 'tracing'];
 
     /**
      * Reads one family's subtree out of the merged `observability` map.
