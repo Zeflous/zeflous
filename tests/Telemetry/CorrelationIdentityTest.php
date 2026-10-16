@@ -53,7 +53,11 @@ final class CorrelationIdentityTest extends TestCase
 
     public function testTheTraceStateAtItsCeilingShips(): void
     {
-        $atCeiling = 'k=' . str_repeat('a', CorrelationIdentity::MAX_TRACESTATE_BYTES - 2);
+        // Two members, not one: the spec's own value bound (256
+        // characters per member) caps a single member well under the
+        // companion's 512-byte ceiling, so the ceiling is reached the
+        // way the wire actually reaches it -- a list.
+        $atCeiling = 'k=' . str_repeat('a', 254) . ',k=' . str_repeat('a', 253);
 
         $correlationIdentity = new CorrelationIdentity(self::TRACE_ID, self::SPAN_ID, '01', $atCeiling);
 
@@ -71,7 +75,7 @@ final class CorrelationIdentityTest extends TestCase
                 self::TRACE_ID,
                 self::SPAN_ID,
                 '01',
-                'k=' . str_repeat('a', CorrelationIdentity::MAX_TRACESTATE_BYTES - 1),
+                'k=' . str_repeat('a', 254) . ',k=' . str_repeat('a', 254),
             ),
             'the tracestate ceiling',
         );
@@ -189,6 +193,74 @@ final class CorrelationIdentityTest extends TestCase
         yield 'missing value' => ['=novalue'];
 
         yield 'key with a space' => ['bad key=value'];
+
+        yield 'digit-headed simple key' => ['5foo=bar'];
+
+        yield 'empty value' => ['k='];
+
+        yield 'equals inside the value' => ['a=b=c'];
+
+        yield 'trailing newline past the anchor' => ["a=b\n"];
+
+        yield 'trailing space inside the value' => ['rojo=trailing '];
+
+        yield 'value beyond its own bound' => ['a=' . str_repeat('v', 257)];
+
+        yield 'one member beyond the list bound' => [str_repeat('k=v,', 33) . 'k=v'];
+
+        yield 'empty member between the commas' => ['a=1,,b=2'];
+
+        yield 'whitespace member between the commas' => ['a=1, ,b=2'];
+
+        yield 'a system id without its tenant' => ['@sys=v'];
+
+        yield 'a tenant id without its system' => ['tenant@=v'];
+    }
+
+    #[DataProvider('provideAcceptsTheTraceStateTheW3CGrammarSpellsCases')]
+    public function testAcceptsTheTraceStateTheW3CGrammarSpells(string $traceState): void
+    {
+        // The audit's own finding: the reference's approximation
+        // refused W3C-valid lines outright, and the refusal the
+        // propagation boundary folds to null is a silently dropped
+        // correlation -- the multi-tenant keys and the value
+        // characters the spec's ABNF admits are the finding's own
+        // probes.
+        $correlationIdentity = new CorrelationIdentity(self::TRACE_ID, self::SPAN_ID, '01', $traceState);
+
+        self::assertSame($traceState, $correlationIdentity->traceState);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideAcceptsTheTraceStateTheW3CGrammarSpellsCases(): iterable
+    {
+        yield 'the multi-tenant key' => ['tenant@system=v'];
+
+        yield 'the multi-tenant key, digit-headed tenant' => ['5tenant@sys=v'];
+
+        yield 'the multi-tenant key beside a simple key' => ['abc@x=1,def=2'];
+
+        yield 'the greater-than character' => ['rojo=congo>t61'];
+
+        yield 'the backslash character' => ['rojo=congo\t61'];
+
+        yield 'the brace characters' => ['rojo=v{a}'];
+
+        yield 'the bracket characters' => ['rojo=v[a]v]b'];
+
+        yield 'the space inside the value' => ['rojo=a b c'];
+
+        yield 'the whitespace before the comma' => ['a=1 , b=2'];
+
+        yield 'the tab separator after the comma' => ["a=1,\tb=2"];
+
+        yield 'the value at its own bound' => ['a=' . str_repeat('v', 256)];
+
+        yield 'the list at its own bound' => [str_repeat('k=v,', 31) . 'k=v'];
+
+        yield 'the vendor list the suite always carried' => ['vendor1=alpha,vendor2=beta,rojo=00f067aa0ba902b7'];
     }
 
     public function testAMultiVendorTraceStateIsOneMemberList(): void
@@ -209,12 +281,15 @@ final class CorrelationIdentityTest extends TestCase
         // construction -- the tracestate's own 512-byte bound caps the
         // pair at 568 -- so a companion this oversized meets the
         // tracestate bound first, whichever bound the reader expects.
+        // The members stay grammar-valid (each value within the spec's
+        // own 256-character bound) so it is the ceiling that refuses,
+        // not the grammar.
         $this->assertRejected(
             static fn (): CorrelationIdentity => new CorrelationIdentity(
                 self::TRACE_ID,
                 self::SPAN_ID,
                 '01',
-                str_repeat('k=', 100) . str_repeat('v', CorrelationIdentity::MAX_PROPAGATION_BYTES),
+                'k=' . str_repeat('a', 256) . ',k=' . str_repeat('a', 256) . ',k=' . str_repeat('a', 256),
             ),
             'the first bound the oversized companion meets',
         );
