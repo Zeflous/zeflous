@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework;
 
 use Zef\Framework\Middleware\AuthFactory;
+use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
@@ -108,6 +109,13 @@ final readonly class FrameworkDefaults
                             ['service' => self::CONFIG_SERVICE],
                         ],
                     ],
+                    'observability.correlation' => [
+                        'factory' => CorrelationFactory::class . self::CONFIG_FACTORY_ENTRY,
+                        'arguments' => [
+                            ['service' => self::CONFIG_SERVICE],
+                            ['service' => 'observability.tracing'],
+                        ],
+                    ],
                 ],
             ],
             'security' => [
@@ -157,6 +165,10 @@ final readonly class FrameworkDefaults
                     'enabled' => false,
                     'max_queue' => 2048,
                     'batch_size' => 256,
+                ],
+                'correlation' => [
+                    'enabled' => false,
+                    'echo_traceparent' => false,
                 ],
             ],
         ];

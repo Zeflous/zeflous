@@ -18,6 +18,8 @@ use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\TimingMiddleware;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\AuthFactory;
+use Zef\Framework\Middleware\CorrelationFactory;
+use Zef\Framework\Middleware\CorrelationMiddleware;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
@@ -98,6 +100,13 @@ final class ApplicationBootstrapperTest extends TestCase
                     'factory' => TracingFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
                 ],
+                'observability.correlation' => [
+                    'factory' => CorrelationFactory::class . '::fromConfig',
+                    'arguments' => [
+                        ['service' => FrameworkDefaults::CONFIG_SERVICE],
+                        ['service' => 'observability.tracing'],
+                    ],
+                ],
             ],
             $kernel->config()->get('framework.services'),
             "the default layer carries the framework's own registrations in its reserved namespace",
@@ -122,6 +131,12 @@ final class ApplicationBootstrapperTest extends TestCase
             $kernel->container()->get('observability.tracing')->startSpan('boot'),
             'the shipped fail-closed arm answers the void span',
         );
+        self::assertTrue($kernel->container()->has('observability.correlation'));
+        self::assertInstanceOf(
+            CorrelationMiddleware::class,
+            $kernel->container()->get('observability.correlation'),
+            "the correlation family resolves through the container, wired to the tracing family's own tracer",
+        );
 
         $response = new ApplicationBootstrapper()
             ->pipeline($kernel, new FixedResponseHandler(new Response(200, [], 'answered')))
@@ -130,6 +145,11 @@ final class ApplicationBootstrapperTest extends TestCase
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('answered', (string) $response->getBody());
+        self::assertSame(
+            '',
+            $response->getHeaderLine('traceparent'),
+            'the shipped double fail-closed posture keeps the response header-silent',
+        );
     }
 
     public function testBootsTheWholeApplicationFromConfigurationFiles(): void

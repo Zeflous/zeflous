@@ -19,17 +19,15 @@ The work log of this lane's PRs:
 |----|-------|
 | R1 | The timing family: `TimingMiddleware` (the HTTP layer's ninth PSR-15 middleware -- the response-time boundary), `TimingPolicy`/`TimingKnobs`/`ObservabilityFamilies` (the family's own strict reading over the shared census, widened to the full dotted path), `ResponseTime` (the `%.2fms` shape value object), `TimingClock` (the monotonic seam), the `TimingFactory` construction seam, the framework profile's fifth registration and first `observability.*` knob block, the shipped `app/configs/observability.php` override surface, the `HttpHotPathBench` timed-request subject |
 | R2 | The tracing core: the `Telemetry` layer's own thirteen classes (`SpanContext`/`SpanData` the W3C value objects, `SpanInterface`/`TracerInterface`/`SpanExporterInterface`/`TelemetryClockInterface` the contracts, `Span`/`Tracer` the live engine, `NoopSpan`/`NoopTracer` the void path, `BatchSpanProcessor` the bounded queue, `InMemorySpanExporter` the in-process sink, `TelemetryClock` the system clock), `TracingPolicy`/`TracingKnobs` (the family's strict reading, the campaign's second family in the census), the `TracingFactory` construction seam, the framework profile's sixth registration, the `TelemetrySpanBench` span-lifecycle subject |
+| R3 | The correlation family: the propagation boundary -- `CorrelationMiddleware` (the PSR-15 middleware that opens the request span under the inbound W3C trace-context and answers the echo), the `Telemetry` layer's own four correlation classes (`TraceContextPropagator` the W3C span-identity pair, `CorrelationContext` the bounded causal context, `CorrelationHeaders` the transport pair, `CorrelationPropagator` the operation-level pair, over `CorrelationAttributes` the bounded redacting table), `CorrelationPolicy`/`CorrelationKnobs` (the family's strict reading, the campaign's third family in the census), the `CorrelationFactory` construction seam (the seventh registration, the first to spell a second service argument -- the tracing family's own tracer), the framework profile's `observability.correlation` knob block, the shipped `app/configs/observability.php` documentation |
 
 The remaining families, in the order the reference's hexagon surfaces
-them: the correlation lane (the `CorrelationContext`/
-`CorrelationHeaders` propagation pair, over the tracing core's
-identities), the telemetry hygiene and OTLP export lane (the
-sanitizer, the JSON payload encoder, the HTTP exporter with its
-retry policy -- the lane that will widen the tracing core's
-recording points and delivery seam), and the metrics and health
-lane (the `MeterInterface`/`CounterMeter` pair, the Prometheus
-renderer, the grouped health indicators over this repository's own
-already-live `Health` seam).
+them: the telemetry hygiene and OTLP export lane (the sanitizer, the
+JSON payload encoder, the HTTP exporter with its retry policy -- the
+lane that will widen the tracing core's recording points and delivery
+seam), and the metrics and health lane (the `MeterInterface`/
+`CounterMeter` pair, the Prometheus renderer, the grouped health
+indicators over this repository's own already-live `Health` seam).
 
 ## The decisions (KDD-OB)
 
@@ -228,6 +226,89 @@ a half-forgotten helper with no consumer of its policy. Until then
 the core's contract is honest about what it does: it records what
 it is given.
 
+
+**KDD-OB14 -- The two propagation levels are two pairs, and the
+distinction is the port's own.** The reference carries both a
+`TraceContextPropagator` (the `traceparent` line extracted into a
+`SpanContext` -- the tracer's parenting question: which trace,
+which parent span) and a `CorrelationPropagator` (the operation's
+causal context: which operation, which idempotency key, which
+bounded diagnostics). The port keeps both and records why they are
+not one: a hop that forwards work answers both, a hop that only
+observes answers the first, and conflating them is how tracing
+headers grow application cargo they were never scoped to carry.
+The span-identity pair landed over the tracing core's own
+`SpanContext` (R2's identities, consumed exactly as promised); the
+operation-level pair landed as its own four classes with the
+bounded `CorrelationAttributes` table split out as the one unit
+whose two faces -- validation and redaction -- the mutation run
+reaches as one target.
+
+**KDD-OB15 -- Both of the family's knobs ship OFF: the double
+fail-closed posture.** The timing family arms by default because
+its inert posture never reads the clock (KDD-OB2); the tracing
+family arms off because its armed posture is never free (KDD-OB9);
+the correlation family arms off for the third reason, the one only
+this family has: an armed boundary over a disarmed tracer is work
+nobody can observe, and the boundary cannot check the tracer's arm
+without breaking the interchangeability the tracing core is built
+on -- the void span is the same answer either way, and that is the
+point. The echo is off for the disclosure's own sake (KDD-OB1's
+posture replayed): a response `traceparent` tells the client the
+server traces and hands it the server span's identity, and a
+disclosure knob's safe default is the one that discloses nothing.
+A deployment that wants request spans writes both arms explicitly
+-- the boundary's and the engine's -- two decisions, two knobs,
+neither taken on the host's behalf.
+
+**KDD-OB16 -- The echo refuses the void context.** The reference
+gated its echo on `isEnabled()`; the port's boundary does not know
+the tracer's arm (KDD-OB15), so the gate is the identity's own
+validity: `SpanContext::isValid()` was written into R2 for exactly
+this consumer ("every consumer that would propagate it must refuse
+it here first"), and the echo is that consumer. A disarmed tracer's
+void span must never stamp the all-zero `traceparent` on a response
+-- the W3C grammar would carry it, and a client would correlate
+against an identity that identifies nothing. The refusal is
+observable and pinned: the echo armed, the tracer disarmed, the
+response carries no header.
+
+**KDD-OB17 -- Inbound is untrusted, and the refusal is null --
+across both pairs.** The extraction answers null for a wrong
+version, a short or long line, a non-hex field, a flag byte outside
+the sampled bit, the all-zero pair, an oversized companion, and a
+context the constructor's bounds would refuse (the one catch in the
+lane, commented by name -- the empty catch is a refusal, not an
+oversight). Null is the answer because "no parent present" and
+"parent present but malformed" lead to the same honest behaviour
+(a fresh trace is minted either way), and a client's malformed
+header must never become the callee's exception.
+
+**KDD-OB18 -- The duration attribute is dropped: the span's own
+timeline owns the measurement.** The reference's epilogue computed
+`hrtime() - start` inline and recorded it as an attribute -- a
+second clock pair and a division duplicating what the span's
+`SpanTimeline` already measures (KDD-OB11's whole discipline). The
+port records the deviation instead of the duplication: the frozen
+`SpanData` answers the duration through its own timeline, one
+measurement in one named place, and the request span's record is
+not stamped with a copy of its own measurement.
+
+**KDD-OB19 -- The request span's lifecycle belongs to the
+middleware, and the middleware belongs to the composition lane.**
+The reference's telemetry prologue and epilogue lived inline in
+`Application::handle`; the port moves them into the PSR-15 family
+boundary the stack composes (the same restructure the timing family
+gave the inline measurement). The one structural consequence: this
+middleware lives in the Middleware layer, not the Http layer every
+other family's middleware lives in, because its every request
+answers through the tracing engine and the Http layer stays
+engine-free exactly as the tracing core stays config-blind
+(KDD-OB8's one-way direction, kept symmetric). The factory is the
+campaign's first to spell a second service argument -- the tracing
+family's own tracer, not a copy minted here, so the boundary's
+spans drain through the one processor the deployment configured.
+
 ## Legacy attribution
 
 The reference implementation is the GitLab snapshot `zeflous/zef`
@@ -240,6 +321,25 @@ conditional measurement (KDD-OB2), the value-object render with the
 clamp and the dropped redundant round (KDD-OB3), the injectable clock
 seam (KDD-OB4) -- follow this repository's own family discipline
 (the CSRF/auth lineages), not the reference's demo shape.
+
+The correlation family's reference is the same snapshot's
+`Framework/Observability` correlation lane (`CorrelationContext`,
+`CorrelationHeaders`, `CorrelationPropagator`,
+`CorrelationContextCarrierInterface`/`ExplicitCorrelationContextCarrier`,
+`TraceContext`, `TraceContextPropagator`) and `Framework/Application::handle`'s
+telemetry prologue and epilogue (the header reads, the parent
+extraction, the request-span attributes, the response recording,
+the failure recording, the finally-end, the gated echo): the twelve
+bounds, the W3C grammars, the tolerant extraction order, the digest
+redaction and the lifecycle shape all move verbatim in the family's
+own classes. The port deviations -- the attribute table as its own
+redacting unit, the dropped duration attribute (KDD-OB18), the
+void-context echo refusal (KDD-OB16), the double fail-closed knobs
+(KDD-OB15), the middleware's home in the composition lane
+(KDD-OB19), the carrier interface deferred until a consumer lane
+lands (the same sequencing the in-memory exporter's facade consumer
+took) -- follow this repository's own family discipline, not the
+reference's monolithic arrival order.
 
 The tracing core's reference is the same snapshot's
 `Domain/Observability` hexagon (`SpanContext`, `SpanData`,

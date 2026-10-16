@@ -104,6 +104,11 @@ deptrac:
     # to `Telemetry`: the factory composes the tracing engine the
     # observability campaign's second family registers -- the engine's own
     # layer stays config-blind, and only this composition lane joins the two.
+    # The correlation family's propagation boundary (`CorrelationMiddleware`,
+    # the campaign's third family) joins them here for the same reason: it is
+    # the one PSR-15 middleware whose every request answers through the
+    # tracing engine, so the composition lane -- not the engine-free HTTP
+    # layer -- is where its face lives.
     Middleware:
       - Exception
       - Container

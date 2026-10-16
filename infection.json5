@@ -163,6 +163,32 @@
         // line: the neighbouring replay-id length read in the same
         // method measures arbitrary client bytes, stays under the
         // mutator, and is killed by the multi-byte replay-id test.
+        //
+        // The correlation family's own MBString sites carry the same
+        // two structural classes, and every one below was verified by
+        // running the full suite under the manually applied mutations
+        // (the complete suite passes): the byte-accounting reads
+        // (CorrelationAttributes::entry, CorrelationContext::
+        // validateToken, CorrelationIdentity's propagationBytes,
+        // traceParentLength and validateTraceState) all spell
+        // mb_strlen($x, '8bit') -- the '8bit' encoding IS byte
+        // semantics, the BodyBudget class above already proved, and
+        // strlen answers the identical count for every input; the
+        // propagator pair's folds and guards
+        // (CorrelationPropagator::extract,
+        // TraceContextPropagator::extract) read only regex-validated
+        // ASCII hex (the anchored [0-9a-f] classes cannot select a
+        // non-ASCII byte, so the Unicode fold and the byte fold agree
+        // on every string the grammar can hand them) and backstopped
+        // widths (the grammar and the constructor-swallow refuse the
+        // same lines the guards would). The neighbouring multibyte
+        // width and accounting reads in CorrelationHeaders stay under
+        // the mutator: the header pair has no grammar of its own, and
+        // the long-s spellings in its tests kill both folds there;
+        // the redaction census's own fold in
+        // CorrelationRedaction::isSensitiveKey stays under the
+        // mutator for the same reason -- the kelvin-sign spelling
+        // test kills it.
         "MBString": {
             "ignore": [
                 "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
@@ -173,7 +199,14 @@
                 "Zef\\Framework\\Http\\ETagMiddleware::applyConditionalGet",
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
                 "Zef\\Framework\\Http\\RateLimitStores::read",
-                "Zef\\Framework\\Http\\StrictToggles::read"
+                "Zef\\Framework\\Http\\StrictToggles::read",
+                "Zef\\Framework\\Telemetry\\CorrelationAttributes::entry",
+                "Zef\\Framework\\Telemetry\\CorrelationContext::validateToken",
+                "Zef\\Framework\\Telemetry\\CorrelationIdentity::propagationBytes",
+                "Zef\\Framework\\Telemetry\\CorrelationIdentity::traceParentLength",
+                "Zef\\Framework\\Telemetry\\CorrelationIdentity::validateTraceState",
+                "Zef\\Framework\\Telemetry\\CorrelationPropagator::extract",
+                "Zef\\Framework\\Telemetry\\TraceContextPropagator::extract"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);"
@@ -278,7 +311,68 @@
         // tests kill those. This ignore is scoped to that single method.
         "ReturnRemoval": {
             "ignore": [
-                "Zef\\Framework\\Container\\ServiceDefinitionGraph::visit"
+                "Zef\\Framework\\Container\\ServiceDefinitionGraph::visit",
+                "Zef\\Framework\\Telemetry\\CorrelationPropagator::extract"
+            ]
+        },
+        // The correlation pair's tolerant extraction carries two
+        // fail-fast guards whose removal is value-equivalent, the same
+        // performance-guard class the settled memo above answers: the
+        // tracestate-oversize guard is backstopped by the very
+        // constructor the extraction wraps (an oversized companion the
+        // guard would refuse reaches the CorrelationIdentity
+        // constructor's own 512-byte bound and the catch returns the
+        // same null), and the exact-width guard is backstopped by the
+        // anchored grammar (a wrong-width line cannot match a regex
+        // that consumes exactly fifty-five characters, and the catch
+        // returns the same null again). The reference's documented
+        // extraction order -- null, oversize, trim, exact width,
+        // grammar, constructor-swallow -- keeps both guards as the
+        // order's own steps, and the width guard's anchors below stay
+        // ignored for the same backstop. The trims and the grammar in
+        // the same method stay under their mutators where tests kill
+        // them (verified by running the full suite under the manually
+        // applied mutations -- the complete suite passes, the
+        // at-the-bound companions and the malformed parents still
+        // refused). These ignores are scoped to that single method.
+        "PregMatchRemoveCaret": {
+            "ignore": [
+                "Zef\\Framework\\Telemetry\\CorrelationPropagator::extract"
+            ]
+        },
+        // The width guard ahead of the grammar makes the anchors'
+        // removal value-equivalent from the other side: a match that
+        // starts past the head or ends before the tail needs a line
+        // longer than the fifty-five characters the width guard
+        // already demanded, so the unanchored match cannot select
+        // anything the anchored one refused (verified by running the
+        // full suite under the manually applied mutations -- the
+        // complete suite passes). The trace-context pair's own anchors
+        // stay under the mutator: it has no width guard, and the
+        // leading-artefact and over-long line tests kill both there.
+        // This ignore is scoped to that single method.
+        "PregMatchRemoveDollar": {
+            "ignore": [
+                "Zef\\Framework\\Telemetry\\CorrelationPropagator::extract"
+            ]
+        },
+        // The identity's hard wire-size ceiling is the one bound the
+        // GreaterThan mutator can narrow without any observable
+        // difference, because the ceiling is unreachable by
+        // construction: the tracestate's own 512-byte bound caps the
+        // propagation pair at 568 bytes, and no identity the
+        // constructor accepts can ever read 8192 at the ceiling's line
+        // -- the bound is the reference's own defense-in-depth against
+        // a future companion bound rising past it, and the mutator's
+        // narrowing moves a ceiling nothing can reach (verified by
+        // running the full suite under the manually applied mutation
+        // -- the complete suite passes). The tracestate bound's own
+        // GreaterThan mutant in validateTraceState() stays under the
+        // mutator: the at-the-ceiling companion test kills it. This
+        // ignore is scoped to the constructor alone.
+        "GreaterThan": {
+            "ignore": [
+                "Zef\\Framework\\Telemetry\\CorrelationIdentity::__construct"
             ]
         }
     },
