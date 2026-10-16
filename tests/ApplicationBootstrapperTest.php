@@ -15,11 +15,13 @@ use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\TimingMiddleware;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
+use Zef\Framework\Middleware\TimingFactory;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Middleware\MiddlewareTrace;
@@ -85,6 +87,10 @@ final class ApplicationBootstrapperTest extends TestCase
                     'factory' => AuthFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
                 ],
+                'observability.timing' => [
+                    'factory' => TimingFactory::class . '::fromConfig',
+                    'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
+                ],
             ],
             $kernel->config()->get('framework.services'),
             "the default layer carries the framework's own registrations in its reserved namespace",
@@ -92,6 +98,12 @@ final class ApplicationBootstrapperTest extends TestCase
         self::assertSame(['stack' => []], $kernel->config()->get('middleware'));
         self::assertSame([], $kernel->config()->get('routes'));
         self::assertTrue($kernel->container()->has('security.headers'));
+        self::assertTrue($kernel->container()->has('observability.timing'));
+        self::assertInstanceOf(
+            TimingMiddleware::class,
+            $kernel->container()->get('observability.timing'),
+            'the timing family resolves through the container the stack membership triggers',
+        );
 
         $response = new ApplicationBootstrapper()
             ->pipeline($kernel, new FixedResponseHandler(new Response(200, [], 'answered')))

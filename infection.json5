@@ -218,11 +218,33 @@
         // raising that limit to 3 splits the signature at the second
         // dot, the trailing-suffix test kills it. This ignore is scoped
         // to that single source line.
+        //
+        // The clamp floor's literal `0` in ResponseTime::fromElapsedNs()
+        // is the next integer the increment can rewrite without any
+        // observable difference: raising the floor from 0 to 1 changes
+        // the clamped span by at most one nanosecond, and the header's
+        // two-decimal render resolves five thousand nanoseconds
+        // (0.005ms) -- a zero span and a one-nanosecond span both
+        // answer `0.00ms`, a negative delta clamps to those same two
+        // values under either floor, and every span above one
+        // nanosecond is untouched by the floor (verified by running
+        // the full suite under the manually applied mutation -- the
+        // complete suite passes). The decrement direction stays under
+        // the mutator: a floor of -1 clamps a negative delta to -1ns,
+        // sprintf keeps the sign through the zero, and the header
+        // answers `-0.00ms`, which the broken-clock test kills. The
+        // clamp call's removal stays under the FunctionCallRemoval
+        // mutator on the same line: the negative delta renders as
+        // `-0.25ms`, and the same test kills it. The division's own
+        // literal lives on the constant's declaration line, not this
+        // one, so the exact-span matrix keeps it under this mutator.
+        // This ignore is scoped to that single source line.
         "IncrementInteger": {
             "ignoreSourceCodeByRegex": [
                 "\\$matchStart = \\$match\\[0\\]\\[1\\];",
                 "\\[\\$body, \\$signature\\] = array_pad\\(\\$parts, 2, ''\\);",
-                "\\[\\$key, \\$value\\] = array_pad\\(explode\\('=', mb_trim\\(\\$pair\\), 2\\), 2, ''\\);"
+                "\\[\\$key, \\$value\\] = array_pad\\(explode\\('=', mb_trim\\(\\$pair\\), 2\\), 2, ''\\);",
+                "\\$milliseconds = max\\(0, \\$elapsedNs\\) / self::NANOSECONDS_PER_MILLISECOND;"
             ]
         },
         // The scan resume's capture read in RedactedMessage::of() is the

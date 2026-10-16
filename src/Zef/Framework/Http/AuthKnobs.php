@@ -41,6 +41,6 @@ final class AuthKnobs
      */
     public static function rejectUnknown(array $map): void
     {
-        StrictKnobs::rejectUnknown($map, 'auth', self::KNOWN);
+        StrictKnobs::rejectUnknown($map, 'security.auth', self::KNOWN);
     }
 }

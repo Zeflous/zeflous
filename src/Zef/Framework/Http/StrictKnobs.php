@@ -5,16 +5,22 @@ declare(strict_types=1);
 namespace Zef\Framework\Http;
 
 /**
- * The strict-mode knob census the security families share: the map
- * may carry only the knobs its family owns, and an unknown key halts
- * the boot with the family's own list spelled out -- the lineage the
- * rate-limit, CSRF and auth families each followed in their own
+ * The strict-mode knob census the config-driven families share: the
+ * map may carry only the knobs its family owns, and an unknown key
+ * halts the boot with the family's own list spelled out -- the lineage
+ * the rate-limit, CSRF and auth families each followed in their own
  * knob classes, extracted here now that the third family made the
  * shape shared property rather than a coincidence.
  *
  * The known list is spelled out in the rejection: a typo'd key must
  * never fall through to the default posture unnoticed -- the operator
  * believes their knob is live while the default's is.
+ *
+ * The family's name travels as the full dotted path the rejection
+ * spells (`security.auth`, `observability.timing`): the fourth
+ * campaign's first family arrives over a different root key, and the
+ * widened spelling keeps the message byte-identical for the security
+ * families that landed over the three-seam spelling.
  */
 final class StrictKnobs
 {
@@ -22,8 +28,9 @@ final class StrictKnobs
      * Rejects the map's unknown keys with the known list spelled out.
      *
      * @param array<array-key, mixed> $map    the family's knob map
-     * @param string                  $family the family's own name, as
-     *                                        the rejection spells it
+     * @param string                  $family the family's full dotted
+     *                                        path, as the rejection
+     *                                        spells it (`security.auth`)
      * @param list<string>            $known  the knobs the family owns,
      *                                        in declaration order
      *
@@ -39,7 +46,7 @@ final class StrictKnobs
             }
 
             throw new HttpException(
-                "The security.{$family} configuration carries the unknown knob '"
+                "The {$family} configuration carries the unknown knob '"
                 . (\is_string($knob) ? $knob : get_debug_type($knob))
                 . "' (known knobs: {$spelled}).",
             );
