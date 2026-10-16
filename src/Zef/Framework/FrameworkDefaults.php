@@ -8,6 +8,7 @@ use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
+use Zef\Framework\Middleware\TimingFactory;
 
 /**
  * The framework's own configuration defaults: the code-declared profile the
@@ -23,7 +24,8 @@ use Zef\Framework\Middleware\SecurityHeadersFactory;
  * configuration system already owns.
  *
  * The profile now ships the security-headers, rate-limit, CSRF and
- * auth families, and it ships them the way every family will arrive: the
+ * auth families, and the observability campaign's first family
+ * (timing) -- and it ships them the way every family will arrive: the
  * subsystem's *service registration* as a declarative entry under the reserved
  * `framework.services` key the container's existing grammar installs
  * (string-addressed, over the `framework.config` service the bootstrapper
@@ -92,6 +94,12 @@ final readonly class FrameworkDefaults
                             ['service' => self::CONFIG_SERVICE],
                         ],
                     ],
+                    'observability.timing' => [
+                        'factory' => TimingFactory::class . self::CONFIG_FACTORY_ENTRY,
+                        'arguments' => [
+                            ['service' => self::CONFIG_SERVICE],
+                        ],
+                    ],
                 ],
             ],
             'security' => [
@@ -130,6 +138,12 @@ final readonly class FrameworkDefaults
                     'allow_anonymous' => false,
                     'replay_capacity' => 1024,
                     'replay_window' => 300,
+                ],
+            ],
+            'observability' => [
+                'timing' => [
+                    'enabled' => true,
+                    'emit_header' => false,
                 ],
             ],
         ];
