@@ -133,7 +133,12 @@ final class CorrelationIdentityTest extends TestCase
     public function testRejectsTheFlagsThatCarryMoreThanTheSampledBit(string $traceFlags): void
     {
         $this->assertRejected(
-            static fn (): CorrelationIdentity => new CorrelationIdentity(self::TRACE_ID, self::SPAN_ID, $traceFlags, null),
+            static fn (): CorrelationIdentity => new CorrelationIdentity(
+                self::TRACE_ID,
+                self::SPAN_ID,
+                $traceFlags,
+                null,
+            ),
             'the trace flags grammar',
         );
     }
@@ -160,7 +165,12 @@ final class CorrelationIdentityTest extends TestCase
     public function testRejectsTheTraceStateThatFailsTheMemberGrammar(?string $traceState): void
     {
         $this->assertRejected(
-            static fn (): CorrelationIdentity => new CorrelationIdentity(self::TRACE_ID, self::SPAN_ID, '01', $traceState),
+            static fn (): CorrelationIdentity => new CorrelationIdentity(
+                self::TRACE_ID,
+                self::SPAN_ID,
+                '01',
+                $traceState,
+            ),
             'the tracestate member grammar',
         );
     }

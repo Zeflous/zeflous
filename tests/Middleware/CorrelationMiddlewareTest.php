@@ -84,7 +84,12 @@ final class CorrelationMiddlewareTest extends TestCase
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('answered', (string) $response->getBody());
         $this->flush();
-        self::assertSame([], $this->inMemorySpanExporter->spans(), 'no span was opened, even after the flush forces delivery');
+        $spans = $this->inMemorySpanExporter->spans();
+        self::assertSame(
+            [],
+            $spans,
+            'no span was opened, even after the flush forces delivery',
+        );
         self::assertNull(
             $request->getAttribute(CorrelationMiddleware::SPAN_ATTRIBUTE),
             'the pass-through request carries no span',

@@ -81,6 +81,8 @@ final class CorrelationRedaction
     {
         $value = mb_strtolower($key);
 
-        return array_any(self::SENSITIVE_KEY_FRAGMENTS, static fn (string $fragment): bool => str_contains($value, $fragment));
+        $carries = static fn (string $fragment): bool => str_contains($value, $fragment);
+
+        return array_any(self::SENSITIVE_KEY_FRAGMENTS, $carries);
     }
 }
