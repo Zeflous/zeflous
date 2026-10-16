@@ -181,6 +181,30 @@
       <code><![CDATA[shutdown]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Telemetry/CorrelationAttributes.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/CorrelationContext.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[redactedAttributes]]></code>
+    </PossiblyUnusedMethod>
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$idempotencyKey]]></code>
+      <code><![CDATA[$operationId]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/CorrelationHeaders.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[encodedBytes]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/CorrelationPropagator.php">
+    <UnusedClass>
+      <code><![CDATA[CorrelationPropagator]]></code>
+    </UnusedClass>
+  </file>
   <file src="src/Zef/Framework/Telemetry/InMemorySpanExporter.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[reset]]></code>
@@ -193,10 +217,6 @@
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Telemetry/SpanContext.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[isValid]]></code>
-      <code><![CDATA[traceParent]]></code>
-    </PossiblyUnusedMethod>
     <PossiblyUnusedProperty>
       <code><![CDATA[$traceState]]></code>
     </PossiblyUnusedProperty>
@@ -219,23 +239,23 @@
   </file>
   <file src="src/Zef/Framework/Telemetry/SpanInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[addEvent]]></code>
-      <code><![CDATA[end]]></code>
-      <code><![CDATA[getContext]]></code>
       <code><![CDATA[isEnded]]></code>
-      <code><![CDATA[setAttribute]]></code>
       <code><![CDATA[setAttributes]]></code>
-      <code><![CDATA[setStatus]]></code>
     </PossiblyUnusedMethod>
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[$this]]></code>
+      <code><![CDATA[$this]]></code>
+      <code><![CDATA[$this]]></code>
+    </PossiblyUnusedReturnValue>
   </file>
   <file src="src/Zef/Framework/Telemetry/SpanRecording.php">
     <MixedAssignment>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Telemetry/TracerInterface.php">
+  <file src="src/Zef/Framework/Telemetry/TraceContextPropagator.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[startSpan]]></code>
+      <code><![CDATA[inject]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Tooling/CoverageReport.php">

@@ -172,7 +172,7 @@ final class TimingPolicyTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 "The observability configuration carries the unknown family 'timming'"
-                . ' (known families: timing, tracing).',
+                . ' (known families: timing, tracing, correlation).',
                 $httpException->getMessage(),
             );
         }

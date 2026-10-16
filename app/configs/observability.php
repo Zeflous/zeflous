@@ -40,9 +40,37 @@ declare(strict_types=1);
  *       armed family that will not emit never reads the clock --
  *       the inert posture performs no work at all.
  *
+ * The `correlation` family -- the propagation boundary
+ * (`observability.correlation`, the service the framework registers
+ * over the tracing family's own tracer; the PSR-15 middleware the
+ * stack composes to open the request span under the inbound W3C
+ * trace-context):
+ *
+ *   'enabled'                   (bool, default false)
+ *       The family's arm. OFF by default and by design: an armed
+ *       boundary over a disarmed tracer is work nobody can observe
+ *       -- the request span would be the void singleton, every
+ *       recording call ignored, the echo refused -- and the
+ *       boundary cannot check the tracer's arm without breaking
+ *       the interchangeability the tracing core is built on (the
+ *       void span is the same answer either way). A deployment
+ *       that wants request spans writes this arm AND the tracing
+ *       family's own arm explicitly -- two decisions, two knobs,
+ *       neither taken on the host's behalf.
+ *
+ *   'echo_traceparent'          (bool, default false)
+ *       The disclosure: stamp the response's `traceparent` header
+ *       with the request span's own identity, so the client can
+ *       correlate its request with the server's span. OFF by
+ *       default -- a response traceparent tells the client the
+ *       server traces and hands it the server span's identity, and
+ *       a disclosure knob's safe default is the one that discloses
+ *       nothing. The echo also refuses the void identity outright:
+ *       a disarmed tracer never stamps the all-zero context on a
+ *       response.
+ *
  * The `tracing` family -- the tracing core (`observability.tracing`,
- * the service the framework registers; the propagation lane that
- * will consume it face-first is a later family in this campaign):
+ * the service the framework registers):
  *
  *   'enabled'                   (bool, default false)
  *       The family's arm. OFF by default and by design -- the one
@@ -73,7 +101,9 @@ declare(strict_types=1);
  * APP_OBSERVABILITY__TIMING__EMIT_HEADER=on,
  * APP_OBSERVABILITY__TRACING__ENABLED=true,
  * APP_OBSERVABILITY__TRACING__MAX_QUEUE=512,
- * APP_OBSERVABILITY__TRACING__BATCH_SIZE=64.
+ * APP_OBSERVABILITY__TRACING__BATCH_SIZE=64,
+ * APP_OBSERVABILITY__CORRELATION__ENABLED=on,
+ * APP_OBSERVABILITY__CORRELATION__ECHO_TRACEPARENT=1.
  *
  * The shipped profile declares no overrides -- the defaults are the
  * posture -- and an application fills this file with the knobs it
