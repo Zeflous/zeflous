@@ -9,17 +9,20 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Telemetry\CorrelationContext;
 use Zef\Framework\Telemetry\CorrelationHeaders;
 use Zef\Framework\Telemetry\CorrelationIdentity;
+use Zef\Framework\Telemetry\CorrelationInboundPair;
 use Zef\Framework\Telemetry\CorrelationPropagator;
 
 /**
  * The operation-level propagation pair, on its own terms: the
- * tolerant extraction's every refusal, the injected transport pair,
- * the disabled null -- the boundary remote and distributed
- * execution correlates through.
+ * tolerant extraction's every refusal (the inbound reading's own
+ * unit under it), the injected transport pair, the disabled null
+ * -- the boundary remote and distributed execution correlates
+ * through.
  *
  * @internal
  */
 #[CoversClass(CorrelationPropagator::class)]
+#[CoversClass(CorrelationInboundPair::class)]
 final class CorrelationPropagatorTest extends TestCase
 {
     private const string TRACE_ID = '4bf92f3577b34da6a3ce929d0e0e4736';

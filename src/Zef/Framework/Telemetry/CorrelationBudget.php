@@ -65,22 +65,12 @@ final class CorrelationBudget
      */
     private function scalarByteLength(bool|float|int|string|null $value): int
     {
-        if ($value === null) {
-            return 4;
-        }
-
-        if (\is_bool($value)) {
-            return $value ? 4 : 5;
-        }
-
-        if (\is_int($value)) {
-            return 20;
-        }
-
-        if (\is_float($value)) {
-            return 24;
-        }
-
-        return mb_strlen($value, '8bit');
+        return match (true) {
+            $value === null => 4,
+            \is_bool($value) => $value ? 4 : 5,
+            \is_int($value) => 20,
+            \is_float($value) => 24,
+            default => mb_strlen($value, '8bit'),
+        };
     }
 }

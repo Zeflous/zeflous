@@ -64,9 +64,13 @@ final class CorrelationRedaction
         $out = [];
 
         foreach ($attributes as $key => $value) {
-            $out[$key] = self::isSensitiveKey($key)
-                ? (\is_string($value) ? 'sha256:' . hash('sha256', $value) : '[REDACTED]')
-                : $value;
+            if (!self::isSensitiveKey($key)) {
+                $out[$key] = $value;
+
+                continue;
+            }
+
+            $out[$key] = \is_string($value) ? 'sha256:' . hash('sha256', $value) : '[REDACTED]';
         }
 
         return $out;

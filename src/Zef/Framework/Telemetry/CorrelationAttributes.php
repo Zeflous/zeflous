@@ -59,6 +59,9 @@ final class CorrelationAttributes
     /** The table's aggregate byte budget. */
     public const int MAX_ATTRIBUTE_BYTES = 4096;
 
+    /** The refusal every key-level failure answers, the reference's own spelling. */
+    private const string INVALID_KEY = 'Invalid correlation attribute key.';
+
     /**
      * Validates the attribute table against the bounds census and
      * answers the normalised map.
@@ -83,7 +86,7 @@ final class CorrelationAttributes
 
         foreach ($attributes as $key => $value) {
             if (!\is_string($key)) {
-                throw new InvalidArgumentException('Invalid correlation attribute key.');
+                throw new InvalidArgumentException(self::INVALID_KEY);
             }
 
             $value = self::entry($key, $value);
@@ -116,11 +119,11 @@ final class CorrelationAttributes
     private static function entry(string $key, mixed $value): bool|float|int|string|null
     {
         if (mb_strlen($key, '8bit') > self::MAX_ATTRIBUTE_KEY_BYTES) {
-            throw new InvalidArgumentException('Invalid correlation attribute key.');
+            throw new InvalidArgumentException(self::INVALID_KEY);
         }
 
         if (preg_match('/^[A-Za-z0-9_.-]+$/', $key) !== 1) {
-            throw new InvalidArgumentException('Invalid correlation attribute key.');
+            throw new InvalidArgumentException(self::INVALID_KEY);
         }
 
         if ($value !== null && !\is_scalar($value)) {

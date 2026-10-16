@@ -41,6 +41,10 @@ namespace Zef\Framework\Telemetry;
  */
 final class TraceContextPropagator
 {
+    /** The inbound line's W3C grammar, the fields the extract reads. */
+    private const string TRACE_CONTEXT_GRAMMAR
+        = '/^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$/i';
+
     /**
      * Extracts the inbound trace-context pair into the parent span
      * context.
@@ -60,24 +64,18 @@ final class TraceContextPropagator
     {
         $value = mb_trim($traceParent);
 
-        if (preg_match('/^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$/i', $value, $matches) !== 1) {
+        if (preg_match(self::TRACE_CONTEXT_GRAMMAR, $value, $matches) !== 1) {
             return null;
         }
 
-        if ($matches[1] === str_repeat('0', 32) || $matches[2] === str_repeat('0', 16)) {
-            return null;
-        }
-
-        $flags = hexdec($matches[3]);
-
-        if (($flags & 0xFE) !== 0) {
+        if (self::identityIsRefused($matches)) {
             return null;
         }
 
         return new SpanContext(
             mb_strtolower($matches[1]),
             mb_strtolower($matches[2]),
-            ($flags & 1) === 1,
+            (hexdec($matches[3]) & 1) === 1,
             $traceState,
         );
     }
@@ -90,5 +88,24 @@ final class TraceContextPropagator
     public static function inject(SpanContext $spanContext): string
     {
         return $spanContext->traceParent();
+    }
+
+    /**
+     * Whether the grammar-carried identity the W3C context refuses:
+     * the all-zero pair, or flag bits beyond the sampled bit alone.
+     *
+     * @param array<array-key, string> $matches the grammar's captured fields
+     */
+    private static function identityIsRefused(array $matches): bool
+    {
+        if ($matches[1] === str_repeat('0', 32)) {
+            return true;
+        }
+
+        if ($matches[2] === str_repeat('0', 16)) {
+            return true;
+        }
+
+        return (hexdec($matches[3]) & 0xFE) !== 0;
     }
 }

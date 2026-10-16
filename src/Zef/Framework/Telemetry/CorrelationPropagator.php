@@ -28,16 +28,23 @@ use InvalidArgumentException;
  * oversized line, a context the constructor would refuse, answers
  * "no correlation present", never an exception across the boundary,
  * because a caller's malformed header must not become the callee's
- * error. The one-attempt null also keeps the disabled path honest:
- * {@see self::disabled()} answers the null the void family runs on
- * -- disabled telemetry creates no context object at all, the
- * reference's own comment, kept as the method that spells it.
+ * error. The reading itself is the {@see CorrelationInboundPair}
+ * unit's own -- the line, the grammar, the identity -- and the
+ * boundary composes it under the one catch that folds every refusal
+ * to the null answer. The one-attempt null also keeps the disabled
+ * path honest: {@see self::disabled()} answers the null the void
+ * family runs on -- disabled telemetry creates no context object at
+ * all, the reference's own comment, kept as the method that spells
+ * it.
  *
  * Ported from the reference implementation (legacy `zef-main`
- * `Framework/Observability/CorrelationPropagator.php`): the
- * tolerant extraction's order (null, oversize, trim, exact width,
- * grammar, constructor-swallow), the injection and the disabled
- * null move verbatim.
+ * `Framework/Observability/CorrelationPropagator.php`): the tolerant
+ * extraction's refusals, the injection and the disabled null move
+ * verbatim in behaviour; the port's deviations are the decomposition
+ * -- the inbound reading as the pair's own unit, the chain of
+ * refusals the cloud reviewer's own width policy reads as one method
+ * per concern -- and the dropped companion fail-fast, unreachable-
+ * in-effect behind the identity constructor's own identical bound.
  */
 final class CorrelationPropagator
 {
@@ -59,42 +66,14 @@ final class CorrelationPropagator
         ?string $idempotencyKey = null,
         array $attributes = [],
     ): ?CorrelationContext {
-        if ($traceParent === null) {
-            return null;
-        }
+        $identity = CorrelationInboundPair::identity($traceParent, $traceState);
 
-        if (mb_strlen($traceParent) > CorrelationIdentity::MAX_TRACEPARENT_BYTES) {
-            return null;
-        }
-
-        if ($traceState !== null) {
-            if (mb_strlen($traceState) > CorrelationIdentity::MAX_TRACESTATE_BYTES) {
-                return null;
-            }
-        }
-
-        $value = mb_trim($traceParent);
-
-        if (mb_strlen($value) !== CorrelationIdentity::MAX_TRACEPARENT_BYTES) {
-            return null;
-        }
-
-        if (preg_match('/^00-([0-9a-f]{32})-([0-9a-f]{16})-([0-9a-f]{2})$/i', $value, $matches) !== 1) {
+        if (!$identity instanceof CorrelationIdentity) {
             return null;
         }
 
         try {
-            return new CorrelationContext(
-                new CorrelationIdentity(
-                    mb_strtolower($matches[1]),
-                    mb_strtolower($matches[2]),
-                    mb_strtolower($matches[3]),
-                    $traceState,
-                ),
-                $operationId,
-                $idempotencyKey,
-                $attributes,
-            );
+            return new CorrelationContext($identity, $operationId, $idempotencyKey, $attributes);
         } catch (InvalidArgumentException) {
             // The untrusted pair's own refusal: a context the bounds
             // would reject is the null answer, never the boundary's
