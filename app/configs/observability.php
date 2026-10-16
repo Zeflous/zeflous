@@ -40,9 +40,40 @@ declare(strict_types=1);
  *       armed family that will not emit never reads the clock --
  *       the inert posture performs no work at all.
  *
+ * The `tracing` family -- the tracing core (`observability.tracing`,
+ * the service the framework registers; the propagation lane that
+ * will consume it face-first is a later family in this campaign):
+ *
+ *   'enabled'                   (bool, default false)
+ *       The family's arm. OFF by default and by design -- the one
+ *       posture where this family inverts the timing family's
+ *       example: an armed tracer is never free (every span is an
+ *       allocation, two clock reads, an identity mint and a queue
+ *       append), and the collection it feeds has no delivery
+ *       consumer until the export lane lands. A collection with no
+ *       consumer is not a default a framework decides on the host's
+ *       behalf -- the collection is the deployment's decision, and
+ *       a deployment that wants it writes the arm explicitly. A
+ *       disabled family answers the void span for every call, the
+ *       same code path either way.
+ *
+ *   'max_queue'                 (int, default 2048)
+ *       The processor's queue bound: completed spans beyond it are
+ *       dropped, never queued. An unbounded queue under load is a
+ *       memory leak the observability subsystem would inflict on
+ *       the very application it instruments -- a dropped span is a
+ *       lost measurement, never a lost request.
+ *
+ *   'batch_size'                (int, default 256)
+ *       The largest batch one delivery call carries: the queue
+ *       drains in slices of at most this many completed spans.
+ *
  * Environment overlay spelling (prefix + `__` as the dot, values
  * strictly typed): APP_OBSERVABILITY__TIMING__ENABLED=1,
- * APP_OBSERVABILITY__TIMING__EMIT_HEADER=on.
+ * APP_OBSERVABILITY__TIMING__EMIT_HEADER=on,
+ * APP_OBSERVABILITY__TRACING__ENABLED=true,
+ * APP_OBSERVABILITY__TRACING__MAX_QUEUE=512,
+ * APP_OBSERVABILITY__TRACING__BATCH_SIZE=64.
  *
  * The shipped profile declares no overrides -- the defaults are the
  * posture -- and an application fills this file with the knobs it

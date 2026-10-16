@@ -175,6 +175,69 @@
       <code><![CDATA[withMiddleware]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Telemetry/BatchSpanProcessor.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[flush]]></code>
+      <code><![CDATA[shutdown]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/InMemorySpanExporter.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[reset]]></code>
+      <code><![CDATA[spans]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/NoopTracer.php">
+    <UnusedClass>
+      <code><![CDATA[NoopTracer]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/SpanContext.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[isValid]]></code>
+      <code><![CDATA[traceParent]]></code>
+    </PossiblyUnusedMethod>
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$traceState]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/SpanData.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[durationSeconds]]></code>
+    </PossiblyUnusedMethod>
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$attributes]]></code>
+      <code><![CDATA[$context]]></code>
+      <code><![CDATA[$endUnixNano]]></code>
+      <code><![CDATA[$events]]></code>
+      <code><![CDATA[$name]]></code>
+      <code><![CDATA[$parent]]></code>
+      <code><![CDATA[$startUnixNano]]></code>
+      <code><![CDATA[$status]]></code>
+      <code><![CDATA[$statusDescription]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/SpanInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[addEvent]]></code>
+      <code><![CDATA[end]]></code>
+      <code><![CDATA[getContext]]></code>
+      <code><![CDATA[isEnded]]></code>
+      <code><![CDATA[setAttribute]]></code>
+      <code><![CDATA[setAttributes]]></code>
+      <code><![CDATA[setStatus]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/SpanRecording.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/TracerInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[startSpan]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Tooling/CoverageReport.php">
     <InvalidOperand>
       <code><![CDATA[$this->coveredStatements / $this->statements * 100.0]]></code>

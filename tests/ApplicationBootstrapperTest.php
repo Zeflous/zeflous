@@ -22,6 +22,9 @@ use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Framework\Middleware\TimingFactory;
+use Zef\Framework\Middleware\TracingFactory;
+use Zef\Framework\Telemetry\NoopSpan;
+use Zef\Framework\Telemetry\Tracer;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Middleware\MiddlewareTrace;
@@ -91,6 +94,10 @@ final class ApplicationBootstrapperTest extends TestCase
                     'factory' => TimingFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
                 ],
+                'observability.tracing' => [
+                    'factory' => TracingFactory::class . '::fromConfig',
+                    'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
+                ],
             ],
             $kernel->config()->get('framework.services'),
             "the default layer carries the framework's own registrations in its reserved namespace",
@@ -103,6 +110,17 @@ final class ApplicationBootstrapperTest extends TestCase
             TimingMiddleware::class,
             $kernel->container()->get('observability.timing'),
             'the timing family resolves through the container the stack membership triggers',
+        );
+        self::assertTrue($kernel->container()->has('observability.tracing'));
+        self::assertInstanceOf(
+            Tracer::class,
+            $kernel->container()->get('observability.tracing'),
+            'the tracing family resolves through the container, disarmed by the shipped profile',
+        );
+        self::assertInstanceOf(
+            NoopSpan::class,
+            $kernel->container()->get('observability.tracing')->startSpan('boot'),
+            'the shipped fail-closed arm answers the void span',
         );
 
         $response = new ApplicationBootstrapper()
