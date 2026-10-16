@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the timing family to pull request 362 [\#363](https://github.com/Zeflous/zeflous/pull/363) ([mbetixz](https://github.com/mbetixz))
+- feat\(http\): the timing family, config-driven [\#362](https://github.com/Zeflous/zeflous/pull/362) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the auth family to pull request 357 [\#358](https://github.com/Zeflous/zeflous/pull/358) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the auth family, config-driven [\#357](https://github.com/Zeflous/zeflous/pull/357) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the csrf family to pull request 351 [\#352](https://github.com/Zeflous/zeflous/pull/352) ([mbetixz](https://github.com/mbetixz))
