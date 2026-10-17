@@ -61,6 +61,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(telemetry): the metrics-and-health family, config-driven [#386](https://github.com/Zeflous/zeflous/pull/386) ([mbetixz](https://github.com/mbetixz))
 - feat(container): the autowiring family, compile-pass [#393](https://github.com/Zeflous/zeflous/pull/393) ([mbetixz](https://github.com/mbetixz))
 - feat(container): the scope & lifecycle family, lifetime as the sharing policy [#396](https://github.com/Zeflous/zeflous/pull/396) ([mbetixz](https://github.com/mbetixz))
+- feat(container): the tags & autoconfiguration family, one tag one source [#404](https://github.com/Zeflous/zeflous/pull/404) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 

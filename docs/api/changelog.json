@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-17T15:12:56Z",
+  "as_of": "2026-10-17T18:16:48Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 171,
+  "unreleased_count": 172,
   "versions": [
     {
       "version": "Unreleased",
@@ -1407,6 +1407,32 @@
                 "sha": "04e51addc9b5477cabaff376febd80719c32c22b",
                 "short_sha": "04e51ad",
                 "subject": "fix(container): merge the fast-path ignore into the existing ReturnRemoval entry"
+              }
+            ]
+          },
+          {
+            "pr": 404,
+            "title": "feat(container): the tags & autoconfiguration family, one tag one source",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-17T18:16:48Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/404",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e0d2b7a00c6682a3f8066d81e9c8cb3920f4a463",
+                "short_sha": "e0d2b7a",
+                "subject": "feat(container): the tags & autoconfiguration family, one tag one source"
+              },
+              {
+                "sha": "6902943e3846fab813402dd17d8c922df1dc6cfa",
+                "short_sha": "6902943",
+                "subject": "Merge branch 'main' into feat/container-tags-autoconfig-family"
+              },
+              {
+                "sha": "6b41337e5f927bffbcb6fde59fea37e2f1c30e53",
+                "short_sha": "6b41337",
+                "subject": "fix(container): the tags lane's gate round -- rector drift, the CI yardstick, four SonarCloud lines"
               }
             ]
           }
@@ -8675,6 +8701,32 @@
               "sha": "7a31bf4d4a2ac59781b455103d486f9f9759e60a",
               "short_sha": "7a31bf4",
               "subject": "docs(roadmap): pin the scope & lifecycle family to pull request 396"
+            }
+          ]
+        },
+        {
+          "pr": 404,
+          "title": "feat(container): the tags & autoconfiguration family, one tag one source",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-17T18:16:48Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/404",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e0d2b7a00c6682a3f8066d81e9c8cb3920f4a463",
+              "short_sha": "e0d2b7a",
+              "subject": "feat(container): the tags & autoconfiguration family, one tag one source"
+            },
+            {
+              "sha": "6902943e3846fab813402dd17d8c922df1dc6cfa",
+              "short_sha": "6902943",
+              "subject": "Merge branch 'main' into feat/container-tags-autoconfig-family"
+            },
+            {
+              "sha": "6b41337e5f927bffbcb6fde59fea37e2f1c30e53",
+              "short_sha": "6b41337",
+              "subject": "fix(container): the tags lane's gate round -- rector drift, the CI yardstick, four SonarCloud lines"
             }
           ]
         }
