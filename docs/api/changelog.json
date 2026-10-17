@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-17T12:23:17Z",
+  "as_of": "2026-10-17T13:36:05Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 168,
+  "unreleased_count": 169,
   "versions": [
     {
       "version": "Unreleased",
@@ -4128,6 +4128,22 @@
                 "sha": "9f4a3a611b6ca0184e199f166240ce6b928bd9cf",
                 "short_sha": "9f4a3a6",
                 "subject": "Merge branch 'main' into docs/roadmap-metrics-family-pin"
+              }
+            ]
+          },
+          {
+            "pr": 397,
+            "title": "docs(roadmap): pin the autowiring family to pull request 393",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T13:36:05Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/397",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b319b8824351dab62cd2d166461548b6e4d7cd53",
+                "short_sha": "b319b88",
+                "subject": "docs(roadmap): pin the autowiring family to pull request 393"
               }
             ]
           }
@@ -8519,6 +8535,22 @@
               "sha": "6724a49dcf7fd3bfe7ab7c33f07ea42c8231da90",
               "short_sha": "6724a49",
               "subject": "fix(container): the PR's gate round -- archeology, SonarCloud, three shapes"
+            }
+          ]
+        },
+        {
+          "pr": 397,
+          "title": "docs(roadmap): pin the autowiring family to pull request 393",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T13:36:05Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/397",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b319b8824351dab62cd2d166461548b6e4d7cd53",
+              "short_sha": "b319b88",
+              "subject": "docs(roadmap): pin the autowiring family to pull request 393"
             }
           ]
         }
