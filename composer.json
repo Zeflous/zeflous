@@ -66,7 +66,10 @@
             "src/autoload.php"
         ],
         "exclude-from-classmap": [
-            "/vendor/psr/container/src/"
+            "/vendor/psr/container/src/",
+            "/vendor/psr/http-factory/src/",
+            "/vendor/psr/http-message/src/",
+            "/vendor/psr/log/src/"
         ]
     },
     "autoload-dev": {
