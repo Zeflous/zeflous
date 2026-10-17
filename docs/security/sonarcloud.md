@@ -31,13 +31,21 @@ quality-gate verdict.
 - **Pull-request decoration**: once the GitHub ALM binding is configured
   (section 3, step 4), SonarCloud posts inline comments and a quality summary
   on every pull request it analyses.
-- **Always conclusive; green-with-notice when uncredentialed**: whenever the
-  job cannot scan credentialed — `SONAR_TOKEN` not set yet, or a
-  `pull_request` event where GitHub withholds repository secrets (a
-  `dependabot[bot]` author, or a head from a fork) — the job is green **with a
-  visible notice** (step summary + `::notice::`), never red and never silently
-  green. The job name **`SonarCloud analysis`** is a status-check context; keep
-  it stable if a branch protection rule pins it.
+- **Always conclusive; green-with-notice only where GitHub withholds secrets,
+  fail-closed everywhere else**: when the job cannot scan credentialed in a
+  context where GitHub itself withholds repository secrets — a `pull_request`
+  event whose head is from a fork, or whose author is `dependabot[bot]` or
+  `renovate[bot]` — it is green **with a visible notice** (step summary +
+  `::notice::`): a context that cannot be credentialed must not block the
+  pull-request queue. In every other context (a same-repository pull request,
+  a push to `main`, a manual run) the `SONAR_TOKEN` secret is always
+  injectable, so its absence is a misconfiguration, and the job **fails
+  closed** instead of certifying an analysis that never ran — `SonarCloud
+  analysis` is a required check, and a required check must never be green
+  without an analysis (narrowed 2026-10-18; see
+  `docs/ci-notes/merge-gate-audit.md`, finding 5). The job name
+  **`SonarCloud analysis`** is a status-check context; keep it stable if a
+  branch protection rule pins it.
 
 ## 3. Setup checklist (one-time)
 
