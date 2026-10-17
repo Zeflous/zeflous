@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-17 · `main` @ `fc7b1e7752`
+**Last updated:** 2026-10-17 · `main` @ `f36bfeca07`
 
 **How to read this file**
 
@@ -28,12 +28,12 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 11 |
-| CI / Supply chain | 33 (incl. auto-merge + Sonar lanes) |
+| CI / Supply chain | 35 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **138** |
+| **Total merged PRs** | **140** |
 
 ---
 
@@ -156,6 +156,8 @@ Every workflow, gate, and supply-chain lane. This is where the bulk of the recen
 | docs(readme): show main's real check state, not the last aggregator run (the repository carried no badge at all, and GitHub's own workflow badge reads the aggregator's latest run -- which fires per lane completion in every context, pull requests included, and whose main-context runs supersede each other into cancelled -- so a visitor saw red while main's checks were green; the README badge now reads the check-runs API for main's head, the same combined view branch protection enforces: green when the required checks are green, pending only while checks genuinely run, never a false red for a healthy branch; the aggregator's fail-closed semantics deliberately untouched -- silencing them would weaken a gate) | #411 | 2026-10-17 | `541cc26ef7` |
 | chore(repo): remove the demo template page (`index.html` was the GitHub demo repository this project was seeded from -- a single line welcoming visitors to a template nobody chose, referenced by nothing in a framework library that serves no static site; the repository description, the other template leftover, replaced out-of-band through the API with the package's own description from composer.json) | #412 | 2026-10-17 | `0cac6e815d` |
 | docs(security): add the vulnerability disclosure policy (`SECURITY.md` at the root, the location GitHub surfaces automatically: report through GitHub private vulnerability reporting -- verified enabled on the repository before the file advertised it -- with the maintainer email from composer.json as fallback, never through public issues; the scope statement names the runtime tree, the shipped sample configuration and the supply-chain surface, with three deliberate exclusions each carrying its way-out -- dev-only dependency CVEs (zero runtime deps, rule 1), runtime-host defects (report upstream), resource exhaustion inside documented budgets (tunable configuration); honest response targets: acknowledge within 7 days, coordinated disclosure within 90) | #413 | 2026-10-17 | `a1ede939dd` |
+| fix(ci): resolve the merge-gate audit's code-side findings (the second hardening audit -- docs/ci-notes/merge-gate-audit.md, shipped in the same change -- asked whether a pull request can merge while a required check never reported, and its three code-side findings are fixed here: the CI Strict fallback deadline now sits above the slowest lane's own timeout, 70 minutes against ci-infection.yml's 60 with the job budget at 75, and expiry CONCLUDES the required check timed_out instead of an eternal in_progress -- a blocked pull request with no red check to act on; the required SonarCloud analysis check fails closed when SONAR_TOKEN is absent in a context that can always have it -- a same-repository pull request, a push to main, a manual run -- keeping the green-with-notice path only where GitHub itself withholds secrets, a fork head or a dependabot/renovate author, with docs/security/sonarcloud.md section 2 amended in the same change so the documented contract cannot drift from the behaviour; and the auto-merge approve sweep reads each pull request's changed-file list and leaves workflow-modifying pull requests for a maintainer -- restoring GitHub's one human checkpoint on workflow-modifying code -- while the changelog lanes' pull requests, which never touch workflows, keep their automatic approval so the original stall does not return; the audit's action_required probe is recorded as a disproven hypothesis: the .conclusion filter matches real waiting runs on this repository, 11 of 11, and was deliberately left alone so nobody "fixes" a working filter against the REST documentation; the settings-side findings are filed as #420 and #421) | #422 | 2026-10-17 | `87fce0d12c` |
+| docs(gates): state the live required check set identically in README and CONTRIBUTING (finding 2 of the merge-gate audit: the required set had drifted in three directions -- CONTRIBUTING claimed two required checks, README claimed three, and the live main ruleset required eight, three of them dead DeepSource contexts that never reported; the ruleset half was applied out-of-band and evidenced on the issue, and this is the docs half: the settled five-context set -- CI Strict, PR Validator, PhpCodeArcheology SARIF, SonarCloud Code Analysis, SonarCloud analysis -- is stated identically in both documents, and the previously undocumented required check SonarCloud analysis gains its table row in both, so the next required-set change has exactly two places to update) | #423 | 2026-10-17 | `f36bfeca07` |
 
 ## 7. Changelog automation
 
