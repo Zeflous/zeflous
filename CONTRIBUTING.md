@@ -453,6 +453,15 @@ implementation completes — see
   plus the cross-cutting quality gates. It mirrors the present state and is
   edited in place.
 
+The `Last updated` pin of `ROADMAP-STATUS.md` is enforced, not merely asked
+for: on every lane that validates `main` (the scheduled main-validation
+watchdog and the post-push runs), the roadmap document gate requires the
+pinned commit to be an ancestor of the validated commit, and every commit
+between the pin and it to be changelog or pin bookkeeping. Any other change
+that lands on `main` leaves the pin stale and the gate red until a pull
+request refreshes the pin — which is why each implementation campaign ends
+with its pin pull request.
+
 Update both whenever a roadmap area gains code — see the "How to update this
 file" section at the bottom of each document.
 
