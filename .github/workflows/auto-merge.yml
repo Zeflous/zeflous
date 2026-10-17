@@ -352,12 +352,36 @@ jobs:
             #    to the "Approve and run" button). This runs on EVERY sweep,
             #    not only after a branch sync: the changelog lanes push with
             #    the built-in token and their runs are left waiting even when
-            #    the branch is already up to date. Fork PRs are skipped -
-            #    approving an untrusted fork's run is a maintainer decision,
-            #    not this lane's.
+            #    the branch is already up to date. Two pull-request classes are
+            #    deliberately left for a maintainer: fork pull requests
+            #    (approving an untrusted fork's run is a maintainer decision,
+            #    not this lane's) and, since the merge-gate audit
+            #    (docs/ci-notes/merge-gate-audit.md, finding 6), pull requests
+            #    that MODIFY WORKFLOW FILES: the first-run approval of a
+            #    workflow-modifying pull request is GitHub's one human
+            #    checkpoint on the automation itself, and erasing it composed
+            #    with the zero-review ruleset into an unreviewed-execution
+            #    path. The changelog lanes' pull requests never touch
+            #    workflows, so the stall this step exists to clear stays
+            #    cleared.
             is_fork=$(gh pr view "$pr" --json isCrossRepository --jq '.isCrossRepository' 2>/dev/null) || is_fork="false"
+            # Read the pull request's changed-file list (--paginate walks every
+            # page, not just the first 100 files). A transient read failure is
+            # treated conservatively: leave this sweep's approvals to a
+            # maintainer rather than approve blind.
+            wf_touched=false
+            if wf_files=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls/${pr}/files" --jq '.[].path' 2>/dev/null); then
+              if printf '%s\n' "$wf_files" | grep -qE '^\.github/workflows/'; then
+                wf_touched=true
+              fi
+            else
+              wf_touched=true
+              echo "::warning::Could not read PR #$pr's changed-file list; leaving run approval to a maintainer this sweep."
+            fi
             if [ "$is_fork" = "true" ]; then
               echo "PR #$pr is from a fork - leaving run approval to a maintainer."
+            elif [ "$wf_touched" = "true" ]; then
+              echo "::notice::PR #$pr modifies .github/workflows/ - leaving run approval to a maintainer (the first-run approval is the human checkpoint on workflow-modifying code; docs/ci-notes/merge-gate-audit.md, finding 6)."
             else
               # CRITICAL: the branch sync above may have MOVED the PR head (the
               # update-branch call is asynchronous), and the runs on the NEW head

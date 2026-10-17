@@ -49,10 +49,12 @@
 # (and as a safety net if a `workflow_run` event is ever dropped): on that path
 # the job waits for the lanes with a BOUNDED loop whose sleep is 60 seconds
 # (raised from 20s, which cuts the API request rate by two thirds and removes
-# the rate-limit pressure on stacked pull requests) and whose deadline is
-# shorter than the slowest lane's own timeout. Once this file is on the default
-# branch, `workflow_run` is the primary path and the fallback loop exits on its
-# first pass because every lane has already concluded.
+# the rate-limit pressure on stacked pull requests) and whose deadline sits
+# ABOVE the slowest lane's own timeout (70 minutes vs ci-infection.yml's 60)
+# so a lane that merely runs long is still awaited. Expiry now CONCLUDES the
+# check-run `timed_out` instead of leaving it `in_progress` forever -- an
+# eternal pending is fail-closed but fail-SILENT (a blocked pull request with
+# no red check to act on); see docs/ci-notes/merge-gate-audit.md, finding 4.
 #
 # WHY THE VERDICT IS KEYED TO THE ACTUAL HEAD SHA (not a merge-commit identity)
 # -----------------------------------------------------------------------------
@@ -155,11 +157,12 @@ jobs:
     name: CI Strict Aggregator
     runs-on: ubuntu-latest
     # The `workflow_run` path is a single pass (seconds). The bounded fallback
-    # path waits for the lanes; its deadline (45 min) is shorter than the
-    # slowest lane's own timeout, and the job budget (50 min) is above it, so
-    # the job always CONCLUDES (fails) on a stuck lane instead of being killed
-    # while the required check is still `pending`.
-    timeout-minutes: 50
+    # path waits for the lanes; its deadline (70 min) sits ABOVE the slowest
+    # lane's own timeout (ci-infection.yml: 60 min) so a lane that merely runs
+    # long is still awaited, and the job budget (75 min) is above the deadline,
+    # so the job always CONCLUDES (red) on a stuck lane instead of being killed
+    # while the required check is still pending.
+    timeout-minutes: 75
 
     steps:
       - name: Aggregate the strict lanes into the required `CI Strict` check
@@ -247,29 +250,53 @@ jobs:
             // last one, so a single pass suffices -- NO polling. On the
             // bootstrap/fallback path (`pull_request`/`push`/`workflow_dispatch`)
             // we wait with a BOUNDED loop: sleep 60s (raised from 20s, cutting
-            // the API request rate by two thirds) and a 45-minute deadline
-            // (shorter than the slowest lane's own timeout).
+            // the API request rate by two thirds) and a 70-minute deadline that
+            // sits ABOVE the slowest lane's own timeout (ci-infection.yml: 60
+            // minutes), so a lane that merely runs long is still awaited. When
+            // the deadline expires with lanes still unresolved, the verdict
+            // CONCLUDES `timed_out` (below) -- an eternal `in_progress` is
+            // fail-closed but fail-silent, and no later event is guaranteed to
+            // re-aggregate this head (a dropped `workflow_run` has no retry).
             const isEventDriven = context.eventName === "workflow_run";
-            const deadline = Date.now() + 45 * 60 * 1000;
+            const deadline = Date.now() + 70 * 60 * 1000;
             let state = await aggregate();
+            let expired = false;
             if (!isEventDriven) {
               while (!state.allDone && !state.anyFailed && Date.now() < deadline) {
                 core.info("Lanes still pending; re-checking in 60s...");
                 await new Promise((resolve) => setTimeout(resolve, 60000));
                 state = await aggregate();
               }
+              expired = !state.allDone && !state.anyFailed;
             }
 
-            const conclusion = state.anyFailed ? "failure" : (state.allDone ? "success" : null);
+            // On the event-driven path a pass with lanes still pending is NORMAL
+            // (each lane completion re-fires this workflow), so the check stays
+            // `in_progress` there by design. On the fallback path, expiry means
+            // no verdict will EVER arrive on its own: conclude `timed_out` -- a
+            // visible, red, actionable verdict (re-run this workflow or the lane
+            // it names) instead of an eternal pending that blocks the pull
+            // request with no signal to act on.
+            const conclusion = state.anyFailed
+              ? "failure"
+              : state.allDone
+                ? "success"
+                : expired
+                  ? "timed_out"
+                  : null;
             const status = conclusion ? "completed" : "in_progress";
             const summary = [
               `Aggregated strict lanes for \`${sha}\` (event: \`${context.eventName}\`).`,
               "",
               ...state.lines,
               "",
-              conclusion
+              conclusion === "success"
                 ? `**Verdict: ${conclusion}**`
-                : "**Verdict: pending** -- waiting for the remaining lanes.",
+                : conclusion === "timed_out"
+                  ? "**Verdict: timed_out** -- the fallback wait expired with lanes still unresolved; no lane was red, but no later event is guaranteed to re-aggregate this head. Re-run this workflow, or the lane reported as non-completed above."
+                  : conclusion
+                    ? `**Verdict: ${conclusion}**`
+                    : "**Verdict: pending** -- waiting for the remaining lanes.",
             ].join("\n");
 
             // --- Create or update the required `CI Strict` check-run. -------
@@ -308,9 +335,14 @@ jobs:
 
             core.info(summary);
 
-            // Fail the job itself when a lane is red, so the run is visibly red
-            // in the Actions tab as well as on the check-run.
-            if (state.anyFailed) {
-              core.setFailed("One or more strict lanes failed; the CI Strict check is red.");
+            // Fail the job itself when a lane is red or the fallback timed out,
+            // so the run is visibly red in the Actions tab as well as on the
+            // check-run.
+            if (state.anyFailed || expired) {
+              core.setFailed(
+                expired
+                  ? "The fallback wait expired with strict lanes still unresolved; the CI Strict check is timed_out (red), not pending."
+                  : "One or more strict lanes failed; the CI Strict check is red.",
+              );
             }
             })();
