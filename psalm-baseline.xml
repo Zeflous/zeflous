@@ -115,6 +115,11 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Health/HealthAggregator.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[aggregate]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Health/HealthChecker.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[add]]></code>

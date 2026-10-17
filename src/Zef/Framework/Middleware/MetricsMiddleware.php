@@ -37,13 +37,13 @@ use Zef\Framework\Telemetry\PrometheusRenderer;
  *
  * THE SURFACE IS FOUR ENDPOINTS, judged by the exact request path:
  * the exposition ({@see MetricsPolicy::$metricsPath}) answering the
- * `text/plain` exposition format over the meter's snapshot; the
- * health base ({@see MetricsPolicy::$healthPath}) answering the
- * whole registry's aggregate; and the two views deriving from it
- * (`/live`, `/ready`) answering the grouped aggregates the
- * load-balancer contracts spell. The judgement is exact-path and
- * GET-only: every other method passes through to the handler
- * untouched -- the endpoints are read surfaces, and a write method
+ * `text/plain` exposition format over the meter's snapshot; and the
+ * health surface's three views ({@see self::HEALTH_VIEWS}): the bare
+ * base ({@see MetricsPolicy::$healthPath}) answering the whole
+ * registry's view, the two suffixes (`/live`, `/ready`) answering the
+ * grouped views the load-balancer contracts spell. The judgement is
+ * exact-path and GET-only: every other method passes through to the
+ * handler untouched -- the endpoints are read surfaces, and a write method
  * addressed at them is the terminal handler's business, not the
  * family's. A HEAD request rides the stack's own head middleware
  * ({@see \Zef\Framework\Http\HeadMiddleware}): composed above, it
@@ -91,6 +91,16 @@ final readonly class MetricsMiddleware implements MiddlewareInterface
 
     /** The ready view's suffix on the health base path. */
     private const string READY_SUFFIX = '/ready';
+
+    /** The health views the surface serves, keyed by their path
+     * suffix: the bare path answers the whole registry's view
+     * (`all`), the two suffixes the views the load balancer's
+     * liveness and readiness gates poll. */
+    private const array HEALTH_VIEWS = [
+        '' => HealthGroups::GROUP_ALL,
+        self::LIVE_SUFFIX => HealthGroups::GROUP_LIVE,
+        self::READY_SUFFIX => HealthGroups::GROUP_READY,
+    ];
 
     /**
      * @param MetricsPolicy      $metricsPolicy      the family's frozen knob set
@@ -175,22 +185,12 @@ final readonly class MetricsMiddleware implements MiddlewareInterface
     {
         $healthPath = $this->metricsPolicy->healthPath;
 
-        if ($path === $healthPath) {
-            return $this->healthResponse(
-                $this->healthAggregator->aggregate($this->metricsPolicy->timeoutMs),
-            );
-        }
-
-        if ($path === $healthPath . self::LIVE_SUFFIX) {
-            return $this->healthResponse(
-                $this->healthAggregator->aggregateFor(HealthGroups::GROUP_LIVE, $this->metricsPolicy->timeoutMs),
-            );
-        }
-
-        if ($path === $healthPath . self::READY_SUFFIX) {
-            return $this->healthResponse(
-                $this->healthAggregator->aggregateFor(HealthGroups::GROUP_READY, $this->metricsPolicy->timeoutMs),
-            );
+        foreach (self::HEALTH_VIEWS as $suffix => $group) {
+            if ($path === $healthPath . $suffix) {
+                return $this->healthResponse(
+                    $this->healthAggregator->aggregateFor($group, $this->metricsPolicy->timeoutMs),
+                );
+            }
         }
 
         return null;

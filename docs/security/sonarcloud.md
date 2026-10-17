@@ -104,6 +104,21 @@ the coverage denominator (`tests/**`, `benchmarks/**`, `scripts/**`), and
 `sonar.cpd.exclusions` keeps the vendored shim out of the copy-paste detector
 while leaving first-party code fully visible to it.
 
+**Issue-level exclusions (one, and it stays one):** `php:S1066` on
+`src/Zef/Framework/Telemetry/MeterCount.php` is the repository's only
+`sonar.issue.ignore.multicriteria` entry. The rule asks the nested `is_int`
+guards in `MeterCount::advanced()` to merge into one `&&`-joined condition,
+but that merged spelling mints an **escaping mutation-testing mutant**: the
+mixed-operand case the joined guard would reroute between the two arithmetic
+paths answers the identical float under both (PHP widens the int operand
+either way), so no test can distinguish them, and the mutation gate's MSI
+100% contract cannot be met by the code shape the rule prefers. The nested
+spelling — no binary boolean operator anywhere — is load-bearing for the
+mutation gate, in exactly the way `infection.json5`'s documented
+equivalent-mutant records are. The exclusion is scoped to that single file;
+the rule stays on everywhere else. Any future exclusion must document an
+equally mechanical conflict between two gates, not a style preference.
+
 **Diagnostic**: the workflow's "Analysis scope (diagnostic)" step prints the
 tracked-file and `src/`-file counts on every run, so scope drift is visible
 rather than silent.

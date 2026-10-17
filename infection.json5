@@ -519,15 +519,15 @@
         // applied mutation -- the complete suite passes, the pure
         // integer counter still renders its 3.0). The count's own
         // arithmetic in MeterCount::advanced() is the same class of
-        // cast: the branch only runs when at least one operand is
-        // already float (the int-with-int nesting returns ahead of
-        // it), and an int operand widens to float identically under
-        // either spelling, so the two casts are the analyser's
-        // narrowing of the int|float stubs, never runtime coercions
-        // (verified by running the family suite under the manually
-        // applied mutation -- the complete suite passes, the
-        // fractional join still carries its 3.5). These ignores are
-        // scoped to those two places.
+        // cast: the strict-binary-operands analysis refuses the
+        // int|float mix uncast, and the trailing join only runs when
+        // at least one operand is already float (the nested is_int
+        // guards return the int-int case ahead of it), so the casts
+        // are the analyser's narrowing of the int|float stubs, never
+        // runtime coercions (verified by running the family suite
+        // under the manually applied mutation -- the complete suite
+        // passes, the fractional join still carries its 3.5). These
+        // ignores are scoped to those two places.
         "CastFloat": {
             "ignoreSourceCodeByRegex": [
                 "\\$count = \\(float\\) \\$series\\['count'\\];"
