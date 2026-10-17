@@ -58,6 +58,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(telemetry): the tracing core, config-driven [#366](https://github.com/Zeflous/zeflous/pull/366) ([mbetixz](https://github.com/mbetixz))
 - feat(telemetry): the correlation family, config-driven [#371](https://github.com/Zeflous/zeflous/pull/371) ([mbetixz](https://github.com/mbetixz))
 - feat(telemetry): the hygiene-and-export family, config-driven [#375](https://github.com/Zeflous/zeflous/pull/375) ([mbetixz](https://github.com/mbetixz))
+- feat(telemetry): the metrics-and-health family, config-driven [#386](https://github.com/Zeflous/zeflous/pull/386) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
