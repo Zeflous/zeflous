@@ -158,7 +158,7 @@ final class CorrelationFactoryTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 "The observability configuration carries the unknown family 'correlaton'"
-                . ' (known families: timing, tracing, correlation, export).',
+                . ' (known families: timing, tracing, correlation, export, metrics).',
                 $httpException->getMessage(),
             );
         }

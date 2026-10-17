@@ -6,6 +6,7 @@ namespace Zef\Test;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Contracts\HealthCheckInterface;
 use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Health\HealthReport;
 use Zef\Test\Support\FixedHealthCheck;
@@ -54,6 +55,32 @@ final class HealthTest extends TestCase
 
         self::assertSame(2, $healthChecker->count());
         self::assertSame(['a' => false, 'b' => true], $healthChecker->report()->checks());
+    }
+
+    public function testTheChecksAccessorAnswersTheProbeListInRegistrationOrder(): void
+    {
+        $healthChecker = new HealthChecker();
+        $first = new FixedHealthCheck('a', true);
+        $second = new FixedHealthCheck('b', true);
+        $healthChecker->add($first);
+        $healthChecker->add($second);
+
+        $replacement = new FixedHealthCheck('a', false);
+        $healthChecker->add($replacement);
+
+        $checks = $healthChecker->checks();
+
+        self::assertSame(
+            [$replacement, $second],
+            $checks,
+            'the re-registered name keeps its slot with its newest probe',
+        );
+        self::assertContainsOnlyInstancesOf(HealthCheckInterface::class, $checks);
+    }
+
+    public function testTheChecksAccessorOfAnEmptyRegistryIsEmpty(): void
+    {
+        self::assertSame([], new HealthChecker()->checks());
     }
 
     public function testAllHealthyChecksProduceAHealthyReport(): void

@@ -215,6 +215,24 @@
         // the seam landed in ExportPolicy and the archaeology gate's
         // split moved it whole into ExportBounds -- the grammar's
         // argument is the method's own, wherever it lives.
+        // The crash containment's class-name truncation in
+        // HealthProbe::judged() is the next MBString zone: PHP class
+        // names are ASCII by this repository's own grammar (the PSR
+        // identifier alphabet every fixture and engine class carries),
+        // so mb_substr() and substr() agree on every string the
+        // containment can ever read (verified by running the family
+        // suite under the manually applied mutation -- the complete
+        // suite passes, the over-long fixture still truncated at its
+        // bound). The ProbeName::sanitized() mb_substr is the same
+        // class of zone, empirically: the byte-wise preg_replace fold
+        // ahead of it ([A-Za-z0-9._-] alphabet, every other BYTE the
+        // underscore) destroys every multibyte spelling before the
+        // cap ever reads, so the operand is pure ASCII by construction
+        // and the two spellings agree on every value the line can ever
+        // see (verified by running the family suite under the manually
+        // applied mutation -- the complete suite passes, including the
+        // multibyte name paths). This ignore is scoped to those two
+        // methods.
         "MBString": {
             "ignore": [
                 "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
@@ -236,7 +254,9 @@
                 "Zef\\Framework\\Telemetry\\CorrelationInboundPair::acceptedLine",
                 "Zef\\Framework\\Telemetry\\CorrelationInboundPair::identityFromLine",
                 "Zef\\Framework\\Telemetry\\TelemetrySanitizer::string",
-                "Zef\\Framework\\Telemetry\\TraceContextPropagator::extract"
+                "Zef\\Framework\\Telemetry\\TraceContextPropagator::extract",
+                "Zef\\Framework\\Health\\HealthProbe::judged",
+                "Zef\\Framework\\Health\\ProbeName::sanitized"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);"
@@ -368,10 +388,16 @@
         // The early return is a performance guard on the hot clamp
         // path, never a correctness branch. This ignore is scoped to
         // that single method.
+        // The divergence guard's early return rides the same NaN-false
+        // property as the LogicalOr zone above: removing the return
+        // falls a NaN series through to the abs() comparison, which
+        // answers false on the NaN operand -- the identical answer the
+        // guard spells. This ignore is scoped to that single method.
         "ReturnRemoval": {
             "ignore": [
                 "Zef\\Framework\\Container\\ServiceDefinitionGraph::visit",
-                "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed"
+                "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed",
+                "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
             ]
         },
         // The correlation pair's tolerant extraction is a chain of
@@ -423,9 +449,108 @@
         // GreaterThan mutant in validateTraceState() stays under the
         // mutator: the at-the-ceiling companion test kills it. This
         // ignore is scoped to the constructor alone.
+        // The infinity's sign judgement in
+        // PrometheusNumbers::rendered() is the next GreaterThan zone:
+        // the branch only runs on values is_finite() already refused,
+        // and zero is finite -- so the non-finite domain the judgement
+        // reads excludes zero by construction, and > and >= agree on
+        // every value that can ever reach the line (+Inf and -Inf are
+        // sign-stable under both comparisons). This ignore is scoped
+        // to that single method.
         "GreaterThan": {
             "ignore": [
-                "Zef\\Framework\\Telemetry\\CorrelationIdentity::__construct"
+                "Zef\\Framework\\Telemetry\\CorrelationIdentity::__construct",
+                "Zef\\Framework\\Telemetry\\PrometheusNumbers::rendered"
+            ]
+        },
+        // The system clock's int cast in
+        // HealthScrapeClock::__construct() is value-equivalent by the
+        // platform: hrtime(true) answers int on every 64-bit build
+        // (the only builds the framework declares), so the cast is
+        // the analyser's narrowing of an int|float stub, never a
+        // runtime coercion (verified by running the family suite
+        // under the manually applied mutation -- the complete suite
+        // passes). This ignore is scoped to that single method.
+        "CastInt": {
+            "ignore": [
+                "Zef\\Framework\\Health\\HealthScrapeClock::__construct"
+            ]
+        },
+        // The divergence judgement's NaN guards in
+        // PrometheusNumbers::diverged() are value-equivalent under
+        // every spelling the mutator can write, which is the point of
+        // their construction: with a NaN operand every float
+        // comparison answers false, so the guard's return-false and
+        // the fall-through's abs() comparison answer the identical
+        // false, the LogicalOr-to-LogicalAnd flip and the guard's own
+        // removal included (KDD-OB31's record: the explicit guards
+        // close the reference's documented inverted-form trap -- the
+        // auto-fixer's own early-exit rewrite was caught mid-PR by the
+        // NaN series test, and the mutant here is the same proof
+        // replayed). This ignore is scoped to that single method.
+        "LogicalOr": {
+            "ignore": [
+                "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
+            ]
+        },
+        // The TYPE bookkeeping's boolean stores are
+        // truthiness-free by construction: the bookkeeping set is
+        // read through isset() alone, and isset() answers on
+        // null-ness, never on truthiness -- a false-valued entry is
+        // as present as a true-valued one, so the TrueValue flip
+        // cannot change which TYPE headers the render emits (verified
+        // by running the family suite under the manually applied
+        // mutations -- the once-per-metric tests still pin both
+        // bookkeeping lines). These ignores are scoped to the two
+        // bookkeeping stores alone.
+        "TrueValue": {
+            "ignoreSourceCodeByRegex": [
+                "\\$emittedTypes\\[\\$metricName( \\. '_sum')?\\] = true;"
+            ]
+        },
+        // The series count's float cast in
+        // PrometheusRenderer::render() is value-equivalent by the
+        // engine's own contract: PHP widens int to float silently even
+        // under strict types (an int is exactly representable as a
+        // float), so the cast is the analyser's narrowing of the
+        // snapshot's int|float count, never a runtime coercion --
+        // rendered(2) and rendered(2.0) answer the identical JSON form
+        // (verified by running the family suite under the manually
+        // applied mutation -- the complete suite passes, the pure
+        // integer counter still renders its 3.0). The count's own
+        // arithmetic in MeterCount::advanced() is the same class of
+        // cast: the branch only runs when at least one operand is
+        // already float (the int-with-int nesting returns ahead of
+        // it), and an int operand widens to float identically under
+        // either spelling, so the two casts are the analyser's
+        // narrowing of the int|float stubs, never runtime coercions
+        // (verified by running the family suite under the manually
+        // applied mutation -- the complete suite passes, the
+        // fractional join still carries its 3.5). These ignores are
+        // scoped to those two places.
+        "CastFloat": {
+            "ignoreSourceCodeByRegex": [
+                "\\$count = \\(float\\) \\$series\\['count'\\];"
+            ],
+            "ignore": [
+                "Zef\\Framework\\Telemetry\\MeterCount::advanced"
+            ]
+        },
+        // The render's series ceiling in
+        // PrometheusRenderer::render() is a terminal loop bound: the
+        // series counter is monotonic, so every iteration past the
+        // ceiling answers the same too-many judgement -- a break and a
+        // continue select the identical remaining iterations (nothing
+        // after the first over-ceiling series appends a line either
+        // way, verified by running the ceiling test under the manually
+        // applied mutation -- the 4096-series render still answers
+        // exactly its ceiling). The ignore is method-scoped because
+        // the mutator lands on the break statement itself: a regex on
+        // the guarding condition can never meet the mutated line. This
+        // ignore is scoped to that single method.
+        "Break_": {
+            "ignore": [
+                "Zef\\Framework\\Telemetry\\PrometheusRenderer::render"
             ]
         }
     },
