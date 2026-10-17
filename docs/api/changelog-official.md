@@ -6,7 +6,13 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the merge-gate hardening batch to pull request 423 [\#427](https://github.com/Zeflous/zeflous/pull/427) ([mbetixz](https://github.com/mbetixz))
+- fix\(tooling\): the update-merges of every branch kind are bookkeeping [\#426](https://github.com/Zeflous/zeflous/pull/426) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): pin the gate and coverage work to pull request 418 [\#424](https://github.com/Zeflous/zeflous/pull/424) ([mbetixz](https://github.com/mbetixz))
+- docs\(gates\): state the live required check set identically in README and CONTRIBUTING [\#423](https://github.com/Zeflous/zeflous/pull/423) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): resolve the merge-gate audit's code-side findings \(aggregator stall, Sonar fail-open, approve sweep\) [\#422](https://github.com/Zeflous/zeflous/pull/422) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the audit-fix batch to pull request 413 [\#419](https://github.com/Zeflous/zeflous/pull/419) ([mbetixz](https://github.com/mbetixz))
+- test\(coverage\): cover the eight orphan concrete classes [\#418](https://github.com/Zeflous/zeflous/pull/418) ([mbetixz](https://github.com/mbetixz))
 - feat\(tooling\): refuse a stale roadmap pin on main [\#417](https://github.com/Zeflous/zeflous/pull/417) ([mbetixz](https://github.com/mbetixz))
 - docs\(security\): add the vulnerability disclosure policy [\#413](https://github.com/Zeflous/zeflous/pull/413) ([mbetixz](https://github.com/mbetixz))
 - chore\(repo\): remove the demo template page [\#412](https://github.com/Zeflous/zeflous/pull/412) ([mbetixz](https://github.com/mbetixz))
