@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-17 · `main` @ `45feb6f`
+**Last updated:** 2026-10-17 · `main` @ `6325fbc`
 
 ---
 
@@ -22,7 +22,7 @@ see how far the code has moved against the roadmap.
 | # | Area | Status | Evidence |
 |---|------|--------|----------|
 | 1 | Registration & service definition | 🟡 Partial | `src/Zef/Framework/Container/Container.php` (`set()`), `ServiceStore.php` — closure/factory registration; plus the declarative definition grammar (#328): `Container/DefinitionKeys`+`DefinitionShapes`+the four `*Definition`/`*Shape` pairs parse the four mutually-exclusive shapes (`class`+`arguments`, `factory Target::method`+`arguments`, `alias`, `value`) fail-closed (unknown keys rejected with the known-key list, `class_exists` at parse time), `DefinitionArguments` validates the `['service' => id]` reference form, `ServiceDefinitionGraph` proves the whole set resolvable and acyclic at boot (unknown targets and circular chains reported with the walked chain) before a single definition is installed, `DefinitionCompiler` translates each shape into the container's existing `set()` closure form, and `ContainerBootstrapper` (Kernel layer, `services` configuration key) is the config->container glue — the container layer stays Config-free (deptrac unchanged). Env values, parameter providers, compile/dump (area 8) not yet present. |
-| 2 | Autowiring | ⬜ Not started | No reflection-based resolution yet. |
+| 2 | Autowiring | ✅ Implemented | The compile-pass model over the declarative grammar (#393): `Container/Autowiring/` — `AutowireCompilerPass` runs between parse and graph, live reflection boot-only (`ReflectionMetadataExtractor` + `AutowireSpecFactory`, the `AutowireParameterSpec` snapshot pure data — reflection caching won by construction), the class shape's three argument forms (positional verbatim with the arity honesty read, the name-keyed hybrid where named wins over auto, `'autowire' => true` for the whole constructor), the precedence ladder in `AutowireParameterPlanner` (named → `#[Inject]` → `#[Target]` → declared type/alias/container → the constructor's own default baked verbatim → the honest refusal — null never guessed into a slot), births only at boot and only because a declared parameter type names an instantiable unregistered class, riding the same `ServiceDefinitionGraph` (two-time cycle discipline intact); installs ordinary positional definitions through the public `set()` surface — runtime resolution stays the memoised factory lane (~0.5µs), `ServiceStore`/`Container`/`CycleGuard` untouched; `AutowireResult` reports definitions/generated/reused; KDD-A1..A14 in `docs/ci-notes/container-autowiring.md`. Variadic collection deferred to area 3, `#[Value]` to the registration lane — both refusals name their lane. |
 | 3 | Autoconfiguration (attributes) | ⬜ Not started | — |
 | 4 | Injector (property/method injection) | ⬜ Not started | — |
 | 5 | Scope & lifecycle | 🟡 Partial | `ServiceStore::resolve()` memoises instances (singleton/shared), the memoisation now written through the `CycleGuard` the runtime cycle refusal rides on -- a factory re-entering an id still resolving refused with the walked chain (#380); factory/prototype, per-request scope, lazy services not yet present. |
