@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-17T14:55:34Z",
+  "as_of": "2026-10-17T15:12:56Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 170,
+  "unreleased_count": 171,
   "versions": [
     {
       "version": "Unreleased",
@@ -4190,6 +4190,22 @@
                 "sha": "b319b8824351dab62cd2d166461548b6e4d7cd53",
                 "short_sha": "b319b88",
                 "subject": "docs(roadmap): pin the autowiring family to pull request 393"
+              }
+            ]
+          },
+          {
+            "pr": 400,
+            "title": "docs(roadmap): pin the scope & lifecycle family to pull request 396",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T15:12:56Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/400",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7a31bf4d4a2ac59781b455103d486f9f9759e60a",
+                "short_sha": "7a31bf4",
+                "subject": "docs(roadmap): pin the scope & lifecycle family to pull request 396"
               }
             ]
           }
@@ -8643,6 +8659,22 @@
               "sha": "b319b8824351dab62cd2d166461548b6e4d7cd53",
               "short_sha": "b319b88",
               "subject": "docs(roadmap): pin the autowiring family to pull request 393"
+            }
+          ]
+        },
+        {
+          "pr": 400,
+          "title": "docs(roadmap): pin the scope & lifecycle family to pull request 396",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T15:12:56Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/400",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7a31bf4d4a2ac59781b455103d486f9f9759e60a",
+              "short_sha": "7a31bf4",
+              "subject": "docs(roadmap): pin the scope & lifecycle family to pull request 396"
             }
           ]
         }
