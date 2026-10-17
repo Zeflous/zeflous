@@ -348,6 +348,11 @@ final class ApplicationBootstrapperTest extends TestCase
         self::assertTrue($rebuilt->has('services'));
     }
 
+    public function testTheDefaultProfileShipsTheEmptyAutoconfigurationKnob(): void
+    {
+        self::assertSame(['interfaces' => []], FrameworkDefaults::profile()['tags']);
+    }
+
     /**
      * Removes a temporary directory tree; the cache test's known layout
      * keeps this walk shallow.

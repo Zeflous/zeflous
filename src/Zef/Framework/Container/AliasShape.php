@@ -49,6 +49,13 @@ final readonly class AliasShape
             );
         }
 
+        if (\array_key_exists('tags', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries 'tags' on a 'alias' definition "
+                . '(an alias is transparent: the tag belongs on the definition it points to).',
+            );
+        }
+
         return new AliasDefinition($id, $target);
     }
 }

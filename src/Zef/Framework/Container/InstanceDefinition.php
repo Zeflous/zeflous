@@ -21,7 +21,30 @@ final readonly class InstanceDefinition extends ServiceDefinition
         /** @var list<mixed> */
         public array $arguments = [],
         ServiceLifetime $serviceLifetime = ServiceLifetime::SINGLETON,
+        ServiceTags $serviceTags = new ServiceTags(),
     ) {
-        parent::__construct($id, $serviceLifetime);
+        parent::__construct($id, $serviceLifetime, $serviceTags);
+    }
+
+    /**
+     * The same declaration carrying a further tag list -- the merge
+     * the autoconfiguration apply uses to add the tags a declaration
+     * earned to the tags it spelled. The value object's own grammar
+     * still holds: a tag both lists carry is the duplicate the
+     * constructor refuses (the apply has already refused the
+     * collision, so the refusal here is the unreachable guard it
+     * nevertheless keeps).
+     *
+     * @param list<string> $added the earned tags, in earn order
+     */
+    public function withAddedTags(array $added): self
+    {
+        return new self(
+            $this->id,
+            $this->class,
+            $this->arguments,
+            $this->lifetime,
+            new ServiceTags([...$this->tags->all(), ...$added]),
+        );
     }
 }

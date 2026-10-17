@@ -26,9 +26,16 @@ final readonly class ArgumentsForm
         string $class,
         mixed $arguments,
         ?ServiceLifetime $serviceLifetime = null,
+        ?ServiceTags $serviceTags = null,
     ): ServiceDefinition {
         if ($arguments === null) {
-            return new InstanceDefinition($id, $class, [], $serviceLifetime ?? ServiceLifetime::SINGLETON);
+            return new InstanceDefinition(
+                $id,
+                $class,
+                [],
+                $serviceLifetime ?? ServiceLifetime::SINGLETON,
+                $serviceTags ?? new ServiceTags(),
+            );
         }
 
         if (!\is_array($arguments)) {
@@ -41,6 +48,7 @@ final readonly class ArgumentsForm
                 $class,
                 DefinitionArguments::assertValid($id, $arguments),
                 $serviceLifetime ?? ServiceLifetime::SINGLETON,
+                $serviceTags ?? new ServiceTags(),
             );
         }
 
@@ -49,6 +57,7 @@ final readonly class ArgumentsForm
             $class,
             NamedArguments::assert($id, $arguments),
             $serviceLifetime ?? ServiceLifetime::SINGLETON,
+            $serviceTags ?? new ServiceTags(),
         );
     }
 

@@ -24,6 +24,8 @@ use Zef\Framework\Container\InstanceShape;
 use Zef\Framework\Container\NamedArguments;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\ServiceLifetime;
+use Zef\Framework\Container\ServiceTagKey;
+use Zef\Framework\Container\ServiceTags;
 use Zef\Framework\Container\UnplannedInstanceDefinition;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Framework\Container\ValueShape;
@@ -34,6 +36,8 @@ use Zef\Test\Support\Container\Greeter;
  * @internal
  */
 #[CoversClass(ServiceDefinition::class)]
+#[CoversClass(ServiceTagKey::class)]
+#[CoversClass(ServiceTags::class)]
 #[CoversClass(DefinitionKeys::class)]
 #[CoversClass(DefinitionShapes::class)]
 #[CoversClass(InstanceShape::class)]
@@ -229,7 +233,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key '5' "
-                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags).',
                 $definitionException->getMessage(),
             );
         }
@@ -256,7 +260,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key 'clas' "
-                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags).',
                 $definitionException->getMessage(),
             );
         }
@@ -681,5 +685,221 @@ final class ServiceDefinitionTest extends TestCase
                 $definitionException->getMessage(),
             );
         }
+    }
+
+    public function testTheBareClassShapeCarriesItsDeclaredTags(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.greeter', [
+            'class' => Greeter::class,
+            'tags' => ['app.greeting', 'shared.label'],
+        ]);
+
+        self::assertInstanceOf(InstanceDefinition::class, $definition);
+        self::assertSame(['app.greeting', 'shared.label'], $definition->tags->all());
+    }
+
+    public function testThePositionalArgumentsFormCarriesItsDeclaredTags(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.greeter', [
+            'class' => Greeter::class,
+            'arguments' => ['Hello'],
+            'tags' => ['app.greeting'],
+        ]);
+
+        self::assertInstanceOf(InstanceDefinition::class, $definition);
+        self::assertSame(['app.greeting'], $definition->tags->all());
+    }
+
+    public function testTheNameKeyedFormCarriesItsDeclaredTags(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.greeter', [
+            'class' => Greeter::class,
+            'arguments' => ['salutation' => 'Hello'],
+            'tags' => ['app.greeting'],
+        ]);
+
+        self::assertInstanceOf(UnplannedInstanceDefinition::class, $definition);
+        self::assertSame(['app.greeting'], $definition->tags->all());
+    }
+
+    public function testTheAutowireFormCarriesItsDeclaredTags(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.greeter', [
+            'class' => Greeter::class,
+            'autowire' => true,
+            'tags' => ['app.greeting'],
+        ]);
+
+        self::assertInstanceOf(UnplannedInstanceDefinition::class, $definition);
+        self::assertSame(['app.greeting'], $definition->tags->all());
+    }
+
+    public function testTheFactoryShapeCarriesItsDeclaredTags(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.label', [
+            'factory' => ExternalFactory::class . '::make',
+            'tags' => ['app.labeling'],
+        ]);
+
+        self::assertInstanceOf(FactoryDefinition::class, $definition);
+        self::assertSame(['app.labeling'], $definition->tags->all());
+    }
+
+    public function testEveryShapeDefaultsToNoTagsAtAll(): void
+    {
+        $class = ServiceDefinition::fromArray('app.greeter', ['class' => Greeter::class]);
+        $factory = ServiceDefinition::fromArray('app.label', ['factory' => ExternalFactory::class . '::make']);
+
+        self::assertSame([], $class->tags->all());
+        self::assertSame([], $factory->tags->all());
+        self::assertFalse($class->tags->carries('app.greeting'));
+        self::assertFalse($factory->tags->carries('app.labeling'));
+    }
+
+    public function testTagMembershipAnswersForOneExactSpelling(): void
+    {
+        $serviceTags = new ServiceTags(['app.greeting', 'shared.label']);
+
+        self::assertTrue($serviceTags->carries('app.greeting'));
+        self::assertTrue($serviceTags->carries('shared.label'));
+        self::assertFalse($serviceTags->carries('app'));
+        self::assertFalse($serviceTags->carries('APP.GREETING'));
+    }
+
+    public function testATagListIsRefusedWhenItIsNotAList(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.greeter', [
+                'class' => Greeter::class,
+                'tags' => 'app.greeting',
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.greeter' tags must be a list of tag strings, string given.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testATagListIsRefusedWhenItIsMapKeyed(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.greeter', [
+                'class' => Greeter::class,
+                'tags' => ['primary' => 'app.greeting'],
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.greeter' tags must be a list of tag strings, array given.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testATagEntryIsRefusedWhenItIsNotAString(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.greeter', [
+                'class' => Greeter::class,
+                'tags' => [7],
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                'A service tag must match [A-Za-z0-9._-]{1,128}, int given.',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testATagEntryIsRefusedWhenItsSpellingLeavesTheGrammar(): void
+    {
+        foreach (['', ' app.greeting', 'app.greeting ', 'app greeting', 'app/greeting', 'mäkki'] as $tag) {
+            try {
+                new ServiceTags([$tag]);
+                self::fail("Expected a DefinitionException for the tag '{$tag}'.");
+            } catch (DefinitionException $definitionException) {
+                self::assertSame(
+                    "A service tag must match [A-Za-z0-9._-]{1,128}, '{$tag}' given.",
+                    $definitionException->getMessage(),
+                );
+            }
+        }
+    }
+
+    public function testATagEntryIsRefusedAtTheLengthBoundary(): void
+    {
+        $within = str_repeat('a', 128);
+        $beyond = str_repeat('a', 129);
+
+        self::assertSame([$within], new ServiceTags([$within])->all());
+
+        try {
+            new ServiceTags([$beyond]);
+            self::fail('Expected a DefinitionException for the over-long tag.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                'A service tag must match [A-Za-z0-9._-]{1,128}, ' . "'{$beyond}'" . ' given.',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testATagDeclaredTwiceIsTheAmbiguityItIs(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.greeter', [
+                'class' => Greeter::class,
+                'tags' => ['app.greeting', 'shared.label', 'app.greeting'],
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "The service tag 'app.greeting' is declared more than once (a tag is declared once per definition).",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnAliasRefusesTags(): void
+    {
+        try {
+            ServiceDefinition::fromArray(Greeter::class, [
+                'alias' => 'app.greeter',
+                'tags' => ['app.greeting'],
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service '" . Greeter::class . "' carries 'tags' on a 'alias' definition "
+                . '(an alias is transparent: the tag belongs on the definition it points to).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAValueRefusesTags(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.debug', [
+                'value' => true,
+                'tags' => ['app.greeting'],
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.debug' carries 'tags' on a 'value' definition "
+                . '(a value is a constant: it is not a service to group).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnAbsentTagsKeyAnswersNoTagsAtAll(): void
+    {
+        self::assertNull(ServiceTagKey::fromKey('app.greeter', null));
+        self::assertSame([], new ServiceTags()->all());
     }
 }

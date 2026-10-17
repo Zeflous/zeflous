@@ -36,11 +36,12 @@ final readonly class InstanceArguments
         string $class,
         array $entry,
         ?ServiceLifetime $serviceLifetime = null,
+        ?ServiceTags $serviceTags = null,
     ): ServiceDefinition {
         if (\array_key_exists('autowire', $entry)) {
-            return AutowireKey::form($id, $class, $entry, $serviceLifetime);
+            return AutowireKey::form($id, $class, $entry, $serviceLifetime, $serviceTags);
         }
 
-        return ArgumentsForm::definition($id, $class, $entry['arguments'] ?? null, $serviceLifetime);
+        return ArgumentsForm::definition($id, $class, $entry['arguments'] ?? null, $serviceLifetime, $serviceTags);
     }
 }

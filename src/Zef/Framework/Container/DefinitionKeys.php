@@ -14,7 +14,7 @@ namespace Zef\Framework\Container;
  */
 final readonly class DefinitionKeys
 {
-    public const array DEFINITION = ['class', 'factory', 'alias', 'value', 'arguments', 'autowire', 'lifetime'];
+    public const array DEFINITION = ['class', 'factory', 'alias', 'value', 'arguments', 'autowire', 'lifetime', 'tags'];
 
     /**
      * Returns the first key of the entry that is not part of the known

@@ -18,9 +18,15 @@ namespace Zef\Framework\Container\Autowiring;
  * 1. a **name-keyed argument** for the parameter -- the declaration's
  *    own spelling, whatever it holds (a variadic parameter's entry is
  *    the list to spread, each element the same value-or-reference
- *    grammar; an unspelled variadic's stretch is simply empty), read
- *    through {@see AutowireDeclaredStretch::of()};
- * 2. **the constructor's own default** -- baked verbatim, the honest
+ *    grammar), read through {@see AutowireDeclaredStretch::of()};
+ * 2. **the unspelled variadic's collection** -- when the parameter is
+ *    variadic, the declared implementations of its type, each a plain
+ *    service reference (the tags lane's gathering, through
+ *    {@see AutowireReferences::implementations()}); a scalar or
+ *    untyped variadic answers the empty stretch, a union or
+ *    intersection one is refused -- it names no single type whose
+ *    implementations the collection would be;
+ * 3. **the constructor's own default** -- baked verbatim, the honest
  *    value the class itself declared.
  *
  * The attribute and type arms resolve together through the
@@ -57,6 +63,10 @@ final readonly class AutowireParameterPlanner
         $declaredStretch = AutowireDeclaredStretch::of($ownerId, $autowireParameterSpec, $named);
         if ($declaredStretch !== null) {
             return $declaredStretch;
+        }
+
+        if ($autowireParameterSpec->isVariadic) {
+            return AutowireVariadicCollection::stretch($ownerId, $autowireParameterSpec, $autowireReferences);
         }
 
         if ($autowireParameterSpec->carriesBinding()) {

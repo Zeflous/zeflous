@@ -110,10 +110,10 @@
       <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Container/Container.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[createRequestScope]]></code>
-    </PossiblyUnusedMethod>
+  <file src="src/Zef/Framework/Container/Autowiring/AutowireImplementations.php">
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$type]]></code>
+    </ArgumentTypeCoercion>
   </file>
   <file src="src/Zef/Framework/Container/Autowiring/AutowireResult.php">
     <PossiblyUnusedProperty>
@@ -131,9 +131,19 @@
       <code><![CDATA[isInstantiable]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Container/Autowiring/Tag.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Container/Autowiring/Target.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Container/Container.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createRequestScope]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Container/NamedArguments.php">
@@ -156,6 +166,13 @@
     <MixedAssignment>
       <code><![CDATA[$instance]]></code>
     </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/TaggedServices.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[has]]></code>
+      <code><![CDATA[one]]></code>
+      <code><![CDATA[services]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Contracts/ServiceProviderInterface.php">
     <UnusedClass>

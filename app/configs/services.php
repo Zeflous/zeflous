@@ -48,6 +48,24 @@ declare(strict_types=1);
  * depends on a request-scoped service is refused at boot -- the
  * captive dependency -- rather than silently captured forever.
  *
+ * The class and factory shapes also accept a 'tags' key -- the
+ * grouping labels a declaration carries, a list of tag strings (the
+ * grammar [A-Za-z0-9._-]{1,128}, no tag twice). The read side lives in
+ * the container under the reserved 'framework.tags' service: a
+ * TaggedServices locator answering has()/ids()/services()/one() over
+ * everything the boot installed (an alias and a value refuse the key:
+ * the tag belongs on the definition that builds the service).
+ *
+ * Two automatic spellings exist beside the key (the autoconfiguration
+ * lane): a class shape whose class implements an interface named in the
+ * 'tags' > 'interfaces' configuration map (interface => tag) earns that
+ * tag at boot, and a class carrying a #[Tag('...')] attribute earns the
+ * attribute's tags. One tag, one source: a tag the declaration spells
+ * AND a rule or attribute would also earn is a boot refusal naming
+ * every source. A typed variadic constructor parameter (Handler
+ * ...$handlers) gathers every declared implementation of the type --
+ * a scalar variadic stays empty, a union one is refused.
+ *
  * The whole map is validated fail-closed before a single definition is
  * installed: unknown shape keys, unknown service references and circular
  * dependency chains halt the boot with the offending entry named. The
