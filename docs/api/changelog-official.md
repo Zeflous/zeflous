@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- chore\(repo\): remove the demo template page [\#412](https://github.com/Zeflous/zeflous/pull/412) ([mbetixz](https://github.com/mbetixz))
+- chore\(license\): add the MIT license text [\#409](https://github.com/Zeflous/zeflous/pull/409) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the tags & autoconfiguration family to pull request 404 [\#405](https://github.com/Zeflous/zeflous/pull/405) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): the tags & autoconfiguration family, one tag one source [\#404](https://github.com/Zeflous/zeflous/pull/404) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the scope & lifecycle family to pull request 396 [\#400](https://github.com/Zeflous/zeflous/pull/400) ([mbetixz](https://github.com/mbetixz))
