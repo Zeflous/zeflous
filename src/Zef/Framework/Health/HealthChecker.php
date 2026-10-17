@@ -28,6 +28,21 @@ final class HealthChecker
         return \count($this->checks);
     }
 
+    /**
+     * The registered checks, in registration order -- the probe list
+     * the metrics family's {@see HealthAggregator} runs under its own
+     * scrape semantics (the group filtering, the overall deadline,
+     * the crash containment), exposed because a probe runs once per
+     * scrape: the aggregator needs the check objects themselves, not
+     * the boolean map {@see report()} would answer them with.
+     *
+     * @return list<HealthCheckInterface>
+     */
+    public function checks(): array
+    {
+        return array_values($this->checks);
+    }
+
     public function report(): HealthReport
     {
         return HealthReport::fromChecks($this->checks);

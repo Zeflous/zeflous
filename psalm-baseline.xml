@@ -115,16 +115,33 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Health/HealthAggregator.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[aggregate]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Health/HealthChecker.php">
-    <UnusedClass>
-      <code><![CDATA[HealthChecker]]></code>
-    </UnusedClass>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[add]]></code>
+      <code><![CDATA[count]]></code>
+      <code><![CDATA[report]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Health/HealthExposition.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[render]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Health/HealthReport.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[checks]]></code>
       <code><![CDATA[isHealthy]]></code>
     </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Health/TimeoutHealthCheck.php">
+    <UnusedClass>
+      <code><![CDATA[TimeoutHealthCheck]]></code>
+    </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Http/CorsMiddleware.php">
     <UnusedClass>
@@ -210,6 +227,17 @@
       <code><![CDATA[spans]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Telemetry/MeterDimensions.php">
+    <MixedAssignment>
+      <code><![CDATA[$kept[$dimension]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/MeterInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[increment]]></code>
+      <code><![CDATA[observe]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Telemetry/NoopTracer.php">
     <UnusedClass>
       <code><![CDATA[NoopTracer]]></code>
@@ -218,6 +246,16 @@
   <file src="src/Zef/Framework/Telemetry/OtlpJsonPayloadEncoder.php">
     <MixedAssignment>
       <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/PrometheusLabels.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Telemetry/PrometheusSeries.php">
+    <MixedAssignment>
+      <code><![CDATA[$decoded]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Telemetry/SpanContext.php">

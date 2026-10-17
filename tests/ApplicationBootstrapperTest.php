@@ -13,6 +13,7 @@ use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\FrameworkDefaults;
+use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\TimingMiddleware;
@@ -21,10 +22,13 @@ use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CorrelationMiddleware;
 use Zef\Framework\Middleware\CsrfFactory;
+use Zef\Framework\Middleware\MetricsFactory;
+use Zef\Framework\Middleware\MetricsMiddleware;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Framework\Middleware\TimingFactory;
 use Zef\Framework\Middleware\TracingFactory;
+use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\NoopSpan;
 use Zef\Framework\Telemetry\Tracer;
 use Zef\Test\Support\Container\Announcer;
@@ -107,6 +111,21 @@ final class ApplicationBootstrapperTest extends TestCase
                         ['service' => 'observability.tracing'],
                     ],
                 ],
+                'observability.meter' => [
+                    'factory' => MetricsFactory::class . '::meter',
+                    'arguments' => [],
+                ],
+                'observability.health' => [
+                    'class' => HealthChecker::class,
+                ],
+                'observability.metrics' => [
+                    'factory' => MetricsFactory::class . '::fromConfig',
+                    'arguments' => [
+                        ['service' => FrameworkDefaults::CONFIG_SERVICE],
+                        ['service' => 'observability.meter'],
+                        ['service' => 'observability.health'],
+                    ],
+                ],
             ],
             $kernel->config()->get('framework.services'),
             "the default layer carries the framework's own registrations in its reserved namespace",
@@ -136,6 +155,25 @@ final class ApplicationBootstrapperTest extends TestCase
             CorrelationMiddleware::class,
             $kernel->container()->get('observability.correlation'),
             "the correlation family resolves through the container, wired to the tracing family's own tracer",
+        );
+        self::assertTrue($kernel->container()->has('observability.meter'));
+        self::assertInstanceOf(
+            CounterMeter::class,
+            $kernel->container()->get('observability.meter'),
+            "the shared meter resolves through the container -- the profile's first instance-shape registration",
+        );
+        self::assertTrue($kernel->container()->has('observability.health'));
+        self::assertInstanceOf(
+            HealthChecker::class,
+            $kernel->container()->get('observability.health'),
+            "the health registry resolves through the container, the seam a host's own rebind joins their probes into",
+        );
+        self::assertTrue($kernel->container()->has('observability.metrics'));
+        self::assertInstanceOf(
+            MetricsMiddleware::class,
+            $kernel->container()->get('observability.metrics'),
+            'the metrics family resolves through the container over the two engine services,'
+                . ' disarmed by the shipped profile',
         );
 
         $response = new ApplicationBootstrapper()

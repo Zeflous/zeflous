@@ -6,6 +6,8 @@ namespace Zef\Benchmark;
 
 use PhpBench\Attributes\Revs;
 use Zef\Framework\Exception\InvariantViolationException;
+use Zef\Framework\Health\HealthAggregator;
+use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Http\AllowScopePolicy;
 use Zef\Framework\Http\AuthBoundary;
 use Zef\Framework\Http\AuthMiddleware;
@@ -15,6 +17,7 @@ use Zef\Framework\Http\CsrfMiddleware;
 use Zef\Framework\Http\CsrfPolicy;
 use Zef\Framework\Http\CsrfTokenManager;
 use Zef\Framework\Http\InMemoryRateLimiter;
+use Zef\Framework\Http\MetricsPolicy;
 use Zef\Framework\Http\RateLimitMiddleware;
 use Zef\Framework\Http\RateLimitPolicy;
 use Zef\Framework\Http\RequestFactory;
@@ -27,6 +30,10 @@ use Zef\Framework\Http\StaticCredentialProvider;
 use Zef\Framework\Http\TimingMiddleware;
 use Zef\Framework\Http\TimingPolicy;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\MetricsMiddleware;
+use Zef\Framework\Telemetry\CounterMeter;
+use Zef\Framework\Telemetry\PrometheusRenderer;
+use Zef\Test\Support\FixedHealthCheck;
 use Zef\Test\Support\Http\FixedResponseHandler;
 
 /**
@@ -66,6 +73,14 @@ final readonly class HttpHotPathBench
     private ServerRequest $authServerRequest;
 
     private TimingMiddleware $timingMiddleware;
+
+    private MetricsMiddleware $metricsMiddleware;
+
+    private MetricsMiddleware $healthMiddleware;
+
+    private ServerRequest $metricsScrapeRequest;
+
+    private ServerRequest $healthPollRequest;
 
     private ServerRequest $serverRequest;
 
@@ -139,6 +154,31 @@ final readonly class HttpHotPathBench
             new TimingPolicy(emitHeader: true),
             static fn (): int => 1725168000000000000,
         );
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.http.requests', 1, [
+            'http.request.method' => 'GET',
+            'http.response.status_code' => 200,
+        ]);
+        $counterMeter->increment('zef.http.errors.total', 1, ['exception.type' => 'RuntimeException']);
+
+        $this->metricsMiddleware = new MetricsMiddleware(
+            new MetricsPolicy(enabled: true),
+            $counterMeter,
+            new PrometheusRenderer(),
+            new HealthAggregator(new HealthChecker()),
+        );
+        $benchHealthChecker = new HealthChecker();
+        $benchHealthChecker->add(new FixedHealthCheck('cache', true));
+        $benchHealthChecker->add(new FixedHealthCheck('database', true));
+
+        $this->healthMiddleware = new MetricsMiddleware(
+            new MetricsPolicy(enabled: true),
+            new CounterMeter(),
+            new PrometheusRenderer(),
+            new HealthAggregator($benchHealthChecker),
+        );
+        $this->metricsScrapeRequest = new ServerRequest('GET', new Uri('https://api.example.com/metrics'));
+        $this->healthPollRequest = new ServerRequest('GET', new Uri('https://api.example.com/health'));
         $this->serverRequest = new ServerRequest('GET', $this->uri);
         $this->fixedResponseHandler = new FixedResponseHandler($this->response);
 
@@ -271,6 +311,32 @@ final readonly class HttpHotPathBench
             || $response->getHeaderLine(ResponseTime::HEADER) !== '0.00ms'
         ) {
             throw new InvariantViolationException('The timing boundary must stamp the measured span.');
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchAMetricsScrapeRendersTheSeries(): void
+    {
+        $response = $this->metricsMiddleware->process($this->metricsScrapeRequest, $this->fixedResponseHandler);
+
+        if (
+            $response->getStatusCode() !== 200
+            || !str_contains((string) $response->getBody(), 'zef_http_requests{http_request_method="GET"')
+        ) {
+            throw new InvariantViolationException('The exposition must render the accumulated series.');
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchAHealthScrapeAggregatesTheProbes(): void
+    {
+        $response = $this->healthMiddleware->process($this->healthPollRequest, $this->fixedResponseHandler);
+
+        if (
+            $response->getStatusCode() !== 200
+            || !str_contains((string) $response->getBody(), '"status":"ok"')
+        ) {
+            throw new InvariantViolationException('The health surface must aggregate the registered probes.');
         }
     }
 }

@@ -155,6 +155,49 @@ declare(strict_types=1);
  *       flush puts the delivery's own latency inside the request
  *       path.
  *
+ * The `metrics` family -- the exposition boundary
+ * (`observability.metrics`, the service the framework registers
+ * over the two engine services the same registration block
+ * installs: `observability.meter` the shared counter, and
+ * `observability.health` the health-seam registry a host's own
+ * rebind joins their probes into):
+ *
+ *   'enabled'                   (bool, default false)
+ *       The family's arm. OFF by default and by design: the two
+ *       endpoints are PUBLICATIONS -- an `/metrics` answers the
+ *       internal series names and their dimensions, a `/health`
+ *       answers the dependency topology the probes reveal -- and a
+ *       publication knob's safe default is the one that publishes
+ *       nothing. This is the fourth and closing decision in the
+ *       campaign's fail-closed chain: the collection armed
+ *       (tracing), then the lane (export), then the cadence
+ *       (flush_per_request), and now the surfaces themselves. An
+ *       ARMED family requires a usable path pair -- each path
+ *       absolute and free of the bytes a request target grammar
+ *       refuses, and the metrics path not colliding with the
+ *       health surface's three endpoints -- or the resolution
+ *       halts with the remediation spelled out.
+ *
+ *   'metrics_path'              (string, default '/metrics')
+ *       The exposition endpoint's path: the scrape target the
+ *       collector polls, answered with the text exposition format
+ *       (version 0.0.4) over the shared meter's snapshot. Judged
+ *       exact-path, GET-only.
+ *
+ *   'health_path'               (string, default '/health')
+ *       The health surface's base path, with the `/live` and
+ *       `/ready` views deriving from it: the aggregate JSON over
+ *       the health-seam registry, 200 when every probe passed and
+ *       503 when any probe failed, crashed or was skipped -- the
+ *       status the load balancer gates on.
+ *
+ *   'timeout_ms'                (int, default 500, 1..10000)
+ *       The health scrape's overall deadline: once the budget has
+ *       passed, the remaining probes are marked down with the skip
+ *       marker instead of extending the response -- a hanging sync
+ *       probe can hold its own slot, but the response as a whole
+ *       can no longer block forever.
+ *
  * Environment overlay spelling (prefix + `__` as the dot, values
  * strictly typed): APP_OBSERVABILITY__TIMING__ENABLED=1,
  * APP_OBSERVABILITY__TIMING__EMIT_HEADER=on,
@@ -170,7 +213,11 @@ declare(strict_types=1);
  * APP_OBSERVABILITY__EXPORT__MAX_RETRIES=3,
  * APP_OBSERVABILITY__EXPORT__RETRY_DELAY_MS=50,
  * APP_OBSERVABILITY__EXPORT__RETRY_DELAY_CAP_MS=2000,
- * APP_OBSERVABILITY__EXPORT__FLUSH_PER_REQUEST=on.
+ * APP_OBSERVABILITY__EXPORT__FLUSH_PER_REQUEST=on,
+ * APP_OBSERVABILITY__METRICS__ENABLED=1,
+ * APP_OBSERVABILITY__METRICS__METRICS_PATH=/metrics,
+ * APP_OBSERVABILITY__METRICS__HEALTH_PATH=/health,
+ * APP_OBSERVABILITY__METRICS__TIMEOUT_MS=250.
  *
  * The shipped profile declares no overrides -- the defaults are the
  * posture -- and an application fills this file with the knobs it

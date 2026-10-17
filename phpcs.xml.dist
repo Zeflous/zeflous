@@ -17,6 +17,16 @@
     <arg name="cache" value="build/phpcs.cache"/>
     <arg value="ps"/>
 
+    <!-- The health probe's crash containment truncates the failure's class
+         name at 128 characters; the bound is only observable from a fixture
+         whose fully qualified name crosses it, and a class declaration line
+         cannot be split. The aggregator suite's own `use` line spells the
+         same name and carries a bare inline `phpcs:ignore` (phpcs 4 ignores
+         the trailing-message form) for the same reason. -->
+    <rule ref="Generic.Files.LineLength">
+        <exclude-pattern>*/tests/Support/</exclude-pattern>
+    </rule>
+
     <rule ref="PSR12"/>
 
     <!-- PHP's stream-wrapper protocol mandates snake_case method names

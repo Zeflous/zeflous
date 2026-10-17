@@ -20,14 +20,10 @@ The work log of this lane's PRs:
 | R1 | The timing family: `TimingMiddleware` (the HTTP layer's ninth PSR-15 middleware -- the response-time boundary), `TimingPolicy`/`TimingKnobs`/`ObservabilityFamilies` (the family's own strict reading over the shared census, widened to the full dotted path), `ResponseTime` (the `%.2fms` shape value object), `TimingClock` (the monotonic seam), the `TimingFactory` construction seam, the framework profile's fifth registration and first `observability.*` knob block, the shipped `app/configs/observability.php` override surface, the `HttpHotPathBench` timed-request subject |
 | R2 | The tracing core: the `Telemetry` layer's own thirteen classes (`SpanContext`/`SpanData` the W3C value objects, `SpanInterface`/`TracerInterface`/`SpanExporterInterface`/`TelemetryClockInterface` the contracts, `Span`/`Tracer` the live engine, `NoopSpan`/`NoopTracer` the void path, `BatchSpanProcessor` the bounded queue, `InMemorySpanExporter` the in-process sink, `TelemetryClock` the system clock), `TracingPolicy`/`TracingKnobs` (the family's strict reading, the campaign's second family in the census), the `TracingFactory` construction seam, the framework profile's sixth registration, the `TelemetrySpanBench` span-lifecycle subject |
 | R3 | The correlation family: the propagation boundary -- `CorrelationMiddleware` (the PSR-15 middleware that opens the request span under the inbound W3C trace-context and answers the echo), the `Telemetry` layer's own four correlation classes (`TraceContextPropagator` the W3C span-identity pair, `CorrelationContext` the bounded causal context, `CorrelationHeaders` the transport pair, `CorrelationPropagator` the operation-level pair, over `CorrelationAttributes` the bounded redacting table), `CorrelationPolicy`/`CorrelationKnobs` (the family's strict reading, the campaign's third family in the census), the `CorrelationFactory` construction seam (the seventh registration, the first to spell a second service argument -- the tracing family's own tracer), the framework profile's `observability.correlation` knob block, the shipped `app/configs/observability.php` documentation |
+| R4 | The hygiene-and-export family: `TelemetrySanitizer` (the recording-side hygiene unit -- the census every recording point reads), the OTLP delivery lane (`OtlpJsonPayloadEncoder`/`OtlpHttpJsonExporter`/`OtlpHttpTransport`/`OtlpExporterException` with the status triage and the idempotent shutdown), the retry lane (`RetryBackoffPolicy`/`SpanBatchQueue`/`BatchRetryLane` over the injectable sleeper seam, shipping disarmed at `max_retries` zero), `ExportPolicy`/`ExportKnobs`/`ExportBounds` (the family's eight strict-read knobs, the endpoint validated at arm time), the `TracingFactory` armed sink swap and the `CorrelationMiddleware` flush-per-request cadence the family wires, KDD-OB20..OB27 |
+| R5 | The metrics family: the campaign's closing lane -- `MeterInterface`/`CounterMeter` (the bounded metrics engine, the overflow bucket and the framework-owned dimension allow-lists over the hygiene family's own sanitiser) and `PrometheusRenderer` (the text exposition 0.0.4 render) in the `Telemetry` layer; the `Health` seam's own widening (`GroupedHealthCheckInterface` the live/ready declaration, `TimeoutHealthCheck` the per-probe budget wrapper that keeps the wrapped probe's group, `HealthAggregator` the bounded scrape over `HealthChecker::checks()` with the injectable monotonic clock); `MetricsPolicy`/`MetricsKnobs`/`MetricsBounds` (the family's four strict-read knobs, the path pair's grammar and collision refusal validated at arm time); `MetricsMiddleware` (the eleventh PSR-15 middleware, the exposition boundary: `/metrics` the scrape, `/health` with its `/live` and `/ready` views the poll, 200-ok/503-degraded the load balancer's contract) and `MetricsFactory` (the three-argument construction seam); the profile's first two instance-shape registrations (`observability.meter`, `observability.health`) beside the face's own; KDD-OB28..OB36 |
 
-The remaining families, in the order the reference's hexagon surfaces
-them: the telemetry hygiene and OTLP export lane (the sanitizer, the
-JSON payload encoder, the HTTP exporter with its retry policy -- the
-lane that will widen the tracing core's recording points and delivery
-seam), and the metrics and health lane (the `MeterInterface`/
-`CounterMeter` pair, the Prometheus renderer, the grouped health
-indicators over this repository's own already-live `Health` seam).
+The campaign is COMPLETE: all five families (timing, tracing, correlation, export, metrics) live over the one config-driven seam, and the health lane's own seam (the `Health` layer the metrics family composes) carries its grouped probes.
 
 ## The decisions (KDD-OB)
 
@@ -415,6 +411,125 @@ included, and the engine never reads the environment. The
 composition seam is the one place the two meet, exactly as every
 other family's knobs already met it there.
 
+**KDD-OB28 -- The endpoints ship OFF: a publication knob's safe
+default is the one that publishes nothing.** The metrics family's
+arm is the campaign's fourth and closing fail-closed decision, and
+it closes the chain the export family's triple opened (KDD-OB21):
+an `/metrics` endpoint PUBLISHES the internal series names and
+their dimensions, and a `/health` endpoint PUBLISHES the dependency
+topology the probes reveal -- both are disclosures a deployment
+makes, not defaults a framework decides. A disarmed family passes
+every request through untouched: the surfaces do not exist, no
+engine is consulted, no render runs -- the same honest void the
+campaign's every OFF knob carries.
+
+**KDD-OB29 -- The series table is bounded, and the overflow has a
+name.** An unbounded metrics table is a memory leak the observability
+subsystem would inflict on the very application it instruments --
+every distinct attribute set is a new series, and one
+high-cardinality dimension (a request path, a user handle) turns a
+single metric into millions of series under load. The bound
+(`MAX_SERIES`, the reference's own 1024) answers the overflow the
+honest way: the series past the ceiling collapse into the
+`zef.cardinality.bucket = overflow` bucket, the newest casualty
+evicted to make room, so the count still adds up and the
+cardinality still has a name the exposition can carry instead of an
+OOM the process answers with.
+
+**KDD-OB30 -- The dimension allow-lists are the framework's own
+name policy, applied before the render.** The names the framework
+itself owns (`zef.http.*`, `zef.container.*`, the lifecycle events
+total) carry their own bounded dimension sets -- the two
+low-cardinality slices the request series exist to be read by, the
+exception type the errors total is attributed by, the bounded
+service identity the resolve duration slices on, the closed event
+vocabulary the lifecycle series knows. The policy is name-keyed
+data, never a knob: a custom metric family's dimensions pass the
+hygiene unit's sanitisation (KDD-OB20's census, landed one family
+early exactly so this lane reads it) and stay bounded by the series
+ceiling alone.
+
+**KDD-OB31 -- The exposition's shapes are the format's own, and the
+NaN contract is closed by construction.** The TYPE header emits once
+per metric name, a pure counter renders its count alone (a `_sum`
+member would duplicate the value a counter already answered), and
+the classic histogram members (`_sum`, `_count`) render only when
+the observations have diverged from the count. The divergence
+comparison carries the NaN contract explicitly: with a NaN sum or
+count every float comparison is false, so a NaN series renders
+count-only -- the historical contract -- and the explicit `is_nan`
+guards keep that contract under the early-exit spelling the guard
+block reads in. The reference's own comment documented the trap for
+the bare inverted form (`<= epsilon` returns, flipping NaN to answer
+`_sum = NaN`, the value the exposition's own consumers refuse), and
+this port's guard construction is what closed it: the suite's NaN
+series test caught the auto-fixer inverting the comparison mid-PR,
+which is the test earning its own record. An empty snapshot answers
+the empty body: no HELP or TYPE line a series did not earn.
+
+**KDD-OB32 -- The boolean probe seam stays, and the messages are
+the aggregator's own diagnostics.** The reference's health lane
+carried a message-bearing result contract beside its indicator
+interface; this repository's already-live seam
+(`Contracts\HealthCheckInterface`, `isHealthy(): bool`) answers the
+same question, and porting a second probe contract beside it would
+be the duplication this campaign refuses (KDD-OB18's own lineage:
+the duration attribute dropped because the timeline already owned
+the measurement). The messages the scrape's JSON carries are the
+aggregator's own: the crash containment names the failure's class,
+the deadline names the skip, the zero-probe marker names the wiring
+failure -- and a probe that is simply down answers the empty
+message, the seam's own honest shape.
+
+**KDD-OB33 -- The zero-probe posture is degraded, never green.**
+A requested health view whose probe list is empty is a wiring
+failure -- a health registry that collected nothing -- and a green
+`/health` that never ran a single check is fail-open (the
+reference's own audit #332 finding, carried verbatim). The scrape
+answers degraded with the explicit marker check, so the JSON and the
+Prometheus rendering both carry the signal a load balancer would
+otherwise mistake for health.
+
+**KDD-OB34 -- The scrape is bounded, and the clock behind it is a
+seam.** The overall deadline skips the remaining probes once the
+wall-clock budget has passed -- a hanging sync probe can still hold
+its own slot, but the response as a whole can no longer block
+forever, the property the load balancers polling `/health` depend
+on. The monotonic clock the deadline reads is the injectable seam
+the timing family's clock already modelled (KDD-OB4): the suite
+freezes the scrape exactly, and the deadline arithmetic is a
+deterministic test input rather than an untestable engine
+behaviour. The per-probe budget wrapper (`TimeoutHealthCheck`) is
+the same seam's second consumer -- the runner closure the async
+runtime will inject for a real interruption, and the wrapper that
+keeps the wrapped probe's group (KDD-OB35).
+
+**KDD-OB35 -- The timeout wrapper keeps the wrapped probe's group.**
+The reference's own wrapper dropped it: a `live`-declared probe read
+as `ready` the moment it gained a timeout, because the wrapper did
+not implement the grouping interface the aggregate filters on. The
+port refuses the loss -- the wrapper delegates the group (and
+answers `ready` for a plain check exactly as the aggregate's own
+default reads it), so a probe keeps the health view it declared
+however the deployment wraps it for its budget.
+
+**KDD-OB36 -- The status code is the load balancer's contract, and
+the endpoints are exact-path GET surfaces.** The health surface
+answers 200 when every probe passed and 503 when any probe failed,
+crashed or was skipped -- the status the traffic router gates on,
+carried verbatim from the reference's own aggregate handler, with
+`Cache-Control: no-store` on both surfaces (a scrape and a poll are
+live readings, never a cached document). The judgement is
+exact-path and GET-only: every other method passes through to the
+handler untouched, and a HEAD request rides the stack's own head
+middleware -- composed above, it folds the HEAD onto the GET this
+middleware answers and empties the body on the way out, the
+composition the host's stack owns. The endpoints arrive as the
+family's own path-scoped PSR-15 face because this repository's
+routing runtime has not landed yet -- the pre-routing endpoint
+pattern the CORS preflight already models, and the pattern the
+routing lane will supersede when its dispatcher lands.
+
 ## Legacy attribution
 
 The reference implementation is the GitLab snapshot `zeflous/zef`
@@ -485,3 +600,30 @@ environment-shaped retry policy (KDD-OB12), the verbatim recording
 until the hygiene lane lands (KDD-OB13) -- follow this repository's
 own campaign sequencing, not the reference's monolithic arrival
 order.
+
+The metrics family's reference is the same snapshot's
+`Framework/Observability` metrics pair (`MeterInterface`,
+`CounterMeter` -- the 1024-series bound, the overflow bucket with
+its eviction, the framework-owned name prefixes' dimension
+allow-lists, the ksort and the composite key) and the GitHub
+archive `zeflous/zef-framework-src`'s evolved health and render lane
+(`Application/Observability/HealthAggregator.php` -- the
+overall-deadline skip, the crash containment, the zero-probe
+degraded posture of its own audit #332, the tookMs reporting, the
+`toPrometheus` gauges; `TimeoutHealthIndicator.php` -- the runner
+seam; `Domain/Observability`'s grouping contracts; and
+`modules/Health/AggregateHealthHandler.php` -- the 200-ok/503-degraded
+contract with `application/json` and `no-store`, plus
+`Infrastructure/Observability/PrometheusRenderer.php` -- the
+exposition 0.0.4 semantics, the NaN-positive-form comparison, the
+sanitisation alphabets and the number forms). The port deviations
+-- the boolean probe seam kept over the reference's
+message-bearing result contract (KDD-OB32), the probe list read
+from the already-live `HealthChecker` registry, the injectable
+monotonic clock behind the deadline (KDD-OB34), the timeout
+wrapper's group delegation (KDD-OB35), the endpoints as the
+family's path-scoped PSR-15 face rather than the reference's routed
+module handlers (KDD-OB36), and the engine services installed
+through the profile's first instance-shape declarations -- follow
+this repository's own family discipline, not the reference's
+arrival shape.

@@ -108,13 +108,20 @@ deptrac:
     # the campaign's third family) joins them here for the same reason: it is
     # the one PSR-15 middleware whose every request answers through the
     # tracing engine, so the composition lane -- not the engine-free HTTP
-    # layer -- is where its face lives.
+    # layer -- is where its face lives. The metrics family's exposition
+    # boundary (`MetricsMiddleware`, the campaign's closing family) joins
+    # them for the same reason again, over the second engine its answers
+    # flow from: it is the one PSR-15 middleware whose answers flow from the
+    # health seam's aggregator, so the composition lane joins `Health` the
+    # same way it joined `Telemetry` -- the engine's own layer stays
+    # config-blind, and only the composition seam meets both engines.
     Middleware:
       - Exception
       - Container
       - Config
       - Http
       - Telemetry
+      - Health
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the

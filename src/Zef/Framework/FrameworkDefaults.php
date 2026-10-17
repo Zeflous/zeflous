@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Zef\Framework;
 
+use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CsrfFactory;
+use Zef\Framework\Middleware\MetricsFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Framework\Middleware\TimingFactory;
@@ -26,14 +28,15 @@ use Zef\Framework\Middleware\TracingFactory;
  * configuration system already owns.
  *
  * The profile now ships the security-headers, rate-limit, CSRF and
- * auth families, and the observability campaign's first three
- * families (timing, the tracing core, then the correlation
- * boundary) plus the export family's knob block -- and it ships
- * them the way every family will arrive: the subsystem's *service
- * registration* as a declarative entry under the reserved
- * `framework.services` key the container's existing grammar installs
- * (string-addressed, over the `framework.config` service the bootstrapper
- * registers), and the subsystem's *knobs* under the family's own key. The `framework`
+ * auth families, and the observability campaign's first four
+ * families (timing, the tracing core, the correlation boundary,
+ * then the export lane's knob block) plus the metrics family's
+ * own two engine services and face -- and it ships them the way
+ * every family arrived: the subsystem's *service registration* as
+ * a declarative entry under the reserved `framework.services` key
+ * the container's existing grammar installs (string-addressed,
+ * over the `framework.config` service the bootstrapper registers),
+ * and the subsystem's *knobs* under the family's own key. The `framework`
  * namespace is the machinery's own -- a host's `services` key is the
  * host's declaration surface and stays fully theirs, which is also why
  * the registration does not live there: the merge contract counts an
@@ -47,7 +50,19 @@ use Zef\Framework\Middleware\TracingFactory;
  * retry posture, wired by the `TracingFactory` seam the tracing
  * registration already names, and the drain cadence rides the
  * correlation boundary's own registration -- so its knob block is the
- * family's whole declaration here. The remaining growth follows the
+ * family's whole declaration here. The metrics family's engines are
+ * the profile's own split declarations: `observability.meter` the
+ * shared counter, installed through the composition seam's own
+ * constructor the way the tracing core's tracer arrived -- the
+ * Telemetry engine the composition lane alone joins -- and
+ * `observability.health` the health seam's own {@see HealthChecker}
+ * registry, installed through the grammar's `class` form (the
+ * instance shape the container's definition shapes carry for a
+ * stateful engine a service identity names, the profile's first) --
+ * the meter separate
+ * because its producers are the lanes that will record against it,
+ * the registry separate because a host's probes join it through their
+ * own explicit rebind. The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
  * `http.trusted_hosts`, ...) migrate with their wiring, the container's
  * `aot` switch arrives with the compile/dump area (roadmap area 8), and
@@ -122,6 +137,21 @@ final readonly class FrameworkDefaults
                             ['service' => 'observability.tracing'],
                         ],
                     ],
+                    'observability.meter' => [
+                        'factory' => MetricsFactory::class . '::meter',
+                        'arguments' => [],
+                    ],
+                    'observability.health' => [
+                        'class' => HealthChecker::class,
+                    ],
+                    'observability.metrics' => [
+                        'factory' => MetricsFactory::class . self::CONFIG_FACTORY_ENTRY,
+                        'arguments' => [
+                            ['service' => self::CONFIG_SERVICE],
+                            ['service' => 'observability.meter'],
+                            ['service' => 'observability.health'],
+                        ],
+                    ],
                 ],
             ],
             'security' => [
@@ -185,6 +215,12 @@ final readonly class FrameworkDefaults
                     'retry_delay_ms' => 100,
                     'retry_delay_cap_ms' => 1000,
                     'flush_per_request' => false,
+                ],
+                'metrics' => [
+                    'enabled' => false,
+                    'metrics_path' => '/metrics',
+                    'health_path' => '/health',
+                    'timeout_ms' => 500,
                 ],
             ],
         ];

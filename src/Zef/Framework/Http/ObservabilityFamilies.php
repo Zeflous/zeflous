@@ -14,13 +14,15 @@ namespace Zef\Framework\Http;
  * boundary, {@see TimingPolicy}), the `tracing` family (the
  * tracing core's config face, {@see TracingPolicy}), the
  * `correlation` family (the propagation boundary's config face,
- * {@see CorrelationPolicy}) and the `export` family (the delivery
- * lane's config face, {@see ExportPolicy}) are live, and each
- * later family (metrics) grows this list as it lands -- an unknown
- * child halts the boot with the known families spelled out, exactly
- * as the security map's own census does, so a `timming` typo in a
- * host's override file is a named refusal rather than a silently
- * absent family.
+ * {@see CorrelationPolicy}), the `export` family (the delivery
+ * lane's config face, {@see ExportPolicy}) and the `metrics`
+ * family (the exposition boundary's config face, {@see
+ * MetricsPolicy} -- the campaign's closing family) are live, and
+ * the census is complete: every family the campaign planned has
+ * landed -- an unknown child halts the boot with the known
+ * families spelled out, exactly as the security map's own census
+ * does, so a `timming` typo in a host's override file is a named
+ * refusal rather than a silently absent family.
  */
 final class ObservabilityFamilies
 {
@@ -28,7 +30,7 @@ final class ObservabilityFamilies
      * The legitimate children of the `observability` map, in landing
      * order.
      */
-    private const array FAMILIES = ['timing', 'tracing', 'correlation', 'export'];
+    private const array FAMILIES = ['timing', 'tracing', 'correlation', 'export', 'metrics'];
 
     /**
      * Reads one family's subtree out of the merged `observability` map.
