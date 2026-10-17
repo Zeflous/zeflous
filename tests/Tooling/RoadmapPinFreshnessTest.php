@@ -104,7 +104,9 @@ final class RoadmapPinFreshnessTest extends TestCase
     public function testTheBookkeepingAnchorsAreExact(): void
     {
         // The three record-keeping shapes the pattern must accept, taken from
-        // the real subjects the changelog and pin lanes produce.
+        // the real subjects the changelog and pin lanes and the branch-update
+        // machinery produce -- the update merges arrive for every branch
+        // kind, each one observed in this repository's own history.
         $accepted = [
             'chore(changelog): regenerate API changelog',
             'chore(changelog): regenerate API changelog (#408)',
@@ -112,6 +114,10 @@ final class RoadmapPinFreshnessTest extends TestCase
             'chore(changelog-official): regenerate official changelog (#406)',
             'docs(roadmap): pin the tags & autoconfiguration family to pull request 404',
             "Merge branch 'main' into chore/changelog-update",
+            "Merge branch 'main' into docs/roadmap-engineering-pin",
+            "Merge branch 'main' into feat/tooling-roadmap-pin-freshness",
+            "Merge branch 'main' into test/covers-orphan-classes",
+            "Merge branch 'main' into fix/composer-psr-classmap-excludes",
         ];
 
         foreach ($accepted as $subject) {
@@ -135,7 +141,8 @@ final class RoadmapPinFreshnessTest extends TestCase
             'docs(roadmap): pinned the tags family to pull request 404',
             'docs(roadmap): unpin the tags family',
             "Merge branch 'dev' into chore/changelog-update",
-            "Merge branch 'main' into feat/container-tags-autoconfig-family",
+            "Merge branch 'feat/container' into main",
+            'Merge pull request #417 from Zeflous/feat/tooling-roadmap-pin-freshness',
             'feat(container): the tags & autoconfiguration family, one tag one source (#404)',
             'chore(license): add the MIT license text (#409)',
         ];
