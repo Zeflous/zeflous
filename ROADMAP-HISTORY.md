@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-17 · `main` @ `6325fbc`
+**Last updated:** 2026-10-17 · `main` @ `94f63ef`
 
 **How to read this file**
 
@@ -22,7 +22,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 
 | Roadmap area | Completed items |
 |---|---|
-| Container | 5 |
+| Container | 6 |
 | HTTP Layer | 25 |
 | Middleware Pipeline | 1 |
 | Error Handling | 1 |
@@ -33,7 +33,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **129** |
+| **Total merged PRs** | **130** |
 
 ---
 
@@ -48,6 +48,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | test(container): assert the exact not-found message (mutant kill, folded into #38) | #38 | 2026-10-08 | `7d5239e3a8` |
 | fix(container): the runtime cycle guard behind `ServiceStore::resolve` (a factory that re-entered its own id -- or any id still beneath it on the resolution stack -- recursed without bound: a service injecting itself was a fatal OOM, not a catchable failure; the `CycleGuard` now runs each factory inside its own guarded frame, the id marked as the call starts and unmarked as it returns -- the frame's lifetime is the factory call's lifetime, the finally keeping the pop honest through a throwing factory, so a refused cycle leaves no residue a later honest resolution could trip over and a diamond stays two branches over one memoised leaf; the refusal a catchable `CircularDependencyException` carrying the walked chain anchored at the id that closes it, byte-identical to the shape the definitions graph's compile-time detector reports -- the two guards the same discipline at the two times a cycle can surface) | #380 | 2026-10-17 | `9da705a` |
 | feat(container): the autowiring family, compile-pass (#393) — reflection paid once per boot, never per resolution: the github v2.9 compile-pass model ported into the declarative grammar's own discipline; the class shape grows three argument forms (positional verbatim with the arity honesty read, the name-keyed hybrid where named wins over auto, `'autowire' => true` for the whole-constructor request), the pass reads each constructor once through `ReflectionMetadataExtractor`/`AutowireSpecFactory` (the only live reflection, boot-only; `AutowireParameterSpec` pure data — reflection caching won by construction), plans each parameter through the precedence ladder (named → `#[Inject]` → `#[Target]` → declared type/alias/container → the constructor's own default baked verbatim → the honest refusal with the way out), and installs ordinary positional definitions through the public `set()` surface — `ServiceStore`/`Container`/`CycleGuard` untouched, runtime resolution stays the memoised factory lane (~0.5µs, byte-identical economics to a handwritten plan); births only at boot and only because a declared parameter type names an instantiable unregistered class, each riding the same `ServiceDefinitionGraph` (two-time cycle discipline intact; self-closing birth chains refused with the walked chain, the `CycleGuard` message shape); null never guessed into a slot (deliberate divergence from the reference's null baking — the F1–F3 honest-failure-surface discipline); `UnplannedInstanceDefinition` refused by both the graph and the compiler (misuse fails closed at two consumption points); the PR's own gate round reshaped the verdict units for the three-gates-one-shape discipline (`ConstructorFit` split into `PositionalFit` + `NamedFit` + `ConstructorFitRefusals`, the tier-one routing to `AutowireDeclaredStretch`, the Sonar S1142/S1144 findings answered, the rector first-class-callable skip with the `EmittedHeaders` precedent); KDD-A1..A14 in `docs/ci-notes/container-autowiring.md` | #393 | 2026-10-17 | `6325fbc` |
+| feat(container): the scope & lifecycle family, lifetime as the sharing policy (#396) — the gitlab v2.5 harden backbone under the github v2.9 taxonomy: `ServiceLifetime` the singleton/request/transient backed enum (`fromKey`'s vocabulary parsing, the absent key singleton so every pre-existing declaration rides unchanged; the reference's `shared` knob deliberately dropped as the redundant spelling — the lifetime IS the sharing policy, KDD-B1); the grammar's `lifetime` key carried through every class-shape planning form (the bare class, the positional plan, the name-keyed hybrid, the whole-constructor request) and the factory shape, alias and value refusing it with their reasons; resolution one match per lane (`ServiceResolutions`): the singleton's answer-or-build memo (`SingletonMemo`), the transient paying the guarded factory every resolution and memoising nowhere, the request lane through `RequestInstances`/`ActiveScope`/`RequestScope` — scope as saved-and-restored resolution state (a fellow request-scoped dependency a factory resolves mid-flight lands in the open scope; the root's outside-scope refusal carries the way out; a scope closed mid-resolution refuses at both seam points, the early one before a single factory runs); `CycleGuard` gains the depth budget (256 open frames default, the refusal before the engine's own stack, limits below 1 refused at construction — no silent clamp); `LifetimeCaptures` the boot-time captive-dependency verdict over the declared edges (singleton→request refused with both lifetimes and the two ways out — a new verdict on the shared-implies-singleton invariant; the narrower captures legal and documented); the store split into archeology-sized units (`FactoryRegistrations`, `SingletonMemo`, `ServiceResolutions`, `RequestInstances`, `RequestScopeRefusals`); `ScopeResolutionBench` pins the lane economics (~0.52µs memo-hit, ~1.26µs in-scope, ~1.0µs transient, ~2.1µs scope lifecycle); the PR's own two gate rounds taught four lessons now in the KDD — the covers-restriction invisibility (a test belongs in the file whose covers list its owners' classes, or mutation testing cannot see it), the stale-report fail-open (`mutation:zones` alone reads the last run's report), the boundary slack (only a 257-frame chain pins a 256 budget), and the duplicate-key disarm (a second `ReturnRemoval` entry silently disarmed three documented ignores — merged back into one entry carrying both the legacy method scopes and the fast-path source regex); KDD-B1..B13 + the round-five lessons in `docs/ci-notes/container-scope-lifecycle.md` | #396 | 2026-10-17 | `94f63ef` |
 
 ## 2. HTTP Layer
 
