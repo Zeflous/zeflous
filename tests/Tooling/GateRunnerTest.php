@@ -204,7 +204,11 @@ final class GateRunnerTest extends TestCase
             $gateResult = $this->runner()->run('roadmap', []);
 
             self::assertTrue($gateResult->passed);
-            self::assertSame('Roadmap document gate PASSED: 1 document(s) audited.', $gateResult->message);
+            self::assertSame(
+                'Roadmap document gate PASSED: 1 document(s) audited'
+                    . ' (pin freshness not judged: the lane is not validating main).',
+                $gateResult->message,
+            );
         } finally {
             unlink($this->root . '/ROADMAP-HISTORY.md');
         }

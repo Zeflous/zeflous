@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Tooling\RoadmapDocGate;
 use Zef\Framework\Tooling\RoadmapDocReport;
+use Zef\Framework\Tooling\RoadmapPinState;
 
 /**
  * @internal
@@ -22,7 +23,40 @@ final class RoadmapDocGateTest extends TestCase
         $gateResult = new RoadmapDocGate()->evaluate(new RoadmapDocReport(['CLEAN.md' => $document]));
 
         self::assertTrue($gateResult->passed);
-        self::assertSame('Roadmap document gate PASSED: 1 document(s) audited.', $gateResult->message);
+        self::assertSame(
+            'Roadmap document gate PASSED: 1 document(s) audited'
+                . ' (pin freshness not judged: the lane is not validating main).',
+            $gateResult->message,
+        );
+    }
+
+    public function testPassesWithAVerifiedPinOnMain(): void
+    {
+        $document = "# Title\n\n| A | B |\n|---|---|\n| 1 | 2 |\n\n## Next\n";
+
+        $gateResult = new RoadmapDocGate()->evaluate(
+            new RoadmapDocReport(['CLEAN.md' => $document]),
+            new RoadmapPinState('5eb0ccb', true, []),
+        );
+
+        self::assertTrue($gateResult->passed);
+        self::assertSame(
+            'Roadmap document gate PASSED: 1 document(s) audited (pin freshness verified on main).',
+            $gateResult->message,
+        );
+    }
+
+    public function testFailsOnAStalePinOnMain(): void
+    {
+        $document = "# Title\n\n| A | B |\n|---|---|\n| 1 | 2 |\n\n## Next\n";
+
+        $gateResult = new RoadmapDocGate()->evaluate(
+            new RoadmapDocReport(['CLEAN.md' => $document]),
+            new RoadmapPinState('058ab8c', true, ['chore(license): add the MIT license text (#409)']),
+        );
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('pin `058ab8c` is stale: 1 commit(s) landed on main', $gateResult->message);
     }
 
     public function testFailsOnAnUnclosedTableRow(): void
@@ -157,6 +191,10 @@ final class RoadmapDocGateTest extends TestCase
         $gateResult = new RoadmapDocGate()->evaluate(new RoadmapDocReport([]));
 
         self::assertTrue($gateResult->passed);
-        self::assertSame('Roadmap document gate PASSED: 0 document(s) audited.', $gateResult->message);
+        self::assertSame(
+            'Roadmap document gate PASSED: 0 document(s) audited'
+                . ' (pin freshness not judged: the lane is not validating main).',
+            $gateResult->message,
+        );
     }
 }
