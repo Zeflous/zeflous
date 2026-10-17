@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-17 · `main` @ `058ab8c`
+**Last updated:** 2026-10-17 · `main` @ `a1ede939dd`
 
 **How to read this file**
 
@@ -27,13 +27,13 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Middleware Pipeline | 1 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
-| Quality Gates & Tooling | 8 |
-| CI / Supply chain | 29 (incl. auto-merge + Sonar lanes) |
+| Quality Gates & Tooling | 9 |
+| CI / Supply chain | 33 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **131** |
+| **Total merged PRs** | **136** |
 
 ---
 
@@ -113,6 +113,7 @@ The in-repo gate engine (`src/Zef/Framework/Tooling/*`, `scripts/ci/*`) that eve
 | fix(ci): run gate commands through the shell in the process runner | #42 | 2026-10-08 | `98fe592a22` |
 | chore(ci): remove unreferenced mutation:ci composer script (dead configuration removal — the CI Infection lane runs `ci:infection` → `mutation` + `mutation:zones`; the `mutation:ci` variant carried the same flags unreferenced by any workflow, script, Makefile or doc) | #236 | 2026-10-11 | `952f6cfd5` |
 | fix(tests): the namespaces the directories declare (thirty-eight test classes lived in subdirectories under a flat `Zef\Test` namespace -- twenty-seven in `Http`, seven in `Middleware`, four in `Kernel` -- while the autoload-dev mapping `Zef\Test\ => tests/` reads the namespace from the path: the classes autoloaded by filename and by classmap, never by the PSR-4 rule the mapping declares, and every new subdirectory inherited the same drift; the namespaces now match the directories the files live in, the `Config`/`Telemetry`/`Container`/`Support` trees were already correct, the flat `Zef\Test` stays exactly where it is honest in the tests root, and the fixtures plus the plain support scripts carry no PSR-4 obligation) | #383 | 2026-10-17 | `3471e6c` |
+| fix(composer): exclude the vendored psr shims from the dev classmap (fourteen "Ambiguous class resolution" warnings silenced by naming the three vendor packages the in-repo PSR shims actually duplicate -- psr/http-message, psr/http-factory whose six PSR-17 factories share the `Psr\Http\Message\` namespace, and psr/log -- in `exclude-from-classmap`; psr/container was already excluded, psr/http-server-handler is not installed and clock/cache/event-dispatcher collide with nothing, so the list carries no dead entries; the zero-dependency invariant untouched -- `require` stays `{php: ^8.4}`, lock `packages` stays `[]` -- and resolution stays deterministic: the shim directories keep their classmap entries and interface resolution still prefers the in-repo shim, the vendor copies staying reachable through the PSR-4 fallback for the dev tools that consume vendor-only classes) | #410 | 2026-10-17 | `9a8e1d9f34` |
 
 ## 6. CI / Supply chain
 
@@ -149,6 +150,10 @@ Every workflow, gate, and supply-chain lane. This is where the bulk of the recen
 | fix(ci): fall back to the built-in token when the bot PAT is under-scoped | #62 | 2026-10-08 | `d3c5102700` |
 | ci(auto-merge): correct the PAT caveat comment (update-branch does not support fine-grained PATs) | #67 | 2026-10-08 | `0bf4d04440` |
 | ci(auto-merge): correct ZEF_TOKEN caveat comment | #71 | 2026-10-08 | `6532ec027a` |
+| chore(license): add the MIT license text (composer.json had declared `"license": "MIT"` since the first commit but the repository never carried the text itself -- without the file, recipients of the code have no legal grant at all: the manifest claim does not bind and a tag would ship all-rights-reserved code; the canonical MIT template at the root `LICENSE`, held by the maintainer composer.json declares) | #409 | 2026-10-17 | `bd8ed682b6` |
+| docs(readme): show main's real check state, not the last aggregator run (the repository carried no badge at all, and GitHub's own workflow badge reads the aggregator's latest run -- which fires per lane completion in every context, pull requests included, and whose main-context runs supersede each other into cancelled -- so a visitor saw red while main's checks were green; the README badge now reads the check-runs API for main's head, the same combined view branch protection enforces: green when the required checks are green, pending only while checks genuinely run, never a false red for a healthy branch; the aggregator's fail-closed semantics deliberately untouched -- silencing them would weaken a gate) | #411 | 2026-10-17 | `541cc26ef7` |
+| chore(repo): remove the demo template page (`index.html` was the GitHub demo repository this project was seeded from -- a single line welcoming visitors to a template nobody chose, referenced by nothing in a framework library that serves no static site; the repository description, the other template leftover, replaced out-of-band through the API with the package's own description from composer.json) | #412 | 2026-10-17 | `0cac6e815d` |
+| docs(security): add the vulnerability disclosure policy (`SECURITY.md` at the root, the location GitHub surfaces automatically: report through GitHub private vulnerability reporting -- verified enabled on the repository before the file advertised it -- with the maintainer email from composer.json as fallback, never through public issues; the scope statement names the runtime tree, the shipped sample configuration and the supply-chain surface, with three deliberate exclusions each carrying its way-out -- dev-only dependency CVEs (zero runtime deps, rule 1), runtime-host defects (report upstream), resource exhaustion inside documented budgets (tunable configuration); honest response targets: acknowledge within 7 days, coordinated disclosure within 90) | #413 | 2026-10-17 | `a1ede939dd` |
 
 ## 7. Changelog automation
 
