@@ -6,7 +6,9 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the scope & lifecycle family to pull request 396 [\#400](https://github.com/Zeflous/zeflous/pull/400) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the autowiring family to pull request 393 [\#397](https://github.com/Zeflous/zeflous/pull/397) ([mbetixz](https://github.com/mbetixz))
+- feat\(container\): the scope & lifecycle family, lifetime as the sharing policy [\#396](https://github.com/Zeflous/zeflous/pull/396) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): the autowiring family, compile-pass [\#393](https://github.com/Zeflous/zeflous/pull/393) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the metrics-and-health family to pull request 386 [\#389](https://github.com/Zeflous/zeflous/pull/389) ([mbetixz](https://github.com/mbetixz))
 - feat\(telemetry\): the metrics-and-health family, config-driven [\#386](https://github.com/Zeflous/zeflous/pull/386) ([mbetixz](https://github.com/mbetixz))
