@@ -184,6 +184,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the metrics-and-health family to pull request 386 [#389](https://github.com/Zeflous/zeflous/pull/389) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the autowiring family to pull request 393 [#397](https://github.com/Zeflous/zeflous/pull/397) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the scope & lifecycle family to pull request 396 [#400](https://github.com/Zeflous/zeflous/pull/400) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the tags & autoconfiguration family to pull request 404 [#405](https://github.com/Zeflous/zeflous/pull/405) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
