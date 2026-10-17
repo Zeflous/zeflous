@@ -13,9 +13,10 @@ and the full CI pipeline that guards every change.
 
 ## Quality gates
 
-Every pull request runs the checks below. `CI Strict`, `PR Validator` and
-`PhpCodeArcheology SARIF` are **required** on `main` — a change cannot merge
-until they are green. The rest are advisory signals.
+Every pull request runs the checks below. `CI Strict`, `PR Validator`,
+`PhpCodeArcheology SARIF`, `SonarCloud Code Analysis` and `SonarCloud
+analysis` are **required** on `main` — a change cannot merge until they are
+green. The rest are advisory signals.
 
 | Check | What it enforces |
 | --- | --- |
@@ -27,6 +28,7 @@ until they are green. The rest are advisory signals.
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
 | `SonarCloud Code Analysis` | The server-side quality gate. |
+| `SonarCloud analysis` | The scanner lane that produces the analysis (bridging the CI Coverage artifact); fail-closed when uncredentialed in a context that must have credentials — see [`docs/security/sonarcloud.md`](docs/security/sonarcloud.md). |
 | `Dependency Review` | Supply-chain review of dependency changes. |
 | `SBOM` | CycloneDX SBOM generation with a keyless (OIDC) attestation. |
 | `API Documentation Check` | The generated API documentation builds. |
