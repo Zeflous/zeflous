@@ -59,6 +59,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(telemetry): the correlation family, config-driven [#371](https://github.com/Zeflous/zeflous/pull/371) ([mbetixz](https://github.com/mbetixz))
 - feat(telemetry): the hygiene-and-export family, config-driven [#375](https://github.com/Zeflous/zeflous/pull/375) ([mbetixz](https://github.com/mbetixz))
 - feat(telemetry): the metrics-and-health family, config-driven [#386](https://github.com/Zeflous/zeflous/pull/386) ([mbetixz](https://github.com/mbetixz))
+- feat(container): the autowiring family, compile-pass [#393](https://github.com/Zeflous/zeflous/pull/393) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 

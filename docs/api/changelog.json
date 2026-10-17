@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-17T05:58:50Z",
+  "as_of": "2026-10-17T12:23:17Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 167,
+  "unreleased_count": 168,
   "versions": [
     {
       "version": "Unreleased",
@@ -1335,6 +1335,32 @@
                 "sha": "6df685a966b8a7a8c95aff27477bb166ecd98c41",
                 "short_sha": "6df685a",
                 "subject": "fix(telemetry): the metrics family's SonarCloud round -- the view table, the load-bearing nesting"
+              }
+            ]
+          },
+          {
+            "pr": 393,
+            "title": "feat(container): the autowiring family, compile-pass",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-17T12:23:17Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/393",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b1ce8eb2db380bd0059f44bab3c8dac2458eafcf",
+                "short_sha": "b1ce8eb",
+                "subject": "feat(container): the autowiring family, compile-pass"
+              },
+              {
+                "sha": "179a67406c94e1df61b43277912282a16df0401f",
+                "short_sha": "179a674",
+                "subject": "Merge branch 'main' into feat/container-autowiring-family"
+              },
+              {
+                "sha": "6724a49dcf7fd3bfe7ab7c33f07ea42c8231da90",
+                "short_sha": "6724a49",
+                "subject": "fix(container): the PR's gate round -- archeology, SonarCloud, three shapes"
               }
             ]
           }
@@ -8467,6 +8493,32 @@
               "sha": "9f4a3a611b6ca0184e199f166240ce6b928bd9cf",
               "short_sha": "9f4a3a6",
               "subject": "Merge branch 'main' into docs/roadmap-metrics-family-pin"
+            }
+          ]
+        },
+        {
+          "pr": 393,
+          "title": "feat(container): the autowiring family, compile-pass",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-17T12:23:17Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/393",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b1ce8eb2db380bd0059f44bab3c8dac2458eafcf",
+              "short_sha": "b1ce8eb",
+              "subject": "feat(container): the autowiring family, compile-pass"
+            },
+            {
+              "sha": "179a67406c94e1df61b43277912282a16df0401f",
+              "short_sha": "179a674",
+              "subject": "Merge branch 'main' into feat/container-autowiring-family"
+            },
+            {
+              "sha": "6724a49dcf7fd3bfe7ab7c33f07ea42c8231da90",
+              "short_sha": "6724a49",
+              "subject": "fix(container): the PR's gate round -- archeology, SonarCloud, three shapes"
             }
           ]
         }
