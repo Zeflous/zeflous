@@ -10,14 +10,20 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\AliasShape;
+use Zef\Framework\Container\ArgumentsForm;
+use Zef\Framework\Container\AutowireKey;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\DefinitionKeys;
+use Zef\Framework\Container\DefinitionReferences;
 use Zef\Framework\Container\DefinitionShapes;
 use Zef\Framework\Container\FactoryDefinition;
 use Zef\Framework\Container\FactoryShape;
+use Zef\Framework\Container\InstanceArguments;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\InstanceShape;
+use Zef\Framework\Container\NamedArguments;
 use Zef\Framework\Container\ServiceDefinition;
+use Zef\Framework\Container\UnplannedInstanceDefinition;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Framework\Container\ValueShape;
 use Zef\Test\Support\Container\ExternalFactory;
@@ -30,6 +36,12 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(DefinitionKeys::class)]
 #[CoversClass(DefinitionShapes::class)]
 #[CoversClass(InstanceShape::class)]
+#[CoversClass(InstanceArguments::class)]
+#[CoversClass(ArgumentsForm::class)]
+#[CoversClass(AutowireKey::class)]
+#[CoversClass(NamedArguments::class)]
+#[CoversClass(UnplannedInstanceDefinition::class)]
+#[CoversClass(DefinitionReferences::class)]
 #[CoversClass(FactoryShape::class)]
 #[CoversClass(AliasShape::class)]
 #[CoversClass(ValueShape::class)]
@@ -149,7 +161,8 @@ final class ServiceDefinitionTest extends TestCase
             self::fail('Expected a DefinitionException to be thrown.');
         } catch (DefinitionException $definitionException) {
             self::assertSame(
-                "Service 'app.x' carries the unknown key '5' (known keys: class, factory, alias, value, arguments).",
+                "Service 'app.x' carries the unknown key '5' "
+                . '(known keys: class, factory, alias, value, arguments, autowire).',
                 $definitionException->getMessage(),
             );
         }
@@ -175,7 +188,8 @@ final class ServiceDefinitionTest extends TestCase
             self::fail('Expected a DefinitionException to be thrown.');
         } catch (DefinitionException $definitionException) {
             self::assertSame(
-                "Service 'app.x' carries the unknown key 'clas' (known keys: class, factory, alias, value, arguments).",
+                "Service 'app.x' carries the unknown key 'clas' "
+                . '(known keys: class, factory, alias, value, arguments, autowire).',
                 $definitionException->getMessage(),
             );
         }
@@ -352,14 +366,33 @@ final class ServiceDefinitionTest extends TestCase
         }
     }
 
-    public function testStringKeyedArgumentsAreRejected(): void
+    public function testStringKeyedArgumentsAreRejectedOnTheFactoryShape(): void
     {
         try {
-            ServiceDefinition::fromArray('app.x', ['class' => Greeter::class, 'arguments' => ['named' => 1]]);
+            ServiceDefinition::fromArray('app.x', [
+                'factory' => 'Some\Factory::make',
+                'arguments' => ['named' => 1],
+            ]);
             self::fail('Expected a DefinitionException to be thrown.');
         } catch (DefinitionException $definitionException) {
             self::assertStringContainsString(
                 'arguments must be a positional list (string keys are rejected)',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testMixedKeyArgumentsAreRejectedOnTheClassShape(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.x', [
+                'class' => Greeter::class,
+                'arguments' => ['salutation' => 'Hello', 1 => 'stray'],
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertStringContainsString(
+                'name-keyed arguments must carry non-empty parameter names, int given',
                 $definitionException->getMessage(),
             );
         }
@@ -442,5 +475,144 @@ final class ServiceDefinitionTest extends TestCase
 
         self::assertInstanceOf(InstanceDefinition::class, $definition);
         self::assertSame([['nested' => 'map'], ['service' => 'app.y']], $definition->arguments);
+    }
+
+    public function testTheAutowireFormParsesIntoTheUnplannedRequest(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.x', [
+            'class' => Greeter::class,
+            'autowire' => true,
+        ]);
+
+        self::assertInstanceOf(UnplannedInstanceDefinition::class, $definition);
+        self::assertSame(Greeter::class, $definition->class);
+        self::assertNull($definition->namedArguments);
+    }
+
+    public function testNameKeyedArgumentsParseIntoTheUnplannedRequest(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.x', [
+            'class' => Greeter::class,
+            'arguments' => ['salutation' => 'Hello', 'verbosity' => ['service' => 'app.y']],
+        ]);
+
+        self::assertInstanceOf(UnplannedInstanceDefinition::class, $definition);
+        self::assertSame(
+            ['salutation' => 'Hello', 'verbosity' => ['service' => 'app.y']],
+            $definition->namedArguments,
+        );
+    }
+
+    public function testAutowireAlongsideArgumentsIsRefused(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.x', [
+                'class' => Greeter::class,
+                'autowire' => true,
+                'arguments' => ['salutation' => 'Hello'],
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.x' carries both 'autowire' and 'arguments' "
+                . '(choose one planning form: the name-keyed arguments, or the whole-constructor request).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAValueOtherThanTrueUnderAutowireIsRefused(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.x', [
+                'class' => Greeter::class,
+                'autowire' => false,
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.x' carries the 'autowire' key with a value other than true "
+                . '(the key is the whole-constructor planning request; an absent key is the default).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAutowireOnTheFactoryShapeIsRefused(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.x', [
+                'factory' => 'Some\Factory::make',
+                'autowire' => true,
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.x' carries the 'autowire' key on a 'factory' definition "
+                . '(the whole-constructor planning request belongs to the class shape only).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAutowireOnTheAliasShapeIsRefused(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.x', [
+                'alias' => 'app.y',
+                'autowire' => true,
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.x' carries the 'autowire' key on a 'alias' definition "
+                . '(the whole-constructor planning request belongs to the class shape only).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAutowireOnTheValueShapeIsRefused(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.x', [
+                'value' => 42,
+                'autowire' => true,
+            ]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.x' carries the 'autowire' key on a 'value' definition "
+                . '(the whole-constructor planning request belongs to the class shape only).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnplannedDefinitionWithAnEmptyIdentifierIsRefused(): void
+    {
+        try {
+            new UnplannedInstanceDefinition('', stdClass::class);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                'A service definition requires a non-empty identifier.',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheReferencesOfAnUnplannedPlanAreRefusedUntilThePassRuns(): void
+    {
+        try {
+            DefinitionReferences::of(new UnplannedInstanceDefinition('app.x', stdClass::class, ['a' => 1]));
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.x' carries an unplanned constructor plan -- "
+                . 'run the autowire compiler pass before graph validation.',
+                $definitionException->getMessage(),
+            );
+        }
     }
 }

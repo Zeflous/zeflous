@@ -30,6 +30,13 @@ final readonly class ValueShape
             );
         }
 
+        if (\array_key_exists('autowire', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries the 'autowire' key on a 'value' definition "
+                . '(the whole-constructor planning request belongs to the class shape only).',
+            );
+        }
+
         return new ValueDefinition($id, $entry['value']);
     }
 }

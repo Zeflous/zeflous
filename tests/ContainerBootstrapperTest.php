@@ -12,6 +12,9 @@ use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\DefinitionMap;
 use Zef\Framework\ContainerBootstrapper;
 use Zef\Test\Support\Container\Announcer;
+use Zef\Test\Support\Container\Autowiring\DependentHouse;
+use Zef\Test\Support\Container\Autowiring\SimpleDep;
+use Zef\Test\Support\Container\Autowiring\TypedHouse;
 use Zef\Test\Support\Container\ExternalFactory;
 use Zef\Test\Support\Container\Greeter;
 
@@ -124,7 +127,7 @@ final class ContainerBootstrapperTest extends TestCase
             new ContainerBootstrapper()->bootstrap(
                 new Config([
                     'services' => [
-                        'app.greeter' => ['class' => Greeter::class],
+                        'app.greeter' => ['class' => Greeter::class, 'arguments' => ['Hello']],
                         'app.broken' => ['class' => Greeter::class, 'arguments' => [['service' => 'app.missing']]],
                     ],
                 ]),
@@ -259,5 +262,73 @@ final class ContainerBootstrapperTest extends TestCase
             $container->get('shared.subject'),
             "the host's same-identifier entry wins",
         );
+    }
+
+    public function testTheHybridAutowireFormBootsAndResolves(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'app.greeter' => ['class' => Greeter::class, 'arguments' => ['salutation' => 'Hello']],
+                    Greeter::class => ['alias' => 'app.greeter'],
+                    'app.house' => ['class' => TypedHouse::class, 'arguments' => ['channel' => 'ops']],
+                ],
+            ]),
+            $container,
+        );
+
+        $house = $container->get('app.house');
+        self::assertInstanceOf(TypedHouse::class, $house);
+        self::assertSame('ops', $house->channel);
+        self::assertSame('Hello', $house->greeter->salutation);
+        self::assertSame(1, $house->greeter->verbosity);
+        self::assertSame($container->get(Greeter::class), $house->greeter);
+    }
+
+    public function testTheAutowireFormBirthsItsDependenciesAndResolves(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'app.house' => ['class' => DependentHouse::class, 'autowire' => true],
+                ],
+            ]),
+            $container,
+        );
+
+        self::assertTrue($container->has(SimpleDep::class));
+        $house = $container->get('app.house');
+        self::assertInstanceOf(DependentHouse::class, $house);
+        self::assertSame('simple', $house->dep->name);
+        self::assertSame('lbl', $house->label);
+        self::assertSame($container->get(SimpleDep::class), $house->dep);
+    }
+
+    public function testAMissingArgumentListOverARequiredParameterIsRefusedAtBoot(): void
+    {
+        $container = new Container();
+
+        try {
+            new ContainerBootstrapper()->bootstrap(
+                new Config([
+                    'services' => [
+                        'app.greeter' => ['class' => Greeter::class],
+                    ],
+                ]),
+                $container,
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertStringContainsString(
+                "the declared arguments stop before the required parameter '\$salutation'",
+                $definitionException->getMessage(),
+            );
+        }
+
+        self::assertFalse($container->has('app.greeter'));
     }
 }

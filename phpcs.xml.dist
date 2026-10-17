@@ -45,8 +45,16 @@
         became inheritance. A concrete instantiable outgoing request cannot be
         abstract, so this one class stays neither abstract nor final.
     -->
+    <!--
+        The definition-defect family's root has to stay neither abstract
+        nor final: it is thrown directly (the grammar's own refusals) and
+        subclassed by the lanes that refine declarations (the autowiring
+        lane's AutowiringException), so a caller catching it catches every
+        way a declaration can be refused.
+    -->
     <rule ref="SlevomatCodingStandard.Classes.RequireAbstractOrFinal.ClassNeitherAbstractNorFinal">
         <exclude-pattern>*/src/Zef/Framework/Http/Request.php</exclude-pattern>
+        <exclude-pattern>*/src/Zef/Framework/Container/DefinitionException.php</exclude-pattern>
     </rule>
     <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
         <properties>

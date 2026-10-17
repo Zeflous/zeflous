@@ -17,6 +17,7 @@ use Zef\Framework\Container\FactoryDefinition;
 use Zef\Framework\Container\FactoryInvocation;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\ServiceDefinition;
+use Zef\Framework\Container\UnplannedInstanceDefinition;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Container\ExternalFactory;
@@ -235,5 +236,20 @@ final class DefinitionCompilerTest extends TestCase
             $announcer->greeter,
             'the shared dependency is the memoised singleton',
         );
+    }
+
+    public function testAnUnplannedDefinitionIsRefusedUntilTheAutowirePassRuns(): void
+    {
+        try {
+            new DefinitionCompiler()->compile(
+                new UnplannedInstanceDefinition('app.x', Greeter::class, ['salutation' => 'Hello']),
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertStringContainsString(
+                "The service 'app.x' carries an unplanned constructor plan -- run the autowire compiler pass",
+                $definitionException->getMessage(),
+            );
+        }
     }
 }

@@ -35,6 +35,13 @@ final readonly class AliasShape
             );
         }
 
+        if (\array_key_exists('autowire', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries the 'autowire' key on a 'alias' definition "
+                . '(the whole-constructor planning request belongs to the class shape only).',
+            );
+        }
+
         return new AliasDefinition($id, $target);
     }
 }

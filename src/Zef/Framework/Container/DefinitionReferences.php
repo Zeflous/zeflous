@@ -22,6 +22,10 @@ final readonly class DefinitionReferences
     public static function of(ServiceDefinition $serviceDefinition): array
     {
         return match (true) {
+            $serviceDefinition instanceof UnplannedInstanceDefinition => throw new DefinitionException(
+                "Service '{$serviceDefinition->id}' carries an unplanned constructor plan -- "
+                . 'run the autowire compiler pass before graph validation.',
+            ),
             $serviceDefinition instanceof AliasDefinition => [$serviceDefinition->target],
             $serviceDefinition instanceof FactoryDefinition => self::factoryReferences($serviceDefinition),
             $serviceDefinition instanceof InstanceDefinition => self::argumentReferences($serviceDefinition->arguments),
