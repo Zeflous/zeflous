@@ -178,6 +178,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the correlation family to pull request 371 [#372](https://github.com/Zeflous/zeflous/pull/372) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the hygiene-and-export family to pull request 375 [#376](https://github.com/Zeflous/zeflous/pull/376) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the audit campaign to pull requests 380, 381, 382 and 383 [#385](https://github.com/Zeflous/zeflous/pull/385) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the metrics-and-health family to pull request 386 [#389](https://github.com/Zeflous/zeflous/pull/389) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
