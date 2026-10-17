@@ -9,8 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\ServiceLifetime;
-use Zef\Test\Support\Container\ExternalFactory;
-use Zef\Test\Support\Container\Greeter;
 
 /**
  * @internal
@@ -57,49 +55,13 @@ final class ServiceLifetimeTest extends TestCase
         }
     }
 
-    public function testTheClassShapeCarriesItsLifetime(): void
-    {
-        $definition = ServiceDefinition::fromArray('app.x', ['class' => Greeter::class, 'lifetime' => 'request']);
-
-        self::assertSame(ServiceLifetime::REQUEST, $definition->lifetime);
-    }
-
-    public function testTheFactoryShapeCarriesItsLifetime(): void
-    {
-        $definition = ServiceDefinition::fromArray(
-            'app.x',
-            ['factory' => ExternalFactory::class . '::make', 'lifetime' => 'transient'],
-        );
-
-        self::assertSame(ServiceLifetime::TRANSIENT, $definition->lifetime);
-    }
-
-    public function testAnAbsentLifetimeDefaultsToSingleton(): void
-    {
-        $definition = ServiceDefinition::fromArray('app.x', ['class' => Greeter::class]);
-
-        self::assertSame(ServiceLifetime::SINGLETON, $definition->lifetime);
-    }
-
-    public function testTheNameKeyedHybridCarriesItsLifetimeThroughThePass(): void
-    {
-        $definition = ServiceDefinition::fromArray(
-            'app.x',
-            ['class' => Greeter::class, 'arguments' => ['salutation' => 'Hello'], 'lifetime' => 'request'],
-        );
-
-        self::assertSame(ServiceLifetime::REQUEST, $definition->lifetime);
-    }
-
-    public function testTheWholeConstructorRequestCarriesItsLifetime(): void
-    {
-        $definition = ServiceDefinition::fromArray(
-            'app.x',
-            ['class' => Greeter::class, 'autowire' => true, 'lifetime' => 'transient'],
-        );
-
-        self::assertSame(ServiceLifetime::TRANSIENT, $definition->lifetime);
-    }
+    // The lifetime-through-the-shapes grammar tests (the bare class
+    // form, the positional plan, the name-keyed hybrid, the
+    // whole-constructor request, the factory form and the singleton
+    // default) live in ServiceDefinitionTest beside the shape parsing
+    // they ride: this file's covers target is the vocabulary itself, and
+    // a test invisible to the classes it traverses protects nothing
+    // that mutation testing can see.
 
     public function testALifetimeOnAnAliasIsRefused(): void
     {

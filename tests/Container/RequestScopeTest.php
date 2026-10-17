@@ -16,6 +16,7 @@ use Zef\Framework\Container\RequestScope;
 use Zef\Framework\Container\RequestScopeException;
 use Zef\Framework\Container\RequestScopeRefusals;
 use Zef\Framework\Container\ServiceLifetime;
+use Zef\Framework\Container\ServiceResolutions;
 use Zef\Framework\Container\ServiceStore;
 use Zef\Test\Support\Container\ScopedBranch;
 
@@ -26,6 +27,7 @@ use Zef\Test\Support\Container\ScopedBranch;
 #[CoversClass(RequestInstances::class)]
 #[CoversClass(RequestScope::class)]
 #[CoversClass(RequestScopeRefusals::class)]
+#[CoversClass(ServiceResolutions::class)]
 #[CoversClass(ServiceStore::class)]
 final class RequestScopeTest extends TestCase
 {
@@ -65,6 +67,68 @@ final class RequestScopeTest extends TestCase
                 $requestScopeException->getMessage(),
             );
         }
+    }
+
+    public function testTheRootRefusesARequestScopedResolutionAfterAScopeResolved(): void
+    {
+        // The scope is resolution state, not a mode the container enters:
+        // once the scoped resolution returns, the root is unscoped again
+        // -- a later root resolution of a request-scoped id is the
+        // outside-scope refusal, never a silent ride into the scope an
+        // earlier resolution opened.
+        $container = new Container();
+        $container->set('app.thing', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
+
+        $scope = $container->createRequestScope();
+        self::assertInstanceOf(stdClass::class, $scope->get('app.thing'));
+
+        try {
+            $container->get('app.thing');
+            self::fail('Expected a RequestScopeException to be thrown.');
+        } catch (RequestScopeException $requestScopeException) {
+            self::assertSame(
+                "Service 'app.thing' is request-scoped and cannot be resolved outside a request scope "
+                . '-- open one with the container and resolve through it.',
+                $requestScopeException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnInnerScopeResolutionRestoresTheOuterScopeForWhatFollows(): void
+    {
+        // A factory may open a scope of its own mid-resolution: the inner
+        // scope's resolutions land in the inner scope, and the resolution
+        // that opened it resumes with the OUTER scope open again -- the
+        // fellow request-scoped dependency it resolves afterwards lands
+        // in the outer scope, never in the finished inner one.
+        $container = new Container();
+        $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
+
+        $outerScope = $container->createRequestScope();
+        $innerScope = $container->createRequestScope();
+        $container->set(
+            'app.branch',
+            static function (Container $container) use ($innerScope): array {
+                $innerLeaf = $innerScope->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $innerLeaf, 'the inner scope answers its own instance');
+
+                $outerLeaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $outerLeaf, 'the outer resolution answers its own');
+
+                return [$innerLeaf, $outerLeaf];
+            },
+            ServiceLifetime::REQUEST,
+        );
+
+        $pair = $outerScope->get('app.branch');
+        self::assertIsArray($pair, 'the branch factory answers its two leaves as a pair');
+        $innerLeaf = $pair[0];
+        $outerLeaf = $pair[1];
+        self::assertInstanceOf(stdClass::class, $innerLeaf);
+        self::assertInstanceOf(stdClass::class, $outerLeaf);
+        self::assertNotSame($innerLeaf, $outerLeaf, 'the two scopes never share an instance');
+        self::assertSame($innerLeaf, $innerScope->get('app.leaf'), 'the inner scope memoised its own instance');
+        self::assertSame($outerLeaf, $outerScope->get('app.leaf'), 'the outer scope memoised its own instance');
     }
 
     public function testASingletonResolvesIdenticallyThroughAScope(): void

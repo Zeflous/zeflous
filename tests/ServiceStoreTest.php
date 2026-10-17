@@ -378,6 +378,35 @@ final class ServiceStoreTest extends TestCase
 
     public function testTheDefaultBudgetRefusesA257FrameChain(): void
     {
+        // 256 chained factories plus the leaf: the 257th frame is one
+        // past the default budget, and the refusal carries the budget
+        // itself -- the exact boundary. A deeper chain (the 258-frame
+        // one below) refuses under a loosened budget too, so only this
+        // frame count pins the default at 256.
+        $container = new Container();
+        for ($depth = 0; $depth <= 255; ++$depth) {
+            $container->set(
+                'app.depth.' . $depth,
+                static fn (Container $container): mixed => $container->get('app.depth.' . ($depth + 1)),
+            );
+        }
+
+        $container->set('app.depth.256', static fn (): string => 'leaf');
+
+        try {
+            $container->get('app.depth.0');
+            self::fail('Expected a ResolutionDepthException to be thrown.');
+        } catch (ResolutionDepthException $resolutionDepthException) {
+            self::assertSame(
+                "Service 'app.depth.256' resolves through a chain deeper than the budget of 256 open frames "
+                . '-- the declaration graph is pathological.',
+                $resolutionDepthException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheDefaultBudgetRefusesA258FrameChain(): void
+    {
         $container = new Container();
         for ($depth = 0; $depth <= 256; ++$depth) {
             $container->set(

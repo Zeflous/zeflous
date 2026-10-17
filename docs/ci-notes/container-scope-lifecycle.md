@@ -192,3 +192,66 @@ store, depth-limit 256) + **github v2.9** (taxonomy yang sama,
 - Store-family reshape (B12) dan idiom answer-or-build: desain baru
   zeflous (dipaksa disiplin archeology D<20 + pelajaran saga —
   lihat ronde 3+4), tanpa padanan di referensi.
+
+## Lesson engineering ronde 5: ronde gate CI (PR #396, Infection merah)
+
+CI Infection menolak PR dengan **11 mutant lolos** (MSI 99.84%) padahal
+baterai lokal dicatat hijau. Otopsi menemukan TIGA kelas cacat, ketiganya
+bukan nondeterminisme — reproduksi lokal dengan `--filter` atas tujuh
+file pemilik mutant menghasilkan daftar lolos yang identik:
+
+1. **Celah fail-open report basi (akar klaim lokal yang salah)**:
+   `composer ci:infection` = `composer mutation` (full, tulis report)
+   LALU `composer mutation:zones` (gate baca report). Jalankan
+   `mutation:zones` SENDIRIAN di lokal = membaca report run TERAKHIR —
+   yang bisa berasal dari state kode sebelum reshape. Klaim "MSI 100%"
+   di worklog berasal dari report basi. Disiplin: gerbang mutation
+   lokal hanya sah setelah `composer mutation` penuh pada state final;
+   di CI urutan skrip sudah menjamin kesegaran (mutation harus hijau
+   sebelum zones berjalan).
+2. **Covers-restriction PHPUnit membuat test KUAT tak terlihat oleh
+   Infection**: `requireCoverageMetadata="true"` + `#[CoversClass]`
+   membatasi coverage per-test ke target yang didaftarkan. Test grammar
+   lifetime ditulis di `ServiceLifetimeTest` (covers hanya
+   `ServiceLifetime`) — test-nya benar dan kuat, tapi baris yang
+   dimutasi hidup di `ArgumentsForm`/`AutowireKey`/`FactoryShape`
+   (di-cover `ServiceDefinitionTest`), sehingga test itu TIDAK masuk
+   covering-set mutant. Sama untuk jalur scope: `RequestScopeTest`
+   menembus `ServiceResolutions` penuh tanpa mencantumkannya di covers.
+   C1 lolos karena kebetulan test-nya berada di file yang covers-nya
+   mencakup kelas yang dimutasi. Perbaikan: test dipindah ke rumah yang
+   mencover kolaboratornya (grammar → `ServiceDefinitionTest`), dan
+   `#[CoversClass(ServiceResolutions::class)]` ditambahkan ke
+   `RequestScopeTest`. Pelajaran umum: **letakkan test pada file yang
+   covers-nya memuat pemilik cabang yang diuji** — test yang tak
+   terlihat oleh mutasi melindungi apa pun yang bisa dilihat mutasi.
+3. **Slack batas pada test budget kedalaman**: test "257-frame" lama
+   ternyata 258 frame (loop `0..256` + leaf) — tetap menolak di bawah
+   budget yang dilonggarkan (256→257). Boundary pin sejati: rantai
+   **tepat 257 frame** dengan `assertSame` pesan ber-budget-256 —
+   hanya frame count itu yang membedakan 256 vs 257. Test 258-frame
+   tetap dipertahankan sebagai sisi dalam.
+
+Empat mutant keluarga Coalesce (`$lifetime ?? SINGLETON` dibalik):
+tanpa test non-default yang menembus TIAP bentuk grammar (bare-class /
+positional / named-map / autowire / factory), pembalikan operand tak
+teramati — test per bentuk kini ada di `ServiceDefinitionTest`.
+UnwrapFinally `ActiveScope`: tak ada test yang mengamati pemulihan
+scope pasca-resolusi — dua test baru (root menolak SETELAH resolusi
+scope selesai; scope dalam memulihkan scope luar untuk dependency
+berikutnya). Continue_ `LifetimeCaptures`: tak ada test dengan
+dependent non-singleton DI DEPAN singleton yang bersalah —
+`testTheVerdictWalksPastANonSingletonDependent` (transient legal dulu,
+refusal singleton kemudian; `break` menghentikan walk sebelum sampai).
+
+**Satu ignore baru terdokumentasi (ReturnRemoval fast-path memo)**:
+`ServiceResolutions::resolve()` baris `return
+$this->singletonMemo->instance($id);` — fall-through mendarat di seam
+answer-or-build milik `SingletonMemo::answer()` yang mengecek ulang
+memo, sehingga mutant menjawab instance identik lewat jalan lebih
+panjang: ekuivalen secara konstruksi (diverifikasi: suite penuh 3070
+test hijau di bawah mutasi yang diterapkan manual). Baris itu sendiri
+ada demi hot-path terukur (B13: 0.52µs vs 0.74µs). Ignore di-scope
+`ignoreSourceCodeByRegex` ke SATU baris sumber — `return match`
+tetangganya tetap hidup dan terbunuh. Mengikuti preseden gaya
+`ignoreSourceCodeByRegex` yang sudah ada di `infection.json5`.
