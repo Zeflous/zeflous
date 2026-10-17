@@ -369,8 +369,9 @@ accurate.
 
 ## Quality gates
 
-The following checks run on every pull request. `CI Strict` and `PR Validator`
-are **required** — the rest are advisory signals.
+The following checks run on every pull request. `CI Strict`, `PR Validator`,
+`PhpCodeArcheology SARIF`, `SonarCloud Code Analysis` and `SonarCloud
+analysis` are **required** — the rest are advisory signals.
 
 | Check | What it enforces |
 | --- | --- |
@@ -382,6 +383,7 @@ are **required** — the rest are advisory signals.
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
 | `SonarCloud Code Analysis` | The server-side quality gate. |
+| `SonarCloud analysis` | The scanner lane that produces the analysis (bridging the CI Coverage artifact); fail-closed when uncredentialed in a context that must have credentials — see [`docs/security/sonarcloud.md`](docs/security/sonarcloud.md). |
 | `Dependency Review` | Supply-chain review of dependency changes. |
 | `API Documentation Check` | The generated API documentation is up to date. |
 | `PHPBench` | Benchmark regression check. |
