@@ -6,7 +6,12 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the audit-fix batch to pull request 413 [\#419](https://github.com/Zeflous/zeflous/pull/419) ([mbetixz](https://github.com/mbetixz))
+- feat\(tooling\): refuse a stale roadmap pin on main [\#417](https://github.com/Zeflous/zeflous/pull/417) ([mbetixz](https://github.com/mbetixz))
+- docs\(security\): add the vulnerability disclosure policy [\#413](https://github.com/Zeflous/zeflous/pull/413) ([mbetixz](https://github.com/mbetixz))
 - chore\(repo\): remove the demo template page [\#412](https://github.com/Zeflous/zeflous/pull/412) ([mbetixz](https://github.com/mbetixz))
+- docs\(readme\): show main's real check state, not the last aggregator run [\#411](https://github.com/Zeflous/zeflous/pull/411) ([mbetixz](https://github.com/mbetixz))
+- fix\(composer\): exclude the vendored psr shims from the dev classmap [\#410](https://github.com/Zeflous/zeflous/pull/410) ([mbetixz](https://github.com/mbetixz))
 - chore\(license\): add the MIT license text [\#409](https://github.com/Zeflous/zeflous/pull/409) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the tags & autoconfiguration family to pull request 404 [\#405](https://github.com/Zeflous/zeflous/pull/405) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): the tags & autoconfiguration family, one tag one source [\#404](https://github.com/Zeflous/zeflous/pull/404) ([mbetixz](https://github.com/mbetixz))
