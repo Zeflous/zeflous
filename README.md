@@ -1,5 +1,7 @@
 # Zeflous
 
+[![CI Strict](https://img.shields.io/github/check-runs/Zeflous/zeflous/main?label=CI%20Strict)](https://github.com/Zeflous/zeflous/actions?query=branch%3Amain)
+
 Zeflous is a PHP framework built around a hexagonal architecture and a
 RoadRunner runtime. The repository ships the framework source, its test suite,
 and the full CI pipeline that guards every change.
