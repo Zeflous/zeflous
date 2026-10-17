@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-17T13:36:05Z",
+  "as_of": "2026-10-17T14:55:34Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 169,
+  "unreleased_count": 170,
   "versions": [
     {
       "version": "Unreleased",
@@ -1361,6 +1361,52 @@
                 "sha": "6724a49dcf7fd3bfe7ab7c33f07ea42c8231da90",
                 "short_sha": "6724a49",
                 "subject": "fix(container): the PR's gate round -- archeology, SonarCloud, three shapes"
+              }
+            ]
+          },
+          {
+            "pr": 396,
+            "title": "feat(container): the scope & lifecycle family, lifetime as the sharing policy",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-17T14:55:34Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/396",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "fa4614b7d905744145f135f9293f948ae5280ddc",
+                "short_sha": "fa4614b",
+                "subject": "feat(container): the scope & lifecycle family, lifetime as the sharing policy"
+              },
+              {
+                "sha": "2c861bd33032bc60894c63617c8b23eda9450781",
+                "short_sha": "2c861bd",
+                "subject": "Merge branch 'main' into feat/container-scope-lifecycle"
+              },
+              {
+                "sha": "fb0993f6a6bab38540021adfa423b1647494bb3e",
+                "short_sha": "fb0993f",
+                "subject": "Merge branch 'main' into feat/container-scope-lifecycle"
+              },
+              {
+                "sha": "d14bc2a4f10d3baaaeabdb457ee261befc06ac90",
+                "short_sha": "d14bc2a",
+                "subject": "Merge branch 'main' into feat/container-scope-lifecycle"
+              },
+              {
+                "sha": "d3448a4aa27671b21870bc94db5938c18180a6f0",
+                "short_sha": "d3448a4",
+                "subject": "Merge branch 'main' into feat/container-scope-lifecycle"
+              },
+              {
+                "sha": "584ffc72e7c25a3cdbcd907258f66752b7774582",
+                "short_sha": "584ffc7",
+                "subject": "fix(container): the PR's gate round -- eleven mutants, three root causes"
+              },
+              {
+                "sha": "04e51addc9b5477cabaff376febd80719c32c22b",
+                "short_sha": "04e51ad",
+                "subject": "fix(container): merge the fast-path ignore into the existing ReturnRemoval entry"
               }
             ]
           }
@@ -8535,6 +8581,52 @@
               "sha": "6724a49dcf7fd3bfe7ab7c33f07ea42c8231da90",
               "short_sha": "6724a49",
               "subject": "fix(container): the PR's gate round -- archeology, SonarCloud, three shapes"
+            }
+          ]
+        },
+        {
+          "pr": 396,
+          "title": "feat(container): the scope & lifecycle family, lifetime as the sharing policy",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-17T14:55:34Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/396",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "fa4614b7d905744145f135f9293f948ae5280ddc",
+              "short_sha": "fa4614b",
+              "subject": "feat(container): the scope & lifecycle family, lifetime as the sharing policy"
+            },
+            {
+              "sha": "2c861bd33032bc60894c63617c8b23eda9450781",
+              "short_sha": "2c861bd",
+              "subject": "Merge branch 'main' into feat/container-scope-lifecycle"
+            },
+            {
+              "sha": "fb0993f6a6bab38540021adfa423b1647494bb3e",
+              "short_sha": "fb0993f",
+              "subject": "Merge branch 'main' into feat/container-scope-lifecycle"
+            },
+            {
+              "sha": "d14bc2a4f10d3baaaeabdb457ee261befc06ac90",
+              "short_sha": "d14bc2a",
+              "subject": "Merge branch 'main' into feat/container-scope-lifecycle"
+            },
+            {
+              "sha": "d3448a4aa27671b21870bc94db5938c18180a6f0",
+              "short_sha": "d3448a4",
+              "subject": "Merge branch 'main' into feat/container-scope-lifecycle"
+            },
+            {
+              "sha": "584ffc72e7c25a3cdbcd907258f66752b7774582",
+              "short_sha": "584ffc7",
+              "subject": "fix(container): the PR's gate round -- eleven mutants, three root causes"
+            },
+            {
+              "sha": "04e51addc9b5477cabaff376febd80719c32c22b",
+              "short_sha": "04e51ad",
+              "subject": "fix(container): merge the fast-path ignore into the existing ReturnRemoval entry"
             }
           ]
         },
