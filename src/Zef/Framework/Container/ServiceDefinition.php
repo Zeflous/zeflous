@@ -27,6 +27,8 @@ abstract readonly class ServiceDefinition
 {
     public function __construct(
         public string $id,
+        /** How many instances this service's declarations may ever observe; the default is the behaviour every earlier declaration already had. */
+        public ServiceLifetime $lifetime = ServiceLifetime::SINGLETON,
     ) {
         if ($id === '') {
             throw new DefinitionException('A service definition requires a non-empty identifier.');

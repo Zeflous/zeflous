@@ -50,6 +50,11 @@ final readonly class FactoryShape
             );
         }
 
-        return new FactoryDefinition($id, $factory, DefinitionArguments::assertValid($id, $entry['arguments'] ?? []));
+        return new FactoryDefinition(
+            $id,
+            $factory,
+            DefinitionArguments::assertValid($id, $entry['arguments'] ?? []),
+            ServiceLifetime::fromKey($id, $entry['lifetime'] ?? null) ?? ServiceLifetime::SINGLETON,
+        );
     }
 }

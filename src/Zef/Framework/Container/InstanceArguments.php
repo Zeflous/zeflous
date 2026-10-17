@@ -31,12 +31,16 @@ final readonly class InstanceArguments
      * @param class-string            $class
      * @param array<array-key, mixed> $entry
      */
-    public static function definition(string $id, string $class, array $entry): ServiceDefinition
-    {
+    public static function definition(
+        string $id,
+        string $class,
+        array $entry,
+        ?ServiceLifetime $serviceLifetime = null,
+    ): ServiceDefinition {
         if (\array_key_exists('autowire', $entry)) {
-            return AutowireKey::form($id, $class, $entry);
+            return AutowireKey::form($id, $class, $entry, $serviceLifetime);
         }
 
-        return ArgumentsForm::definition($id, $class, $entry['arguments'] ?? null);
+        return ArgumentsForm::definition($id, $class, $entry['arguments'] ?? null, $serviceLifetime);
     }
 }

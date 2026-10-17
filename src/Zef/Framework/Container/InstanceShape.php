@@ -36,6 +36,11 @@ final readonly class InstanceShape
             throw new DefinitionException("Service '{$id}' class '{$class}' does not exist.");
         }
 
-        return InstanceArguments::definition($id, $class, $entry);
+        return InstanceArguments::definition(
+            $id,
+            $class,
+            $entry,
+            ServiceLifetime::fromKey($id, $entry['lifetime'] ?? null),
+        );
     }
 }

@@ -20,8 +20,12 @@ final readonly class AutowireKey
      * @param class-string            $class
      * @param array<array-key, mixed> $entry
      */
-    public static function form(string $id, string $class, array $entry): UnplannedInstanceDefinition
-    {
+    public static function form(
+        string $id,
+        string $class,
+        array $entry,
+        ?ServiceLifetime $serviceLifetime = null,
+    ): UnplannedInstanceDefinition {
         if (\array_key_exists('arguments', $entry)) {
             self::refuse($id, "carries both 'autowire' and 'arguments' "
                 . '(choose one planning form: the name-keyed arguments, or the whole-constructor request)');
@@ -32,7 +36,7 @@ final readonly class AutowireKey
                 . '(the key is the whole-constructor planning request; an absent key is the default)');
         }
 
-        return new UnplannedInstanceDefinition($id, $class);
+        return new UnplannedInstanceDefinition($id, $class, null, $serviceLifetime ?? ServiceLifetime::SINGLETON);
     }
 
     private static function refuse(string $id, string $reason): never

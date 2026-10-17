@@ -367,7 +367,9 @@
             ]
         },
         // The settled memo's early return in
-        // ServiceDefinitionGraph::visit() is the one return whose removal
+        // DefinitionCycles::visit() (moved out of ServiceDefinitionGraph
+        // when the graph became the three-verdict orchestrator) is the one
+        // return whose removal
         // is value-equivalent: the walk is a pure function of the edge
         // map, so re-visiting a settled node recomputes the identical
         // acyclic verdict -- the memo is a performance guard, never a
@@ -393,11 +395,37 @@
         // falls a NaN series through to the abs() comparison, which
         // answers false on the NaN operand -- the identical answer the
         // guard spells. This ignore is scoped to that single method.
+        //
+        // The memo-hit fast path in ServiceResolutions::resolve() is the
+        // fourth zone, and the one this entry grew for: its fall-through
+        // lands on the singleton lane's own answer-or-build seam, and
+        // SingletonMemo::answer() re-checks the memo before it ever
+        // consults the build closure, so removing the return answers the
+        // identical memoised instance through the longer road -- the two
+        // spellings differ only in the fast path's skipped closure
+        // allocation and lifetime read, which is exactly why the line
+        // exists (the measured hot ride: ScopeResolutionBench answers
+        // ~0.52us with the fast path against ~0.74us without it).
+        // Verified by running the full suite under the manually applied
+        // mutation (the complete suite passes) and by construction: the
+        // only state that could tell the two apart -- a memoised id with
+        // no registration behind it -- is unreachable through the public
+        // surface (set() forgets the memo on every re-registration, and
+        // the memo only fills for registered ids). Scoped by source
+        // regex to that single line; the neighbouring `return match`
+        // under the same mutator stays live and killed (its removal
+        // answers null, and the identity-through-a-scope test kills
+        // it). NB: this entry is the file's ONLY ReturnRemoval key --
+        // a duplicate key silently disarms every ignore listed here
+        // (the gate-round on PR #396 learned this the hard way).
         "ReturnRemoval": {
             "ignore": [
-                "Zef\\Framework\\Container\\ServiceDefinitionGraph::visit",
+                "Zef\\Framework\\Container\\DefinitionCycles::visit",
                 "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed",
                 "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
+            ],
+            "ignoreSourceCodeByRegex": [
+                "return \\$this->singletonMemo->instance\\(\\$id\\);"
             ]
         },
         // The correlation pair's tolerant extraction is a chain of

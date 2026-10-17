@@ -72,7 +72,7 @@ final readonly class ContainerBootstrapper
         ServiceDefinitionGraph::validate($autowireResult->definitions, $container);
 
         foreach ($autowireResult->definitions as $definition) {
-            $container->set($definition->id, $this->definitionCompiler->compile($definition));
+            $container->set($definition->id, $this->definitionCompiler->compile($definition), $definition->lifetime);
         }
 
         return $container;

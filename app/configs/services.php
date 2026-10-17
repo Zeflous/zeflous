@@ -38,6 +38,16 @@ declare(strict_types=1);
  *   ['value' => <any>]
  *       Registers a pre-built value as a service.
  *
+ * The class and factory shapes also accept a 'lifetime' key -- the
+ * sharing policy, one of 'singleton' (the default: one instance for
+ * the container's whole life), 'request' (one instance per request
+ * scope, resolved through Container::createRequestScope(), refused at
+ * the root with the way out in the message) or 'transient' (a fresh
+ * instance every resolution). An alias has no lifetime of its own (it
+ * rides its target's), and a value is a constant; a singleton that
+ * depends on a request-scoped service is refused at boot -- the
+ * captive dependency -- rather than silently captured forever.
+ *
  * The whole map is validated fail-closed before a single definition is
  * installed: unknown shape keys, unknown service references and circular
  * dependency chains halt the boot with the offending entry named. The

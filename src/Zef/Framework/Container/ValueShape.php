@@ -37,6 +37,13 @@ final readonly class ValueShape
             );
         }
 
+        if (\array_key_exists('lifetime', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries a 'lifetime' on a 'value' definition "
+                . '(a value is a constant: it is born once and never built again).',
+            );
+        }
+
         return new ValueDefinition($id, $entry['value']);
     }
 }

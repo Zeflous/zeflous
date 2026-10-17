@@ -10,6 +10,7 @@ use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\DefinitionMap;
+use Zef\Framework\Container\RequestScopeException;
 use Zef\Framework\ContainerBootstrapper;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Container\Autowiring\DependentHouse;
@@ -330,5 +331,119 @@ final class ContainerBootstrapperTest extends TestCase
         }
 
         self::assertFalse($container->has('app.greeter'));
+    }
+
+    public function testTheRequestLifetimeBootsAndResolvesThroughItsScope(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'app.greeter' => [
+                        'class' => Greeter::class,
+                        'arguments' => ['salutation' => 'Hello'],
+                        'lifetime' => 'request',
+                    ],
+                ],
+            ]),
+            $container,
+        );
+
+        try {
+            $container->get('app.greeter');
+            self::fail('Expected a RequestScopeException to be thrown.');
+        } catch (RequestScopeException $requestScopeException) {
+            self::assertStringContainsString(
+                "Service 'app.greeter' is request-scoped and cannot be resolved outside a request scope",
+                $requestScopeException->getMessage(),
+            );
+        }
+
+        $scope = $container->createRequestScope();
+        $greeter = $scope->get('app.greeter');
+        self::assertInstanceOf(Greeter::class, $greeter);
+        self::assertSame('Hello', $greeter->salutation);
+        self::assertSame($greeter, $scope->get('app.greeter'));
+    }
+
+    public function testTheTransientLifetimeBootsAndBuildsFresh(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'app.greeter' => [
+                        'class' => Greeter::class,
+                        'arguments' => ['salutation' => 'Hello'],
+                        'lifetime' => 'transient',
+                    ],
+                ],
+            ]),
+            $container,
+        );
+
+        self::assertNotSame($container->get('app.greeter'), $container->get('app.greeter'));
+    }
+
+    public function testTheHybridAutowireFormCarriesItsLifetimeThroughThePass(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'app.greeter' => ['class' => Greeter::class, 'arguments' => ['salutation' => 'Hello']],
+                    Greeter::class => ['alias' => 'app.greeter'],
+                    'app.house' => [
+                        'class' => TypedHouse::class,
+                        'arguments' => ['channel' => 'ops'],
+                        'lifetime' => 'request',
+                    ],
+                ],
+            ]),
+            $container,
+        );
+
+        $scope = $container->createRequestScope();
+        $house = $scope->get('app.house');
+        self::assertInstanceOf(TypedHouse::class, $house);
+        self::assertSame($house, $scope->get('app.house'));
+        self::assertNotSame($house, $container->createRequestScope()->get('app.house'));
+    }
+
+    public function testACaptiveDependencyIsRefusedAtBoot(): void
+    {
+        $container = new Container();
+
+        try {
+            new ContainerBootstrapper()->bootstrap(
+                new Config([
+                    'services' => [
+                        'app.leaf' => [
+                            'class' => Greeter::class,
+                            'arguments' => ['salutation' => 'Hello'],
+                            'lifetime' => 'request',
+                        ],
+                        'app.holder' => [
+                            'class' => Announcer::class,
+                            'arguments' => [['service' => 'app.leaf'], 'ops'],
+                        ],
+                    ],
+                ]),
+                $container,
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.holder' (singleton) depends on the request-scoped service 'app.leaf': "
+                . 'a request-scoped instance cannot be captured beyond its scope -- '
+                . "give 'app.leaf' a singleton or transient lifetime, or make 'app.holder' request-scoped.",
+                $definitionException->getMessage(),
+            );
+        }
+
+        self::assertFalse($container->has('app.leaf'));
     }
 }

@@ -23,6 +23,7 @@ use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\InstanceShape;
 use Zef\Framework\Container\NamedArguments;
 use Zef\Framework\Container\ServiceDefinition;
+use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\UnplannedInstanceDefinition;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Framework\Container\ValueShape;
@@ -112,6 +113,72 @@ final class ServiceDefinitionTest extends TestCase
         self::assertNull($null->value);
     }
 
+    public function testTheBareClassShapeCarriesItsLifetime(): void
+    {
+        // The absent-arguments branch of the class shape carries the
+        // lifetime exactly as the planning forms do -- no form is a
+        // silent singleton.
+        $definition = ServiceDefinition::fromArray('app.x', ['class' => Greeter::class, 'lifetime' => 'request']);
+
+        self::assertInstanceOf(InstanceDefinition::class, $definition);
+        self::assertSame(ServiceLifetime::REQUEST, $definition->lifetime);
+    }
+
+    public function testThePositionalPlanCarriesItsLifetime(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.x', [
+            'class' => Greeter::class,
+            'arguments' => ['Hello'],
+            'lifetime' => 'transient',
+        ]);
+
+        self::assertInstanceOf(InstanceDefinition::class, $definition);
+        self::assertSame(ServiceLifetime::TRANSIENT, $definition->lifetime);
+    }
+
+    public function testNameKeyedArgumentsCarryTheLifetime(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.x', [
+            'class' => Greeter::class,
+            'arguments' => ['salutation' => 'Hello'],
+            'lifetime' => 'request',
+        ]);
+
+        self::assertInstanceOf(UnplannedInstanceDefinition::class, $definition);
+        self::assertSame(ServiceLifetime::REQUEST, $definition->lifetime);
+    }
+
+    public function testTheWholeConstructorRequestCarriesItsLifetime(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.x', [
+            'class' => Greeter::class,
+            'autowire' => true,
+            'lifetime' => 'transient',
+        ]);
+
+        self::assertInstanceOf(UnplannedInstanceDefinition::class, $definition);
+        self::assertSame(ServiceLifetime::TRANSIENT, $definition->lifetime);
+    }
+
+    public function testTheFactoryShapeCarriesItsLifetime(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.x', [
+            'factory' => ExternalFactory::class . '::make',
+            'lifetime' => 'request',
+        ]);
+
+        self::assertInstanceOf(FactoryDefinition::class, $definition);
+        self::assertSame(ServiceLifetime::REQUEST, $definition->lifetime);
+    }
+
+    public function testAnAbsentLifetimeDefaultsToSingleton(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.x', ['class' => Greeter::class]);
+
+        self::assertInstanceOf(InstanceDefinition::class, $definition);
+        self::assertSame(ServiceLifetime::SINGLETON, $definition->lifetime);
+    }
+
     public function testAnEmptyIdentifierIsRejected(): void
     {
         try {
@@ -162,7 +229,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key '5' "
-                . '(known keys: class, factory, alias, value, arguments, autowire).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime).',
                 $definitionException->getMessage(),
             );
         }
@@ -189,7 +256,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key 'clas' "
-                . '(known keys: class, factory, alias, value, arguments, autowire).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime).',
                 $definitionException->getMessage(),
             );
         }
