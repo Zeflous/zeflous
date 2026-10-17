@@ -215,6 +215,22 @@
         // the seam landed in ExportPolicy and the archaeology gate's
         // split moved it whole into ExportBounds -- the grammar's
         // argument is the method's own, wherever it lives.
+        // The budget accumulator joins the byte-accounting class above,
+        // twice over and newly exposed: until its explicit test file
+        // landed, CorrelationBudget had no covering test at all -- a
+        // mutation blind spot, not a clean record. Both MBString sites
+        // spell mb_strlen($x, '8bit') -- the key read in spend() and
+        // the string arm of scalarByteLength() -- and the '8bit'
+        // encoding IS byte semantics, the BodyBudget class above
+        // already proved, so strlen answers the identical count for
+        // every input. Each was verified by running the full suite
+        // under the manually applied mutation (the complete suite
+        // passes, both directions). The width literals the match arms
+        // carry stay under the mutator: the boolean arm's four-or-five
+        // and the null/int/float arms are pinned exactly by their
+        // two-sided boundary tests, and the multi-byte value-width
+        // tests pin the string arm's count.
+        //
         // The crash containment's class-name truncation in
         // HealthProbe::judged() is the next MBString zone: PHP class
         // names are ASCII by this repository's own grammar (the PSR
@@ -247,6 +263,8 @@
                 "Zef\\Framework\\Http\\RateLimitStores::read",
                 "Zef\\Framework\\Http\\StrictToggles::read",
                 "Zef\\Framework\\Telemetry\\CorrelationAttributes::entry",
+                "Zef\\Framework\\Telemetry\\CorrelationBudget::scalarByteLength",
+                "Zef\\Framework\\Telemetry\\CorrelationBudget::spend",
                 "Zef\\Framework\\Telemetry\\CorrelationContext::validateToken",
                 "Zef\\Framework\\Telemetry\\CorrelationIdentity::propagationBytes",
                 "Zef\\Framework\\Telemetry\\CorrelationIdentity::traceParentLength",
