@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-17T05:22:13Z",
+  "as_of": "2026-10-17T05:58:50Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 166,
+  "unreleased_count": 167,
   "versions": [
     {
       "version": "Unreleased",
@@ -4081,6 +4081,27 @@
                 "sha": "adcc724b3cddaddeb15e32156a0bf9f15fc13cbf",
                 "short_sha": "adcc724",
                 "subject": "docs(roadmap): pin the audit campaign to pull requests 380, 381, 382 and 383"
+              }
+            ]
+          },
+          {
+            "pr": 389,
+            "title": "docs(roadmap): pin the metrics-and-health family to pull request 386",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T05:58:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/389",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7917ae02e7d014c7881149532beda0b29bacbcb3",
+                "short_sha": "7917ae0",
+                "subject": "docs(roadmap): pin the metrics-and-health family to pull request 386"
+              },
+              {
+                "sha": "9f4a3a611b6ca0184e199f166240ce6b928bd9cf",
+                "short_sha": "9f4a3a6",
+                "subject": "Merge branch 'main' into docs/roadmap-metrics-family-pin"
               }
             ]
           }
@@ -8425,6 +8446,27 @@
               "sha": "6df685a966b8a7a8c95aff27477bb166ecd98c41",
               "short_sha": "6df685a",
               "subject": "fix(telemetry): the metrics family's SonarCloud round -- the view table, the load-bearing nesting"
+            }
+          ]
+        },
+        {
+          "pr": 389,
+          "title": "docs(roadmap): pin the metrics-and-health family to pull request 386",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T05:58:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/389",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7917ae02e7d014c7881149532beda0b29bacbcb3",
+              "short_sha": "7917ae0",
+              "subject": "docs(roadmap): pin the metrics-and-health family to pull request 386"
+            },
+            {
+              "sha": "9f4a3a611b6ca0184e199f166240ce6b928bd9cf",
+              "short_sha": "9f4a3a6",
+              "subject": "Merge branch 'main' into docs/roadmap-metrics-family-pin"
             }
           ]
         }
