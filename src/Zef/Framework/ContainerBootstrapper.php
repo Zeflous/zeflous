@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace Zef\Framework;
 
 use Zef\Framework\Config\Config;
+use Zef\Framework\Container\Autowiring\AutoconfigMap;
+use Zef\Framework\Container\Autowiring\Autoconfiguration;
 use Zef\Framework\Container\Autowiring\AutowireCompilerPass;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Container\DefinitionMap;
 use Zef\Framework\Container\ServiceDefinitionGraph;
+use Zef\Framework\Container\ServiceTagIndex;
+use Zef\Framework\Container\TaggedServices;
 
 /**
  * Bootstraps the container from the frozen configuration repository.
@@ -38,15 +42,30 @@ use Zef\Framework\Container\ServiceDefinitionGraph;
  *
  * Fail-closed at boot, in order: each definition map is parsed and
  * validated by {@see DefinitionMap::parse()} (a missing/null key is a
- * valid empty set); the whole set then passes the autowiring compile
+ * valid empty set); the autoconfiguration knob is parsed to its
+ * validated rules ({@see AutoconfigMap::parse()} -- an unknown key, a
+ * missing interface or an invalid tag each halt the boot with the
+ * knob's own name); the whole set then passes the autowiring compile
  * pass ({@see AutowireCompilerPass::process()}), which rewrites the
  * name-keyed and `autowire` declarations into the positional form,
  * reads every class-shaped constructor once for the instantiable and
  * arity verdicts, and appends the classes a planned parameter birthed
- * as their own declared definitions; finally the set's reference graph
+ * as their own declared definitions; the earned tags are merged in
+ * ({@see Autoconfiguration::apply()} -- the marker rules and `#[Tag]`
+ * attributes a class-shaped declaration earns, one tag one source or
+ * the boot refuses); finally the set's reference graph
  * is proven resolvable and acyclic by
  * {@see ServiceDefinitionGraph::validate()} before a single definition
  * is installed.
+ *
+ * The tags lane's read side is registered before that install loop:
+ * the reserved {@see FrameworkDefaults::TAGS_SERVICE} identifier
+ * answers a {@see TaggedServices} locator over the boot-built
+ * {@see ServiceTagIndex} of the planned set. Registered ahead of the
+ * definitions for the same reason the profile's registrations install
+ * first -- a host's same-identifier entry is an explicit rebind that
+ * wins, so the framework's own machinery never overwrites the host's
+ * deliberate choice.
  */
 final readonly class ContainerBootstrapper
 {
@@ -67,11 +86,23 @@ final readonly class ContainerBootstrapper
             ...DefinitionMap::parse('services', $config->get('services')),
         ];
 
+        $autoconfigMap = AutoconfigMap::parse('tags', $config->get('tags'));
+
         $autowireResult = $this->autowireCompilerPass->process($definitions, $container);
 
-        ServiceDefinitionGraph::validate($autowireResult->definitions, $container);
+        $planned = Autoconfiguration::apply($autowireResult->definitions, $autoconfigMap);
 
-        foreach ($autowireResult->definitions as $definition) {
+        ServiceDefinitionGraph::validate($planned, $container);
+
+        $container->set(
+            FrameworkDefaults::TAGS_SERVICE,
+            static fn (Container $container): TaggedServices => new TaggedServices(
+                new ServiceTagIndex($planned),
+                $container,
+            ),
+        );
+
+        foreach ($planned as $definition) {
             $container->set($definition->id, $this->definitionCompiler->compile($definition), $definition->lifetime);
         }
 

@@ -29,6 +29,8 @@ abstract readonly class ServiceDefinition
         public string $id,
         /** How many instances this service's declarations may ever observe; the default is the behaviour every earlier declaration already had. */
         public ServiceLifetime $lifetime = ServiceLifetime::SINGLETON,
+        /** The grouping labels the declaration carries; the default is no tags at all. */
+        public ServiceTags $tags = new ServiceTags(),
     ) {
         if ($id === '') {
             throw new DefinitionException('A service definition requires a non-empty identifier.');

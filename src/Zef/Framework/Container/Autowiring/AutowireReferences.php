@@ -27,6 +27,10 @@ use Zef\Framework\Container\ServiceDefinition;
  * service, the parameter and every way out in the message, through
  * {@see AutowireReferenceRefusals}).
  *
+ * The variadic collection's answer also routes through here
+ * ({@see implementations()}) -- the same declared set the reuse arms
+ * consult, gathered by {@see AutowireImplementations}.
+ *
  * A birth chain that closes onto itself is refused with the walked
  * chain, the same message shape the runtime cycle guard carries. The
  * run's bookkeeping lives in {@see AutowireBirths} (shared with the
@@ -39,12 +43,15 @@ final readonly class AutowireReferences
 
     private AutowireBirther $autowireBirther;
 
+    private AutowireImplementations $autowireImplementations;
+
     public function __construct(
         ReflectionMetadataExtractor $reflectionMetadataExtractor,
         AutowireBirths $autowireBirths,
     ) {
         $this->autowireReuse = new AutowireReuse($autowireBirths);
         $this->autowireBirther = new AutowireBirther($autowireBirths, $reflectionMetadataExtractor);
+        $this->autowireImplementations = new AutowireImplementations();
     }
 
     /**
@@ -56,6 +63,22 @@ final readonly class AutowireReferences
     public function open(array $definitions, Container $container): void
     {
         $this->autowireReuse->open($definitions, $container);
+        $this->autowireImplementations->open($definitions, $container);
+    }
+
+    /**
+     * The declared implementations of one type -- the variadic
+     * collection's answer, from the same declared set the reuse arms
+     * consult (births excluded: an incident of planning is not a
+     * declaration of the type's ecosystem).
+     *
+     * @param string $type the class or interface the collection gathers
+     *
+     * @return list<string>
+     */
+    public function implementations(string $type): array
+    {
+        return $this->autowireImplementations->ids($type);
     }
 
     /**
@@ -68,13 +91,7 @@ final readonly class AutowireReferences
      */
     public function resolve(string $ownerId, AutowireParameterSpec $autowireParameterSpec): string
     {
-        $id = $autowireParameterSpec->identifier();
-        if ($autowireParameterSpec->targetClass !== null) {
-            $id = $autowireParameterSpec->targetClass;
-            if (!ConstructorSpecs::instantiable($id)) {
-                throw AutowireReferenceRefusals::targetNotInstantiable($ownerId, $autowireParameterSpec->name, $id);
-            }
-        }
+        $id = AutowireTargetBinding::id($ownerId, $autowireParameterSpec);
 
         if ($this->autowireReuse->known($id)) {
             return $id;

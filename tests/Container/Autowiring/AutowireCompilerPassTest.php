@@ -13,6 +13,8 @@ use Zef\Framework\Container\Autowiring\AutowireBirths;
 use Zef\Framework\Container\Autowiring\AutowireCompilerPass;
 use Zef\Framework\Container\Autowiring\AutowireDeclaredArguments;
 use Zef\Framework\Container\Autowiring\AutowireDeclaredStretch;
+use Zef\Framework\Container\Autowiring\AutowireFactoryProduct;
+use Zef\Framework\Container\Autowiring\AutowireImplementations;
 use Zef\Framework\Container\Autowiring\AutowireParameterPlanner;
 use Zef\Framework\Container\Autowiring\AutowireParameterSpec;
 use Zef\Framework\Container\Autowiring\AutowireParameterTypes;
@@ -25,6 +27,9 @@ use Zef\Framework\Container\Autowiring\AutowireRequestPlanning;
 use Zef\Framework\Container\Autowiring\AutowireResult;
 use Zef\Framework\Container\Autowiring\AutowireReuse;
 use Zef\Framework\Container\Autowiring\AutowireSpecFactory;
+use Zef\Framework\Container\Autowiring\AutowireStaticReturn;
+use Zef\Framework\Container\Autowiring\AutowireTargetBinding;
+use Zef\Framework\Container\Autowiring\AutowireVariadicCollection;
 use Zef\Framework\Container\Autowiring\AutowiringException;
 use Zef\Framework\Container\Autowiring\ConstructorFitRefusals;
 use Zef\Framework\Container\Autowiring\ConstructorSpecs;
@@ -34,29 +39,37 @@ use Zef\Framework\Container\Autowiring\ReflectionMetadataExtractor;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\DefinitionMap;
+use Zef\Framework\Container\FactoryDefinition;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\ServiceDefinitionGraph;
 use Zef\Test\Support\Container\Autowiring\BirthChainAlpha;
 use Zef\Test\Support\Container\Autowiring\BirthChainBeta;
+use Zef\Test\Support\Container\Autowiring\BuiltinStaticFactory;
 use Zef\Test\Support\Container\Autowiring\ChainRoot;
 use Zef\Test\Support\Container\Autowiring\DependentHouse;
 use Zef\Test\Support\Container\Autowiring\DoubleDepHouse;
 use Zef\Test\Support\Container\Autowiring\FileLogger;
+use Zef\Test\Support\Container\Autowiring\GreeterFactory;
 use Zef\Test\Support\Container\Autowiring\InjectedDepHouse;
 use Zef\Test\Support\Container\Autowiring\InjectedHouse;
+use Zef\Test\Support\Container\Autowiring\InstanceMethodFactory;
 use Zef\Test\Support\Container\Autowiring\InterfaceHouse;
 use Zef\Test\Support\Container\Autowiring\LoggerInterface;
+use Zef\Test\Support\Container\Autowiring\LoggerVariadicHouse;
 use Zef\Test\Support\Container\Autowiring\NamedWinsHouse;
 use Zef\Test\Support\Container\Autowiring\NullableHouse;
 use Zef\Test\Support\Container\Autowiring\OptionalUnionHouse;
 use Zef\Test\Support\Container\Autowiring\ParameterlessHouse;
 use Zef\Test\Support\Container\Autowiring\SimpleDep;
+use Zef\Test\Support\Container\Autowiring\SimpleDepVariadicHouse;
 use Zef\Test\Support\Container\Autowiring\TargetedHouse;
 use Zef\Test\Support\Container\Autowiring\TypedHouse;
 use Zef\Test\Support\Container\Autowiring\TypedVariadicHouse;
 use Zef\Test\Support\Container\Autowiring\UninstantiableHouse;
 use Zef\Test\Support\Container\Autowiring\UnionHouse;
+use Zef\Test\Support\Container\Autowiring\UnionStaticFactory;
+use Zef\Test\Support\Container\Autowiring\UnionVariadicHouse;
 use Zef\Test\Support\Container\Autowiring\VariadicHouse;
 use Zef\Test\Support\Container\ExternalFactory;
 use Zef\Test\Support\Container\Greeter;
@@ -70,6 +83,11 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(AutowireAttributes::class)]
 #[CoversClass(AutowireBirther::class)]
 #[CoversClass(AutowireBirths::class)]
+#[CoversClass(AutowireFactoryProduct::class)]
+#[CoversClass(AutowireImplementations::class)]
+#[CoversClass(AutowireStaticReturn::class)]
+#[CoversClass(AutowireTargetBinding::class)]
+#[CoversClass(AutowireVariadicCollection::class)]
 #[CoversClass(AutowireDeclaredArguments::class)]
 #[CoversClass(AutowireDeclaredStretch::class)]
 #[CoversClass(AutowireParameterTypes::class)]
@@ -573,6 +591,228 @@ final class AutowireCompilerPassTest extends TestCase
                 $definitionException->getMessage(),
             );
         }
+    }
+
+    public function testATypedVariadicGathersTheDeclaredClassImplementations(): void
+    {
+        $planned = $this->planned([
+            'app.a' => ['class' => Greeter::class, 'arguments' => ['Hello']],
+            'app.b' => ['class' => Greeter::class, 'arguments' => ['Hi']],
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame(
+            [['service' => 'app.a'], ['service' => 'app.b']],
+            $this->firstInstance($planned, 2)->arguments,
+        );
+    }
+
+    public function testTheCollectionSkipsNonMatchingDeclarationsWithoutStopping(): void
+    {
+        $planned = $this->planned([
+            'app.debug' => ['value' => true],
+            'app.file' => ['class' => FileLogger::class],
+            'app.a' => ['class' => Greeter::class, 'arguments' => ['Hello']],
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame(
+            [['service' => 'app.a']],
+            $this->firstInstance($planned, 3)->arguments,
+        );
+    }
+
+    public function testAnUnplannedImplementationFormStillJoinsTheCollection(): void
+    {
+        $planned = $this->planned([
+            'app.file' => ['class' => FileLogger::class, 'autowire' => true],
+            'app.house' => ['class' => LoggerVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame(
+            [['service' => 'app.file']],
+            $this->firstInstance($planned, 1)->arguments,
+        );
+    }
+
+    public function testAStaticFactoryWithAUnionReturnTypeJoinsNoCollection(): void
+    {
+        $planned = $this->planned([
+            'app.made' => ['factory' => UnionStaticFactory::class . '::make'],
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([], $this->firstInstance($planned, 1)->arguments);
+    }
+
+    public function testAnUnopenedCollectorRefusesToAnswer(): void
+    {
+        try {
+            new AutowireImplementations()->ids(Greeter::class);
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertSame(
+                'The implementation collector answers only inside an opened run '
+                . '-- open(definitions, container) before collecting.',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testAStaticFactoryWithABuiltinReturnJoinsNoCollection(): void
+    {
+        $planned = $this->planned([
+            'app.made' => ['factory' => BuiltinStaticFactory::class . '::make'],
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([], $this->firstInstance($planned, 1)->arguments);
+    }
+
+    public function testANonStaticFactoryMethodJoinsNoCollection(): void
+    {
+        $planned = $this->planned([
+            'app.made' => ['factory' => InstanceMethodFactory::class . '::make'],
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([], $this->firstInstance($planned, 1)->arguments);
+    }
+
+    public function testAFactoryMethodTheClassDoesNotCarryJoinsNoCollection(): void
+    {
+        $planned = $this->planned([
+            'app.made' => ['factory' => GreeterFactory::class . '::missing'],
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([], $this->firstInstance($planned, 1)->arguments);
+    }
+
+    public function testATypedVariadicGathersTheDeclaredStaticFactoryImplementations(): void
+    {
+        $planned = $this->planned([
+            'app.made' => ['factory' => GreeterFactory::class . '::make'],
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame(
+            [['service' => 'app.made']],
+            $this->firstInstance($planned, 1)->arguments,
+        );
+    }
+
+    public function testAnInterfaceTypedVariadicGathersTheImplementationsOfTheInterface(): void
+    {
+        $planned = $this->planned([
+            'app.file' => ['class' => FileLogger::class],
+            'app.house' => ['class' => LoggerVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame(
+            [['service' => 'app.file']],
+            $this->firstInstance($planned, 1)->arguments,
+        );
+    }
+
+    public function testABirthNeverJoinsTheCollectionRegardlessOfPlanningOrder(): void
+    {
+        $birthAfter = $this->planned([
+            'app.house' => ['class' => SimpleDepVariadicHouse::class, 'autowire' => true],
+            'app.user' => ['class' => DependentHouse::class, 'autowire' => true],
+        ]);
+
+        $birthBefore = $this->planned([
+            'app.user' => ['class' => DependentHouse::class, 'autowire' => true],
+            'app.house' => ['class' => SimpleDepVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([], $this->firstInstance($birthAfter)->arguments);
+        self::assertSame([], $this->firstInstance($birthBefore, 1)->arguments);
+        self::assertSame(
+            [['service' => SimpleDep::class], 'lbl'],
+            $this->firstInstance($birthBefore)->arguments,
+        );
+    }
+
+    public function testAFactoryTargetShadowedByADeclaredIdentifierJoinsNoCollection(): void
+    {
+        $planned = $this->planned([
+            GreeterFactory::class => ['value' => 'shadowing the class name'],
+            'app.made' => ['factory' => GreeterFactory::class . '::make'],
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([], $this->firstInstance($planned, 2)->arguments);
+    }
+
+    public function testAFactoryTargetShadowedByAContainerIdentifierJoinsNoCollection(): void
+    {
+        $container = new Container();
+        $container->set(GreeterFactory::class, static fn (): Greeter => new Greeter('container'));
+
+        $planned = $this->planned([
+            'app.made' => ['factory' => GreeterFactory::class . '::make'],
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ], $container);
+
+        self::assertSame([], $this->firstInstance($planned, 1)->arguments);
+    }
+
+    public function testAShadowedTargetStillDeclaresItsOwnFactoryUnchanged(): void
+    {
+        $container = new Container();
+        $container->set(GreeterFactory::class, static fn (): Greeter => new Greeter('container'));
+
+        $planned = $this->planned([
+            'app.made' => ['factory' => GreeterFactory::class . '::make'],
+        ], $container);
+
+        self::assertInstanceOf(FactoryDefinition::class, $planned[0]);
+        self::assertSame(GreeterFactory::class . '::make', $planned[0]->factory);
+    }
+
+    public function testAUnionTypedVariadicIsRefusedAsTheAmbiguityItIs(): void
+    {
+        try {
+            $this->planned([
+                'app.house' => ['class' => UnionVariadicHouse::class, 'autowire' => true],
+            ]);
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertSame(
+                "Cannot autowire 'app.house' parameter '\$values': a union type names no single binding, "
+                . 'and a variadic collection gathers the declared implementations of one type -- '
+                . 'name the argument list to spread, or type the parameter with a single class or interface.',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testASpelledVariadicStretchWinsOverTheCollection(): void
+    {
+        $planned = $this->planned([
+            'app.a' => ['class' => Greeter::class, 'arguments' => ['Hello']],
+            'app.b' => ['class' => Greeter::class, 'arguments' => ['Hi']],
+            'app.house' => [
+                'class' => TypedVariadicHouse::class,
+                'arguments' => ['greeters' => [['service' => 'app.b']]],
+            ],
+        ]);
+
+        self::assertSame(
+            [['service' => 'app.b']],
+            $this->firstInstance($planned, 2)->arguments,
+        );
+    }
+
+    public function testATypedVariadicOverAnEmptyEcosystemAnswersTheEmptyCollection(): void
+    {
+        $planned = $this->planned([
+            'app.house' => ['class' => TypedVariadicHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([], $this->firstInstance($planned)->arguments);
     }
 
     /**

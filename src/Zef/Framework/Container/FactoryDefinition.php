@@ -24,7 +24,8 @@ final readonly class FactoryDefinition extends ServiceDefinition
         /** @var list<mixed> */
         public array $arguments = [],
         ServiceLifetime $serviceLifetime = ServiceLifetime::SINGLETON,
+        ServiceTags $serviceTags = new ServiceTags(),
     ) {
-        parent::__construct($id, $serviceLifetime);
+        parent::__construct($id, $serviceLifetime, $serviceTags);
     }
 }

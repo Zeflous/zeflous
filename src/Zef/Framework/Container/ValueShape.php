@@ -44,6 +44,13 @@ final readonly class ValueShape
             );
         }
 
+        if (\array_key_exists('tags', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries 'tags' on a 'value' definition "
+                . '(a value is a constant: it is not a service to group).',
+            );
+        }
+
         return new ValueDefinition($id, $entry['value']);
     }
 }

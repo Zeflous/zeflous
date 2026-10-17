@@ -25,6 +25,7 @@ final readonly class AutowireKey
         string $class,
         array $entry,
         ?ServiceLifetime $serviceLifetime = null,
+        ?ServiceTags $serviceTags = null,
     ): UnplannedInstanceDefinition {
         if (\array_key_exists('arguments', $entry)) {
             self::refuse($id, "carries both 'autowire' and 'arguments' "
@@ -36,7 +37,13 @@ final readonly class AutowireKey
                 . '(the key is the whole-constructor planning request; an absent key is the default)');
         }
 
-        return new UnplannedInstanceDefinition($id, $class, null, $serviceLifetime ?? ServiceLifetime::SINGLETON);
+        return new UnplannedInstanceDefinition(
+            $id,
+            $class,
+            null,
+            $serviceLifetime ?? ServiceLifetime::SINGLETON,
+            $serviceTags ?? new ServiceTags(),
+        );
     }
 
     private static function refuse(string $id, string $reason): never

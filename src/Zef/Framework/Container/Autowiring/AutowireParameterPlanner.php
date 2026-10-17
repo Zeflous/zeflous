@@ -18,9 +18,15 @@ namespace Zef\Framework\Container\Autowiring;
  * 1. a **name-keyed argument** for the parameter -- the declaration's
  *    own spelling, whatever it holds (a variadic parameter's entry is
  *    the list to spread, each element the same value-or-reference
- *    grammar; an unspelled variadic's stretch is simply empty), read
- *    through {@see AutowireDeclaredStretch::of()};
- * 2. **the constructor's own default** -- baked verbatim, the honest
+ *    grammar), read through {@see AutowireDeclaredStretch::of()};
+ * 2. **the unspelled variadic's collection** -- when the parameter is
+ *    variadic, the declared implementations of its type, each a plain
+ *    service reference (the tags lane's gathering, through
+ *    {@see AutowireReferences::implementations()}); a scalar or
+ *    untyped variadic answers the empty stretch, a union or
+ *    intersection one is refused -- it names no single type whose
+ *    implementations the collection would be;
+ * 3. **the constructor's own default** -- baked verbatim, the honest
  *    value the class itself declared.
  *
  * The attribute and type arms resolve together through the
@@ -59,30 +65,28 @@ final readonly class AutowireParameterPlanner
             return $declaredStretch;
         }
 
+        return $this->unplanned($ownerId, $autowireParameterSpec, $autowireReferences);
+    }
+
+    /**
+     * The unspelled parameter's tiers: the variadic's collection, the
+     * parameter's own binding, the fallback.
+     *
+     * @return list<mixed>
+     */
+    private function unplanned(
+        string $ownerId,
+        AutowireParameterSpec $autowireParameterSpec,
+        AutowireReferences $autowireReferences,
+    ): array {
+        if ($autowireParameterSpec->isVariadic) {
+            return AutowireVariadicCollection::stretch($ownerId, $autowireParameterSpec, $autowireReferences);
+        }
+
         if ($autowireParameterSpec->carriesBinding()) {
             return [['service' => $autowireReferences->resolve($ownerId, $autowireParameterSpec)]];
         }
 
-        return $this->fallback($ownerId, $autowireParameterSpec);
-    }
-
-    /**
-     * The unbound parameter's fallback: the constructor's own default
-     * baked verbatim when there is one, the honest refusal otherwise --
-     * never a guessed value.
-     *
-     * @return list<mixed>
-     */
-    private function fallback(string $ownerId, AutowireParameterSpec $autowireParameterSpec): array
-    {
-        if ($autowireParameterSpec->hasDefault) {
-            return [$autowireParameterSpec->defaultValue];
-        }
-
-        if ($autowireParameterSpec->unsupportedTypeReason !== null) {
-            throw AutowireRefusals::unsupportedType($ownerId, $autowireParameterSpec);
-        }
-
-        throw AutowireRefusals::underivable($ownerId, $autowireParameterSpec);
+        return AutowireFallback::stretch($ownerId, $autowireParameterSpec);
     }
 }

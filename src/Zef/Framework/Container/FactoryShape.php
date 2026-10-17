@@ -55,6 +55,7 @@ final readonly class FactoryShape
             $factory,
             DefinitionArguments::assertValid($id, $entry['arguments'] ?? []),
             ServiceLifetime::fromKey($id, $entry['lifetime'] ?? null) ?? ServiceLifetime::SINGLETON,
+            ServiceTagKey::fromKey($id, $entry['tags'] ?? null) ?? new ServiceTags(),
         );
     }
 }

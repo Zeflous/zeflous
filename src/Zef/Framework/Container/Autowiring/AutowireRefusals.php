@@ -60,4 +60,21 @@ final readonly class AutowireRefusals
             . 'argument must be the list of entries to spread, ' . get_debug_type($value) . ' given.',
         );
     }
+
+    /**
+     * A variadic parameter whose type admits several -- the collection
+     * is the declared implementations of ONE type, and a union or
+     * intersection names none.
+     */
+    public static function variadicCollection(
+        string $ownerId,
+        AutowireParameterSpec $autowireParameterSpec,
+    ): AutowiringException {
+        return new AutowiringException(
+            "Cannot autowire '{$ownerId}' parameter '\${$autowireParameterSpec->name}': "
+            . "{$autowireParameterSpec->unsupportedTypeReason}, and a variadic collection gathers "
+            . 'the declared implementations of one type -- name the argument list to spread, '
+            . 'or type the parameter with a single class or interface.',
+        );
+    }
 }

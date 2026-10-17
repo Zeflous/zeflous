@@ -41,6 +41,7 @@ final readonly class InstanceShape
             $class,
             $entry,
             ServiceLifetime::fromKey($id, $entry['lifetime'] ?? null),
+            ServiceTagKey::fromKey($id, $entry['tags'] ?? null),
         );
     }
 }

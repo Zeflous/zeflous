@@ -64,9 +64,14 @@ use Zef\Framework\Middleware\TracingFactory;
  * the registry separate because a host's probes join it through their
  * own explicit rebind. The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
- * `http.trusted_hosts`, ...) migrate with their wiring, the container's
- * `aot` switch arrives with the compile/dump area (roadmap area 8), and
- * `tags` with the autoconfiguration area (roadmap area 3).
+ * `http.trusted_hosts`, ...) migrate with their wiring, and the
+ * container's `aot` switch arrives with the compile/dump area (roadmap
+ * area 8). The tags lane is live: the reserved `framework.tags`
+ * registration ({@see TAGS_SERVICE}) answers the boot-built locator,
+ * and the `tags.interfaces` map below is the autoconfiguration seam
+ * (roadmap area 3) -- empty by default, because the framework ships
+ * no marker-interface rules of its own; the host's rules arrive with
+ * the host's configuration.
  */
 final readonly class FrameworkDefaults
 {
@@ -79,6 +84,16 @@ final readonly class FrameworkDefaults
      * dependency graph stays one-directional.
      */
     public const string CONFIG_SERVICE = 'framework.config';
+
+    /**
+     * The container service identifier under which the tags lane's
+     * read side ({@see Container\TaggedServices}) is
+     * registered at boot: the boot-built locator over the planned
+     * definition set's declared tags. The identifier lives beside the
+     * profile's other reserved names so the framework's own namespace
+     * stays one catalogue.
+     */
+    public const string TAGS_SERVICE = 'framework.tags';
 
     /** The config-driven factories' shared construction entry, as the
      * service registrations spell it. */
@@ -222,6 +237,9 @@ final readonly class FrameworkDefaults
                     'health_path' => '/health',
                     'timeout_ms' => 500,
                 ],
+            ],
+            'tags' => [
+                'interfaces' => [],
             ],
         ];
     }
