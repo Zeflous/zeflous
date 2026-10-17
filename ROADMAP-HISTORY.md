@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-17 · `main` @ `a1ede939dd`
+**Last updated:** 2026-10-17 · `main` @ `fc7b1e7752`
 
 **How to read this file**
 
@@ -27,13 +27,13 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Middleware Pipeline | 1 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
-| Quality Gates & Tooling | 9 |
+| Quality Gates & Tooling | 11 |
 | CI / Supply chain | 33 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **136** |
+| **Total merged PRs** | **138** |
 
 ---
 
@@ -114,6 +114,8 @@ The in-repo gate engine (`src/Zef/Framework/Tooling/*`, `scripts/ci/*`) that eve
 | chore(ci): remove unreferenced mutation:ci composer script (dead configuration removal — the CI Infection lane runs `ci:infection` → `mutation` + `mutation:zones`; the `mutation:ci` variant carried the same flags unreferenced by any workflow, script, Makefile or doc) | #236 | 2026-10-11 | `952f6cfd5` |
 | fix(tests): the namespaces the directories declare (thirty-eight test classes lived in subdirectories under a flat `Zef\Test` namespace -- twenty-seven in `Http`, seven in `Middleware`, four in `Kernel` -- while the autoload-dev mapping `Zef\Test\ => tests/` reads the namespace from the path: the classes autoloaded by filename and by classmap, never by the PSR-4 rule the mapping declares, and every new subdirectory inherited the same drift; the namespaces now match the directories the files live in, the `Config`/`Telemetry`/`Container`/`Support` trees were already correct, the flat `Zef\Test` stays exactly where it is honest in the tests root, and the fixtures plus the plain support scripts carry no PSR-4 obligation) | #383 | 2026-10-17 | `3471e6c` |
 | fix(composer): exclude the vendored psr shims from the dev classmap (fourteen "Ambiguous class resolution" warnings silenced by naming the three vendor packages the in-repo PSR shims actually duplicate -- psr/http-message, psr/http-factory whose six PSR-17 factories share the `Psr\Http\Message\` namespace, and psr/log -- in `exclude-from-classmap`; psr/container was already excluded, psr/http-server-handler is not installed and clock/cache/event-dispatcher collide with nothing, so the list carries no dead entries; the zero-dependency invariant untouched -- `require` stays `{php: ^8.4}`, lock `packages` stays `[]` -- and resolution stays deterministic: the shim directories keep their classmap entries and interface resolution still prefers the in-repo shim, the vendor copies staying reachable through the PSR-4 fallback for the dev tools that consume vendor-only classes) | #410 | 2026-10-17 | `9a8e1d9f34` |
+| feat(tooling): refuse a stale roadmap pin on main (the roadmap gate validated the documents' structure but never the freshness of the `ROADMAP-STATUS.md` pin against the branch it describes -- a pin naming a commit six merges behind HEAD passed CI untouched; the honest invariant is now enforced: the pinned commit must be an ancestor of the validated commit and every commit between them must be changelog or pin bookkeeping, any other landed change leaving the pin stale and the gate red until a pull request refreshes it; `RoadmapPinFreshness` the pure verdict, `RoadmapPinCommitCollector` the git side through the gate runner's process seam failing closed on any git answer it cannot interpret, `RoadmapPinState` the data between; the pull-request lanes cannot judge main's pin and say so in the pass message -- the watchdog's main lanes are where the verdict bites; the CI Static checkout gained `fetch-depth: 0` because a depth-1 clone cannot answer merge-base; proven end-to-end against a real worktree of main before pushing, and after merge it enforces itself on its own merge commit; one SonarCloud gate round -- the two five-return methods reshaped into focused helpers under the S1142 ceiling) | #417 | 2026-10-17 | `6367ff46b8` |
+| test(coverage): cover the eight orphan concrete classes (thirty-three classes had no test declaring them as a coverage target and eight are concrete logic covered only incidentally -- for `CorrelationBudget` a mutation blind spot: zero covering tests, every mutant infection generated there uncovered rather than killed; eight new test files, one per unit, behaviour-first: the config repository's mutation protocol, the PSR-7 URI's mutation protocol with the `1..65535` port boundaries on both sides, the auth family's two vocabularies read back through reflection -- a map the analyser can fold is a pin that asserts nothing -- the timing clock's monotonic seam, the correlation budget's rendered-width policy with two-sided boundaries on every arm, and the two roadmap table units; the coverage gate moves 98.89 -> 99.19 percent; the mutation battery on the changed set MSI 100 after the boolean width boundaries were pinned on both sides and after the budget's two `mb_strlen('8bit')` sites joined the documented MBString equivalence class, both verified by running the full suite under the manually applied mutation; the two traits ride their consumer's coverage, PHPUnit 13 refusing a trait as a coverage target) | #418 | 2026-10-17 | `fc7b1e7752` |
 
 ## 6. CI / Supply chain
 
