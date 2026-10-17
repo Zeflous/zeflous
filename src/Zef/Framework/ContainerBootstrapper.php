@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework;
 
 use Zef\Framework\Config\Config;
+use Zef\Framework\Container\Autowiring\AutowireCompilerPass;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Container\DefinitionMap;
@@ -37,14 +38,21 @@ use Zef\Framework\Container\ServiceDefinitionGraph;
  *
  * Fail-closed at boot, in order: each definition map is parsed and
  * validated by {@see DefinitionMap::parse()} (a missing/null key is a
- * valid empty set); the whole set's reference graph is proven resolvable
- * and acyclic by {@see ServiceDefinitionGraph::validate()} before a
- * single definition is installed.
+ * valid empty set); the whole set then passes the autowiring compile
+ * pass ({@see AutowireCompilerPass::process()}), which rewrites the
+ * name-keyed and `autowire` declarations into the positional form,
+ * reads every class-shaped constructor once for the instantiable and
+ * arity verdicts, and appends the classes a planned parameter birthed
+ * as their own declared definitions; finally the set's reference graph
+ * is proven resolvable and acyclic by
+ * {@see ServiceDefinitionGraph::validate()} before a single definition
+ * is installed.
  */
 final readonly class ContainerBootstrapper
 {
     public function __construct(
         private DefinitionCompiler $definitionCompiler = new DefinitionCompiler(),
+        private AutowireCompilerPass $autowireCompilerPass = new AutowireCompilerPass(),
     ) {
     }
 
@@ -59,9 +67,11 @@ final readonly class ContainerBootstrapper
             ...DefinitionMap::parse('services', $config->get('services')),
         ];
 
-        ServiceDefinitionGraph::validate($definitions, $container);
+        $autowireResult = $this->autowireCompilerPass->process($definitions, $container);
 
-        foreach ($definitions as $definition) {
+        ServiceDefinitionGraph::validate($autowireResult->definitions, $container);
+
+        foreach ($autowireResult->definitions as $definition) {
             $container->set($definition->id, $this->definitionCompiler->compile($definition));
         }
 

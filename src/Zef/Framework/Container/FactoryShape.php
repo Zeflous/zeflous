@@ -43,6 +43,13 @@ final readonly class FactoryShape
             );
         }
 
+        if (\array_key_exists('autowire', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries the 'autowire' key on a 'factory' definition "
+                . '(the whole-constructor planning request belongs to the class shape only).',
+            );
+        }
+
         return new FactoryDefinition($id, $factory, DefinitionArguments::assertValid($id, $entry['arguments'] ?? []));
     }
 }

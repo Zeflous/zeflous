@@ -110,6 +110,33 @@
       <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Container/Autowiring/AutowireResult.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$generated]]></code>
+      <code><![CDATA[$reused]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Container/Autowiring/Inject.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Container/Autowiring/ReflectionMetadataExtractor.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[isInstantiable]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Container/Autowiring/Target.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Container/NamedArguments.php">
+    <MixedAssignment>
+      <code><![CDATA[$entry]]></code>
+      <code><![CDATA[$named[$name]]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Contracts/ServiceProviderInterface.php">
     <UnusedClass>
       <code><![CDATA[ServiceProviderInterface]]></code>

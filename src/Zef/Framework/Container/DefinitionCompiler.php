@@ -23,6 +23,12 @@ use ReflectionClass;
  * autowiring lane, ROADMAP area 2). Paid once per service thanks to the
  * container's memoisation; the compiler-pass lane (area 8) will replace it
  * with the dumped `new` literal.
+ *
+ * An unplanned definition reaching this compiler is a misuse of the
+ * seam: the autowiring lane's declarations are compiled by
+ * {@see Autowiring\AutowireCompilerPass}
+ * into the positional form first, so the refusal names the run the
+ * definition never went through.
  */
 final readonly class DefinitionCompiler
 {
@@ -32,6 +38,10 @@ final readonly class DefinitionCompiler
     public function compile(ServiceDefinition $serviceDefinition): Closure
     {
         return match (true) {
+            $serviceDefinition instanceof UnplannedInstanceDefinition => throw new DefinitionException(
+                "The service '" . $serviceDefinition->id . "' carries an unplanned constructor plan -- "
+                . 'run the autowire compiler pass before installation.',
+            ),
             $serviceDefinition instanceof InstanceDefinition => $this->instantiating($serviceDefinition),
             $serviceDefinition instanceof FactoryDefinition => FactoryClosures::build($serviceDefinition),
             $serviceDefinition instanceof AliasDefinition => $this->aliasing($serviceDefinition->target),
