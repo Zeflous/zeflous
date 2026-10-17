@@ -255,3 +255,36 @@ ada demi hot-path terukur (B13: 0.52µs vs 0.74µs). Ignore di-scope
 `ignoreSourceCodeByRegex` ke SATU baris sumber — `return match`
 tetangganya tetap hidup dan terbunuh. Mengikuti preseden gaya
 `ignoreSourceCodeByRegex` yang sudah ada di `infection.json5`.
+
+## Ronda 5 lanjutan: kunci duplikat JSON5 melucuti tiga ignore terdokumentasi
+
+Ronde kedua CI pada commit perbaikan menolak lagi — tapi kali ini
+tiga mutant lolos yang BUKAN dari keluarga scope:
+`DefinitionCycles::visit:48`, `PrometheusNumbers::diverged:58`,
+`TelemetrySanitizer::scrubbed:248` — tiga method yang docblock-nya
+sendiri sudah mendokumentasikan zona ekuivalen masing-masing, dengan
+entri ignore method-scoped `ReturnRemoval` yang sudah ada di
+`infection.json5` sejak lama.
+
+Akar masalahnya kesalahan perbaikan itu sendiri: entri
+`"ReturnRemoval"` baru (regex fast-path memo) ditambahkan di ujung
+file **tanpa memeriksa bahwa kunci itu sudah dipakai** di tengah
+file. Parser konfigurasi berlaku last-wins — entri baru menimpa
+entri lama, tiga ignore terdokumentasi dilucuti diam-diam, dan
+ketiga mutant ekuivalen itu "lahir kembali" sebagai lolos. Angka
+generated yang bertambah 6707→6710 adalah sidik jarinya: ignore
+method-scoped MENGECUALIKAN mutant saat generasi (tidak dihitung
+sebagai ignored), regex-ignore menandainya setelah dibuat —
+generated naik tepat +3 = tiga method yang tak lagi dikecualikan.
+
+Perbaikan: regex digabung ke entri lama (satu kunci, `ignore` +
+`ignoreSourceCodeByRegex` berdampingan — preseden `CastFloat`),
+komentar lama dibiarkan utuh, komentar baru menambah zona keempat
+plus peringatan NB: entri ini adalah SATU-SATUNYA kunci
+`ReturnRemoval` di file ini; kunci duplikat melucuti semua ignore
+yang terdaftar di dalamnya tanpa suara. Pelajaran ronde ini
+melengkapi ronde sebelumnya: **sebelum menambah entri mutator di
+infection.json5, grep dulu kunci yang sudah ada** — file ini bukan
+daftar yang boleh ditumpuki; dan ketika mutant "baru" muncul di
+file yang tak tersentuh, curigai konfigurasi sebelum menyalahkan
+test.
