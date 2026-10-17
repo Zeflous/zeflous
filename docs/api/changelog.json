@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-17T18:16:48Z",
+  "as_of": "2026-10-17T18:34:37Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 172,
+  "unreleased_count": 173,
   "versions": [
     {
       "version": "Unreleased",
@@ -4232,6 +4232,22 @@
                 "sha": "7a31bf4d4a2ac59781b455103d486f9f9759e60a",
                 "short_sha": "7a31bf4",
                 "subject": "docs(roadmap): pin the scope & lifecycle family to pull request 396"
+              }
+            ]
+          },
+          {
+            "pr": 405,
+            "title": "docs(roadmap): pin the tags & autoconfiguration family to pull request 404",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T18:34:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/405",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8c26e00bff9ebf71213b234e1afaad3bb3ac3ecc",
+                "short_sha": "8c26e00",
+                "subject": "docs(roadmap): pin the tags & autoconfiguration family to pull request 404"
               }
             ]
           }
@@ -8727,6 +8743,22 @@
               "sha": "6b41337e5f927bffbcb6fde59fea37e2f1c30e53",
               "short_sha": "6b41337",
               "subject": "fix(container): the tags lane's gate round -- rector drift, the CI yardstick, four SonarCloud lines"
+            }
+          ]
+        },
+        {
+          "pr": 405,
+          "title": "docs(roadmap): pin the tags & autoconfiguration family to pull request 404",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T18:34:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/405",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8c26e00bff9ebf71213b234e1afaad3bb3ac3ecc",
+              "short_sha": "8c26e00",
+              "subject": "docs(roadmap): pin the tags & autoconfiguration family to pull request 404"
             }
           ]
         }
