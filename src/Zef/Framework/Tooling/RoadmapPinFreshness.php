@@ -16,13 +16,19 @@ namespace Zef\Framework\Tooling;
  *
  * Not every commit between the pin and the validated commit demands a
  * refresh. The changelog lanes regenerate their documents after every merge,
- * and a pin refresh itself lands as commits above the pin it just set. The
- * bookkeeping patterns name exactly those -- changelog regenerations, roadmap
- * pin refreshes, and the changelog lanes' update-branch merges -- so the
- * steady state after a refresh stays green, while any other landed change (a
- * feature, a fix, a documentation change) leaves the pin stale until it is
- * refreshed. That is the rule the document states for itself: the pin names
- * the main commit that was checked.
+ * and a pin refresh itself lands as commits above the pin it just set, and
+ * the branch-update machinery merges `main` into whatever pull-request
+ * branch it refreshes -- `feat`, `fix`, `docs`, `test`, `chore` alike -- and
+ * those merges ride into main's history when the pull request lands. The
+ * bookkeeping patterns name exactly those: changelog regenerations, roadmap
+ * pin refreshes, and the update machinery's `main`-into-branch merges of
+ * every branch kind. An update merge is safe to accept whatever the branch:
+ * it reflects main's own commits back into a branch, and any real content
+ * still reaches main through a pull-request merge commit of its own, which
+ * the patterns refuse. So the steady state after a refresh stays green,
+ * while any other landed change (a feature, a fix, a documentation change)
+ * leaves the pin stale until it is refreshed. That is the rule the document
+ * states for itself: the pin names the main commit that was checked.
  *
  * The verdict is a pure function over its inputs; a lane that is not
  * validating `main` hands over a null state and is not judged here.
@@ -33,12 +39,13 @@ final class RoadmapPinFreshness
      * Subjects that keep the record current rather than change the code: the
      * changelog lanes' regenerations (their exact, generator-controlled
      * shapes, with and without the pull-request suffix), the roadmap pin
-     * refreshes, and the changelog lanes' `main`-into-update-branch merges.
+     * refreshes, and the branch-update machinery's `main`-into-branch merges
+     * of every branch kind.
      */
     private const array BOOKKEEPING = [
         '/^chore\(changelog(?:-official)?\): regenerate (?:API|official) changelog(?: \(#\d+\))?$/',
         '/^docs\(roadmap\): pin /',
-        '/^Merge branch \'main\' into chore\//',
+        "/^Merge branch 'main' into /",
     ];
 
     /**
