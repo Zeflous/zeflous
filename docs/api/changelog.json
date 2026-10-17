@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-17T18:34:37Z",
+  "as_of": "2026-10-17T22:57:13Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 173,
+  "unreleased_count": 185,
   "versions": [
     {
       "version": "Unreleased",
@@ -1435,6 +1435,42 @@
                 "subject": "fix(container): the tags lane's gate round -- rector drift, the CI yardstick, four SonarCloud lines"
               }
             ]
+          },
+          {
+            "pr": 417,
+            "title": "feat(tooling): refuse a stale roadmap pin on main",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-17T21:35:35Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/417",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1536a4a54e3262900efa99b677e0ca13fc30ef72",
+                "short_sha": "1536a4a",
+                "subject": "feat(tooling): refuse a stale roadmap pin on main"
+              },
+              {
+                "sha": "b0f953664a09aa873181dafee52dedbde67c755a",
+                "short_sha": "b0f9536",
+                "subject": "Merge branch 'main' into feat/tooling-roadmap-pin-freshness"
+              },
+              {
+                "sha": "1b81707e0de4a14c7d50f659aec5aa4f6301a10b",
+                "short_sha": "1b81707",
+                "subject": "Merge branch 'main' into feat/tooling-roadmap-pin-freshness"
+              },
+              {
+                "sha": "7af36334be30417f29183761a0b5a1d7642ca9c9",
+                "short_sha": "7af3633",
+                "subject": "fix(tooling): the pin lane's gate round -- two SonarCloud return counts"
+              },
+              {
+                "sha": "b6d075e6cfcf4cd4ae587f65e3480fccbc2d568d",
+                "short_sha": "b6d075e",
+                "subject": "Merge branch 'main' into feat/tooling-roadmap-pin-freshness"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -2202,6 +2238,99 @@
                 "sha": "abb85fdd93c3280b549b069ca8666c93c6a21382",
                 "short_sha": "abb85fd",
                 "subject": "Merge branch 'main' into fix/test-namespaces-match-directories"
+              }
+            ]
+          },
+          {
+            "pr": 410,
+            "title": "fix(composer): exclude the vendored psr shims from the dev classmap",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-17T20:47:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/410",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "af89a31092dd0f2c01def20fd7625fb95a01edca",
+                "short_sha": "af89a31",
+                "subject": "fix(composer): exclude the vendored psr shims from the dev classmap"
+              },
+              {
+                "sha": "1f922020c64e3ff23a0d91e403af145d242f0171",
+                "short_sha": "1f92202",
+                "subject": "Merge branch 'main' into fix/composer-psr-classmap-excludes"
+              },
+              {
+                "sha": "7ab9cc7ec7c8a0a8f6739dfe363ecaecb97d9537",
+                "short_sha": "7ab9cc7",
+                "subject": "Merge branch 'main' into fix/composer-psr-classmap-excludes"
+              },
+              {
+                "sha": "6181e0f9da70a44de8ef21dd12a9bd3fce78c0ef",
+                "short_sha": "6181e0f",
+                "subject": "Merge branch 'main' into fix/composer-psr-classmap-excludes"
+              },
+              {
+                "sha": "7145d11f91297c0e45ae6616908a8d079d946cae",
+                "short_sha": "7145d11",
+                "subject": "Merge branch 'main' into fix/composer-psr-classmap-excludes"
+              }
+            ]
+          },
+          {
+            "pr": 422,
+            "title": "fix(ci): resolve the merge-gate audit's code-side findings (aggregator stall, Sonar fail-open, approve sweep)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-17T22:36:18Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/422",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "79b8a56ef69ac89c97cb580b36e04e168eb28bcf",
+                "short_sha": "79b8a56",
+                "subject": "fix(ci): resolve the merge-gate audit's code-side findings (aggregator stall, Sonar fail-open, approve sweep)"
+              },
+              {
+                "sha": "e548a326911c4aeb1a92b083125d59ac2bcabba0",
+                "short_sha": "e548a32",
+                "subject": "Merge branch 'main' into fix/merge-gate-audit-findings"
+              },
+              {
+                "sha": "231a2af4e7784de663a00c4c9202de7adafc2246",
+                "short_sha": "231a2af",
+                "subject": "Merge branch 'main' into fix/merge-gate-audit-findings"
+              },
+              {
+                "sha": "05d842f580405d9b2b58be5b6effce5faadb8d75",
+                "short_sha": "05d842f",
+                "subject": "Merge branch 'main' into fix/merge-gate-audit-findings"
+              }
+            ]
+          },
+          {
+            "pr": 426,
+            "title": "fix(tooling): the update-merges of every branch kind are bookkeeping",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-17T22:57:13Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/426",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d667ce54221c316510be46797153e65f383d00f0",
+                "short_sha": "d667ce5",
+                "subject": "fix(tooling): the update-merges of every branch kind are bookkeeping"
+              },
+              {
+                "sha": "84a204df0c44ef5fd01763449098a9798fbf3020",
+                "short_sha": "84a204d",
+                "subject": "Merge branch 'main' into fix/tooling-update-merge-bookkeeping"
+              },
+              {
+                "sha": "1bc17fee3861d0f8e67a96b520a0d61884d40b48",
+                "short_sha": "1bc17fe",
+                "subject": "Merge branch 'main' into fix/tooling-update-merge-bookkeeping"
               }
             ]
           }
@@ -3066,6 +3195,38 @@
                 "sha": "a8185af6e6c0571fce1965f393b5295c512bc523",
                 "short_sha": "a8185af",
                 "subject": "chore(ci): remove unreferenced mutation:ci composer script"
+              }
+            ]
+          },
+          {
+            "pr": 409,
+            "title": "chore(license): add the MIT license text",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-17T19:47:22Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/409",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "45a754723f3ff973641bdc6ddf266e4cf6f41ffe",
+                "short_sha": "45a7547",
+                "subject": "chore(license): add the MIT license text"
+              }
+            ]
+          },
+          {
+            "pr": 412,
+            "title": "chore(repo): remove the demo template page",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-17T20:01:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/412",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ff6a0658db2d4437453917040a0a3319c0cf74cd",
+                "short_sha": "ff6a065",
+                "subject": "chore(repo): remove the demo template page"
               }
             ]
           }
@@ -4250,6 +4411,141 @@
                 "subject": "docs(roadmap): pin the tags & autoconfiguration family to pull request 404"
               }
             ]
+          },
+          {
+            "pr": 411,
+            "title": "docs(readme): show main's real check state, not the last aggregator run",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T20:16:55Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/411",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "326c74c142e1fe480b41f3824f7a88a114d13764",
+                "short_sha": "326c74c",
+                "subject": "docs(readme): show main's real check state, not the last aggregator run"
+              },
+              {
+                "sha": "31c5e87d1f52e4e8587251341a4bd5c2c814a6f0",
+                "short_sha": "31c5e87",
+                "subject": "Merge branch 'main' into docs/readme-ci-badge"
+              },
+              {
+                "sha": "d74529f209fc804874607cdd86c943cfa327d8a3",
+                "short_sha": "d74529f",
+                "subject": "Merge branch 'main' into docs/readme-ci-badge"
+              }
+            ]
+          },
+          {
+            "pr": 413,
+            "title": "docs(security): add the vulnerability disclosure policy",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T21:01:02Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/413",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "bf3dc02f337f3b55ead0fe18964938cd4d10a958",
+                "short_sha": "bf3dc02",
+                "subject": "docs(security): add the vulnerability disclosure policy"
+              },
+              {
+                "sha": "948dee94381e39da8cd99cdaa9792326fb298512",
+                "short_sha": "948dee9",
+                "subject": "Merge branch 'main' into docs/security-policy"
+              },
+              {
+                "sha": "7ec7a6817a609a84c0a2e35ed1cd2b984f086bec",
+                "short_sha": "7ec7a68",
+                "subject": "Merge branch 'main' into docs/security-policy"
+              },
+              {
+                "sha": "91adc80569590f488c67ddbe8d63e1cbe030d98b",
+                "short_sha": "91adc80",
+                "subject": "Merge branch 'main' into docs/security-policy"
+              },
+              {
+                "sha": "d9d9533a072e65bf4f5f27019a537dc65a7d4cfa",
+                "short_sha": "d9d9533",
+                "subject": "Merge branch 'main' into docs/security-policy"
+              }
+            ]
+          },
+          {
+            "pr": 419,
+            "title": "docs(roadmap): pin the audit-fix batch to pull request 413",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T21:22:26Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/419",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "949f5fcfac7aabde2f032c636f41c90cd409664d",
+                "short_sha": "949f5fc",
+                "subject": "docs(roadmap): pin the audit-fix batch to pull request 413"
+              }
+            ]
+          },
+          {
+            "pr": 423,
+            "title": "docs(gates): state the live required check set identically in README and CONTRIBUTING",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T22:46:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/423",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0ddffd9076eced9c5acdbc089611c670e2f85a33",
+                "short_sha": "0ddffd9",
+                "subject": "docs(gates): state the live required check set identically in README and CONTRIBUTING"
+              },
+              {
+                "sha": "24fc602abc81bd448adcda133ef1970a00064611",
+                "short_sha": "24fc602",
+                "subject": "Merge branch 'main' into docs/required-check-set"
+              },
+              {
+                "sha": "8a021d47fa75bfa1d9178199be9e9edf063f4dee",
+                "short_sha": "8a021d4",
+                "subject": "Merge branch 'main' into docs/required-check-set"
+              },
+              {
+                "sha": "babbd959dc4b51b5279a4418e60331ab3a4bd6a3",
+                "short_sha": "babbd95",
+                "subject": "Merge branch 'main' into docs/required-check-set"
+              },
+              {
+                "sha": "46efea364b74ddaf6dc8575dc50fff886f763df5",
+                "short_sha": "46efea3",
+                "subject": "Merge branch 'main' into docs/required-check-set"
+              }
+            ]
+          },
+          {
+            "pr": 424,
+            "title": "docs(roadmap): pin the gate and coverage work to pull request 418",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T22:17:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/424",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1c5ee9e7c182a5a2bb08573f17ef8cbb10771210",
+                "short_sha": "1c5ee9e",
+                "subject": "docs(roadmap): pin the gate and coverage work to pull request 418"
+              },
+              {
+                "sha": "d2b842e1a4b5b5028aa6ff49fc044e4c7b645296",
+                "short_sha": "d2b842e",
+                "subject": "Merge branch 'main' into docs/roadmap-engineering-pin"
+              }
+            ]
           }
         ],
         "Tests": [
@@ -4287,6 +4583,37 @@
                 "sha": "5e2aeba86086b8e8e729868bc24f86e263470336",
                 "short_sha": "5e2aeba",
                 "subject": "Merge branch 'main' into test/loader-skip-order"
+              }
+            ]
+          },
+          {
+            "pr": 418,
+            "title": "test(coverage): cover the eight orphan concrete classes",
+            "author": "mbetixz",
+            "category": "Tests",
+            "merged_at": "2026-10-17T21:50:25Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/418",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e91d8e6a3200031e19933417e40ee49cfa205ccd",
+                "short_sha": "e91d8e6",
+                "subject": "test(coverage): cover the eight orphan concrete classes"
+              },
+              {
+                "sha": "a7e481bd492694e101efcdb850b2d5adce4a3ec7",
+                "short_sha": "a7e481b",
+                "subject": "Merge branch 'main' into test/covers-orphan-classes"
+              },
+              {
+                "sha": "af694b41f04fd949bbc991e7561013adb551f3fa",
+                "short_sha": "af694b4",
+                "subject": "Merge branch 'main' into test/covers-orphan-classes"
+              },
+              {
+                "sha": "48c0caa91a8b2e0f1039e37a3ac9c782cad69cc4",
+                "short_sha": "48c0caa",
+                "subject": "Merge branch 'main' into test/covers-orphan-classes"
               }
             ]
           }
@@ -8759,6 +9086,333 @@
               "sha": "8c26e00bff9ebf71213b234e1afaad3bb3ac3ecc",
               "short_sha": "8c26e00",
               "subject": "docs(roadmap): pin the tags & autoconfiguration family to pull request 404"
+            }
+          ]
+        },
+        {
+          "pr": 409,
+          "title": "chore(license): add the MIT license text",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-17T19:47:22Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/409",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "45a754723f3ff973641bdc6ddf266e4cf6f41ffe",
+              "short_sha": "45a7547",
+              "subject": "chore(license): add the MIT license text"
+            }
+          ]
+        },
+        {
+          "pr": 410,
+          "title": "fix(composer): exclude the vendored psr shims from the dev classmap",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-17T20:47:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/410",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "af89a31092dd0f2c01def20fd7625fb95a01edca",
+              "short_sha": "af89a31",
+              "subject": "fix(composer): exclude the vendored psr shims from the dev classmap"
+            },
+            {
+              "sha": "1f922020c64e3ff23a0d91e403af145d242f0171",
+              "short_sha": "1f92202",
+              "subject": "Merge branch 'main' into fix/composer-psr-classmap-excludes"
+            },
+            {
+              "sha": "7ab9cc7ec7c8a0a8f6739dfe363ecaecb97d9537",
+              "short_sha": "7ab9cc7",
+              "subject": "Merge branch 'main' into fix/composer-psr-classmap-excludes"
+            },
+            {
+              "sha": "6181e0f9da70a44de8ef21dd12a9bd3fce78c0ef",
+              "short_sha": "6181e0f",
+              "subject": "Merge branch 'main' into fix/composer-psr-classmap-excludes"
+            },
+            {
+              "sha": "7145d11f91297c0e45ae6616908a8d079d946cae",
+              "short_sha": "7145d11",
+              "subject": "Merge branch 'main' into fix/composer-psr-classmap-excludes"
+            }
+          ]
+        },
+        {
+          "pr": 411,
+          "title": "docs(readme): show main's real check state, not the last aggregator run",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T20:16:55Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/411",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "326c74c142e1fe480b41f3824f7a88a114d13764",
+              "short_sha": "326c74c",
+              "subject": "docs(readme): show main's real check state, not the last aggregator run"
+            },
+            {
+              "sha": "31c5e87d1f52e4e8587251341a4bd5c2c814a6f0",
+              "short_sha": "31c5e87",
+              "subject": "Merge branch 'main' into docs/readme-ci-badge"
+            },
+            {
+              "sha": "d74529f209fc804874607cdd86c943cfa327d8a3",
+              "short_sha": "d74529f",
+              "subject": "Merge branch 'main' into docs/readme-ci-badge"
+            }
+          ]
+        },
+        {
+          "pr": 412,
+          "title": "chore(repo): remove the demo template page",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-17T20:01:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/412",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ff6a0658db2d4437453917040a0a3319c0cf74cd",
+              "short_sha": "ff6a065",
+              "subject": "chore(repo): remove the demo template page"
+            }
+          ]
+        },
+        {
+          "pr": 413,
+          "title": "docs(security): add the vulnerability disclosure policy",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T21:01:02Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/413",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "bf3dc02f337f3b55ead0fe18964938cd4d10a958",
+              "short_sha": "bf3dc02",
+              "subject": "docs(security): add the vulnerability disclosure policy"
+            },
+            {
+              "sha": "948dee94381e39da8cd99cdaa9792326fb298512",
+              "short_sha": "948dee9",
+              "subject": "Merge branch 'main' into docs/security-policy"
+            },
+            {
+              "sha": "7ec7a6817a609a84c0a2e35ed1cd2b984f086bec",
+              "short_sha": "7ec7a68",
+              "subject": "Merge branch 'main' into docs/security-policy"
+            },
+            {
+              "sha": "91adc80569590f488c67ddbe8d63e1cbe030d98b",
+              "short_sha": "91adc80",
+              "subject": "Merge branch 'main' into docs/security-policy"
+            },
+            {
+              "sha": "d9d9533a072e65bf4f5f27019a537dc65a7d4cfa",
+              "short_sha": "d9d9533",
+              "subject": "Merge branch 'main' into docs/security-policy"
+            }
+          ]
+        },
+        {
+          "pr": 417,
+          "title": "feat(tooling): refuse a stale roadmap pin on main",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-17T21:35:35Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/417",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1536a4a54e3262900efa99b677e0ca13fc30ef72",
+              "short_sha": "1536a4a",
+              "subject": "feat(tooling): refuse a stale roadmap pin on main"
+            },
+            {
+              "sha": "b0f953664a09aa873181dafee52dedbde67c755a",
+              "short_sha": "b0f9536",
+              "subject": "Merge branch 'main' into feat/tooling-roadmap-pin-freshness"
+            },
+            {
+              "sha": "1b81707e0de4a14c7d50f659aec5aa4f6301a10b",
+              "short_sha": "1b81707",
+              "subject": "Merge branch 'main' into feat/tooling-roadmap-pin-freshness"
+            },
+            {
+              "sha": "7af36334be30417f29183761a0b5a1d7642ca9c9",
+              "short_sha": "7af3633",
+              "subject": "fix(tooling): the pin lane's gate round -- two SonarCloud return counts"
+            },
+            {
+              "sha": "b6d075e6cfcf4cd4ae587f65e3480fccbc2d568d",
+              "short_sha": "b6d075e",
+              "subject": "Merge branch 'main' into feat/tooling-roadmap-pin-freshness"
+            }
+          ]
+        },
+        {
+          "pr": 418,
+          "title": "test(coverage): cover the eight orphan concrete classes",
+          "author": "mbetixz",
+          "category": "Tests",
+          "merged_at": "2026-10-17T21:50:25Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/418",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e91d8e6a3200031e19933417e40ee49cfa205ccd",
+              "short_sha": "e91d8e6",
+              "subject": "test(coverage): cover the eight orphan concrete classes"
+            },
+            {
+              "sha": "a7e481bd492694e101efcdb850b2d5adce4a3ec7",
+              "short_sha": "a7e481b",
+              "subject": "Merge branch 'main' into test/covers-orphan-classes"
+            },
+            {
+              "sha": "af694b41f04fd949bbc991e7561013adb551f3fa",
+              "short_sha": "af694b4",
+              "subject": "Merge branch 'main' into test/covers-orphan-classes"
+            },
+            {
+              "sha": "48c0caa91a8b2e0f1039e37a3ac9c782cad69cc4",
+              "short_sha": "48c0caa",
+              "subject": "Merge branch 'main' into test/covers-orphan-classes"
+            }
+          ]
+        },
+        {
+          "pr": 419,
+          "title": "docs(roadmap): pin the audit-fix batch to pull request 413",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T21:22:26Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/419",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "949f5fcfac7aabde2f032c636f41c90cd409664d",
+              "short_sha": "949f5fc",
+              "subject": "docs(roadmap): pin the audit-fix batch to pull request 413"
+            }
+          ]
+        },
+        {
+          "pr": 422,
+          "title": "fix(ci): resolve the merge-gate audit's code-side findings (aggregator stall, Sonar fail-open, approve sweep)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-17T22:36:18Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/422",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "79b8a56ef69ac89c97cb580b36e04e168eb28bcf",
+              "short_sha": "79b8a56",
+              "subject": "fix(ci): resolve the merge-gate audit's code-side findings (aggregator stall, Sonar fail-open, approve sweep)"
+            },
+            {
+              "sha": "e548a326911c4aeb1a92b083125d59ac2bcabba0",
+              "short_sha": "e548a32",
+              "subject": "Merge branch 'main' into fix/merge-gate-audit-findings"
+            },
+            {
+              "sha": "231a2af4e7784de663a00c4c9202de7adafc2246",
+              "short_sha": "231a2af",
+              "subject": "Merge branch 'main' into fix/merge-gate-audit-findings"
+            },
+            {
+              "sha": "05d842f580405d9b2b58be5b6effce5faadb8d75",
+              "short_sha": "05d842f",
+              "subject": "Merge branch 'main' into fix/merge-gate-audit-findings"
+            }
+          ]
+        },
+        {
+          "pr": 423,
+          "title": "docs(gates): state the live required check set identically in README and CONTRIBUTING",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T22:46:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/423",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0ddffd9076eced9c5acdbc089611c670e2f85a33",
+              "short_sha": "0ddffd9",
+              "subject": "docs(gates): state the live required check set identically in README and CONTRIBUTING"
+            },
+            {
+              "sha": "24fc602abc81bd448adcda133ef1970a00064611",
+              "short_sha": "24fc602",
+              "subject": "Merge branch 'main' into docs/required-check-set"
+            },
+            {
+              "sha": "8a021d47fa75bfa1d9178199be9e9edf063f4dee",
+              "short_sha": "8a021d4",
+              "subject": "Merge branch 'main' into docs/required-check-set"
+            },
+            {
+              "sha": "babbd959dc4b51b5279a4418e60331ab3a4bd6a3",
+              "short_sha": "babbd95",
+              "subject": "Merge branch 'main' into docs/required-check-set"
+            },
+            {
+              "sha": "46efea364b74ddaf6dc8575dc50fff886f763df5",
+              "short_sha": "46efea3",
+              "subject": "Merge branch 'main' into docs/required-check-set"
+            }
+          ]
+        },
+        {
+          "pr": 424,
+          "title": "docs(roadmap): pin the gate and coverage work to pull request 418",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T22:17:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/424",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1c5ee9e7c182a5a2bb08573f17ef8cbb10771210",
+              "short_sha": "1c5ee9e",
+              "subject": "docs(roadmap): pin the gate and coverage work to pull request 418"
+            },
+            {
+              "sha": "d2b842e1a4b5b5028aa6ff49fc044e4c7b645296",
+              "short_sha": "d2b842e",
+              "subject": "Merge branch 'main' into docs/roadmap-engineering-pin"
+            }
+          ]
+        },
+        {
+          "pr": 426,
+          "title": "fix(tooling): the update-merges of every branch kind are bookkeeping",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-17T22:57:13Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/426",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d667ce54221c316510be46797153e65f383d00f0",
+              "short_sha": "d667ce5",
+              "subject": "fix(tooling): the update-merges of every branch kind are bookkeeping"
+            },
+            {
+              "sha": "84a204df0c44ef5fd01763449098a9798fbf3020",
+              "short_sha": "84a204d",
+              "subject": "Merge branch 'main' into fix/tooling-update-merge-bookkeeping"
+            },
+            {
+              "sha": "1bc17fee3861d0f8e67a96b520a0d61884d40b48",
+              "short_sha": "1bc17fe",
+              "subject": "Merge branch 'main' into fix/tooling-update-merge-bookkeeping"
             }
           ]
         }

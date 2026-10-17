@@ -62,6 +62,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(container): the autowiring family, compile-pass [#393](https://github.com/Zeflous/zeflous/pull/393) ([mbetixz](https://github.com/mbetixz))
 - feat(container): the scope & lifecycle family, lifetime as the sharing policy [#396](https://github.com/Zeflous/zeflous/pull/396) ([mbetixz](https://github.com/mbetixz))
 - feat(container): the tags & autoconfiguration family, one tag one source [#404](https://github.com/Zeflous/zeflous/pull/404) ([mbetixz](https://github.com/mbetixz))
+- feat(tooling): refuse a stale roadmap pin on main [#417](https://github.com/Zeflous/zeflous/pull/417) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -92,6 +93,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(routing): anchor the constraints at the absolute end, not the dollar [#381](https://github.com/Zeflous/zeflous/pull/381) ([mbetixz](https://github.com/mbetixz))
 - fix(telemetry): the tracestate grammar the spec's own ABNF spells [#382](https://github.com/Zeflous/zeflous/pull/382) ([mbetixz](https://github.com/mbetixz))
 - fix(tests): the namespaces the directories declare [#383](https://github.com/Zeflous/zeflous/pull/383) ([mbetixz](https://github.com/mbetixz))
+- fix(composer): exclude the vendored psr shims from the dev classmap [#410](https://github.com/Zeflous/zeflous/pull/410) ([mbetixz](https://github.com/mbetixz))
+- fix(ci): resolve the merge-gate audit's code-side findings (aggregator stall, Sonar fail-open, approve sweep) [#422](https://github.com/Zeflous/zeflous/pull/422) ([mbetixz](https://github.com/mbetixz))
+- fix(tooling): the update-merges of every branch kind are bookkeeping [#426](https://github.com/Zeflous/zeflous/pull/426) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
@@ -132,6 +136,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - chore(ci): add --logger-github to the infection composer script [#220](https://github.com/Zeflous/zeflous/pull/220) ([mbetixz](https://github.com/mbetixz))
 - refactor(config): move the radix route grammar under the configuration system [#223](https://github.com/Zeflous/zeflous/pull/223) ([mbetixz](https://github.com/mbetixz))
 - chore(ci): remove unreferenced mutation:ci composer script [#236](https://github.com/Zeflous/zeflous/pull/236) ([mbetixz](https://github.com/mbetixz))
+- chore(license): add the MIT license text [#409](https://github.com/Zeflous/zeflous/pull/409) ([mbetixz](https://github.com/mbetixz))
+- chore(repo): remove the demo template page [#412](https://github.com/Zeflous/zeflous/pull/412) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 
@@ -185,11 +191,17 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the autowiring family to pull request 393 [#397](https://github.com/Zeflous/zeflous/pull/397) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the scope & lifecycle family to pull request 396 [#400](https://github.com/Zeflous/zeflous/pull/400) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the tags & autoconfiguration family to pull request 404 [#405](https://github.com/Zeflous/zeflous/pull/405) ([mbetixz](https://github.com/mbetixz))
+- docs(readme): show main's real check state, not the last aggregator run [#411](https://github.com/Zeflous/zeflous/pull/411) ([mbetixz](https://github.com/mbetixz))
+- docs(security): add the vulnerability disclosure policy [#413](https://github.com/Zeflous/zeflous/pull/413) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the audit-fix batch to pull request 413 [#419](https://github.com/Zeflous/zeflous/pull/419) ([mbetixz](https://github.com/mbetixz))
+- docs(gates): state the live required check set identically in README and CONTRIBUTING [#423](https://github.com/Zeflous/zeflous/pull/423) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the gate and coverage work to pull request 418 [#424](https://github.com/Zeflous/zeflous/pull/424) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
 - test(tooling): make the lint report sort mutant kill deterministic [#156](https://github.com/Zeflous/zeflous/pull/156) ([mbetixz](https://github.com/mbetixz))
 - test(config): kill the directory-loader skip mutants deterministically [#208](https://github.com/Zeflous/zeflous/pull/208) ([mbetixz](https://github.com/mbetixz))
+- test(coverage): cover the eight orphan concrete classes [#418](https://github.com/Zeflous/zeflous/pull/418) ([mbetixz](https://github.com/mbetixz))
 
 **Other:**
 
