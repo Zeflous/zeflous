@@ -21,7 +21,7 @@ permukaan publik `set()`, Container layer bebas Config).
   baru. Runtime resolusi tetap `['service' => id]` → `newInstanceArgs`
   (seam area 8 yang akan menggantinya `new` literal).
 - **A2 (formulir grammar = keputusan planning)**: `arguments` positional
-  = rencana tangan (verbatim, `ConstructorFit` membaca arity sekali untuk
+  = rencana tangan (verbatim, `PositionalFit` membaca arity sekali untuk
   kejujuran boot); `arguments` name-keyed = hibrida (named menang atas
   auto); `autowire: true` = plan seluruh konstruktor. Kunci `autowire`
   di samping `arguments`, bernilai bukan-true, atau di shape lain =
@@ -104,6 +104,39 @@ permukaan publik `set()`, Container layer bebas Config).
 - File sampah `/tmp/zef-upload-*.zef-tmp-*` dari proses terbunuh
   meracuni assertion glob UploadedFileTest → bersihkan sebelum
   infection/coverage run.
+
+## Lesson engineering ronde 2 (gate post-push: archeology + SonarCloud)
+
+- **REPETISI operand (N2/n2) membunuh kelas logic-kecil**: `ConstructorFit`
+  D=23.4 dengan n2=9 — empat metode yang men-thread identitas variabel
+  sama (definition/spec/known) menggandakan N2 tanpa menambah n2. Kata
+  kunci saga "operator unik" hanya separuh cerita: **diversitas variabel
+  separuh lainnya**. Split dua ranah verdict → `PositionalFit` (17.6) +
+  `NamedFit` (13.5) + kelas kata-katan `ConstructorFitRefusals` (7.9)
+  — semua lolos dengan margin.
+- **Helper baru yang men-thread parameter yang sama = perangkap**:
+  ekstraksi `declaredStretch()` ke planner untuk membayar Sonar S1142
+  (maks 3 return) Menaikkan D 19→27 (tiga signature × operand sama).
+  Solusi: pindahkan routing tier-1 ke kolaborator yang memang memilikinya
+  (`AutowireDeclaredStretch::of()` — dispatch murni, D≈7) dan
+  `AutowireDeclaredArguments` kembali ke tugas tunggalnya (grammar entri
+  yang di-eja, D≈15). Planner turun ke 14.4 dengan tepat 3 return.
+- **SonarPHP S1144 tidak melihat first-class callable sebagai usage**
+  (`self::specOf(...)` di `array_map` → "unused private method" padahal
+  itu satu-satunya call site; kasus `OtlpJsonPayloadEncoder::anyValue`
+  tidak ter-flag — resolusinya tidak deterministik yang bisa diandalkan).
+  Bentuk closure eksplisit
+  (`static fn (X $x): Y => self::specOf($x)`) adalah bentuk
+  yang terbaca semua analyser; rector
+  `ArrowFunctionDelegatingCallToFirstClassCallableRector` menarik ke
+  belakang — skip ber-dokumen di `rector.php` (preseden
+  `EmittedHeaders.php`, "the analysers win").
+- **Tiga gate, satu bentuk**: S1142 (≤3 return/ metode), archeology
+  D<20, dan mutasi MSI-100 kadang menuntut bentuk yang berbeda —
+  jawabannya bukan mengorbankan salah satu tapi memecah kolaborator
+  sampai tiap kelas cukup kecil untuk memuaskan ketiganya sekaligus.
+  Loop pengukuran `composer archeology:gate` setelah tiap reshape
+  adalah satu-satunya jalan (tebakan mental Halstead meleset ±30%).
 
 ## Atribusi
 

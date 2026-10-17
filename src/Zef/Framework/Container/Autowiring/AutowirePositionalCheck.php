@@ -14,14 +14,14 @@ use Zef\Framework\Container\InstanceDefinition;
  * explicit wins over auto -- but the constructor is read once for the
  * two verdicts the plan must survive: the class instantiable, the list
  * neither longer than the constructor nor shorter than its required
- * prefix ({@see ConstructorFit} over the specs
+ * prefix ({@see PositionalFit} over the specs
  * {@see ConstructorSpecs} reads).
  */
 final readonly class AutowirePositionalCheck
 {
     public static function checked(InstanceDefinition $instanceDefinition): InstanceDefinition
     {
-        ConstructorFit::assertPositional(
+        PositionalFit::assert(
             $instanceDefinition,
             ConstructorSpecs::of($instanceDefinition->class, new ReflectionMetadataExtractor()),
         );

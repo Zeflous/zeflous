@@ -30,7 +30,7 @@ use Zef\Framework\Container\UnplannedInstanceDefinition;
  *   untouched: the boot graph still refuses a declared cycle before a
  *   single service resolves, the runtime {@see \Zef\Framework\Container\CycleGuard}
  *   still refuses a factory that re-enters;
- * - a **positional** definition is read once for honesty ({@see ConstructorFit}):
+ * - a **positional** definition is read once for honesty ({@see PositionalFit}):
  *   the class must be instantiable and the declared list must fit the
  *   constructor's arity -- the plan itself stays verbatim, explicit wins
  *   over auto;

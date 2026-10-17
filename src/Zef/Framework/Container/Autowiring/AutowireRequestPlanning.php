@@ -12,7 +12,7 @@ use Zef\Framework\Container\UnplannedInstanceDefinition;
  * {@see AutowireCompilerPass} for the orchestration).
  *
  * The constructor's specs are read once, the declaration's own names
- * verified against them ({@see ConstructorFit}), the positional plan
+ * verified against them ({@see NamedFit}), the positional plan
  * assembled through the shared loop ({@see AutowirePlanning}) -- the
  * answer being the plain positional {@see InstanceDefinition} the graph
  * and the compiler already consume.
@@ -33,7 +33,7 @@ final readonly class AutowireRequestPlanning
 
         $named = $unplannedInstanceDefinition->namedArguments;
         if ($named !== null) {
-            ConstructorFit::assertNames($unplannedInstanceDefinition->id, $specs, $named);
+            NamedFit::assert($unplannedInstanceDefinition->id, $specs, $named);
         }
 
         $arguments = AutowirePlanning::arguments(

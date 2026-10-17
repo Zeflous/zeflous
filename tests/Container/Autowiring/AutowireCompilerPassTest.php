@@ -12,6 +12,7 @@ use Zef\Framework\Container\Autowiring\AutowireBirther;
 use Zef\Framework\Container\Autowiring\AutowireBirths;
 use Zef\Framework\Container\Autowiring\AutowireCompilerPass;
 use Zef\Framework\Container\Autowiring\AutowireDeclaredArguments;
+use Zef\Framework\Container\Autowiring\AutowireDeclaredStretch;
 use Zef\Framework\Container\Autowiring\AutowireParameterPlanner;
 use Zef\Framework\Container\Autowiring\AutowireParameterSpec;
 use Zef\Framework\Container\Autowiring\AutowireParameterTypes;
@@ -25,8 +26,10 @@ use Zef\Framework\Container\Autowiring\AutowireResult;
 use Zef\Framework\Container\Autowiring\AutowireReuse;
 use Zef\Framework\Container\Autowiring\AutowireSpecFactory;
 use Zef\Framework\Container\Autowiring\AutowiringException;
-use Zef\Framework\Container\Autowiring\ConstructorFit;
+use Zef\Framework\Container\Autowiring\ConstructorFitRefusals;
 use Zef\Framework\Container\Autowiring\ConstructorSpecs;
+use Zef\Framework\Container\Autowiring\NamedFit;
+use Zef\Framework\Container\Autowiring\PositionalFit;
 use Zef\Framework\Container\Autowiring\ReflectionMetadataExtractor;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionException;
@@ -68,6 +71,7 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(AutowireBirther::class)]
 #[CoversClass(AutowireBirths::class)]
 #[CoversClass(AutowireDeclaredArguments::class)]
+#[CoversClass(AutowireDeclaredStretch::class)]
 #[CoversClass(AutowireParameterTypes::class)]
 #[CoversClass(AutowirePlanning::class)]
 #[CoversClass(AutowirePositionalCheck::class)]
@@ -77,7 +81,9 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(AutowireRequestPlanning::class)]
 #[CoversClass(AutowireReuse::class)]
 #[CoversClass(AutowireSpecFactory::class)]
-#[CoversClass(ConstructorFit::class)]
+#[CoversClass(ConstructorFitRefusals::class)]
+#[CoversClass(NamedFit::class)]
+#[CoversClass(PositionalFit::class)]
 #[CoversClass(ConstructorSpecs::class)]
 final class AutowireCompilerPassTest extends TestCase
 {

@@ -18,7 +18,8 @@ namespace Zef\Framework\Container\Autowiring;
  * 1. a **name-keyed argument** for the parameter -- the declaration's
  *    own spelling, whatever it holds (a variadic parameter's entry is
  *    the list to spread, each element the same value-or-reference
- *    grammar);
+ *    grammar; an unspelled variadic's stretch is simply empty), read
+ *    through {@see AutowireDeclaredStretch::of()};
  * 2. **the constructor's own default** -- baked verbatim, the honest
  *    value the class itself declared.
  *
@@ -34,10 +35,6 @@ namespace Zef\Framework\Container\Autowiring;
  * never guessed into a slot: a nullable parameter still has to earn its
  * null explicitly (a default, or the declaration spelling it), the same
  * fail-closed reading the runtime guard gives a re-entering factory.
- *
- * An unplanned variadic parameter is simply omitted -- an empty
- * collection is a valid collection (the tags lane will fill these with
- * the registered implementations later).
  */
 final readonly class AutowireParameterPlanner
 {
@@ -57,16 +54,9 @@ final readonly class AutowireParameterPlanner
         ?array $named,
         AutowireReferences $autowireReferences,
     ): array {
-        if (\is_array($named) && \array_key_exists($autowireParameterSpec->name, $named)) {
-            return AutowireDeclaredArguments::entries(
-                $ownerId,
-                $autowireParameterSpec,
-                $named[$autowireParameterSpec->name],
-            );
-        }
-
-        if ($autowireParameterSpec->isVariadic) {
-            return [];
+        $declaredStretch = AutowireDeclaredStretch::of($ownerId, $autowireParameterSpec, $named);
+        if ($declaredStretch !== null) {
+            return $declaredStretch;
         }
 
         if ($autowireParameterSpec->carriesBinding()) {

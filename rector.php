@@ -78,6 +78,15 @@ return RectorConfig::configure()
         // regression. The analysers win.
         'Rector\CodingStyle\Rector\ArrowFunction\ArrowFunctionDelegatingCallToFirstClassCallableRector' => [
             __DIR__ . '/src/Zef/Framework/Http/EmittedHeaders.php',
+            // The same tug-of-war against SonarCloud instead of psalm:
+            // SonarPHP's S1144 does not resolve the first-class callable
+            // as a usage of the private method (observed on the autowiring
+            // lane's PR #393 -- "Remove this unused private 'specOf'
+            // method" while array_map(self::specOf(...), ...) is the one
+            // and only call site), so the conversion the rule wants would
+            // trade a style win for a failing quality gate. The analysers
+            // win here too.
+            __DIR__ . '/src/Zef/Framework/Container/Autowiring/AutowireSpecFactory.php',
         ],
     ])
     ->withPhpSets(php84: true)

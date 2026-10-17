@@ -26,7 +26,9 @@ final readonly class AutowireSpecFactory
     public static function specs(ReflectionMethod $reflectionMethod): array
     {
         return array_map(
-            self::specOf(...),
+            static fn (ReflectionParameter $reflectionParameter): AutowireParameterSpec => self::specOf(
+                $reflectionParameter,
+            ),
             $reflectionMethod->getParameters(),
         );
     }
