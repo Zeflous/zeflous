@@ -21,10 +21,14 @@ final readonly class ArgumentsForm
     /**
      * @param class-string $class
      */
-    public static function definition(string $id, string $class, mixed $arguments): ServiceDefinition
-    {
+    public static function definition(
+        string $id,
+        string $class,
+        mixed $arguments,
+        ?ServiceLifetime $serviceLifetime = null,
+    ): ServiceDefinition {
         if ($arguments === null) {
-            return new InstanceDefinition($id, $class, []);
+            return new InstanceDefinition($id, $class, [], $serviceLifetime ?? ServiceLifetime::SINGLETON);
         }
 
         if (!\is_array($arguments)) {
@@ -32,10 +36,20 @@ final readonly class ArgumentsForm
         }
 
         if (array_is_list($arguments)) {
-            return new InstanceDefinition($id, $class, DefinitionArguments::assertValid($id, $arguments));
+            return new InstanceDefinition(
+                $id,
+                $class,
+                DefinitionArguments::assertValid($id, $arguments),
+                $serviceLifetime ?? ServiceLifetime::SINGLETON,
+            );
         }
 
-        return new UnplannedInstanceDefinition($id, $class, NamedArguments::assert($id, $arguments));
+        return new UnplannedInstanceDefinition(
+            $id,
+            $class,
+            NamedArguments::assert($id, $arguments),
+            $serviceLifetime ?? ServiceLifetime::SINGLETON,
+        );
     }
 
     private static function refuse(string $id, string $reason): never

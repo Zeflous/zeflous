@@ -42,6 +42,13 @@ final readonly class AliasShape
             );
         }
 
+        if (\array_key_exists('lifetime', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries a 'lifetime' on a 'alias' definition "
+                . '(an alias is transparent: it rides the lifetime of its target).',
+            );
+        }
+
         return new AliasDefinition($id, $target);
     }
 }

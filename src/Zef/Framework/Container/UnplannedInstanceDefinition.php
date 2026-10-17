@@ -31,7 +31,8 @@ final readonly class UnplannedInstanceDefinition extends ServiceDefinition
         string $id,
         public string $class,
         public ?array $namedArguments = null,
+        ServiceLifetime $serviceLifetime = ServiceLifetime::SINGLETON,
     ) {
-        parent::__construct($id);
+        parent::__construct($id, $serviceLifetime);
     }
 }

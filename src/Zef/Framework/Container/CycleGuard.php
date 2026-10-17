@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Container;
 
 use Closure;
+use InvalidArgumentException;
 
 /**
  * The runtime cycle guard behind {@see ServiceStore::resolve}.
@@ -45,6 +46,23 @@ final class CycleGuard
     private array $resolving = [];
 
     /**
+     * The budget of simultaneously open frames. A chain deeper than
+     * this is not a cycle (a cycle is refused with the walked chain
+     * that closed it) but its pathological near-cousin, and the guard
+     * refuses it before the engine's own call stack does.
+     */
+    private readonly int $depthLimit;
+
+    public function __construct(int $depthLimit = 256)
+    {
+        if ($depthLimit < 1) {
+            throw new InvalidArgumentException('The resolution depth limit must be at least 1.');
+        }
+
+        $this->depthLimit = $depthLimit;
+    }
+
+    /**
      * Runs the factory inside its own guarded frame: the id marked as
      * the call starts, unmarked as it returns, a re-entry while the
      * mark is live refused with the walked chain that closed it.
@@ -57,6 +75,13 @@ final class CycleGuard
             throw new CircularDependencyException(
                 "Service '" . $id . "' is part of a circular reference chain: "
                 . implode(' -> ', [...$this->resolving, $id]) . '.',
+            );
+        }
+
+        if (\count($this->resolving) >= $this->depthLimit) {
+            throw new ResolutionDepthException(
+                "Service '" . $id . "' resolves through a chain deeper than the budget of "
+                . $this->depthLimit . ' open frames -- the declaration graph is pathological.',
             );
         }
 

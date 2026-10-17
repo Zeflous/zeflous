@@ -20,7 +20,8 @@ final readonly class InstanceDefinition extends ServiceDefinition
         public string $class,
         /** @var list<mixed> */
         public array $arguments = [],
+        ServiceLifetime $serviceLifetime = ServiceLifetime::SINGLETON,
     ) {
-        parent::__construct($id);
+        parent::__construct($id, $serviceLifetime);
     }
 }

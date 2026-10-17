@@ -367,7 +367,9 @@
             ]
         },
         // The settled memo's early return in
-        // ServiceDefinitionGraph::visit() is the one return whose removal
+        // DefinitionCycles::visit() (moved out of ServiceDefinitionGraph
+        // when the graph became the three-verdict orchestrator) is the one
+        // return whose removal
         // is value-equivalent: the walk is a pure function of the edge
         // map, so re-visiting a settled node recomputes the identical
         // acyclic verdict -- the memo is a performance guard, never a
@@ -395,7 +397,7 @@
         // guard spells. This ignore is scoped to that single method.
         "ReturnRemoval": {
             "ignore": [
-                "Zef\\Framework\\Container\\ServiceDefinitionGraph::visit",
+                "Zef\\Framework\\Container\\DefinitionCycles::visit",
                 "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed",
                 "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
             ]
