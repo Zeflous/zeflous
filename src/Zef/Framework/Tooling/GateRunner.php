@@ -51,12 +51,21 @@ final readonly class GateRunner
                 ->evaluate(new WorkflowConcurrencyReport(
                     new WorkflowFileCollector($this->root)->collect(),
                 )),
-            'roadmap' => new RoadmapDocGate()->evaluate(
-                new RoadmapDocReport(new RoadmapDocFileCollector($this->root)->collect()),
-            ),
+            'roadmap' => $this->roadmap(),
             'smoke' => $this->smoke(),
             default => throw new ToolingException(\sprintf('Unknown gate "%s".', $gate)),
         };
+    }
+
+    private function roadmap(): GateResult
+    {
+        $documents = new RoadmapDocFileCollector($this->root)->collect();
+
+        $pinState = new RoadmapPinCommitCollector($this->root, $this->processRunner)
+            ->state($documents['ROADMAP-STATUS.md'] ?? null)
+        ;
+
+        return new RoadmapDocGate()->evaluate(new RoadmapDocReport($documents), $pinState);
     }
 
     private function readBaseline(): ?string

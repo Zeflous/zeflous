@@ -22,7 +22,11 @@ namespace Zef\Framework\Tooling;
  * the derived-count rule to {@see RoadmapCountRules}, the phrase-duplication
  * rule to {@see RoadmapPhraseRules}, the pointer-freshness rule to
  * {@see RoadmapPointerRules} and the cross-section contradiction rule to
- * {@see RoadmapContradictionRules}. The split is not cosmetic: the repository's
+ * {@see RoadmapContradictionRules}. The main-lineage pin-freshness rule is
+ * delegated to {@see RoadmapPinFreshness} and arrives as a
+ * {@see RoadmapPinState} the runner gathers -- null when the lane is not
+ * validating `main`, in which case the gate says so in its pass message
+ * instead of silently skipping. The split is not cosmetic: the repository's
  * own architecture gate (`php-codearch-config.yaml`,
  * `tooComplex.difficulty: 20`) scores a single class holding every rule above
  * the difficulty ceiling, so each file carries one focused review surface and
@@ -33,13 +37,15 @@ namespace Zef\Framework\Tooling;
  */
 final readonly class RoadmapDocGate
 {
-    public function evaluate(RoadmapDocReport $roadmapDocReport): GateResult
+    public function evaluate(RoadmapDocReport $roadmapDocReport, ?RoadmapPinState $roadmapPinState = null): GateResult
     {
         $failures = [];
 
         foreach ($roadmapDocReport->documents as $name => $contents) {
             $failures = [...$failures, ...$this->failures($name, $contents)];
         }
+
+        $failures = [...$failures, ...RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState)];
 
         if ($failures !== []) {
             return GateResult::failed(\sprintf(
@@ -49,8 +55,9 @@ final readonly class RoadmapDocGate
         }
 
         return GateResult::passed(\sprintf(
-            'Roadmap document gate PASSED: %d document(s) audited.',
+            'Roadmap document gate PASSED: %d document(s) audited%s',
             $roadmapDocReport->count(),
+            RoadmapPinFreshness::suffix($roadmapPinState),
         ));
     }
 
