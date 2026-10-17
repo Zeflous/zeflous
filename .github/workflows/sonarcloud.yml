@@ -67,13 +67,20 @@
 #      therefore waits on `ci-coverage.yml`, which is the lane that produces the
 #      `coverage-reports` artifact -- the same artifact, a narrower wait.
 #
-# CONTRACT (unchanged, deliberate): this job ALWAYS runs and concludes. When it
-# cannot scan credentialed — the `SONAR_TOKEN` repository secret is not set, or
-# a `pull_request` event where GitHub withholds repository secrets (a
-# `dependabot[bot]` author, or a head from a fork) — it reports GREEN WITH A
-# NOTICE (step summary + `::notice::`) instead of failing, so an unconfigured
-# gate can never block the PR queue. Never work around the secret withholding
-# with `pull_request_target`.
+# CONTRACT (narrowed 2026-10-18, merge-gate audit finding 5 —
+# docs/ci-notes/merge-gate-audit.md): this job ALWAYS runs and concludes, but
+# the uncredentialed outcome now depends on WHERE the credential is missing. In
+# a context where GitHub itself withholds repository secrets — a `pull_request`
+# event whose head is from a fork, or whose author is `dependabot[bot]` or
+# `renovate[bot]` — it reports GREEN WITH A NOTICE (step summary +
+# `::notice::`): a context that cannot be credentialed must not block the
+# pull-request queue. In every other context — a same-repository pull request,
+# a push to `main`, a manual run — the `SONAR_TOKEN` secret is always
+# injectable, so its absence is a misconfiguration, and the job FAILS CLOSED
+# instead of certifying an analysis that never ran: `SonarCloud analysis` is a
+# REQUIRED check in the `main` ruleset, and a required check must never be
+# green without an analysis. Never work around the secret withholding with
+# `pull_request_target`.
 
 name: SonarCloud
 
@@ -149,20 +156,66 @@ jobs:
       SONAR_HOST_URL: https://sonarcloud.io
 
     steps:
-      # The credential check turns the whole job into a no-op until the
-      # SONAR_TOKEN repository secret is configured, so adding this workflow can
-      # never break the build for a repository not yet onboarded to SonarCloud.
+      # The credential check decides between the two uncredentialed outcomes
+      # BEFORE anything else runs (see the CONTRACT above): a context where
+      # GitHub itself withholds repository secrets keeps the green-with-notice
+      # path; every other context fails CLOSED, because `SonarCloud analysis`
+      # is a required check and a required check must never be green without an
+      # analysis. Until the SONAR_TOKEN repository secret is configured, the
+      # soft path still keeps an un-onboarded repository's queue unblocked —
+      # but only in the contexts GitHub genuinely cannot credential.
       - name: Check SONAR_TOKEN availability
         id: sonar_guard
         run: |
-          if [ -z "${SONAR_TOKEN}" ]; then
-            echo "available=false" >> "$GITHUB_OUTPUT"
-          else
+          withheld=false
+          withheld_reason=""
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
+            # A same-repository pull request always carries
+            # .pull_request.head.repo.full_name == GITHUB_REPOSITORY; anything
+            # else (a fork head, or a head whose repository was deleted) is a
+            # context GitHub withholds repository secrets from.
+            head_repo=$(jq -r '.pull_request.head.repo.full_name // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null || true)
+            if [ "${head_repo}" != "${GITHUB_REPOSITORY}" ]; then
+              withheld=true
+              withheld_reason="the pull-request head is outside this repository (${head_repo:-head repository unavailable})"
+            else
+              author=$(jq -r '.pull_request.user.login // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null || true)
+              # The bot logins contain literal brackets: quote them, or the
+              # case pattern reads [bot] as a character class and never matches.
+              case "${author}" in
+                'dependabot[bot]'|'renovate[bot]')
+                  withheld=true
+                  withheld_reason="the pull request is authored by ${author}"
+                  ;;
+              esac
+            fi
+          fi
+          echo "withheld=${withheld}" >> "$GITHUB_OUTPUT"
+          if [ -n "${SONAR_TOKEN}" ]; then
             echo "available=true" >> "$GITHUB_OUTPUT"
+          elif [ "${withheld}" = "true" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "reason=${withheld_reason}" >> "$GITHUB_OUTPUT"
+          else
+            {
+              echo "### SonarCloud analysis — failed closed (no credentials in a context that must have them)"
+              echo ""
+              echo "The \`SONAR_TOKEN\` secret is absent in a context where it is always injectable"
+              echo "(a same-repository pull request, a push to \`main\`, or a manual run)."
+              echo "\`SonarCloud analysis\` is a REQUIRED check in the \`main\` ruleset: reporting"
+              echo "green here would certify an analysis that never ran. Restore the secret"
+              echo "(Settings → Secrets and variables → Actions → \`SONAR_TOKEN\`; setup"
+              echo "checklist: docs/security/sonarcloud.md, section 3) and re-run this job."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::SONAR_TOKEN is absent in a context that must have it — failing closed instead of certifying an analysis that never ran (docs/security/sonarcloud.md, section 2)."
+            exit 1
           fi
 
-      # Checkout ALWAYS runs, so the unconfigured-state step below can still
-      # write a step summary and the job keeps a deterministic conclusion.
+      # Checkout runs on the credentialed path and the withheld-credentials
+      # path, so the unconfigured-state step below can still write a step
+      # summary and the job keeps a deterministic conclusion. (On the
+      # fail-closed path the guard has already concluded the job red before
+      # any checkout was needed.)
       - name: Checkout
         # actions/checkout v7.0.1 -- the Node.js 24 runtime line, and the pin the
         # reference repository `Zeflous/zef-framework` uses for this same lane.
@@ -177,21 +230,24 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-      - name: Report unconfigured state (SONAR_TOKEN absent or withheld)
-        if: steps.sonar_guard.outputs.available != 'true'
+      - name: Report unconfigured state (credentials withheld in this context)
+        if: steps.sonar_guard.outputs.available != 'true' && steps.sonar_guard.outputs.withheld == 'true'
+        env:
+          WITHHELD_REASON: ${{ steps.sonar_guard.outputs.reason }}
         run: |
           {
             echo "### SonarCloud analysis — skipped (no credentials in this context)"
             echo ""
-            echo "No credentialed SonarCloud analysis ran for this commit: either the"
-            echo "repository secret \`SONAR_TOKEN\` is not set, or this is a pull request"
-            echo "whose secrets GitHub withholds (a \`dependabot[bot]\` author, or a head"
-            echo "from a fork). The check reports green so an unconfigured or"
-            echo "uncredentialed gate cannot block the pull request queue."
+            echo "No credentialed SonarCloud analysis ran for this commit: GitHub withholds"
+            echo "repository secrets in this context (${WITHHELD_REASON}). The check"
+            echo "reports green so a context that cannot be credentialed cannot block the"
+            echo "pull request queue. In every other context (a same-repository pull"
+            echo "request, a push to \`main\`, a manual run) an absent \`SONAR_TOKEN\` now"
+            echo "fails closed — see docs/security/sonarcloud.md, section 2."
             echo ""
             echo "Setup checklist: docs/security/sonarcloud.md, section 3."
           } >> "$GITHUB_STEP_SUMMARY"
-          echo "::notice::SONAR_TOKEN unavailable in this context — SonarCloud analysis skipped (setup: docs/security/sonarcloud.md)."
+          echo "::notice::SONAR_TOKEN withheld in this context (${WITHHELD_REASON}) — SonarCloud analysis skipped (setup: docs/security/sonarcloud.md)."
 
       # COVERAGE BRIDGE v2 (2026-10-08). This job installs NO dependencies and
       # runs NO tests. The analysis needs SOURCE plus a coverage report, and
