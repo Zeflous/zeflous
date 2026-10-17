@@ -18,11 +18,14 @@ use Zef\Framework\Container\InstanceDefinition;
  */
 final readonly class AutoconfigRefusals
 {
+    /** The type-given tail the knob's shape refusals share (the S1192 line: one spelling). */
+    private const string GIVEN = ' given.';
+
     public static function notAMap(string $key, mixed $source): DefinitionException
     {
         return new DefinitionException(
             "The '{$key}' configuration must be a map of autoconfiguration keys, "
-            . get_debug_type($source) . ' given.',
+            . get_debug_type($source) . self::GIVEN,
         );
     }
 
@@ -37,7 +40,7 @@ final readonly class AutoconfigRefusals
     {
         return new DefinitionException(
             "The '{$key}.interfaces' configuration must be a map of interface names to tags, "
-            . get_debug_type($interfaces) . ' given.',
+            . get_debug_type($interfaces) . self::GIVEN,
         );
     }
 
@@ -52,7 +55,7 @@ final readonly class AutoconfigRefusals
     {
         return new DefinitionException(
             "The '{$key}.interfaces' keys must be non-empty interface names, "
-            . get_debug_type($interface) . ' given.',
+            . get_debug_type($interface) . self::GIVEN,
         );
     }
 
@@ -70,7 +73,7 @@ final readonly class AutoconfigRefusals
     {
         return new DefinitionException(
             "The '{$key}.interfaces' rule for '{$interface}' must spell a tag string, "
-            . get_debug_type($tag) . ' given.',
+            . get_debug_type($tag) . self::GIVEN,
         );
     }
 

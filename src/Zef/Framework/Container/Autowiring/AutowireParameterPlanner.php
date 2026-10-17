@@ -65,6 +65,20 @@ final readonly class AutowireParameterPlanner
             return $declaredStretch;
         }
 
+        return $this->unplanned($ownerId, $autowireParameterSpec, $autowireReferences);
+    }
+
+    /**
+     * The unspelled parameter's tiers: the variadic's collection, the
+     * parameter's own binding, the fallback.
+     *
+     * @return list<mixed>
+     */
+    private function unplanned(
+        string $ownerId,
+        AutowireParameterSpec $autowireParameterSpec,
+        AutowireReferences $autowireReferences,
+    ): array {
         if ($autowireParameterSpec->isVariadic) {
             return AutowireVariadicCollection::stretch($ownerId, $autowireParameterSpec, $autowireReferences);
         }
@@ -73,26 +87,6 @@ final readonly class AutowireParameterPlanner
             return [['service' => $autowireReferences->resolve($ownerId, $autowireParameterSpec)]];
         }
 
-        return $this->fallback($ownerId, $autowireParameterSpec);
-    }
-
-    /**
-     * The unbound parameter's fallback: the constructor's own default
-     * baked verbatim when there is one, the honest refusal otherwise --
-     * never a guessed value.
-     *
-     * @return list<mixed>
-     */
-    private function fallback(string $ownerId, AutowireParameterSpec $autowireParameterSpec): array
-    {
-        if ($autowireParameterSpec->hasDefault) {
-            return [$autowireParameterSpec->defaultValue];
-        }
-
-        if ($autowireParameterSpec->unsupportedTypeReason !== null) {
-            throw AutowireRefusals::unsupportedType($ownerId, $autowireParameterSpec);
-        }
-
-        throw AutowireRefusals::underivable($ownerId, $autowireParameterSpec);
+        return AutowireFallback::stretch($ownerId, $autowireParameterSpec);
     }
 }

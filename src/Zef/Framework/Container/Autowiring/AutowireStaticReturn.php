@@ -29,7 +29,11 @@ final readonly class AutowireStaticReturn
             return null;
         }
 
-        $reflectionMethod = new ReflectionMethod($target, $method);
+        return self::declaredReturn(new ReflectionMethod($target, $method));
+    }
+
+    private static function declaredReturn(ReflectionMethod $reflectionMethod): ?string
+    {
         if (!$reflectionMethod->isStatic()) {
             return null;
         }

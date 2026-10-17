@@ -235,14 +235,14 @@ final class AutoconfigurationTest extends TestCase
 
     public function testADeclarationThatEarnsNothingKeepsItsOwnInstance(): void
     {
-        $definition = new InstanceDefinition('app.file', FileLogger::class);
+        $instanceDefinition = new InstanceDefinition('app.file', FileLogger::class);
 
         $planned = Autoconfiguration::apply(
-            [$definition],
+            [$instanceDefinition],
             AutoconfigMap::parse('tags', ['interfaces' => [MarkerA::class => 'unrelated.marker']]),
         );
 
-        self::assertSame($definition, $planned[0]);
+        self::assertSame($instanceDefinition, $planned[0]);
     }
 
     public function testAMarkerRuleEarnsItsTagOnTheImplementingDeclaration(): void

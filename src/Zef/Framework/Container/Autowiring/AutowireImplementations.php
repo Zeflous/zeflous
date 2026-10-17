@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Container\Autowiring;
 
 use Zef\Framework\Container\Container;
-use Zef\Framework\Container\FactoryDefinition;
-use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\ServiceDefinition;
-use Zef\Framework\Container\UnplannedInstanceDefinition;
 
 /**
  * The compile run's implementation collector: the declared identifiers
@@ -17,10 +14,9 @@ use Zef\Framework\Container\UnplannedInstanceDefinition;
  * collectImplementations model, ported into this lane's declared-set
  * discipline).
  *
- * The source is the DECLARED set alone, snapshotted when the run opens:
- * a class-shaped declaration names its product by the class it spells,
- * and a factory-shaped declaration names its product by the return type
- * its static method declares. What the snapshot deliberately excludes:
+ * The source is the DECLARED set alone, snapshotted when the run opens
+ * ({@see AutowireProducts} reads each declaration's proven type). What
+ * the snapshot deliberately excludes:
  *
  * - **births** -- an unregistered class a *different* parameter asked
  *   for is an incident of this run's planning, not a declaration of the
@@ -34,10 +30,7 @@ use Zef\Framework\Container\UnplannedInstanceDefinition;
  * - **instance-method factory targets** -- a `'service.id::method'`
  *   spelling resolves the service at call time, so the spelling cannot
  *   prove the product's type (the same shadowing rule the boot graph's
- *   edge extraction already applies to factory targets); a factory
- *   whose target a declared or container identifier shadows joins no
- *   collection -- declare the implementation with a shape that names
- *   its type.
+ *   edge extraction already applies to factory targets).
  */
 final class AutowireImplementations
 {
@@ -76,7 +69,7 @@ final class AutowireImplementations
     public function ids(string $type): array
     {
         $container = $this->container;
-        if ($container === null) {
+        if (!$container instanceof Container) {
             throw new AutowiringException(
                 'The implementation collector answers only inside an opened run '
                 . '-- open(definitions, container) before collecting.',
@@ -85,7 +78,7 @@ final class AutowireImplementations
 
         $ids = [];
         foreach ($this->declaredById as $id => $declaration) {
-            $product = $this->productType($declaration, $container);
+            $product = AutowireProducts::of($declaration, $this->declaredById, $container);
             if ($product === null) {
                 continue;
             }
@@ -98,27 +91,5 @@ final class AutowireImplementations
         }
 
         return $ids;
-    }
-
-    /**
-     * The type one declaration proves its service to be -- a class
-     * shape's own class, a factory shape's static product, or null
-     * for the shapes that name no type.
-     */
-    private function productType(ServiceDefinition $serviceDefinition, Container $container): ?string
-    {
-        if ($serviceDefinition instanceof InstanceDefinition) {
-            return $serviceDefinition->class;
-        }
-
-        if ($serviceDefinition instanceof UnplannedInstanceDefinition) {
-            return $serviceDefinition->class;
-        }
-
-        if ($serviceDefinition instanceof FactoryDefinition) {
-            return AutowireFactoryProduct::type($serviceDefinition->factory, $this->declaredById, $container);
-        }
-
-        return null;
     }
 }
