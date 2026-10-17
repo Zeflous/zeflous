@@ -65,25 +65,50 @@ final class RoadmapPinFreshness
             return [];
         }
 
-        if ($roadmapPinState->pinnedSha === null) {
-            return [\sprintf(
+        $pinnedSha = $roadmapPinState->pinnedSha;
+
+        if ($pinnedSha === null || !$roadmapPinState->pinIsAncestor) {
+            return [self::unusableMessage($name, $pinnedSha)];
+        }
+
+        return self::landedCommits($name, $pinnedSha, $roadmapPinState->subjects);
+    }
+
+    /**
+     * The message for a pin the verdict cannot even trust: a status document
+     * with no pin on the main lane, or a pin that does not name a commit of
+     * the main lineage -- the only two ways to arrive here.
+     */
+    private static function unusableMessage(string $name, ?string $pinnedSha): string
+    {
+        if ($pinnedSha === null) {
+            return \sprintf(
                 '%s carries no "Last updated" pin while the main lane is validating it.',
                 $name,
-            )];
+            );
         }
 
-        if (!$roadmapPinState->pinIsAncestor) {
-            return [\sprintf(
-                '%s "Last updated" pin `%s` is not an ancestor of the validated commit:'
-                    . ' it does not name a commit of the main lineage.',
-                $name,
-                $roadmapPinState->pinnedSha,
-            )];
-        }
+        return \sprintf(
+            '%s "Last updated" pin `%s` is not an ancestor of the validated commit:'
+                . ' it does not name a commit of the main lineage.',
+            $name,
+            $pinnedSha,
+        );
+    }
 
+    /**
+     * The violation of a usable pin: commits that landed on main after it and
+     * are not changelog or pin bookkeeping.
+     *
+     * @param list<string> $subjects
+     *
+     * @return list<string>
+     */
+    private static function landedCommits(string $name, string $pinnedSha, array $subjects): array
+    {
         $landed = [];
 
-        foreach ($roadmapPinState->subjects as $subject) {
+        foreach ($subjects as $subject) {
             if (self::isBookkeeping($subject)) {
                 continue;
             }
@@ -100,7 +125,7 @@ final class RoadmapPinFreshness
                 . ' that are not changelog or pin bookkeeping, starting with "%s".'
                 . ' Refresh the pin (CONTRIBUTING.md, rule 13).',
             $name,
-            $roadmapPinState->pinnedSha,
+            $pinnedSha,
             \count($landed),
             $landed[0],
         )];

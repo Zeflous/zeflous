@@ -49,17 +49,25 @@ final readonly class RoadmapPinCommitCollector
             return null;
         }
 
-        if ($statusContents === null) {
-            return new RoadmapPinState(null, false, []);
-        }
-
-        $pointer = RoadmapPointerRules::pointer(explode("\n", $statusContents));
+        $pointer = $statusContents === null
+            ? null
+            : RoadmapPointerRules::pointer(explode("\n", $statusContents));
 
         if ($pointer === null) {
             return new RoadmapPinState(null, false, []);
         }
 
-        $pinnedSha = $pointer[1];
+        return $this->range($pointer[1]);
+    }
+
+    /**
+     * The state for a pinned commit this lane can resolve: whether it is an
+     * ancestor of the validated commit, and the subjects between it and that
+     * commit. A git answer outside the documented 0/1 exits throws -- an
+     * unreadable answer about the pin must never be convertible into a pass.
+     */
+    private function range(string $pinnedSha): RoadmapPinState
+    {
         $ancestorExit = $this->git(\sprintf(
             'git -C %s merge-base --is-ancestor %s HEAD',
             escapeshellarg($this->root),
