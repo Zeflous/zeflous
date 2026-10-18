@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the gate round and the merge-gate audit to pull request 426 [\#428](https://github.com/Zeflous/zeflous/pull/428) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the merge-gate hardening batch to pull request 423 [\#427](https://github.com/Zeflous/zeflous/pull/427) ([mbetixz](https://github.com/mbetixz))
 - fix\(tooling\): the update-merges of every branch kind are bookkeeping [\#426](https://github.com/Zeflous/zeflous/pull/426) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the gate and coverage work to pull request 418 [\#424](https://github.com/Zeflous/zeflous/pull/424) ([mbetixz](https://github.com/mbetixz))
