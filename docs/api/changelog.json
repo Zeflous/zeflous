@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-18T00:46:12Z",
+  "as_of": "2026-10-18T09:46:33Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 189,
+  "unreleased_count": 191,
   "versions": [
     {
       "version": "Unreleased",
@@ -1469,6 +1469,22 @@
                 "sha": "b6d075e6cfcf4cd4ae587f65e3480fccbc2d568d",
                 "short_sha": "b6d075e",
                 "subject": "Merge branch 'main' into feat/tooling-roadmap-pin-freshness"
+              }
+            ]
+          },
+          {
+            "pr": 434,
+            "title": "feat(errors): add the typed HTTP exception family and retire the message sniffing",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-18T09:30:20Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/434",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "baf1564bf222265319732e078197057632e2e4eb",
+                "short_sha": "baf1564",
+                "subject": "feat(errors): add the typed HTTP exception family and retire the message sniffing"
               }
             ]
           }
@@ -4628,6 +4644,22 @@
                 "sha": "3406c0b688a655f3d031660a386833aee4fd36cc",
                 "short_sha": "3406c0b",
                 "subject": "docs(roadmap): pin the status refresh to pull request 431"
+              }
+            ]
+          },
+          {
+            "pr": 435,
+            "title": "docs(roadmap): pin the typed exception family to pull request 434",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-18T09:46:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/435",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "814aa96b1a150537eb341ca6c8d469b649a1019c",
+                "short_sha": "814aa96",
+                "subject": "docs(roadmap): pin the typed exception family to pull request 434"
               }
             ]
           }
@@ -9581,6 +9613,38 @@
               "sha": "3406c0b688a655f3d031660a386833aee4fd36cc",
               "short_sha": "3406c0b",
               "subject": "docs(roadmap): pin the status refresh to pull request 431"
+            }
+          ]
+        },
+        {
+          "pr": 434,
+          "title": "feat(errors): add the typed HTTP exception family and retire the message sniffing",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-18T09:30:20Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/434",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "baf1564bf222265319732e078197057632e2e4eb",
+              "short_sha": "baf1564",
+              "subject": "feat(errors): add the typed HTTP exception family and retire the message sniffing"
+            }
+          ]
+        },
+        {
+          "pr": 435,
+          "title": "docs(roadmap): pin the typed exception family to pull request 434",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-18T09:46:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/435",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "814aa96b1a150537eb341ca6c8d469b649a1019c",
+              "short_sha": "814aa96",
+              "subject": "docs(roadmap): pin the typed exception family to pull request 434"
             }
           ]
         }

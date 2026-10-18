@@ -63,6 +63,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(container): the scope & lifecycle family, lifetime as the sharing policy [#396](https://github.com/Zeflous/zeflous/pull/396) ([mbetixz](https://github.com/mbetixz))
 - feat(container): the tags & autoconfiguration family, one tag one source [#404](https://github.com/Zeflous/zeflous/pull/404) ([mbetixz](https://github.com/mbetixz))
 - feat(tooling): refuse a stale roadmap pin on main [#417](https://github.com/Zeflous/zeflous/pull/417) ([mbetixz](https://github.com/mbetixz))
+- feat(errors): add the typed HTTP exception family and retire the message sniffing [#434](https://github.com/Zeflous/zeflous/pull/434) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -200,6 +201,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the gate round and the merge-gate audit to pull request 426 [#428](https://github.com/Zeflous/zeflous/pull/428) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): refresh the status pin past the resolution merge [#431](https://github.com/Zeflous/zeflous/pull/431) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the status refresh to pull request 431 [#432](https://github.com/Zeflous/zeflous/pull/432) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the typed exception family to pull request 434 [#435](https://github.com/Zeflous/zeflous/pull/435) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
