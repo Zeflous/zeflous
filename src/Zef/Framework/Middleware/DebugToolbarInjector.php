@@ -47,7 +47,7 @@ final class DebugToolbarInjector
             return $response;
         }
 
-        return $response->withBody(new Stream($resource))
+        $updatedResponse = $response->withBody(new Stream($resource))
             ->withoutHeader('Content-Length')
             ->withoutHeader('ETag')
             ->withoutHeader('Content-MD5')
@@ -57,6 +57,8 @@ final class DebugToolbarInjector
                 "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
             )
             ->withHeader('X-Debug-Toolbar', 'enabled');
+
+        return $updatedResponse instanceof ResponseInterface ? $updatedResponse : $response;
     }
 
     private static function readHtml(ResponseInterface $response): ?string
