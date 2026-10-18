@@ -56,7 +56,7 @@ final class JsonLineWriter
             throw new RuntimeException('Unable to secure the JSON log destination permissions.');
         }
 
-        return (int) $opened['size'];
+        return max(0, $opened['size']);
     }
 
     /** @param resource $stream */
