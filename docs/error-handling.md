@@ -12,7 +12,7 @@ X-Request-ID: <request correlation id>
 Cache-Control: no-store
 ```
 
-The JSON document includes `type`, `title`, `status`, `detail`, `instance`, and `trace_id`. The `instance` contains only the request path, not the query string. Typed framework exceptions also expose a stable `code`. HTTP 405 responses include `Allow`; HTTP 429 responses include `Retry-After`.
+The JSON document includes `type`, `title`, `status`, `detail`, `instance`, and `trace_id`. The `instance` contains only the request path, not the query string. Typed framework exceptions expose a stable `code` matching `[A-Z][A-Z0-9_]{0,63}`; supplied trace IDs are bounded to 128 safe ASCII characters. Invalid UTF-8 in diagnostic text is substituted during JSON encoding so the original HTTP status and response media type can be retained. HTTP 405 responses include `Allow`; HTTP 429 responses include `Retry-After`.
 
 When a request explicitly prefers `text/html` over JSON, ZEF renders an escaped branded HTML page. Production responses do not include stack traces or developer details. Debug details are redacted and bounded before rendering. PDO failures are normalized to a safe `DATABASE_ERROR` response with SQLSTATE-only diagnostics; Guzzle failures are recognized by interface name without requiring Guzzle as a runtime dependency.
 
@@ -39,7 +39,7 @@ Set `APP_ENV=local` in the development process. Do not enable debug output in pr
 
 ## JSONL logger and CLI
 
-`Zef\\Framework\\Logging\\JsonLineLogger` implements the vendored PSR-3 contract without runtime dependencies. It writes one JSON record per line, locks each write, restricts file permissions to owner-only, rejects document-root destinations and symlinks, bounds context, converts exception objects into safe summaries, and redacts common credential fields and values.
+`Zef\\Framework\\Logging\\JsonLineLogger` implements the vendored PSR-3 contract without runtime dependencies. It writes one JSON record per line, locks each write, restricts file permissions to owner-only, rejects document-root destinations and symlinks, bounds context, and redacts common credential fields and values. The default error context excludes raw exception objects, user IDs, IP addresses, user-agent strings, query strings and request bodies. Credential redaction is heuristic, so do not place secrets in exception messages.
 
 The local inspector reads JSONL logs:
 
@@ -63,7 +63,7 @@ Example adapter hook:
 
 
 
-Replay is disabled by default. To enable it in local development, configure an existing writable directory outside the document root:
+Replay is disabled by default. To enable it in local development, configure an existing writable directory with owner-only permissions (`0700`) outside the document root:
 
 ```php
 return [
@@ -87,6 +87,6 @@ The replay target is deliberately limited to `localhost`, `127.0.0.1`, or `::1`;
 ## Operational boundaries
 
 - The request-scoped context adopts a valid W3C trace ID from `CorrelationMiddleware`; the same trace ID is used in Problem Details and structured logs. When no span is active, the request ID is the fallback.
-- The optional file logger requires an existing directory and never creates one implicitly.
+- The optional file logger requires an existing directory, rejects unresolved or public document roots, restricts log files to owner-only permissions (`0600`), and never creates directories implicitly.
 - Query strings, request bodies, and authorization/cookie headers are not included in the default error log context.
 - Query counts remain zero unless the database adapter calls `ErrorRequestContext::recordQueryFor($request)` for each executed query. Unsupported or unsafe body formats are intentionally omitted from replay snapshots.
