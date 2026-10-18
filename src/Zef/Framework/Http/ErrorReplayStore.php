@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Http;
 
-use InvalidArgumentException;
+use JsonException;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
@@ -15,8 +15,6 @@ use Throwable;
  */
 final readonly class ErrorReplayStore
 {
-    private const int MAX_BODY_BYTES = 65_536;
-
     private string $directory;
 
     public function __construct(string $directory)
