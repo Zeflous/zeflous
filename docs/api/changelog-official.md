@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the injector and contextual-binding family to pull request 439 [\#440](https://github.com/Zeflous/zeflous/pull/440) ([mbetixz](https://github.com/mbetixz))
+- feat\(container\): add the method-call injection lane and contextual bindings [\#439](https://github.com/Zeflous/zeflous/pull/439) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the typed exception family to pull request 434 [\#435](https://github.com/Zeflous/zeflous/pull/435) ([mbetixz](https://github.com/mbetixz))
 - feat\(errors\): add the typed HTTP exception family and retire the message sniffing [\#434](https://github.com/Zeflous/zeflous/pull/434) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the status refresh to pull request 431 [\#432](https://github.com/Zeflous/zeflous/pull/432) ([mbetixz](https://github.com/mbetixz))
