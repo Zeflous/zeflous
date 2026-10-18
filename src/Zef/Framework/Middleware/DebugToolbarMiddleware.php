@@ -24,7 +24,11 @@ final readonly class DebugToolbarMiddleware implements MiddlewareInterface
     {
         $startedAt = hrtime(true);
         $response = $handler->handle($request);
-        if (!$this->enabled || !DebugToolbarEligibility::allows($request, $response)) {
+        if (
+            !$this->enabled
+            || $response->hasHeader('Content-Security-Policy')
+            || !DebugToolbarEligibility::allows($request, $response)
+        ) {
             return $response;
         }
 
