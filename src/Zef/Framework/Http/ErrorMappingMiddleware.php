@@ -84,21 +84,22 @@ final readonly class ErrorMappingMiddleware implements MiddlewareInterface
         try {
             return $this->stamped($handler->handle($contextualRequest), $correlationId);
         } catch (Throwable $throwable) {
-            $status = ErrorStatusMap::statusFor($throwable);
+            $mappedThrowable = ThirdPartyExceptionMapper::normalize($throwable);
+            $status = ErrorStatusMap::statusFor($mappedThrowable);
             $errorRequestContext->recordException();
             if ($this->errorReplayStore !== null) {
                 try {
                     $errorRequestContext->setReplayId(
-                        $this->errorReplayStore->save($contextualRequest, $throwable, $status, $correlationId),
+                        $this->errorReplayStore->save($contextualRequest, $mappedThrowable, $status, $correlationId),
                     );
                 } catch (Throwable) {
                     error_log('ZEF error replay capture failed.');
                 }
             }
-            $this->errorFaultRecorder->record($throwable, $status, $correlationId, $contextualRequest);
+            $this->errorFaultRecorder->record($mappedThrowable, $status, $correlationId, $contextualRequest);
 
             return ErrorEnvelope::answered(
-                $throwable,
+                $mappedThrowable,
                 $status,
                 $this->debug,
                 $correlationId,
