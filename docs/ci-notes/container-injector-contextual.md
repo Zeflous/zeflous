@@ -141,3 +141,22 @@ guard consumer/dep/duplikat diport dengan atribusi byte-level pada
 format id `@contextual:<consumer>|<dep>`. Method-call injection:
 desain baru zeflous (referensi tidak mengimplementasikannya —
 konfirmasi klaim user "mengejar fungsi cepat" pada PORT-MANIFEST).
+
+## KDD tambahan (ronde SonarCloud)
+
+- **C4.17 (requireCoverageMetadata menyaring atribusi ke daftar CoversClass)**: PR pertama
+  gagal quality gate SonarCloud pada `new_coverage 46.9%` padahal coverage lokal 96.76%
+  dan lane CI Coverage hijau. Akar: `phpunit.xml.dist` memakai
+  `requireCoverageMetadata="true"` — PHPUnit hanya MENGAKUMULASI coverage test ke
+  kelas-kelas yang diberi daftar `#[CoversClass]`; kolaborator deep-call yang TIDAK
+  terdaftar dieksekusi penuh tapi barisnya NOL di clover (excluded oleh filter, bukan
+  oleh eksekusi). File-file C4 yang zero: seluruh keluarga Refusals/Shape/Names/Consumer/
+  Set/Spellings/ArgumentNames. Forensik: probe pcov polos mengatribusi 7/7 (mesin sehat),
+  probe PHPUnit 0/6; file era-C1 (AutowireRefusals 21/21) teratribusi karena testnya
+  mencantumkannya. Fix: perluas daftar covers test unit sesuai rantai eksekusi nyata
+  (+ test grammar unit untuk calls-on-alias/value + pin guard base withMethodCalls).
+  Efek: coverage total 96.76% → **99.22%** (149+ baris yang TADIdieksekusi akhirnya
+  terhitung). Pelajaran: **di repositori ber-filter covers, "unit tanpa test sendiri
+  yang mencantumkannya" = buta coverage — pola R4 (covers-orphan) diperberat oleh
+  filter ini; setiap keluarga baru WAJIB menyertakan seluruh kolaborator deep-call
+  dalam daftar covers test unit-nya.**
