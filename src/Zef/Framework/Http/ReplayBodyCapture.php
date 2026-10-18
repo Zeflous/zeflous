@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Http;
 
-use JsonException;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
@@ -36,7 +35,7 @@ final class ReplayBodyCapture
             if ($mediaType === 'application/x-www-form-urlencoded') {
                 return self::form($body);
             }
-        } catch (JsonException|Throwable) {
+        } catch (Throwable) {
             return ['', false];
         }
 
