@@ -55,7 +55,7 @@ final class HtmlErrorPageRenderer
                         . "\n" . $throwable->getTraceAsString()),
                 ) . '</pre><h2>Related server log</h2>'
                 . '<p>Search the JSONL error log for this request ID:</p><code>bin/zef errors:report --request-id='
-                . self::escape($traceId) . '</code></section>';
+                . self::escape($traceId) . '</code>';
 
             if ($throwable instanceof ZefException && $throwable->getDetails() !== []) {
                 $details = json_encode(
@@ -65,6 +65,8 @@ final class HtmlErrorPageRenderer
                 $body .= '<h2>Developer context</h2><pre>'
                     . self::escape(is_string($details) ? $details : '{}') . '</pre>';
             }
+
+            $body .= '</section>';
         }
 
         if ($debug) {
