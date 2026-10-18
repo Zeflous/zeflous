@@ -8,7 +8,6 @@ use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
-use Zef\Framework\Exception\ZefException;
 
 /** Renders HTTP failures as RFC 9457 Problem Details or a safe HTML page. */
 final class ProblemDetailsResponseFactory
