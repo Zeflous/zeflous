@@ -70,4 +70,10 @@ final readonly class SyntheticValueGuard
     {
         return isset($this->occupied[$id]) || $this->container?->has($id) === true;
     }
+
+    /** The synthetic identifier the address's value service lives under. */
+    public static function id(string $key): string
+    {
+        return self::VALUE_SERVICE_PREFIX . $key;
+    }
 }

@@ -127,7 +127,7 @@ process's environment without any container machinery of its own. The
 e2e test proves the whole loop: EnvSource → LayeredConfigBuilder →
 `#[Value]` sees the env-folded value beating the app layer.
 
-## C5.5 — Archeology saga (five rounds, 13 → 0 error-level findings)
+## C5.5 — Archeology saga (seven rounds, 13 → 0 error-level findings)
 
 | Round | Findings | Move |
 | --- | --- | --- |
@@ -136,6 +136,8 @@ e2e test proves the whole loop: EnvSource → LayeredConfigBuilder →
 | 3 | 4 → 0 | prefix const moves into the guard (breaks the AVS↔Guard cycle the round-2 extraction created); `AutowireValueMaterialisations` extracted (memo + definitions + report) |
 | 4 | 0 → 2 (regression) | rector + the `@return class-string` re-shape pushed `ParameterProviderCheck` over (D 21.08 → 23.10 — removing an operator can *raise* Halstead difficulty when the operand-vocabulary ratio moves the wrong way) |
 | 5 | 2 → 0 | `ParameterProviderConstruction` extracted (one question, one answer) |
+| 6 | 0 → 2 (CI) | the CI round read a **fresh** archeology run and refused `AutowireValueServices` (D 22.27) — the local "PASSED" before the push had read the *stale* SARIF from before the escape-killing rework. Standing rule: `composer archeology:gate` is only meaningful **after** a fresh `composer archeology` — the gate reads whatever report the directory carries |
+| 7 | 2 → 0 | the first-use decision sequence moved into `AutowireValueMaterialisations::ensure()` (the arms live with the record they maintain); the prefix concat into `SyntheticValueGuard::id()`; the misuse message into `AutowireValueRefusals::missingAttribute()`; `ParameterValues::missing()` gives the positive-form guard. AVS D 23.0 → 16.5, Materialisations 4.5 → 16.5 |
 
 Standing lessons reinforced: (a) the dependency-cycle findings catch
 *const references* between vocabulary classes, not just method calls —
@@ -143,7 +145,23 @@ a grammar class owning its own messages is the cycle-free shape;
 (b) small-class extraction is the difficulty lever that always works,
 operator micro-tuning can backfire; (c) a `@template T of object`
 generic on a reflection-reader keeps the three public readers typed
-without instanceof narrowing.
+without instanceof narrowing; (d) **the gate reads the directory's
+SARIF, not the source tree** — re-run the analysis before every gate
+call, or a stale report answers for code that no longer exists.
+
+## C5.5b — SonarCloud round (3 new issues, all structural)
+
+The first CI round's quality gate failed on exactly three issues, each
+fixed structurally rather than by suppression:
+
+- **php:S1142** (`AutowireParameterPlanner::unplanned()`, 4 returns):
+  the value tier had made the tier ladder one arm too tall — the
+  non-variadic half moved into its own `unvariadic()` unit, three
+  returns apiece;
+- **php:S1142** (`ParameterInjectability::offender()`, 4 returns):
+  the scalar/null and non-array arms fold into one ternary return;
+- **php:S1192** (`ParameterRefusals`, `" given."` ×3): the map-shaped
+  refusals share the `GIVEN` const tail — one literal, one spelling.
 
 ## C5.6 — Covers-filter discipline (the C4 lesson, applied up front)
 

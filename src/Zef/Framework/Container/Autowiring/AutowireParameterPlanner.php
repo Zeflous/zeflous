@@ -74,8 +74,10 @@ final readonly class AutowireParameterPlanner
     }
 
     /**
-     * The unspelled parameter's tiers: the variadic's collection, the
-     * `#[Value]` address, the parameter's own binding, the fallback.
+     * The unspelled parameter's tiers: the variadic's collection, then
+     * the value address, the binding arms and the fallback (the
+     * non-variadic half kept its own unit so the tier sequence stays
+     * three returns apiece -- the S1142 line).
      *
      * @return list<mixed>
      */
@@ -88,6 +90,20 @@ final readonly class AutowireParameterPlanner
             return AutowireVariadicCollection::stretch($ownerId, $autowireParameterSpec, $autowireReferences);
         }
 
+        return $this->unvariadic($ownerId, $autowireParameterSpec, $autowireReferences);
+    }
+
+    /**
+     * The non-variadic tiers: the `#[Value]` address, the parameter's
+     * own binding, the fallback.
+     *
+     * @return list<mixed>
+     */
+    private function unvariadic(
+        string $ownerId,
+        AutowireParameterSpec $autowireParameterSpec,
+        AutowireReferences $autowireReferences,
+    ): array {
         if ($autowireParameterSpec->carriesValue()) {
             return [['service' => $autowireReferences->valueService($ownerId, $autowireParameterSpec)]];
         }

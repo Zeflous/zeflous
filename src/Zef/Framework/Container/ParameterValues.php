@@ -46,6 +46,12 @@ final readonly class ParameterValues
         return isset($this->values[$address]) || \array_key_exists($address, $this->values);
     }
 
+    /** Whether the map carries no value for the address (the positive form of not {@see self::has()}). */
+    public function missing(string $address): bool
+    {
+        return !$this->has($address);
+    }
+
     /**
      * The address's value (null included: an explicitly-null parameter
      * is honest data, not an absent one).

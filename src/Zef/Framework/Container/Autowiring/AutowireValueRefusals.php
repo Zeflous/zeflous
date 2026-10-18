@@ -11,6 +11,16 @@ namespace Zef\Framework\Container\Autowiring;
  */
 final readonly class AutowireValueRefusals
 {
+    /** The spec reached the value arm without the attribute it serves. */
+    public static function missingAttribute(string $ownerId, string $name): AutowiringException
+    {
+        return new AutowiringException(
+            "Cannot plan '{$ownerId}': the value arm serves a #[Value] parameter, and "
+            . "'\${$name}' carries no #[Value] attribute -- route the planner through "
+            . 'carriesValue() first.',
+        );
+    }
+
     /** The address has no value in the parsed parameters map. */
     public static function missingKey(string $ownerId, string $name, string $key): AutowiringException
     {

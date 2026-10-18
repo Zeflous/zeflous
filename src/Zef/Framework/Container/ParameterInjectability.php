@@ -28,12 +28,8 @@ final readonly class ParameterInjectability
      */
     public static function offender(mixed $value): mixed
     {
-        if (\is_scalar($value) || $value === null) {
-            return null;
-        }
-
         if (!\is_array($value)) {
-            return $value;
+            return \is_scalar($value) || $value === null ? null : $value;
         }
 
         foreach ($value as $element) {

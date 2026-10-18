@@ -12,12 +12,15 @@ namespace Zef\Framework\Container;
  */
 final readonly class ParameterRefusals
 {
+    /** The value-type speller's tail, shared by the map-shaped refusals. */
+    private const string GIVEN = ' given.';
+
     /** The knob itself is not a map of addresses to values. */
     public static function notAMap(string $key, mixed $source): DefinitionException
     {
         return new DefinitionException(
             "The '{$key}' configuration must be a map of addresses to values, "
-            . self::given($source) . ' given.',
+            . self::given($source) . self::GIVEN,
         );
     }
 
@@ -44,7 +47,7 @@ final readonly class ParameterRefusals
     {
         return new DefinitionException(
             "The 'providers' key under 'parameters' must be a map of addresses to "
-            . 'parameter-provider class names, ' . self::given($source) . ' given.',
+            . 'parameter-provider class names, ' . self::given($source) . self::GIVEN,
         );
     }
 
@@ -62,7 +65,7 @@ final readonly class ParameterRefusals
     {
         return new DefinitionException(
             "The 'parameters' > 'providers' entry for '{$address}' must name a "
-            . ParameterProviderInterface::class . ' class, ' . self::given($source) . ' given.',
+            . ParameterProviderInterface::class . ' class, ' . self::given($source) . self::GIVEN,
         );
     }
 

@@ -69,37 +69,25 @@ final class AutowireValueServices
 
     /**
      * The value arm's answer: the synthetic identifier the parameter's
-     * plan references, materialising the value service on first use.
+     * plan references, materialising the value service on first use
+     * (the whole first-use sequence lives with the record it
+     * maintains, {@see AutowireValueMaterialisations::ensure()}).
      */
     public function service(string $ownerId, AutowireParameterSpec $autowireParameterSpec): string
     {
         $key = $autowireParameterSpec->valueKey;
 
         if ($key === null) {
-            throw new AutowiringException(
-                "Cannot plan '{$ownerId}': the value arm serves a #[Value] parameter, and "
-                . "'\${$autowireParameterSpec->name}' carries no #[Value] attribute -- route the "
-                . 'planner through carriesValue() first.',
-            );
+            throw AutowireValueRefusals::missingAttribute($ownerId, $autowireParameterSpec->name);
         }
 
-        $id = SyntheticValueGuard::VALUE_SERVICE_PREFIX . $key;
-
-        if ($this->autowireValueMaterialisations->ensured($id)) {
-            return $id;
-        }
-
-        if ($this->syntheticValueGuard->occupied($id)) {
-            throw AutowireValueRefusals::declaredCollision($ownerId, $key);
-        }
-
-        if (!$this->parameterValues->has($key)) {
-            throw AutowireValueRefusals::missingKey($ownerId, $autowireParameterSpec->name, $key);
-        }
-
-        $this->autowireValueMaterialisations->add(new ValueDefinition($id, $this->parameterValues->value($key)));
-
-        return $id;
+        return $this->autowireValueMaterialisations->ensure(
+            $ownerId,
+            $autowireParameterSpec->name,
+            $key,
+            $this->parameterValues,
+            $this->syntheticValueGuard,
+        );
     }
 
     /**
