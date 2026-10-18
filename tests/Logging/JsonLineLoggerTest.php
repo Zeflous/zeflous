@@ -113,6 +113,25 @@ final class JsonLineLoggerTest extends TestCase
         self::assertSame(1, count(file($this->path, FILE_IGNORE_NEW_LINES) ?: []));
     }
 
+    public function testFailsClosedWhenConfiguredDocumentRootCannotBeResolved(): void
+    {
+        $missingRoot = sys_get_temp_dir() . '/zef-missing-root-' . bin2hex(random_bytes(8));
+        $hadRoot = array_key_exists('DOCUMENT_ROOT', $_SERVER);
+        $previousRoot = $_SERVER['DOCUMENT_ROOT'] ?? null;
+        $_SERVER['DOCUMENT_ROOT'] = $missingRoot;
+
+        try {
+            $this->expectException(\\InvalidArgumentException::class);
+            new JsonLineLogger(sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl');
+        } finally {
+            if ($hadRoot) {
+                $_SERVER['DOCUMENT_ROOT'] = $previousRoot;
+            } else {
+                unset($_SERVER['DOCUMENT_ROOT']);
+            }
+        }
+    }
+
     public function testRejectsLogPathsInsideDocumentRoot(): void
     {
         $root = sys_get_temp_dir() . '/zef-public-root-' . bin2hex(random_bytes(8));
