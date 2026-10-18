@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Http;
 
+use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
