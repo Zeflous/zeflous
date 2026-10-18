@@ -6,7 +6,6 @@ namespace Zef\Framework\Http;
 
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use Throwable;
 
 /**
@@ -22,29 +21,7 @@ final readonly class ErrorReplayStore
 
     public function __construct(string $directory)
     {
-        if ($directory === '' || is_link($directory) || !is_dir($directory) || !is_writable($directory)) {
-            throw new InvalidArgumentException('Replay storage must be an existing writable non-symlink directory.');
-        }
-
-        $resolved = realpath($directory);
-        if (!is_string($resolved)) {
-            throw new InvalidArgumentException('Replay storage directory cannot be resolved.');
-        }
-
-        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
-        $resolvedDocumentRoot = is_string($documentRoot) && $documentRoot !== ''
-            ? realpath($documentRoot)
-            : false;
-
-        if (
-            is_string($resolvedDocumentRoot)
-            && ($resolved === $resolvedDocumentRoot
-                || str_starts_with($resolved, rtrim($resolvedDocumentRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR))
-        ) {
-            throw new InvalidArgumentException('Replay storage must be outside the public document root.');
-        }
-
-        $this->directory = $resolved;
+        $this->directory = ReplayStorageDirectory::resolve($directory);
     }
 
     /**
@@ -80,34 +57,7 @@ final readonly class ErrorReplayStore
         $snapshot['id'] = $id;
         $json = json_encode($snapshot, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
 
-        $destination = $this->directory . DIRECTORY_SEPARATOR . $id . '.json';
-        $stream = fopen($destination, 'xb');
-        if ($stream === false) {
-            throw new RuntimeException('Unable to create an exclusive replay snapshot.');
-        }
-
-        try {
-            if (!chmod($destination, 0600) || !flock($stream, LOCK_EX)) {
-                throw new RuntimeException('Unable to secure the replay snapshot file.');
-            }
-
-            $line = $json . "\n";
-            $written = fwrite($stream, $line);
-            if ($written !== strlen($line)) {
-                throw new RuntimeException('Unable to write a complete replay snapshot.');
-            }
-
-            flock($stream, LOCK_UN);
-        } catch (Throwable $throwable) {
-            fclose($stream);
-            if (is_file($destination) && !unlink($destination)) {
-                throw new RuntimeException('Unable to remove an incomplete replay snapshot.', 0, $throwable);
-            }
-
-            throw $throwable;
-        }
-
-        fclose($stream);
+        ReplaySnapshotWriter::write($this->directory, $id, $json);
 
         return $id;
     }
