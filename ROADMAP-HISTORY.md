@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-17 · `main` @ `f36bfeca07`
+**Last updated:** 2026-10-18 · `main` @ `585dc210fe`
 
 **How to read this file**
 
@@ -27,13 +27,13 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Middleware Pipeline | 1 |
 | Error Handling | 1 |
 | Kernel & Platform | 1 |
-| Quality Gates & Tooling | 11 |
+| Quality Gates & Tooling | 12 |
 | CI / Supply chain | 35 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **140** |
+| **Total merged PRs** | **141** |
 
 ---
 
@@ -116,6 +116,7 @@ The in-repo gate engine (`src/Zef/Framework/Tooling/*`, `scripts/ci/*`) that eve
 | fix(composer): exclude the vendored psr shims from the dev classmap (fourteen "Ambiguous class resolution" warnings silenced by naming the three vendor packages the in-repo PSR shims actually duplicate -- psr/http-message, psr/http-factory whose six PSR-17 factories share the `Psr\Http\Message\` namespace, and psr/log -- in `exclude-from-classmap`; psr/container was already excluded, psr/http-server-handler is not installed and clock/cache/event-dispatcher collide with nothing, so the list carries no dead entries; the zero-dependency invariant untouched -- `require` stays `{php: ^8.4}`, lock `packages` stays `[]` -- and resolution stays deterministic: the shim directories keep their classmap entries and interface resolution still prefers the in-repo shim, the vendor copies staying reachable through the PSR-4 fallback for the dev tools that consume vendor-only classes) | #410 | 2026-10-17 | `9a8e1d9f34` |
 | feat(tooling): refuse a stale roadmap pin on main (the roadmap gate validated the documents' structure but never the freshness of the `ROADMAP-STATUS.md` pin against the branch it describes -- a pin naming a commit six merges behind HEAD passed CI untouched; the honest invariant is now enforced: the pinned commit must be an ancestor of the validated commit and every commit between them must be changelog or pin bookkeeping, any other landed change leaving the pin stale and the gate red until a pull request refreshes it; `RoadmapPinFreshness` the pure verdict, `RoadmapPinCommitCollector` the git side through the gate runner's process seam failing closed on any git answer it cannot interpret, `RoadmapPinState` the data between; the pull-request lanes cannot judge main's pin and say so in the pass message -- the watchdog's main lanes are where the verdict bites; the CI Static checkout gained `fetch-depth: 0` because a depth-1 clone cannot answer merge-base; proven end-to-end against a real worktree of main before pushing, and after merge it enforces itself on its own merge commit; one SonarCloud gate round -- the two five-return methods reshaped into focused helpers under the S1142 ceiling) | #417 | 2026-10-17 | `6367ff46b8` |
 | test(coverage): cover the eight orphan concrete classes (thirty-three classes had no test declaring them as a coverage target and eight are concrete logic covered only incidentally -- for `CorrelationBudget` a mutation blind spot: zero covering tests, every mutant infection generated there uncovered rather than killed; eight new test files, one per unit, behaviour-first: the config repository's mutation protocol, the PSR-7 URI's mutation protocol with the `1..65535` port boundaries on both sides, the auth family's two vocabularies read back through reflection -- a map the analyser can fold is a pin that asserts nothing -- the timing clock's monotonic seam, the correlation budget's rendered-width policy with two-sided boundaries on every arm, and the two roadmap table units; the coverage gate moves 98.89 -> 99.19 percent; the mutation battery on the changed set MSI 100 after the boolean width boundaries were pinned on both sides and after the budget's two `mb_strlen('8bit')` sites joined the documented MBString equivalence class, both verified by running the full suite under the manually applied mutation; the two traits ride their consumer's coverage, PHPUnit 13 refusing a trait as a coverage target) | #418 | 2026-10-17 | `fc7b1e7752` |
+| fix(tooling): the update-merges of every branch kind are bookkeeping (the final live verification of the pin-freshness gate caught its own false positive: the branch-update machinery merges main into whatever pull-request branch it refreshes -- feat, fix, docs, test, chore alike -- and those merges ride into main's history when the pull request lands; the first cut whitelisted only the chore/ spelling it had been observed on, so an auto-updated pin-refresh pull request left exactly one non-bookkeeping commit above its own pin -- a treadmill, main red by one commit after every refresh forever; the pattern now accepts the update machinery's main-into-branch merges of every branch kind, safe whatever the branch because an update merge only reflects main's own commits back into a branch and any real content still reaches main through a pull-request merge commit of its own, which the patterns refuse -- the word order matters, `Merge branch <feature> into main` and `Merge pull request #N from ...` both stay refused; the anchors test carries the five update-merge spellings this repository's own history produced plus the two refused word orders) | #426 | 2026-10-18 | `585dc210fe` |
 
 ## 6. CI / Supply chain
 
