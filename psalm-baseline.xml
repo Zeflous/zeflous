@@ -119,6 +119,7 @@
     <PossiblyUnusedProperty>
       <code><![CDATA[$generated]]></code>
       <code><![CDATA[$reused]]></code>
+      <code><![CDATA[$values]]></code>
     </PossiblyUnusedProperty>
   </file>
   <file src="src/Zef/Framework/Container/Autowiring/Inject.php">
@@ -141,6 +142,11 @@
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Container/Autowiring/Value.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Container/Container.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[createRequestScope]]></code>
@@ -151,6 +157,39 @@
       <code><![CDATA[$entry]]></code>
       <code><![CDATA[$named[$name]]]></code>
     </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterInjectability.php">
+    <MixedAssignment>
+      <code><![CDATA[$element]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterLiterals.php">
+    <MixedAssignment>
+      <code><![CDATA[$nested]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterMap.php">
+    <MixedAssignment>
+      <code><![CDATA[$providerSource]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterProviderAnswers.php">
+    <MixedAssignment>
+      <code><![CDATA[$answer]]></code>
+      <code><![CDATA[$computed[$address]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterProviders.php">
+    <MixedAssignment>
+      <code><![CDATA[$provider]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterValues.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[addresses]]></code>
+      <code><![CDATA[toArray]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Container/RequestScope.php">
     <MixedAssignment>

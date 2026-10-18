@@ -47,6 +47,7 @@ final readonly class AutowireSpecFactory
             unsupportedTypeReason: AutowireParameterTypes::unsupportedTypeReason($reflectionParameter),
             injectId: AutowireAttributes::injectId($reflectionParameter),
             targetClass: AutowireAttributes::targetClass($reflectionParameter),
+            valueKey: AutowireAttributes::valueKey($reflectionParameter),
         );
     }
 }
