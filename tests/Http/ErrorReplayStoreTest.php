@@ -259,7 +259,7 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertTrue(chmod($this->directory, 0755));
 
         try {
-            $this->expectException(\\InvalidArgumentException::class);
+            $this->expectException(\InvalidArgumentException::class);
             new ErrorReplayStore($this->directory);
         } finally {
             chmod($this->directory, 0700);
@@ -273,7 +273,7 @@ final class ErrorReplayStoreTest extends TestCase
         $_SERVER['DOCUMENT_ROOT'] = $this->directory . '/missing-public-root';
 
         try {
-            $this->expectException(\\InvalidArgumentException::class);
+            $this->expectException(\InvalidArgumentException::class);
             new ErrorReplayStore($this->directory);
         } finally {
             if ($hadRoot) {
