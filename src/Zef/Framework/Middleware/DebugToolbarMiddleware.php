@@ -132,6 +132,9 @@ final readonly class DebugToolbarMiddleware implements MiddlewareInterface
             . '<span>DB queries: ' . max(0, $queries) . '</span>'
             . '<span>Exceptions: ' . max(0, $exceptions) . '</span>'
             . '<span>Trace: ' . self::escape($traceId) . '</span>'
+            . '<details><summary>Request / log details</summary>'
+            . '<p>Find related server-side records by request ID:</p><code>bin/zef errors:report --request-id='
+            . self::escape($traceId) . '</code></details>'
             . '</aside>';
     }
 
