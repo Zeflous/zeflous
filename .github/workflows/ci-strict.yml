@@ -40,6 +40,21 @@
 # that just completed is the last one, so a single aggregation pass is enough.
 # The LAST lane to complete therefore drives the definitive verdict.
 #
+# MERGE QUEUE (2026-10-18, finding 3 of the merge-gate audit)
+# ------------------------------------------------------------
+# The `main` ruleset's merge queue validates pull requests on temporary
+# `gh-readonly-queue/main/pr-N-...` refs, running the required checks from the
+# DEFAULT BRANCH's workflow files -- the queue, not the pull request, supplies
+# the workflow version, which is what kills the PR-version spoof class
+# (docs/ci-notes/merge-gate-audit.md, finding 3). This aggregator therefore
+# also runs on `merge_group` and reports `CI Strict` on the merge group's head
+# sha. That path deliberately uses the BOUNDED-POLLING machinery of the
+# fallback path below: `workflow_run` firing from a `gh-readonly-queue` ref is
+# not a documented guarantee, so the queue-path verdict must not depend on it --
+# the lanes carry their own `merge_group` triggers, their check-runs land on the
+# group head sha, and the poller below resolves them within the same 70-minute
+# deadline (with the same visible `timed_out` expiry) it gives a pull request.
+#
 # WHY A BOUNDED FALLBACK STILL EXISTS
 # -----------------------------------
 # `workflow_run` only fires for a workflow file that exists on the DEFAULT
@@ -123,6 +138,13 @@ on:
     branches:
       - main
     types: [opened, synchronize, reopened]
+  # MERGE QUEUE: validate the merge group the queue assembled (see the MERGE
+  # QUEUE note in the header). On this event `github.sha` is the merge group's
+  # head sha, so the polling path below tracks exactly the lanes the queue is
+  # waiting for, and the `CI Strict` check-run lands on the group ref.
+  merge_group:
+    branches:
+      - main
   # Keep the same gate visible on the default branch, so a post-merge audit of
   # `main` shows the strict pipeline result for the merged commit.
   push:
@@ -142,7 +164,8 @@ permissions:
 # ----------------------------------------------------------
 # The group is keyed on the COMMIT under verification. For a `workflow_run`
 # firing that is the lane run's head sha; for a `pull_request` event it is the
-# pull request head sha; for `push`/`workflow_dispatch` it is the pushed sha.
+# pull request head sha; for `push`/`workflow_dispatch` it is the pushed sha;
+# for a `merge_group` event it is the merge group's head sha.
 # Two different commits land in two different groups, so a new run never queues
 # behind a stale one and its check-run is always created.
 concurrency:
@@ -186,7 +209,9 @@ jobs:
             // A `workflow_run` firing carries the lane run's head sha (the pull
             // request head sha for a PR-triggered lane, the pushed sha for a
             // push-triggered lane). A `pull_request` event carries the PR head
-            // sha. `push`/`workflow_dispatch` fall back to the pushed sha.
+            // sha. `push`/`workflow_dispatch` fall back to the pushed sha; a
+            // `merge_group` event falls back to the merge group's head sha
+            // (github.sha), which is exactly the commit the queue validates.
             const wr = context.payload.workflow_run;
             const pr = context.payload.pull_request;
             const sha = (wr && wr.head_sha) || (pr && pr.head && pr.head.sha) || context.sha;
@@ -249,7 +274,9 @@ jobs:
             // On the `workflow_run` path the lane that just completed is the
             // last one, so a single pass suffices -- NO polling. On the
             // bootstrap/fallback path (`pull_request`/`push`/`workflow_dispatch`)
-            // we wait with a BOUNDED loop: sleep 60s (raised from 20s, cutting
+            // -- and on the MERGE QUEUE path (`merge_group`, which cannot rely
+            // on `workflow_run` firing from a `gh-readonly-queue` ref) -- we
+            // wait with a BOUNDED loop: sleep 60s (raised from 20s, cutting
             // the API request rate by two thirds) and a 70-minute deadline that
             // sits ABOVE the slowest lane's own timeout (ci-infection.yml: 60
             // minutes), so a lane that merely runs long is still awaited. When
