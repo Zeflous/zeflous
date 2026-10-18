@@ -22,6 +22,7 @@ final readonly class DebugToolbarMiddleware implements MiddlewareInterface
     #[Override]
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $startedAt = hrtime(true);
         $response = $handler->handle($request);
         if (!$this->enabled || !DebugToolbarEligibility::allows($request, $response)) {
             return $response;
@@ -30,7 +31,7 @@ final readonly class DebugToolbarMiddleware implements MiddlewareInterface
         $context = $request->getAttribute(ErrorRequestContext::ATTRIBUTE);
         $duration = $context instanceof ErrorRequestContext
             ? $context->durationMilliseconds()
-            : 0.0;
+            : (hrtime(true) - $startedAt) / 1_000_000;
         $traceId = $context instanceof ErrorRequestContext
             ? $context->traceId()
             : CorrelationId::for($request);
