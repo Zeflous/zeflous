@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Http;
 
+use Psr\Http\Message\ServerRequestInterface;
+
 /**
  * Mutable, request-scoped correlation between the outer error boundary and
  * inner tracing middleware. The object is shared by reference through PSR-7
@@ -47,6 +49,18 @@ final class ErrorRequestContext
     public function recordQuery(): void
     {
         $this->queryCount = min($this->queryCount + 1, 1_000_000);
+    }
+
+    /**
+     * Lets an adapter increment the active request's counter without storing
+     * mutable request state on a persistent-worker singleton.
+     */
+    public static function recordQueryFor(ServerRequestInterface $request): void
+    {
+        $context = $request->getAttribute(self::ATTRIBUTE);
+        if ($context instanceof self) {
+            $context->recordQuery();
+        }
     }
 
     public function queryCount(): int
