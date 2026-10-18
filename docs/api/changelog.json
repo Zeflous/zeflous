@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-18T13:35:13Z",
+  "as_of": "2026-10-18T13:58:15Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 192,
+  "unreleased_count": 193,
   "versions": [
     {
       "version": "Unreleased",
@@ -4701,6 +4701,27 @@
                 "sha": "814aa96b1a150537eb341ca6c8d469b649a1019c",
                 "short_sha": "814aa96",
                 "subject": "docs(roadmap): pin the typed exception family to pull request 434"
+              }
+            ]
+          },
+          {
+            "pr": 440,
+            "title": "docs(roadmap): pin the injector and contextual-binding family to pull request 439",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-18T13:58:15Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/440",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "831f5b649db20bbd4a1b2c591cee7980147c3d1b",
+                "short_sha": "831f5b6",
+                "subject": "docs(roadmap): pin the injector and contextual-binding family to pull request 439"
+              },
+              {
+                "sha": "b03007a4908670e95974c6eb7c887d5e5a8cf490",
+                "short_sha": "b03007a",
+                "subject": "docs(roadmap): keep the pin tables pipe-safe and count the merged total"
               }
             ]
           }
@@ -9727,6 +9748,27 @@
               "sha": "0bf9c4552a016de1a252a34a71531ef18332e001",
               "short_sha": "0bf9c45",
               "subject": "style(tests): apply the formatter and rector passes to the escape-killing tests"
+            }
+          ]
+        },
+        {
+          "pr": 440,
+          "title": "docs(roadmap): pin the injector and contextual-binding family to pull request 439",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-18T13:58:15Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/440",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "831f5b649db20bbd4a1b2c591cee7980147c3d1b",
+              "short_sha": "831f5b6",
+              "subject": "docs(roadmap): pin the injector and contextual-binding family to pull request 439"
+            },
+            {
+              "sha": "b03007a4908670e95974c6eb7c887d5e5a8cf490",
+              "short_sha": "b03007a",
+              "subject": "docs(roadmap): keep the pin tables pipe-safe and count the merged total"
             }
           ]
         }
