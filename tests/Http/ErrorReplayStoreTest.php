@@ -28,12 +28,14 @@ final class ErrorReplayStoreTest extends TestCase
 {
     private string $directory;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->directory = sys_get_temp_dir() . '/zef-replay-' . bin2hex(random_bytes(8));
         mkdir($this->directory, 0700);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         foreach (glob($this->directory . '/*') ?: [] as $file) {
