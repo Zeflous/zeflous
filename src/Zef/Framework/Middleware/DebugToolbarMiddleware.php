@@ -112,7 +112,10 @@ final readonly class DebugToolbarMiddleware implements MiddlewareInterface
             ->withoutHeader('ETag')
             ->withoutHeader('Content-MD5')
             ->withHeader('Cache-Control', 'no-store')
-            ->withHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'")
+            ->withHeader(
+                'Content-Security-Policy',
+                "default-src 'none'; style-src 'unsafe-inline'; " . "base-uri 'none'; frame-ancestors 'none'",
+            )
             ->withHeader('X-Debug-Toolbar', 'enabled');
 
         return $response;
