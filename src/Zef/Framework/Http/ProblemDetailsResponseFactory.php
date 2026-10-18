@@ -25,7 +25,7 @@ final class ProblemDetailsResponseFactory
     ): ResponseInterface {
         $detail = ErrorDisclosure::message($throwable, $status, $debug);
         $errorRequestContext = $request->getAttribute(ErrorRequestContext::ATTRIBUTE);
-        $traceId = self::traceId($throwable, $errorRequestContext, $requestId, $request);
+        $traceId = ErrorTraceIdResolver::resolve($throwable, $errorRequestContext, $requestId, $request);
         $instance = $request->getUri()->getPath();
 
         if (ErrorContentNegotiator::prefersHtml($request->getHeaderLine('Accept'))) {
@@ -56,18 +56,4 @@ final class ProblemDetailsResponseFactory
         return ProblemDetailsResponseHeaders::apply($response, $throwable, $requestId);
     }
 
-    private static function traceId(
-        Throwable $throwable,
-        mixed $errorRequestContext,
-        string $requestId,
-        ServerRequestInterface $request,
-    ): string {
-        $candidate = $throwable instanceof ZefException && $throwable->getTraceId() !== null
-            ? $throwable->getTraceId()
-            : ($errorRequestContext instanceof ErrorRequestContext ? $errorRequestContext->traceId() : $requestId);
-
-        return preg_match('/^[A-Za-z0-9._:-]{1,128}$/D', $candidate) === 1
-            ? $candidate
-            : CorrelationId::for($request);
-    }
 }
