@@ -192,6 +192,48 @@ changed-file list and leaves workflow-modifying pull requests for a maintainer;
 bot-authored changelog pull requests (which never touch workflows) keep their
 automatic approval, so the original stall does not return.
 
+### 7. The auto-merge sweep's branch sync fights the merge queue — HIGH (fixed here)
+
+`auto-merge.yml`'s step 1 called the REST `update-branch` endpoint for every
+open pull request on every sweep — a rule written before the merge queue
+existed, when syncing a behind branch satisfied the "branches up to date"
+policy and re-triggered CI. With the queue live the same call inverts into
+sabotage: the queue validates an entry on a group head built from live
+`main`, so an armed pull request's branch running behind `main` is not a
+defect — while ANY new commit pushed to that branch (including the merge
+commit the sync itself pushes) removes the entry from the queue, disarms
+auto-merge, and restarts the entire check cycle.
+
+The evening the queue went live, `main` moved with every changelog
+regeneration, and the sweep pushed a sync merge commit onto armed pull
+requests' branches minutes after each movement. Entry #453's branch received
+three of them in 32 minutes — `4d62759` (22:23:27Z, three minutes after #448
+merged), `bf41ec4` (22:41:41Z, four minutes after #452), `a658b2d`
+(22:55:22Z, two minutes after #454) — each authored by the PAT identity
+through the REST endpoint (committer `GitHub <noreply@github.com>`), each
+discarding a running check cycle; #449 sat open for over four hours in the
+same churn. At 22:18:28Z the maintainer switched the `merge_queue` rule off,
+and the stuck pull requests released at once: #448 (22:20:20Z), #452
+(22:37:58Z), #454 (22:53:46Z) and #453 (23:11:01Z) all merged within 53
+minutes of the toggle.
+
+That release exposed the other half of the defect's shape: with the queue
+off, the sync is LOAD-BEARING — the ruleset's strict up-to-date policy
+(`strict_required_status_checks_policy: true`) leaves a behind branch
+unmergeable, and each post-toggle merge followed a sync or a fresh changelog
+regeneration (#452, for example, merged sixteen minutes after the sync
+commit `cff898b` landed on its branch). "Never sync" would therefore starve
+the queue-off world exactly as "always sync" starved the queue-on world.
+
+The fix shipped in this lane is a MODE SWITCH, not a ban: once per sweep the
+lane reads the repository rulesets, and while any active branch ruleset runs
+a `merge_queue` rule the branch sync is suspended outright (the queue owns
+up-to-dateness at the group head); the moment no queue is active the sweep
+syncs exactly as it always did. The ruleset read fails closed — an
+unreadable state suspends the sync for that sweep, because the cost of a
+wrongly-synced queued entry is a lost queue position while the cost of one
+skipped sweep is a short delay.
+
 ## A disproven hypothesis, recorded to prevent re-investigation
 
 The auto-approve filter selects runs with `.conclusion == "action_required"`
@@ -214,3 +256,4 @@ REST documentation alone would otherwise "fix" a working filter.
 - [x] PR titles validated against `scripts/changelog/conventional.py` (the PR Validator taxonomy).
 - [x] No PHP source changed; no SonarCloud `ruleKey` exclusions added; no gate weakened — two gates are tightened (4: pending→timed_out verdict; 5: fail-open→fail-closed) and one checkpoint restored (6).
 - [ ] Post-merge: re-audit on `main` per CONTRIBUTING rule 12 — confirm the aggregator concludes `timed_out` (not `in_progress`) on a stuck-lane drill, and the Sonar guard fails a deliberately un-credentialed same-repo run.
+- [ ] Post-merge (sweep guard, finding 7): with the queue active, an armed entry must survive a `main` movement — no dequeue, no merge commit pushed onto its head branch — and merge from its next green group head; with the queue off, a behind armed entry must still receive its sync.
