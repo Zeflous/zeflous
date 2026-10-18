@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Zef\Framework\Http\ErrorReplayStore;
+use Zef\Framework\Http\ReplayBodyCapture;
+use Zef\Framework\Http\ReplayBodyReader;
 use Zef\Framework\Http\ReplayPayloadSanitizer;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
