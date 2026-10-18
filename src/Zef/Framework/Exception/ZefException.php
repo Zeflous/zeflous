@@ -75,7 +75,13 @@ abstract class ZefException extends RuntimeException
         $shortName = $separator === false ? $class : substr($class, $separator + 1);
         $shortName = (string) preg_replace('/Exception$/', '', $shortName);
         $snake = preg_replace('/(?<!^)[A-Z]/', '_$0', $shortName);
+        $normalized = strtoupper((string) preg_replace('/[^A-Z0-9_]/', '_', (string) $snake));
+        $normalized = trim((string) preg_replace('/_+/', '_', $normalized), '_');
 
-        return strtoupper(rtrim((string) $snake, '_'));
+        if ($normalized === '' || preg_match('/^[A-Z]/D', $normalized) !== 1) {
+            $normalized = 'FRAMEWORK_ERROR';
+        }
+
+        return rtrim(substr($normalized, 0, 64), '_');
     }
 }
