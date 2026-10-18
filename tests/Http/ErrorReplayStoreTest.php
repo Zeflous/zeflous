@@ -93,11 +93,11 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertNull($body['empty']);
     }
 
-    public function testOmitsBodiesThatCannotBeSafelyRedacted(): void
+    public function testSanitizesAndReplaysSupportedTextBodies(): void
     {
         $resource = fopen('php://temp', 'r+b');
         self::assertIsResource($resource);
-        fwrite($resource, 'password=hunter2&free-form=secret123');
+        fwrite($resource, 'password=hunter2&access_token=secret123');
         rewind($resource);
         $request = new ServerRequest(
             'POST',
@@ -124,9 +124,47 @@ final class ErrorReplayStoreTest extends TestCase
             JSON_THROW_ON_ERROR,
         );
 
-        self::assertFalse($snapshot['body_replayable']);
-        self::assertSame('', $snapshot['body']);
-        self::assertStringNotContainsString('hunter2', (string) file_get_contents($this->directory . '/' . $id . '.json'));
+        self::assertTrue($snapshot['body_replayable']);
+        self::assertStringNotContainsString('hunter2', $snapshot['body']);
+        self::assertStringNotContainsString('secret123', $snapshot['body']);
+        self::assertStringContainsString('[REDACTED]', $snapshot['body']);
+    }
+
+    public function testRedactsSensitiveXmlElementsBeforeSaving(): void
+    {
+        $resource = fopen('php://temp', 'r+b');
+        self::assertIsResource($resource);
+        fwrite($resource, '<user><password>hunter2</password><name>alice</name></user>');
+        rewind($resource);
+        $request = new ServerRequest(
+            'POST',
+            new Uri('https://app.example.test/xml'),
+            [],
+            [],
+            [],
+            [],
+            null,
+            ['Content-Type' => 'application/xml'],
+            new Stream($resource),
+        );
+
+        $id = (new ErrorReplayStore($this->directory))->save(
+            $request,
+            new RuntimeException('request failed'),
+            400,
+            'req-replay-xml',
+        );
+        $snapshot = json_decode(
+            (string) file_get_contents($this->directory . '/' . $id . '.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
+
+        self::assertTrue($snapshot['body_replayable']);
+        self::assertStringNotContainsString('hunter2', $snapshot['body']);
+        self::assertStringContainsString('[REDACTED]', $snapshot['body']);
+        self::assertStringContainsString('<name>alice</name>', $snapshot['body']);
     }
 
     public function testEmptyAndOversizedBodiesHaveExplicitReplayability(): void
