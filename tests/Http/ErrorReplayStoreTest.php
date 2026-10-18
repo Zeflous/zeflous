@@ -167,6 +167,42 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertStringNotContainsString('alice', (string) file_get_contents($this->directory . '/' . $id . '.json'));
     }
 
+    public function testRejectsDeceptiveJsonContentTypeSubstrings(): void
+    {
+        $resource = fopen('php://temp', 'r+b');
+        self::assertIsResource($resource);
+        fwrite($resource, '{"token":"secret123"}');
+        rewind($resource);
+        $request = new ServerRequest(
+            'POST',
+            new Uri('https://app.example.test/submit'),
+            [],
+            [],
+            [],
+            [],
+            null,
+            ['Content-Type' => 'application/json-evil'],
+            new Stream($resource),
+        );
+
+        $id = (new ErrorReplayStore($this->directory))->save(
+            $request,
+            new RuntimeException('request failed'),
+            500,
+            'req-replay-invalid-media',
+        );
+        $snapshot = json_decode(
+            (string) file_get_contents($this->directory . '/' . $id . '.json'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR,
+        );
+
+        self::assertFalse($snapshot['body_replayable']);
+        self::assertSame('', $snapshot['body']);
+        self::assertStringNotContainsString('secret123', (string) file_get_contents($this->directory . '/' . $id . '.json'));
+    }
+
     public function testEmptyAndOversizedBodiesHaveExplicitReplayability(): void
     {
         $store = new ErrorReplayStore($this->directory);
