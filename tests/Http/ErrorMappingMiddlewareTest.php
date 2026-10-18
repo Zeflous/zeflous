@@ -434,7 +434,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
         self::assertSame('critical', $level);
         self::assertSame('Request failed', $message);
-        self::assertSame($runtimeException, $context['exception']);
+        self::assertArrayNotHasKey('exception', $context);
         self::assertSame('token=[REDACTED] broke', $context['exception.message']);
         self::assertSame('req-ctx-1', $context['request_id']);
         self::assertSame('req-ctx-1', $context['trace_id']);
