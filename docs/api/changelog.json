@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-17T22:57:13Z",
+  "as_of": "2026-10-18T00:30:54Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 185,
+  "unreleased_count": 188,
   "versions": [
     {
       "version": "Unreleased",
@@ -4544,6 +4544,74 @@
                 "sha": "d2b842e1a4b5b5028aa6ff49fc044e4c7b645296",
                 "short_sha": "d2b842e",
                 "subject": "Merge branch 'main' into docs/roadmap-engineering-pin"
+              }
+            ]
+          },
+          {
+            "pr": 427,
+            "title": "docs(roadmap): pin the merge-gate hardening batch to pull request 423",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-17T23:14:25Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/427",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "72b69b58ac5359fa85e7203cde5ff0f1d30b32a6",
+                "short_sha": "72b69b5",
+                "subject": "docs(roadmap): pin the merge-gate hardening batch to pull request 423"
+              },
+              {
+                "sha": "493e889a4f5402efdff714cec9f73519cebfe962",
+                "short_sha": "493e889",
+                "subject": "Merge branch 'main' into docs/roadmap-merge-gate-pin"
+              }
+            ]
+          },
+          {
+            "pr": 428,
+            "title": "docs(roadmap): pin the gate round and the merge-gate audit to pull request 426",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-18T00:04:23Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/428",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7f7ab962a58da2880644ca097dcd2e7ba8ccaadf",
+                "short_sha": "7f7ab96",
+                "subject": "docs(roadmap): pin the gate round and the merge-gate audit to pull request 426"
+              },
+              {
+                "sha": "e5a984230749361e1b69b7428c1c062316d217fc",
+                "short_sha": "e5a9842",
+                "subject": "merge main: keep the maintainer's #427 rows, add only the #426 row"
+              },
+              {
+                "sha": "602189dd7e89035d3403e6c546fb4d835ed7cdcc",
+                "short_sha": "602189d",
+                "subject": "Merge branch 'main' into docs/roadmap-update-merge-pin"
+              }
+            ]
+          },
+          {
+            "pr": 431,
+            "title": "docs(roadmap): refresh the status pin past the resolution merge",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-18T00:30:54Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/431",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f8a357bdbdd0c7b312240944123e092ac19968ac",
+                "short_sha": "f8a357b",
+                "subject": "docs(roadmap): refresh the status pin past the resolution merge"
+              },
+              {
+                "sha": "aa205ec073cdf7b0fa0d454418b7ae0ab8476968",
+                "short_sha": "aa205ec",
+                "subject": "Merge branch 'main' into docs/roadmap-final-pin"
               }
             ]
           }
@@ -9413,6 +9481,74 @@
               "sha": "1bc17fee3861d0f8e67a96b520a0d61884d40b48",
               "short_sha": "1bc17fe",
               "subject": "Merge branch 'main' into fix/tooling-update-merge-bookkeeping"
+            }
+          ]
+        },
+        {
+          "pr": 427,
+          "title": "docs(roadmap): pin the merge-gate hardening batch to pull request 423",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-17T23:14:25Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/427",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "72b69b58ac5359fa85e7203cde5ff0f1d30b32a6",
+              "short_sha": "72b69b5",
+              "subject": "docs(roadmap): pin the merge-gate hardening batch to pull request 423"
+            },
+            {
+              "sha": "493e889a4f5402efdff714cec9f73519cebfe962",
+              "short_sha": "493e889",
+              "subject": "Merge branch 'main' into docs/roadmap-merge-gate-pin"
+            }
+          ]
+        },
+        {
+          "pr": 428,
+          "title": "docs(roadmap): pin the gate round and the merge-gate audit to pull request 426",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-18T00:04:23Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/428",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7f7ab962a58da2880644ca097dcd2e7ba8ccaadf",
+              "short_sha": "7f7ab96",
+              "subject": "docs(roadmap): pin the gate round and the merge-gate audit to pull request 426"
+            },
+            {
+              "sha": "e5a984230749361e1b69b7428c1c062316d217fc",
+              "short_sha": "e5a9842",
+              "subject": "merge main: keep the maintainer's #427 rows, add only the #426 row"
+            },
+            {
+              "sha": "602189dd7e89035d3403e6c546fb4d835ed7cdcc",
+              "short_sha": "602189d",
+              "subject": "Merge branch 'main' into docs/roadmap-update-merge-pin"
+            }
+          ]
+        },
+        {
+          "pr": 431,
+          "title": "docs(roadmap): refresh the status pin past the resolution merge",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-18T00:30:54Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/431",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f8a357bdbdd0c7b312240944123e092ac19968ac",
+              "short_sha": "f8a357b",
+              "subject": "docs(roadmap): refresh the status pin past the resolution merge"
+            },
+            {
+              "sha": "aa205ec073cdf7b0fa0d454418b7ae0ab8476968",
+              "short_sha": "aa205ec",
+              "subject": "Merge branch 'main' into docs/roadmap-final-pin"
             }
           ]
         }
