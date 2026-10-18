@@ -17,7 +17,14 @@ use Zef\Framework\Exception\ZefException;
  * signals are folded into it, and callers keep the structural catchability
  * they had -- the framework root extends `RuntimeException`, exactly like
  * the legacy runtime failures did.
+ *
+ * The root is extensible, not final, because the error-handling lane's
+ * typed signals grow beneath it ({@see PayloadTooLargeException}): a
+ * refusal that must reach a status code is a class, and keeping it under
+ * the layer root preserves every existing `catch (HttpException)` the
+ * fold promised -- the {@see \Zef\Framework\Contracts\ContainerException}
+ * family root follows the same shape. Leaf signals stay final.
  */
-final class HttpException extends ZefException
+class HttpException extends ZefException
 {
 }

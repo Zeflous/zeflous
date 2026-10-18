@@ -52,9 +52,17 @@
         lane's AutowiringException), so a caller catching it catches every
         way a declaration can be refused.
     -->
+    <!--
+        The HTTP layer's exception root took the same dual shape when the
+        error-handling lane grew the typed signals beneath it
+        (PayloadTooLargeException): it is thrown directly by the layer's own
+        guards, and subclassed by the typed family, so the fold's promised
+        catchability keeps catching the typed refusals too.
+    -->
     <rule ref="SlevomatCodingStandard.Classes.RequireAbstractOrFinal.ClassNeitherAbstractNorFinal">
         <exclude-pattern>*/src/Zef/Framework/Http/Request.php</exclude-pattern>
         <exclude-pattern>*/src/Zef/Framework/Container/DefinitionException.php</exclude-pattern>
+        <exclude-pattern>*/src/Zef/Framework/Http/HttpException.php</exclude-pattern>
     </rule>
     <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
         <properties>
