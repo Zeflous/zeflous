@@ -84,8 +84,15 @@ final readonly class ErrorMappingMiddleware implements MiddlewareInterface
         try {
             return $this->stamped($handler->handle($contextualRequest), $correlationId);
         } catch (Throwable $throwable) {
-            $mappedThrowable = ThirdPartyExceptionMapper::normalize($throwable);
-            $status = ErrorStatusMap::statusFor($mappedThrowable);
+            try {
+                $mappedThrowable = ThirdPartyExceptionMapper::normalize($throwable);
+                $status = ErrorStatusMap::statusFor($mappedThrowable);
+            } catch (Throwable $mappingFailure) {
+                error_log('ZEF error status mapping failed: ' . $mappingFailure::class);
+                $mappedThrowable = new RuntimeException('Error mapping failed.', 0, $mappingFailure);
+                $status = 500;
+            }
+
             $errorRequestContext->recordException();
             if ($this->errorReplayStore !== null) {
                 try {
