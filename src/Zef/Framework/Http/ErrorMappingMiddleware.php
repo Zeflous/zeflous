@@ -10,6 +10,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Throwable;
 use Zef\Framework\Telemetry\MeterInterface;
 
