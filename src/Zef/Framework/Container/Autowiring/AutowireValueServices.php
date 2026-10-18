@@ -73,7 +73,16 @@ final class AutowireValueServices
      */
     public function service(string $ownerId, AutowireParameterSpec $autowireParameterSpec): string
     {
-        $key = (string) $autowireParameterSpec->valueKey;
+        $key = $autowireParameterSpec->valueKey;
+
+        if ($key === null) {
+            throw new AutowiringException(
+                "Cannot plan '{$ownerId}': the value arm serves a #[Value] parameter, and "
+                . "'\${$autowireParameterSpec->name}' carries no #[Value] attribute -- route the "
+                . 'planner through carriesValue() first.',
+            );
+        }
+
         $id = SyntheticValueGuard::VALUE_SERVICE_PREFIX . $key;
 
         if ($this->autowireValueMaterialisations->ensured($id)) {
@@ -81,11 +90,11 @@ final class AutowireValueServices
         }
 
         if ($this->syntheticValueGuard->occupied($id)) {
-            throw AutowireValueRefusals::declaredCollision($ownerId, $autowireParameterSpec);
+            throw AutowireValueRefusals::declaredCollision($ownerId, $key);
         }
 
         if (!$this->parameterValues->has($key)) {
-            throw AutowireValueRefusals::missingKey($ownerId, $autowireParameterSpec);
+            throw AutowireValueRefusals::missingKey($ownerId, $autowireParameterSpec->name, $key);
         }
 
         $this->autowireValueMaterialisations->add(new ValueDefinition($id, $this->parameterValues->value($key)));

@@ -11,34 +11,31 @@ use Zef\Framework\Container\ValueDefinition;
  * definitions and the report of one run (see
  * {@see AutowireValueServices} for the lane itself).
  *
- * The memo answers whether an identifier is already materialised so a
- * second consumer of the same address reuses the first materialisation
- * ({@see self::ensured()}); the definitions list collects the value
- * services in materialisation order for the run's answer set; the
- * identifiers answer the report column
- * ({@see AutowireResult::$values}) -- nothing is materialised off the
- * record. One instance serves one
+ * The memo is the materialised map itself: identifier => definition,
+ * the same shape the births bookkeeping carries ({@see AutowireBirths}
+ * -- the value IS the record, so a second consumer of an address
+ * reuses the first materialisation by asking whether the identifier is
+ * already materialised, and nothing is materialised off the record:
+ * the definitions answer the run's set, the identifiers answer the
+ * report column ({@see AutowireResult::$values}), both in
+ * materialisation order). One instance serves one
  * {@see AutowireCompilerPass::process()} run and resets with it.
  */
 final class AutowireValueMaterialisations
 {
-    /** @var array<string, true> the identifiers this run materialised */
-    private array $ids = [];
-
-    /** @var list<ValueDefinition> the materialised value services, in materialisation order */
-    private array $definitions = [];
+    /** @var array<string, ValueDefinition> the materialised value services, by identifier */
+    private array $materialised = [];
 
     /** Whether the identifier is already materialised this run. */
     public function ensured(string $id): bool
     {
-        return isset($this->ids[$id]);
+        return isset($this->materialised[$id]);
     }
 
     /** Records one materialised value service. */
     public function add(ValueDefinition $valueDefinition): void
     {
-        $this->ids[$valueDefinition->id] = true;
-        $this->definitions[] = $valueDefinition;
+        $this->materialised[$valueDefinition->id] = $valueDefinition;
     }
 
     /**
@@ -46,7 +43,7 @@ final class AutowireValueMaterialisations
      */
     public function definitions(): array
     {
-        return $this->definitions;
+        return array_values($this->materialised);
     }
 
     /**
@@ -54,13 +51,12 @@ final class AutowireValueMaterialisations
      */
     public function ids(): array
     {
-        return array_keys($this->ids);
+        return array_keys($this->materialised);
     }
 
     /** Resets the bookkeeping for a new run. */
     public function reset(): void
     {
-        $this->ids = [];
-        $this->definitions = [];
+        $this->materialised = [];
     }
 }

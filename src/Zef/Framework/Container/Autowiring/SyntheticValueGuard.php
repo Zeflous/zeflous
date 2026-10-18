@@ -19,8 +19,10 @@ use Zef\Framework\Container\ServiceDefinition;
  * spellings named rather than silently shadowing the attribute's
  * intent (the synthetic-namespace discipline the contextual-binding
  * lane follows). Non-prefixed identifiers guard nothing: the scan
- * lifts only the lane's own prefix out of the declared set, and the
- * container is consulted per identifier at use, never enumerated.
+ * lifts only the lane's own prefix out of the declared set -- the
+ * lifted record IS the definition (the map's value, the same shape
+ * the births bookkeeping carries) -- and the container is consulted
+ * per identifier at use, never enumerated.
  *
  * The container is nullable for the unopened default: a guard that
  * has not been opened ({@see self::fromDefinitions()}) answers
@@ -34,8 +36,8 @@ final readonly class SyntheticValueGuard
     public const string VALUE_SERVICE_PREFIX = '@value:';
 
     /**
-     * @param array<string, true> $occupied  the foreign `@value:` spellings, by identifier
-     * @param null|Container      $container the run's container, when opened
+     * @param array<string, ServiceDefinition> $occupied  the foreign `@value:` spellings, identifier => definition
+     * @param null|Container                   $container the run's container, when opened
      */
     public function __construct(
         private array $occupied = [],
@@ -57,7 +59,7 @@ final readonly class SyntheticValueGuard
                 continue;
             }
 
-            $occupied[$definition->id] = true;
+            $occupied[$definition->id] = $definition;
         }
 
         return new self($occupied, $container);

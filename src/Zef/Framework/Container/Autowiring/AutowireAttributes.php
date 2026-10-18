@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Container\Autowiring;
 
+use ReflectionClass;
 use ReflectionParameter;
 
 /**
@@ -66,9 +67,13 @@ final readonly class AutowireAttributes
         return $found[0]->newInstance();
     }
 
-    /** The attribute's own name, for the doubled-attribute refusal. */
+    /**
+     * The attribute's own name, for the doubled-attribute refusal.
+     *
+     * @param class-string $attribute
+     */
     private static function shortName(string $attribute): string
     {
-        return (new \ReflectionClass($attribute))->getShortName();
+        return new ReflectionClass($attribute)->getShortName();
     }
 }

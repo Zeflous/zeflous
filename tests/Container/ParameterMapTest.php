@@ -272,6 +272,33 @@ final class ParameterMapTest extends TestCase
         }
     }
 
+    public function testAnAddressAtTheExactCapIsAccepted(): void
+    {
+        // 63 one-character segments, one 64-character segment: 190 characters exactly.
+        $address = str_repeat('a.', 63) . str_repeat('b', 64);
+
+        $values = ParameterMap::parse('parameters', [$address => 'x'])->values();
+
+        self::assertSame('x', $values->value($address));
+    }
+
+    public function testAMultibyteAddressIsRefusedByTheSegmentGrammarNotTheCap(): void
+    {
+        // 100 characters -- 200 bytes: under the character cap, over the
+        // byte cap, so the segment grammar is the check that refuses it.
+        $address = str_repeat('é', 100);
+
+        try {
+            ParameterMap::parse('parameters', [$address => 'x']);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertStringContainsString(
+                "the segment '" . $address . "' must match",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
     public function testAnAddressOverTheLengthCapIsRejected(): void
     {
         try {

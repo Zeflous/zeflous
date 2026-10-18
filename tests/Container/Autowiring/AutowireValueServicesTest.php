@@ -231,6 +231,60 @@ final class AutowireValueServicesTest extends TestCase
         self::assertSame([], $this->autowireValueServices->materialized());
     }
 
+    public function testTheLaneAnswersTheMissingAddressEvenBeforeAnyOpen(): void
+    {
+        // service() before open(): the unopened guard answers nothing
+        // occupied and the empty parameters refuse the address -- the
+        // misuse surface is the honest refusal, never a crash.
+        try {
+            $this->autowireValueServices->service('app.house', $this->spec('host', 'db.host'));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "the 'parameters' configuration has no value for 'db.host'",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheValueArmRefusesASpecWithoutTheAttribute(): void
+    {
+        $autowireParameterSpec = new AutowireParameterSpec(
+            name: 'host',
+            isVariadic: false,
+            isOptional: false,
+            hasDefault: false,
+        );
+
+        try {
+            $this->autowireValueServices->service('app.house', $autowireParameterSpec);
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertSame(
+                "Cannot plan 'app.house': the value arm serves a #[Value] parameter, and "
+                . "'\$host' carries no #[Value] attribute -- route the planner through "
+                . 'carriesValue() first.',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testAMaterialisedAddressStaysWonWhenAForeignSpellingAppearsMidRun(): void
+    {
+        // First spelling wins: once this run materialised the address, a
+        // container service spelling the synthetic id mid-run does not
+        // retro-collide -- the second consumer reuses the memo.
+        $this->autowireValueServices->open(new ParameterValues(['db.host' => 'localhost']), [], $this->container);
+        $this->autowireValueServices->service('app.house', $this->spec('host', 'db.host'));
+
+        $this->container->set('@value:db.host', static fn (): string => 'resident');
+
+        $id = $this->autowireValueServices->service('app.pool', $this->spec('host', 'db.host'));
+
+        self::assertSame('@value:db.host', $id);
+        self::assertCount(1, $this->autowireValueServices->definitions());
+    }
+
     private function spec(string $name, string $key): AutowireParameterSpec
     {
         return new AutowireParameterSpec(

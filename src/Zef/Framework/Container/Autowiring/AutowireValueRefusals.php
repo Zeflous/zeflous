@@ -12,14 +12,10 @@ namespace Zef\Framework\Container\Autowiring;
 final readonly class AutowireValueRefusals
 {
     /** The address has no value in the parsed parameters map. */
-    public static function missingKey(
-        string $ownerId,
-        AutowireParameterSpec $autowireParameterSpec,
-    ): AutowiringException {
-        $key = (string) $autowireParameterSpec->valueKey;
-
+    public static function missingKey(string $ownerId, string $name, string $key): AutowiringException
+    {
         return new AutowiringException(
-            "Cannot plan '{$ownerId}': the parameter '\${$autowireParameterSpec->name}' carries "
+            "Cannot plan '{$ownerId}': the parameter '\${$name}' carries "
             . "#[Value('{$key}')] but the 'parameters' configuration has no value for '{$key}' -- "
             . "declare it under the parameters knob, or drop the attribute so the parameter's "
             . 'own default or explicit spelling applies.',
@@ -27,10 +23,8 @@ final readonly class AutowireValueRefusals
     }
 
     /** The synthetic id collides with a declared definition. */
-    public static function declaredCollision(string $ownerId, AutowireParameterSpec $autowireParameterSpec): AutowiringException
+    public static function declaredCollision(string $ownerId, string $key): AutowiringException
     {
-        $key = (string) $autowireParameterSpec->valueKey;
-
         return new AutowiringException(
             "Cannot plan '{$ownerId}': the synthetic value service '@value:{$key}' collides with a "
             . "declared definition of the same identifier -- the '@value:' prefix is the parameters "

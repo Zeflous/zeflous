@@ -7,10 +7,12 @@ namespace Zef\Test\Support\Container\Parameters;
 use Zef\Framework\Container\Autowiring\Value;
 
 /** One parameter cannot carry the same attribute twice. */
-final class DoubledValueHouse
+final readonly class DoubledValueHouse
 {
     public function __construct(
-        #[Value('db.host')] #[Value('db.host')] public readonly string $host,
+        #[Value('db.host')]
+        #[Value('db.host')] // @phpstan-ignore-line
+        public string $host,
     ) {
     }
 }
