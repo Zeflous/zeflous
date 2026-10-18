@@ -26,10 +26,14 @@ final class HtmlErrorPageRenderer
         $body = '<!doctype html><html lang="en"><head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1">'
             . '<title>' . self::escape($title) . '</title>'
-            . '<style>body{font:16px/1.5 system-ui,sans-serif;max-width:56rem;margin:10vh auto;padding:0 1.5rem;color:#20242a}'
-            . 'code,pre{background:#f2f4f7;padding:.25rem .4rem;border-radius:.25rem}pre{overflow:auto;padding:1rem}'
+            . '<style>'
+            . 'body{font:16px/1.5 system-ui,sans-serif;max-width:56rem;margin:10vh auto;padding:0 1.5rem;color:#20242a}'
+            . 'code,pre{background:#f2f4f7;padding:.25rem .4rem;border-radius:.25rem}'
+            . 'pre{overflow:auto;padding:1rem}'
             . '.status{color:#667085;font-variant-numeric:tabular-nums}'
-            . '#zef-debug-toolbar{position:fixed;bottom:0;left:0;right:0;background:#111827;color:#f9fafb;padding:.65rem 1rem;font:12px/1.5 ui-monospace,monospace;display:flex;gap:1.25rem;flex-wrap:wrap;z-index:2147483647}'
+            . '#zef-debug-toolbar{position:fixed;bottom:0;left:0;right:0;background:#111827;color:#f9fafb;'
+            . 'padding:.65rem 1rem;font:12px/1.5 ui-monospace,monospace;display:flex;gap:1.25rem;'
+            . 'flex-wrap:wrap;z-index:2147483647}'
             . '#zef-debug-toolbar a{color:#93c5fd}</style></head><body>'
             . '<p><strong>ZEF Framework</strong></p><h1>' . self::escape($title) . '</h1>'
             . '<p>' . self::escape($detail) . '</p>'
@@ -47,7 +51,8 @@ final class HtmlErrorPageRenderer
                     ErrorDetailsSanitizer::sanitize($throwable->getDetails()),
                     JSON_PRETTY_PRINT | JSON_INVALID_UTF8_SUBSTITUTE,
                 );
-                $body .= '<h2>Developer context</h2><pre>' . self::escape(is_string($details) ? $details : '{}') . '</pre>';
+                $body .= '<h2>Developer context</h2><pre>'
+                    . self::escape(is_string($details) ? $details : '{}') . '</pre>';
             }
         }
 
@@ -66,7 +71,8 @@ final class HtmlErrorPageRenderer
 
         return new Response($status, [
             'Content-Type' => 'text/html; charset=utf-8',
-            'Content-Security-Policy' => "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
+            'Content-Security-Policy' => "default-src 'none'; style-src 'unsafe-inline'; "
+                . "base-uri 'none'; frame-ancestors 'none'",
         ], $body);
     }
 
