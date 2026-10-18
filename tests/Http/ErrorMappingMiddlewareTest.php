@@ -54,6 +54,7 @@ use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Telemetry\CounterMeter;
+use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Framework\Telemetry\MeterSlot;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Http\ForeignResponse;
@@ -597,6 +598,10 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertFalse(ErrorContentNegotiator::prefersHtml('text/html;q=1.5'));
         self::assertFalse(ErrorContentNegotiator::prefersHtml('text/html;q=0.4, application/problem+json;q=0.8'));
         self::assertTrue(ErrorContentNegotiator::prefersHtml('text/html;q=0.8, application/json;q=0.5'));
+        self::assertFalse(ErrorContentNegotiator::prefersHtml('text/html;q=0, */*;q=1'));
+        self::assertTrue(ErrorContentNegotiator::prefersHtml('application/problem+json;q=0, text/html;q=0.2, */*;q=0.1'));
+        self::assertFalse(ErrorContentNegotiator::prefersHtml('text/html;q=.8, application/problem+json;q=.5'));
+        self::assertFalse(ErrorContentNegotiator::prefersHtml('invalid-media-range, application/problem+json;q=0.8'));
     }
 
     public function testProblemMetadataMapsCommonAndUnknownStatuses(): void
@@ -842,6 +847,53 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertStringContainsString('ZEF Profiler', (string) $response->getBody());
         self::assertStringContainsString('Exceptions: 1', (string) $response->getBody());
         self::assertStringNotContainsString('secret123', (string) $response->getBody());
+    }
+
+    public function testStatusMappingFailureFallsBackToInternalServerError(): void
+    {
+        $exception = new class('mapping failure') extends ZefException implements CarriesHttpStatus {
+            #[Override]
+            public function httpStatus(): int
+            {
+                throw new RuntimeException('status mapper failed');
+            }
+        };
+
+        $response = $this->middleware()->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler($exception),
+        );
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame('Internal Server Error', $this->envelope($response)['title']);
+    }
+
+    public function testMetricBackendFailureDoesNotReplaceTheErrorResponse(): void
+    {
+        $meter = new class implements MeterInterface {
+            public function increment(string $name, float|int $value = 1, array $attributes = []): void
+            {
+                throw new RuntimeException('metrics backend unavailable');
+            }
+
+            public function observe(string $name, float $value, array $attributes = []): void
+            {
+            }
+
+            public function snapshot(): array
+            {
+                return [];
+            }
+        };
+
+        $middleware = new ErrorMappingMiddleware(new RecordingLogger(), false, $meter);
+        $response = $middleware->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler(new RuntimeException('application failure')),
+        );
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame('Internal Server Error', $this->envelope($response)['title']);
     }
 
     public function testResponseTraceIdFallsBackWhenAnExtensionOverridesValidation(): void
