@@ -26,7 +26,12 @@ namespace Zef\Framework\Container\Autowiring;
  *    untyped variadic answers the empty stretch, a union or
  *    intersection one is refused -- it names no single type whose
  *    implementations the collection would be;
- * 3. **the constructor's own default** -- baked verbatim, the honest
+ * 3. **the `#[Value]` address** -- the parameters map's value for the
+ *    address the attribute names, materialised as the synthetic
+ *    `@value:` service and referenced like any dependency (through
+ *    {@see AutowireReferences::valueService()}, the value lane the
+ *    registration-completion family threads);
+ * 4. **the constructor's own default** -- baked verbatim, the honest
  *    value the class itself declared.
  *
  * The attribute and type arms resolve together through the
@@ -70,7 +75,7 @@ final readonly class AutowireParameterPlanner
 
     /**
      * The unspelled parameter's tiers: the variadic's collection, the
-     * parameter's own binding, the fallback.
+     * `#[Value]` address, the parameter's own binding, the fallback.
      *
      * @return list<mixed>
      */
@@ -81,6 +86,10 @@ final readonly class AutowireParameterPlanner
     ): array {
         if ($autowireParameterSpec->isVariadic) {
             return AutowireVariadicCollection::stretch($ownerId, $autowireParameterSpec, $autowireReferences);
+        }
+
+        if ($autowireParameterSpec->carriesValue()) {
+            return [['service' => $autowireReferences->valueService($ownerId, $autowireParameterSpec)]];
         }
 
         if ($autowireParameterSpec->carriesBinding()) {
