@@ -196,6 +196,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the audit-fix batch to pull request 413 [#419](https://github.com/Zeflous/zeflous/pull/419) ([mbetixz](https://github.com/mbetixz))
 - docs(gates): state the live required check set identically in README and CONTRIBUTING [#423](https://github.com/Zeflous/zeflous/pull/423) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the gate and coverage work to pull request 418 [#424](https://github.com/Zeflous/zeflous/pull/424) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the merge-gate hardening batch to pull request 423 [#427](https://github.com/Zeflous/zeflous/pull/427) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the gate round and the merge-gate audit to pull request 426 [#428](https://github.com/Zeflous/zeflous/pull/428) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): refresh the status pin past the resolution merge [#431](https://github.com/Zeflous/zeflous/pull/431) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
