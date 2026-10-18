@@ -58,10 +58,7 @@ The ZEF Profiler toolbar is enabled only when `http.error_handling.debug=true` a
 Example adapter hook:
 
 ```php
-$context = $request->getAttribute(\Zef\Framework\Http\ErrorRequestContext::ATTRIBUTE);
-if ($context instanceof \Zef\Framework\Http\ErrorRequestContext) {
-    $context->recordQuery();
-}
+\Zef\Framework\Http\ErrorRequestContext::recordQueryFor($request);
 ```
 
 
