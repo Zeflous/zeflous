@@ -118,7 +118,7 @@ final class JsonLineLoggerTest extends TestCase
         $_SERVER['DOCUMENT_ROOT'] = $root;
 
         try {
-            $this->expectException(\\InvalidArgumentException::class);
+            $this->expectException(\InvalidArgumentException::class);
             new JsonLineLogger($root . '/errors.jsonl');
         } finally {
             if ($hadRoot) {
