@@ -20,7 +20,6 @@ final class ErrorFaultContextFactory
         $errorRequestContext = $request->getAttribute(ErrorRequestContext::ATTRIBUTE);
         $traceId = ErrorTraceIdResolver::resolve($exception, $errorRequestContext, $correlationId, $request);
         $context = [
-            'exception' => $exception,
             'exception.message' => RedactedMessage::of(substr($exception->getMessage(), 0, 2048)),
             'exception_class' => $exception::class,
             'exception_code' => $exception instanceof ZefException
@@ -30,14 +29,7 @@ final class ErrorFaultContextFactory
             'trace_id' => $traceId,
             'method' => $request->getMethod(),
             'path' => substr($request->getUri()->getPath(), 0, 2048),
-            'ip_address' => self::remoteAddress($request),
-            'user_agent' => RedactedMessage::of(substr($request->getHeaderLine('User-Agent'), 0, 512)),
         ];
-
-        $userId = $request->getAttribute('user_id');
-        if (is_string($userId) || is_int($userId)) {
-            $context['user_id'] = $userId;
-        }
 
         if ($errorRequestContext instanceof ErrorRequestContext && $errorRequestContext->replayId() !== null) {
             $context['replay_id'] = $errorRequestContext->replayId();
@@ -46,10 +38,4 @@ final class ErrorFaultContextFactory
         return $context;
     }
 
-    private static function remoteAddress(ServerRequestInterface $request): ?string
-    {
-        $remoteAddress = $request->getServerParams()['REMOTE_ADDR'] ?? null;
-
-        return is_string($remoteAddress) ? $remoteAddress : null;
-    }
 }
