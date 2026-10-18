@@ -16,6 +16,8 @@ use Zef\Framework\Http\Uri;
 /** @internal */
 #[CoversClass(ErrorReplayStore::class)]
 #[CoversClass(ReplayPayloadSanitizer::class)]
+#[CoversClass(ReplayBodyCapture::class)]
+#[CoversClass(ReplayBodyReader::class)]
 final class ErrorReplayStoreTest extends TestCase
 {
     private string $directory;
