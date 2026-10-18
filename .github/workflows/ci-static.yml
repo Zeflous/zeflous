@@ -25,6 +25,16 @@ on:
     types: [opened, synchronize, reopened]
   # Keep the same gate visible on the default branch, so a post-merge audit of
   # `main` shows the strict pipeline result for the merged commit.
+  # MERGE QUEUE: the `main` ruleset's merge queue re-runs the required checks
+  # on the merge group's head sha (refs/heads/gh-readonly-queue/main/pr-N-...)
+  # using the DEFAULT BRANCH's workflow files, so the queue validates the
+  # merged result rather than the pull request's own workflow version
+  # (docs/ci-notes/merge-gate-audit.md, finding 3). Without this trigger the
+  # queue would wait for this lane until the ruleset's check-response timeout,
+  # then fail the entry.
+  merge_group:
+    branches:
+      - main
   push:
     branches:
       - main

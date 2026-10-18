@@ -38,14 +38,24 @@ quality-gate verdict.
   `renovate[bot]` — it is green **with a visible notice** (step summary +
   `::notice::`): a context that cannot be credentialed must not block the
   pull-request queue. In every other context (a same-repository pull request,
-  a push to `main`, a manual run) the `SONAR_TOKEN` secret is always
-  injectable, so its absence is a misconfiguration, and the job **fails
-  closed** instead of certifying an analysis that never ran — `SonarCloud
-  analysis` is a required check, and a required check must never be green
-  without an analysis (narrowed 2026-10-18; see
+  a push to `main`, a merge-group validation, a manual run) the `SONAR_TOKEN`
+  secret is always injectable, so its absence is a misconfiguration, and the
+  job **fails closed** instead of certifying an analysis that never ran —
+  `SonarCloud analysis` is a required check, and a required check must never
+  be green without an analysis (narrowed 2026-10-18; see
   `docs/ci-notes/merge-gate-audit.md`, finding 5). The job name
   **`SonarCloud analysis`** is a status-check context; keep it stable if a
   branch protection rule pins it.
+- **Merge-queue path** (`merge_group`, 2026-10-18): the merge queue analyses
+  the combined merge-group ref with the default branch's workflow files, as
+  the short-lived SonarCloud branch `merge-queue`. The SonarCloud GitHub App
+  does not report on merge groups (product management statement, May 2024,
+  community.sonarsource.com/t/112436), so the app's `SonarCloud Code
+  Analysis` check cannot be a queue-enforceable required check; the blocking
+  verdict travels with this job instead — `sonar.qualitygate.wait=true` makes
+  it wait for the server-side gate on the `merge-queue` branch, so the queue
+  path enforces the same server-side quality gate the pull-request path
+  decorates. The app's check stays on pull requests as advisory decoration.
 
 ## 3. Setup checklist (one-time)
 
