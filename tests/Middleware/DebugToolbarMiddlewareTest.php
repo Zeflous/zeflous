@@ -21,6 +21,8 @@ use Zef\Test\Support\Http\FixedResponseHandler;
 /** @internal */
 #[CoversClass(DebugToolbarFactory::class)]
 #[CoversClass(DebugToolbarMiddleware::class)]
+#[CoversClass(DebugToolbarEligibility::class)]
+#[CoversClass(DebugToolbarInjector::class)]
 #[CoversClass(ErrorRequestContext::class)]
 final class DebugToolbarMiddlewareTest extends TestCase
 {
