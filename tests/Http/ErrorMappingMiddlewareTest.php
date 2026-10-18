@@ -66,6 +66,15 @@ use Zef\Test\Support\Log\RecordingLogger;
 #[CoversClass(CorrelationId::class)]
 #[CoversClass(ErrorDisclosure::class)]
 #[CoversClass(ErrorResponseFactory::class)]
+#[CoversClass(ProblemDetailsJsonResponseFactory::class)]
+#[CoversClass(ProblemDetailsResponseHeaders::class)]
+#[CoversClass(HtmlErrorPageContext::class)]
+#[CoversClass(ErrorTraceIdResolver::class)]
+#[CoversClass(AcceptHeaderParser::class)]
+#[CoversClass(ErrorFaultSeverity::class)]
+#[CoversClass(ErrorFaultMetricsRecorder::class)]
+#[CoversClass(ErrorFaultContextFactory::class)]
+#[CoversClass(ErrorFaultLogWriter::class)]
 #[CoversClass(ProblemDetailsResponseFactory::class)]
 #[CoversClass(ErrorContentNegotiator::class)]
 #[CoversClass(ErrorDetailsSanitizer::class)]
@@ -824,6 +833,23 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertStringContainsString('ZEF Profiler', (string) $response->getBody());
         self::assertStringContainsString('Exceptions: 1', (string) $response->getBody());
         self::assertStringNotContainsString('secret123', (string) $response->getBody());
+    }
+
+    public function testResponseTraceIdFallsBackWhenAnExtensionOverridesValidation(): void
+    {
+        $exception = new class('bad trace') extends ZefException {
+            public function getTraceId(): ?string
+            {
+                return "invalid\r\nX-Forged: yes";
+            }
+        };
+
+        $response = $this->middleware()->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler($exception),
+        );
+
+        self::assertSame(self::CLAIMED_ID, $this->envelope($response)['trace_id']);
     }
 
     public function testRejectsMalformedTraceIdsOnTypedExceptions(): void
