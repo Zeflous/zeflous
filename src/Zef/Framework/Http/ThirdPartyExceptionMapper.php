@@ -19,7 +19,9 @@ final class ThirdPartyExceptionMapper
     public static function normalize(Throwable $exception): Throwable
     {
         if ($exception instanceof PDOException) {
-            $sqlState = (string) $exception->getCode();
+            $sqlState = is_array($exception->errorInfo ?? null) && is_string($exception->errorInfo[0] ?? null)
+                ? $exception->errorInfo[0]
+                : (string) $exception->getCode();
             $details = preg_match('/^[0-9A-Z]{5}$/iD', $sqlState) === 1
                 ? ['sql_state' => strtoupper($sqlState)]
                 : [];
