@@ -38,7 +38,6 @@ final readonly class ErrorReplayStore
         }
 
         $snapshot = [
-            'id' => '',
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'request_id' => $requestId,
             'status' => $status,
