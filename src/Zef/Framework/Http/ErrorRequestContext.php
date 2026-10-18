@@ -28,7 +28,7 @@ final class ErrorRequestContext
     public function __construct(string $requestId)
     {
         $this->traceId = $requestId;
-        $this->startedAt = hrtime(true);
+        $this->startedAt = (int) hrtime(true);
     }
 
     /** Only a valid non-zero W3C trace ID can replace the request-ID fallback. */
