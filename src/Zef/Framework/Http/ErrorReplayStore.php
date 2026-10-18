@@ -190,11 +190,37 @@ final readonly class ErrorReplayStore
 
                 return [http_build_query(is_array($safe) ? $safe : []), true];
             }
+
+            if (
+                str_starts_with($contentType, 'text/')
+                || str_contains($contentType, 'application/xml')
+                || str_contains($contentType, 'text/xml')
+                || str_contains($contentType, '+xml')
+            ) {
+                return [$this->sanitizeTextBody($raw, $contentType), true];
+            }
         } catch (Throwable) {
             return ['', false];
         }
 
         return ['', false];
+    }
+
+    private function sanitizeTextBody(string $body, string $contentType): string
+    {
+        if (str_contains($contentType, 'xml')) {
+            $redacted = preg_replace(
+                '/(<([A-Z0-9_.:-]*(?:password|passwd|secret|token|authorization|cookie|csrf|api[_-]?key)[A-Z0-9_.:-]*)\b[^>]*>).*?(<\/\2\s*>)/is',
+                '$1[REDACTED]$3',
+                $body,
+            );
+            $body = is_string($redacted) ? $redacted : '[REDACTED]';
+        }
+
+        $safe = RedactedMessage::of($body);
+        $safe = preg_replace('/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i', '[REDACTED_EMAIL]', $safe);
+
+        return is_string($safe) ? substr($safe, 0, self::MAX_BODY_BYTES) : '[REDACTED]';
     }
 
     private function query(string $query): string
