@@ -15,6 +15,8 @@ use Zef\Framework\Logging\LogContextSanitizer;
  */
 #[CoversClass(JsonLineLogger::class)]
 #[CoversClass(LogContextSanitizer::class)]
+#[CoversClass(JsonLogDestination::class)]
+#[CoversClass(JsonLineWriter::class)]
 final class JsonLineLoggerTest extends TestCase
 {
     private ?string $path = null;
