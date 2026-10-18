@@ -50,6 +50,25 @@ final class ContextualMapTest extends TestCase
         );
     }
 
+    public function testAConsumerMayOverrideSeveralDependencies(): void
+    {
+        $map = ContextualMap::parse('contextual', [
+            'billing' => [
+                'app.gateway' => 'gateway.stripe',
+                'app.logger' => 'app.quiet.logger',
+            ],
+        ]);
+
+        self::assertSame(
+            [
+                'billing' => [
+                    'app.gateway' => 'gateway.stripe',
+                    'app.logger' => 'app.quiet.logger',
+                ],
+            ],
+            $map->bindings(),
+        );
+    }
     public function testANonMapKnobValueIsRejected(): void
     {
         try {

@@ -177,6 +177,33 @@ final class ContextualBindingsTest extends TestCase
         self::assertSame('gateway.factory::for', $consumer->factory);
     }
 
+    public function testAFactoryShapedConsumersCallsAreRewrittenToo(): void
+    {
+        $definitions = [
+            new FactoryDefinition(
+                'billing',
+                'gateway.factory::for',
+                [['service' => PaymentGateway::class]],
+                ServiceLifetime::SINGLETON,
+                new ServiceTags(),
+                [new MethodCall('setGateway', [['service' => PaymentGateway::class]])],
+            ),
+            new InstanceDefinition('gateway.mock', MockGateway::class),
+            new InstanceDefinition('gateway.stripe', StripeGateway::class),
+            new AliasDefinition(PaymentGateway::class, 'gateway.mock'),
+        ];
+
+        $applied = ContextualBindings::apply($definitions, $this->stripeBinding());
+
+        $consumer = $applied[0];
+        self::assertInstanceOf(FactoryDefinition::class, $consumer);
+        self::assertSame([['service' => self::VIA]], $consumer->arguments);
+        self::assertSame(
+            [['service' => self::VIA]],
+            $consumer->calls[0]->arguments,
+            'the factory shape\'s method calls flow through the binding too',
+        );
+    }
     public function testTheRewriteTargetsTheConsumersLastOccurrence(): void
     {
         $definitions = [
