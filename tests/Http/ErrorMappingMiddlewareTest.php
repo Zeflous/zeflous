@@ -508,7 +508,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertSame(500, $response->getStatusCode());
         self::assertSame('application/problem+json; charset=utf-8', $response->getHeaderLine('Content-Type'));
         self::assertSame(self::CLAIMED_ID, $response->getHeaderLine('X-Request-ID'));
-        self::assertStringContainsString('broken', $this->envelope($response)['detail']);
+        self::assertStringContainsString('broken', (string) $this->envelope($response)['detail']);
     }
 
     public function testProdDiagnosticsNeverNeedTheFallback(): void
@@ -740,10 +740,12 @@ final class ErrorMappingMiddlewareTest extends TestCase
                 new Stream($resource),
             );
             $response = $middleware->process($request, new ThrowingHandler(new RuntimeException('replay failure')));
-            $files = glob($directory . '/*.json') ?: [];
+            $files = glob($directory . '/*.json');
+        $files = $files === false ? [] : $files;
             self::assertCount(1, $files);
 
             $snapshot = json_decode((string) file_get_contents($files[0]), true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($snapshot);
             self::assertSame('replay-req', $snapshot['request_id']);
             self::assertTrue($snapshot['body_replayable']);
             self::assertStringNotContainsString('secret123', (string) file_get_contents($files[0]));
@@ -874,15 +876,18 @@ final class ErrorMappingMiddlewareTest extends TestCase
     public function testMetricBackendFailureDoesNotReplaceTheErrorResponse(): void
     {
         $meter = new class implements MeterInterface {
+            #[Override]
             public function increment(string $name, float|int $value = 1, array $attributes = []): void
             {
                 throw new RuntimeException('metrics backend unavailable');
             }
 
+            #[Override]
             public function observe(string $name, float $value, array $attributes = []): void
             {
             }
 
+            #[Override]
             public function snapshot(): array
             {
                 return [];
@@ -902,7 +907,8 @@ final class ErrorMappingMiddlewareTest extends TestCase
     public function testResponseTraceIdFallsBackWhenAnExtensionOverridesValidation(): void
     {
         $exception = new class('bad trace') extends ZefException {
-            public function getTraceId(): ?string
+            #[Override]
+            public function getTraceId(): string
             {
                 return "invalid\r\nX-Forged: yes";
             }
