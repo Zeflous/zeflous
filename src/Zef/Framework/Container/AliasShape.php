@@ -56,6 +56,13 @@ final readonly class AliasShape
             );
         }
 
+        if (\array_key_exists('calls', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries 'calls' on a 'alias' definition "
+                . '(an alias is transparent: the call belongs on the definition it points to).',
+            );
+        }
+
         return new AliasDefinition($id, $target);
     }
 }

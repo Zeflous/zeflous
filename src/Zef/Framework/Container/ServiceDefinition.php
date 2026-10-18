@@ -69,4 +69,22 @@ abstract readonly class ServiceDefinition
 
         return DefinitionShapes::fromEntry($id, $entry);
     }
+
+    /**
+     * The same declaration carrying a method-call injection list -- the
+     * shapes that build nothing refuse ({@see AliasDefinition} and
+     * {@see ValueDefinition} keep the base's refusal; the grammar's own
+     * shape parsers refuse the `calls` key earlier still, so the refusal
+     * here is the unreachable guard against hand-built misuse it
+     * nevertheless keeps).
+     *
+     * @param list<MethodCall> $methodCalls the parsed `calls` list
+     */
+    public function withMethodCalls(array $methodCalls): self
+    {
+        throw new DefinitionException(
+            "The '{$this->id}' definition shape carries no method calls "
+            . "(the 'calls' key belongs to class and factory definitions).",
+        );
+    }
 }

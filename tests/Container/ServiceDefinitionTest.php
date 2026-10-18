@@ -18,9 +18,15 @@ use Zef\Framework\Container\DefinitionReferences;
 use Zef\Framework\Container\DefinitionShapes;
 use Zef\Framework\Container\FactoryDefinition;
 use Zef\Framework\Container\FactoryShape;
+use Zef\Framework\Container\FactorySpellings;
 use Zef\Framework\Container\InstanceArguments;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\InstanceShape;
+use Zef\Framework\Container\MethodCall;
+use Zef\Framework\Container\MethodCallNames;
+use Zef\Framework\Container\MethodCallRefusals;
+use Zef\Framework\Container\MethodCalls;
+use Zef\Framework\Container\MethodCallShape;
 use Zef\Framework\Container\NamedArguments;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\ServiceLifetime;
@@ -55,6 +61,12 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(AliasDefinition::class)]
 #[CoversClass(ValueDefinition::class)]
 #[CoversClass(DefinitionException::class)]
+#[CoversClass(FactorySpellings::class)]
+#[CoversClass(MethodCalls::class)]
+#[CoversClass(MethodCall::class)]
+#[CoversClass(MethodCallShape::class)]
+#[CoversClass(MethodCallNames::class)]
+#[CoversClass(MethodCallRefusals::class)]
 final class ServiceDefinitionTest extends TestCase
 {
     public function testAnInstanceDefinitionParsesWithItsClassAndArguments(): void
@@ -233,7 +245,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key '5' "
-                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags, calls).',
                 $definitionException->getMessage(),
             );
         }
@@ -260,7 +272,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key 'clas' "
-                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags, calls).',
                 $definitionException->getMessage(),
             );
         }
@@ -901,5 +913,62 @@ final class ServiceDefinitionTest extends TestCase
     {
         self::assertNull(ServiceTagKey::fromKey('app.greeter', null));
         self::assertSame([], new ServiceTags()->all());
+    }
+
+    public function testAClassDeclarationCarriesItsMethodCallList(): void
+    {
+        $definition = ServiceDefinition::fromArray('app.greeter', [
+            'class' => Greeter::class,
+            'arguments' => ['Hello'],
+            'calls' => [['method' => 'greet', 'arguments' => ['Zef']]],
+        ]);
+
+        self::assertInstanceOf(InstanceDefinition::class, $definition);
+        self::assertSame(['Hello'], $definition->arguments);
+        self::assertCount(1, $definition->calls);
+        self::assertSame('greet', $definition->calls[0]->method);
+        self::assertSame(['Zef'], $definition->calls[0]->arguments);
+    }
+
+    public function testAnAliasDeclarationRefusesTheCallsKey(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.alias', ['alias' => 'app.target', 'calls' => []]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.alias' carries 'calls' on a 'alias' definition "
+                . '(an alias is transparent: the call belongs on the definition it points to).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAValueDeclarationRefusesTheCallsKey(): void
+    {
+        try {
+            ServiceDefinition::fromArray('app.flag', ['value' => true, 'calls' => []]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.flag' carries 'calls' on a 'value' definition "
+                . '(a value is a constant: there is no instance to call methods on).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAHandBuiltShapeRefusesTheMethodCallListItCannotCarry(): void
+    {
+        try {
+            new AliasDefinition('app.alias', 'app.target')->withMethodCalls([]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "The 'app.alias' definition shape carries no method calls "
+                . "(the 'calls' key belongs to class and factory definitions).",
+                $definitionException->getMessage(),
+            );
+        }
     }
 }

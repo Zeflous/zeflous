@@ -16,7 +16,11 @@ namespace Zef\Framework\Container;
  * The class must be a non-empty string naming an existing class: a
  * definition that survives boot can only fail at instantiation through
  * its arguments' references (which the {@see ServiceDefinitionGraph}
- * has already proven resolvable) -- never through a missing class.
+ * has already proven resolvable) -- never through a missing class. The
+ * `calls` methods are proven through the arguments-form dispatch too
+ * ({@see InstanceArguments}): the class is known at parse time, so a
+ * declared call that names a missing method is a boot refusal rather
+ * than a first-resolution surprise.
  */
 final readonly class InstanceShape
 {

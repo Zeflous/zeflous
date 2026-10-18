@@ -66,6 +66,34 @@ declare(strict_types=1);
  * ...$handlers) gathers every declared implementation of the type --
  * a scalar variadic stays empty, a union one is refused.
  *
+ * The class and factory shapes also accept a 'calls' key -- the
+ * method-call injection lane: a positional list of entries, each the
+ * map ['method' => 'setLogger', 'arguments' => [...]] with
+ * 'arguments' optional (an absent key is the empty plan). Every call
+ * is invoked on the built instance after construction, its arguments
+ * resolved through the same reference grammar the constructor's use,
+ * and its answer discarded -- a call is an injection, not a builder.
+ * The key is the opt-in itself: a declaration without it pays none of
+ * the lane's machinery. A class shape's methods are proven at boot
+ * (a declared call naming a missing method is a boot refusal); a
+ * factory's product type is unknown at boot, so its calls are proven
+ * at first resolution. An alias and a value refuse the key.
+ *
+ * Beside the services map, the top-level 'contextual' configuration
+ * key declares contextual bindings -- per-consumer dependency
+ * overrides:
+ *
+ *   'contextual' => ['billing' => ['PaymentGateway' => 'gateway.stripe']]
+ *
+ * When the consumer 'billing' resolves the dependency it declares (a
+ * ['service' => PaymentGateway] reference in its arguments or calls),
+ * it receives 'gateway.stripe' instead -- while every other consumer
+ * keeps the default binding. The rewrite flows through a synthetic
+ * alias, so the boot graph's guarantees hold unchanged: a missing
+ * target fails the unknown-service refusal, cycles and captive
+ * lifetimes through the binding are refused exactly as a direct
+ * reference's would be.
+ *
  * The whole map is validated fail-closed before a single definition is
  * installed: unknown shape keys, unknown service references and circular
  * dependency chains halt the boot with the offending entry named. The

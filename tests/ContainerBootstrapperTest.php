@@ -18,6 +18,13 @@ use Zef\Test\Support\Container\Autowiring\SimpleDep;
 use Zef\Test\Support\Container\Autowiring\TypedHouse;
 use Zef\Test\Support\Container\ExternalFactory;
 use Zef\Test\Support\Container\Greeter;
+use Zef\Test\Support\Container\Injector\BillingService;
+use Zef\Test\Support\Container\Injector\FactoryProduct;
+use Zef\Test\Support\Container\Injector\MockGateway;
+use Zef\Test\Support\Container\Injector\PaymentGateway;
+use Zef\Test\Support\Container\Injector\ReportingService;
+use Zef\Test\Support\Container\Injector\StripeGateway;
+use Zef\Test\Support\Container\Injector\TunedWidget;
 
 /**
  * @internal
@@ -445,5 +452,296 @@ final class ContainerBootstrapperTest extends TestCase
         }
 
         self::assertFalse($container->has('app.leaf'));
+    }
+
+    public function testAClassShapedDeclarationWithCallsInjectsAfterConstruction(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'app.tag' => ['value' => 'ops'],
+                    'app.widget' => [
+                        'class' => TunedWidget::class,
+                        'arguments' => ['main'],
+                        'calls' => [
+                            ['method' => 'setVolume', 'arguments' => [7]],
+                            ['method' => 'addTag', 'arguments' => [['service' => 'app.tag']]],
+                            ['method' => 'warmUp'],
+                        ],
+                    ],
+                ],
+            ]),
+            $container,
+        );
+
+        $widget = $container->get('app.widget');
+        self::assertInstanceOf(TunedWidget::class, $widget);
+        self::assertSame('main', $widget->label);
+        self::assertSame(['volume:7', 'tag:ops', 'warm'], $widget->log());
+        self::assertTrue($widget->warmed());
+    }
+
+    public function testTheHybridAutowireFormCarriesItsCallsThroughThePass(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'app.widget' => [
+                        'class' => TunedWidget::class,
+                        'arguments' => ['label' => 'hybrid'],
+                        'calls' => [['method' => 'setVolume', 'arguments' => [3]]],
+                    ],
+                ],
+            ]),
+            $container,
+        );
+
+        $widget = $container->get('app.widget');
+        self::assertInstanceOf(TunedWidget::class, $widget);
+        self::assertSame('hybrid', $widget->label);
+        self::assertSame(['volume:3'], $widget->log());
+    }
+
+    public function testAFactoryShapedDeclarationWithCallsInjectsIntoTheProduct(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'app.product' => [
+                        'factory' => FactoryProduct::class . '::make',
+                        'arguments' => ['gadget'],
+                        'calls' => [['method' => 'setOrigin', 'arguments' => ['boot']]],
+                    ],
+                ],
+            ]),
+            $container,
+        );
+
+        $product = $container->get('app.product');
+        self::assertInstanceOf(FactoryProduct::class, $product);
+        self::assertSame('boot:gadget', $product->describe());
+    }
+
+    public function testCallsOnAnAliasShapedDeclarationAreRefusedAtBoot(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(
+                new Config([
+                    'services' => [
+                        'app.greeter' => ['class' => Greeter::class, 'arguments' => ['Hello']],
+                        'app.alias' => ['alias' => 'app.greeter', 'calls' => []],
+                    ],
+                ]),
+                new Container(),
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.alias' carries 'calls' on a 'alias' definition "
+                . '(an alias is transparent: the call belongs on the definition it points to).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testCallsOnAValueShapedDeclarationAreRefusedAtBoot(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(
+                new Config([
+                    'services' => [
+                        'app.flag' => ['value' => true, 'calls' => []],
+                    ],
+                ]),
+                new Container(),
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.flag' carries 'calls' on a 'value' definition "
+                . '(a value is a constant: there is no instance to call methods on).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAClassShapedCallToAMissingMethodIsRefusedAtBoot(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(
+                new Config([
+                    'services' => [
+                        'app.widget' => [
+                            'class' => TunedWidget::class,
+                            'arguments' => ['main'],
+                            'calls' => [['method' => 'detune']],
+                        ],
+                    ],
+                ]),
+                new Container(),
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.widget' call method 'detune' does not exist on '" . TunedWidget::class . "'.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAContextualBindingGivesTheConsumerItsOwnTarget(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'gateway.mock' => ['class' => MockGateway::class],
+                    'gateway.stripe' => ['class' => StripeGateway::class],
+                    PaymentGateway::class => ['alias' => 'gateway.mock'],
+                    'billing' => ['class' => BillingService::class, 'autowire' => true],
+                ],
+                'contextual' => [
+                    'billing' => [PaymentGateway::class => 'gateway.stripe'],
+                ],
+            ]),
+            $container,
+        );
+
+        $billing = $container->get('billing');
+        self::assertInstanceOf(BillingService::class, $billing);
+        self::assertSame('charged:stripe', $billing->charge());
+        self::assertInstanceOf(
+            MockGateway::class,
+            $container->get(PaymentGateway::class),
+            'the default alias still hands its own target to everyone else',
+        );
+    }
+
+    public function testAContextualBindingRewritesTheReferencesACallCarries(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'gateway.mock' => ['class' => MockGateway::class],
+                    'gateway.stripe' => ['class' => StripeGateway::class],
+                    PaymentGateway::class => ['alias' => 'gateway.mock'],
+                    'app.report' => [
+                        'class' => ReportingService::class,
+                        'autowire' => true,
+                        'calls' => [
+                            ['method' => 'setGateway', 'arguments' => [['service' => PaymentGateway::class]]],
+                        ],
+                    ],
+                ],
+                'contextual' => [
+                    'app.report' => [PaymentGateway::class => 'gateway.stripe'],
+                ],
+            ]),
+            $container,
+        );
+
+        $report = $container->get('app.report');
+        self::assertInstanceOf(ReportingService::class, $report);
+        self::assertSame('stripe', $report->gatewayName());
+    }
+
+    public function testAContextualBindingForAnUnregisteredConsumerIsRefusedAtBoot(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(
+                new Config([
+                    'services' => [
+                        'gateway.mock' => ['class' => MockGateway::class],
+                    ],
+                    'contextual' => [
+                        'billing' => [PaymentGateway::class => 'gateway.mock'],
+                    ],
+                ]),
+                new Container(),
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Contextual binding: consumer 'billing' is not a registered service.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testARequestScopedConsumersBindingResolvesPerScope(): void
+    {
+        $container = new Container();
+
+        new ContainerBootstrapper()->bootstrap(
+            new Config([
+                'services' => [
+                    'gateway.stripe' => [
+                        'class' => StripeGateway::class,
+                        'lifetime' => 'request',
+                    ],
+                    'billing' => [
+                        'class' => BillingService::class,
+                        'arguments' => [['service' => PaymentGateway::class]],
+                        'lifetime' => 'request',
+                    ],
+                ],
+                'contextual' => [
+                    'billing' => [PaymentGateway::class => 'gateway.stripe'],
+                ],
+            ]),
+            $container,
+        );
+
+        $firstScope = $container->createRequestScope();
+        $firstBilling = $firstScope->get('billing');
+        self::assertInstanceOf(BillingService::class, $firstBilling);
+        self::assertSame('charged:stripe', $firstBilling->charge());
+        self::assertSame($firstBilling, $firstScope->get('billing'), 'the scope memoises');
+
+        $secondScope = $container->createRequestScope();
+        $secondBilling = $secondScope->get('billing');
+        self::assertInstanceOf(BillingService::class, $secondBilling);
+        self::assertNotSame($firstBilling, $secondBilling, 'each scope builds its own');
+        self::assertNotSame(
+            $firstBilling->gateway,
+            $secondBilling->gateway,
+            'the binding flows through the per-scope synthetic alias',
+        );
+    }
+
+    public function testAContextualBindingToAMissingTargetIsRefusedAtBoot(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(
+                new Config([
+                    'services' => [
+                        'billing' => [
+                            'class' => BillingService::class,
+                            'arguments' => [['service' => PaymentGateway::class]],
+                        ],
+                    ],
+                    'contextual' => [
+                        'billing' => [PaymentGateway::class => 'gateway.absent'],
+                    ],
+                ]),
+                new Container(),
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service '@contextual:billing|" . PaymentGateway::class
+                    . "' references the unknown service 'gateway.absent'.",
+                $definitionException->getMessage(),
+            );
+        }
     }
 }

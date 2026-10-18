@@ -8,12 +8,11 @@ namespace Zef\Framework\Container;
  * The `factory` shape's parser (one of the four definition shapes; see
  * {@see DefinitionShapes} for the dispatch).
  *
- * The shape carries a `'Target::method'` spelling and an optional positional
- * argument list. The spelling grammar is judged through the explode idiom
- * rather than a counting function: `count(explode('::', $s)) === 2` pins the
- * "exactly one separator" rule with no string-count call whose mb_* twin
- * could be swapped for it (the counting forms are byte-identical for an
- * ASCII needle -- an immortal mutation zone).
+ * The shape carries a `'Target::method'` spelling
+ * ({@see FactorySpellings} for the spelling grammar) and an optional
+ * positional argument list. The optional `calls` list parses without
+ * the method-existence proof: the factory's product type is unknown at
+ * boot, so the proof waits for the first resolution.
  */
 final readonly class FactoryShape
 {
@@ -22,27 +21,6 @@ final readonly class FactoryShape
      */
     public static function fromEntry(string $id, array $entry): FactoryDefinition
     {
-        $factory = $entry['factory'];
-        if (!\is_string($factory) || $factory === '') {
-            throw new DefinitionException(
-                "Service '{$id}' factory must be a non-empty 'Target::method' string, "
-                . get_debug_type($factory) . ' given.',
-            );
-        }
-
-        if (\count(explode('::', $factory)) !== 2) {
-            throw new DefinitionException(
-                "Service '{$id}' factory '{$factory}' must carry exactly one '::' separator.",
-            );
-        }
-
-        [$target, $method] = explode('::', $factory);
-        if ($target === '' || $method === '') {
-            throw new DefinitionException(
-                "Service '{$id}' factory '{$factory}' must name both a target and a method.",
-            );
-        }
-
         if (\array_key_exists('autowire', $entry)) {
             throw new DefinitionException(
                 "Service '{$id}' carries the 'autowire' key on a 'factory' definition "
@@ -52,10 +30,10 @@ final readonly class FactoryShape
 
         return new FactoryDefinition(
             $id,
-            $factory,
+            FactorySpellings::validated($id, $entry['factory']),
             DefinitionArguments::assertValid($id, $entry['arguments'] ?? []),
             ServiceLifetime::fromKey($id, $entry['lifetime'] ?? null) ?? ServiceLifetime::SINGLETON,
             ServiceTagKey::fromKey($id, $entry['tags'] ?? null) ?? new ServiceTags(),
-        );
+        )->withMethodCalls(MethodCalls::fromKey($id, null, $entry));
     }
 }

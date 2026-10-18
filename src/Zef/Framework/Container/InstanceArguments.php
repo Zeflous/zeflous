@@ -24,6 +24,10 @@ namespace Zef\Framework\Container;
  * with a value other than true, a non-array, a mixed-key array -- is the
  * ambiguity it is: refused with the service and the accepted forms in
  * the message.
+ *
+ * The declaration's `calls` list is threaded onto whichever form the
+ * dispatch answers ({@see ServiceDefinition::withMethodCalls()}) -- the
+ * grammar's own with-method, the shape parser's one seam for it.
  */
 final readonly class InstanceArguments
 {
@@ -38,10 +42,10 @@ final readonly class InstanceArguments
         ?ServiceLifetime $serviceLifetime = null,
         ?ServiceTags $serviceTags = null,
     ): ServiceDefinition {
-        if (\array_key_exists('autowire', $entry)) {
-            return AutowireKey::form($id, $class, $entry, $serviceLifetime, $serviceTags);
-        }
+        $definition = \array_key_exists('autowire', $entry)
+            ? AutowireKey::form($id, $class, $entry, $serviceLifetime, $serviceTags)
+            : ArgumentsForm::definition($id, $class, $entry['arguments'] ?? null, $serviceLifetime, $serviceTags);
 
-        return ArgumentsForm::definition($id, $class, $entry['arguments'] ?? null, $serviceLifetime, $serviceTags);
+        return $definition->withMethodCalls(MethodCalls::fromKey($id, $class, $entry));
     }
 }

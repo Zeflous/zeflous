@@ -7,6 +7,7 @@ namespace Zef\Test\Container;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Container\AliasDefinition;
+use Zef\Framework\Container\ArgumentNames;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionCycles;
 use Zef\Framework\Container\DefinitionEdges;
@@ -14,7 +15,9 @@ use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\DefinitionReferences;
 use Zef\Framework\Container\FactoryDefinition;
 use Zef\Framework\Container\InstanceDefinition;
+use Zef\Framework\Container\MethodCall;
 use Zef\Framework\Container\ServiceDefinitionGraph;
+use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Container\ExternalFactory;
@@ -27,6 +30,7 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(DefinitionCycles::class)]
 #[CoversClass(DefinitionEdges::class)]
 #[CoversClass(DefinitionReferences::class)]
+#[CoversClass(ArgumentNames::class)]
 final class ServiceDefinitionGraphTest extends TestCase
 {
     public function testAReferenceIntoAnotherDefinitionValidates(): void
@@ -227,5 +231,72 @@ final class ServiceDefinitionGraphTest extends TestCase
         );
 
         self::assertSame(['app.y'], $references, 'only the well-formed reference becomes an edge');
+    }
+
+    public function testInstanceEdgesIncludeTheCallReferences(): void
+    {
+        $references = DefinitionReferences::of(
+            new InstanceDefinition('app.x', Greeter::class, [['service' => 'app.y']], calls: [
+                new MethodCall('setLogger', [['service' => 'app.logger']]),
+                new MethodCall('warmUp'),
+                new MethodCall('addTag', [['service' => 'app.y'], 'plain']),
+            ]),
+        );
+
+        self::assertSame(['app.y', 'app.logger', 'app.y'], $references);
+    }
+
+    public function testFactoryEdgesIncludeTheCallReferences(): void
+    {
+        $references = DefinitionReferences::of(
+            new FactoryDefinition('app.x', ExternalFactory::class . '::make', [], calls: [
+                new MethodCall('setLogger', [['service' => 'app.logger']]),
+            ]),
+        );
+
+        self::assertSame(['app.logger'], $references);
+    }
+
+    public function testACallReferenceIntoAnUnknownServiceIsRejected(): void
+    {
+        try {
+            ServiceDefinitionGraph::validate(
+                [
+                    new InstanceDefinition('app.x', Greeter::class, ['Hello'], calls: [
+                        new MethodCall('setLogger', [['service' => 'app.absent']]),
+                    ]),
+                ],
+                new Container(),
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.x' references the unknown service 'app.absent'.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testASingletonThatCapturesARequestScopedServiceThroughACallIsRefused(): void
+    {
+        try {
+            ServiceDefinitionGraph::validate(
+                [
+                    new InstanceDefinition('app.leaf', Greeter::class, ['Hello'], ServiceLifetime::REQUEST),
+                    new InstanceDefinition('app.holder', Announcer::class, ['ops'], calls: [
+                        new MethodCall('addGreeter', [['service' => 'app.leaf']]),
+                    ]),
+                ],
+                new Container(),
+            );
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.holder' (singleton) depends on the request-scoped service 'app.leaf': "
+                . 'a request-scoped instance cannot be captured beyond its scope -- '
+                . "give 'app.leaf' a singleton or transient lifetime, or make 'app.holder' request-scoped.",
+                $definitionException->getMessage(),
+            );
+        }
     }
 }
