@@ -43,9 +43,7 @@ final class ReplaySnapshotWriter
             throw $throwable;
         }
 
-        if ($locked) {
-            flock($stream, LOCK_UN);
-        }
+        flock($stream, LOCK_UN);
         fclose($stream);
     }
 
