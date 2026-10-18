@@ -96,6 +96,7 @@ final class DebugToolbarMiddlewareTest extends TestCase
     {
         $middleware = new DebugToolbarMiddleware(true);
         $head = $this->request('text/html')->withMethod('HEAD');
+        self::assertInstanceOf(ServerRequestInterface::class, $head);
         $headResponse = $middleware->process($head, new FixedResponseHandler(new Response(
             200,
             ['Content-Type' => 'text/html'],
