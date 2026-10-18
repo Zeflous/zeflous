@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Zef\Framework\Http;
 
 use InvalidArgumentException;
-use JsonException;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Throwable;
@@ -57,7 +56,7 @@ final readonly class ErrorReplayStore
         int $status,
         string $requestId,
     ): string {
-        [$body, $bodyReplayable] = $this->body($request);
+        [$body, $bodyReplayable] = ReplayBodyCapture::capture($request);
         $path = $request->getUri()->getPath();
         if ($path === '' || preg_match('/[\x00-\x1F\x7F]/', $path) === 1 || !str_starts_with($path, '/')) {
             $path = '/';
@@ -136,72 +135,6 @@ final readonly class ErrorReplayStore
         }
 
         return $safe;
-    }
-
-    /** @return array{string, bool} sanitized body and whether it can be replayed */
-    private function body(ServerRequestInterface $request): array
-    {
-        $stream = $request->getBody();
-        $size = $stream->getSize();
-        if ($size === 0) {
-            return ['', true];
-        }
-
-        if (!$stream->isSeekable() || $size === null || $size > self::MAX_BODY_BYTES) {
-            return ['', false];
-        }
-
-        try {
-            $position = $stream->tell();
-            $stream->rewind();
-            $raw = $stream->getContents();
-        } catch (Throwable) {
-            if (isset($position)) {
-                try {
-                    $stream->seek($position);
-                } catch (Throwable) {
-                    // A failed restore is contained; capture is best-effort.
-                }
-            }
-
-            return ['', false];
-        }
-
-        try {
-            $stream->seek($position);
-        } catch (Throwable) {
-            return ['', false];
-        }
-
-        if ($raw === '') {
-            return ['', true];
-        }
-
-        $contentType = strtolower($request->getHeaderLine('Content-Type'));
-        $mediaType = trim(explode(';', $contentType, 2)[0]);
-        try {
-            if (
-                $mediaType === 'application/json'
-                || (str_starts_with($mediaType, 'application/') && str_ends_with($mediaType, '+json'))
-            ) {
-                $decoded = json_decode($raw, true, 32, JSON_THROW_ON_ERROR);
-                $safe = ReplayPayloadSanitizer::sanitize($decoded);
-
-                return [json_encode($safe, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE), true];
-            }
-
-            if ($mediaType === 'application/x-www-form-urlencoded') {
-                parse_str($raw, $decoded);
-                $safe = ReplayPayloadSanitizer::sanitize($decoded);
-
-                return [http_build_query(is_array($safe) ? $safe : []), true];
-            }
-
-        } catch (Throwable) {
-            return ['', false];
-        }
-
-        return ['', false];
     }
 
     private function query(string $query): string
