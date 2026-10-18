@@ -13,6 +13,7 @@ use Zef\Framework\Container\ContextualBindings;
 use Zef\Framework\Container\ContextualMap;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Container\DefinitionMap;
+use Zef\Framework\Container\ParameterMap;
 use Zef\Framework\Container\ServiceDefinitionGraph;
 use Zef\Framework\Container\ServiceTagIndex;
 use Zef\Framework\Container\TaggedServices;
@@ -44,7 +45,11 @@ use Zef\Framework\Container\TaggedServices;
  *
  * Fail-closed at boot, in order: each definition map is parsed and
  * validated by {@see DefinitionMap::parse()} (a missing/null key is a
- * valid empty set); the autoconfiguration knob is parsed to its
+ * valid empty set); the parameters knob is parsed to its validated
+ * values ({@see ParameterMap::parse()} -- the global parameter
+ * namespace the `#[Value]` attribute reads, its literal values, its
+ * compile-phase providers, its reserved-machinery refusals); the
+ * autoconfiguration knob is parsed to its
  * validated rules ({@see AutoconfigMap::parse()} -- an unknown key, a
  * missing interface or an invalid tag each halt the boot with the
  * knob's own name); the contextual-binding knob is parsed to its
@@ -53,8 +58,10 @@ use Zef\Framework\Container\TaggedServices;
  * ({@see AutowireCompilerPass::process()}), which rewrites the
  * name-keyed and `autowire` declarations into the positional form,
  * reads every class-shaped constructor once for the instantiable and
- * arity verdicts, and appends the classes a planned parameter birthed
- * as their own declared definitions; the earned tags are merged in
+ * arity verdicts, appends the classes a planned parameter birthed
+ * as their own declared definitions and materialises the `#[Value]`
+ * addresses as the synthetic value services the plan references; the
+ * earned tags are merged in
  * ({@see Autoconfiguration::apply()} -- the marker rules and `#[Tag]`
  * attributes a class-shaped declaration earns, one tag one source or
  * the boot refuses); the contextual bindings are applied
@@ -93,11 +100,17 @@ final readonly class ContainerBootstrapper
             ...DefinitionMap::parse('services', $config->get('services')),
         ];
 
+        $parameterMap = ParameterMap::parse('parameters', $config->get('parameters'));
+
         $autoconfigMap = AutoconfigMap::parse('tags', $config->get('tags'));
 
         $contextualMap = ContextualMap::parse('contextual', $config->get('contextual'));
 
-        $autowireResult = $this->autowireCompilerPass->process($definitions, $container);
+        $autowireResult = $this->autowireCompilerPass->process(
+            $definitions,
+            $container,
+            $parameterMap->values(),
+        );
 
         $planned = Autoconfiguration::apply($autowireResult->definitions, $autoconfigMap);
 

@@ -7,9 +7,26 @@ namespace Zef\Test;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
+use Zef\Framework\Config\Merge\EnvSource;
+use Zef\Framework\Config\Merge\LayeredConfigBuilder;
+use Zef\Framework\Container\Autowiring\AutowireValueMaterialisations;
+use Zef\Framework\Container\Autowiring\AutowireValueServices;
+use Zef\Framework\Container\Autowiring\AutowiringException;
+use Zef\Framework\Container\Autowiring\SyntheticValueGuard;
+use Zef\Framework\Container\Autowiring\Value;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\DefinitionMap;
+use Zef\Framework\Container\ParameterInjectability;
+use Zef\Framework\Container\ParameterKeys;
+use Zef\Framework\Container\ParameterLiterals;
+use Zef\Framework\Container\ParameterMap;
+use Zef\Framework\Container\ParameterProviderAnswers;
+use Zef\Framework\Container\ParameterProviderCheck;
+use Zef\Framework\Container\ParameterProviderConstruction;
+use Zef\Framework\Container\ParameterProviders;
+use Zef\Framework\Container\ParameterRefusals;
+use Zef\Framework\Container\ParameterValues;
 use Zef\Framework\Container\RequestScopeException;
 use Zef\Framework\ContainerBootstrapper;
 use Zef\Test\Support\Container\Announcer;
@@ -25,12 +42,31 @@ use Zef\Test\Support\Container\Injector\PaymentGateway;
 use Zef\Test\Support\Container\Injector\ReportingService;
 use Zef\Test\Support\Container\Injector\StripeGateway;
 use Zef\Test\Support\Container\Injector\TunedWidget;
+use Zef\Test\Support\Container\Parameters\ConnectionHouse;
+use Zef\Test\Support\Container\Parameters\PoolHouse;
+use Zef\Test\Support\Container\Parameters\SharedFlagAudit;
+use Zef\Test\Support\Container\Parameters\SharedFlagHouse;
+use Zef\Test\Support\Container\Parameters\VersionProvider;
 
 /**
  * @internal
  */
 #[CoversClass(ContainerBootstrapper::class)]
 #[CoversClass(DefinitionMap::class)]
+#[CoversClass(ParameterMap::class)]
+#[CoversClass(ParameterInjectability::class)]
+#[CoversClass(ParameterProviderCheck::class)]
+#[CoversClass(ParameterProviderConstruction::class)]
+#[CoversClass(ParameterProviderAnswers::class)]
+#[CoversClass(SyntheticValueGuard::class)]
+#[CoversClass(AutowireValueMaterialisations::class)]
+#[CoversClass(ParameterValues::class)]
+#[CoversClass(ParameterLiterals::class)]
+#[CoversClass(ParameterKeys::class)]
+#[CoversClass(ParameterProviders::class)]
+#[CoversClass(ParameterRefusals::class)]
+#[CoversClass(AutowireValueServices::class)]
+#[CoversClass(Value::class)]
 final class ContainerBootstrapperTest extends TestCase
 {
     public function testAConfigurationWithoutAServicesKeyLeavesTheContainerUntouched(): void
@@ -743,5 +779,192 @@ final class ContainerBootstrapperTest extends TestCase
                 $definitionException->getMessage(),
             );
         }
+    }
+
+    public function testAValueAddressBootsIntoTheConstructedService(): void
+    {
+        $container = new ContainerBootstrapper()->bootstrap(new Config([
+            'services' => [
+                'app.connection' => ['class' => ConnectionHouse::class, 'autowire' => true],
+            ],
+            'parameters' => [
+                'db' => ['host' => 'localhost', 'port' => 3306],
+            ],
+        ]), new Container());
+
+        $connection = $container->get('app.connection');
+
+        self::assertInstanceOf(ConnectionHouse::class, $connection);
+        self::assertSame('localhost', $connection->host);
+        self::assertSame(3306, $connection->port);
+        self::assertSame('localhost', $container->get('@value:db.host'));
+        self::assertSame('localhost', $container->get('@value:db.host'));
+    }
+
+    public function testAnArrayParameterBootsIntoTheConstructedService(): void
+    {
+        $container = new ContainerBootstrapper()->bootstrap(new Config([
+            'services' => [
+                'app.pool' => ['class' => PoolHouse::class, 'autowire' => true],
+            ],
+            'parameters' => [
+                'db' => ['replicas' => ['a.example', 'b.example']],
+            ],
+        ]), new Container());
+
+        $pool = $container->get('app.pool');
+        self::assertInstanceOf(PoolHouse::class, $pool);
+        self::assertSame(['a.example', 'b.example'], $pool->replicas);
+    }
+
+    public function testAParameterProviderComputesTheValueAtBoot(): void
+    {
+        $container = new ContainerBootstrapper()->bootstrap(new Config([
+            'services' => [
+                'app.connection' => ['class' => ConnectionHouse::class, 'autowire' => true],
+            ],
+            'parameters' => [
+                'providers' => [
+                    'db.host' => VersionProvider::class,
+                ],
+                'db' => ['port' => 3306],
+            ],
+        ]), new Container());
+
+        $connection = $container->get('app.connection');
+        self::assertInstanceOf(ConnectionHouse::class, $connection);
+
+        self::assertSame('2.9.0-zeflous', $connection->host);
+        self::assertSame(3306, $connection->port);
+    }
+
+    public function testTheEnvironmentLayerAnswersAParameterValue(): void
+    {
+        $config = LayeredConfigBuilder::create()
+            ->withApp([
+                'services' => [
+                    'app.connection' => ['class' => ConnectionHouse::class, 'autowire' => true],
+                ],
+                'parameters' => [
+                    'db' => ['host' => 'file.example', 'port' => 3306],
+                ],
+            ])
+            ->withEnvironment(new EnvSource('APP_', [
+                'APP_PARAMETERS__DB__HOST' => 'env.example',
+            ]))
+            ->build()
+        ;
+
+        $container = new ContainerBootstrapper()->bootstrap($config, new Container());
+
+        $connection = $container->get('app.connection');
+        self::assertInstanceOf(ConnectionHouse::class, $connection);
+        self::assertSame('env.example', $connection->host);
+        self::assertSame(3306, $connection->port);
+    }
+
+    public function testTwoConsumersShareOneMaterialisedValueService(): void
+    {
+        $container = new ContainerBootstrapper()->bootstrap(new Config([
+            'services' => [
+                'app.house' => ['class' => SharedFlagHouse::class, 'autowire' => true],
+                'app.audit' => ['class' => SharedFlagAudit::class, 'autowire' => true],
+            ],
+            'parameters' => [
+                'shared' => ['flag' => true],
+            ],
+        ]), new Container());
+
+        $house = $container->get('app.house');
+        $audit = $container->get('app.audit');
+        self::assertInstanceOf(SharedFlagHouse::class, $house);
+        self::assertInstanceOf(SharedFlagAudit::class, $audit);
+
+        self::assertTrue($house->flag);
+        self::assertTrue($audit->flag);
+        self::assertTrue($container->get('@value:shared.flag'));
+    }
+
+    public function testAMissingParameterValueRefusesTheBoot(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(new Config([
+                'services' => [
+                    'app.connection' => ['class' => ConnectionHouse::class, 'autowire' => true],
+                ],
+                'parameters' => [
+                    'db' => ['port' => 3306],
+                ],
+            ]), new Container());
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "the parameter '\$host' carries #[Value('db.host')] but the 'parameters' configuration",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testADeclaredSyntheticValueIdRefusesTheBoot(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(new Config([
+                'services' => [
+                    'app.connection' => ['class' => ConnectionHouse::class, 'autowire' => true],
+                    '@value:db.host' => ['value' => 'shadowed'],
+                ],
+                'parameters' => [
+                    'db' => ['host' => 'localhost', 'port' => 3306],
+                ],
+            ]), new Container());
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "the synthetic value service '@value:db.host' collides with a declared definition",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testADoubleSourcedParameterRefusesTheBoot(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(new Config([
+                'parameters' => [
+                    'providers' => ['db.host' => VersionProvider::class],
+                    'db' => ['host' => 'localhost'],
+                ],
+            ]), new Container());
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "The parameter 'db.host' is declared both as a literal value and through "
+                . "'parameters' > 'providers' -- one address, one source.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testANonMapParametersKnobRefusesTheBoot(): void
+    {
+        try {
+            new ContainerBootstrapper()->bootstrap(new Config(['parameters' => 'nope']), new Container());
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "The 'parameters' configuration must be a map of addresses to values, string given.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testANullParametersKnobIsTheValidEmptyBoot(): void
+    {
+        $container = new ContainerBootstrapper()->bootstrap(
+            new Config(['parameters' => null]),
+            new Container(),
+        );
+
+        self::assertFalse($container->has('anything'));
     }
 }

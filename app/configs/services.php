@@ -94,6 +94,42 @@ declare(strict_types=1);
  * lifetimes through the binding are refused exactly as a direct
  * reference's would be.
  *
+ * The top-level 'parameters' configuration key declares the global
+ * parameter namespace -- the injectable scalars a constructor
+ * parameter reads through the #[Value] attribute:
+ *
+ *   'parameters' => ['db' => ['host' => 'localhost', 'port' => 3306]]
+ *
+ *   public function __construct(#[Value('db.host')] string $host) {}
+ *
+ * The value is materialised at boot as the synthetic '@value:db.host'
+ * value service -- one shared instance, validated in the boot graph
+ * like any dependency -- and the plan references it through the
+ * ordinary service-reference grammar, so a #[Value] parameter costs
+ * the hot path nothing new. Addresses are dot-separated segments
+ * ([A-Za-z0-9_-] each, 190 characters at most); a list under an
+ * address is the parameter's whole value. A missing address is a
+ * boot refusal naming the way out (declare it, or drop the attribute
+ * so the constructor's own default applies); the attribute never
+ * combines with #[Inject]/#[Target] and never rides a variadic, a
+ * class-typed or a union parameter. Environment values close by
+ * construction: the configuration's own environment layer folds
+ * APP_PARAMETERS__DB__HOST onto parameters.db.host, so a parameter
+ * takes its value from the running process's environment without
+ * any container machinery of its own.
+ *
+ * The reserved 'providers' key under 'parameters' declares parameter
+ * providers -- values computed at the boot (compile) phase:
+ *
+ *   'parameters' => ['providers' => ['app.version' => VersionProvider::class]]
+ *
+ * Each entry names a ParameterProviderInterface class (constructed
+ * with no arguments) whose value() answer becomes the parameter's
+ * value -- a scalar, null or an array, never an object. The key is
+ * always the machinery's own: a literal under it is refused. One
+ * address, one source -- a literal and a provider on the same
+ * address is a boot refusal naming both spellings.
+ *
  * The whole map is validated fail-closed before a single definition is
  * installed: unknown shape keys, unknown service references and circular
  * dependency chains halt the boot with the offending entry named. The

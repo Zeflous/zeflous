@@ -12,7 +12,8 @@ use Zef\Framework\Container\ServiceDefinition;
  * parameter's binding routes through, and the births those arms may
  * take (see {@see AutowireCompilerPass} for the run's orchestration).
  *
- * One entry point -- {@see resolve()} -- answers the parameter's own
+ * Two entry points answer a planned parameter's intent. The binding
+ * arm -- {@see resolve()} -- answers the parameter's own service
  * binding ({@see AutowireParameterSpec::carriesBinding()} routed the
  * planner here): the `#[Inject]` identifier, the `#[Target]` class, or
  * the declared type name. Three answers exist for any identifier, and
@@ -26,6 +27,13 @@ use Zef\Framework\Container\ServiceDefinition;
  * interface, an `#[Inject]` naming nothing -- each with the owning
  * service, the parameter and every way out in the message, through
  * {@see AutowireReferenceRefusals}).
+ *
+ * The value arm -- {@see valueService()} -- routes the `#[Value]`
+ * attribute's address to the registration-completion family's own
+ * lane ({@see AutowireValueServices}), which materialises the
+ * synthetic value service the plan references; the arm lives here so
+ * the planner threads one resolver for every planned parameter, the
+ * same seam the variadic collection's answer already uses.
  *
  * The variadic collection's answer also routes through here
  * ({@see implementations()}) -- the same declared set the reuse arms
@@ -48,6 +56,7 @@ final readonly class AutowireReferences
     public function __construct(
         ReflectionMetadataExtractor $reflectionMetadataExtractor,
         AutowireBirths $autowireBirths,
+        private AutowireValueServices $autowireValueServices,
     ) {
         $this->autowireReuse = new AutowireReuse($autowireBirths);
         $this->autowireBirther = new AutowireBirther($autowireBirths, $reflectionMetadataExtractor);
@@ -102,5 +111,16 @@ final readonly class AutowireReferences
         }
 
         throw AutowireReferenceRefusals::unbound($ownerId, $autowireParameterSpec->name, $id);
+    }
+
+    /**
+     * The value arm's answer: the synthetic `@value:` identifier the
+     * `#[Value]` attribute's plan references, materialised by the
+     * registration-completion family's lane (see
+     * {@see AutowireValueServices::service()}).
+     */
+    public function valueService(string $ownerId, AutowireParameterSpec $autowireParameterSpec): string
+    {
+        return $this->autowireValueServices->service($ownerId, $autowireParameterSpec);
     }
 }

@@ -242,6 +242,7 @@ final readonly class FrameworkDefaults
                 'interfaces' => [],
             ],
             'contextual' => [],
+            'parameters' => [],
         ];
     }
 }

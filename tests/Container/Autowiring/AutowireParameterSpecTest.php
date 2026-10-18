@@ -145,4 +145,130 @@ final class AutowireParameterSpecTest extends TestCase
         self::assertSame(LoggerInterface::class, $typed->identifier());
         self::assertSame('', $plain->identifier());
     }
+
+    public function testValueCannotCombineWithInject(): void
+    {
+        try {
+            new AutowireParameterSpec(
+                name: 'clock',
+                isVariadic: false,
+                isOptional: false,
+                hasDefault: false,
+                injectId: 'app.clock',
+                valueKey: 'app.clock.value',
+            );
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Parameter '\$clock' cannot combine #[Value] with #[Inject] or #[Target] "
+                . '(one parameter carries one binding intent).',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testValueCannotCombineWithTarget(): void
+    {
+        try {
+            new AutowireParameterSpec(
+                name: 'logger',
+                isVariadic: false,
+                isOptional: false,
+                hasDefault: false,
+                targetClass: FileLogger::class,
+                valueKey: 'app.logger.value',
+            );
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Parameter '\$logger' cannot combine #[Value] with #[Inject] or #[Target] "
+                . '(one parameter carries one binding intent).',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testValueCannotRideAVariadicParameter(): void
+    {
+        try {
+            new AutowireParameterSpec(
+                name: 'tags',
+                isVariadic: true,
+                isOptional: true,
+                hasDefault: false,
+                valueKey: 'app.tags',
+            );
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Parameter '\$tags' cannot carry #[Value] on a variadic parameter "
+                . '(a variadic is a collection, not one value).',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testValueCannotRideAClassTypedParameter(): void
+    {
+        try {
+            new AutowireParameterSpec(
+                name: 'logger',
+                isVariadic: false,
+                isOptional: false,
+                hasDefault: false,
+                className: LoggerInterface::class,
+                valueKey: 'app.logger',
+            );
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Parameter '\$logger' cannot carry #[Value] on a class-typed parameter "
+                . '(' . LoggerInterface::class . ' is an instance type, a value is a scalar or an array).',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testValueCannotRideAUnionParameter(): void
+    {
+        try {
+            new AutowireParameterSpec(
+                name: 'either',
+                isVariadic: false,
+                isOptional: false,
+                hasDefault: false,
+                unsupportedTypeReason: 'a union type names no single binding',
+                valueKey: 'app.either',
+            );
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Parameter '\$either' cannot carry #[Value] on a union or intersection "
+                . 'parameter (a value names no single type).',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheValuePredicateRoutesThePlannersValueTier(): void
+    {
+        $valued = new AutowireParameterSpec(
+            name: 'host',
+            isVariadic: false,
+            isOptional: false,
+            hasDefault: false,
+            valueKey: 'db.host',
+        );
+        $plain = new AutowireParameterSpec(
+            name: 'salutation',
+            isVariadic: false,
+            isOptional: false,
+            hasDefault: false,
+        );
+
+        self::assertTrue($valued->carriesValue());
+        self::assertFalse($plain->carriesValue());
+        self::assertFalse($valued->carriesBinding());
+        self::assertSame('db.host', $valued->valueKey);
+    }
 }
