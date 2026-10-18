@@ -36,7 +36,7 @@ final class ReplaySnapshotWriter
             }
             fclose($stream);
 
-            if (is_file($destination) && !unlink($destination)) {
+            if (!unlink($destination)) {
                 throw new RuntimeException('Unable to remove an incomplete replay snapshot.', 0, $throwable);
             }
 
