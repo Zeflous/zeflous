@@ -201,9 +201,10 @@ final class ContextualBindingsTest extends TestCase
         self::assertSame(
             [['service' => self::VIA]],
             $consumer->calls[0]->arguments,
-            'the factory shape\'s method calls flow through the binding too',
+            "the factory shape's method calls flow through the binding too",
         );
     }
+
     public function testTheRewriteTargetsTheConsumersLastOccurrence(): void
     {
         $definitions = [

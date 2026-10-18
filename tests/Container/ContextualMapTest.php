@@ -69,6 +69,7 @@ final class ContextualMapTest extends TestCase
             $map->bindings(),
         );
     }
+
     public function testANonMapKnobValueIsRejected(): void
     {
         try {
