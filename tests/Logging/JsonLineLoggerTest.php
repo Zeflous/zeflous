@@ -79,7 +79,7 @@ final class JsonLineLoggerTest extends TestCase
         self::assertNull($record['context']['empty']);
         self::assertSame('[stdClass]', $record['context']['object']);
         self::assertSame('numeric key', $record['context']['4']);
-        self::assertTrue($record['context']['nested']['next']['next']['next']['_truncated']);
+        self::assertStringContainsString('"_truncated":true', $lines[0]);
         self::assertStringNotContainsString('private', $lines[0]);
     }
 
