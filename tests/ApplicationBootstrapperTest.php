@@ -82,6 +82,17 @@ final class ApplicationBootstrapperTest extends TestCase
         );
         self::assertSame(
             [
+                'http.errors' => [
+                    'factory' => 'Zef\\Framework\\Http\\ErrorMappingFactory::fromConfig',
+                    'arguments' => [
+                        ['service' => FrameworkDefaults::CONFIG_SERVICE],
+                        ['service' => 'observability.meter'],
+                    ],
+                ],
+                'http.debug_toolbar' => [
+                    'factory' => 'Zef\\Framework\\Middleware\\DebugToolbarFactory::fromConfig',
+                    'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
+                ],
                 'security.headers' => [
                     'factory' => SecurityHeadersFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
