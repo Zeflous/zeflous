@@ -14,14 +14,21 @@ final class ErrorContentNegotiator
         }
 
         $qualities = AcceptHeaderParser::qualities($accept);
-        $html = $qualities['text/html'] ?? $qualities['text/*'] ?? $qualities['*/*'] ?? 0.0;
-        $json = max(
-            $qualities['application/problem+json'] ?? 0.0,
-            $qualities['application/json'] ?? 0.0,
-            $qualities['application/*'] ?? 0.0,
-            $qualities['*/*'] ?? 0.0,
-        );
+        $html = self::qualityFor($qualities, 'text/html', 'text/*');
+        $json = self::qualityFor($qualities, 'application/problem+json', 'application/json', 'application/*');
 
         return $html > 0.0 && $html > $json;
+    }
+
+    /** @param array<string, float> $qualities */
+    private static function qualityFor(array $qualities, string ...$mediaTypes): float
+    {
+        foreach ([...$mediaTypes, '*/*'] as $mediaType) {
+            if (array_key_exists($mediaType, $qualities)) {
+                return $qualities[$mediaType];
+            }
+        }
+
+        return 0.0;
     }
 }
