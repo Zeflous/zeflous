@@ -57,6 +57,25 @@ final class DebugToolbarMiddlewareTest extends TestCase
         self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
     }
 
+    public function testPreservesExistingContentSecurityPolicyWithoutInjectingToolbar(): void
+    {
+        $policy = "default-src 'self'; script-src 'self'";
+        $response = new Response(
+            200,
+            ['Content-Type' => 'text/html', 'Content-Security-Policy' => $policy],
+            '<html><body>application</body></html>',
+        );
+
+        $actual = (new DebugToolbarMiddleware(true))->process(
+            $this->request('text/html'),
+            new FixedResponseHandler($response),
+        );
+
+        self::assertSame($policy, $actual->getHeaderLine('Content-Security-Policy'));
+        self::assertSame('<html><body>application</body></html>', (string) $actual->getBody());
+        self::assertSame('', $actual->getHeaderLine('X-Debug-Toolbar'));
+    }
+
     public function testDoesNotModifyNonHtmlOrNonSuccessfulResponses(): void
     {
         $middleware = new DebugToolbarMiddleware(true);
