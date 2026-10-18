@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Zef\\Framework\\Logging;
+namespace Zef\Framework\Logging;
 
 use InvalidArgumentException;
-use Psr\\Log\\LoggerInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Stringable;
 
