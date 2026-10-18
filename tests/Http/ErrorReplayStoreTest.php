@@ -92,11 +92,13 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertStringNotContainsString('Authorization', $contents);
 
         $snapshot = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($snapshot);
         self::assertSame('/users', $snapshot['path']);
         self::assertStringContainsString('filter=active', $snapshot['query']);
         self::assertStringContainsString('token=%5BREDACTED%5D', $snapshot['query']);
         self::assertTrue($snapshot['body_replayable']);
         $body = json_decode($snapshot['body'], true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($body);
         self::assertSame('[REDACTED]', $body['password']);
         self::assertSame('[REDACTED]', $body['nested']['access_token']);
         self::assertSame(3, $body['count']);
@@ -134,6 +136,7 @@ final class ErrorReplayStoreTest extends TestCase
             512,
             JSON_THROW_ON_ERROR,
         );
+        self::assertIsArray($snapshot);
 
         self::assertFalse($snapshot['body_replayable']);
         self::assertSame('', $snapshot['body']);
@@ -171,6 +174,7 @@ final class ErrorReplayStoreTest extends TestCase
             512,
             JSON_THROW_ON_ERROR,
         );
+        self::assertIsArray($snapshot);
 
         self::assertFalse($snapshot['body_replayable']);
         self::assertSame('', $snapshot['body']);
@@ -208,6 +212,7 @@ final class ErrorReplayStoreTest extends TestCase
             512,
             JSON_THROW_ON_ERROR,
         );
+        self::assertIsArray($snapshot);
 
         self::assertFalse($snapshot['body_replayable']);
         self::assertSame('', $snapshot['body']);
@@ -228,6 +233,7 @@ final class ErrorReplayStoreTest extends TestCase
             512,
             JSON_THROW_ON_ERROR,
         );
+        self::assertIsArray($emptySnapshot);
         self::assertTrue($emptySnapshot['body_replayable']);
         self::assertSame('', $emptySnapshot['body']);
 
@@ -253,6 +259,7 @@ final class ErrorReplayStoreTest extends TestCase
             512,
             JSON_THROW_ON_ERROR,
         );
+        self::assertIsArray($largeSnapshot);
         self::assertFalse($largeSnapshot['body_replayable']);
         self::assertSame('', $largeSnapshot['body']);
     }
