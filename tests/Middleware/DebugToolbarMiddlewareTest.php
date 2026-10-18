@@ -15,6 +15,8 @@ use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\DebugToolbarFactory;
+use Zef\Framework\Middleware\DebugToolbarEligibility;
+use Zef\Framework\Middleware\DebugToolbarInjector;
 use Zef\Framework\Middleware\DebugToolbarMiddleware;
 use Zef\Test\Support\Http\FixedResponseHandler;
 
