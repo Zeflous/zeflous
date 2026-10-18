@@ -40,7 +40,9 @@ final class ProblemDetailsResponseFactory
                 $instance,
                 $traceId,
                 $debug,
-                $errorRequestContext instanceof ErrorRequestContext ? $errorRequestContext->durationMilliseconds() : 0.0,
+                $errorRequestContext instanceof ErrorRequestContext
+                    ? $errorRequestContext->durationMilliseconds()
+                    : 0.0,
                 $errorRequestContext instanceof ErrorRequestContext ? $errorRequestContext->queryCount() : 0,
                 $errorRequestContext instanceof ErrorRequestContext ? $errorRequestContext->exceptionCount() : 1,
             );
