@@ -20,7 +20,7 @@ final class ErrorFaultLogWriter
                 return;
             }
 
-            error_log((string) json_encode([
+            error_log(json_encode([
                 'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
                 'level' => $level,
                 'message' => 'Request failed',
