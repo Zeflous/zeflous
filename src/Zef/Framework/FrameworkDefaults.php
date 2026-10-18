@@ -241,6 +241,7 @@ final readonly class FrameworkDefaults
             'tags' => [
                 'interfaces' => [],
             ],
+            'contextual' => [],
         ];
     }
 }

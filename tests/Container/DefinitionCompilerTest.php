@@ -16,12 +16,15 @@ use Zef\Framework\Container\FactoryClosures;
 use Zef\Framework\Container\FactoryDefinition;
 use Zef\Framework\Container\FactoryInvocation;
 use Zef\Framework\Container\InstanceDefinition;
+use Zef\Framework\Container\MethodCall;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\UnplannedInstanceDefinition;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Container\ExternalFactory;
 use Zef\Test\Support\Container\Greeter;
+use Zef\Test\Support\Container\Injector\FactoryProduct;
+use Zef\Test\Support\Container\Injector\TunedWidget;
 use Zef\Test\Support\Container\UnsupportedDefinition;
 
 /**
@@ -248,6 +251,87 @@ final class DefinitionCompilerTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertStringContainsString(
                 "The service 'app.x' carries an unplanned constructor plan -- run the autowire compiler pass",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnInstanceDefinitionAppliesItsCallsAfterConstruction(): void
+    {
+        $container = new Container();
+        $container->set('app.tag', static fn (): string => 'ops');
+
+        $factory = $this->definitionCompiler->compile(
+            new InstanceDefinition('app.widget', TunedWidget::class, ['main'], calls: [
+                new MethodCall('setVolume', [7]),
+                new MethodCall('addTag', [['service' => 'app.tag']]),
+                new MethodCall('warmUp'),
+            ]),
+        );
+
+        $widget = $factory($container);
+
+        self::assertInstanceOf(TunedWidget::class, $widget);
+        self::assertSame(['volume:7', 'tag:ops', 'warm'], $widget->log());
+        self::assertTrue($widget->warmed());
+    }
+
+    public function testAFactoryDefinitionAppliesItsCallsToTheProduct(): void
+    {
+        $factory = $this->definitionCompiler->compile(
+            new FactoryDefinition('app.product', FactoryProduct::class . '::make', ['gadget'], calls: [
+                new MethodCall('setOrigin', ['boot']),
+            ]),
+        );
+
+        $product = $factory(new Container());
+        self::assertInstanceOf(FactoryProduct::class, $product);
+        self::assertSame('boot:gadget', $product->describe());
+    }
+
+    public function testAFactoryDefinitionWithoutCallsAnswersTheProductVerbatim(): void
+    {
+        $factory = $this->definitionCompiler->compile(
+            new FactoryDefinition('app.label', ExternalFactory::class . '::make', ['widget']),
+        );
+
+        self::assertSame('made:widget', $factory(new Container()));
+    }
+
+    public function testAFactoryDefinitionWithCallsOnANonObjectProductFailsClosed(): void
+    {
+        $factory = $this->definitionCompiler->compile(
+            new FactoryDefinition('app.label', ExternalFactory::class . '::make', ['widget'], calls: [
+                new MethodCall('toUpperCase'),
+            ]),
+        );
+
+        try {
+            $factory(new Container());
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Factory '" . ExternalFactory::class . "::make' answered string; "
+                . 'method calls can only apply to an object product.',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAFactoryDefinitionWithCallsOnAMissingMethodFailsClosed(): void
+    {
+        $factory = $this->definitionCompiler->compile(
+            new FactoryDefinition('app.product', FactoryProduct::class . '::make', ['gadget'], calls: [
+                new MethodCall('detune'),
+            ]),
+        );
+
+        try {
+            $factory(new Container());
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service call 'detune' is not callable on " . FactoryProduct::class . '.',
                 $definitionException->getMessage(),
             );
         }

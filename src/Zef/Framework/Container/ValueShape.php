@@ -51,6 +51,13 @@ final readonly class ValueShape
             );
         }
 
+        if (\array_key_exists('calls', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries 'calls' on a 'value' definition "
+                . '(a value is a constant: there is no instance to call methods on).',
+            );
+        }
+
         return new ValueDefinition($id, $entry['value']);
     }
 }

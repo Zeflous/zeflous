@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Container;
 
+use Override;
+
 /**
  * The `class` shape's unplanned form -- a definition that asks the
  * autowiring compile pass to plan its constructor ({@see InstanceShape}
@@ -26,6 +28,9 @@ final readonly class UnplannedInstanceDefinition extends ServiceDefinition
      *                                                  name-keyed arguments, null
      *                                                  for the whole-constructor
      *                                                  `autowire` form
+     * @param list<MethodCall>          $calls          the method-call injection
+     *                                                  list, carried to the planned
+     *                                                  definition unchanged
      */
     public function __construct(
         string $id,
@@ -33,7 +38,28 @@ final readonly class UnplannedInstanceDefinition extends ServiceDefinition
         public ?array $namedArguments = null,
         ServiceLifetime $serviceLifetime = ServiceLifetime::SINGLETON,
         ServiceTags $serviceTags = new ServiceTags(),
+        public array $calls = [],
     ) {
         parent::__construct($id, $serviceLifetime, $serviceTags);
+    }
+
+    /**
+     * The same declaration carrying a method-call injection list -- the
+     * grammar's answer to the shape's `calls` key, carried to the
+     * planned definition the autowiring compile pass answers.
+     *
+     * @param list<MethodCall> $methodCalls
+     */
+    #[Override]
+    public function withMethodCalls(array $methodCalls): self
+    {
+        return new self(
+            $this->id,
+            $this->class,
+            $this->namedArguments,
+            $this->lifetime,
+            $this->tags,
+            $methodCalls,
+        );
     }
 }

@@ -9,6 +9,8 @@ use Zef\Framework\Container\Autowiring\AutoconfigMap;
 use Zef\Framework\Container\Autowiring\Autoconfiguration;
 use Zef\Framework\Container\Autowiring\AutowireCompilerPass;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Container\ContextualBindings;
+use Zef\Framework\Container\ContextualMap;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Container\DefinitionMap;
 use Zef\Framework\Container\ServiceDefinitionGraph;
@@ -45,15 +47,20 @@ use Zef\Framework\Container\TaggedServices;
  * valid empty set); the autoconfiguration knob is parsed to its
  * validated rules ({@see AutoconfigMap::parse()} -- an unknown key, a
  * missing interface or an invalid tag each halt the boot with the
- * knob's own name); the whole set then passes the autowiring compile
- * pass ({@see AutowireCompilerPass::process()}), which rewrites the
+ * knob's own name); the contextual-binding knob is parsed to its
+ * validated bindings ({@see ContextualMap::parse()}); the whole set
+ * then passes the autowiring compile pass
+ * ({@see AutowireCompilerPass::process()}), which rewrites the
  * name-keyed and `autowire` declarations into the positional form,
  * reads every class-shaped constructor once for the instantiable and
  * arity verdicts, and appends the classes a planned parameter birthed
  * as their own declared definitions; the earned tags are merged in
  * ({@see Autoconfiguration::apply()} -- the marker rules and `#[Tag]`
  * attributes a class-shaped declaration earns, one tag one source or
- * the boot refuses); finally the set's reference graph
+ * the boot refuses); the contextual bindings are applied
+ * ({@see ContextualBindings::apply()} -- each consumer's declared
+ * dependency reference rewritten to flow through the binding's
+ * synthetic alias); finally the set's reference graph
  * is proven resolvable and acyclic by
  * {@see ServiceDefinitionGraph::validate()} before a single definition
  * is installed.
@@ -88,9 +95,13 @@ final readonly class ContainerBootstrapper
 
         $autoconfigMap = AutoconfigMap::parse('tags', $config->get('tags'));
 
+        $contextualMap = ContextualMap::parse('contextual', $config->get('contextual'));
+
         $autowireResult = $this->autowireCompilerPass->process($definitions, $container);
 
         $planned = Autoconfiguration::apply($autowireResult->definitions, $autoconfigMap);
+
+        $planned = ContextualBindings::apply($planned, $contextualMap);
 
         ServiceDefinitionGraph::validate($planned, $container);
 

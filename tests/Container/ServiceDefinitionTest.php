@@ -233,7 +233,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key '5' "
-                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags, calls).',
                 $definitionException->getMessage(),
             );
         }
@@ -260,7 +260,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key 'clas' "
-                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags, calls).',
                 $definitionException->getMessage(),
             );
         }

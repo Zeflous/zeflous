@@ -22,7 +22,10 @@ use ReflectionClass;
  * (no constructor analysis: that reflection-based resolution belongs to the
  * autowiring lane, ROADMAP area 2). Paid once per service thanks to the
  * container's memoisation; the compiler-pass lane (area 8) will replace it
- * with the dumped `new` literal.
+ * with the dumped `new` literal. A declaration carrying `calls` has them
+ * applied to the built instance through {@see MethodCallInvocations::apply()}
+ * -- the method-call injection lane (area 4), an opt-in extension whose
+ * absent key pays only the empty call list's loop guard.
  *
  * An unplanned definition reaching this compiler is a misuse of the
  * seam: the autowiring lane's declarations are compiled by
@@ -59,10 +62,14 @@ final readonly class DefinitionCompiler
     {
         $class = $instanceDefinition->class;
         $arguments = $instanceDefinition->arguments;
+        $calls = $instanceDefinition->calls;
 
-        return static fn (Container $container): object => new ReflectionClass($class)
-            ->newInstanceArgs(DefinitionArguments::resolve($arguments, $container))
-        ;
+        return static fn (Container $container): object => MethodCallInvocations::apply(
+            new ReflectionClass($class)
+                ->newInstanceArgs(DefinitionArguments::resolve($arguments, $container)),
+            $calls,
+            $container,
+        );
     }
 
     /**

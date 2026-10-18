@@ -49,6 +49,7 @@ final readonly class AutowireRequestPlanning
             $arguments,
             $unplannedInstanceDefinition->lifetime,
             $unplannedInstanceDefinition->tags,
+            $unplannedInstanceDefinition->calls,
         );
     }
 }

@@ -8,11 +8,15 @@ namespace Zef\Framework\Container;
  * The container edges a definition declares, extracted for the boot graph.
  *
  * Edges are the explicit service references a definition carries: an alias
- * target, the `['service' => id]` argument references, and a factory target
+ * target, the `['service' => id]` argument references, a factory target
  * -- the latter only when the target is *not* an existing class, because a
- * class-named factory target is a static call rather than a container edge.
- * The precedence matches {@see DefinitionCompiler}: a registered service
- * identifier shadows an equally-named class.
+ * class-named factory target is a static call rather than a container edge
+ * -- and the `['service' => id]` references of the method-call injection
+ * list: a dependency injected through a call is a dependency all the same,
+ * so its resolvability, its cycles and its lifetime captures are proven at
+ * boot exactly like a constructor argument's. The precedence matches
+ * {@see DefinitionCompiler}: a registered service identifier shadows an
+ * equally-named class.
  */
 final readonly class DefinitionReferences
 {
@@ -28,7 +32,10 @@ final readonly class DefinitionReferences
             ),
             $serviceDefinition instanceof AliasDefinition => [$serviceDefinition->target],
             $serviceDefinition instanceof FactoryDefinition => self::factoryReferences($serviceDefinition),
-            $serviceDefinition instanceof InstanceDefinition => self::argumentReferences($serviceDefinition->arguments),
+            $serviceDefinition instanceof InstanceDefinition => self::carriedReferences(
+                $serviceDefinition->arguments,
+                $serviceDefinition->calls,
+            ),
             default => [],
         };
     }
@@ -50,10 +57,32 @@ final readonly class DefinitionReferences
             // a container edge. A same-named registered service still
             // wins at call time (the compiler's precedence), so the
             // static fallback exists even when an edge was skipped.
-            return self::argumentReferences($factoryDefinition->arguments);
+            return self::carriedReferences($factoryDefinition->arguments, $factoryDefinition->calls);
         }
 
-        return [$target, ...self::argumentReferences($factoryDefinition->arguments)];
+        return [
+            $target,
+            ...self::carriedReferences($factoryDefinition->arguments, $factoryDefinition->calls),
+        ];
+    }
+
+    /**
+     * The references a planned declaration carries across both realms:
+     * its argument list and its method-call injection list.
+     *
+     * @param list<mixed>      $arguments
+     * @param list<MethodCall> $calls
+     *
+     * @return list<string>
+     */
+    private static function carriedReferences(array $arguments, array $calls): array
+    {
+        $callArguments = array_map(
+            static fn (MethodCall $methodCall): array => $methodCall->arguments,
+            $calls,
+        );
+
+        return self::argumentReferences(array_merge($arguments, ...$callArguments));
     }
 
     /**
@@ -63,20 +92,7 @@ final readonly class DefinitionReferences
      */
     private static function argumentReferences(array $arguments): array
     {
-        $candidates = array_map(
-            static function (mixed $argument): ?string {
-                if (
-                    \is_array($argument)
-                    && \array_key_exists('service', $argument)
-                    && \is_string($argument['service'])
-                ) {
-                    return $argument['service'];
-                }
-
-                return null;
-            },
-            $arguments,
-        );
+        $candidates = array_map(ArgumentNames::identifier(...), $arguments);
 
         return array_values(array_filter(
             $candidates,
