@@ -178,15 +178,19 @@ final readonly class ErrorReplayStore
         }
 
         $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        $mediaType = trim(explode(';', $contentType, 2)[0]);
         try {
-            if (str_contains($contentType, 'application/json') || str_contains($contentType, '+json')) {
+            if (
+                $mediaType === 'application/json'
+                || (str_starts_with($mediaType, 'application/') && str_ends_with($mediaType, '+json'))
+            ) {
                 $decoded = json_decode($raw, true, 32, JSON_THROW_ON_ERROR);
                 $safe = ReplayPayloadSanitizer::sanitize($decoded);
 
                 return [json_encode($safe, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE), true];
             }
 
-            if (str_contains($contentType, 'application/x-www-form-urlencoded')) {
+            if ($mediaType === 'application/x-www-form-urlencoded') {
                 parse_str($raw, $decoded);
                 $safe = ReplayPayloadSanitizer::sanitize($decoded);
 
