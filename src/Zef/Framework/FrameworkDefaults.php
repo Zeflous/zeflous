@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Zef\Framework;
 
 use Zef\Framework\Health\HealthChecker;
+use Zef\Framework\Http\ErrorMappingFactory;
 use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
+use Zef\Framework\Middleware\DebugToolbarFactory;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\MetricsFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
@@ -109,6 +111,19 @@ final readonly class FrameworkDefaults
         return [
             'framework' => [
                 'services' => [
+                    'http.errors' => [
+                        'factory' => ErrorMappingFactory::class . self::CONFIG_FACTORY_ENTRY,
+                        'arguments' => [
+                            ['service' => self::CONFIG_SERVICE],
+                            ['service' => 'observability.meter'],
+                        ],
+                    ],
+                    'http.debug_toolbar' => [
+                        'factory' => DebugToolbarFactory::class . self::CONFIG_FACTORY_ENTRY,
+                        'arguments' => [
+                            ['service' => self::CONFIG_SERVICE],
+                        ],
+                    ],
                     'security.headers' => [
                         'factory' => SecurityHeadersFactory::class . self::CONFIG_FACTORY_ENTRY,
                         'arguments' => [
@@ -167,6 +182,14 @@ final readonly class FrameworkDefaults
                             ['service' => 'observability.health'],
                         ],
                     ],
+                ],
+            ],
+            'http' => [
+                'error_handling' => [
+                    'debug' => false,
+                    'log_path' => '',
+                    'replay_enabled' => false,
+                    'replay_path' => '',
                 ],
             ],
             'security' => [

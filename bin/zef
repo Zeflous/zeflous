@@ -1,0 +1,219 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+const DEFAULT_ERROR_LOG = __DIR__ . '/../var/log/zef-errors.jsonl';
+
+$command = $argv[1] ?? '';
+
+if ($command === 'errors:replay') {
+    $id = $argv[2] ?? '';
+    $directory = $argv[3] ?? (getenv('ZEF_ERROR_REPLAY_DIR') ?: '');
+    $baseUrl = $argv[4] ?? '';
+
+    if (preg_match('/^[a-f0-9]{32}$/D', $id) !== 1 || $directory === '' || $baseUrl === '') {
+        fwrite(STDERR, "Usage: bin/zef errors:replay <id> <replay-directory> <http://127.0.0.1:port>\n");
+        exit(2);
+    }
+
+    $base = parse_url($baseUrl);
+    $allowedHosts = ['127.0.0.1', 'localhost', '::1'];
+    $targetHost = is_array($base) ? strtolower(trim((string) ($base['host'] ?? ''), '[]')) : '';
+    if (
+        !is_array($base)
+        || ($base['scheme'] ?? '') !== 'http'
+        || !in_array($targetHost, $allowedHosts, true)
+        || isset($base['user'])
+        || isset($base['pass'])
+        || isset($base['query'])
+        || isset($base['fragment'])
+        || !in_array($base['path'] ?? '', ['', '/'], true)
+    ) {
+        fwrite(STDERR, "Replay target must be a plain HTTP URL on localhost, 127.0.0.1 or ::1.\n");
+        exit(2);
+    }
+
+    $resolvedDirectory = realpath($directory);
+    $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+    $resolvedDocumentRoot = is_string($documentRoot) && $documentRoot !== ''
+        ? realpath($documentRoot)
+        : false;
+    if (
+        !is_string($resolvedDirectory)
+        || !is_dir($resolvedDirectory)
+        || is_link($directory)
+        || (is_string($resolvedDocumentRoot)
+            && ($resolvedDirectory === $resolvedDocumentRoot
+                || str_starts_with($resolvedDirectory, rtrim($resolvedDocumentRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR)))
+    ) {
+        fwrite(STDERR, "Replay directory does not exist or is unsafe.\n");
+        exit(2);
+    }
+
+    $snapshotPath = $resolvedDirectory . DIRECTORY_SEPARATOR . $id . '.json';
+    if (
+        is_link($snapshotPath)
+        || !is_file($snapshotPath)
+        || !is_readable($snapshotPath)
+        || (fileperms($snapshotPath) & 0777) !== 0600
+    ) {
+        fwrite(STDERR, "Replay snapshot does not exist or is unsafe.\n");
+        exit(1);
+    }
+
+    $snapshot = json_decode((string) file_get_contents($snapshotPath), true);
+    if (!is_array($snapshot)) {
+        fwrite(STDERR, "Replay snapshot is invalid JSON.\n");
+        exit(1);
+    }
+
+    $method = strtoupper((string) ($snapshot['method'] ?? ''));
+    $allowedMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
+    $requestPath = $snapshot['path'] ?? '';
+    $query = $snapshot['query'] ?? '';
+    $body = $snapshot['body'] ?? '';
+    $bodyReplayable = $snapshot['body_replayable'] ?? false;
+    if (
+        !in_array($method, $allowedMethods, true)
+        || !is_string($requestPath)
+        || !str_starts_with($requestPath, '/')
+        || preg_match('/[\x00-\x1F\x7F]/', $requestPath) === 1
+        || !is_string($query)
+        || preg_match('/[\r\n]/', $query) === 1
+        || !is_string($body)
+        || !is_bool($bodyReplayable)
+        || (!$bodyReplayable && !in_array($method, ['GET', 'HEAD', 'OPTIONS'], true))
+    ) {
+        fwrite(STDERR, "Snapshot is not safe or replayable; the original body was omitted.\n");
+        exit(1);
+    }
+
+    $headers = [];
+    $storedHeaders = is_array($snapshot['headers'] ?? null) ? $snapshot['headers'] : [];
+    foreach ($storedHeaders as $name => $values) {
+        if (
+            !is_string($name)
+            || preg_match('/^[A-Za-z0-9-]{1,80}$/D', $name) !== 1
+            || in_array(strtolower($name), ['host', 'content-length', 'connection', 'transfer-encoding', 'authorization', 'cookie'], true)
+            || !is_array($values)
+        ) {
+            continue;
+        }
+
+        foreach (array_slice($values, 0, 10) as $value) {
+            if (is_string($value) && preg_match('/[\r\n]/', $value) !== 1) {
+                $headers[] = $name . ': ' . substr($value, 0, 512);
+            }
+        }
+    }
+    $headers[] = 'X-Zef-Replay: 1';
+
+    $target = rtrim($baseUrl, '/') . $requestPath . ($query !== '' ? '?' . $query : '');
+    $context = stream_context_create([
+        'http' => [
+            'method' => $method,
+            'header' => implode("\r\n", $headers),
+            'content' => $body,
+            'ignore_errors' => true,
+            'follow_location' => 0,
+            'max_redirects' => 0,
+            'timeout' => 2,
+        ],
+    ]);
+    $responseBody = file_get_contents($target, false, $context);
+    $statusLine = $http_response_header[0] ?? 'HTTP status unavailable';
+    fwrite(STDOUT, $statusLine . "\n");
+    if (is_string($responseBody)) {
+        fwrite(STDOUT, substr($responseBody, 0, 4096) . "\n");
+    } else {
+        fwrite(STDERR, "Local replay request failed.\n");
+        exit(1);
+    }
+    exit(0);
+}
+
+$path = $argv[2] ?? (getenv('ZEF_ERROR_LOG') ?: DEFAULT_ERROR_LOG);
+$confirm = in_array('--confirm', $argv, true);
+
+if (!in_array($command, ['errors:report', 'errors:clear'], true)) {
+    fwrite(STDERR, "Usage: bin/zef errors:report [jsonl-path]\n"
+        . "       bin/zef errors:clear [jsonl-path] --confirm\n"
+        . "       bin/zef errors:replay <id> <replay-directory> <http://127.0.0.1:port>\n");
+    exit(2);
+}
+
+if (is_link($path)) {
+    fwrite(STDERR, "Refusing to follow a symlink log path.\n");
+    exit(2);
+}
+
+if ($command === 'errors:clear') {
+    if (!$confirm) {
+        fwrite(STDERR, "Refusing destructive operation without --confirm.\n");
+        exit(2);
+    }
+
+    if (!is_file($path) || !is_writable($path)) {
+        fwrite(STDERR, "Error log does not exist or is not writable: {$path}\n");
+        exit(1);
+    }
+
+    $stream = fopen($path, 'c+b');
+    if ($stream === false || !flock($stream, LOCK_EX)) {
+        if (is_resource($stream)) {
+            fclose($stream);
+        }
+        fwrite(STDERR, "Unable to lock error log for clearing.\n");
+        exit(1);
+    }
+
+    ftruncate($stream, 0);
+    fflush($stream);
+    flock($stream, LOCK_UN);
+    fclose($stream);
+    fwrite(STDOUT, "Cleared local JSONL error log: {$path}\n");
+    exit(0);
+}
+
+if (!is_file($path) || !is_readable($path)) {
+    fwrite(STDOUT, "No readable error log found: {$path}\n");
+    exit(0);
+}
+
+$counts = [];
+$top = [];
+$total = 0;
+$handle = fopen($path, 'rb');
+if ($handle === false) {
+    fwrite(STDERR, "Unable to read error log: {$path}\n");
+    exit(1);
+}
+
+while (($line = fgets($handle)) !== false) {
+    $entry = json_decode($line, true);
+    if (!is_array($entry)) {
+        continue;
+    }
+
+    ++$total;
+    $level = is_string($entry['level'] ?? null) ? $entry['level'] : 'unknown';
+    $counts[$level] = ($counts[$level] ?? 0) + 1;
+    $context = is_array($entry['context'] ?? null) ? $entry['context'] : [];
+    $code = is_string($context['exception_code'] ?? null)
+        ? $context['exception_code']
+        : (is_string($context['exception_class'] ?? null) ? $context['exception_class'] : 'unknown');
+    $top[$code] = ($top[$code] ?? 0) + 1;
+}
+fclose($handle);
+
+arsort($counts);
+arsort($top);
+fwrite(STDOUT, "Error log report: {$path}\nTotal records: {$total}\n\nBy level:\n");
+foreach ($counts as $level => $count) {
+    fwrite(STDOUT, sprintf("  %-10s %d\n", $level, $count));
+}
+fwrite(STDOUT, "\nTop error codes/classes:\n");
+foreach (array_slice($top, 0, 10, true) as $code => $count) {
+    fwrite(STDOUT, sprintf("  %-40s %d\n", $code, $count));
+}
