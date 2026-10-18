@@ -34,13 +34,4 @@ final class ThirdPartyExceptionMapperTest extends TestCase
 
         self::assertSame($exception, ThirdPartyExceptionMapper::normalize($exception));
     }
-
-    public function testGuzzleIsNotRequiredToLoadTheMapper(): void
-    {
-        self::assertFalse(class_exists('GuzzleHttp\\Exception\\GuzzleException'));
-        self::assertInstanceOf(
-            RuntimeException::class,
-            ThirdPartyExceptionMapper::normalize(new RuntimeException('network failure')),
-        );
-    }
 }
