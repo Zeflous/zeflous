@@ -203,6 +203,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): refresh the status pin past the resolution merge [#431](https://github.com/Zeflous/zeflous/pull/431) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the status refresh to pull request 431 [#432](https://github.com/Zeflous/zeflous/pull/432) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the typed exception family to pull request 434 [#435](https://github.com/Zeflous/zeflous/pull/435) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the injector and contextual-binding family to pull request 439 [#440](https://github.com/Zeflous/zeflous/pull/440) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
