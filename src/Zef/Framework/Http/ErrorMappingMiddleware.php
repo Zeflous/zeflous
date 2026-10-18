@@ -35,7 +35,7 @@ use Zef\Framework\Telemetry\MeterInterface;
  * A PSR-3 logger may be injected through the constructor; when absent,
  * {@see ErrorFaultRecorder} emits a structured JSON record through the SAPI
  * error log. A failing error-response construction
- * (dev-mode diagnostics over invalid UTF-8 make `json_encode()` throw)
+ * (for example, an unsupported diagnostic value or recursive payload)
  * falls back to the plain-text 500 ({@see FallbackResponse}) so the client
  * still gets the status and the correlation id. Every mapped failure is
  * recorded when a logger is supplied: 4xx at warning, typed 5xx at error,
