@@ -254,6 +254,36 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertSame('', $largeSnapshot['body']);
     }
 
+    public function testRefusesReplayDirectoriesWithGroupOrWorldPermissions(): void
+    {
+        self::assertTrue(chmod($this->directory, 0755));
+
+        try {
+            $this->expectException(\\InvalidArgumentException::class);
+            new ErrorReplayStore($this->directory);
+        } finally {
+            chmod($this->directory, 0700);
+        }
+    }
+
+    public function testFailsClosedWhenDocumentRootCannotBeResolved(): void
+    {
+        $hadRoot = array_key_exists('DOCUMENT_ROOT', $_SERVER);
+        $previousRoot = $_SERVER['DOCUMENT_ROOT'] ?? null;
+        $_SERVER['DOCUMENT_ROOT'] = $this->directory . '/missing-public-root';
+
+        try {
+            $this->expectException(\\InvalidArgumentException::class);
+            new ErrorReplayStore($this->directory);
+        } finally {
+            if ($hadRoot) {
+                $_SERVER['DOCUMENT_ROOT'] = $previousRoot;
+            } else {
+                unset($_SERVER['DOCUMENT_ROOT']);
+            }
+        }
+    }
+
     public function testRefusesReplayStorageInsideDocumentRoot(): void
     {
         $previous = $_SERVER['DOCUMENT_ROOT'] ?? null;
