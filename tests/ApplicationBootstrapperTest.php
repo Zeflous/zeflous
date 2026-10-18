@@ -14,6 +14,7 @@ use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Health\HealthChecker;
+use Zef\Framework\Http\ErrorMappingMiddleware;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\TimingMiddleware;
@@ -22,6 +23,7 @@ use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CorrelationMiddleware;
 use Zef\Framework\Middleware\CsrfFactory;
+use Zef\Framework\Middleware\DebugToolbarMiddleware;
 use Zef\Framework\Middleware\MetricsFactory;
 use Zef\Framework\Middleware\MetricsMiddleware;
 use Zef\Framework\Middleware\RateLimitFactory;
@@ -130,7 +132,14 @@ final class ApplicationBootstrapperTest extends TestCase
             $kernel->config()->get('framework.services'),
             "the default layer carries the framework's own registrations in its reserved namespace",
         );
-        self::assertSame(['stack' => []], $kernel->config()->get('middleware'));
+        self::assertSame([
+            'stack' => [
+                ['service' => 'http.errors', 'priority' => 1000],
+                ['service' => 'http.debug_toolbar', 'priority' => 900],
+            ],
+        ], $kernel->config()->get('middleware'));
+        self::assertInstanceOf(ErrorMappingMiddleware::class, $kernel->container()->get('http.errors'));
+        self::assertInstanceOf(DebugToolbarMiddleware::class, $kernel->container()->get('http.debug_toolbar'));
         self::assertSame([], $kernel->config()->get('routes'));
         self::assertTrue($kernel->container()->has('security.headers'));
         self::assertTrue($kernel->container()->has('observability.timing'));

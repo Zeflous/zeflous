@@ -20,11 +20,14 @@ declare(strict_types=1);
  *       through the container and implement MiddlewareInterface, or
  *       the build fails closed.
  *
- * The shipped profile declares an empty stack -- the terminal handler
- * alone answers, which is a valid pipeline; an application fills this
- * file with the stack it wants executed around its handlers.
+ * The shipped profile places the global error boundary outermost so failures
+ * from downstream middleware and handlers share one response contract. An
+ * application can add middleware after it using lower priorities.
  */
 
 return [
-    'stack' => [],
+    'stack' => [
+        ['service' => 'http.errors', 'priority' => 1000],
+        ['service' => 'http.debug_toolbar', 'priority' => 900],
+    ],
 ];

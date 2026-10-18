@@ -11,6 +11,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 use Zef\Framework\Http\CorrelationPolicy;
+use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Telemetry\TracerInterface;
 
 /**
@@ -120,6 +121,12 @@ final readonly class CorrelationMiddleware implements MiddlewareInterface
     ): ResponseInterface {
         $correlationRequestSpan = CorrelationRequestSpan::open($this->tracer, $request);
         $span = $correlationRequestSpan->span();
+        $errorRequestContext = $request->getAttribute(ErrorRequestContext::ATTRIBUTE);
+        $spanContext = $span->getContext();
+
+        if ($errorRequestContext instanceof ErrorRequestContext && $spanContext->isValid()) {
+            $errorRequestContext->setTraceId($spanContext->traceId);
+        }
 
         try {
             $response = $handler->handle($request->withAttribute(self::SPAN_ATTRIBUTE, $span));

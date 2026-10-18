@@ -11,6 +11,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use Zef\Framework\Telemetry\MeterInterface;
 
 /**
  * The error mapping middleware -- the HTTP layer's third PSR-15 middleware
@@ -31,19 +32,19 @@ use Throwable;
  * double-failure fallback, the correlation-id stamp), and the fault half
  * is recorded by {@see ErrorFaultRecorder}.
  *
- * The PSR-3 logger is the constructor seam, opt-in until the observability
- * lane wires a real sink: the recording itself lives in
- * {@see ErrorFaultRecorder}, and a failing error-response construction
+ * A PSR-3 logger may be injected through the constructor; when absent,
+ * {@see ErrorFaultRecorder} emits a structured JSON record through the SAPI
+ * error log. A failing error-response construction
  * (dev-mode diagnostics over invalid UTF-8 make `json_encode()` throw)
  * falls back to the plain-text 500 ({@see FallbackResponse}) so the client
- * still gets the status and the correlation id. Only the server-error
- * tiers are recorded: a 4xx answer is the client's own refusal, not a
- * fault -- the observability lane's level policy (4xx as warnings) will
- * record them when it lands.
+ * still gets the status and the correlation id. Every mapped failure is
+ * recorded when a logger is supplied: 4xx at warning, typed 5xx at error,
+ * and unexpected throwables at critical. The log context is bounded and
+ * credential-redacted before it crosses the PSR-3 boundary.
  *
- * OPT-IN: add the middleware to the stack of an application that wants
- * mapped error responses; it is intentionally not part of any default
- * stack. Ported from the reference implementation (legacy `zef-framework`
+ * The middleware is registered by the shipped default stack. Applications
+ * can still construct it explicitly when composing a custom pipeline. Ported
+ * from the reference implementation (legacy `zef-framework`
  * `Middleware/GlobalErrorHandler` over `Middleware/ErrorResponseFactory`,
  * with the runner's ingress 413/400 mapping folded in); the legacy's
  * `MethodNotAllowedException` arm (405 + `Allow`) is carried by the typed
@@ -65,8 +66,10 @@ final readonly class ErrorMappingMiddleware implements MiddlewareInterface
     public function __construct(
         ?LoggerInterface $logger = null,
         private bool $debug = false,
+        ?MeterInterface $meter = null,
+        private ?ErrorReplayStore $errorReplayStore = null,
     ) {
-        $this->errorFaultRecorder = new ErrorFaultRecorder($logger);
+        $this->errorFaultRecorder = new ErrorFaultRecorder($logger, $meter);
     }
 
     #[Override]
@@ -75,14 +78,33 @@ final readonly class ErrorMappingMiddleware implements MiddlewareInterface
         RequestHandlerInterface $handler,
     ): ResponseInterface {
         $correlationId = CorrelationId::for($request);
+        $errorRequestContext = new ErrorRequestContext($correlationId);
+        $contextualRequest = $request->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
 
         try {
-            return $this->stamped($handler->handle($request), $correlationId);
+            return $this->stamped($handler->handle($contextualRequest), $correlationId);
         } catch (Throwable $throwable) {
-            $status = ErrorStatusMap::statusFor($throwable);
-            $this->errorFaultRecorder->record($throwable, $status, $correlationId, $request);
+            $mappedThrowable = ThirdPartyExceptionMapper::normalize($throwable);
+            $status = ErrorStatusMap::statusFor($mappedThrowable);
+            $errorRequestContext->recordException();
+            if ($this->errorReplayStore !== null) {
+                try {
+                    $errorRequestContext->setReplayId(
+                        $this->errorReplayStore->save($contextualRequest, $mappedThrowable, $status, $correlationId),
+                    );
+                } catch (Throwable) {
+                    error_log('ZEF error replay capture failed.');
+                }
+            }
+            $this->errorFaultRecorder->record($mappedThrowable, $status, $correlationId, $contextualRequest);
 
-            return ErrorEnvelope::answered($throwable, $status, $this->debug, $correlationId);
+            return ErrorEnvelope::answered(
+                $mappedThrowable,
+                $status,
+                $this->debug,
+                $correlationId,
+                $contextualRequest,
+            );
         }
     }
 
