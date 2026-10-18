@@ -16,7 +16,8 @@ final class ThirdPartyExceptionMapperTest extends TestCase
 {
     public function testPdoFailureIsNormalizedWithoutExposingDriverMessage(): void
     {
-        $previous = new PDOException('SQL error with private query data', '23000');
+        $previous = new PDOException('SQL error with private query data');
+        $previous->errorInfo = ['23000', 1062, 'private driver details'];
 
         $mapped = ThirdPartyExceptionMapper::normalize($previous);
 
