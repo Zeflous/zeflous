@@ -118,14 +118,20 @@ jobs:
         # repository-relative paths and stable fingerprints, so the alert feed
         # reflects genuine architecture defects.
         #
-        # Skipped on the MERGE QUEUE path: the upload is bound to the
-        # gh-readonly-queue ref, which the queue deletes the moment the group
-        # merges, so a Code Scanning analysis would be filed against a ref that
-        # no longer exists. The analysis and the error-level GATE still run in
-        # full on the merge group (that verdict is what the queue consumes);
-        # the durable Code Scanning baseline keeps coming from the `push` runs
-        # on `main`.
-        if: github.event_name != 'merge_group'
+        # MUST run on the MERGE QUEUE path too: the `main` ruleset carries the
+        # code_scanning rule (PhpCodeArcheology, zero alerts), and the merge
+        # queue evaluates that rule against the MERGE GROUP head at merge
+        # time. An earlier revision of this file skipped the upload on
+        # `merge_group`, reasoning that the analysis would be filed against a
+        # ref the queue deletes anyway; the first-entry drill (2026-10-18)
+        # proved that trade wrong the hard way -- queued entries with every
+        # check green were dequeued seconds after the aggregator concluded,
+        # because the merge-time rule evaluation found no analysis on the
+        # group head. The upload is keyed to the commit, the queue's green
+        # path carries zero error-level alerts (the gate above guarantees
+        # it), and the durable Code Scanning baseline still comes from the
+        # `push` runs on `main`, so uploading on the ephemeral ref costs
+        # nothing and is the only way the queue path satisfies the rule.
         uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
         with:
           sarif_file: build/archeology/sarif/report.sarif.json
