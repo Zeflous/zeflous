@@ -124,7 +124,11 @@ final class DebugToolbarMiddlewareTest extends TestCase
                 'http' => ['error_handling' => ['debug' => true]],
             ]))->process(
                 $this->request('text/html'),
-                new FixedResponseHandler(new Response(200, ['Content-Type' => 'text/html'], '<html><body>x</body></html>')),
+                new FixedResponseHandler(new Response(
+                    200,
+                    ['Content-Type' => 'text/html'],
+                    '<html><body>x</body></html>',
+                )),
             );
             self::assertSame('', $disabled->getHeaderLine('X-Debug-Toolbar'));
         } finally {
