@@ -121,7 +121,7 @@ final class JsonLineLoggerTest extends TestCase
         $_SERVER['DOCUMENT_ROOT'] = $missingRoot;
 
         try {
-            $this->expectException(\\InvalidArgumentException::class);
+            $this->expectException(\InvalidArgumentException::class);
             new JsonLineLogger(sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl');
         } finally {
             if ($hadRoot) {
