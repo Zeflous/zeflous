@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-18 · `main` @ `585dc210fe`
+**Last updated:** 2026-10-18 · `main` @ `354de39dcb`
 
 **How to read this file**
 
@@ -25,7 +25,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Container | 7 |
 | HTTP Layer | 25 |
 | Middleware Pipeline | 1 |
-| Error Handling | 1 |
+| Error Handling | 2 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 12 |
 | CI / Supply chain | 35 (incl. auto-merge + Sonar lanes) |
@@ -33,7 +33,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **141** |
+| **Total merged PRs** | **142** |
 
 ---
 
@@ -90,6 +90,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Work item | PR | Merged | Commit |
 |---|---|---|---|
 | fix(sonar): green Quality Gate — testable tooling, >90% coverage (touches `src/Zef/Framework/Exception/*`) | #2 | 2026-10-07 | `fbb1c2cdc9` |
+| feat(errors): add the typed HTTP exception family and retire the message sniffing (`CarriesHttpStatus` marker, eight family classes with payload-carrying refusals, `PayloadTooLargeException`, three-tier `ErrorStatusMap`, disclosure of typed messages through redaction, middleware split into `ErrorFaultRecorder` + `ErrorEnvelope`) | #434 | 2026-10-18 | `354de39dcb` |
 
 ## 4. Kernel & Platform
 
@@ -273,7 +274,7 @@ These roadmap areas have **no merged work** yet (see `ROADMAP-STATUS.md` for the
 - **Event Source System** — not started.
 - **Module Integration System** — not started beyond the `ServiceProviderInterface` contract.
 - **Adapters Layer** (view engine, database) — not started.
-- **Error Handling** — handler chain, debug/production modes, observability not started.
+- **Error Handling** — the typed exception family and the three-tier status map are live (#434); RFC 9457 problem+json + HTML fallback, the handler-chain default wiring, debug/production disclosure modes beyond the message policy, and the observability level policy are not started.
 
 ---
 

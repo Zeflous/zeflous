@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-18 · `main` @ `9d199a6`
+**Last updated:** 2026-10-18 · `main` @ `354de39dcb`
 
 ---
 
@@ -76,7 +76,7 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Standardisation, handler chain, observability, DX | 🟡 Partial | `src/Zef/Framework/Exception/ZefException.php`, `InvariantViolationException.php` — the exception root exists; the handler chain is not started. |
+| Standardisation, handler chain, observability, DX | 🟡 Partial | `src/Zef/Framework/Exception/CarriesHttpStatus.php` + the typed family (`ValidationException` 400, `AuthenticationException` 401, `AuthorizationException` 403, `NotFoundException` 404, `MethodNotAllowedException` 405, `ConflictException` 409, `RateLimitException` 429, `InternalException` 500) + `Http/PayloadTooLargeException.php` (#434) — the status map resolves through the capability marker (`ErrorStatusMap` three-tier, message sniffing retired) and the opt-in `ErrorMappingMiddleware` now maps, records (`ErrorFaultRecorder`) and renders (`ErrorEnvelope`) through collaborators. Remaining: RFC 9457 problem+json + HTML fallback, the handler-chain default wiring, the log-level policy and span-on-error observability, the DX phase. |
 
 ## Module Integration System
 
