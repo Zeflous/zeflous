@@ -10,12 +10,22 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
+use Zef\Framework\Exception\CarriesHttpStatus;
+use Zef\Framework\Exception\InternalException;
+use Zef\Framework\Exception\MethodNotAllowedException;
+use Zef\Framework\Exception\NotFoundException;
+use Zef\Framework\Exception\RateLimitException;
+use Zef\Framework\Exception\ValidationException;
+use Zef\Framework\Exception\ZefException;
 use Zef\Framework\Http\CorrelationId;
 use Zef\Framework\Http\ErrorDisclosure;
+use Zef\Framework\Http\ErrorEnvelope;
+use Zef\Framework\Http\ErrorFaultRecorder;
 use Zef\Framework\Http\ErrorMappingMiddleware;
 use Zef\Framework\Http\ErrorResponseFactory;
 use Zef\Framework\Http\FallbackResponse;
 use Zef\Framework\Http\HttpException;
+use Zef\Framework\Http\PayloadTooLargeException;
 use Zef\Framework\Http\RedactedMessage;
 use Zef\Framework\Http\RedactionCandidate;
 use Zef\Framework\Http\RequestBodyPolicy;
@@ -34,6 +44,8 @@ use Zef\Test\Support\Log\RecordingLogger;
  * @internal
  */
 #[CoversClass(ErrorMappingMiddleware::class)]
+#[CoversClass(ErrorFaultRecorder::class)]
+#[CoversClass(ErrorEnvelope::class)]
 #[CoversClass(CorrelationId::class)]
 #[CoversClass(ErrorDisclosure::class)]
 #[CoversClass(ErrorResponseFactory::class)]
@@ -43,6 +55,12 @@ use Zef\Test\Support\Log\RecordingLogger;
 #[CoversClass(Response::class)]
 #[CoversClass(Stream::class)]
 #[CoversClass(ServerRequest::class)]
+#[CoversClass(InternalException::class)]
+#[CoversClass(MethodNotAllowedException::class)]
+#[CoversClass(NotFoundException::class)]
+#[CoversClass(RateLimitException::class)]
+#[CoversClass(ValidationException::class)]
+#[CoversClass(PayloadTooLargeException::class)]
 final class ErrorMappingMiddlewareTest extends TestCase
 {
     private const string CLAIMED_ID = 'req-123';
@@ -140,10 +158,148 @@ final class ErrorMappingMiddlewareTest extends TestCase
     {
         $response = $this->middleware()->process(
             $this->requestWithClaim(),
-            new ThrowingHandler(new HttpException('Request body exceeds configured size limit.')),
+            new ThrowingHandler(new PayloadTooLargeException()),
         );
 
         self::assertSame(413, $response->getStatusCode());
+        self::assertSame('Content Too Large', $this->envelope($response)['message']);
+    }
+
+    /**
+     * The retirement pin: a layer failure wearing the refusal's words is a
+     * plain 400 now -- the message stopped being a signal the day the
+     * refusal became a class.
+     */
+    public function testABudgetSizedLayerFailureAnswersTheCoarseBadRequest(): void
+    {
+        $response = $this->middleware()->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler(new HttpException('Request body exceeds configured size limit.')),
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame('Invalid request.', $this->envelope($response)['message']);
+    }
+
+    public function testATypedNotFoundAnswersItsStatusAndPublicMessage(): void
+    {
+        $response = $this->middleware()->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler(new NotFoundException('User with ID 123 not found.')),
+        );
+
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame('Not Found', $response->getReasonPhrase());
+        self::assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+        $envelope = $this->envelope($response);
+
+        self::assertSame(404, $envelope['status']);
+        self::assertSame('User with ID 123 not found.', $envelope['message']);
+        self::assertSame(self::CLAIMED_ID, $envelope['correlation_id']);
+        self::assertSame(self::CLAIMED_ID, $response->getHeaderLine('X-Request-ID'));
+    }
+
+    public function testATypedMethodNotAllowedAnswersItsStatus(): void
+    {
+        $response = $this->middleware()->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler(new MethodNotAllowedException('GET', '/users', ['POST', 'PUT'])),
+        );
+
+        self::assertSame(405, $response->getStatusCode());
+        self::assertSame("Method 'GET' is not allowed for /users.", $this->envelope($response)['message']);
+    }
+
+    public function testATypedRateLimitAnswersItsStatus(): void
+    {
+        $response = $this->middleware()->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler(new RateLimitException(30, 'Too many sign-in attempts.')),
+        );
+
+        self::assertSame(429, $response->getStatusCode());
+        self::assertSame('Too many sign-in attempts.', $this->envelope($response)['message']);
+    }
+
+    /**
+     * The typed internal fault is the 500 the author chose the words for:
+     * the message shows in production, and the fault is logged like every
+     * server-tier failure.
+     */
+    public function testATypedInternalFaultShowsItsMessageAndIsLogged(): void
+    {
+        $recordingLogger = new RecordingLogger();
+        $internalException = new InternalException('The queue worker observed an impossible state.');
+
+        $response = $this->middleware($recordingLogger)->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler($internalException),
+        );
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame(
+            'The queue worker observed an impossible state.',
+            $this->envelope($response)['message'],
+        );
+        self::assertCount(1, $recordingLogger->calls);
+        self::assertSame($internalException, $recordingLogger->calls[0][2]['exception']);
+    }
+
+    public function testATypedClientErrorIsNotLogged(): void
+    {
+        $recordingLogger = new RecordingLogger();
+
+        $this->middleware($recordingLogger)->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler(new NotFoundException('User with ID 123 not found.')),
+        );
+
+        self::assertSame([], $recordingLogger->calls);
+    }
+
+    /**
+     * The recording gate's boundary, both sides: a custom signal one step
+     * below the server-error floor stays unrecorded, so a loosened gate
+     * cannot hide behind the family's own statuses.
+     */
+    public function testAJustBelowServerErrorSignalIsNotLogged(): void
+    {
+        $recordingLogger = new RecordingLogger();
+        $teapot = new class extends ZefException implements CarriesHttpStatus {
+            #[Override]
+            public function httpStatus(): int
+            {
+                return 499;
+            }
+        };
+
+        $response = $this->middleware($recordingLogger)->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler($teapot),
+        );
+
+        self::assertSame(499, $response->getStatusCode());
+        self::assertSame([], $recordingLogger->calls);
+    }
+
+    /**
+     * The typed family's redaction line of defence: a validation message
+     * that embedded credential material never reaches the client, even in
+     * dev mode.
+     */
+    public function testATypedValidationMessageIsRedactedInBothModes(): void
+    {
+        $response = $this->middleware()->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler(new ValidationException('password=hunter2 is not acceptable')),
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame(
+            'password=[REDACTED] is not acceptable',
+            $this->envelope($response)['message'],
+        );
     }
 
     public function testAnotherLayerFailureAnswersBadRequestWithTheGenericText(): void

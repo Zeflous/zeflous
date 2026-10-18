@@ -40,7 +40,8 @@ final class IngressProbe
      *                                body could be restored; a request whose body is
      *                                the probed contents when it could not
      *
-     * @throws HttpException when the delivered bytes exceed the policy
+     * @throws PayloadTooLargeException when the delivered bytes exceed the
+     *                                  policy
      */
     public static function verify(
         ServerRequestInterface $serverRequest,

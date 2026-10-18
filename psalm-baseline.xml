@@ -179,6 +179,50 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
+  <!-- The typed error family is the host application's throwing surface
+       (ROADMAP "Error Handling System" phase 1): applications raise these
+       from their handlers, so src/ itself never instantiates them, the
+       same API-surface posture as ServiceProviderInterface above. -->
+  <file src="src/Zef/Framework/Exception/AuthenticationException.php">
+    <UnusedClass>
+      <code><![CDATA[AuthenticationException]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Exception/AuthorizationException.php">
+    <UnusedClass>
+      <code><![CDATA[AuthorizationException]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Exception/ConflictException.php">
+    <UnusedClass>
+      <code><![CDATA[ConflictException]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Exception/InternalException.php">
+    <UnusedClass>
+      <code><![CDATA[InternalException]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Exception/MethodNotAllowedException.php">
+    <UnusedClass>
+      <code><![CDATA[MethodNotAllowedException]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Exception/NotFoundException.php">
+    <UnusedClass>
+      <code><![CDATA[NotFoundException]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Exception/RateLimitException.php">
+    <UnusedClass>
+      <code><![CDATA[RateLimitException]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Exception/ValidationException.php">
+    <UnusedClass>
+      <code><![CDATA[ValidationException]]></code>
+    </UnusedClass>
+  </file>
   <file src="src/Zef/Framework/Health/HealthAggregator.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[aggregate]]></code>

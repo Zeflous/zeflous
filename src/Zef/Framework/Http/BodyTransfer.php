@@ -29,8 +29,9 @@ final class BodyTransfer
      *
      * @param int $length the requested read length
      *
-     * @throws HttpException when the length is negative or the delivered
-     *                       chunk crosses the policy limit
+     * @throws HttpException            when the length is negative
+     * @throws PayloadTooLargeException when the delivered chunk crosses
+     *                                  the policy limit
      */
     public static function read(StreamInterface $stream, BodyBudget $bodyBudget, int $length): string
     {
@@ -45,7 +46,7 @@ final class BodyTransfer
         $data = $stream->read($bodyBudget->probe($length));
 
         if ($bodyBudget->refuses($data)) {
-            throw new HttpException('Request body exceeds configured size limit.');
+            throw new PayloadTooLargeException();
         }
 
         return $data;

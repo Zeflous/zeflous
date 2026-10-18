@@ -16,16 +16,17 @@ use Psr\Http\Message\ServerRequestInterface;
  * takes over ({@see IngressProbe}): the OWS-trimmed `Content-Length`
  * claim ({@see RequestBodyPolicy::claimExceeds()}) and the body's own
  * size when it states one. A lying or absent size only decides WHICH
- * judgement throws; every one of them throws the same message.
+ * judgement throws; every one of them throws the same typed refusal
+ * ({@see PayloadTooLargeException}).
  *
  * Attribution: legacy `zef-framework` `Adapters/Http/RequestFactory`
  * (`validateIngress()`'s body half, move-verbatim behaviour folded onto
- * the layer's single exception root with byte-identical message texts).
+ * the layer's single exception root with byte-identical message texts;
+ * the typed-referral swap is the error-handling lane's, keeping the
+ * message byte-identical from the refusal class itself).
  */
 final class IngressBody
 {
-    private const string BODY_TOO_LARGE = 'Request body exceeds configured size limit.';
-
     /**
      * Guards the request's body under the ingress policy.
      *
@@ -39,21 +40,22 @@ final class IngressBody
      *                                restore the cursor; a request whose body is the
      *                                probed contents when it could not
      *
-     * @throws HttpException when the claim, the stated size, or the
-     *                       delivered bytes exceed the policy
+     * @throws PayloadTooLargeException when the claim, the stated size, or
+     *                                  the delivered bytes exceed the
+     *                                  policy
      */
     public static function guard(
         ServerRequestInterface $serverRequest,
         RequestBodyPolicy $requestBodyPolicy,
     ): ServerRequestInterface {
         if ($requestBodyPolicy->claimExceeds($serverRequest->getHeaderLine('Content-Length'))) {
-            throw new HttpException(self::BODY_TOO_LARGE);
+            throw new PayloadTooLargeException();
         }
 
         $size = $serverRequest->getBody()->getSize();
 
         if ($size !== null && $size > $requestBodyPolicy->maxBytes) {
-            throw new HttpException(self::BODY_TOO_LARGE);
+            throw new PayloadTooLargeException();
         }
 
         return IngressProbe::verify($serverRequest, $requestBodyPolicy);

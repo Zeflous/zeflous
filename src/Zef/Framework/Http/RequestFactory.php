@@ -63,10 +63,10 @@ final class RequestFactory
      *
      * @return ServerRequest the inbound request the SAPI state describes
      *
-     * @throws HttpException when any derived component fails the layer's
-     *                       validation (method grammar, target grammar, ...)
-     *                       or the `Content-Length` claim already exceeds the
-     *                       ingress policy
+     * @throws HttpException            when any derived component fails the layer's
+     *                                  validation (method grammar, target grammar, ...)
+     * @throws PayloadTooLargeException when the `Content-Length` claim
+     *                                  already exceeds the ingress policy
      */
     public static function fromGlobals(?RequestBodyPolicy $requestBodyPolicy = null): ServerRequest
     {
@@ -101,10 +101,10 @@ final class RequestFactory
      *
      * @return ServerRequest the inbound request the sources describe
      *
-     * @throws HttpException when any derived component fails the layer's
-     *                       validation (method grammar, target grammar, ...)
-     *                       or the `Content-Length` claim already exceeds the
-     *                       ingress policy
+     * @throws HttpException            when any derived component fails the layer's
+     *                                  validation (method grammar, target grammar, ...)
+     * @throws PayloadTooLargeException when the `Content-Length` claim
+     *                                  already exceeds the ingress policy
      */
     public static function fromServer(
         array $server,
@@ -118,7 +118,7 @@ final class RequestFactory
 
         $requestBodyPolicy ??= new RequestBodyPolicy();
         if ($requestBodyPolicy->claimExceeds($headers['content-length'][0] ?? '')) {
-            throw new HttpException('Request body exceeds configured size limit.');
+            throw new PayloadTooLargeException();
         }
 
         /** @var array<string, mixed> $cookieBag the cookie bag (keys fold: class docblock) */
