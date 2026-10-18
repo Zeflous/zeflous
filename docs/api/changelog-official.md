@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- fix\(ci\): name the queue-path SonarCloud branch per entry so concurrent group scans cannot collide [\#453](https://github.com/Zeflous/zeflous/pull/453) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): pin the parameters family to pull request 445 [\#452](https://github.com/Zeflous/zeflous/pull/452) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): upload the archeology SARIF on merge groups so the code scanning rule can pass [\#451](https://github.com/Zeflous/zeflous/pull/451) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the merge-queue and ruleset-lint family to pull requests 446 and 447 [\#450](https://github.com/Zeflous/zeflous/pull/450) ([mbetixz](https://github.com/mbetixz))
 - feat\(ci\): lint the ruleset against the merged heads' check evidence [\#447](https://github.com/Zeflous/zeflous/pull/447) ([mbetixz](https://github.com/mbetixz))
