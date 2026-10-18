@@ -17,10 +17,9 @@ use Zef\Framework\Telemetry\MeterInterface;
  * Every failed request is recorded at the policy level: 4xx as warning,
  * typed 5xx as error and unexpected throwables as critical. The message
  * and user-agent are bounded/redacted; request facts are added without
- * logging query strings or request bodies. A wired logger that itself fails is the last resort: the
- * failing class's name goes straight to the SAPI error log, because
- * there is no lower fallback left to try; an absent logger is silence,
- * not an error.
+ * logging query strings or request bodies. Without an injected logger, a
+ * structured JSON record is written to the SAPI error log. If an injected
+ * logger fails, a redacted fallback message is written there instead.
  *
  * Extracted from the error mapping middleware (the error-handling lane,
  * ROADMAP.md "Error Handling System" phase 2): mapping an answer and
@@ -39,9 +38,9 @@ final readonly class ErrorFaultRecorder
     }
 
     /**
-     * Reports a failure's fault half, when it has one: the server-tier
-     * statuses are recorded with redacted context, the client tiers are
-     * the caller's own refusal and stay unrecorded.
+     * Records every mapped failure with redacted request context. Client
+     * errors are warnings, typed server failures are errors, and unexpected
+     * server throwables are critical. Metrics are best-effort.
      *
      * @param int $status the status the failure maps to
      */
