@@ -90,7 +90,7 @@ request's own workflow version can never certify itself. The queue-aware half is
 this change — `merge_group` triggers on the aggregator, the four lanes, PR
 Validator (which re-resolves the queued PR's title from the merge-group branch
 name and re-validates it, fail closed), archeology (gate runs on the group; the
-SARIF upload is skipped on the ephemeral queue ref) and the SonarCloud lane
+SARIF upload runs on the group head too — see the drill paragraph below) and the SonarCloud lane
 (short-lived branch `merge-queue`, secrets injectable so the guard holds it to
 the push-to-main standard). The settings half, applied with the ruleset change
 evidenced on #421: the `merge_queue` rule itself, and the `SonarCloud Code
@@ -103,6 +103,22 @@ recorded for the drill: GitHub has had bugs where the queue read the
 `pull_request`-context check instead of waiting for the `merge_group` one
 (reverted Feb 2025, community thread 151100) — the first queued entries should
 be watched for exactly that.
+
+**Drill outcome (2026-10-18, first entries):** the queue itself behaved —
+entries waited for `merge_group`-context check-runs on the cumulative group
+heads (four entries, one ALLGREEN group, no symptom of the platform quirk
+above; PR Validator's queue-path title resolution green on every head). The
+drill instead caught a bug in this very change: the archeology lane's SARIF
+upload was skipped on `merge_group`, but the ruleset's `code_scanning` rule
+evaluates the merge group head at merge time, so every entry was dequeued
+seconds after its checks went green — the merge was blocked by a rule, not by
+a check (entries #445 and #450 removed 25 seconds and 2 minutes after their
+respective evaluation points, all checks success). The fix — uploading the
+curated SARIF on the queue path — could not ride the broken queue itself
+(the queue runs the default branch's workflow files, so a queue-path fix is
+the one change the queue cannot validate), and was landed through a
+temporary ruleset window with the `merge_queue` rule disabled; the rule was
+re-enabled the moment the fix reached `main`.
 
 ### 4. The aggregator can stall the required check `pending` forever — MEDIUM (fixed here)
 
