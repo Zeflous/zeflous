@@ -23,6 +23,7 @@ final class JsonLineLoggerTest extends TestCase
 {
     private ?string $path = null;
 
+    #[Override]
     protected function tearDown(): void
     {
         if ($this->path !== null && (is_file($this->path) || is_link($this->path))) {
