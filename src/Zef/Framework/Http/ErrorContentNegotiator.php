@@ -13,26 +13,8 @@ final class ErrorContentNegotiator
             return false;
         }
 
-        $qualities = [];
-        foreach (explode(',', strtolower($accept)) as $part) {
-            $segments = array_map('trim', explode(';', $part));
-            $mediaType = array_shift($segments);
-            if (!is_string($mediaType) || $mediaType === '') {
-                continue;
-            }
-
-            $quality = 1.0;
-            foreach ($segments as $segment) {
-                if (str_starts_with($segment, 'q=')) {
-                    $parsed = (float) substr($segment, 2);
-                    $quality = $parsed >= 0.0 && $parsed <= 1.0 ? $parsed : 0.0;
-                }
-            }
-
-            $qualities[$mediaType] = max($qualities[$mediaType] ?? 0.0, $quality);
-        }
-
-        $html = $qualities['text/html'] ?? 0.0;
+        $qualities = AcceptHeaderParser::qualities($accept);
+        $html = $qualities['text/html'] ?? $qualities['text/*'] ?? $qualities['*/*'] ?? 0.0;
         $json = max(
             $qualities['application/problem+json'] ?? 0.0,
             $qualities['application/json'] ?? 0.0,
