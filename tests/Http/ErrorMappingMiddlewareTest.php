@@ -804,7 +804,10 @@ final class ErrorMappingMiddlewareTest extends TestCase
             new ThrowingHandler($exception),
         );
 
-        self::assertSame("default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'", $response->getHeaderLine('Content-Security-Policy'));
+        self::assertSame(
+            "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
+            $response->getHeaderLine('Content-Security-Policy'),
+        );
         self::assertStringContainsString('Developer context', (string) $response->getBody());
         self::assertStringContainsString('ZEF Profiler', (string) $response->getBody());
         self::assertStringContainsString('Exceptions: 1', (string) $response->getBody());
