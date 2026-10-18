@@ -17,6 +17,7 @@ use Zef\Framework\Container\FactoryDefinition;
 use Zef\Framework\Container\FactoryInvocation;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\MethodCall;
+use Zef\Framework\Container\MethodCallInvocations;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\UnplannedInstanceDefinition;
 use Zef\Framework\Container\ValueDefinition;
@@ -36,6 +37,7 @@ use Zef\Test\Support\Container\UnsupportedDefinition;
 #[CoversClass(ArgumentResolution::class)]
 #[CoversClass(ServiceDefinition::class)]
 #[CoversClass(DefinitionException::class)]
+#[CoversClass(MethodCallInvocations::class)]
 final class DefinitionCompilerTest extends TestCase
 {
     private DefinitionCompiler $definitionCompiler;

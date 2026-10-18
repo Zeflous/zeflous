@@ -7,6 +7,7 @@ namespace Zef\Test\Container;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Container\AliasDefinition;
+use Zef\Framework\Container\ArgumentNames;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionCycles;
 use Zef\Framework\Container\DefinitionEdges;
@@ -29,6 +30,7 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(DefinitionCycles::class)]
 #[CoversClass(DefinitionEdges::class)]
 #[CoversClass(DefinitionReferences::class)]
+#[CoversClass(ArgumentNames::class)]
 final class ServiceDefinitionGraphTest extends TestCase
 {
     public function testAReferenceIntoAnotherDefinitionValidates(): void

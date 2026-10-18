@@ -6,7 +6,11 @@ namespace Zef\Test\Container;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Container\ContextualConsumers;
 use Zef\Framework\Container\ContextualMap;
+use Zef\Framework\Container\ContextualOverride;
+use Zef\Framework\Container\ContextualOverrides;
+use Zef\Framework\Container\ContextualRefusals;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Test\Support\Container\Injector\PaymentGateway;
 
@@ -14,6 +18,10 @@ use Zef\Test\Support\Container\Injector\PaymentGateway;
  * @internal
  */
 #[CoversClass(ContextualMap::class)]
+#[CoversClass(ContextualConsumers::class)]
+#[CoversClass(ContextualOverrides::class)]
+#[CoversClass(ContextualOverride::class)]
+#[CoversClass(ContextualRefusals::class)]
 final class ContextualMapTest extends TestCase
 {
     public function testAnAbsentKnobIsTheValidNoBindingsBoot(): void

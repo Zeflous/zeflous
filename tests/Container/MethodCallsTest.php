@@ -10,7 +10,10 @@ use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\MethodCall;
 use Zef\Framework\Container\MethodCallInvocations;
+use Zef\Framework\Container\MethodCallNames;
+use Zef\Framework\Container\MethodCallRefusals;
 use Zef\Framework\Container\MethodCalls;
+use Zef\Framework\Container\MethodCallShape;
 use Zef\Test\Support\Container\Greeter;
 use Zef\Test\Support\Container\Injector\TunedWidget;
 
@@ -20,6 +23,9 @@ use Zef\Test\Support\Container\Injector\TunedWidget;
 #[CoversClass(MethodCalls::class)]
 #[CoversClass(MethodCall::class)]
 #[CoversClass(MethodCallInvocations::class)]
+#[CoversClass(MethodCallShape::class)]
+#[CoversClass(MethodCallNames::class)]
+#[CoversClass(MethodCallRefusals::class)]
 final class MethodCallsTest extends TestCase
 {
     public function testAnAbsentCallsKeyAnswersTheEmptyList(): void

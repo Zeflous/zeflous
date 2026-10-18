@@ -10,10 +10,13 @@ use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContextualBinding;
 use Zef\Framework\Container\ContextualBindings;
+use Zef\Framework\Container\ContextualConsumer;
 use Zef\Framework\Container\ContextualDeclarations;
 use Zef\Framework\Container\ContextualMap;
 use Zef\Framework\Container\ContextualReference;
+use Zef\Framework\Container\ContextualRefusals;
 use Zef\Framework\Container\ContextualRewrites;
+use Zef\Framework\Container\ContextualSet;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\FactoryDefinition;
@@ -40,6 +43,14 @@ use Zef\Test\Support\Container\Injector\TunedWidget;
 #[CoversClass(ContextualRewrites::class)]
 #[CoversClass(ContextualDeclarations::class)]
 #[CoversClass(ContextualReference::class)]
+#[CoversClass(ContextualMap::class)]
+#[CoversClass(ContextualConsumer::class)]
+#[CoversClass(ContextualSet::class)]
+#[CoversClass(ContextualRefusals::class)]
+#[CoversClass(InstanceDefinition::class)]
+#[CoversClass(MethodCall::class)]
+#[CoversClass(FactoryDefinition::class)]
+#[CoversClass(AliasDefinition::class)]
 final class ContextualBindingsTest extends TestCase
 {
     private const string VIA = '@contextual:billing|' . PaymentGateway::class;
