@@ -343,6 +343,17 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertSame(self::CLAIMED_ID, $envelope['trace_id']);
     }
 
+    public function testDevModeRedactsAndBoundsUntrustedHttpExceptionMessages(): void
+    {
+        $response = $this->middleware(debug: true)->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler(new HttpException('token=secret123 is invalid')),
+        );
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertSame('token=[REDACTED] is invalid', $this->envelope($response)['detail']);
+    }
+
     public function testALayerFailureAnswersItsValidationTextInDevMode(): void
     {
         $response = $this->middleware(debug: true)->process(
