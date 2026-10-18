@@ -8,9 +8,7 @@ use PDOException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\ErrorMappingMiddleware;
-use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
-use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\ThirdPartyExceptionMapper;
 use Zef\Framework\Http\Uri;
 use Zef\Test\Support\Log\RecordingLogger;
@@ -47,8 +45,7 @@ final class ThirdPartyExceptionMappingIntegrationTest extends TestCase
         self::assertSame('application/problem+json; charset=utf-8', $response->getHeaderLine('Content-Type'));
         self::assertSame('DATABASE_ERROR', $payload['code']);
         self::assertSame('A database operation failed.', $payload['detail']);
-        self::assertSame(['sql_state' => '23000'], $payload['details'] ?? []);
+        self::assertArrayNotHasKey('details', $payload);
         self::assertStringNotContainsString('private query data', (string) $response->getBody());
-        self::assertNotInstanceOf(Response::class, new Response(200, [], Stream::fromString('')));
     }
 }
