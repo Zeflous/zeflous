@@ -14,7 +14,7 @@ Cache-Control: no-store
 
 The JSON document includes `type`, `title`, `status`, `detail`, `instance`, and `trace_id`. The `instance` contains only the request path, not the query string. Typed framework exceptions also expose a stable `code`. HTTP 405 responses include `Allow`; HTTP 429 responses include `Retry-After`.
 
-When a request explicitly prefers `text/html` over JSON, ZEF renders an escaped branded HTML page. Production responses do not include stack traces or developer details. Debug details are redacted and bounded before rendering.
+When a request explicitly prefers `text/html` over JSON, ZEF renders an escaped branded HTML page. Production responses do not include stack traces or developer details. Debug details are redacted and bounded before rendering. PDO failures are normalized to a safe `DATABASE_ERROR` response with SQLSTATE-only diagnostics; Guzzle failures are recognized by interface name without requiring Guzzle as a runtime dependency.
 
 ## Configuration
 
@@ -45,6 +45,7 @@ The local inspector reads JSONL logs:
 
 ```bash
 bin/zef errors:report /var/log/zef/errors.jsonl
+bin/zef errors:report /var/log/zef/errors.jsonl --request-id=req-123
 bin/zef errors:clear /var/log/zef/errors.jsonl --confirm
 ```
 
@@ -52,7 +53,7 @@ The clear command truncates the specified local log file; it does not clear a di
 
 ## Debug toolbar and local request replay
 
-The ZEF Profiler toolbar is enabled only when `http.error_handling.debug=true` and `APP_ENV` is local/development/test. It is injected only into small, seekable, uncompressed HTML 2xx responses; other responses are passed through unchanged. HTML error pages in debug mode include duration, query count, exception count and trace ID. Database adapters can increment the request-scoped counter through the `ErrorRequestContext` request attribute; the framework does not assume a database driver.
+The ZEF Profiler toolbar is enabled only when `http.error_handling.debug=true` and `APP_ENV` is local/development/test. It is injected only into small, seekable, uncompressed HTML 2xx responses; other responses are passed through unchanged. HTML error pages in debug mode include duration, query count, exception count and trace ID. Database adapters can increment the request-scoped counter with `ErrorRequestContext::recordQueryFor($request)` or through the `ErrorRequestContext` request attribute; the framework does not assume a database driver. The toolbar provides a collapsible request/log reference, and debug error pages open a CSS-only side panel with exception details and the CLI command to locate matching records by request ID.
 
 Example adapter hook:
 
@@ -78,7 +79,7 @@ return [
 ];
 ```
 
-With `APP_ENV=local`, failed requests are captured into exclusive files with mode `0600`. Authorization/cookie headers are omitted; query parameters and JSON or URL-encoded body fields with sensitive names are redacted. Other body formats are omitted rather than persisted raw. Replayed bodies may therefore differ from the original and should be used for debugging, not forensic byte-for-byte reproduction. The CLI refuses non-loopback targets and disables redirects:
+With `APP_ENV=local`, failed requests are captured into exclusive files with mode `0600`. Authorization/cookie headers are omitted; query parameters and JSON or URL-encoded body fields with sensitive names are redacted. JSON, URL-encoded, text and XML bodies are stored only after format-aware or conservative redaction. Oversized, non-seekable, multipart and unsupported binary bodies are omitted rather than persisted raw. Replayed bodies may therefore differ from the original and should be used for debugging, not forensic byte-for-byte reproduction. The CLI refuses non-loopback targets and disables redirects:
 
 ```bash
 bin/zef errors:replay <snapshot-id> /var/lib/zef/error-replays http://127.0.0.1:8080
@@ -88,7 +89,7 @@ The replay target is deliberately limited to `localhost`, `127.0.0.1`, or `::1`;
 
 ## Operational boundaries
 
-- The request correlation ID is emitted as `trace_id` when no explicit trace ID is carried by the exception. This keeps the response and log record correlated; full OpenTelemetry trace-ID handoff through the middleware boundary remains separate work.
+- The request-scoped context adopts a valid W3C trace ID from `CorrelationMiddleware`; the same trace ID is used in Problem Details and structured logs. When no span is active, the request ID is the fallback.
 - The optional file logger requires an existing directory and never creates one implicitly.
 - Query strings, request bodies, and authorization/cookie headers are not included in the default error log context.
-- Error replay and a full profiler toolbar are not yet implemented.
+- Query counts remain zero unless the database adapter calls `ErrorRequestContext::recordQueryFor($request)` for each executed query. Unsupported or unsafe body formats are intentionally omitted from replay snapshots.
