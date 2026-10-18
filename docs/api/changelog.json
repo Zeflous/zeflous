@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-18T09:46:33Z",
+  "as_of": "2026-10-18T13:35:13Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 191,
+  "unreleased_count": 192,
   "versions": [
     {
       "version": "Unreleased",
@@ -1485,6 +1485,47 @@
                 "sha": "baf1564bf222265319732e078197057632e2e4eb",
                 "short_sha": "baf1564",
                 "subject": "feat(errors): add the typed HTTP exception family and retire the message sniffing"
+              }
+            ]
+          },
+          {
+            "pr": 439,
+            "title": "feat(container): add the method-call injection lane and contextual bindings",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-18T13:35:13Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/439",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "de3d35ef954ef2fc2826fceb876340dce11b1293",
+                "short_sha": "de3d35e",
+                "subject": "feat(container): add the method-call injection lane and contextual bindings"
+              },
+              {
+                "sha": "a17706689c3266b8613ef2eb20e69c108aafaff2",
+                "short_sha": "a177066",
+                "subject": "Merge branch 'main' into feat/container-injector-contextual"
+              },
+              {
+                "sha": "4e96497810bf236791f04569be7535fe7289dfd3",
+                "short_sha": "4e96497",
+                "subject": "test(container): attribute the injector and contextual collaborators under the coverage filter"
+              },
+              {
+                "sha": "61a2b434db9aedf1569321f2e9e3f4f53cda88c7",
+                "short_sha": "61a2b43",
+                "subject": "docs(ci-notes): record the coverage-filter attribution lesson from the C4 gate round"
+              },
+              {
+                "sha": "82c6c361436fdc11db246e0f1c38a8f23edabca3",
+                "short_sha": "82c6c36",
+                "subject": "test(container): kill the two post-filter escapes in the override map and factory calls rewrite"
+              },
+              {
+                "sha": "0bf9c4552a016de1a252a34a71531ef18332e001",
+                "short_sha": "0bf9c45",
+                "subject": "style(tests): apply the formatter and rector passes to the escape-killing tests"
               }
             ]
           }
@@ -9645,6 +9686,47 @@
               "sha": "814aa96b1a150537eb341ca6c8d469b649a1019c",
               "short_sha": "814aa96",
               "subject": "docs(roadmap): pin the typed exception family to pull request 434"
+            }
+          ]
+        },
+        {
+          "pr": 439,
+          "title": "feat(container): add the method-call injection lane and contextual bindings",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-18T13:35:13Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/439",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "de3d35ef954ef2fc2826fceb876340dce11b1293",
+              "short_sha": "de3d35e",
+              "subject": "feat(container): add the method-call injection lane and contextual bindings"
+            },
+            {
+              "sha": "a17706689c3266b8613ef2eb20e69c108aafaff2",
+              "short_sha": "a177066",
+              "subject": "Merge branch 'main' into feat/container-injector-contextual"
+            },
+            {
+              "sha": "4e96497810bf236791f04569be7535fe7289dfd3",
+              "short_sha": "4e96497",
+              "subject": "test(container): attribute the injector and contextual collaborators under the coverage filter"
+            },
+            {
+              "sha": "61a2b434db9aedf1569321f2e9e3f4f53cda88c7",
+              "short_sha": "61a2b43",
+              "subject": "docs(ci-notes): record the coverage-filter attribution lesson from the C4 gate round"
+            },
+            {
+              "sha": "82c6c361436fdc11db246e0f1c38a8f23edabca3",
+              "short_sha": "82c6c36",
+              "subject": "test(container): kill the two post-filter escapes in the override map and factory calls rewrite"
+            },
+            {
+              "sha": "0bf9c4552a016de1a252a34a71531ef18332e001",
+              "short_sha": "0bf9c45",
+              "subject": "style(tests): apply the formatter and rector passes to the escape-killing tests"
             }
           ]
         }
