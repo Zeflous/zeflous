@@ -24,13 +24,17 @@ final readonly class ErrorFaultRecorder
         string $correlationId,
         ServerRequestInterface $serverRequest,
     ): void {
-        if ($status < 400) {
-            return;
-        }
+        try {
+            if ($status < 400) {
+                return;
+            }
 
-        $level = ErrorFaultSeverity::for($exception, $status);
-        ErrorFaultMetricsRecorder::record($this->meter, $exception, $status, $serverRequest);
-        $context = ErrorFaultContextFactory::create($exception, $correlationId, $serverRequest);
-        ErrorFaultLogWriter::write($this->logger, $level, $context);
+            $level = ErrorFaultSeverity::for($exception, $status);
+            ErrorFaultMetricsRecorder::record($this->meter, $exception, $status, $serverRequest);
+            $context = ErrorFaultContextFactory::create($exception, $correlationId, $serverRequest);
+            ErrorFaultLogWriter::write($this->logger, $level, $context);
+        } catch (Throwable $recorderFailure) {
+            error_log('ZEF error recorder failure: ' . $recorderFailure::class);
+        }
     }
 }
