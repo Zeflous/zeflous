@@ -118,7 +118,16 @@ curated SARIF on the queue path — could not ride the broken queue itself
 (the queue runs the default branch's workflow files, so a queue-path fix is
 the one change the queue cannot validate), and was landed through a
 temporary ruleset window with the `merge_queue` rule disabled; the rule was
-re-enabled the moment the fix reached `main`.
+re-enabled the moment the fix reached `main`. The same drill caught a second
+queue-path defect the same evening: the SonarCloud scan pinned ONE shared
+branch name (`merge-queue`) for every entry, and a group of N entries runs N
+concurrent scans — after a group rebuild started two entries' scans within
+seconds of each other, their server-side compute-engine tasks raced and the
+loser died with "CE Task finished abnormally with status: FAILED", turning a
+required check red while the winner went green on the very same branch. The
+branch is now named per entry (`merge-queue/pr-<N>`, derived from the queue
+ref, fail closed on an unparsable ref), so concurrent entries can never
+collide and retries re-analyse their own branch in place.
 
 ### 4. The aggregator can stall the required check `pending` forever — MEDIUM (fixed here)
 
