@@ -1,7 +1,7 @@
 # CI note: merge-gate audit — dead required checks, spoofable contexts, the aggregator stall (2026-10-18)
 
 Date: 2026-10-18
-Status: partial (the code-side fixes ship as pull requests; the ruleset-side findings are filed as issues — they need settings authority, not code)
+Status: partial (the code-side fixes shipped as pull requests; the ruleset-side findings were filed as issues — findings 1+2 were applied 2026-10-18 with the ruleset fix evidenced on #420 and the docs half in PR #423, and finding 3's posture was decided 2026-10-18: merge queue — the queue-aware workflow half ships as a pull request, the ruleset half adds the `merge_queue` rule and drops the app check from the required set, evidenced on #421)
 Scope: `.github/workflows/ci-strict.yml`, `.github/workflows/sonarcloud.yml`, `.github/workflows/auto-merge.yml`, the `main` ruleset (id 24654862)
 
 This note records the second hardening audit: **can a pull request merge while a
@@ -52,7 +52,7 @@ A contributor reading either document would believe SonarCloud is advisory; the
 ruleset blocks on it. The fix belongs with the ruleset change (the file issue), and
 whichever required set is settled should be restated identically in both documents.
 
-### 3. Required checks are produced by the PR's own workflow version — HIGH (settings-side, filed as an issue)
+### 3. Required checks are produced by the PR's own workflow version — HIGH (settings-side; posture decided 2026-10-18: merge queue)
 
 A `pull_request`-triggered workflow executes the workflow file **from the pull
 request's head**, not from `main`. The four required contexts produced by such
@@ -81,6 +81,28 @@ count as their own approver). The issue filed from this audit lays out the hones
 options (accept + document / code-owner review with a trusted second approver /
 merge queue with `merge_group` triggers added to the lanes) instead of silently
 keeping the strictest-looking, weakest-enforcing configuration.
+
+**Resolution (2026-10-18):** the maintainer chose the merge queue (option 3). It is
+the one posture that keeps the solo-maintainer flow (no second approver needed)
+while killing the spoof class outright: the queue runs the required checks on the
+combined merge-group ref using the **default branch's** workflow files, so a pull
+request's own workflow version can never certify itself. The queue-aware half is
+this change — `merge_group` triggers on the aggregator, the four lanes, PR
+Validator (which re-resolves the queued PR's title from the merge-group branch
+name and re-validates it, fail closed), archeology (gate runs on the group; the
+SARIF upload is skipped on the ephemeral queue ref) and the SonarCloud lane
+(short-lived branch `merge-queue`, secrets injectable so the guard holds it to
+the push-to-main standard). The settings half, applied with the ruleset change
+evidenced on #421: the `merge_queue` rule itself, and the `SonarCloud Code
+Analysis` app check moving OFF the required set — the SonarCloud GitHub App does
+not report on merge groups (product management statement, May 2024,
+community.sonarsource.com/t/112436), so keeping it required would stall every
+queue entry; the blocking server-side verdict travels with the workflow check
+`SonarCloud analysis`, which waits on the same gate. One platform caveat is
+recorded for the drill: GitHub has had bugs where the queue read the
+`pull_request`-context check instead of waiting for the `merge_group` one
+(reverted Feb 2025, community thread 151100) — the first queued entries should
+be watched for exactly that.
 
 ### 4. The aggregator can stall the required check `pending` forever — MEDIUM (fixed here)
 

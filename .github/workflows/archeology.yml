@@ -27,6 +27,16 @@ on:
     branches:
       - main
     types: [opened, synchronize, reopened]
+  # MERGE QUEUE: the `main` ruleset's merge queue re-runs the required checks
+  # on the merge group's head sha (refs/heads/gh-readonly-queue/main/pr-N-...)
+  # using the DEFAULT BRANCH's workflow files, so the queue validates the
+  # merged result rather than the pull request's own workflow version
+  # (docs/ci-notes/merge-gate-audit.md, finding 3). Without this trigger the
+  # queue would wait for this lane until the ruleset's check-response timeout,
+  # then fail the entry.
+  merge_group:
+    branches:
+      - main
   push:
     branches:
       - main
@@ -107,6 +117,15 @@ jobs:
         # Receives the curated SARIF: error-level findings only, with
         # repository-relative paths and stable fingerprints, so the alert feed
         # reflects genuine architecture defects.
+        #
+        # Skipped on the MERGE QUEUE path: the upload is bound to the
+        # gh-readonly-queue ref, which the queue deletes the moment the group
+        # merges, so a Code Scanning analysis would be filed against a ref that
+        # no longer exists. The analysis and the error-level GATE still run in
+        # full on the merge group (that verdict is what the queue consumes);
+        # the durable Code Scanning baseline keeps coming from the `push` runs
+        # on `main`.
+        if: github.event_name != 'merge_group'
         uses: github/codeql-action/upload-sarif@1190a975f95ce23525efb6a3fc21ea29567c1b52 # v3
         with:
           sarif_file: build/archeology/sarif/report.sarif.json
