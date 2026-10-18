@@ -11,17 +11,16 @@ use Zef\Framework\Exception\ZefException;
 /** Renders an escaped, branded HTML error page for browsers. */
 final class HtmlErrorPageRenderer
 {
-    public static function render(
-        Throwable $throwable,
-        int $status,
-        string $detail,
-        string $instance,
-        string $traceId,
-        bool $debug,
-        float $durationMs = 0.0,
-        int $queryCount = 0,
-        int $exceptionCount = 0,
-    ): ResponseInterface {
+    public static function render(Throwable $throwable, HtmlErrorPageContext $context): ResponseInterface
+    {
+        $status = $context->status;
+        $detail = $context->detail;
+        $instance = $context->instance;
+        $traceId = $context->traceId;
+        $debug = $context->debug;
+        $durationMs = $context->durationMilliseconds;
+        $queryCount = $context->queryCount;
+        $exceptionCount = $context->exceptionCount;
         $title = ProblemDetailsMetadata::titleFor($status);
         $body = '<!doctype html><html lang="en"><head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1">'
