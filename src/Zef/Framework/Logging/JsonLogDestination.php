@@ -28,6 +28,14 @@ final class JsonLogDestination
             : false;
 
         if (
+            is_string($documentRoot)
+            && $documentRoot !== ''
+            && !is_string($resolvedDocumentRoot)
+        ) {
+            throw new InvalidArgumentException('The public document root cannot be resolved safely.');
+        }
+
+        if (
             is_string($resolvedDocumentRoot)
             && str_starts_with(
                 $resolvedPath . DIRECTORY_SEPARATOR,
