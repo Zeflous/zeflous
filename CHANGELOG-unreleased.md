@@ -64,6 +64,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(container): the tags & autoconfiguration family, one tag one source [#404](https://github.com/Zeflous/zeflous/pull/404) ([mbetixz](https://github.com/mbetixz))
 - feat(tooling): refuse a stale roadmap pin on main [#417](https://github.com/Zeflous/zeflous/pull/417) ([mbetixz](https://github.com/mbetixz))
 - feat(errors): add the typed HTTP exception family and retire the message sniffing [#434](https://github.com/Zeflous/zeflous/pull/434) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the method-call injection lane and contextual bindings [#439](https://github.com/Zeflous/zeflous/pull/439) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
