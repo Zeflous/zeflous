@@ -67,7 +67,7 @@ final class JsonLineWriter
         while ($offset < $length) {
             $written = fwrite($stream, substr($line, $offset));
             if ($written === false || $written === 0) {
-                if (!ftruncate($stream, $startOffset)) {
+                if (!ftruncate($stream, max(0, $startOffset))) {
                     throw new RuntimeException('Unable to roll back an incomplete JSON log record.');
                 }
 
