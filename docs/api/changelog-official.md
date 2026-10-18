@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(ci\): upload the archeology SARIF on merge groups so the code scanning rule can pass [\#451](https://github.com/Zeflous/zeflous/pull/451) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the merge-queue and ruleset-lint family to pull requests 446 and 447 [\#450](https://github.com/Zeflous/zeflous/pull/450) ([mbetixz](https://github.com/mbetixz))
 - feat\(ci\): lint the ruleset against the merged heads' check evidence [\#447](https://github.com/Zeflous/zeflous/pull/447) ([mbetixz](https://github.com/mbetixz))
 - feat\(ci\): make every required check merge-queue aware [\#446](https://github.com/Zeflous/zeflous/pull/446) ([mbetixz](https://github.com/mbetixz))
