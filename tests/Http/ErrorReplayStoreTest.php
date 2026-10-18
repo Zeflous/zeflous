@@ -10,6 +10,8 @@ use RuntimeException;
 use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Http\ReplayBodyCapture;
 use Zef\Framework\Http\ReplayBodyReader;
+use Zef\Framework\Http\ReplaySnapshotWriter;
+use Zef\Framework\Http\ReplayStorageDirectory;
 use Zef\Framework\Http\ReplayPayloadSanitizer;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
@@ -20,6 +22,8 @@ use Zef\Framework\Http\Uri;
 #[CoversClass(ReplayPayloadSanitizer::class)]
 #[CoversClass(ReplayBodyCapture::class)]
 #[CoversClass(ReplayBodyReader::class)]
+#[CoversClass(ReplaySnapshotWriter::class)]
+#[CoversClass(ReplayStorageDirectory::class)]
 final class ErrorReplayStoreTest extends TestCase
 {
     private string $directory;
