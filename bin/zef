@@ -95,7 +95,8 @@ if ($command === 'errors:replay') {
         if (
             !is_string($name)
             || preg_match('/^[A-Za-z0-9-]{1,80}$/D', $name) !== 1
-            || in_array(strtolower($name), ['host', 'content-length', 'connection', 'transfer-encoding', 'authorization', 'cookie'], true)
+            || in_array(strtolower($name), ['host', 'content-length', 'connection', 'transfer-encoding', 'set-cookie'], true)
+            || preg_match('/authorization|cookie|secret|token|api[_-]?key|csrf/i', $name) === 1
             || !is_array($values)
         ) {
             continue;
