@@ -134,11 +134,27 @@ if ($command === 'errors:replay') {
     exit(0);
 }
 
-$path = $argv[2] ?? (getenv('ZEF_ERROR_LOG') ?: DEFAULT_ERROR_LOG);
+$path = getenv('ZEF_ERROR_LOG') ?: DEFAULT_ERROR_LOG;
+$requestIdFilter = null;
+foreach (array_slice($argv, 2) as $argument) {
+    if (str_starts_with($argument, '--request-id=')) {
+        $candidate = substr($argument, strlen('--request-id='));
+        if ($candidate === '' || preg_match('/^[A-Za-z0-9._:-]{1,128}$/D', $candidate) !== 1) {
+            fwrite(STDERR, "Invalid request ID filter.\n");
+            exit(2);
+        }
+        $requestIdFilter = $candidate;
+        continue;
+    }
+
+    if ($argument !== '--confirm') {
+        $path = $argument;
+    }
+}
 $confirm = in_array('--confirm', $argv, true);
 
 if (!in_array($command, ['errors:report', 'errors:clear'], true)) {
-    fwrite(STDERR, "Usage: bin/zef errors:report [jsonl-path]\n"
+    fwrite(STDERR, "Usage: bin/zef errors:report [jsonl-path] [--request-id=<id>]\n"
         . "       bin/zef errors:clear [jsonl-path] --confirm\n"
         . "       bin/zef errors:replay <id> <replay-directory> <http://127.0.0.1:port>\n");
     exit(2);
@@ -197,6 +213,13 @@ while (($line = fgets($handle)) !== false) {
         continue;
     }
 
+    if ($requestIdFilter !== null) {
+        $context = is_array($entry['context'] ?? null) ? $entry['context'] : [];
+        if (($context['request_id'] ?? null) !== $requestIdFilter) {
+            continue;
+        }
+    }
+
     ++$total;
     $level = is_string($entry['level'] ?? null) ? $entry['level'] : 'unknown';
     $counts[$level] = ($counts[$level] ?? 0) + 1;
@@ -210,7 +233,8 @@ fclose($handle);
 
 arsort($counts);
 arsort($top);
-fwrite(STDOUT, "Error log report: {$path}\nTotal records: {$total}\n\nBy level:\n");
+$filterLabel = $requestIdFilter === null ? '' : " (request_id={$requestIdFilter})";
+fwrite(STDOUT, "Error log report: {$path}{$filterLabel}\nTotal records: {$total}\n\nBy level:\n");
 foreach ($counts as $level => $count) {
     fwrite(STDOUT, sprintf("  %-10s %d\n", $level, $count));
 }
