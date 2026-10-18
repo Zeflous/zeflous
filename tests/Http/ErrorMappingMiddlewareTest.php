@@ -118,7 +118,9 @@ final class ErrorMappingMiddlewareTest extends TestCase
         }
 
         ini_set('error_log', (string) $this->previousErrorLog);
-        @unlink($this->routedErrorLog);
+        if (is_file($this->routedErrorLog) && !unlink($this->routedErrorLog)) {
+            throw new RuntimeException('Unable to remove the temporary error log.');
+        }
     }
 
     public function testASuccessfulResponseIsStampedWithTheClaimedCorrelationId(): void
@@ -973,9 +975,14 @@ final class ErrorMappingMiddlewareTest extends TestCase
     {
         self::assertNotNull($this->routedErrorLog, 'The test body routed the SAPI error log first.');
 
-        $contents = @file_get_contents($this->routedErrorLog);
+        if (!is_file($this->routedErrorLog)) {
+            return '';
+        }
 
-        return \is_string($contents) ? $contents : '';
+        $contents = file_get_contents($this->routedErrorLog);
+        self::assertIsString($contents, 'The routed error log must be readable.');
+
+        return $contents;
     }
 
     /**
