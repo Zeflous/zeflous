@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Zef\Framework\Logging\JsonLineLogger;
+use Zef\Framework\Logging\JsonLogDestination;
+use Zef\Framework\Logging\JsonLineWriter;
 use Zef\Framework\Logging\LogContextSanitizer;
 
 /**
