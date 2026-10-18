@@ -20,7 +20,6 @@ final class ErrorFaultLogWriter
                 return;
             }
 
-            unset($context['exception']);
             error_log((string) json_encode([
                 'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
                 'level' => $level,
