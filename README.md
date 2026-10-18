@@ -34,6 +34,7 @@ green. The rest are advisory signals.
 | `API Documentation Check` | The generated API documentation builds. |
 | `PHPBench` | Benchmark regression check. |
 | `Changelog generator tests` | Unit tests for the changelog generator. |
+| `CI Ruleset Lint` | Weekly guard: every required status-check context in the live `main` ruleset must have a check-run on each of the last ten merged pull-request heads (the dead-required-check failure mode of the merge-gate audit). |
 
 Do not weaken a gate, add a rule exclusion, or lower a threshold to make a
 change pass — fix the underlying issue instead. See

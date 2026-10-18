@@ -1,0 +1,181 @@
+# CI Ruleset Lint -- the guard against dead required checks.
+#
+# WHY THIS LANE EXISTS
+# --------------------
+# Finding 1 of the merge-gate audit (docs/ci-notes/merge-gate-audit.md):
+# the `main` ruleset required eight status-check contexts, three of them
+# (DeepSource) never reported anywhere, and PR #406 merged anyway. GitHub
+# only blocks a merge on a required check it considers "expected"; a context
+# that has never reported is never expected, so it never blocks. The ruleset
+# was repaired (evidenced on issue #420), but nothing kept a dead requirement
+# from coming back -- an integration removed, an app uninstalled, a check
+# renamed.
+#
+# This lane is the permanent guard (#420, option c): every required context
+# in the LIVE `main` ruleset must have a check-run on each of the last ten
+# merged pull-request heads. A required check that silently stops reporting
+# turns the lane RED with the evidence, the same week it happens, instead of
+# waiting for the next audit.
+#
+# DESIGN NOTES
+# ------------
+#   * The rulesets endpoint wants administration rights a workflow token does
+#     not carry; this repository is PUBLIC, and its rulesets are readable
+#     anonymously (probe-verified 2026-10-18), so the lane tries the
+#     authenticated read first and falls back to the anonymous read.
+#   * Fail-closed: a ruleset that cannot be read is a RED lane, not a skip.
+#     A repository with no merged pull requests yet passes with a notice
+#     (there is no evidence to contradict).
+#   * The check-runs are read per merged HEAD sha -- the same commit the
+#     merge actually gated -- so a check that reports only on push commits
+#     (never on pull-request heads) is caught too. The match is by context
+#     NAME, the same level the merge gate itself matches at.
+#   * Weekly cadence, clear of the sweeper lanes' minutes (auto-merge
+#     :07/:27/:47, watchdog :03/:23/:43, stale :13/:33/:53).
+#
+# CONVENTIONS (mirrors the other lanes)
+# -------------------------------------
+#   * No `uses:` at all -- plain gh/curl/jq, so there is no supply-chain
+#     surface to pin.
+#   * Least privilege: `contents: read` only; the public API reads need no
+#     more, and the lane writes nothing.
+#   * The job NAME "CI Ruleset Lint" is the status-check context. The lane is
+#     ADVISORY (not in the required set) on purpose: it guards the ruleset,
+#     and must not become part of the very surface it lints.
+
+name: CI Ruleset Lint
+
+on:
+  schedule:
+    # Mondays 05:17 UTC -- weekly, and clear of every sweeper lane's minute.
+    - cron: '17 5 * * 1'
+  # Manual run (e.g. right after a ruleset change, or a DeepSource-style
+  # incident).
+  workflow_dispatch:
+
+# Least privilege: the lane only reads public repository metadata through the
+# REST API; it writes nothing.
+permissions:
+  contents: read
+
+# One run at a time; a queued run proceeds after the current one instead of
+# being dropped. The group carries the commit sha (see WorkflowConcurrencyPolicy),
+# which for a scheduled/dispatched run is the default branch head at launch.
+concurrency:
+  group: ci-ruleset-lint-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  ruleset-lint:
+    # The job NAME is the status-check context; keep it exactly
+    # "CI Ruleset Lint".
+    name: CI Ruleset Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Lint the live required-check set against merged-head evidence
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEADS_TO_LINT: "10"
+        run: |
+          set -euo pipefail
+
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}"
+
+          # Read one API path, authenticated first, anonymous second. The
+          # rulesets endpoint wants administration rights the workflow token
+          # does not carry; this repository's public rulesets are readable
+          # anonymously, so the fallback is legitimate here.
+          fetch() {
+            local path="$1" out=""
+            out=$(gh api "${api}${path}" 2>/dev/null) || out=""
+            if [ -z "${out}" ]; then
+              out=$(curl -fsSL "${api}${path}" 2>/dev/null) || out=""
+            fi
+            printf '%s' "${out}"
+          }
+
+          # --- 1. The live `main` ruleset. --------------------------------
+          rulesets=$(fetch "/rulesets?per_page=100")
+          id=""
+          if printf '%s' "${rulesets}" | jq -e 'type == "array"' >/dev/null 2>&1; then
+            id=$(printf '%s' "${rulesets}" | jq -r \
+              '[.[] | select(.enforcement == "active")
+                | select(((.conditions.ref_name.include // []) | index("refs/heads/main")) != null)][0].id // empty')
+          fi
+          if [ -z "${id}" ]; then
+            echo "::error::Could not resolve the active ruleset targeting refs/heads/main (fail closed) -- the lint cannot verify what it cannot read."
+            exit 1
+          fi
+          detail=$(fetch "/rulesets/${id}")
+          contexts=$(printf '%s' "${detail}" \
+            | jq -r '.rules[] | select(.type == "required_status_checks")
+                      | .parameters.required_status_checks[].context')
+          if [ -z "${contexts}" ]; then
+            echo "::error::Ruleset ${id} carries no required_status_checks rule to lint (fail closed)."
+            exit 1
+          fi
+
+          # --- 2. The last N merged pull-request heads. -------------------
+          heads=$(gh api "repos/${GITHUB_REPOSITORY}/pulls?state=closed&sort=updated&direction=desc&per_page=100" \
+            | jq -r '[.[] | select(.merged_at != null)][0:'"${HEADS_TO_LINT}"']
+                    | .[] | [.number, .head.sha] | @tsv')
+          if [ -z "${heads}" ]; then
+            echo "::notice::No merged pull requests to lint yet -- nothing contradicts the required set."
+            exit 0
+          fi
+          total_heads=$(printf '%s\n' "${heads}" | wc -l)
+
+          # --- 3. Every required context must have reported on every head.
+          # `=()` matters: under `set -u` an associative array that is only
+          # declared (never assigned) reads as unbound in bash, and the
+          # all-present pass case never assigns `missing` a single key.
+          declare -A missing=()
+          declare -A present_count=()
+          while IFS=$'\t' read -r number sha; do
+            names=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${sha}/check-runs?per_page=100" \
+              | jq -r '.check_runs[].name')
+            while IFS= read -r context; do
+              if printf '%s\n' "${names}" | grep -Fxq "${context}"; then
+                present_count["${context}"]=$(( ${present_count["${context}"]:-0} + 1 ))
+              else
+                missing["${context}"]+="#${number} "
+              fi
+            done <<< "${contexts}"
+          done <<< "${heads}"
+
+          # --- 4. Verdict + evidence. -------------------------------------
+          {
+            echo "### Ruleset lint"
+            echo ""
+            echo "Every required context of ruleset ${id} (refs/heads/main) must have a"
+            echo "check-run on each of the last ${total_heads} merged pull-request heads."
+            echo ""
+            echo "| Required context | Reported on | Missing on |"
+            echo "| --- | --- | --- |"
+            while IFS= read -r context; do
+              count=${present_count["${context}"]:-0}
+              miss=${missing["${context}"]:-}
+              if [ -n "${miss}" ]; then
+                echo "| \`${context}\` | ${count}/${total_heads} | ${miss} |"
+              else
+                echo "| \`${context}\` | ${total_heads}/${total_heads} | (none) |"
+              fi
+            done <<< "${contexts}"
+            echo ""
+            if [ "${#missing[@]}" -eq 0 ]; then
+              echo "**Verdict: pass** -- every required check reported on every merged head."
+            else
+              echo "**Verdict: FAIL** -- a required check that never reports is never"
+              echo "\"expected\", so it never blocks a merge (the PR #406 failure mode)."
+              echo "Remove the dead context from the ruleset, or repair the integration."
+            fi
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          if [ "${#missing[@]}" -ne 0 ]; then
+            dead=$(printf '%s; ' "${!missing[@]}")
+            echo "::error::Required checks missing from recent merged heads: ${dead}"
+            exit 1
+          fi
+          echo "Ruleset lint: pass."
