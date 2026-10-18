@@ -287,7 +287,8 @@ final class ErrorMappingMiddlewareTest extends TestCase
             $this->envelope($response)['detail'],
         );
         self::assertCount(1, $recordingLogger->calls);
-        self::assertSame($internalException, $recordingLogger->calls[0][2]['exception']);
+        self::assertSame(InternalException::class, $recordingLogger->calls[0][2]['exception_class']);
+        self::assertArrayNotHasKey('exception', $recordingLogger->calls[0][2]);
     }
 
     public function testATypedClientErrorIsLoggedAsWarning(): void
@@ -542,7 +543,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
         $problem = $this->envelope($response);
 
         self::assertSame('application/problem+json; charset=utf-8', $response->getHeaderLine('Content-Type'));
-        self::assertSame('NOT_FOUND', $problem['code']);
+        self::assertSame('N_F', $problem['code']);
         self::assertSame('/users', $problem['instance']);
         self::assertSame(self::CLAIMED_ID, $problem['trace_id']);
         self::assertStringNotContainsString('secret', (string) $response->getBody());
