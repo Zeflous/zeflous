@@ -48,6 +48,7 @@ final class JsonLineLoggerTest extends TestCase
         self::assertCount(1, $lines);
 
         $record = json_decode($lines[0], true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
         self::assertSame('warning', $record['level']);
         self::assertSame('Request failed for token=[REDACTED]', $record['message']);
         self::assertSame('req-123', $record['context']['request_id']);
@@ -79,6 +80,7 @@ final class JsonLineLoggerTest extends TestCase
         $lines = file($this->path, FILE_IGNORE_NEW_LINES);
         self::assertIsArray($lines);
         $record = json_decode($lines[0], true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
         self::assertSame(5, $record['context']['count']);
         self::assertSame(1.5, $record['context']['ratio']);
         self::assertTrue($record['context']['enabled']);
