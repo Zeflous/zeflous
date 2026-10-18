@@ -54,6 +54,17 @@ The clear command truncates the specified local log file; it does not clear a di
 
 The ZEF Profiler toolbar is enabled only when \`http.error_handling.debug=true\` and \`APP_ENV\` is local/development/test. It is injected only into small, seekable, uncompressed HTML 2xx responses; other responses are passed through unchanged. HTML error pages in debug mode include duration, query count, exception count and trace ID. Database adapters can increment the request-scoped counter through the \`ErrorRequestContext\` request attribute; the framework does not assume a database driver.
 
+Example adapter hook:
+
+\`\`\`php
+$context = $request->getAttribute(\Zef\Framework\Http\ErrorRequestContext::ATTRIBUTE);
+if ($context instanceof \Zef\Framework\Http\ErrorRequestContext) {
+    $context->recordQuery();
+}
+\`\`\`
+
+
+
 Replay is disabled by default. To enable it in local development, configure an existing writable directory outside the document root:
 
 \`\`\`php
