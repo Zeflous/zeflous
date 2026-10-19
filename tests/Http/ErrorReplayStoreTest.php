@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Http\ReplayBodyCapture;
+use Zef\Framework\Http\ReplayBodyDecoder;
 use Zef\Framework\Http\ReplayBodyReader;
 use Zef\Framework\Http\ReplayPayloadSanitizer;
 use Zef\Framework\Http\ReplaySnapshotException;
@@ -25,6 +26,7 @@ use Zef\Framework\Http\Uri;
 #[CoversClass(ErrorReplayStore::class)]
 #[CoversClass(ReplayPayloadSanitizer::class)]
 #[CoversClass(ReplayBodyCapture::class)]
+#[CoversClass(ReplayBodyDecoder::class)]
 #[CoversClass(ReplayBodyReader::class)]
 #[CoversClass(StreamSnapshot::class)]
 #[CoversClass(ReplaySnapshotWriter::class)]
@@ -368,5 +370,44 @@ final class ErrorReplayStoreTest extends TestCase
         } finally {
             restore_error_handler();
         }
+    }
+
+    public function testFormUrlEncodedBodiesAreRedactedAndReplayable(): void
+    {
+        $resource = fopen('php://temp', 'r+b');
+        self::assertIsResource($resource);
+        fwrite($resource, 'username=alice&password=hunter2');
+        rewind($resource);
+        $request = new ServerRequest(
+            'POST',
+            new Uri('https://app.example.test/users'),
+            [],
+            [],
+            [],
+            [],
+            null,
+            ['Content-Type' => 'application/x-www-form-urlencoded', 'X-Request-ID' => 'form-req'],
+            new Stream($resource),
+        );
+
+        $id = new ErrorReplayStore($this->directory)->save(
+            $request,
+            new RuntimeException('form request failed'),
+            400,
+            'form-req',
+        );
+
+        $contents = file_get_contents($this->directory . '/' . $id . '.json');
+        self::assertIsString($contents);
+        self::assertStringNotContainsString('hunter2', $contents);
+
+        $snapshot = json_decode($contents, true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($snapshot);
+        self::assertTrue($snapshot['body_replayable']);
+
+        $body = $snapshot['body'];
+        self::assertIsString($body);
+        self::assertStringContainsString('username=alice', $body);
+        self::assertStringNotContainsString('hunter2', $body);
     }
 }

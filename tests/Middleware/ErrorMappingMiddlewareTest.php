@@ -23,6 +23,7 @@ use Zef\Framework\Exception\ZefException;
 use Zef\Framework\Http\AcceptHeaderParser;
 use Zef\Framework\Http\CorrelationId;
 use Zef\Framework\Http\ErrorContentNegotiator;
+use Zef\Framework\Http\ErrorDetailKeys;
 use Zef\Framework\Http\ErrorDetailsSanitizer;
 use Zef\Framework\Http\ErrorDisclosure;
 use Zef\Framework\Http\ErrorEnvelope;
@@ -92,6 +93,7 @@ use Zef\Test\Support\Log\RecordingLogger;
 #[CoversClass(ProblemDetailsResponseFactory::class)]
 #[CoversClass(ErrorContentNegotiator::class)]
 #[CoversClass(ErrorDetailsSanitizer::class)]
+#[CoversClass(ErrorDetailKeys::class)]
 #[CoversClass(ProblemDetailsMetadata::class)]
 #[CoversClass(HtmlErrorPageRenderer::class)]
 #[CoversClass(FallbackResponse::class)]

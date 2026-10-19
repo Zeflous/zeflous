@@ -22,7 +22,7 @@ final class ErrorDetailsSanitizer
         $entries = \array_slice($details, 0, 50, true);
 
         foreach (array_keys($entries) as $key) {
-            if (!\is_string($key) || preg_match('/^[a-zA-Z0-9_.-]{1,80}$/D', $key) !== 1) {
+            if (!ErrorDetailKeys::accepts($key)) {
                 continue;
             }
 
@@ -39,7 +39,7 @@ final class ErrorDetailsSanitizer
     {
         return match (true) {
             \is_string($value) => RedactedMessage::of(mb_substr($value, 0, 2048)),
-            \is_int($value), \is_float($value), \is_bool($value), $value === null => $value,
+            \is_scalar($value) || $value === null => $value,
             \is_array($value) => self::sanitize($value, $depth + 1),
             default => '[' . get_debug_type($value) . ']',
         };

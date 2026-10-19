@@ -92,6 +92,8 @@ final class SnapshotHostileStream implements StreamInterface
     #[Override]
     public function rewind(): void
     {
+        // The snapshot dance rewinds before reading; the double's cursor
+        // model does not track a position, so there is nothing to do.
     }
 
     #[Override]

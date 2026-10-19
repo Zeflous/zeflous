@@ -24,45 +24,9 @@ final class ReplayBodyCapture
         $mediaType = mb_trim(explode(';', $contentType, 2)[0]);
 
         try {
-            return match (true) {
-                self::isJsonMediaType($mediaType) => self::json($body),
-                $mediaType === 'application/x-www-form-urlencoded' => self::form($body),
-                default => ['', false],
-            };
+            return ReplayBodyDecoder::decode($mediaType, $body);
         } catch (Throwable) {
             return ['', false];
         }
-    }
-
-    private static function isJsonMediaType(string $mediaType): bool
-    {
-        return $mediaType === 'application/json'
-            || (str_starts_with($mediaType, 'application/') && str_ends_with($mediaType, '+json'));
-    }
-
-    /** @return array{string, bool} */
-    private static function json(string $body): array
-    {
-        $decoded = json_decode($body, true, 32, \JSON_THROW_ON_ERROR);
-        if (!\is_array($decoded)) {
-            return ['', false];
-        }
-
-        return [
-            json_encode(
-                ReplayPayloadSanitizer::sanitize($decoded),
-                \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE,
-            ),
-            true,
-        ];
-    }
-
-    /** @return array{string, bool} */
-    private static function form(string $body): array
-    {
-        parse_str($body, $decoded);
-        $safe = ReplayPayloadSanitizer::sanitize($decoded);
-
-        return [http_build_query(\is_array($safe) ? $safe : []), true];
     }
 }
