@@ -12,12 +12,20 @@ use stdClass;
 use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\Aot\AotArguments;
 use Zef\Framework\Container\Aot\AotArtifact;
+use Zef\Framework\Container\Aot\AotArtifactCalls;
+use Zef\Framework\Container\Aot\AotArtifactEntries;
+use Zef\Framework\Container\Aot\AotArtifactEntry;
+use Zef\Framework\Container\Aot\AotArtifactEnvelope;
+use Zef\Framework\Container\Aot\AotArtifactIds;
+use Zef\Framework\Container\Aot\AotBuildEntry;
 use Zef\Framework\Container\Aot\AotClosureEntry;
 use Zef\Framework\Container\Aot\AotClosures;
 use Zef\Framework\Container\Aot\AotDefinitions;
 use Zef\Framework\Container\Aot\AotEntries;
 use Zef\Framework\Container\Aot\AotException;
+use Zef\Framework\Container\Aot\AotLifetimes;
 use Zef\Framework\Container\Aot\AotLiterals;
+use Zef\Framework\Container\Aot\AotMembers;
 use Zef\Framework\Container\Aot\AotRefusals;
 use Zef\Framework\Container\Aot\ContainerAotCache;
 use Zef\Framework\Container\Container;
@@ -52,6 +60,16 @@ use Zef\Test\Support\Container\Aot\Window;
 #[CoversClass(AotArguments::class)]
 #[CoversClass(AotLiterals::class)]
 #[CoversClass(AotRefusals::class)]
+#[CoversClass(AotArtifactCalls::class)]
+#[CoversClass(AotArtifactEntries::class)]
+#[CoversClass(AotArtifactEntry::class)]
+#[CoversClass(AotArtifactEnvelope::class)]
+#[CoversClass(AotArtifactIds::class)]
+#[CoversClass(AotBuildEntry::class)]
+#[CoversClass(AotClosureEntry::class)]
+#[CoversClass(AotLifetimes::class)]
+#[CoversClass(AotMembers::class)]
+#[CoversClass(AotException::class)]
 final class ContainerAotCacheTest extends TestCase
 {
     private string $file;

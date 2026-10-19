@@ -42,6 +42,12 @@ use Zef\Framework\Container\ValueDefinition;
 final readonly class AotClosures
 {
     /**
+     * Every rendered closure's prologue: the signature opening the
+     * artifact's factories all share, one spelling.
+     */
+    private const string PROLOGUE = 'static fn (';
+
+    /**
      * The container's fully-qualified name as the generated code spells
      * it: the artifact is a standalone file with no imports.
      */
@@ -68,10 +74,10 @@ final readonly class AotClosures
             . ')';
 
         if ($instanceDefinition->calls === []) {
-            return 'static fn (' . self::CONTAINER . ' $c): object => ' . $construction;
+            return self::PROLOGUE . self::CONTAINER . ' $c): object => ' . $construction;
         }
 
-        return 'static fn (' . self::CONTAINER . ' $c): object => ' . self::INVOCATIONS
+        return self::PROLOGUE . self::CONTAINER . ' $c): object => ' . self::INVOCATIONS
             . '::apply(' . $construction . ', '
             . self::calls($instanceDefinition->calls, $instanceDefinition->id) . ', $c)';
     }
@@ -82,7 +88,7 @@ final readonly class AotClosures
      */
     public static function alias(AliasDefinition $aliasDefinition): string
     {
-        return 'static fn (' . self::CONTAINER . ' $c): mixed => $c->get('
+        return self::PROLOGUE . self::CONTAINER . ' $c): mixed => $c->get('
             . var_export($aliasDefinition->target, true) . ')';
     }
 

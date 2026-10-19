@@ -71,37 +71,33 @@ final readonly class AotDigest
      */
     private static function fold(mixed $value, string $path): string
     {
-        if (\is_int($value)) {
-            return 'int:' . $value;
+        return match (true) {
+            \is_int($value) => 'int:' . $value,
+            \is_string($value) => 'string:' . $value,
+            \is_bool($value) => 'bool:' . ($value ? 'true' : 'false'),
+            \is_float($value) => 'float:' . var_export($value, true),
+            $value === null => 'null',
+            \is_array($value) => self::foldEntries($value, $path),
+            default => throw AotRefusals::notDigestible($path, $value),
+        };
+    }
+
+    /**
+     * The array arm: each entry folded into its type-tagged spelling,
+     * keyed under its own name or position.
+     *
+     * @param array<mixed> $value the array being folded
+     * @param string       $path  the dotted position, for the refusals
+     */
+    private static function foldEntries(array $value, string $path): string
+    {
+        $entries = '';
+
+        foreach ($value as $key => $entry) {
+            $entries .= (\is_int($key) ? 'idx:' : 'key:') . $key . '='
+                . self::fold($entry, $path . '.' . $key) . ';';
         }
 
-        if (\is_string($value)) {
-            return 'string:' . $value;
-        }
-
-        if (\is_bool($value)) {
-            return 'bool:' . ($value ? 'true' : 'false');
-        }
-
-        if (\is_float($value)) {
-            return 'float:' . var_export($value, true);
-        }
-
-        if ($value === null) {
-            return 'null';
-        }
-
-        if (\is_array($value)) {
-            $entries = '';
-
-            foreach ($value as $key => $entry) {
-                $entries .= (\is_int($key) ? 'idx:' : 'key:') . $key . '='
-                    . self::fold($entry, $path . '.' . $key) . ';';
-            }
-
-            return '[' . $entries . ']';
-        }
-
-        throw AotRefusals::notDigestible($path, $value);
+        return '[' . $entries . ']';
     }
 }

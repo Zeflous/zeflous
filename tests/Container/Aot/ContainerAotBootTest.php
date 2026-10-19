@@ -11,26 +11,41 @@ use RuntimeException;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Aot\AotArguments;
 use Zef\Framework\Container\Aot\AotArtifact;
+use Zef\Framework\Container\Aot\AotArtifactCalls;
+use Zef\Framework\Container\Aot\AotArtifactEntries;
+use Zef\Framework\Container\Aot\AotArtifactEntry;
+use Zef\Framework\Container\Aot\AotArtifactEnvelope;
+use Zef\Framework\Container\Aot\AotArtifactIds;
+use Zef\Framework\Container\Aot\AotBuildEntry;
+use Zef\Framework\Container\Aot\AotClosureEntry;
 use Zef\Framework\Container\Aot\AotClosures;
 use Zef\Framework\Container\Aot\AotDefinitions;
 use Zef\Framework\Container\Aot\AotDigest;
 use Zef\Framework\Container\Aot\AotEntries;
 use Zef\Framework\Container\Aot\AotException;
 use Zef\Framework\Container\Aot\AotLane;
+use Zef\Framework\Container\Aot\AotLifetimes;
 use Zef\Framework\Container\Aot\AotLiterals;
 use Zef\Framework\Container\Aot\AotMap;
+use Zef\Framework\Container\Aot\AotMembers;
 use Zef\Framework\Container\Aot\AotOutcome;
 use Zef\Framework\Container\Aot\AotRefusals;
 use Zef\Framework\Container\Aot\AotToggles;
 use Zef\Framework\Container\Aot\ContainerAotCache;
+use Zef\Framework\Container\AotBootLane;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Container\ContainerCompileLane;
 use Zef\Framework\Container\ContainerCompilePipeline;
 use Zef\Framework\Container\ContainerCompilePlan;
+use Zef\Framework\Container\ContainerRegistrations;
+use Zef\Framework\Container\ContainerServices;
+use Zef\Framework\Container\ContainerSingletons;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\ServiceTagIndex;
 use Zef\Framework\Container\SingletonWarmer;
 use Zef\Framework\Container\TaggedServices;
 use Zef\Framework\ContainerBootstrapper;
+use Zef\Framework\ContainerKnobs;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Test\Support\Container\Aot\BrokenHouse;
 use Zef\Test\Support\Container\Aot\CallsHouse;
@@ -73,6 +88,22 @@ use Zef\Test\Support\Container\Parameters\ConnectionHouse;
 #[CoversClass(AotArguments::class)]
 #[CoversClass(AotLiterals::class)]
 #[CoversClass(ServiceTagIndex::class)]
+#[CoversClass(AotArtifactCalls::class)]
+#[CoversClass(AotArtifactEntries::class)]
+#[CoversClass(AotArtifactEntry::class)]
+#[CoversClass(AotArtifactEnvelope::class)]
+#[CoversClass(AotArtifactIds::class)]
+#[CoversClass(AotBuildEntry::class)]
+#[CoversClass(AotClosureEntry::class)]
+#[CoversClass(AotLifetimes::class)]
+#[CoversClass(AotMembers::class)]
+#[CoversClass(AotException::class)]
+#[CoversClass(AotBootLane::class)]
+#[CoversClass(ContainerCompileLane::class)]
+#[CoversClass(ContainerRegistrations::class)]
+#[CoversClass(ContainerSingletons::class)]
+#[CoversClass(ContainerServices::class)]
+#[CoversClass(ContainerKnobs::class)]
 final class ContainerAotBootTest extends TestCase
 {
     private string $artifactFile;
