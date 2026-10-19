@@ -46,8 +46,8 @@ final readonly class NamespaceScopeParser
 
         $namespaceScopeKinds = new NamespaceScopeKinds();
 
-        foreach ($entries as $prefix => $kind) {
-            $validatedKind = $namespaceScopeKinds->asserted($key, $prefix, $kind);
+        foreach (array_keys($entries) as $prefix) {
+            $validatedKind = $namespaceScopeKinds->asserted($key, $prefix, $entries[$prefix]);
             $collapsed = $namespacePrefixGrammar->collapsed($key, $prefix);
 
             if (isset($scopes[$collapsed])) {

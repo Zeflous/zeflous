@@ -42,16 +42,16 @@ final readonly class NamespaceScopesSource
             throw NamespaceRefusals::scopeBudgetExceeded($key, self::SCOPE_BUDGET);
         }
 
-        $entries = [];
-
-        foreach ($source as $prefix => $kind) {
+        foreach (array_keys($source) as $prefix) {
             if (!\is_string($prefix)) {
                 throw NamespaceRefusals::prefixNotANonEmptyString($key, $prefix);
             }
-
-            $entries[$prefix] = $kind;
         }
 
-        return $entries;
+        /**
+         * The keys are strings by the walk above -- the one shape the
+         * storage type widens away.
+         */
+        return $source;
     }
 }

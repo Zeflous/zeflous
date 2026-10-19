@@ -277,10 +277,7 @@ final readonly class FrameworkDefaults
             'decorators' => [],
             'interceptors' => [],
             'listeners' => [],
-            'namespaces' => [
-                'scopes' => [],
-                'max_cross_scope_refs' => 0,
-            ],
+            'namespaces' => ['scopes' => [], 'max_cross_scope_refs' => 0],
             'parameters' => [],
             'aot' => [
                 'enabled' => false,
