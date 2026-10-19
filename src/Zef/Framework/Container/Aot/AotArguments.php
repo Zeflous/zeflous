@@ -27,7 +27,7 @@ final readonly class AotArguments
      * @param string $serviceId the definition the argument serves
      * @param string $path      the dotted position, for the refusal
      */
-    public static function code(mixed $argument, string $serviceId, string $path): string
+    private static function code(mixed $argument, string $serviceId, string $path): string
     {
         if (\is_array($argument) && \array_key_exists('service', $argument) && \is_string($argument['service'])) {
             return '$c->get(' . var_export($argument['service'], true) . ')';

@@ -96,6 +96,28 @@ final class AotClosuresTest extends TestCase
         self::assertSame(['style' => 'georgian'], $house->trim);
     }
 
+    public function testAnObjectInsideACallsArgumentsRefusesWithItsPosition(): void
+    {
+        try {
+            AotClosures::instance(new InstanceDefinition(
+                'app.calls',
+                CallsHouse::class,
+                [['service' => 'app.window']],
+                ServiceLifetime::SINGLETON,
+                calls: [
+                    new MethodCall('addRoof', [new stdClass()]),
+                ],
+            ));
+            self::fail('Expected an AotException to be thrown.');
+        } catch (AotException $aotException) {
+            self::assertSame(
+                "Service 'app.calls' carries a value the AOT artifact cannot export at 'calls.addRoof.0' (stdClass) -- "
+                . 'move the computation behind the factory shape, or boot without the AOT lane.',
+                $aotException->getMessage(),
+            );
+        }
+    }
+
     public function testTheCallsCarryingShapeDelegatesToTheOneAuthority(): void
     {
         $instanceDefinition = new InstanceDefinition(

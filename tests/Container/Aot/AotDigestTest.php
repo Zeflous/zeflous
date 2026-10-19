@@ -158,6 +158,31 @@ final class AotDigestTest extends TestCase
         self::assertSame(AotDigest::over([], '1'), AotDigest::over([], '1'));
     }
 
+    /**
+     * The fold's exact spelling, pinned: the digest's design contract is
+     * stability across processes and releases -- every type-tagged
+     * prefix, map name and the version fold into one SHA-256 whose
+     * literal value the lane promises not to change silently.
+     */
+    public function testTheFoldSpellsItsCanonicalFormStably(): void
+    {
+        self::assertSame(
+            '70eafe0547db338f32ab5a625a3f45aa7c1d3dbfae47dd64e468e26d8ecf3146',
+            AotDigest::over([
+                'framework.services' => ['x' => ['factory' => 'A::b']],
+                'services' => ['a' => ['class' => 'C', 'arguments' => [1, '1', 1.5, true, false, null, ['nested' => 'v']]]],
+                'parameters' => ['db.host' => 'localhost'],
+                'tags' => ['interfaces' => []],
+                'contextual' => [],
+            ], '2.9.0-zeflous'),
+        );
+
+        self::assertSame(
+            'fb60fd65f24ff2c73b9f9c794f021ae42cb0265c47b943e01ce2806aade6b624',
+            AotDigest::over([], '1'),
+        );
+    }
+
     public function testAnObjectRefusesTheFoldWithItsPath(): void
     {
         try {

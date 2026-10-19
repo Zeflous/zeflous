@@ -88,6 +88,25 @@ final class ContainerAotCacheTest extends TestCase
         self::assertCount(7, $artifact->entries());
     }
 
+    public function testAMultiTagIndexSurvivesTheRoundTripWhole(): void
+    {
+        $cache = new ContainerAotCache($this->file);
+
+        $cache->dump(
+            'digest-of-the-configuration',
+            AotEntries::all(self::plannedSet()),
+            ['frame.house' => ['app.house'], 'warm.batch' => ['app.window', 'app.calls']],
+            ['app.answer'],
+        );
+
+        $artifact = $cache->load();
+
+        self::assertSame(
+            ['frame.house' => ['app.house'], 'warm.batch' => ['app.window', 'app.calls']],
+            $artifact->tags(),
+        );
+    }
+
     public function testTheLoadedClosureEntriesAreLiveClosures(): void
     {
         $containerAotCache = new ContainerAotCache($this->file);
@@ -262,6 +281,7 @@ final class ContainerAotCacheTest extends TestCase
                 "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => 'nope', 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the tag index must be a map.",
             ],
+            'tag key not a string' => ["<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [7 => ['x']], 'entries' => []];", "The container AOT artifact '{$file}' is malformed: the tag index keys must be non-empty tag strings."],
             'tag ids not a list' => [
                 "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => ['t' => 'id'], 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the tag index for 't' must be a list of "
