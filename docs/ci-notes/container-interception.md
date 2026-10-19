@@ -164,14 +164,14 @@ proven stale by construction (the digest changed shape).
 
 | Subject | Mode |
 | --- | --- |
-| Plain boot (2 services) | 32.3μs |
-| Intercepted boot (+1 link, +2 listeners) | 52.7μs |
-| Memoised resolution, armed | 0.300μs |
-| Memoised resolution, plain | 0.300μs |
+| Plain boot (2 services) | 47.0μs |
+| Intercepted boot (+1 link, +2 listeners) | 72.9μs |
+| Memoised resolution, armed | 0.510μs |
+| Memoised resolution, plain | 0.510μs |
 
 Not a victory claim. The honest cost structure: an interception's
 price is paid once, at the boot (the entry parse, the materialisation,
-the seal — ~20μs on this two-service fixture, drowning in a real
+the seal — ~26μs on this two-service fixture, drowning in a real
 host's own boot), the construction path pays the listeners and the
 onion only on a cache miss, and the memoised hot answer pays nothing —
 the parity is by construction, not by measurement.
@@ -240,3 +240,35 @@ the parity is by construction, not by measurement.
   scope's no-open-scope refusal and the registry's own second-arming
   refusal. The unarmed state a failed arming honestly leaves behind
   is never a state to silently paper over.
+- **A killing test that covers nothing kills nothing.** The first
+  mutation round escaped exactly the two lane-arming call removals
+  even though the warmup tests fail loudly with the calls gone — the
+  `#[CoversClass]` metadata limits coverage attribution to the listed
+  classes, and the lanes were missing from the boot test's list, so
+  Infection never ran the killing tests for the lanes' mutants. The
+  warmup semantics were pinned from the first draft; what was missing
+  was the attribution, not the assertion. When a mutant escapes that
+  "obviously" dies under a test, check whether the test covers the
+  mutated file before writing a new one.
+- **A `continue` over a deprecation-shaped witness guards inline
+  instead.** The required-scan's `continue`-over-optional spelling
+  carried an unkillable mutant: its divergent input is a constructor
+  declaring an optional parameter before a required one — a shape the
+  engine itself deprecates, and this suite fails on deprecations. The
+  honest restructure throws at the required parameter directly
+  (`if (!optional) throw`), the same verdict with no skip to mutate.
+- **The value object's own defaults need their own witness.** The
+  entry's `priority = 0` constructor default escaped both integer
+  mutators: the parsed knobs always carry an explicit validated
+  priority, so the default is only observable where a hand-built
+  entry is materialised — the answer the materialisation unit gives
+  for a hand-built entry's priority is the default's honest witness.
+- **Two escapes were the environment's, not the branch's.** The full
+  local run escaped two `DirectoryLoader` mutants (the dotfile skip's
+  `continue`, the `ksort` removal) in files this lane never touched:
+  both are filesystem-order-dependent (the fixture directory's
+  readdir order puts the dotfile last locally, and the natural order
+  happens to be sorted), so the local escape is determinism of this
+  sandbox's filesystem, while the CI runner's order kills both — the
+  full-set MSI 100 remains the CI lane's verdict, and the local
+  changed-set run is the branch's own.

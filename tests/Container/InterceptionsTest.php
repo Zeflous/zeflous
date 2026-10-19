@@ -33,6 +33,7 @@ use Zef\Test\Support\Container\Interception\InterceptionHooks;
 use Zef\Test\Support\Container\Interception\InterceptionLog;
 use Zef\Test\Support\Container\Interception\ObservingResolvedListener;
 use Zef\Test\Support\Container\Interception\OptionalInterceptor;
+use Zef\Test\Support\Container\Interception\ParameterlessInterceptor;
 use Zef\Test\Support\Container\Interception\RecordingInterceptor;
 use Zef\Test\Support\Container\Interception\RecordingResolvingListener;
 use Zef\Test\Support\Container\Interception\ReplacedService;
@@ -554,6 +555,114 @@ final class InterceptionsTest extends TestCase
         self::assertSame($answer, $container->get('proof'), 'the chain runs, the default-built link calling $next()');
     }
 
+    public function testAConstructorlessEntryFitsAnEmptyPlan(): void
+    {
+        $container = new Container();
+
+        $this->armed($container, [
+            'interceptors' => [
+                ['class' => ParameterlessInterceptor::class, 'arguments' => []],
+            ],
+        ]);
+
+        self::assertTrue(
+            $container->interceptions()->armed(),
+            'a class without a constructor answers the empty parameter list an empty plan fits',
+        );
+
+        $answer = new stdClass();
+        $container->set('proof', static fn (): stdClass => $answer);
+        self::assertSame($answer, $container->get('proof'), 'the constructorless link rides the chain calling $next()');
+    }
+
+    public function testAHandBuiltEntryCarriesTheZeroPriorityBand(): void
+    {
+        $container = new Container();
+        $container->set('test.log', static fn (): InterceptionLog => new InterceptionLog());
+
+        // The parsed knobs always carry their validated priority; the
+        // value object's own default is the hand-built entry's band --
+        // the materialisation answers it verbatim, and the onion's tie
+        // order (the declaration order) depends on it being zero.
+        $pairs = InterceptionMaterialisations::interceptors(
+            [new InterceptionEntry(RecordingInterceptor::class, null, ['alpha', ['service' => 'test.log']])],
+            $container,
+        );
+
+        self::assertCount(1, $pairs);
+        self::assertInstanceOf(RecordingInterceptor::class, $pairs[0]['interceptor']);
+        self::assertSame(0, $pairs[0]['priority']);
+    }
+
+    public function testEveryMaterialisedInterceptorRidesTheChain(): void
+    {
+        $container = new Container();
+
+        $this->armed($container, [
+            'interceptors' => [
+                ['class' => RecordingInterceptor::class, 'arguments' => ['alpha', ['service' => 'test.log']]],
+                ['class' => RecordingInterceptor::class, 'arguments' => ['beta', ['service' => 'test.log']]],
+            ],
+        ]);
+
+        $answer = new stdClass();
+        $container->set('proof', static fn (): stdClass => $answer);
+
+        self::assertSame($answer, $container->get('proof'));
+        self::assertSame(
+            ['alpha > proof', 'beta > proof', 'beta < proof', 'alpha < proof'],
+            $this->log($container)->lines(),
+            'both materialised links ride -- the walk that answers one entry answers every entry it carries',
+        );
+    }
+
+    public function testEveryMaterialisedListenerFires(): void
+    {
+        $container = new Container();
+
+        $this->armed($container, [
+            'resolving' => [
+                ['class' => RecordingResolvingListener::class, 'arguments' => [['service' => 'test.log']]],
+                ['class' => RecordingResolvingListener::class, 'arguments' => [['service' => 'test.log']]],
+            ],
+        ]);
+
+        $answer = new stdClass();
+        $container->set('proof', static fn (): stdClass => $answer);
+
+        self::assertSame($answer, $container->get('proof'));
+        self::assertSame(
+            ['resolving: proof', 'resolving: proof'],
+            $this->log($container)->lines(),
+            'both materialised listeners fire -- the shared walk that answers one entry answers every entry it carries',
+        );
+    }
+
+    public function testTheListenerKindsQuoteTheirOwnLabelsAtTheFit(): void
+    {
+        $container = new Container();
+
+        try {
+            $this->armed($container, [
+                'resolving' => [
+                    [
+                        'class' => RecordingResolvingListener::class,
+                        'arguments' => [['service' => 'test.log'], 'surplus'],
+                    ],
+                ],
+            ]);
+            self::fail('Expected a thrown refusal.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "The interception entry 'listeners.resolving.0' class "
+                . '\'Zef\Test\Support\Container\Interception\RecordingResolvingListener\' '
+                . 'declares more arguments than the constructor carries (1).',
+                $definitionException->getMessage(),
+                'the listener kinds quote their own knob paths -- the kind, the list, the position',
+            );
+        }
+    }
+
     /**
      * Arms the container's registry from the raw knob arrays, the log
      * service installed first so the entries' references answer.
@@ -574,5 +683,17 @@ final class InterceptionsTest extends TestCase
             ]),
             $container,
         );
+    }
+
+    /**
+     * The armed container's own log service, typed for the tape the
+     * assertions read.
+     */
+    private function log(Container $container): InterceptionLog
+    {
+        $log = $container->get('test.log');
+        self::assertInstanceOf(InterceptionLog::class, $log);
+
+        return $log;
     }
 }

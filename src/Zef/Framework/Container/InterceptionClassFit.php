@@ -19,6 +19,13 @@ use ReflectionClass;
  *
  * The reflection is boot-only, read once per entry -- the same
  * discipline the autowiring lane keeps for its own constructor reads.
+ *
+ * The required scan guards inline rather than skipping: the divergent
+ * spelling a `continue` carries (an optional parameter read before a
+ * later required one -- a shape the engine itself deprecates) has no
+ * honest witness, so the walk throws at the required parameter
+ * directly and the optional boundary stays the constructor's own
+ * answer.
  */
 final readonly class InterceptionClassFit
 {
@@ -36,13 +43,10 @@ final readonly class InterceptionClassFit
             throw InterceptionRefusals::tooManyArguments($label, $class, \count($parameters));
         }
 
-        $beyond = \array_slice($parameters, \count($arguments));
-        foreach ($beyond as $parameter) {
-            if ($parameter->isOptional()) {
-                continue;
+        foreach (\array_slice($parameters, \count($arguments)) as $reflectionParameter) {
+            if (!$reflectionParameter->isOptional()) {
+                throw InterceptionRefusals::stopsBeforeRequired($label, $class, $reflectionParameter->getName());
             }
-
-            throw InterceptionRefusals::stopsBeforeRequired($label, $class, $parameter->getName());
         }
     }
 }

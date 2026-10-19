@@ -11,8 +11,10 @@ use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Aot\AotLane;
 use Zef\Framework\Container\Aot\AotOutcome;
 use Zef\Framework\Container\Aot\ContainerAotCache;
+use Zef\Framework\Container\AotBootLane;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContainerArming;
+use Zef\Framework\Container\ContainerCompileLane;
 use Zef\Framework\Container\ContainerInstalls;
 use Zef\Framework\Container\ContainerSingletons;
 use Zef\Framework\ContainerBootstrapper;
@@ -42,6 +44,8 @@ use Zef\Test\Support\Container\Interception\ReplacingResolvedListener;
 #[CoversClass(ContainerInstalls::class)]
 #[CoversClass(ContainerArming::class)]
 #[CoversClass(ContainerSingletons::class)]
+#[CoversClass(ContainerCompileLane::class)]
+#[CoversClass(AotBootLane::class)]
 final class InterceptedBootTest extends TestCase
 {
     private string $artifactFile;
