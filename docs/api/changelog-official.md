@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(container\): add the decoration lane over the declarative grammar [\#469](https://github.com/Zeflous/zeflous/pull/469) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the merge-queue storm fix -- history row 463 [\#466](https://github.com/Zeflous/zeflous/pull/466) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): stop the merge queue self-re-render storm [\#463](https://github.com/Zeflous/zeflous/pull/463) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the compiler passes area -- status area 8 implemented, history row 458 [\#459](https://github.com/Zeflous/zeflous/pull/459) ([mbetixz](https://github.com/mbetixz))
