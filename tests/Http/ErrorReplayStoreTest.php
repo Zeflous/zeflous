@@ -13,6 +13,7 @@ use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Http\ReplayBodyCapture;
 use Zef\Framework\Http\ReplayBodyReader;
 use Zef\Framework\Http\ReplayPayloadSanitizer;
+use Zef\Framework\Http\ReplaySnapshotException;
 use Zef\Framework\Http\ReplaySnapshotWriter;
 use Zef\Framework\Http\ReplayStorageDirectory;
 use Zef\Framework\Http\ServerRequest;
@@ -44,20 +45,29 @@ final class ErrorReplayStoreTest extends TestCase
     {
         $files = glob($this->directory . '/*');
         foreach (\is_array($files) ? $files : [] as $file) {
-            if (is_file($file) || is_link($file)) {
-                unlink($file);
+            if (!is_file($file) && !is_link($file)) {
+                continue;
             }
+
+            unlink($file);
         }
-        if (is_dir($this->directory)) {
-            rmdir($this->directory);
+
+        if (!is_dir($this->directory)) {
+            return;
         }
+
+        rmdir($this->directory);
     }
 
     public function testStoresOnlySanitizedRequestDataWithPrivateFilePermissions(): void
     {
         $resource = fopen('php://temp', 'r+b');
         self::assertIsResource($resource);
-        fwrite($resource, '{"username":"alice","password":"hunter2","nested":{"access_token":"secret123"},"count":3,"enabled":true,"empty":null}');
+        fwrite(
+            $resource,
+            '{"username":"alice","password":"hunter2","nested":{"access_token":"secret123"}'
+                . ',"count":3,"enabled":true,"empty":null}',
+        );
         rewind($resource);
         $stream = new Stream($resource);
         $request = new ServerRequest(
@@ -150,8 +160,14 @@ final class ErrorReplayStoreTest extends TestCase
 
         self::assertFalse($snapshot['body_replayable']);
         self::assertSame('', $snapshot['body']);
-        self::assertStringNotContainsString('hunter2', (string) file_get_contents($this->directory . '/' . $id . '.json'));
-        self::assertStringNotContainsString('secret123', (string) file_get_contents($this->directory . '/' . $id . '.json'));
+        self::assertStringNotContainsString(
+            'hunter2',
+            (string) file_get_contents($this->directory . '/' . $id . '.json'),
+        );
+        self::assertStringNotContainsString(
+            'secret123',
+            (string) file_get_contents($this->directory . '/' . $id . '.json'),
+        );
     }
 
     public function testOmitsXmlBodiesWithoutAFormatAwareParser(): void
@@ -188,8 +204,14 @@ final class ErrorReplayStoreTest extends TestCase
 
         self::assertFalse($snapshot['body_replayable']);
         self::assertSame('', $snapshot['body']);
-        self::assertStringNotContainsString('hunter2', (string) file_get_contents($this->directory . '/' . $id . '.json'));
-        self::assertStringNotContainsString('alice', (string) file_get_contents($this->directory . '/' . $id . '.json'));
+        self::assertStringNotContainsString(
+            'hunter2',
+            (string) file_get_contents($this->directory . '/' . $id . '.json'),
+        );
+        self::assertStringNotContainsString(
+            'alice',
+            (string) file_get_contents($this->directory . '/' . $id . '.json'),
+        );
     }
 
     public function testRejectsDeceptiveJsonContentTypeSubstrings(): void
@@ -226,7 +248,10 @@ final class ErrorReplayStoreTest extends TestCase
 
         self::assertFalse($snapshot['body_replayable']);
         self::assertSame('', $snapshot['body']);
-        self::assertStringNotContainsString('secret123', (string) file_get_contents($this->directory . '/' . $id . '.json'));
+        self::assertStringNotContainsString(
+            'secret123',
+            (string) file_get_contents($this->directory . '/' . $id . '.json'),
+        );
     }
 
     public function testEmptyAndOversizedBodiesHaveExplicitReplayability(): void
@@ -324,6 +349,24 @@ final class ErrorReplayStoreTest extends TestCase
             }
             rmdir($replayDirectory);
             rmdir($publicRoot);
+        }
+    }
+
+    public function testAnAlreadyPresentSnapshotFileIsRefused(): void
+    {
+        $id = str_repeat('b', 32);
+
+        ReplaySnapshotWriter::write($this->directory, $id, '{"one":true}');
+
+        set_error_handler(static fn (): bool => true);
+
+        try {
+            ReplaySnapshotWriter::write($this->directory, $id, '{"two":true}');
+            self::fail('An existing snapshot file must be refused.');
+        } catch (ReplaySnapshotException $exception) {
+            self::assertSame('Unable to create an exclusive replay snapshot.', $exception->getMessage());
+        } finally {
+            restore_error_handler();
         }
     }
 }

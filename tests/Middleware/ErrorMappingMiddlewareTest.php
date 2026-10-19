@@ -57,6 +57,9 @@ use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Framework\Telemetry\MeterSlot;
+use Zef\Test\Support\Exception\ExplanatoryException;
+use Zef\Test\Support\Exception\ForgedTraceIdException;
+use Zef\Test\Support\Exception\ThrowingStatusException;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Http\ForeignResponse;
 use Zef\Test\Support\Http\ThrowingHandler;
@@ -110,6 +113,20 @@ final class ErrorMappingMiddlewareTest extends TestCase
     private ?string $routedErrorLog = null;
 
     private false|string $previousErrorLog = false;
+
+    #[Override]
+    protected function setUp(): void
+    {
+        // Every construction lane in this battery -- the bare middleware,
+        // the factory's config-built wiring, the logger that fails -- can
+        // reach the fault path's last-resort SAPI write. Routing that
+        // destination once up front keeps those writes observable and off
+        // the process's real stderr: Infection's initial test run
+        // terminates the suite on the first stderr byte it sees, so an
+        // unrouted write kills the mutation lane before a single mutant
+        // is generated.
+        $this->routeErrorLog();
+    }
 
     #[Override]
     protected function tearDown(): void
@@ -462,8 +479,6 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testABrokenLoggerStillAnswersTheInternalError(): void
     {
-        $this->routeErrorLog();
-
         $response = new ErrorMappingMiddleware(new FailingLogger(new LogicException('sink broken')))->process(
             $this->requestWithClaim(),
             new ThrowingHandler(new RuntimeException('boom')),
@@ -482,8 +497,6 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testNoLoggerUsesStructuredSapiErrorLog(): void
     {
-        $this->routeErrorLog();
-
         $response = $this->middleware()->process(
             $this->requestWithClaim(),
             new ThrowingHandler(new RuntimeException('boom')),
@@ -570,8 +583,13 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testDeveloperDetailsAreOnlyIncludedInDebugProblemResponsesAndRedacted(): void
     {
-        $exception = new class('Invalid input.', 0, null, 'INVALID_INPUT', ['diagnostic' => 'password=secret123']) extends ZefException {
-        };
+        $exception = new ExplanatoryException(
+            'Invalid input.',
+            0,
+            null,
+            'INVALID_INPUT',
+            ['diagnostic' => 'password=secret123'],
+        );
         $request = new ServerRequest(
             'POST',
             new Uri('https://app.example/users'),
@@ -601,7 +619,9 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertFalse(ErrorContentNegotiator::prefersHtml('text/html;q=0.4, application/problem+json;q=0.8'));
         self::assertTrue(ErrorContentNegotiator::prefersHtml('text/html;q=0.8, application/json;q=0.5'));
         self::assertFalse(ErrorContentNegotiator::prefersHtml('text/html;q=0, */*;q=1'));
-        self::assertTrue(ErrorContentNegotiator::prefersHtml('application/problem+json;q=0, text/html;q=0.2, */*;q=0.1'));
+        self::assertTrue(
+            ErrorContentNegotiator::prefersHtml('application/problem+json;q=0, text/html;q=0.2, */*;q=0.1'),
+        );
         self::assertFalse(ErrorContentNegotiator::prefersHtml('text/html;q=.8, application/problem+json;q=.5'));
         self::assertFalse(ErrorContentNegotiator::prefersHtml('invalid-media-range, application/problem+json;q=0.8'));
     }
@@ -840,8 +860,13 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testHtmlDebugPageIncludesSanitizedDeveloperContextAndSecurityHeaders(): void
     {
-        $exception = new class('Failed safely.', 0, null, 'FAILED_SAFELY', ['credential' => 'token=secret123']) extends ZefException {
-        };
+        $exception = new ExplanatoryException(
+            'Failed safely.',
+            0,
+            null,
+            'FAILED_SAFELY',
+            ['credential' => 'token=secret123'],
+        );
         $response = $this->middleware(debug: true)->process(
             $this->requestWithClaim(self::CLAIMED_ID, 'text/html'),
             new ThrowingHandler($exception),
@@ -859,13 +884,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testStatusMappingFailureFallsBackToInternalServerError(): void
     {
-        $exception = new class('mapping failure') extends ZefException implements CarriesHttpStatus {
-            #[Override]
-            public function httpStatus(): int
-            {
-                throw new RuntimeException('status mapper failed');
-            }
-        };
+        $exception = new ThrowingStatusException('mapping failure');
 
         $response = $this->middleware()->process(
             $this->requestWithClaim(),
@@ -888,6 +907,8 @@ final class ErrorMappingMiddlewareTest extends TestCase
             #[Override]
             public function observe(string $name, float $value, array $attributes = []): void
             {
+                // The metric backend's observe lane is not the one under
+                // test here; the interface contract keeps it a no-op.
             }
 
             #[Override]
@@ -909,13 +930,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testResponseTraceIdFallsBackWhenAnExtensionOverridesValidation(): void
     {
-        $exception = new class('bad trace') extends ZefException {
-            #[Override]
-            public function getTraceId(): string
-            {
-                return "invalid\r\nX-Forged: yes";
-            }
-        };
+        $exception = new ForgedTraceIdException('bad trace');
 
         $response = $this->middleware()->process(
             $this->requestWithClaim(),
@@ -929,16 +944,29 @@ final class ErrorMappingMiddlewareTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new class('invalid trace', 0, null, 'INVALID_TRACE', [], "trace\r\nX-Forged: yes") extends ZefException {
-        };
+        new ExplanatoryException('invalid trace', 0, null, 'INVALID_TRACE', [], "trace\r\nX-Forged: yes");
     }
 
     public function testRejectsMalformedErrorCodesOnTypedExceptions(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new class('invalid code', 0, null, 'bad-code') extends ZefException {
-        };
+        new ExplanatoryException('invalid code', 0, null, 'bad-code');
+    }
+
+    public function testSubErrorStatusesAreNotRecorded(): void
+    {
+        $recordingLogger = new RecordingLogger();
+
+        new ErrorFaultRecorder($recordingLogger)->record(
+            new RuntimeException('nothing worth recording'),
+            302,
+            self::CLAIMED_ID,
+            $this->requestWithClaim(),
+        );
+
+        self::assertCount(0, $recordingLogger->calls);
+        self::assertSame('', $this->routedErrorLogContents());
     }
 
     private function middleware(?RecordingLogger $recordingLogger = null, bool $debug = false): ErrorMappingMiddleware
@@ -965,9 +993,9 @@ final class ErrorMappingMiddlewareTest extends TestCase
     }
 
     /**
-     * Routes the SAPI error log to a per-test file so the last-resort write
-     * is observable; tearDown restores the previous destination and removes
-     * the file.
+     * Routes the SAPI error log to a per-test file (invoked by setUp for the
+     * whole battery) so the last-resort write is observable; tearDown
+     * restores the previous destination and removes the file.
      */
     private function routeErrorLog(): void
     {
@@ -981,7 +1009,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
      */
     private function routedErrorLogContents(): string
     {
-        self::assertNotNull($this->routedErrorLog, 'The test body routed the SAPI error log first.');
+        self::assertNotNull($this->routedErrorLog, 'The suite routed the SAPI error log in setUp.');
 
         if (!is_file($this->routedErrorLog)) {
             return '';

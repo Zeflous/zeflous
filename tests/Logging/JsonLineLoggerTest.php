@@ -18,7 +18,9 @@ use Zef\Framework\Logging\JsonLogDestination;
 use Zef\Framework\Logging\JsonLogDocumentRoot;
 use Zef\Framework\Logging\JsonLogFilePrivacy;
 use Zef\Framework\Logging\JsonLogFileSecurity;
+use Zef\Framework\Logging\JsonLogWriteException;
 use Zef\Framework\Logging\LogContextSanitizer;
+use Zef\Test\Support\Http\UnopenableStreamWrapper;
 
 /**
  * @internal
@@ -34,14 +36,18 @@ use Zef\Framework\Logging\LogContextSanitizer;
 #[CoversClass(JsonLineRecordWriter::class)]
 final class JsonLineLoggerTest extends TestCase
 {
+    private const string UNOPENABLE_PROTOCOL = 'zef-unopenable-log';
+
     private ?string $path = null;
 
     #[Override]
     protected function tearDown(): void
     {
-        if ($this->path !== null && (is_file($this->path) || is_link($this->path))) {
-            unlink($this->path);
+        if ($this->path === null || (!is_file($this->path) && !is_link($this->path))) {
+            return;
         }
+
+        unlink($this->path);
     }
 
     public function testWritesOneStructuredAndRedactedJsonRecord(): void
@@ -196,6 +202,155 @@ final class JsonLineLoggerTest extends TestCase
             self::assertFileExists($target);
         } finally {
             @unlink($target);
+        }
+    }
+
+    public function testEveryPsr3LevelWritesItsOwnRecord(): void
+    {
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $logger = new JsonLineLogger($this->path);
+
+        $logger->emergency('level one');
+        $logger->alert('level two');
+        $logger->critical('level three');
+        $logger->error('level four');
+        $logger->warning('level five');
+        $logger->notice('level six');
+        $logger->info('level seven');
+        $logger->debug('level eight');
+
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(8, $lines);
+
+        $records = [];
+        foreach ($lines as $line) {
+            $decoded = json_decode($line, true, 512, \JSON_THROW_ON_ERROR);
+            self::assertIsArray($decoded);
+            $records[] = $decoded;
+        }
+
+        self::assertSame(
+            ['emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'],
+            array_column($records, 'level'),
+        );
+        self::assertSame(
+            [
+                'level one',
+                'level two',
+                'level three',
+                'level four',
+                'level five',
+                'level six',
+                'level seven',
+                'level eight',
+            ],
+            array_column($records, 'message'),
+        );
+    }
+
+    public function testRefusesToAppendThroughASymlinkDestination(): void
+    {
+        $target = sys_get_temp_dir() . '/zef-json-real-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $link = sys_get_temp_dir() . '/zef-json-link-' . bin2hex(random_bytes(8)) . '.jsonl';
+        self::assertNotFalse(file_put_contents($target, ''));
+        if (!symlink($target, $link)) {
+            @unlink($target);
+            self::markTestSkipped('Symlinks are not available in this environment.');
+        }
+
+        try {
+            JsonLineWriter::append($link, '{}');
+            self::fail('A symlink destination must be refused at append time.');
+        } catch (JsonLogWriteException $exception) {
+            self::assertSame('Refusing to write through a symlink log destination.', $exception->getMessage());
+        } finally {
+            @unlink($link);
+            @unlink($target);
+        }
+    }
+
+    public function testAnUnopenableDestinationIsRefused(): void
+    {
+        self::assertTrue(stream_wrapper_register(self::UNOPENABLE_PROTOCOL, UnopenableStreamWrapper::class));
+
+        try {
+            set_error_handler(static fn (): bool => true);
+
+            try {
+                JsonLineWriter::append(self::UNOPENABLE_PROTOCOL . '://refused.jsonl', '{}');
+                self::fail('An unopenable destination must be refused.');
+            } finally {
+                restore_error_handler();
+            }
+        } catch (JsonLogWriteException $exception) {
+            self::assertSame('Unable to open the configured JSON log destination.', $exception->getMessage());
+        } finally {
+            stream_wrapper_unregister(self::UNOPENABLE_PROTOCOL);
+        }
+    }
+
+    public function testAMutatedDestinationIsRefused(): void
+    {
+        $path = sys_get_temp_dir() . '/zef-json-mutated-' . bin2hex(random_bytes(8)) . '.jsonl';
+        self::assertNotFalse(file_put_contents($path, 'first'));
+        $stream = fopen($path, 'r+b');
+        self::assertIsResource($stream);
+
+        self::assertTrue(unlink($path));
+        self::assertNotFalse(file_put_contents($path, 'second'));
+
+        try {
+            JsonLogFileSecurity::secure($stream, $path);
+            self::fail('A destination replaced underneath the open handle must be refused.');
+        } catch (JsonLogWriteException $exception) {
+            self::assertSame('The JSON log destination changed while it was being opened.', $exception->getMessage());
+        } finally {
+            if (\is_resource($stream)) {
+                fclose($stream);
+            }
+
+            @unlink($path);
+        }
+    }
+
+    public function testAnExistingGroupReadableLogDestinationIsRejected(): void
+    {
+        $path = sys_get_temp_dir() . '/zef-json-priv-' . bin2hex(random_bytes(8)) . '.jsonl';
+        self::assertNotFalse(file_put_contents($path, ''));
+        self::assertTrue(chmod($path, 0o640));
+
+        try {
+            JsonLogFilePrivacy::assertExistingFileIsPrivate($path);
+            self::fail('A group-readable destination must be rejected.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame(
+                'The existing JSON log file must be writable with owner-only permissions.',
+                $exception->getMessage(),
+            );
+        } finally {
+            @chmod($path, 0o600);
+            @unlink($path);
+        }
+    }
+
+    public function testAnUnwritableLogDestinationIsRejected(): void
+    {
+        $path = sys_get_temp_dir() . '/zef-json-priv-' . bin2hex(random_bytes(8)) . '.jsonl';
+        self::assertNotFalse(file_put_contents($path, ''));
+        self::assertTrue(chmod($path, 0o400));
+
+        try {
+            JsonLogFilePrivacy::assertExistingFileIsPrivate($path);
+            self::fail('A read-only destination must be rejected.');
+        } catch (InvalidArgumentException $exception) {
+            self::assertSame(
+                'The existing JSON log file must be writable with owner-only permissions.',
+                $exception->getMessage(),
+            );
+        } finally {
+            @chmod($path, 0o600);
+            @unlink($path);
         }
     }
 }

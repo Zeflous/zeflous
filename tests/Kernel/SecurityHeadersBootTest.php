@@ -58,12 +58,16 @@ final class SecurityHeadersBootTest extends TestCase
         $kernel = new ApplicationBootstrapper()->boot(__DIR__ . '/../../app/configs');
 
         self::assertTrue($kernel->container()->has('security.headers'));
-        self::assertSame([
-            'stack' => [
-                ['service' => 'http.errors', 'priority' => 1000],
-                ['service' => 'http.debug_toolbar', 'priority' => 900],
+        self::assertSame(
+            [
+                'stack' => [
+                    ['service' => 'http.errors', 'priority' => 1000],
+                    ['service' => 'http.debug_toolbar', 'priority' => 900],
+                ],
             ],
-        ], $kernel->config()->get('middleware'), 'only the global error boundary and development toolbar are in the default stack');
+            $kernel->config()->get('middleware'),
+            'only the global error boundary and development toolbar are in the default stack',
+        );
 
         $response = new ApplicationBootstrapper()
             ->pipeline($kernel, new FixedResponseHandler(new Response(200, [], 'answered')))

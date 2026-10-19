@@ -31,6 +31,7 @@ use Zef\Framework\Telemetry\TracerInterface;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Http\ThrowingHandler;
 use Zef\Test\Support\Log\RecordingLogger;
+use Zef\Test\Support\Middleware\DelegatingHandler;
 use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 
 /**
@@ -148,20 +149,10 @@ final class CorrelationMiddlewareTest extends TestCase
         $recordingLogger = new RecordingLogger();
         $errorMiddleware = new ErrorMappingMiddleware($recordingLogger);
         $correlationMiddleware = $this->middleware(enabled: true, echo: false);
-        $handler = new class($correlationMiddleware) implements RequestHandlerInterface {
-            public function __construct(private readonly CorrelationMiddleware $middleware)
-            {
-            }
-
-            #[Override]
-            public function handle(PsrServerRequestInterface $request): PsrResponseInterface
-            {
-                return $this->middleware->process(
-                    $request,
-                    new ThrowingHandler(new RuntimeException('trace-boundary failure')),
-                );
-            }
-        };
+        $handler = new DelegatingHandler(
+            $correlationMiddleware,
+            new ThrowingHandler(new RuntimeException('trace-boundary failure')),
+        );
         $request = $this->withHeader($this->request(self::PARENT_TRACEPARENT), 'X-Request-ID', 'req-trace');
 
         $response = $errorMiddleware->process($request, $handler);
