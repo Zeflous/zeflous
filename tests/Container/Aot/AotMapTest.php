@@ -19,6 +19,7 @@ use Zef\Framework\FrameworkDefaults;
 #[CoversClass(AotMap::class)]
 #[CoversClass(AotToggles::class)]
 #[CoversClass(AotRefusals::class)]
+#[CoversClass(FrameworkDefaults::class)]
 final class AotMapTest extends TestCase
 {
     public function testTheAbsentKnobIsTheEverythingOffBoot(): void

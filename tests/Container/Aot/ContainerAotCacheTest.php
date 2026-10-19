@@ -110,6 +110,21 @@ final class ContainerAotCacheTest extends TestCase
         );
     }
 
+    public function testTheStagingNameLivesBesideItsTargetWithTheMarkerAndEntropy(): void
+    {
+        $cache = new ContainerAotCache($this->file);
+
+        $first = $cache->temporaryPath();
+        $second = $cache->temporaryPath();
+
+        self::assertMatchesRegularExpression(
+            '#^' . preg_quote($this->file, '#') . '\.tmp\.[0-9a-f]{12}$#',
+            $first,
+        );
+        self::assertNotSame($first, $second);
+        self::assertStringStartsWith(dirname($this->file) . DIRECTORY_SEPARATOR, $first);
+    }
+
     public function testTheDumpedArtifactFileCarriesTheEnvelopeVerbatim(): void
     {
         $cache = new ContainerAotCache($this->file);

@@ -78,6 +78,19 @@ final readonly class ContainerAotCache
     }
 
     /**
+     * The atomic write's staging name: the target's own path, the
+     * temporary marker, and twelve hex characters of entropy -- a name
+     * in the target's own directory (the rename stays one filesystem),
+     * apart from the target (a reader never observes a half-written
+     * artifact), and apart from any concurrent dumper (two writers
+     * never share a stage). The contract the dump's test pins.
+     */
+    public function temporaryPath(): string
+    {
+        return $this->file . self::TEMPORARY_SUFFIX . bin2hex(random_bytes(self::ENTROPY_BYTES));
+    }
+
+    /**
      * Whether an artifact is present: the lane's existence check, the
      * difference between "cold cache, full compile" and "artifact
      * present, digest decides".
@@ -115,7 +128,7 @@ final readonly class ContainerAotCache
         // A PID alone collides when two processes dump the same target
         // concurrently; the random suffix preserves the atomic-rename
         // contract for each individual writer.
-        $temporary = $this->file . self::TEMPORARY_SUFFIX . bin2hex(random_bytes(self::ENTROPY_BYTES));
+        $temporary = $this->temporaryPath();
 
         if (file_put_contents($temporary, $code, \LOCK_EX) === false) {
             throw AotRefusals::artifactUnwritable($this->file);
