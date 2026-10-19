@@ -11,6 +11,7 @@ use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContainerCompilePipeline;
 use Zef\Framework\Container\ContainerCompilePlan;
 use Zef\Framework\Container\ContextualMap;
+use Zef\Framework\Container\DecoratorMap;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\ParameterValues;
@@ -53,6 +54,7 @@ final class ContainerCompilePipelineTest extends TestCase
                 ParameterValues::empty(),
                 AutoconfigMap::parse('tags', null),
                 ContextualMap::parse('contextual', null),
+                DecoratorMap::parse('decorators', null),
             );
             self::fail('Expected a DefinitionException to be thrown.');
         } catch (DefinitionException $definitionException) {
@@ -86,6 +88,7 @@ final class ContainerCompilePipelineTest extends TestCase
             ParameterValues::empty(),
             AutoconfigMap::parse('tags', null),
             ContextualMap::parse('contextual', null),
+            DecoratorMap::parse('decorators', null),
         );
 
         self::assertSame(['app.window', 'app.house'], array_map(

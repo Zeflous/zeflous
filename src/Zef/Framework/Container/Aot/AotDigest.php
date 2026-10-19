@@ -9,9 +9,10 @@ namespace Zef\Framework\Container\Aot;
  * the definition-source maps, the one number that decides whether an
  * artifact still describes the configuration it was dumped from.
  *
- * The digest folds the five source maps (the framework's own
+ * The digest folds the six source maps (the framework's own
  * registrations, the host's declarations, the parameters, the
- * autoconfiguration rules and the contextual bindings) plus the framework
+ * autoconfiguration rules, the contextual bindings and the decoration
+ * chains) plus the framework
  * version into a SHA-256 over a canonical type-tagged walk. The walk is
  * deliberate about the three things a naive serialisation gets wrong:
  *
@@ -43,7 +44,7 @@ final readonly class AotDigest
     /**
      * Folds the source maps and the framework version into one digest.
      *
-     * @param array<string, mixed> $sources the five source maps under
+     * @param array<string, mixed> $sources the six source maps under
      *                                      their own keys, in the one
      *                                      fixed order the caller builds
      * @param string               $version the framework version the dump

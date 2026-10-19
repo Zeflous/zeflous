@@ -23,8 +23,10 @@ use Zef\Framework\Container\Autowiring\AutowireCompilerPass;
  * births appended), the autoconfiguration apply second (the tags the
  * declarations earned merged in), the contextual-binding apply third
  * (each consumer's dependency reference rewritten through its binding's
- * synthetic alias), the reference graph proven resolvable, acyclic and
- * lifetime-honest fourth, and the tag index walked out of the planned
+ * synthetic alias), the decoration apply fourth (each decorated target
+ * re-homed and wrapped, the tags travelling with the original
+ * identifier), the reference graph proven resolvable, acyclic and
+ * lifetime-honest fifth, and the tag index walked out of the planned
  * set last -- the collecting half of the tags lane's read side, now a
  * named stage whose product the AOT artifact bakes.
  *
@@ -56,6 +58,7 @@ final readonly class ContainerCompilePipeline
      *                                                 addresses' source)
      * @param AutoconfigMap           $autoconfigMap   the earned-tag rules
      * @param ContextualMap           $contextualMap   the contextual bindings
+     * @param DecoratorMap            $decoratorMap    the decoration chains
      */
     public function compile(
         array $definitions,
@@ -63,12 +66,15 @@ final readonly class ContainerCompilePipeline
         ParameterValues $parameterValues,
         AutoconfigMap $autoconfigMap,
         ContextualMap $contextualMap,
+        DecoratorMap $decoratorMap,
     ): ContainerCompilePlan {
         $autowireResult = $this->autowireCompilerPass->process($definitions, $container, $parameterValues);
 
         $planned = Autoconfiguration::apply($autowireResult->definitions, $autoconfigMap);
 
         $planned = ContextualBindings::apply($planned, $contextualMap);
+
+        $planned = Decorators::apply($planned, $decoratorMap);
 
         ServiceDefinitionGraph::validate($planned, $container);
 

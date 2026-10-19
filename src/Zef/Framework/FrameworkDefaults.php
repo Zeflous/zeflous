@@ -257,6 +257,7 @@ final readonly class FrameworkDefaults
                 'interfaces' => [],
             ],
             'contextual' => [],
+            'decorators' => [],
             'parameters' => [],
             'aot' => [
                 'enabled' => false,
