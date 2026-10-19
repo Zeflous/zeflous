@@ -16,32 +16,32 @@ final class ReplayStorageDirectory
         }
 
         $resolved = realpath($directory);
-        if (!is_string($resolved)) {
+        if (!\is_string($resolved)) {
             throw new InvalidArgumentException('Replay storage directory cannot be resolved.');
         }
 
         $permissions = fileperms($resolved);
-        if (!is_int($permissions) || ($permissions & 0077) !== 0) {
+        if (!\is_int($permissions) || ($permissions & 0o077) !== 0) {
             throw new InvalidArgumentException('Replay storage directory must have owner-only permissions.');
         }
 
         $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
-        $resolvedDocumentRoot = is_string($documentRoot) && $documentRoot !== ''
+        $resolvedDocumentRoot = \is_string($documentRoot) && $documentRoot !== ''
             ? realpath($documentRoot)
             : false;
 
         if (
-            is_string($documentRoot)
+            \is_string($documentRoot)
             && $documentRoot !== ''
-            && !is_string($resolvedDocumentRoot)
+            && !\is_string($resolvedDocumentRoot)
         ) {
             throw new InvalidArgumentException('The public document root cannot be resolved safely.');
         }
 
         if (
-            is_string($resolvedDocumentRoot)
+            \is_string($resolvedDocumentRoot)
             && ($resolved === $resolvedDocumentRoot
-                || str_starts_with($resolved, rtrim($resolvedDocumentRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR))
+                || str_starts_with($resolved, mb_rtrim($resolvedDocumentRoot, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR))
         ) {
             throw new InvalidArgumentException('Replay storage must be outside the public document root.');
         }

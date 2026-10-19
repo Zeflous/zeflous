@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Http;
 
+use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -11,9 +12,9 @@ use RuntimeException;
 use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Http\ReplayBodyCapture;
 use Zef\Framework\Http\ReplayBodyReader;
+use Zef\Framework\Http\ReplayPayloadSanitizer;
 use Zef\Framework\Http\ReplaySnapshotWriter;
 use Zef\Framework\Http\ReplayStorageDirectory;
-use Zef\Framework\Http\ReplayPayloadSanitizer;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\StreamSnapshot;
@@ -35,7 +36,7 @@ final class ErrorReplayStoreTest extends TestCase
     protected function setUp(): void
     {
         $this->directory = sys_get_temp_dir() . '/zef-replay-' . bin2hex(random_bytes(8));
-        mkdir($this->directory, 0700);
+        mkdir($this->directory, 0o700);
     }
 
     #[Override]
@@ -75,7 +76,7 @@ final class ErrorReplayStoreTest extends TestCase
             $stream,
         );
 
-        $id = (new ErrorReplayStore($this->directory))->save(
+        $id = new ErrorReplayStore($this->directory)->save(
             $request,
             new RuntimeException('request failed'),
             400,
@@ -86,7 +87,7 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertSame(0, $stream->tell(), 'snapshot capture restores the original body cursor');
         $file = $this->directory . '/' . $id . '.json';
         self::assertFileExists($file);
-        self::assertSame(0600, fileperms($file) & 0777);
+        self::assertSame(0o600, fileperms($file) & 0o777);
 
         $contents = file_get_contents($file);
         self::assertIsString($contents);
@@ -94,7 +95,7 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertStringNotContainsString('hunter2', $contents);
         self::assertStringNotContainsString('Authorization', $contents);
 
-        $snapshot = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
+        $snapshot = json_decode($contents, true, 512, \JSON_THROW_ON_ERROR);
         self::assertIsArray($snapshot);
         self::assertSame('/users', $snapshot['path']);
         $query = $snapshot['query'];
@@ -104,7 +105,7 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertTrue($snapshot['body_replayable']);
         $bodyField = $snapshot['body'];
         self::assertIsString($bodyField);
-        $body = json_decode($bodyField, true, 512, JSON_THROW_ON_ERROR);
+        $body = json_decode($bodyField, true, 512, \JSON_THROW_ON_ERROR);
         self::assertIsArray($body);
         self::assertSame('[REDACTED]', $body['password']);
         $nested = $body['nested'] ?? null;
@@ -133,7 +134,7 @@ final class ErrorReplayStoreTest extends TestCase
             new Stream($resource),
         );
 
-        $id = (new ErrorReplayStore($this->directory))->save(
+        $id = new ErrorReplayStore($this->directory)->save(
             $request,
             new RuntimeException('request failed'),
             500,
@@ -143,7 +144,7 @@ final class ErrorReplayStoreTest extends TestCase
             (string) file_get_contents($this->directory . '/' . $id . '.json'),
             true,
             512,
-            JSON_THROW_ON_ERROR,
+            \JSON_THROW_ON_ERROR,
         );
         self::assertIsArray($snapshot);
 
@@ -171,7 +172,7 @@ final class ErrorReplayStoreTest extends TestCase
             new Stream($resource),
         );
 
-        $id = (new ErrorReplayStore($this->directory))->save(
+        $id = new ErrorReplayStore($this->directory)->save(
             $request,
             new RuntimeException('request failed'),
             400,
@@ -181,7 +182,7 @@ final class ErrorReplayStoreTest extends TestCase
             (string) file_get_contents($this->directory . '/' . $id . '.json'),
             true,
             512,
-            JSON_THROW_ON_ERROR,
+            \JSON_THROW_ON_ERROR,
         );
         self::assertIsArray($snapshot);
 
@@ -209,7 +210,7 @@ final class ErrorReplayStoreTest extends TestCase
             new Stream($resource),
         );
 
-        $id = (new ErrorReplayStore($this->directory))->save(
+        $id = new ErrorReplayStore($this->directory)->save(
             $request,
             new RuntimeException('request failed'),
             500,
@@ -219,7 +220,7 @@ final class ErrorReplayStoreTest extends TestCase
             (string) file_get_contents($this->directory . '/' . $id . '.json'),
             true,
             512,
-            JSON_THROW_ON_ERROR,
+            \JSON_THROW_ON_ERROR,
         );
         self::assertIsArray($snapshot);
 
@@ -240,7 +241,7 @@ final class ErrorReplayStoreTest extends TestCase
             (string) file_get_contents($this->directory . '/' . $emptyId . '.json'),
             true,
             512,
-            JSON_THROW_ON_ERROR,
+            \JSON_THROW_ON_ERROR,
         );
         self::assertIsArray($emptySnapshot);
         self::assertTrue($emptySnapshot['body_replayable']);
@@ -266,7 +267,7 @@ final class ErrorReplayStoreTest extends TestCase
             (string) file_get_contents($this->directory . '/' . $largeId . '.json'),
             true,
             512,
-            JSON_THROW_ON_ERROR,
+            \JSON_THROW_ON_ERROR,
         );
         self::assertIsArray($largeSnapshot);
         self::assertFalse($largeSnapshot['body_replayable']);
@@ -275,24 +276,24 @@ final class ErrorReplayStoreTest extends TestCase
 
     public function testRefusesReplayDirectoriesWithGroupOrWorldPermissions(): void
     {
-        self::assertTrue(chmod($this->directory, 0755));
+        self::assertTrue(chmod($this->directory, 0o755));
 
         try {
-            $this->expectException(\InvalidArgumentException::class);
+            $this->expectException(InvalidArgumentException::class);
             new ErrorReplayStore($this->directory);
         } finally {
-            chmod($this->directory, 0700);
+            chmod($this->directory, 0o700);
         }
     }
 
     public function testFailsClosedWhenDocumentRootCannotBeResolved(): void
     {
-        $hadRoot = array_key_exists('DOCUMENT_ROOT', $_SERVER);
+        $hadRoot = \array_key_exists('DOCUMENT_ROOT', $_SERVER);
         $previousRoot = $_SERVER['DOCUMENT_ROOT'] ?? null;
         $_SERVER['DOCUMENT_ROOT'] = $this->directory . '/missing-public-root';
 
         try {
-            $this->expectException(\InvalidArgumentException::class);
+            $this->expectException(InvalidArgumentException::class);
             new ErrorReplayStore($this->directory);
         } finally {
             if ($hadRoot) {
@@ -308,12 +309,12 @@ final class ErrorReplayStoreTest extends TestCase
         $previous = $_SERVER['DOCUMENT_ROOT'] ?? null;
         $publicRoot = $this->directory . '/public';
         $replayDirectory = $publicRoot . '/replays';
-        mkdir($publicRoot, 0700);
-        mkdir($replayDirectory, 0700);
+        mkdir($publicRoot, 0o700);
+        mkdir($replayDirectory, 0o700);
         $_SERVER['DOCUMENT_ROOT'] = $publicRoot;
 
         try {
-            $this->expectException(\InvalidArgumentException::class);
+            $this->expectException(InvalidArgumentException::class);
             new ErrorReplayStore($replayDirectory);
         } finally {
             if ($previous === null) {

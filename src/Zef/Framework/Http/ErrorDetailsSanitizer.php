@@ -9,6 +9,7 @@ final class ErrorDetailsSanitizer
 {
     /**
      * @param array<array-key, mixed> $details
+     *
      * @return array<string, mixed>
      */
     public static function sanitize(array $details, int $depth = 0): array
@@ -18,8 +19,8 @@ final class ErrorDetailsSanitizer
         }
 
         $safe = [];
-        foreach (array_slice($details, 0, 50, true) as $key => $value) {
-            if (!is_string($key) || preg_match('/^[a-zA-Z0-9_.-]{1,80}$/D', $key) !== 1) {
+        foreach (\array_slice($details, 0, 50, true) as $key => $value) {
+            if (!\is_string($key) || preg_match('/^[a-zA-Z0-9_.-]{1,80}$/D', $key) !== 1) {
                 continue;
             }
 
@@ -31,15 +32,15 @@ final class ErrorDetailsSanitizer
 
     private static function value(mixed $value, int $depth): mixed
     {
-        if (is_string($value)) {
-            return RedactedMessage::of(substr($value, 0, 2048));
+        if (\is_string($value)) {
+            return RedactedMessage::of(mb_substr($value, 0, 2048));
         }
 
-        if (is_int($value) || is_float($value) || is_bool($value) || $value === null) {
+        if (\is_int($value) || \is_float($value) || \is_bool($value) || $value === null) {
             return $value;
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return self::sanitize($value, $depth + 1);
         }
 

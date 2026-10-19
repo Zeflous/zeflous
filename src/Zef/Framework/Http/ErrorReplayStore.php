@@ -23,7 +23,7 @@ final readonly class ErrorReplayStore
     }
 
     /**
-     * @throws JsonException When a snapshot cannot be encoded.
+     * @throws JsonException when a snapshot cannot be encoded
      */
     public function save(
         ServerRequestInterface $request,
@@ -42,7 +42,7 @@ final readonly class ErrorReplayStore
             'request_id' => $requestId,
             'status' => $status,
             'exception_class' => $exception::class,
-            'method' => strtoupper($request->getMethod()),
+            'method' => mb_strtoupper($request->getMethod()),
             'path' => $path,
             'query' => $this->query($request->getUri()->getQuery()),
             'headers' => $this->headers($request->getHeaders()),
@@ -52,7 +52,7 @@ final readonly class ErrorReplayStore
 
         $id = bin2hex(random_bytes(16));
         $snapshot['id'] = $id;
-        $json = json_encode($snapshot, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE);
+        $json = json_encode($snapshot, \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE);
 
         ReplaySnapshotWriter::write($this->directory, $id, $json);
 
@@ -61,6 +61,7 @@ final readonly class ErrorReplayStore
 
     /**
      * @param array<string, list<string>> $headers
+     *
      * @return array<string, list<string>>
      */
     private function headers(array $headers): array
@@ -71,13 +72,13 @@ final readonly class ErrorReplayStore
                 continue;
             }
 
-            if (in_array(strtolower($name), ['host', 'content-length', 'connection', 'transfer-encoding'], true)) {
+            if (\in_array(mb_strtolower($name), ['host', 'content-length', 'connection', 'transfer-encoding'], true)) {
                 continue;
             }
 
             $safe[$name] = array_map(
-                static fn (string $value): string => substr(RedactedMessage::of($value), 0, 512),
-                array_slice($values, 0, 10),
+                static fn (string $value): string => mb_substr(RedactedMessage::of($value), 0, 512),
+                \array_slice($values, 0, 10),
             );
         }
 
@@ -86,13 +87,13 @@ final readonly class ErrorReplayStore
 
     private function query(string $query): string
     {
-        if ($query === '' || strlen($query) > 8192) {
+        if ($query === '' || mb_strlen($query) > 8192) {
             return '';
         }
 
         parse_str($query, $decoded);
         $safe = ReplayPayloadSanitizer::sanitize($decoded);
 
-        return http_build_query(is_array($safe) ? $safe : []);
+        return http_build_query(\is_array($safe) ? $safe : []);
     }
 }

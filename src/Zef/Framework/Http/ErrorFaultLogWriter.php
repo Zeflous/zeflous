@@ -25,7 +25,7 @@ final class ErrorFaultLogWriter
                 'level' => $level,
                 'message' => 'Request failed',
                 'context' => $context,
-            ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE));
+            ], \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE));
         } catch (Throwable $throwable) {
             error_log('ZEF logging failure: ' . $throwable::class);
         }

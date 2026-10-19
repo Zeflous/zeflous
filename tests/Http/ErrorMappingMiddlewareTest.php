@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Http;
 
+use InvalidArgumentException;
 use LogicException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -20,33 +21,33 @@ use Zef\Framework\Exception\RateLimitException;
 use Zef\Framework\Exception\ValidationException;
 use Zef\Framework\Exception\ZefException;
 use Zef\Framework\Http\AcceptHeaderParser;
-use Zef\Framework\Http\ErrorFaultContextFactory;
-use Zef\Framework\Http\ErrorFaultLogWriter;
-use Zef\Framework\Http\ErrorFaultMetricsRecorder;
-use Zef\Framework\Http\ErrorFaultSeverity;
-use Zef\Framework\Http\ErrorTraceIdResolver;
-use Zef\Framework\Http\HtmlErrorPageContext;
-use Zef\Framework\Http\ProblemDetailsJsonResponseFactory;
-use Zef\Framework\Http\ProblemDetailsResponseHeaders;
 use Zef\Framework\Http\CorrelationId;
 use Zef\Framework\Http\ErrorContentNegotiator;
 use Zef\Framework\Http\ErrorDetailsSanitizer;
 use Zef\Framework\Http\ErrorDisclosure;
 use Zef\Framework\Http\ErrorEnvelope;
+use Zef\Framework\Http\ErrorFaultContextFactory;
+use Zef\Framework\Http\ErrorFaultLogWriter;
+use Zef\Framework\Http\ErrorFaultMetricsRecorder;
 use Zef\Framework\Http\ErrorFaultRecorder;
+use Zef\Framework\Http\ErrorFaultSeverity;
 use Zef\Framework\Http\ErrorMappingFactory;
 use Zef\Framework\Http\ErrorMappingMiddleware;
 use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Http\ErrorResponseFactory;
+use Zef\Framework\Http\ErrorTraceIdResolver;
 use Zef\Framework\Http\FallbackResponse;
+use Zef\Framework\Http\HtmlErrorPageContext;
 use Zef\Framework\Http\HtmlErrorPageRenderer;
 use Zef\Framework\Http\HttpException;
 use Zef\Framework\Http\PayloadTooLargeException;
+use Zef\Framework\Http\ProblemDetailsJsonResponseFactory;
 use Zef\Framework\Http\ProblemDetailsMetadata;
 use Zef\Framework\Http\ProblemDetailsResponseFactory;
+use Zef\Framework\Http\ProblemDetailsResponseHeaders;
 use Zef\Framework\Http\RedactedMessage;
-use Zef\Framework\Http\ReplayPayloadSanitizer;
 use Zef\Framework\Http\RedactionCandidate;
+use Zef\Framework\Http\ReplayPayloadSanitizer;
 use Zef\Framework\Http\RequestBodyPolicy;
 use Zef\Framework\Http\RequestFactory;
 use Zef\Framework\Http\Response;
@@ -569,13 +570,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testDeveloperDetailsAreOnlyIncludedInDebugProblemResponsesAndRedacted(): void
     {
-        $exception = new class(
-            'Invalid input.',
-            0,
-            null,
-            'INVALID_INPUT',
-            ['diagnostic' => 'password=secret123'],
-        ) extends ZefException {
+        $exception = new class('Invalid input.', 0, null, 'INVALID_INPUT', ['diagnostic' => 'password=secret123']) extends ZefException {
         };
         $request = new ServerRequest(
             'POST',
@@ -723,7 +718,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
     {
         $previousEnvironment = getenv('APP_ENV');
         $directory = sys_get_temp_dir() . '/zef-replay-middleware-' . bin2hex(random_bytes(8));
-        mkdir($directory, 0700);
+        mkdir($directory, 0o700);
         $resource = fopen('php://temp', 'r+b');
         self::assertIsResource($resource);
         fwrite($resource, '{"email":"person@example.test","password":"hunter2"}');
@@ -754,11 +749,11 @@ final class ErrorMappingMiddlewareTest extends TestCase
             );
             $response = $middleware->process($request, new ThrowingHandler(new RuntimeException('replay failure')));
             $files = glob($directory . '/*.json');
-        $files = $files === false ? [] : $files;
+            $files = $files === false ? [] : $files;
             self::assertCount(1, $files);
 
-            $snapshot = json_decode((string) file_get_contents($files[0]), true, 512, JSON_THROW_ON_ERROR);
-        self::assertIsArray($snapshot);
+            $snapshot = json_decode((string) file_get_contents($files[0]), true, 512, \JSON_THROW_ON_ERROR);
+            self::assertIsArray($snapshot);
             self::assertSame('replay-req', $snapshot['request_id']);
             self::assertTrue($snapshot['body_replayable']);
             self::assertStringNotContainsString('secret123', (string) file_get_contents($files[0]));
@@ -845,13 +840,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testHtmlDebugPageIncludesSanitizedDeveloperContextAndSecurityHeaders(): void
     {
-        $exception = new class(
-            'Failed safely.',
-            0,
-            null,
-            'FAILED_SAFELY',
-            ['credential' => 'token=secret123'],
-        ) extends ZefException {
+        $exception = new class('Failed safely.', 0, null, 'FAILED_SAFELY', ['credential' => 'token=secret123']) extends ZefException {
         };
         $response = $this->middleware(debug: true)->process(
             $this->requestWithClaim(self::CLAIMED_ID, 'text/html'),
@@ -938,7 +927,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testRejectsMalformedTraceIdsOnTypedExceptions(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         new class('invalid trace', 0, null, 'INVALID_TRACE', [], "trace\r\nX-Forged: yes") extends ZefException {
         };
@@ -946,7 +935,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testRejectsMalformedErrorCodesOnTypedExceptions(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         new class('invalid code', 0, null, 'bad-code') extends ZefException {
         };
@@ -960,8 +949,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
     private function requestWithClaim(
         string $claim = self::CLAIMED_ID,
         ?string $accept = null,
-    ): ServerRequest
-    {
+    ): ServerRequest {
         return new ServerRequest(
             'GET',
             new Uri('https://app.example/users'),

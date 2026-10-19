@@ -13,12 +13,13 @@ final class ReplayPayloadSanitizer
             return '[TRUNCATED]';
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $safe = [];
-            foreach (array_slice($value, 0, 100, true) as $key => $item) {
-                $name = is_string($key) ? $key : (string) $key;
+            foreach (\array_slice($value, 0, 100, true) as $key => $item) {
+                $name = \is_string($key) ? $key : (string) $key;
                 if (preg_match('/password|passwd|secret|token|authorization|cookie|csrf|api[_-]?key/i', $name) === 1) {
                     $safe[$name] = '[REDACTED]';
+
                     continue;
                 }
 
@@ -28,18 +29,18 @@ final class ReplayPayloadSanitizer
             return $safe;
         }
 
-        if (is_string($value)) {
-            $redacted = RedactedMessage::of(substr($value, 0, 4096));
+        if (\is_string($value)) {
+            $redacted = RedactedMessage::of(mb_substr($value, 0, 4096));
             $redacted = preg_replace(
-                '/[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/i',
+                '/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i',
                 '[REDACTED_EMAIL]',
                 $redacted,
             );
 
-            return is_string($redacted) ? $redacted : '[REDACTED]';
+            return \is_string($redacted) ? $redacted : '[REDACTED]';
         }
 
-        if (is_int($value) || is_float($value) || is_bool($value) || $value === null) {
+        if (\is_int($value) || \is_float($value) || \is_bool($value) || $value === null) {
             return $value;
         }
 

@@ -10,16 +10,17 @@ use Throwable;
 /** Captures a stream's full contents and restores its cursor, leaving the stream untouched. */
 final class StreamSnapshot
 {
-    /** @return string|null the captured contents, or null when the stream could not be read or restored */
+    /** @return null|string the captured contents, or null when the stream could not be read or restored */
     public static function capture(StreamInterface $stream): ?string
     {
         $position = null;
+
         try {
             $position = $stream->tell();
             $stream->rewind();
             $contents = $stream->getContents();
         } catch (Throwable) {
-            if (is_int($position)) {
+            if (\is_int($position)) {
                 self::restore($stream, $position);
             }
 

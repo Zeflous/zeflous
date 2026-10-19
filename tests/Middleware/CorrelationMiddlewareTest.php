@@ -133,7 +133,7 @@ final class CorrelationMiddlewareTest extends TestCase
         $context->setTraceId(str_repeat('0', 32));
         self::assertSame('request-fallback', $context->traceId());
 
-        $context->setTraceId(strtoupper(self::PARENT_TRACE_ID));
+        $context->setTraceId(mb_strtoupper(self::PARENT_TRACE_ID));
         self::assertSame(self::PARENT_TRACE_ID, $context->traceId());
 
         $context->setReplayId('invalid');
@@ -165,7 +165,7 @@ final class CorrelationMiddlewareTest extends TestCase
         $request = $this->withHeader($this->request(self::PARENT_TRACEPARENT), 'X-Request-ID', 'req-trace');
 
         $response = $errorMiddleware->process($request, $handler);
-        $problem = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $problem = json_decode((string) $response->getBody(), true, 512, \JSON_THROW_ON_ERROR);
         self::assertIsArray($problem);
 
         self::assertSame(self::PARENT_TRACE_ID, $problem['trace_id']);

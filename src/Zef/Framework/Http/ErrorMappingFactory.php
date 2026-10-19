@@ -15,31 +15,31 @@ final class ErrorMappingFactory
     public static function fromConfig(Config $config, ?MeterInterface $meter = null): ErrorMappingMiddleware
     {
         $debug = $config->get('http.error_handling.debug', false);
-        if (!is_bool($debug)) {
+        if (!\is_bool($debug)) {
             throw new ConfigException('http.error_handling.debug must be a boolean.');
         }
 
         $logPath = $config->get('http.error_handling.log_path', '');
-        if (!is_string($logPath)) {
+        if (!\is_string($logPath)) {
             throw new ConfigException('http.error_handling.log_path must be a string.');
         }
 
         $metricsEnabled = $config->get('observability.metrics.enabled', false);
-        if (!is_bool($metricsEnabled)) {
+        if (!\is_bool($metricsEnabled)) {
             throw new ConfigException('observability.metrics.enabled must be a boolean.');
         }
 
         $environment = getenv('APP_ENV');
-        $debugAllowed = is_string($environment)
-            && in_array(strtolower($environment), ['local', 'development', 'dev', 'test', 'testing'], true);
+        $debugAllowed = \is_string($environment)
+            && \in_array(mb_strtolower($environment), ['local', 'development', 'dev', 'test', 'testing'], true);
 
         $replayEnabled = $config->get('http.error_handling.replay_enabled', false);
-        if (!is_bool($replayEnabled)) {
+        if (!\is_bool($replayEnabled)) {
             throw new ConfigException('http.error_handling.replay_enabled must be a boolean.');
         }
 
         $replayPath = $config->get('http.error_handling.replay_path', '');
-        if (!is_string($replayPath)) {
+        if (!\is_string($replayPath)) {
             throw new ConfigException('http.error_handling.replay_path must be a string.');
         }
 

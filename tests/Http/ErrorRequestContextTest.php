@@ -10,6 +10,9 @@ use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 
+/**
+ * @internal
+ */
 #[CoversClass(ErrorRequestContext::class)]
 final class ErrorRequestContextTest extends TestCase
 {

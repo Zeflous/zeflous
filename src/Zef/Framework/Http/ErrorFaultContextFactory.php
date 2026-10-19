@@ -20,7 +20,7 @@ final class ErrorFaultContextFactory
         $errorRequestContext = $request->getAttribute(ErrorRequestContext::ATTRIBUTE);
         $traceId = ErrorTraceIdResolver::resolve($exception, $errorRequestContext, $correlationId, $request);
         $context = [
-            'exception.message' => RedactedMessage::of(substr($exception->getMessage(), 0, 2048)),
+            'exception.message' => RedactedMessage::of(mb_substr($exception->getMessage(), 0, 2048)),
             'exception_class' => $exception::class,
             'exception_code' => $exception instanceof ZefException
                 ? $exception->getErrorCode()
@@ -28,7 +28,7 @@ final class ErrorFaultContextFactory
             'request_id' => $correlationId,
             'trace_id' => $traceId,
             'method' => $request->getMethod(),
-            'path' => substr($request->getUri()->getPath(), 0, 2048),
+            'path' => mb_substr($request->getUri()->getPath(), 0, 2048),
         ];
 
         if ($errorRequestContext instanceof ErrorRequestContext && $errorRequestContext->replayId() !== null) {
@@ -37,5 +37,4 @@ final class ErrorFaultContextFactory
 
         return $context;
     }
-
 }

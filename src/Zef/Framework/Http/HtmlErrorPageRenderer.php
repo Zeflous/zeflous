@@ -59,10 +59,10 @@ final class HtmlErrorPageRenderer
             if ($throwable instanceof ZefException && $throwable->getDetails() !== []) {
                 $details = json_encode(
                     ErrorDetailsSanitizer::sanitize($throwable->getDetails()),
-                    JSON_PRETTY_PRINT | JSON_INVALID_UTF8_SUBSTITUTE,
+                    \JSON_PRETTY_PRINT | \JSON_INVALID_UTF8_SUBSTITUTE,
                 );
                 $body .= '<h2>Developer context</h2><pre>'
-                    . self::escape(is_string($details) ? $details : '{}') . '</pre>';
+                    . self::escape(\is_string($details) ? $details : '{}') . '</pre>';
             }
 
             $body .= '</section>';
@@ -90,6 +90,6 @@ final class HtmlErrorPageRenderer
 
     private static function escape(string $value): string
     {
-        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return htmlspecialchars($value, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
     }
 }

@@ -27,7 +27,7 @@ abstract class ZefException extends RuntimeException
     private readonly ?string $traceId;
 
     /**
-     * @param array<string, mixed> $details Developer diagnostics; never public by default.
+     * @param array<string, mixed> $details developer diagnostics; never public by default
      */
     public function __construct(
         string $message = '',
@@ -71,17 +71,17 @@ abstract class ZefException extends RuntimeException
 
     private static function defaultErrorCode(string $class): string
     {
-        $separator = strrpos($class, '\\');
-        $shortName = $separator === false ? $class : substr($class, $separator + 1);
+        $separator = mb_strrpos($class, '\\');
+        $shortName = $separator === false ? $class : mb_substr($class, $separator + 1);
         $shortName = (string) preg_replace('/Exception$/', '', $shortName);
         $snake = preg_replace('/(?<!^)[A-Z]/', '_$0', $shortName);
-        $normalized = strtoupper((string) preg_replace('/[^A-Z0-9_]/', '_', (string) $snake));
-        $normalized = trim((string) preg_replace('/_+/', '_', $normalized), '_');
+        $normalized = mb_strtoupper((string) preg_replace('/[^A-Z0-9_]/', '_', (string) $snake));
+        $normalized = mb_trim((string) preg_replace('/_+/', '_', $normalized), '_');
 
         if ($normalized === '' || preg_match('/^[A-Z]/D', $normalized) !== 1) {
             $normalized = 'FRAMEWORK_ERROR';
         }
 
-        return rtrim(substr($normalized, 0, 64), '_');
+        return mb_rtrim(mb_substr($normalized, 0, 64), '_');
     }
 }

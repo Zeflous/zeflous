@@ -27,8 +27,8 @@ final class ErrorFaultMetricsRecorder
     private static function exceptionType(Throwable $exception): string
     {
         $class = $exception::class;
-        $separator = strrpos($class, '\\');
+        $separator = mb_strrpos($class, '\\');
 
-        return $separator === false ? $class : substr($class, $separator + 1);
+        return $separator === false ? $class : mb_substr($class, $separator + 1);
     }
 }

@@ -35,7 +35,8 @@ final class ProblemDetailsResponseHeaders
             ->withHeader('Vary', 'Accept')
             ->withHeader('Cache-Control', 'no-store')
             ->withHeader('X-Content-Type-Options', 'nosniff')
-            ->withHeader('X-Request-ID', $requestId);
+            ->withHeader('X-Request-ID', $requestId)
+        ;
         if (!$updated instanceof ResponseInterface) {
             throw new LogicException('PSR-7 response header updates must preserve the response type.');
         }

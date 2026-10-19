@@ -13,7 +13,7 @@ use Throwable;
 final class ProblemDetailsResponseFactory
 {
     /**
-     * @throws JsonException If the problem document cannot be encoded.
+     * @throws JsonException if the problem document cannot be encoded
      */
     public static function create(
         Throwable $throwable,
@@ -54,5 +54,4 @@ final class ProblemDetailsResponseFactory
 
         return ProblemDetailsResponseHeaders::apply($response, $throwable, $requestId);
     }
-
 }

@@ -39,7 +39,7 @@ final class ProblemDetailsJsonResponseFactory
         return new Response(
             $status,
             ['Content-Type' => 'application/problem+json; charset=utf-8'],
-            json_encode($problem, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE),
+            json_encode($problem, \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE),
         );
     }
 }

@@ -24,7 +24,7 @@ final class ErrorContentNegotiator
     private static function qualityFor(array $qualities, string ...$mediaTypes): float
     {
         foreach ([...$mediaTypes, '*/*'] as $mediaType) {
-            if (array_key_exists($mediaType, $qualities)) {
+            if (\array_key_exists($mediaType, $qualities)) {
                 return $qualities[$mediaType];
             }
         }

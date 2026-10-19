@@ -19,11 +19,11 @@ final class ThirdPartyExceptionMapper
     public static function normalize(Throwable $exception): Throwable
     {
         if ($exception instanceof PDOException) {
-            $sqlState = is_array($exception->errorInfo ?? null) && is_string($exception->errorInfo[0] ?? null)
+            $sqlState = \is_array($exception->errorInfo ?? null) && \is_string($exception->errorInfo[0] ?? null)
                 ? $exception->errorInfo[0]
                 : (string) $exception->getCode();
             $details = preg_match('/^[0-9A-Z]{5}$/iD', $sqlState) === 1
-                ? ['sql_state' => strtoupper($sqlState)]
+                ? ['sql_state' => mb_strtoupper($sqlState)]
                 : [];
 
             return new InternalException(
@@ -36,7 +36,7 @@ final class ThirdPartyExceptionMapper
         }
 
         // A string target avoids a hard dependency on Guzzle being installed.
-        if (is_a($exception, 'GuzzleHttp\\Exception\\GuzzleException')) {
+        if (is_a($exception, 'GuzzleHttp\Exception\GuzzleException')) {
             return new InternalException(
                 'An upstream service request failed.',
                 0,
@@ -52,8 +52,8 @@ final class ThirdPartyExceptionMapper
     private static function shortClassName(Throwable $exception): string
     {
         $class = $exception::class;
-        $separator = strrpos($class, '\\');
+        $separator = mb_strrpos($class, '\\');
 
-        return $separator === false ? $class : substr($class, $separator + 1);
+        return $separator === false ? $class : mb_substr($class, $separator + 1);
     }
 }

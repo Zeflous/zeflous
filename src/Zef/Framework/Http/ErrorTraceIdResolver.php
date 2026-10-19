@@ -18,7 +18,7 @@ final class ErrorTraceIdResolver
         ServerRequestInterface $request,
     ): string {
         $exceptionTraceId = $throwable instanceof ZefException ? $throwable->getTraceId() : null;
-        $candidate = is_string($exceptionTraceId)
+        $candidate = \is_string($exceptionTraceId)
             ? $exceptionTraceId
             : ($requestContext instanceof ErrorRequestContext ? $requestContext->traceId() : $requestId);
 

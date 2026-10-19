@@ -61,6 +61,6 @@ final class ErrorDisclosure
 
     private static function redact(string $message): string
     {
-        return RedactedMessage::of(substr($message, 0, 2048));
+        return RedactedMessage::of(mb_substr($message, 0, 2048));
     }
 }

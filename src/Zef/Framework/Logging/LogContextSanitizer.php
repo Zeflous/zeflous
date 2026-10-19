@@ -19,14 +19,15 @@ final class LogContextSanitizer
         $redacted = preg_replace(
             '/\b(password|passwd|token|secret|api[_-]?key)\b(\s*[=:]\s*|\s+)(["\']?)[^\s"\']{4,}/i',
             '$1$2[REDACTED]',
-            is_string($authorizationRedacted) ? $authorizationRedacted : $value,
+            \is_string($authorizationRedacted) ? $authorizationRedacted : $value,
         );
 
-        return is_string($redacted) ? $redacted : '[REDACTED]';
+        return \is_string($redacted) ? $redacted : '[REDACTED]';
     }
 
     /**
      * @param array<array-key, mixed> $context
+     *
      * @return array<string, mixed>
      */
     public static function sanitize(array $context, int $depth = 0): array
@@ -36,10 +37,11 @@ final class LogContextSanitizer
         }
 
         $safe = [];
-        foreach (array_slice($context, 0, 100, true) as $key => $value) {
-            $name = is_string($key) ? $key : (string) $key;
+        foreach (\array_slice($context, 0, 100, true) as $key => $value) {
+            $name = \is_string($key) ? $key : (string) $key;
             if (preg_match('/password|secret|token|authorization|cookie|api[_-]?key/i', $name) === 1) {
                 $safe[$name] = '[REDACTED]';
+
                 continue;
             }
 
@@ -59,15 +61,15 @@ final class LogContextSanitizer
             ];
         }
 
-        if (is_string($value)) {
-            return self::redact(substr($value, 0, 4096));
+        if (\is_string($value)) {
+            return self::redact(mb_substr($value, 0, 4096));
         }
 
-        if (is_int($value) || is_float($value) || is_bool($value) || $value === null) {
+        if (\is_int($value) || \is_float($value) || \is_bool($value) || $value === null) {
             return $value;
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return self::sanitize($value, $depth + 1);
         }
 

@@ -15,31 +15,31 @@ final class JsonLogDestination
             throw new InvalidArgumentException('The JSON log path must be a non-symlink file in an existing directory.');
         }
 
-        $directory = realpath(dirname($path));
+        $directory = realpath(\dirname($path));
         $filename = basename($path);
-        if (!is_string($directory) || $filename === '' || $filename === '.' || $filename === '..') {
+        if (!\is_string($directory) || $filename === '' || $filename === '.' || $filename === '..') {
             throw new InvalidArgumentException('The JSON log path must be a file in an existing directory.');
         }
 
-        $resolvedPath = $directory . DIRECTORY_SEPARATOR . $filename;
+        $resolvedPath = $directory . \DIRECTORY_SEPARATOR . $filename;
         $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
-        $resolvedDocumentRoot = is_string($documentRoot) && $documentRoot !== ''
+        $resolvedDocumentRoot = \is_string($documentRoot) && $documentRoot !== ''
             ? realpath($documentRoot)
             : false;
 
         if (
-            is_string($documentRoot)
+            \is_string($documentRoot)
             && $documentRoot !== ''
-            && !is_string($resolvedDocumentRoot)
+            && !\is_string($resolvedDocumentRoot)
         ) {
             throw new InvalidArgumentException('The public document root cannot be resolved safely.');
         }
 
         if (
-            is_string($resolvedDocumentRoot)
+            \is_string($resolvedDocumentRoot)
             && str_starts_with(
-                $resolvedPath . DIRECTORY_SEPARATOR,
-                rtrim($resolvedDocumentRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR,
+                $resolvedPath . \DIRECTORY_SEPARATOR,
+                mb_rtrim($resolvedDocumentRoot, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR,
             )
         ) {
             throw new InvalidArgumentException('The JSON log destination must be outside the public document root.');
@@ -51,7 +51,7 @@ final class JsonLogDestination
             }
 
             $permissions = fileperms($resolvedPath);
-            if (!is_int($permissions) || ($permissions & 0077) !== 0 || !is_writable($resolvedPath)) {
+            if (!\is_int($permissions) || ($permissions & 0o077) !== 0 || !is_writable($resolvedPath)) {
                 throw new InvalidArgumentException('The existing JSON log file must be writable with owner-only permissions.');
             }
         }

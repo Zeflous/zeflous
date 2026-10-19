@@ -12,19 +12,20 @@ final class ReplaySnapshotWriter
 {
     public static function write(string $directory, string $id, string $json): void
     {
-        $destination = $directory . DIRECTORY_SEPARATOR . $id . '.json';
+        $destination = $directory . \DIRECTORY_SEPARATOR . $id . '.json';
         $stream = fopen($destination, 'xb');
         if ($stream === false) {
             throw new RuntimeException('Unable to create an exclusive replay snapshot.');
         }
 
         $locked = false;
+
         try {
-            if (!chmod($destination, 0600)) {
+            if (!chmod($destination, 0o600)) {
                 throw new RuntimeException('Unable to secure the replay snapshot file.');
             }
 
-            if (!flock($stream, LOCK_EX)) {
+            if (!flock($stream, \LOCK_EX)) {
                 throw new RuntimeException('Unable to lock the replay snapshot file.');
             }
             $locked = true;
@@ -32,7 +33,7 @@ final class ReplaySnapshotWriter
             self::writeAll($stream, $json . "\n");
         } catch (Throwable $throwable) {
             if ($locked) {
-                flock($stream, LOCK_UN);
+                flock($stream, \LOCK_UN);
             }
             fclose($stream);
 
@@ -43,7 +44,7 @@ final class ReplaySnapshotWriter
             throw $throwable;
         }
 
-        flock($stream, LOCK_UN);
+        flock($stream, \LOCK_UN);
         fclose($stream);
     }
 
@@ -51,9 +52,9 @@ final class ReplaySnapshotWriter
     private static function writeAll($stream, string $contents): void
     {
         $offset = 0;
-        $length = strlen($contents);
+        $length = mb_strlen($contents);
         while ($offset < $length) {
-            $written = fwrite($stream, substr($contents, $offset));
+            $written = fwrite($stream, mb_substr($contents, $offset));
             if ($written === false || $written === 0) {
                 throw new RuntimeException('Unable to write a complete replay snapshot.');
             }

@@ -11,6 +11,9 @@ use RuntimeException;
 use Zef\Framework\Exception\InternalException;
 use Zef\Framework\Http\ThirdPartyExceptionMapper;
 
+/**
+ * @internal
+ */
 #[CoversClass(ThirdPartyExceptionMapper::class)]
 final class ThirdPartyExceptionMapperTest extends TestCase
 {

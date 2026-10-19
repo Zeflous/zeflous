@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Zef\Test\Logging;
 
+use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use stdClass;
 use Zef\Framework\Logging\JsonLineLogger;
-use Zef\Framework\Logging\JsonLogDestination;
 use Zef\Framework\Logging\JsonLineWriter;
+use Zef\Framework\Logging\JsonLogDestination;
 use Zef\Framework\Logging\LogContextSanitizer;
 
 /**
@@ -43,11 +45,11 @@ final class JsonLineLoggerTest extends TestCase
             'exception' => new RuntimeException('authorization=Bearer secret123'),
         ]);
 
-        $lines = file($this->path, FILE_IGNORE_NEW_LINES);
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
         self::assertIsArray($lines);
         self::assertCount(1, $lines);
 
-        $record = json_decode($lines[0], true, 512, JSON_THROW_ON_ERROR);
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
         self::assertIsArray($record);
         self::assertSame('warning', $record['level']);
         self::assertSame('Request failed for token=[REDACTED]', $record['message']);
@@ -77,12 +79,12 @@ final class JsonLineLoggerTest extends TestCase
             'enabled' => true,
             'empty' => null,
             'nested' => $nested,
-            'object' => new \stdClass(),
+            'object' => new stdClass(),
         ]);
 
-        $lines = file($this->path, FILE_IGNORE_NEW_LINES);
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
         self::assertIsArray($lines);
-        $record = json_decode($lines[0], true, 512, JSON_THROW_ON_ERROR);
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
         self::assertIsArray($record);
         $context = $record['context'] ?? null;
         self::assertIsArray($context);
@@ -107,7 +109,7 @@ final class JsonLineLoggerTest extends TestCase
         try {
             $logger->log('verbose', 'not a PSR-3 level');
             self::fail('Unknown levels must be rejected.');
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             self::assertSame('Unknown PSR-3 log level.', $exception->getMessage());
         }
     }
@@ -116,13 +118,13 @@ final class JsonLineLoggerTest extends TestCase
     {
         $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
 
-        (new JsonLineLogger($this->path))->info('private record');
+        new JsonLineLogger($this->path)->info('private record');
 
         $permissions = fileperms($this->path);
         self::assertIsInt($permissions);
-        self::assertSame(0, $permissions & 0077);
+        self::assertSame(0, $permissions & 0o077);
         self::assertStringEndsWith("\n", (string) file_get_contents($this->path));
-        $lines = file($this->path, FILE_IGNORE_NEW_LINES);
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
         self::assertIsArray($lines);
         self::assertCount(1, $lines);
     }
@@ -130,12 +132,12 @@ final class JsonLineLoggerTest extends TestCase
     public function testFailsClosedWhenConfiguredDocumentRootCannotBeResolved(): void
     {
         $missingRoot = sys_get_temp_dir() . '/zef-missing-root-' . bin2hex(random_bytes(8));
-        $hadRoot = array_key_exists('DOCUMENT_ROOT', $_SERVER);
+        $hadRoot = \array_key_exists('DOCUMENT_ROOT', $_SERVER);
         $previousRoot = $_SERVER['DOCUMENT_ROOT'] ?? null;
         $_SERVER['DOCUMENT_ROOT'] = $missingRoot;
 
         try {
-            $this->expectException(\InvalidArgumentException::class);
+            $this->expectException(InvalidArgumentException::class);
             new JsonLineLogger(sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl');
         } finally {
             if ($hadRoot) {
@@ -149,13 +151,13 @@ final class JsonLineLoggerTest extends TestCase
     public function testRejectsLogPathsInsideDocumentRoot(): void
     {
         $root = sys_get_temp_dir() . '/zef-public-root-' . bin2hex(random_bytes(8));
-        self::assertTrue(mkdir($root, 0700));
-        $hadRoot = array_key_exists('DOCUMENT_ROOT', $_SERVER);
+        self::assertTrue(mkdir($root, 0o700));
+        $hadRoot = \array_key_exists('DOCUMENT_ROOT', $_SERVER);
         $previousRoot = $_SERVER['DOCUMENT_ROOT'] ?? null;
         $_SERVER['DOCUMENT_ROOT'] = $root;
 
         try {
-            $this->expectException(\InvalidArgumentException::class);
+            $this->expectException(InvalidArgumentException::class);
             new JsonLineLogger($root . '/errors.jsonl');
         } finally {
             if ($hadRoot) {
@@ -180,7 +182,7 @@ final class JsonLineLoggerTest extends TestCase
         try {
             new JsonLineLogger($this->path);
             self::fail('Symlink destinations must be rejected.');
-        } catch (\InvalidArgumentException) {
+        } catch (InvalidArgumentException) {
             self::assertFileExists($target);
         } finally {
             @unlink($target);

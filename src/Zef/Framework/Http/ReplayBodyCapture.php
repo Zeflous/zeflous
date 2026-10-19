@@ -11,7 +11,7 @@ use Throwable;
 final class ReplayBodyCapture
 {
     /**
-     * @return array{string, bool} Sanitized body and whether it can be replayed.
+     * @return array{string, bool} sanitized body and whether it can be replayed
      */
     public static function capture(ServerRequestInterface $request): array
     {
@@ -24,8 +24,8 @@ final class ReplayBodyCapture
             return ['', true];
         }
 
-        $contentType = strtolower($request->getHeaderLine('Content-Type'));
-        $mediaType = trim(explode(';', $contentType, 2)[0]);
+        $contentType = mb_strtolower($request->getHeaderLine('Content-Type'));
+        $mediaType = mb_trim(explode(';', $contentType, 2)[0]);
 
         try {
             if (self::isJsonMediaType($mediaType)) {
@@ -51,10 +51,10 @@ final class ReplayBodyCapture
     /** @return array{string, bool} */
     private static function json(string $body): array
     {
-        $decoded = json_decode($body, true, 32, JSON_THROW_ON_ERROR);
+        $decoded = json_decode($body, true, 32, \JSON_THROW_ON_ERROR);
         $safe = ReplayPayloadSanitizer::sanitize($decoded);
 
-        return [json_encode($safe, JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE), true];
+        return [json_encode($safe, \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE), true];
     }
 
     /** @return array{string, bool} */
@@ -63,6 +63,6 @@ final class ReplayBodyCapture
         parse_str($body, $decoded);
         $safe = ReplayPayloadSanitizer::sanitize($decoded);
 
-        return [http_build_query(is_array($safe) ? $safe : []), true];
+        return [http_build_query(\is_array($safe) ? $safe : []), true];
     }
 }

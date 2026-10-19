@@ -38,7 +38,7 @@ final class ErrorRequestContext
             return;
         }
 
-        $this->traceId = strtolower($traceId);
+        $this->traceId = mb_strtolower($traceId);
     }
 
     public function traceId(): string

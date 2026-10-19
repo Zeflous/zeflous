@@ -15,14 +15,14 @@ final class DebugToolbarEligibility
 
     public static function allows(ServerRequestInterface $request, ResponseInterface $response): bool
     {
-        return strtoupper($request->getMethod()) !== 'HEAD'
+        return mb_strtoupper($request->getMethod()) !== 'HEAD'
             && ErrorContentNegotiator::prefersHtml($request->getHeaderLine('Accept'))
             && !$response->hasHeader('Content-Security-Policy')
-            && str_starts_with(strtolower($response->getHeaderLine('Content-Type')), 'text/html')
+            && str_starts_with(mb_strtolower($response->getHeaderLine('Content-Type')), 'text/html')
             && $response->getStatusCode() >= 200
             && $response->getStatusCode() < 300
             && $response->getHeaderLine('Content-Encoding') === ''
             && $response->getBody()->isSeekable()
-            && ($response->getBody()->getSize() ?? PHP_INT_MAX) <= self::MAX_HTML_BYTES;
+            && ($response->getBody()->getSize() ?? \PHP_INT_MAX) <= self::MAX_HTML_BYTES;
     }
 }

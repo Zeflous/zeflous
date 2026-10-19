@@ -21,8 +21,9 @@ final class JsonLineWriter
         }
 
         $locked = false;
+
         try {
-            if (!flock($stream, LOCK_EX)) {
+            if (!flock($stream, \LOCK_EX)) {
                 throw new RuntimeException('Unable to acquire the JSON log write lock.');
             }
             $locked = true;
@@ -31,7 +32,7 @@ final class JsonLineWriter
             self::writeRecord($stream, $line, $startOffset);
         } finally {
             if ($locked) {
-                flock($stream, LOCK_UN);
+                flock($stream, \LOCK_UN);
             }
             fclose($stream);
         }
@@ -43,8 +44,8 @@ final class JsonLineWriter
         $opened = fstat($stream);
         $current = lstat($path);
         if (
-            !is_array($opened)
-            || !is_array($current)
+            !\is_array($opened)
+            || !\is_array($current)
             || is_link($path)
             || $opened['dev'] !== $current['dev']
             || $opened['ino'] !== $current['ino']
@@ -52,7 +53,7 @@ final class JsonLineWriter
             throw new RuntimeException('The JSON log destination changed while it was being opened.');
         }
 
-        if (!chmod($path, 0600)) {
+        if (!chmod($path, 0o600)) {
             throw new RuntimeException('Unable to secure the JSON log destination permissions.');
         }
 
@@ -63,9 +64,9 @@ final class JsonLineWriter
     private static function writeRecord($stream, string $line, int $startOffset): void
     {
         $offset = 0;
-        $length = strlen($line);
+        $length = mb_strlen($line);
         while ($offset < $length) {
-            $written = fwrite($stream, substr($line, $offset));
+            $written = fwrite($stream, mb_substr($line, $offset));
             if ($written === false || $written === 0) {
                 if (!ftruncate($stream, max(0, $startOffset))) {
                     throw new RuntimeException('Unable to roll back an incomplete JSON log record.');

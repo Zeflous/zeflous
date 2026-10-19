@@ -72,22 +72,21 @@ final readonly class JsonLineLogger implements LoggerInterface
     }
 
     /**
-     * @param mixed $level
      * @param array<string, mixed> $context
      */
     #[Override]
     public function log($level, string|Stringable $message, array $context = []): void
     {
-        if (!is_string($level) || !in_array($level, self::LEVELS, true)) {
+        if (!\in_array($level, self::LEVELS, true)) {
             throw new InvalidArgumentException('Unknown PSR-3 log level.');
         }
 
         $line = json_encode([
-            'timestamp' => gmdate('Y-m-d\\TH:i:s\\Z'),
+            'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'level' => $level,
             'message' => LogContextSanitizer::redact((string) $message),
             'context' => LogContextSanitizer::sanitize($context),
-        ], JSON_THROW_ON_ERROR | JSON_INVALID_UTF8_SUBSTITUTE) . "\n";
+        ], \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE) . "\n";
 
         JsonLineWriter::append($this->path, $line);
     }
