@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-18T13:58:15Z",
+  "as_of": "2026-10-18T23:46:55Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 193,
+  "unreleased_count": 201,
   "versions": [
     {
       "version": "Unreleased",
@@ -1528,6 +1528,99 @@
                 "subject": "style(tests): apply the formatter and rector passes to the escape-killing tests"
               }
             ]
+          },
+          {
+            "pr": 445,
+            "title": "feat(container): add the parameters family and the value attribute lane",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-18T19:59:02Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/445",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c046dce326f65125bc66ed4dac27e6f388bff5c9",
+                "short_sha": "c046dce",
+                "subject": "feat(container): add the parameters family and the value attribute lane"
+              },
+              {
+                "sha": "241714344384e8613d0d2e67d37ac005bde31c17",
+                "short_sha": "2417143",
+                "subject": "test(container): cover the parameters family end to end"
+              },
+              {
+                "sha": "f2546800a424b7c73ccb838c2904e05767f002d0",
+                "short_sha": "f254680",
+                "subject": "docs(ci-notes): record the parameters family KDD"
+              },
+              {
+                "sha": "ef5a044cf82f9f91b8a4e711ee3faad278ada477",
+                "short_sha": "ef5a044",
+                "subject": "test(container): kill the value-lane escapes the changed-set round exposed"
+              },
+              {
+                "sha": "dcc067adfebeb8912a9c8587bfdd3ce5579dcee0",
+                "short_sha": "dcc067a",
+                "subject": "Merge branch 'main' into feat/container-parameters-family"
+              },
+              {
+                "sha": "853e9428938ad9b789c7f49eeab375d7f23fdc09",
+                "short_sha": "853e942",
+                "subject": "Merge branch 'main' into feat/container-parameters-family"
+              },
+              {
+                "sha": "710d570ef465f5d27023c941d36e973ee47f2258",
+                "short_sha": "710d570",
+                "subject": "refactor(container): rebalance the value lane under the CI gates"
+              },
+              {
+                "sha": "32f9a9fe1ad4ec66a37355eb0b44902b4305607f",
+                "short_sha": "32f9a9f",
+                "subject": "Merge branch 'main' into feat/container-parameters-family"
+              },
+              {
+                "sha": "95fab3fd8b5ff7dd1e4f510213a9e7638bd764b9",
+                "short_sha": "95fab3f",
+                "subject": "Merge branch 'main' into feat/container-parameters-family"
+              }
+            ]
+          },
+          {
+            "pr": 446,
+            "title": "feat(ci): make every required check merge-queue aware",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-18T18:35:24Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/446",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5bec97054459acc9b13849fe540def76b166b690",
+                "short_sha": "5bec970",
+                "subject": "feat(ci): make every required check merge-queue aware"
+              }
+            ]
+          },
+          {
+            "pr": 447,
+            "title": "feat(ci): lint the ruleset against the merged heads' check evidence",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-18T18:50:07Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/447",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "03b330369fa39552be7dcffbb724552ef35097d0",
+                "short_sha": "03b3303",
+                "subject": "feat(ci): lint the ruleset against the merged heads' check evidence"
+              },
+              {
+                "sha": "a81666903fffa8cb2f1c7f49c5787fbe10ef2223",
+                "short_sha": "a816669",
+                "subject": "Merge branch 'main' into hardening/ruleset-lint"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -2388,6 +2481,84 @@
                 "sha": "1bc17fee3861d0f8e67a96b520a0d61884d40b48",
                 "short_sha": "1bc17fe",
                 "subject": "Merge branch 'main' into fix/tooling-update-merge-bookkeeping"
+              }
+            ]
+          },
+          {
+            "pr": 451,
+            "title": "fix(ci): upload the archeology SARIF on merge groups so the code scanning rule can pass",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-18T20:16:48Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/451",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4b68e078f941ee28201c337339f6d6489c365690",
+                "short_sha": "4b68e07",
+                "subject": "fix(ci): upload the archeology SARIF on merge groups so the code scanning rule can pass"
+              },
+              {
+                "sha": "7d3bdcd9200d6cfa1f5c3ca36308288cd61d97d1",
+                "short_sha": "7d3bdcd",
+                "subject": "Merge branch 'main' into fix/archeology-queue-sarif-upload"
+              },
+              {
+                "sha": "d53749712666c0b51a1f3e1738cef89eb8e38b88",
+                "short_sha": "d537497",
+                "subject": "Merge branch 'main' into fix/archeology-queue-sarif-upload"
+              }
+            ]
+          },
+          {
+            "pr": 453,
+            "title": "fix(ci): name the queue-path SonarCloud branch per entry so concurrent group scans cannot collide",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-18T23:11:01Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/453",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3ace743ade82c204cac9662f5254f85b2a8df2e4",
+                "short_sha": "3ace743",
+                "subject": "fix(ci): name the queue-path SonarCloud branch per entry so concurrent group scans cannot collide"
+              },
+              {
+                "sha": "4d627595c332dc8f98bef0a271936fd5eb274903",
+                "short_sha": "4d62759",
+                "subject": "Merge branch 'main' into fix/sonar-queue-branch-per-entry"
+              },
+              {
+                "sha": "bf41ec4111b450ab2d7d16fd6ff4dfcec0755966",
+                "short_sha": "bf41ec4",
+                "subject": "Merge branch 'main' into fix/sonar-queue-branch-per-entry"
+              },
+              {
+                "sha": "a658b2da04d99cc313a910d1ddffa314e0f3e21f",
+                "short_sha": "a658b2d",
+                "subject": "Merge branch 'main' into fix/sonar-queue-branch-per-entry"
+              }
+            ]
+          },
+          {
+            "pr": 456,
+            "title": "fix(ci): suspend the auto-merge branch sync while the merge queue is active",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-18T23:46:55Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/456",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "016f37ce4e778275d014e2f8baddb2cb09e6e3ac",
+                "short_sha": "016f37c",
+                "subject": "fix(ci): suspend the auto-merge branch sync while the merge queue is active"
+              },
+              {
+                "sha": "a169bfeb801ec0998c1107529a86510d96456a56",
+                "short_sha": "a169bfe",
+                "subject": "Merge branch 'main' into fix/automerge-armed-branch-sync"
               }
             ]
           }
@@ -4722,6 +4893,48 @@
                 "sha": "b03007a4908670e95974c6eb7c887d5e5a8cf490",
                 "short_sha": "b03007a",
                 "subject": "docs(roadmap): keep the pin tables pipe-safe and count the merged total"
+              }
+            ]
+          },
+          {
+            "pr": 450,
+            "title": "docs(roadmap): pin the merge-queue and ruleset-lint family to pull requests 446 and 447",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-18T19:44:17Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/450",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4a17080694627c244096ebe2aaae7524292c2e21",
+                "short_sha": "4a17080",
+                "subject": "docs(roadmap): pin the merge-queue and ruleset-lint family to pull requests 446 and 447"
+              }
+            ]
+          },
+          {
+            "pr": 452,
+            "title": "docs(roadmap): pin the parameters family to pull request 445",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-18T22:37:58Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/452",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7fc6c003f691f72c98d7df45d627e818a81a3f7d",
+                "short_sha": "7fc6c00",
+                "subject": "docs(roadmap): pin the parameters family to pull request 445"
+              },
+              {
+                "sha": "e26d7191fb3126adbefe19a71bac302e9e391969",
+                "short_sha": "e26d719",
+                "subject": "Merge branch 'main' into docs/roadmap-parameters-pin"
+              },
+              {
+                "sha": "cff898bf102b79519f9447ac704cb51365ae9cad",
+                "short_sha": "cff898b",
+                "subject": "Merge branch 'main' into docs/roadmap-parameters-pin"
               }
             ]
           }
@@ -9769,6 +9982,219 @@
               "sha": "b03007a4908670e95974c6eb7c887d5e5a8cf490",
               "short_sha": "b03007a",
               "subject": "docs(roadmap): keep the pin tables pipe-safe and count the merged total"
+            }
+          ]
+        },
+        {
+          "pr": 445,
+          "title": "feat(container): add the parameters family and the value attribute lane",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-18T19:59:02Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/445",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c046dce326f65125bc66ed4dac27e6f388bff5c9",
+              "short_sha": "c046dce",
+              "subject": "feat(container): add the parameters family and the value attribute lane"
+            },
+            {
+              "sha": "241714344384e8613d0d2e67d37ac005bde31c17",
+              "short_sha": "2417143",
+              "subject": "test(container): cover the parameters family end to end"
+            },
+            {
+              "sha": "f2546800a424b7c73ccb838c2904e05767f002d0",
+              "short_sha": "f254680",
+              "subject": "docs(ci-notes): record the parameters family KDD"
+            },
+            {
+              "sha": "ef5a044cf82f9f91b8a4e711ee3faad278ada477",
+              "short_sha": "ef5a044",
+              "subject": "test(container): kill the value-lane escapes the changed-set round exposed"
+            },
+            {
+              "sha": "dcc067adfebeb8912a9c8587bfdd3ce5579dcee0",
+              "short_sha": "dcc067a",
+              "subject": "Merge branch 'main' into feat/container-parameters-family"
+            },
+            {
+              "sha": "853e9428938ad9b789c7f49eeab375d7f23fdc09",
+              "short_sha": "853e942",
+              "subject": "Merge branch 'main' into feat/container-parameters-family"
+            },
+            {
+              "sha": "710d570ef465f5d27023c941d36e973ee47f2258",
+              "short_sha": "710d570",
+              "subject": "refactor(container): rebalance the value lane under the CI gates"
+            },
+            {
+              "sha": "32f9a9fe1ad4ec66a37355eb0b44902b4305607f",
+              "short_sha": "32f9a9f",
+              "subject": "Merge branch 'main' into feat/container-parameters-family"
+            },
+            {
+              "sha": "95fab3fd8b5ff7dd1e4f510213a9e7638bd764b9",
+              "short_sha": "95fab3f",
+              "subject": "Merge branch 'main' into feat/container-parameters-family"
+            }
+          ]
+        },
+        {
+          "pr": 446,
+          "title": "feat(ci): make every required check merge-queue aware",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-18T18:35:24Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/446",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5bec97054459acc9b13849fe540def76b166b690",
+              "short_sha": "5bec970",
+              "subject": "feat(ci): make every required check merge-queue aware"
+            }
+          ]
+        },
+        {
+          "pr": 447,
+          "title": "feat(ci): lint the ruleset against the merged heads' check evidence",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-18T18:50:07Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/447",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "03b330369fa39552be7dcffbb724552ef35097d0",
+              "short_sha": "03b3303",
+              "subject": "feat(ci): lint the ruleset against the merged heads' check evidence"
+            },
+            {
+              "sha": "a81666903fffa8cb2f1c7f49c5787fbe10ef2223",
+              "short_sha": "a816669",
+              "subject": "Merge branch 'main' into hardening/ruleset-lint"
+            }
+          ]
+        },
+        {
+          "pr": 450,
+          "title": "docs(roadmap): pin the merge-queue and ruleset-lint family to pull requests 446 and 447",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-18T19:44:17Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/450",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4a17080694627c244096ebe2aaae7524292c2e21",
+              "short_sha": "4a17080",
+              "subject": "docs(roadmap): pin the merge-queue and ruleset-lint family to pull requests 446 and 447"
+            }
+          ]
+        },
+        {
+          "pr": 451,
+          "title": "fix(ci): upload the archeology SARIF on merge groups so the code scanning rule can pass",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-18T20:16:48Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/451",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4b68e078f941ee28201c337339f6d6489c365690",
+              "short_sha": "4b68e07",
+              "subject": "fix(ci): upload the archeology SARIF on merge groups so the code scanning rule can pass"
+            },
+            {
+              "sha": "7d3bdcd9200d6cfa1f5c3ca36308288cd61d97d1",
+              "short_sha": "7d3bdcd",
+              "subject": "Merge branch 'main' into fix/archeology-queue-sarif-upload"
+            },
+            {
+              "sha": "d53749712666c0b51a1f3e1738cef89eb8e38b88",
+              "short_sha": "d537497",
+              "subject": "Merge branch 'main' into fix/archeology-queue-sarif-upload"
+            }
+          ]
+        },
+        {
+          "pr": 452,
+          "title": "docs(roadmap): pin the parameters family to pull request 445",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-18T22:37:58Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/452",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7fc6c003f691f72c98d7df45d627e818a81a3f7d",
+              "short_sha": "7fc6c00",
+              "subject": "docs(roadmap): pin the parameters family to pull request 445"
+            },
+            {
+              "sha": "e26d7191fb3126adbefe19a71bac302e9e391969",
+              "short_sha": "e26d719",
+              "subject": "Merge branch 'main' into docs/roadmap-parameters-pin"
+            },
+            {
+              "sha": "cff898bf102b79519f9447ac704cb51365ae9cad",
+              "short_sha": "cff898b",
+              "subject": "Merge branch 'main' into docs/roadmap-parameters-pin"
+            }
+          ]
+        },
+        {
+          "pr": 453,
+          "title": "fix(ci): name the queue-path SonarCloud branch per entry so concurrent group scans cannot collide",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-18T23:11:01Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/453",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3ace743ade82c204cac9662f5254f85b2a8df2e4",
+              "short_sha": "3ace743",
+              "subject": "fix(ci): name the queue-path SonarCloud branch per entry so concurrent group scans cannot collide"
+            },
+            {
+              "sha": "4d627595c332dc8f98bef0a271936fd5eb274903",
+              "short_sha": "4d62759",
+              "subject": "Merge branch 'main' into fix/sonar-queue-branch-per-entry"
+            },
+            {
+              "sha": "bf41ec4111b450ab2d7d16fd6ff4dfcec0755966",
+              "short_sha": "bf41ec4",
+              "subject": "Merge branch 'main' into fix/sonar-queue-branch-per-entry"
+            },
+            {
+              "sha": "a658b2da04d99cc313a910d1ddffa314e0f3e21f",
+              "short_sha": "a658b2d",
+              "subject": "Merge branch 'main' into fix/sonar-queue-branch-per-entry"
+            }
+          ]
+        },
+        {
+          "pr": 456,
+          "title": "fix(ci): suspend the auto-merge branch sync while the merge queue is active",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-18T23:46:55Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/456",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "016f37ce4e778275d014e2f8baddb2cb09e6e3ac",
+              "short_sha": "016f37c",
+              "subject": "fix(ci): suspend the auto-merge branch sync while the merge queue is active"
+            },
+            {
+              "sha": "a169bfeb801ec0998c1107529a86510d96456a56",
+              "short_sha": "a169bfe",
+              "subject": "Merge branch 'main' into fix/automerge-armed-branch-sync"
             }
           ]
         }
