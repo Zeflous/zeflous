@@ -314,7 +314,18 @@
                 ".*in_array\\(mb_strtolower\\(\\$name\\), \\['host'.*",
                 "\\$this->traceId = mb_strtolower\\(\\$traceId\\);",
                 "\\$normalized = mb_strtoupper\\(\\(string\\) preg_replace.*",
-                "return mb_rtrim\\(mb_substr\\(\\$normalized, 0, 64\\).*"
+                "return mb_rtrim\\(mb_substr\\(\\$normalized, 0, 64\\).*",
+                // AcceptHeaderParser::quality()'s value slice is the same
+                // ASCII-only zone: the segment has already passed the
+                // str_starts_with('q=') gate, so the two-byte prefix is
+                // always the ASCII pair the offset counts, and the
+                // character-scale and byte-scale slices agree on every
+                // value the line can ever see (verified by running the
+                // parser battery under the manually applied mutation --
+                // the complete battery passes, including the multibyte
+                // header paths). The ignore is scoped to that single
+                // source line.
+                "\\$value = mb_substr\\(\\$segment, 2\\);"
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is
@@ -400,7 +411,18 @@
                 "\\[\\$key, \\$value\\] = array_pad\\(explode\\('=', mb_trim\\(\\$pair\\), 2\\), 2, ''\\);",
                 "\\$milliseconds = max\\(0, \\$elapsedNs\\) / self::NANOSECONDS_PER_MILLISECOND;",
                 "private readonly RetryBackoffPolicy \\$retryBackoffPolicy = new RetryBackoffPolicy\\(0, 0, 0\\),",
-                "RetryBackoffPolicy \\$retryBackoffPolicy = new RetryBackoffPolicy\\(0, 0, 0\\),"
+                "RetryBackoffPolicy \\$retryBackoffPolicy = new RetryBackoffPolicy\\(0, 0, 0\\),",
+                // AcceptHeaderParser::mediaRange()'s explode limit is the
+                // next integer the increment can rewrite without any
+                // observable difference: the read takes element [0], and
+                // for every limit of two or more the first element is the
+                // substring before the first separator, so raising the
+                // limit to three only reshuffles bytes the read never
+                // touches (verified by running the parser battery under
+                // the manually applied mutation -- the complete battery
+                // passes). The ignore is scoped to that single source
+                // line.
+                ".*explode\\(';', \\$part, 2\\)\\[0\\].*"
             ]
         },
         // The scan resume's capture read in RedactedMessage::of() is the
@@ -593,6 +615,21 @@
         "CastString": {
             "ignoreSourceCodeByRegex": [
                 "\\$shortName = \\(string\\) preg_replace\\('/Exception\\$/'.*"
+            ]
+        },
+        // The two anchored quality grammars in AcceptHeaderParser carry
+        // the /D flag whose removal is unobservable by construction: both
+        // operands are trimmed before the match (mb_trim on the whole
+        // part, trim on every segment), and a trailing newline is the only
+        // byte a non-D dollar anchor would admit, so the trimmed operand
+        // answers identically under both spellings (verified by running
+        // the parser battery under the manually applied mutation -- the
+        // complete battery passes). These ignores are scoped to those two
+        // source lines.
+        "PregMatchRemoveFlags": {
+            "ignoreSourceCodeByRegex": [
+                ".*explode\\(';', \\$part, 2\\)\\[0\\].*",
+                ".*preg_match\\('/\\^\\(\\?:0.*"
             ]
         },
         // The divergence judgement's NaN guards in
