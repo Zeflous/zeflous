@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T11:36:23Z",
+  "as_of": "2026-10-19T16:47:46Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 207,
+  "unreleased_count": 208,
   "versions": [
     {
       "version": "Unreleased",
@@ -1726,6 +1726,37 @@
                 "sha": "4d4e6097e59719d8be3c408a5d2019f4f7290518",
                 "short_sha": "4d4e609",
                 "subject": "fix(container): the decoration refusals join the covered record -- and the S1192 line"
+              }
+            ]
+          },
+          {
+            "pr": 475,
+            "title": "feat(container): add the interception lane over the resolution seam",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-19T16:47:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/475",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4b31f1174b85d8d368e2cb08ff89e439cf4d5445",
+                "short_sha": "4b31f11",
+                "subject": "feat(container): add the interception lane over the resolution seam"
+              },
+              {
+                "sha": "c9559ab09bcbda9be9cfaea8395ebd717c6967cb",
+                "short_sha": "c9559ab",
+                "subject": "fix(container): the unarmed interception run is the honest refusal"
+              },
+              {
+                "sha": "749cba10fbbc65a56b0a6e4cb6f73cf86fb80971",
+                "short_sha": "749cba1",
+                "subject": "test(container): kill the interception lane's escaped mutants"
+              },
+              {
+                "sha": "889dacf54abdd472fb98dca963d23aedea1647dc",
+                "short_sha": "889dacf",
+                "subject": "refactor(container): the build half's refusal words take their own unit"
               }
             ]
           }
@@ -10557,6 +10588,37 @@
               "sha": "99a7e6bb1d78c9ff4e3d2a333a20b7dc63ea55b8",
               "short_sha": "99a7e6b",
               "subject": "docs(roadmap): pin the decoration lane -- history row 469"
+            }
+          ]
+        },
+        {
+          "pr": 475,
+          "title": "feat(container): add the interception lane over the resolution seam",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-19T16:47:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/475",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4b31f1174b85d8d368e2cb08ff89e439cf4d5445",
+              "short_sha": "4b31f11",
+              "subject": "feat(container): add the interception lane over the resolution seam"
+            },
+            {
+              "sha": "c9559ab09bcbda9be9cfaea8395ebd717c6967cb",
+              "short_sha": "c9559ab",
+              "subject": "fix(container): the unarmed interception run is the honest refusal"
+            },
+            {
+              "sha": "749cba10fbbc65a56b0a6e4cb6f73cf86fb80971",
+              "short_sha": "749cba1",
+              "subject": "test(container): kill the interception lane's escaped mutants"
+            },
+            {
+              "sha": "889dacf54abdd472fb98dca963d23aedea1647dc",
+              "short_sha": "889dacf",
+              "subject": "refactor(container): the build half's refusal words take their own unit"
             }
           ]
         }
