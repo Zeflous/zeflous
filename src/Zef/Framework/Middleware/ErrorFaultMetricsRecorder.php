@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zef\Framework\Http;
+namespace Zef\Framework\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;

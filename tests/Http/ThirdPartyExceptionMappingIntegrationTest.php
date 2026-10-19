@@ -7,10 +7,10 @@ namespace Zef\Test\Http;
 use PDOException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Http\ErrorMappingMiddleware;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\ThirdPartyExceptionMapper;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Test\Support\Http\ThrowingHandler;
 use Zef\Test\Support\Log\RecordingLogger;
 

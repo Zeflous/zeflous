@@ -642,6 +642,29 @@ sebelumnya — .gitkeep dihapus):
   KEDUA sisi (99.79% pristine vs 99.80% branch — kondisi flake lokal yang terdokumentasi,
   engine CI membunuhnya, preseden PR-H/K/L).
 
+### Amendemen H17-a (2026-10-19, kampanye E): wajah boundary pindah lane `Middleware`
+
+Ketika kampanye error-handling enterprise menambahkan seam observability ke
+boundary (meter `Telemetry\MeterInterface` di konstructor + pembacaan knob oleh
+`ErrorMappingFactory`), deptrac menolak 12 ketergantungan: layer `Http` hanya
+boleh bergantung pada `Exception` (doktrin graph), sementara `Kernel` tidak
+boleh melihat `Http` sama sekali — padahal `FrameworkDefaults` memasang
+factory lewat profil services. Resolusinya mengikuti preseden
+`CorrelationMiddleware`/`MetricsMiddleware`/`CorrelationRequestSpan` persis:
+wajah PSR-15 yang jawabannya mengalir lewat engine observability hidup di lane
+komposisi, bukan di layer HTTP yang engine-blind. Empat kelas pindah namespace
+`Zef\Framework\Http\` → `Zef\Framework\Middleware\`:
+`ErrorMappingMiddleware` (wajah), `ErrorMappingFactory` (seam komposisi yang
+membaca `Config` dan memasang `observability.meter`), `ErrorFaultRecorder`
+(kolaborator yang memegang meter + logger PSR-3), `ErrorFaultMetricsRecorder`
+(kebijakan inkremen meter). Seluruh mesin render (`ErrorEnvelope`,
+`ProblemDetails*`, `HtmlErrorPage*`, `ErrorStatusMap`, negosiator, sanitizer,
+keluarga replay) TETAP di `Http` — mereka murni mesin pesan tanpa engine.
+`deptrac` kembali 0 violation tanpa satu baris ruleset diubah: perpindahan ini
+adalah penegakan graph yang sudah ada, bukan pelonggaran. String factory di
+profil `FrameworkDefaults` dan pin literal di `ApplicationBootstrapperTest`
+ikut diperbarui — nama kelas adalah kontrak yang dilihat host.
+
 ## Fase 4 — KDD-H18 (HEAD request handling: middleware PSR-15 keempat + bench hot-path, slice penutup lane)
 
 **H18 — slice performance phase menutup HTTP-optimizations sekaligus jadi instrumen observabilitas

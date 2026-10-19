@@ -121,6 +121,17 @@ baru (preseden autoconfig C3).
 
 ## Antrean kampanye E
 
+> **Amendemen (2026-10-19):** wajah boundary pindah lane. Saat kampanye E
+> melengkapi antrean ini (E2/E4/E5 terpasang di branch), seam observability
+> (meter `Telemetry`) + pembacaan `Config` oleh factory membuat deptrac
+> menolak 12 ketergantungan — layer `Http` hanya boleh bergantung pada
+> `Exception`. Mengikuti preseden `CorrelationMiddleware`/
+> `CorrelationRequestSpan`, empat kelas pindah ke lane komposisi
+> `Zef\Framework\Middleware\`: `ErrorMappingMiddleware`, `ErrorMappingFactory`,
+> `ErrorFaultRecorder`, `ErrorFaultMetricsRecorder`. Mesin render dan seluruh
+> kolaborator pesan murni tetap di `Http`. Detail di amendemen H17-a
+> (`docs/ci-notes/http-layer.md`).
+
 - **E2**: RFC 9457 problem+json (`type`/`title`/`status`/`detail`/
   `instance` + `trace_id`) + negosiasi Accept + fallback HTML —
   mengganti separuh rendering `ErrorEnvelope` (KDD-E7).

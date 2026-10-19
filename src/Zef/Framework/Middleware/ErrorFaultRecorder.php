@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Zef\Framework\Http;
+namespace Zef\Framework\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
+use Zef\Framework\Http\ErrorFaultContextFactory;
+use Zef\Framework\Http\ErrorFaultLogWriter;
+use Zef\Framework\Http\ErrorFaultSeverity;
 use Zef\Framework\Telemetry\MeterInterface;
 
 /** Records request failures through the logging and metrics boundaries. */

@@ -6,11 +6,11 @@ namespace Zef\Framework;
 
 use Zef\Framework\Container\ContainerServices;
 use Zef\Framework\Health\HealthChecker;
-use Zef\Framework\Http\ErrorMappingFactory;
 use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\DebugToolbarFactory;
+use Zef\Framework\Middleware\ErrorMappingFactory;
 use Zef\Framework\Middleware\MetricsFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;

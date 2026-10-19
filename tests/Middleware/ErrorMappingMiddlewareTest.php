@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zef\Test\Http;
+namespace Zef\Test\Middleware;
 
 use InvalidArgumentException;
 use LogicException;
@@ -28,11 +28,7 @@ use Zef\Framework\Http\ErrorDisclosure;
 use Zef\Framework\Http\ErrorEnvelope;
 use Zef\Framework\Http\ErrorFaultContextFactory;
 use Zef\Framework\Http\ErrorFaultLogWriter;
-use Zef\Framework\Http\ErrorFaultMetricsRecorder;
-use Zef\Framework\Http\ErrorFaultRecorder;
 use Zef\Framework\Http\ErrorFaultSeverity;
-use Zef\Framework\Http\ErrorMappingFactory;
-use Zef\Framework\Http\ErrorMappingMiddleware;
 use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Http\ErrorResponseFactory;
 use Zef\Framework\Http\ErrorTraceIdResolver;
@@ -54,6 +50,10 @@ use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\ErrorFaultMetricsRecorder;
+use Zef\Framework\Middleware\ErrorFaultRecorder;
+use Zef\Framework\Middleware\ErrorMappingFactory;
+use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Framework\Telemetry\MeterSlot;

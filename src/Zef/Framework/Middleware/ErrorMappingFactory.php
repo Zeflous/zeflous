@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Zef\Framework\Http;
+namespace Zef\Framework\Middleware;
 
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Logging\JsonLineLogger;
 use Zef\Framework\Telemetry\MeterInterface;
 

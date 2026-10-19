@@ -14,7 +14,6 @@ use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Health\HealthChecker;
-use Zef\Framework\Http\ErrorMappingMiddleware;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\TimingMiddleware;
@@ -24,6 +23,7 @@ use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CorrelationMiddleware;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\DebugToolbarMiddleware;
+use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Middleware\MetricsFactory;
 use Zef\Framework\Middleware\MetricsMiddleware;
 use Zef\Framework\Middleware\RateLimitFactory;
@@ -83,7 +83,7 @@ final class ApplicationBootstrapperTest extends TestCase
         self::assertSame(
             [
                 'http.errors' => [
-                    'factory' => 'Zef\Framework\Http\ErrorMappingFactory::fromConfig',
+                    'factory' => 'Zef\Framework\Middleware\ErrorMappingFactory::fromConfig',
                     'arguments' => [
                         ['service' => FrameworkDefaults::CONFIG_SERVICE],
                         ['service' => 'observability.meter'],

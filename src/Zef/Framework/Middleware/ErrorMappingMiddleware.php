@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Zef\Framework\Http;
+namespace Zef\Framework\Middleware;
 
 use Override;
 use Psr\Http\Message\ResponseInterface;
@@ -12,12 +12,21 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
+use Zef\Framework\Http\CorrelationId;
+use Zef\Framework\Http\ErrorEnvelope;
+use Zef\Framework\Http\ErrorReplayStore;
+use Zef\Framework\Http\ErrorRequestContext;
+use Zef\Framework\Http\ErrorStatusMap;
+use Zef\Framework\Http\ThirdPartyExceptionMapper;
 use Zef\Framework\Telemetry\MeterInterface;
 
 /**
- * The error mapping middleware -- the HTTP layer's third PSR-15 middleware
+ * The error mapping middleware -- the middleware lane's error-boundary face
  * and the security phase's final slice: every failure a handler lets escape
- * becomes a proper error response instead of a fatal.
+ * becomes a proper error response instead of a fatal. The face lives in the
+ * composition lane (not the engine-free HTTP layer) because its answers flow
+ * through the telemetry meter and the PSR-3 logger -- the same doctrine that
+ * keeps CorrelationMiddleware and MetricsMiddleware here.
  *
  * The middleware owns the request's correlation id ({@see CorrelationId}):
  * the `X-Request-ID` claim travels onto every response it stamps, the
