@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T17:47:36Z",
+  "as_of": "2026-10-19T23:10:46Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 209,
+  "unreleased_count": 210,
   "versions": [
     {
       "version": "Unreleased",
@@ -1757,6 +1757,32 @@
                 "sha": "889dacf54abdd472fb98dca963d23aedea1647dc",
                 "short_sha": "889dacf",
                 "subject": "refactor(container): the build half's refusal words take their own unit"
+              }
+            ]
+          },
+          {
+            "pr": 481,
+            "title": "feat(container): add the namespace radix lane over the booted identifiers",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-19T23:10:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/481",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "31a6578fab9a1f81d173176bb2d097f48998dee3",
+                "short_sha": "31a6578",
+                "subject": "feat(container): add the namespace radix lane over the booted identifiers"
+              },
+              {
+                "sha": "d8af75d2b1e09df173ea41fb31684683fa624cd4",
+                "short_sha": "d8af75d",
+                "subject": "fix(container): the scope map's mixed flows read inline, the default knob fits one line"
+              },
+              {
+                "sha": "cca5089587a3a10e992d3552a26b8ff5bb076710",
+                "short_sha": "cca5089",
+                "subject": "fix(container): the entries map's string keys re-assert at the multi-use site"
               }
             ]
           }
@@ -10661,6 +10687,32 @@
               "sha": "9a22758aff0923bc21318e59cc47eeea4c3a5e96",
               "short_sha": "9a22758",
               "subject": "test(tooling): the lint roster's sort kill rests on the directory order"
+            }
+          ]
+        },
+        {
+          "pr": 481,
+          "title": "feat(container): add the namespace radix lane over the booted identifiers",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-19T23:10:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/481",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "31a6578fab9a1f81d173176bb2d097f48998dee3",
+              "short_sha": "31a6578",
+              "subject": "feat(container): add the namespace radix lane over the booted identifiers"
+            },
+            {
+              "sha": "d8af75d2b1e09df173ea41fb31684683fa624cd4",
+              "short_sha": "d8af75d",
+              "subject": "fix(container): the scope map's mixed flows read inline, the default knob fits one line"
+            },
+            {
+              "sha": "cca5089587a3a10e992d3552a26b8ff5bb076710",
+              "short_sha": "cca5089",
+              "subject": "fix(container): the entries map's string keys re-assert at the multi-use site"
             }
           ]
         }
