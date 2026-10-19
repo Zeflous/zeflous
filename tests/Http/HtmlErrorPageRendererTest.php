@@ -85,7 +85,7 @@ final class HtmlErrorPageRendererTest extends TestCase
 
     public function testADebugPageWithDeveloperContextRendersTheExactDocument(): void
     {
-        $exception = new ExplanatoryException(
+        $explanatoryException = new ExplanatoryException(
             'Failed safely.',
             0,
             null,
@@ -94,13 +94,13 @@ final class HtmlErrorPageRendererTest extends TestCase
         );
 
         $response = HtmlErrorPageRenderer::render(
-            $exception,
+            $explanatoryException,
             new HtmlErrorPageContext(500, 'Failed safely.', '/orders/42', "req-\"'<>&", true, 1234.5, 7, 2),
         );
 
         $diagnostics = htmlspecialchars(
-            RedactedMessage::of($exception::class . ': ' . $exception->getMessage()
-                . "\n" . $exception->getTraceAsString()),
+            RedactedMessage::of($explanatoryException::class . ': ' . $explanatoryException->getMessage()
+                . "\n" . $explanatoryException->getTraceAsString()),
             \ENT_QUOTES | \ENT_SUBSTITUTE,
             'UTF-8',
         );
@@ -133,16 +133,16 @@ final class HtmlErrorPageRendererTest extends TestCase
 
     public function testADebugPageWithoutAnInstanceFallsBackToTheRootPathAndZeroedCounters(): void
     {
-        $exception = new RuntimeException('boom');
+        $runtimeException = new RuntimeException('boom');
 
         $response = HtmlErrorPageRenderer::render(
-            $exception,
+            $runtimeException,
             new HtmlErrorPageContext(500, 'The application failed safely.', '', 'req-123', true),
         );
 
         $diagnostics = htmlspecialchars(
-            RedactedMessage::of($exception::class . ': ' . $exception->getMessage()
-                . "\n" . $exception->getTraceAsString()),
+            RedactedMessage::of($runtimeException::class . ': ' . $runtimeException->getMessage()
+                . "\n" . $runtimeException->getTraceAsString()),
             \ENT_QUOTES | \ENT_SUBSTITUTE,
             'UTF-8',
         );
@@ -171,16 +171,16 @@ final class HtmlErrorPageRendererTest extends TestCase
 
     public function testADebugPageClampsNegativeProfilerCountersToZero(): void
     {
-        $exception = new RuntimeException('boom');
+        $runtimeException = new RuntimeException('boom');
 
         $response = HtmlErrorPageRenderer::render(
-            $exception,
+            $runtimeException,
             new HtmlErrorPageContext(500, 'x', '/x', 'req-1', true, -25.7, -3, -2),
         );
 
         $diagnostics = htmlspecialchars(
-            RedactedMessage::of($exception::class . ': ' . $exception->getMessage()
-                . "\n" . $exception->getTraceAsString()),
+            RedactedMessage::of($runtimeException::class . ': ' . $runtimeException->getMessage()
+                . "\n" . $runtimeException->getTraceAsString()),
             \ENT_QUOTES | \ENT_SUBSTITUTE,
             'UTF-8',
         );
@@ -222,10 +222,10 @@ final class HtmlErrorPageRendererTest extends TestCase
 
     public function testAFreshContextDefaultsItsProfilerCountersToZero(): void
     {
-        $context = new HtmlErrorPageContext(500, 'detail', '/instance', 'req-1', false);
+        $htmlErrorPageContext = new HtmlErrorPageContext(500, 'detail', '/instance', 'req-1', false);
 
-        self::assertSame(0.0, $context->durationMilliseconds);
-        self::assertSame(0, $context->queryCount);
-        self::assertSame(0, $context->exceptionCount);
+        self::assertSame(0.0, $htmlErrorPageContext->durationMilliseconds);
+        self::assertSame(0, $htmlErrorPageContext->queryCount);
+        self::assertSame(0, $htmlErrorPageContext->exceptionCount);
     }
 }

@@ -25,19 +25,24 @@ final class ProblemDetailsMetadataTest extends TestCase
         self::assertSame($title, ProblemDetailsMetadata::titleFor($status));
     }
 
-    /** @return list<array{int, string, string}> */
+    /** @return iterable<non-empty-string, array{int, string, string}> */
     public static function provideOwnedStatusesAnswerTheirStableTypeAndTitleCases(): iterable
     {
-        return [
-            [400, 'validation-error', 'Bad Request'],
-            [401, 'authentication-required', 'Authentication Required'],
-            [403, 'forbidden', 'Forbidden'],
-            [404, 'not-found', 'Resource Not Found'],
-            [405, 'method-not-allowed', 'Method Not Allowed'],
-            [409, 'conflict', 'Conflict'],
-            [413, 'content-too-large', 'Content Too Large'],
-            [429, 'rate-limit-exceeded', 'Too Many Requests'],
-        ];
+        yield 'validation answers 400' => [400, 'validation-error', 'Bad Request'];
+
+        yield 'authentication answers 401' => [401, 'authentication-required', 'Authentication Required'];
+
+        yield 'forbidden answers 403' => [403, 'forbidden', 'Forbidden'];
+
+        yield 'not-found answers 404' => [404, 'not-found', 'Resource Not Found'];
+
+        yield 'method-not-allowed answers 405' => [405, 'method-not-allowed', 'Method Not Allowed'];
+
+        yield 'conflict answers 409' => [409, 'conflict', 'Conflict'];
+
+        yield 'content-too-large answers 413' => [413, 'content-too-large', 'Content Too Large'];
+
+        yield 'rate-limit-exceeded answers 429' => [429, 'rate-limit-exceeded', 'Too Many Requests'];
     }
 
     public function testUnownedStatusesFallBackToTheInternalErrorTypeAndTitle(): void

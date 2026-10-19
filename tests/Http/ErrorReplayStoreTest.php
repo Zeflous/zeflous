@@ -417,9 +417,9 @@ final class ErrorReplayStoreTest extends TestCase
 
     public function testTheSnapshotNormalisesHostileRequestLineFacts(): void
     {
-        $relativePathRequest = new ServerRequest('GET', new Uri('users'));
+        $serverRequest = new ServerRequest('GET', new Uri('users'));
 
-        $relativeSnapshot = $this->savedSnapshot($relativePathRequest);
+        $relativeSnapshot = $this->savedSnapshot($serverRequest);
 
         self::assertSame('/', $relativeSnapshot['path'], 'a path without a leading slash is refused');
 
@@ -504,7 +504,7 @@ final class ErrorReplayStoreTest extends TestCase
         // The real URI percent-encodes multibyte bytes out of the query, so
         // the character-scale length bound is only reachable through a
         // double that answers the raw, still-encoded form.
-        $multibyte = new RawFactsServerRequest(
+        $rawFactsServerRequest = new RawFactsServerRequest(
             new ServerRequest('GET', new Uri('https://app.example.test/users')),
             'GET',
             new RawPathUri('/users', 'f=' . str_repeat('é', 8098)),
@@ -513,7 +513,7 @@ final class ErrorReplayStoreTest extends TestCase
 
         self::assertSame(
             'f=' . urlencode(str_repeat('é', 4096)),
-            $this->savedSnapshot($multibyte)['query'],
+            $this->savedSnapshot($rawFactsServerRequest)['query'],
         );
 
         $oversized = new ServerRequest(

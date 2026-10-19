@@ -84,10 +84,10 @@ final class ErrorRequestContextTest extends TestCase
         // constructor. A full hour of "elapsed" time makes the divisor and
         // operand observable: any off-by-one changes the answer by whole
         // milliseconds, far beyond the microseconds of real call jitter.
-        $reflection = new ReflectionClass(ErrorRequestContext::class);
-        $errorRequestContext = $reflection->newInstanceWithoutConstructor();
-        $startedAt = new ReflectionProperty(ErrorRequestContext::class, 'startedAt');
-        $startedAt->setValue($errorRequestContext, hrtime(true) - 3_600_000_000_000);
+        $reflectionClass = new ReflectionClass(ErrorRequestContext::class);
+        $errorRequestContext = $reflectionClass->newInstanceWithoutConstructor();
+        $reflectionProperty = new ReflectionProperty(ErrorRequestContext::class, 'startedAt');
+        $reflectionProperty->setValue($errorRequestContext, hrtime(true) - 3_600_000_000_000);
 
         $milliseconds = $errorRequestContext->durationMilliseconds();
 

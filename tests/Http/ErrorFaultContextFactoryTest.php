@@ -46,24 +46,24 @@ final class ErrorFaultContextFactoryTest extends TestCase
 
     public function testLongAndMultibyteFactsAreBoundedByCharacters(): void
     {
-        $inner = new ServerRequest('GET', new Uri('https://app.example.test/users'));
+        $serverRequest = new ServerRequest('GET', new Uri('https://app.example.test/users'));
 
         $longMessage = ErrorFaultContextFactory::create(
             new RuntimeException(str_repeat('a', 2049)),
             'req-123',
-            $inner,
+            $serverRequest,
         );
         self::assertSame(str_repeat('a', 2048), $longMessage['exception.message']);
 
         $multibyteMessage = ErrorFaultContextFactory::create(
             new RuntimeException(str_repeat('é', 2048)),
             'req-123',
-            $inner,
+            $serverRequest,
         );
         self::assertSame(str_repeat('é', 2048), $multibyteMessage['exception.message']);
 
         $longPath = new RawFactsServerRequest(
-            $inner,
+            $serverRequest,
             'GET',
             new RawPathUri(str_repeat('a', 2049)),
             [],
@@ -72,7 +72,7 @@ final class ErrorFaultContextFactoryTest extends TestCase
         self::assertSame(str_repeat('a', 2048), $longPathContext['path']);
 
         $multibytePath = new RawFactsServerRequest(
-            $inner,
+            $serverRequest,
             'GET',
             new RawPathUri(str_repeat('é', 2048)),
             [],
