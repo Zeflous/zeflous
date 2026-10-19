@@ -13,6 +13,7 @@ use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
+use Zef\Framework\Http\StreamSnapshot;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\DebugToolbarFactory;
 use Zef\Framework\Middleware\DebugToolbarEligibility;
@@ -25,6 +26,7 @@ use Zef\Test\Support\Http\FixedResponseHandler;
 #[CoversClass(DebugToolbarMiddleware::class)]
 #[CoversClass(DebugToolbarEligibility::class)]
 #[CoversClass(DebugToolbarInjector::class)]
+#[CoversClass(StreamSnapshot::class)]
 #[CoversClass(ErrorRequestContext::class)]
 final class DebugToolbarMiddlewareTest extends TestCase
 {

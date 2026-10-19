@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Zef\Framework\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
-use Throwable;
 use Zef\Framework\Http\Stream;
+use Zef\Framework\Http\StreamSnapshot;
 
 /** Injects the toolbar into one bounded HTML response without mutating its original stream. */
 final class DebugToolbarInjector
@@ -18,7 +18,7 @@ final class DebugToolbarInjector
         int $exceptions,
         string $traceId,
     ): ResponseInterface {
-        $html = self::readHtml($response);
+        $html = StreamSnapshot::capture($response->getBody());
         if ($html === null) {
             return $response;
         }
@@ -59,35 +59,6 @@ final class DebugToolbarInjector
             ->withHeader('X-Debug-Toolbar', 'enabled');
 
         return $updatedResponse instanceof ResponseInterface ? $updatedResponse : $response;
-    }
-
-    private static function readHtml(ResponseInterface $response): ?string
-    {
-        $stream = $response->getBody();
-        try {
-            $position = $stream->tell();
-            $stream->rewind();
-            $html = $stream->getContents();
-        } catch (Throwable) {
-            if (isset($position)) {
-                self::restore($stream, $position);
-            }
-
-            return null;
-        }
-
-        return self::restore($stream, $position) ? $html : null;
-    }
-
-    private static function restore(\Psr\Http\Message\StreamInterface $stream, int $position): bool
-    {
-        try {
-            $stream->seek($position);
-
-            return true;
-        } catch (Throwable) {
-            return false;
-        }
     }
 
     private static function toolbar(float $durationMs, int $queries, int $exceptions, string $traceId): string

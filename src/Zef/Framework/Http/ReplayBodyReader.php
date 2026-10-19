@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Zef\Framework\Http;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamInterface;
-use Throwable;
 
 /** Reads a bounded request body without consuming the application's stream. */
 final class ReplayBodyReader
@@ -25,34 +23,6 @@ final class ReplayBodyReader
             return null;
         }
 
-        $position = null;
-        try {
-            $position = $stream->tell();
-            $stream->rewind();
-            $body = $stream->getContents();
-        } catch (Throwable) {
-            if (is_int($position)) {
-                self::restore($stream, $position);
-            }
-
-            return null;
-        }
-
-        if (!self::restore($stream, $position)) {
-            return null;
-        }
-
-        return $body;
-    }
-
-    private static function restore(StreamInterface $stream, int $position): bool
-    {
-        try {
-            $stream->seek($position);
-
-            return true;
-        } catch (Throwable) {
-            return false;
-        }
+        return StreamSnapshot::capture($stream);
     }
 }
