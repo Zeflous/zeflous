@@ -21,18 +21,26 @@ namespace Zef\Framework\Container;
  *
  * Tag order follows declaration order, and a tag's identifiers follow
  * first-declaration order: the answer is stable for a given definition
- * set, the way a given set of providers is stable at boot.
+ * set, the way a given set of providers is stable at boot. The AOT
+ * load lane reads the same answer from the index the artifact baked
+ * ({@see fromIdsByTag()}), so both lanes answer from the same shape.
  */
 final readonly class ServiceTagIndex
 {
-    /** @var array<string, list<string>> */
-    private array $idsByTag;
+    /**
+     * @param array<string, list<string>> $idsByTag the walked or baked index
+     */
+    private function __construct(private array $idsByTag)
+    {
+    }
 
     /**
+     * The index walked out of a planned definition set.
+     *
      * @param list<ServiceDefinition> $definitions the planned definition
      *                                             set, in declaration order
      */
-    public function __construct(array $definitions)
+    public static function fromDefinitions(array $definitions): self
     {
         $tagsById = [];
         foreach ($definitions as $definition) {
@@ -46,7 +54,19 @@ final readonly class ServiceTagIndex
             }
         }
 
-        $this->idsByTag = $idsByTag;
+        return new self($idsByTag);
+    }
+
+    /**
+     * The index the AOT artifact baked at dump time, read back as the
+     * same answer the definition walk would have built -- the load
+     * lane's skip over the walk, with the shape the walk produces.
+     *
+     * @param array<string, list<string>> $idsByTag the baked index
+     */
+    public static function fromIdsByTag(array $idsByTag): self
+    {
+        return new self($idsByTag);
     }
 
     /**
@@ -58,5 +78,16 @@ final readonly class ServiceTagIndex
     public function ids(string $tag): array
     {
         return $this->idsByTag[$tag] ?? [];
+    }
+
+    /**
+     * The index as the data the AOT artifact bakes: the whole map, the
+     * shape {@see fromIdsByTag()} reads back.
+     *
+     * @return array<string, list<string>>
+     */
+    public function toArray(): array
+    {
+        return $this->idsByTag;
     }
 }
