@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T10:48:49Z",
+  "as_of": "2026-10-19T11:36:23Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 206,
+  "unreleased_count": 207,
   "versions": [
     {
       "version": "Unreleased",
@@ -5100,6 +5100,22 @@
                 "sha": "633f813bdb6fb2a291924d8e06beca93c9dbe8d0",
                 "short_sha": "633f813",
                 "subject": "docs(roadmap): pin the merge-queue storm fix -- history row 463"
+              }
+            ]
+          },
+          {
+            "pr": 472,
+            "title": "docs(roadmap): pin the decoration lane -- history row 469",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-19T11:36:23Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/472",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "99a7e6bb1d78c9ff4e3d2a333a20b7dc63ea55b8",
+                "short_sha": "99a7e6b",
+                "subject": "docs(roadmap): pin the decoration lane -- history row 469"
               }
             ]
           }
@@ -10525,6 +10541,22 @@
               "sha": "4d4e6097e59719d8be3c408a5d2019f4f7290518",
               "short_sha": "4d4e609",
               "subject": "fix(container): the decoration refusals join the covered record -- and the S1192 line"
+            }
+          ]
+        },
+        {
+          "pr": 472,
+          "title": "docs(roadmap): pin the decoration lane -- history row 469",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-19T11:36:23Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/472",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "99a7e6bb1d78c9ff4e3d2a333a20b7dc63ea55b8",
+              "short_sha": "99a7e6b",
+              "subject": "docs(roadmap): pin the decoration lane -- history row 469"
             }
           ]
         }
