@@ -60,6 +60,11 @@ final readonly class ContainerCompileLane
 
         $this->containerInstalls->definitions($container, $containerCompilePlan->definitions);
 
+        // Arm before the warmup ({@see ContainerArming}): an eagerly
+        // constructed singleton rides the interception like any other
+        // construction.
+        ContainerArming::interceptions($container, $containerKnobs);
+
         $aot = $containerKnobs->aot;
 
         if ($aot->warm()) {

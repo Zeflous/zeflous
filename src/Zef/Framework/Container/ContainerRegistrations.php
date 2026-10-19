@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Container;
 
+use Zef\Framework\Container\Aot\AotArtifact;
 use Zef\Framework\Container\Aot\AotOutcome;
 
 /**
@@ -38,6 +39,22 @@ final readonly class ContainerRegistrations
         $container->set(
             ContainerServices::AOT_SERVICE,
             static fn (): AotOutcome => $aotOutcome,
+        );
+    }
+
+    /**
+     * The artifact lane's boot answer: the loaded artifact's own
+     * outcome, the unreferenced report and the carried entry count
+     * riding along.
+     */
+    public static function artifactOutcome(Container $container, AotArtifact $aotArtifact): void
+    {
+        $container->set(
+            ContainerServices::AOT_SERVICE,
+            static fn (): AotOutcome => AotOutcome::artifactLoaded(
+                $aotArtifact->unreferenced(),
+                \count($aotArtifact->entries()),
+            ),
         );
     }
 }

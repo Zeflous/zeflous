@@ -16,7 +16,12 @@ namespace Zef\Framework\Container;
  * id resolves through the scope machinery ({@see RequestInstances}),
  * which refuses honestly when no scope is open. The guarded factory
  * call itself ({@see CycleGuard} keeps the re-entry refusal) is the
- * seam every lane rides.
+ * seam every lane rides -- and the seam the interception lane rides
+ * too ({@see Interceptions}): an armed registry wraps the guarded call
+ * with the onion and fires its listeners around it, inside every
+ * lane's build step so a replacement lands before the memo records
+ * it, while an empty registry leaves the call's mechanics
+ * byte-identical (the fast path below).
  */
 final readonly class ServiceResolutions
 {
@@ -25,6 +30,7 @@ final readonly class ServiceResolutions
         private FactoryRegistrations $factoryRegistrations,
         private RequestInstances $requestInstances,
         private CycleGuard $cycleGuard,
+        private Interceptions $interceptions = new Interceptions(),
     ) {
     }
 
@@ -43,10 +49,24 @@ final readonly class ServiceResolutions
 
     /**
      * The guarded factory call -- the lanes' seam into the registration
-     * core ({@see CycleGuard} keeps the re-entry refusal).
+     * core ({@see CycleGuard} keeps the re-entry refusal), and the
+     * interception lane's seam: an armed registry wraps the call and
+     * fires its listeners around it; an empty one leaves the mechanics
+     * alone.
      */
     public function guarded(string $id, Container $container): mixed
     {
-        return $this->cycleGuard->resolve($id, $this->factoryRegistrations->factory($id), $container);
+        if (!$this->interceptions->armed()) {
+            return $this->cycleGuard->resolve($id, $this->factoryRegistrations->factory($id), $container);
+        }
+
+        return $this->interceptions->run(
+            $id,
+            fn (): mixed => $this->cycleGuard->resolve(
+                $id,
+                $this->factoryRegistrations->factory($id),
+                $container,
+            ),
+        );
     }
 }
