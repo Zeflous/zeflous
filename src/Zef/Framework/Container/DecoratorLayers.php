@@ -63,26 +63,6 @@ final readonly class DecoratorLayers
     }
 
     /**
-     * The synthetic identifiers one chain owns: the re-homed base and
-     * every between-layer wrapper (k = 1..count-1) -- the spellings a
-     * declared identifier may not collide with.
-     *
-     * @param int $count the chain's length
-     *
-     * @return list<string>
-     */
-    public static function spellings(string $target, int $count): array
-    {
-        return [
-            self::base($target),
-            ...array_map(
-                static fn (int $k): string => self::layer($target, $k),
-                range(1, $count - 1),
-            ),
-        ];
-    }
-
-    /**
      * Does the identifier occupy the lane's synthetic namespace?
      */
     public static function occupies(string $id): bool

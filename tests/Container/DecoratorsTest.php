@@ -17,6 +17,7 @@ use Zef\Framework\Container\DecoratorRehoming;
 use Zef\Framework\Container\DecoratorRewrites;
 use Zef\Framework\Container\Decorators;
 use Zef\Framework\Container\DecoratorSet;
+use Zef\Framework\Container\DecoratorSpellings;
 use Zef\Framework\Container\DecoratorTarget;
 use Zef\Framework\Container\DecoratorWrappers;
 use Zef\Framework\Container\DefinitionCompiler;
@@ -52,6 +53,7 @@ use Zef\Test\Support\Container\Decorators\ValueWrappers;
 #[CoversClass(Decorators::class)]
 #[CoversClass(DecoratorApplication::class)]
 #[CoversClass(DecoratorSet::class)]
+#[CoversClass(DecoratorSpellings::class)]
 #[CoversClass(DecoratorRewrites::class)]
 #[CoversClass(DecoratorRehoming::class)]
 #[CoversClass(DecoratorWrappers::class)]
@@ -283,6 +285,149 @@ final class DecoratorsTest extends TestCase
         $wrapper = $container->get('logger');
         self::assertInstanceOf(PrefixedLogger::class, $wrapper);
         self::assertSame('trace(file(app.log):hi)', $wrapper->line('hi'));
+    }
+
+    public function testASquattedBaseCollidesThroughTheDirectSurgery(): void
+    {
+        $definitions = [
+            new InstanceDefinition('logger', FileLogger::class),
+            new ValueDefinition(DecoratorLayers::base('logger'), 'squatted'),
+        ];
+
+        $chain = DecoratorMap::parse('decorators', [
+            'logger' => [
+                ['class' => PrefixedLogger::class, 'arguments' => [['service' => '@inner'], 'trace']],
+            ],
+        ])->decorations()['logger'];
+
+        try {
+            DecoratorSet::decorated($definitions, 0, $definitions[0], $chain);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "The service identifier '@decor:logger:base' collides with the decoration lane's "
+                . 'synthetic spelling for this target -- spell a host identifier instead.',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testASquattedSpellingOutsideTheOwnedListDoesNotCollide(): void
+    {
+        $definitions = [
+            new InstanceDefinition('logger', FileLogger::class),
+            new ValueDefinition(DecoratorLayers::layer('logger', 0), 'outside the grammar'),
+            new ValueDefinition(DecoratorLayers::layer('logger', 2), 'beyond the chain'),
+        ];
+
+        $chain = DecoratorMap::parse('decorators', [
+            'logger' => [
+                ['class' => PrefixedLogger::class, 'arguments' => [['service' => '@inner'], 'trace']],
+                ['factory' => LoggerDecorators::class . '::timing', 'arguments' => [['service' => '@inner']]],
+            ],
+        ])->decorations()['logger'];
+
+        $applied = DecoratorSet::decorated($definitions, 0, $definitions[0], $chain);
+
+        self::assertCount(
+            5,
+            $applied,
+            "the surgery proceeds: layer 0 is below and layer 2 beyond a two-entry chain's own spellings",
+        );
+    }
+
+    public function testTheInnerReferenceRecognitionAndPresence(): void
+    {
+        self::assertTrue(DecoratorInner::names(['service' => DecoratorLayers::INNER]));
+        self::assertFalse(DecoratorInner::names(['service' => 'other.id']));
+        self::assertFalse(DecoratorInner::names('literal'));
+
+        self::assertTrue(DecoratorInner::carried([['service' => DecoratorLayers::INNER], 'beside']));
+        self::assertFalse(DecoratorInner::carried(['literal', ['service' => 'other.id']]));
+        self::assertFalse(DecoratorInner::carried([]));
+
+        self::assertSame(
+            [['service' => 'the.layer'], 'beside'],
+            DecoratorInner::rewritten([['service' => DecoratorLayers::INNER], 'beside'], 'the.layer'),
+        );
+    }
+
+    public function testAFactoryTargetIsReHomedWithItsSpellingAndArguments(): void
+    {
+        $definitions = [
+            new FactoryDefinition('logger', LoggerDecorators::class . '::timing', [['service' => 'app.file']]),
+            new InstanceDefinition('app.file', FileLogger::class),
+        ];
+
+        $applied = Decorators::apply($definitions, $this->prefixedDecoration());
+
+        $base = $applied[2];
+        self::assertInstanceOf(FactoryDefinition::class, $base);
+        self::assertSame(DecoratorLayers::base('logger'), $base->id);
+        self::assertSame(LoggerDecorators::class . '::timing', $base->factory);
+        self::assertSame([['service' => 'app.file']], $base->arguments);
+
+        $container = $this->installed($applied);
+        $logger = $container->get('logger');
+        self::assertInstanceOf(PrefixedLogger::class, $logger);
+        self::assertSame('trace(timing(file(app.log):hi))', $logger->line('hi'));
+    }
+
+    public function testADuplicatedTargetDecoratesItsLastDeclaration(): void
+    {
+        $definitions = [
+            new InstanceDefinition('logger', FileLogger::class, [['service' => 'app.path']]),
+            new ValueDefinition('app.path', 'app.log'),
+            new InstanceDefinition('logger', FileLogger::class, [['service' => 'app.alt-path']]),
+            new ValueDefinition('app.alt-path', 'alt.log'),
+        ];
+
+        $applied = Decorators::apply($definitions, $this->prefixedDecoration());
+
+        $container = $this->installed($applied);
+
+        $base = $container->get(DecoratorLayers::base('logger'));
+        self::assertInstanceOf(FileLogger::class, $base);
+        self::assertSame(
+            'file(alt.log):hi',
+            $base->line('hi'),
+            'the LAST declaration is the effective one the re-homing carries',
+        );
+
+        $logger = $container->get('logger');
+        self::assertInstanceOf(PrefixedLogger::class, $logger);
+        self::assertSame('trace(file(alt.log):hi)', $logger->line('hi'));
+    }
+
+    public function testAThreeDecoratorChainWrapsThreeDeep(): void
+    {
+        $applied = Decorators::apply(
+            $this->defaultSet(),
+            DecoratorMap::parse('decorators', [
+                'logger' => [
+                    ['class' => PrefixedLogger::class, 'arguments' => [['service' => '@inner'], 'trace']],
+                    ['factory' => LoggerDecorators::class . '::timing', 'arguments' => [['service' => '@inner']]],
+                    ['class' => PrefixedLogger::class, 'arguments' => [['service' => '@inner'], 'audit']],
+                ],
+            ]),
+        );
+
+        $container = $this->installed($applied);
+
+        $logger = $container->get('logger');
+        self::assertInstanceOf(PrefixedLogger::class, $logger);
+        self::assertSame('trace(timing(audit(file(app.log):hi)))', $logger->line('hi'));
+    }
+
+    public function testAnEmptyDecorationMapLeavesASquattedNamespaceUnchallenged(): void
+    {
+        $definitions = [new ValueDefinition(DecoratorLayers::base('logger'), 'squatted')];
+
+        self::assertSame(
+            $definitions,
+            Decorators::apply($definitions, DecoratorMap::parse('decorators', null)),
+            'the namespace reservation binds only when the lane runs',
+        );
     }
 
     public function testAHandBuiltEntryCarryingNoShapeIsRefused(): void

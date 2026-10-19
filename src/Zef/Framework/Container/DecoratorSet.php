@@ -38,7 +38,7 @@ final readonly class DecoratorSet
         ServiceDefinition $serviceDefinition,
         array $chain,
     ): array {
-        $spelled = DecoratorLayers::spellings($serviceDefinition->id, \count($chain));
+        $spelled = DecoratorSpellings::for($serviceDefinition->id, \count($chain));
 
         $rebuilt = [];
         foreach ($definitions as $position => $definition) {
