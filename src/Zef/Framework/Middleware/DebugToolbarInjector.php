@@ -54,22 +54,36 @@ final class DebugToolbarInjector
         int $exceptions,
         string $traceId,
     ): ?Stream {
+        $spliced = self::splicedHtml($response, $durationMs, $queries, $exceptions, $traceId);
+        if ($spliced === null) {
+            return null;
+        }
+
+        try {
+            return Stream::fromString($spliced);
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * The toolbar-spliced HTML, or null when the response offers no body
+     * to splice into or no closing tag to splice before.
+     */
+    private static function splicedHtml(
+        ResponseInterface $response,
+        float $durationMs,
+        int $queries,
+        int $exceptions,
+        string $traceId,
+    ): ?string {
         $html = StreamSnapshot::capture($response->getBody());
         if ($html === null) {
             return null;
         }
 
         $toolbar = DebugToolbarMarkup::build($durationMs, $queries, $exceptions, $traceId);
-        $spliced = DebugToolbarBodySplice::insertBeforeClosingBody($html, $toolbar);
 
-        if ($spliced !== null) {
-            try {
-                return Stream::fromString($spliced);
-            } catch (Throwable) {
-                return null;
-            }
-        }
-
-        return null;
+        return DebugToolbarBodySplice::insertBeforeClosingBody($html, $toolbar);
     }
 }
