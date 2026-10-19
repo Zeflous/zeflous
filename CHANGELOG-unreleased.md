@@ -105,6 +105,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(ci): upload the archeology SARIF on merge groups so the code scanning rule can pass [#451](https://github.com/Zeflous/zeflous/pull/451) ([mbetixz](https://github.com/mbetixz))
 - fix(ci): name the queue-path SonarCloud branch per entry so concurrent group scans cannot collide [#453](https://github.com/Zeflous/zeflous/pull/453) ([mbetixz](https://github.com/mbetixz))
 - fix(ci): suspend the auto-merge branch sync while the merge queue is active [#456](https://github.com/Zeflous/zeflous/pull/456) ([mbetixz](https://github.com/mbetixz))
+- fix(ci): stop the merge queue self-re-render storm [#463](https://github.com/Zeflous/zeflous/pull/463) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 

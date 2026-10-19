@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T04:36:44Z",
+  "as_of": "2026-10-19T06:03:16Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 203,
+  "unreleased_count": 204,
   "versions": [
     {
       "version": "Unreleased",
@@ -2630,6 +2630,32 @@
                 "sha": "a169bfeb801ec0998c1107529a86510d96456a56",
                 "short_sha": "a169bfe",
                 "subject": "Merge branch 'main' into fix/automerge-armed-branch-sync"
+              }
+            ]
+          },
+          {
+            "pr": 463,
+            "title": "fix(ci): stop the merge queue self-re-render storm",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-19T06:03:16Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/463",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3ff55875b89b89a6a817e00370fec4446ad3892b",
+                "short_sha": "3ff5587",
+                "subject": "fix(ci): stop the merge queue self-re-render storm"
+              },
+              {
+                "sha": "6cf70cf7a7fd9633dd6427ee43daca4dcb84ebdf",
+                "short_sha": "6cf70cf",
+                "subject": "Merge branch 'main' into fix/merge-queue-render-storm"
+              },
+              {
+                "sha": "262fb390fbf1a54f81b92262a18bc0694d531b9c",
+                "short_sha": "262fb39",
+                "subject": "Merge branch 'main' into fix/merge-queue-render-storm"
               }
             ]
           }
@@ -10369,6 +10395,32 @@
               "sha": "d8f212abc6c0a626903d1755f29a0c5c0d21ac9d",
               "short_sha": "d8f212a",
               "subject": "docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458"
+            }
+          ]
+        },
+        {
+          "pr": 463,
+          "title": "fix(ci): stop the merge queue self-re-render storm",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-19T06:03:16Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/463",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3ff55875b89b89a6a817e00370fec4446ad3892b",
+              "short_sha": "3ff5587",
+              "subject": "fix(ci): stop the merge queue self-re-render storm"
+            },
+            {
+              "sha": "6cf70cf7a7fd9633dd6427ee43daca4dcb84ebdf",
+              "short_sha": "6cf70cf",
+              "subject": "Merge branch 'main' into fix/merge-queue-render-storm"
+            },
+            {
+              "sha": "262fb390fbf1a54f81b92262a18bc0694d531b9c",
+              "short_sha": "262fb39",
+              "subject": "Merge branch 'main' into fix/merge-queue-render-storm"
             }
           ]
         }
