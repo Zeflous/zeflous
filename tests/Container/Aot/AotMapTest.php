@@ -11,6 +11,7 @@ use Zef\Framework\Container\Aot\AotMap;
 use Zef\Framework\Container\Aot\AotRefusals;
 use Zef\Framework\Container\Aot\AotToggles;
 use Zef\Framework\Container\DefinitionException;
+use Zef\Framework\FrameworkDefaults;
 
 /**
  * @internal
@@ -26,6 +27,19 @@ final class AotMapTest extends TestCase
 
         self::assertFalse($map->enabled());
         self::assertFalse($map->warm());
+    }
+
+    /**
+     * The default layer's own aot knob, pinned: the framework ships the
+     * lane closed, both toggles spelled, so the profile's shape is part
+     * of the public contract the boot reads.
+     */
+    public function testTheDefaultProfileDeclaresBothTogglesOff(): void
+    {
+        self::assertSame(
+            ['enabled' => false, 'warm' => false],
+            FrameworkDefaults::profile()['aot'],
+        );
     }
 
     public function testTheEmptyMapIsTheEverythingOffBoot(): void

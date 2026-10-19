@@ -369,6 +369,43 @@ final class ContainerAotBootTest extends TestCase
         self::assertSame(1, WarmCounter::$constructions);
     }
 
+    public function testAKnobOffBootIgnoresAPresentArtifact(): void
+    {
+        $cache = new ContainerAotCache($this->artifactFile);
+        $booter = new ContainerBootstrapper(containerAotCache: $cache);
+
+        $booter->bootstrap(new Config(self::config(['enabled' => true])), new Container());
+
+        // The artifact exists and its digest would match -- but the knob
+        // is off, so the full lane must answer, not the artifact one.
+        $container = $booter->bootstrap(new Config(self::config()), new Container());
+
+        $outcome = $container->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $outcome);
+        self::assertSame(AotLane::FullCompile, $outcome->lane);
+        self::assertSame('the aot knob is off', $outcome->note);
+        self::assertInstanceOf(House::class, $container->get('app.house'));
+    }
+
+    public function testASetWithAnUnresolvableReferenceRefusesTheCompile(): void
+    {
+        $config = self::config();
+        $config['services']['app.hungry'] = [
+            'class' => Window::class,
+            'arguments' => [['service' => 'app.absent']],
+        ];
+
+        try {
+            self::booter()->bootstrap(new Config($config), new Container());
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.hungry' references the unknown service 'app.absent'.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
     public function testAHostRebindOfTheOutcomeServiceWins(): void
     {
         $config = $this->config(['enabled' => true]);

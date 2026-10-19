@@ -96,13 +96,13 @@ final readonly class ContainerCompilePipeline
         $named = [];
         foreach ($edges as $edge) {
             foreach ($edge as $target) {
-                $named[$target] = true;
+                $named[] = $target;
             }
         }
 
         $unreferenced = [];
         foreach ($planned as $definition) {
-            if (isset($named[$definition->id])) {
+            if (\in_array($definition->id, $named, true)) {
                 continue;
             }
 
