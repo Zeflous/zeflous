@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the compiler passes area -- status area 8 implemented, history row 458 [\#459](https://github.com/Zeflous/zeflous/pull/459) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): add the compiler passes and the AOT artifact lane [\#458](https://github.com/Zeflous/zeflous/pull/458) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): suspend the auto-merge branch sync while the merge queue is active [\#456](https://github.com/Zeflous/zeflous/pull/456) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): name the queue-path SonarCloud branch per entry so concurrent group scans cannot collide [\#453](https://github.com/Zeflous/zeflous/pull/453) ([mbetixz](https://github.com/mbetixz))
