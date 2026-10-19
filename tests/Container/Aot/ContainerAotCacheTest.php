@@ -252,7 +252,7 @@ final class ContainerAotCacheTest extends TestCase
     public function testAnUnplannedDefinitionRefusesTheDump(): void
     {
         try {
-            AotEntries::all([new readonly class ('app.loose') extends ServiceDefinition {
+            AotEntries::all([new readonly class('app.loose') extends ServiceDefinition {
             }]);
             self::fail('Expected an AotException to be thrown.');
         } catch (AotException $aotException) {
