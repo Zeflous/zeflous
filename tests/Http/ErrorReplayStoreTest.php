@@ -39,7 +39,8 @@ final class ErrorReplayStoreTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        foreach (glob($this->directory . '/*') ?: [] as $file) {
+        $files = glob($this->directory . '/*');
+        foreach (\is_array($files) ? $files : [] as $file) {
             if (is_file($file) || is_link($file)) {
                 unlink($file);
             }
@@ -94,13 +95,19 @@ final class ErrorReplayStoreTest extends TestCase
         $snapshot = json_decode($contents, true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($snapshot);
         self::assertSame('/users', $snapshot['path']);
-        self::assertStringContainsString('filter=active', $snapshot['query']);
-        self::assertStringContainsString('token=%5BREDACTED%5D', $snapshot['query']);
+        $query = $snapshot['query'];
+        self::assertIsString($query);
+        self::assertStringContainsString('filter=active', $query);
+        self::assertStringContainsString('token=%5BREDACTED%5D', $query);
         self::assertTrue($snapshot['body_replayable']);
-        $body = json_decode($snapshot['body'], true, 512, JSON_THROW_ON_ERROR);
+        $bodyField = $snapshot['body'];
+        self::assertIsString($bodyField);
+        $body = json_decode($bodyField, true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($body);
         self::assertSame('[REDACTED]', $body['password']);
-        self::assertSame('[REDACTED]', $body['nested']['access_token']);
+        $nested = $body['nested'] ?? null;
+        self::assertIsArray($nested);
+        self::assertSame('[REDACTED]', $nested['access_token']);
         self::assertSame(3, $body['count']);
         self::assertTrue($body['enabled']);
         self::assertNull($body['empty']);

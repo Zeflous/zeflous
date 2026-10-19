@@ -34,7 +34,6 @@ final class DebugToolbarMiddlewareTest extends TestCase
         $context->recordQuery();
         $context->recordQuery();
         $request = $this->request('text/html')->withAttribute(ErrorRequestContext::ATTRIBUTE, $context);
-        self::assertInstanceOf(ServerRequestInterface::class, $request);
 
         $response = (new DebugToolbarMiddleware(true))->process(
             $request,

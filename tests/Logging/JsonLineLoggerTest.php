@@ -51,9 +51,13 @@ final class JsonLineLoggerTest extends TestCase
         self::assertIsArray($record);
         self::assertSame('warning', $record['level']);
         self::assertSame('Request failed for token=[REDACTED]', $record['message']);
-        self::assertSame('req-123', $record['context']['request_id']);
-        self::assertSame('[REDACTED]', $record['context']['password']);
-        self::assertSame(RuntimeException::class, $record['context']['exception']['class']);
+        $context = $record['context'] ?? null;
+        self::assertIsArray($context);
+        self::assertSame('req-123', $context['request_id']);
+        self::assertSame('[REDACTED]', $context['password']);
+        $exception = $context['exception'] ?? null;
+        self::assertIsArray($exception);
+        self::assertSame(RuntimeException::class, $exception['class']);
         self::assertStringNotContainsString('secret123', $lines[0]);
         self::assertStringNotContainsString('hunter2', $lines[0]);
     }
@@ -74,19 +78,23 @@ final class JsonLineLoggerTest extends TestCase
             'empty' => null,
             'nested' => $nested,
             'object' => new \stdClass(),
-            4 => 'numeric key',
         ]);
 
         $lines = file($this->path, FILE_IGNORE_NEW_LINES);
         self::assertIsArray($lines);
         $record = json_decode($lines[0], true, 512, JSON_THROW_ON_ERROR);
         self::assertIsArray($record);
-        self::assertSame(5, $record['context']['count']);
-        self::assertSame(1.5, $record['context']['ratio']);
-        self::assertTrue($record['context']['enabled']);
-        self::assertNull($record['context']['empty']);
-        self::assertSame('[stdClass]', $record['context']['object']);
-        self::assertSame('numeric key', $record['context']['4']);
+        $context = $record['context'] ?? null;
+        self::assertIsArray($context);
+        self::assertSame(5, $context['count']);
+        self::assertSame(1.5, $context['ratio']);
+        self::assertTrue($context['enabled']);
+        self::assertNull($context['empty']);
+        self::assertSame('[stdClass]', $context['object']);
+        self::assertSame(
+            '{"4":"numeric key"}',
+            json_encode(LogContextSanitizer::sanitize([4 => 'numeric key'])),
+        );
         self::assertStringContainsString('"_truncated":true', $lines[0]);
         self::assertStringNotContainsString('private', $lines[0]);
     }
@@ -114,7 +122,9 @@ final class JsonLineLoggerTest extends TestCase
         self::assertIsInt($permissions);
         self::assertSame(0, $permissions & 0077);
         self::assertStringEndsWith("\n", (string) file_get_contents($this->path));
-        self::assertSame(1, count(file($this->path, FILE_IGNORE_NEW_LINES) ?: []));
+        $lines = file($this->path, FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(1, $lines);
     }
 
     public function testFailsClosedWhenConfiguredDocumentRootCannotBeResolved(): void

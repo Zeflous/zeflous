@@ -166,6 +166,7 @@ final class CorrelationMiddlewareTest extends TestCase
 
         $response = $errorMiddleware->process($request, $handler);
         $problem = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($problem);
 
         self::assertSame(self::PARENT_TRACE_ID, $problem['trace_id']);
         self::assertSame('req-trace', $response->getHeaderLine('X-Request-ID'));

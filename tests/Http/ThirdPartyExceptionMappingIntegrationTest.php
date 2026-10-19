@@ -40,6 +40,7 @@ final class ThirdPartyExceptionMappingIntegrationTest extends TestCase
         );
 
         $payload = json_decode((string) $response->getBody(), true, 32, JSON_THROW_ON_ERROR);
+        self::assertIsArray($payload);
 
         self::assertSame(500, $response->getStatusCode());
         self::assertSame('application/problem+json; charset=utf-8', $response->getHeaderLine('Content-Type'));

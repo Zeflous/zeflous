@@ -508,7 +508,9 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertSame(500, $response->getStatusCode());
         self::assertSame('application/problem+json; charset=utf-8', $response->getHeaderLine('Content-Type'));
         self::assertSame(self::CLAIMED_ID, $response->getHeaderLine('X-Request-ID'));
-        self::assertStringContainsString('broken', (string) $this->envelope($response)['detail']);
+        $detail = $this->envelope($response)['detail'];
+        self::assertIsString($detail);
+        self::assertStringContainsString('broken', $detail);
     }
 
     public function testProdDiagnosticsNeverNeedTheFallback(): void
@@ -588,9 +590,11 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
         $response = $this->middleware(debug: true)->process($request, new ThrowingHandler($exception));
         $problem = $this->envelope($response);
+        $details = $problem['details'] ?? null;
 
         self::assertSame('INVALID_INPUT', $problem['code']);
-        self::assertSame('password=[REDACTED]', $problem['details']['diagnostic']);
+        self::assertIsArray($details);
+        self::assertSame('password=[REDACTED]', $details['diagnostic']);
         self::assertStringNotContainsString('secret123', (string) $response->getBody());
     }
 
@@ -641,11 +645,20 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertSame(1.5, $safe['float']);
         self::assertTrue($safe['boolean']);
         self::assertNull($safe['nothing']);
-        self::assertSame('value', $safe['nested']['safe']);
+        $nested = $safe['nested'] ?? null;
+        self::assertIsArray($nested);
+        self::assertSame('value', $nested['safe']);
         self::assertSame('[RuntimeException]', $safe['object']);
         self::assertArrayNotHasKey('bad key!', $safe);
         self::assertArrayNotHasKey(9, $safe);
-        self::assertTrue($safe['deep']['next']['next']['next']['_truncated']);
+        $deep = $safe['deep'] ?? null;
+        self::assertIsArray($deep);
+        for ($hop = 0; $hop < 3; ++$hop) {
+            $deep = $deep['next'] ?? null;
+            self::assertIsArray($deep);
+        }
+
+        self::assertTrue($deep['_truncated']);
     }
 
     public function testFactoryEnablesDebugOnlyInExplicitDevelopmentEnvironments(): void
@@ -757,7 +770,8 @@ final class ErrorMappingMiddlewareTest extends TestCase
             } else {
                 putenv('APP_ENV=' . $previousEnvironment);
             }
-            foreach (glob($directory . '/*') ?: [] as $file) {
+            $leftover = glob($directory . '/*');
+            foreach (\is_array($leftover) ? $leftover : [] as $file) {
                 @unlink($file);
             }
             @rmdir($directory);
