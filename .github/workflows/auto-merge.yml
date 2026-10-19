@@ -98,6 +98,27 @@
 # the moment the queue is off, the sweep syncs exactly as it always did. An
 # unreadable ruleset suspends the sync for that sweep (fail closed).
 #
+# STORM-ERA AMENDMENT: THE SWEEP STOPS TOUCHING QUEUED PRs (2026-10-19)
+# ------------------------------------------------------------------
+# The 2026-10-19 merge-queue storm (docs/ci-notes/merge-queue-render-storm.md)
+# had a second self-inflicted half beyond the aggregator's group-head writes:
+# this sweep fired every 1-2 minutes for hours. The trigger chain was
+# `merge-group lane completes -> CI Strict aggregator completes -> changelog
+# lane runs (guard skips it) -> its "completed" event fires THIS workflow` --
+# a SKIPPED changelog run still counts as completed, so every beat of the
+# storm launched a full sweep that processed the very pull requests the
+# queue was validating. Two changes close that:
+#   * a `workflow_run` firing whose changelog run concluded `skipped` now
+#     skips the job outright (nothing changed -- the changelog guard found
+#     no validated main merge to react to; the cron and pull-request
+#     triggers keep the arming coverage);
+#   * the arm step NEVER re-arms a pull request that is already armed
+#     (`autoMergeRequest != null`): an armed PR is owned by GitHub from
+#     that moment (it queues itself the instant its checks pass), and every
+#     redundant write against a queued PR is one more chance to reset the
+#     queue's batch window. The sweep's job is to GET a PR armed -- not to
+#     keep touching it afterwards.
+#
 # CONVENTIONS
 # -----------
 #   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
@@ -172,6 +193,15 @@ jobs:
     # This stops the "human-PAT push" trick from being abused by an
     # unrecognised account that gained write access. Non-PR events (schedule,
     # workflow_run, workflow_dispatch) always run.
+    # CASCADE DAMPER (2026-10-19): a `workflow_run` firing whose changelog run
+    # concluded `skipped` is a no-op notification -- the changelog guard found
+    # no validated `main` merge to react to, so no repository state changed
+    # and a sweep would only re-process pull requests the queue (or GitHub)
+    # already owns. During the merge-queue storm such skipped firings launched
+    # a full sweep every 1-2 minutes for hours (docs/ci-notes/
+    # merge-queue-render-storm.md). Skipping them costs nothing: a REAL
+    # changelog completion (success or failure) still sweeps, and the cron
+    # (7,27,47) plus the pull-request triggers keep the arming coverage.
     if: >-
       (github.event_name != 'pull_request_target' ||
        github.actor == 'Zeflous' ||
@@ -179,7 +209,9 @@ jobs:
        github.actor == 'github-actions[bot]') &&
       (github.event_name != 'pull_request_target' ||
        github.event.action != 'closed' ||
-       github.event.pull_request.merged == true)
+       github.event.pull_request.merged == true) &&
+      (github.event_name != 'workflow_run' ||
+       github.event.workflow_run.conclusion != 'skipped')
     name: Auto Merge
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -525,10 +557,24 @@ jobs:
               sleep 5
             done
 
-            # 4. Arm auto-merge. This is the whole point of the lane: once
-            #    armed, GitHub merges the PR itself as soon as `CI Strict` is
-            #    green. Re-arming on every run keeps the state from being lost.
-            if err=$(gh pr merge "$pr" --auto --merge 2>&1); then
+            # 4. Arm auto-merge -- but NEVER a pull request that is already
+            #    armed. `autoMergeRequest != null` means GitHub already owns
+            #    this PR: it is either waiting for its own checks (it will be
+            #    queued the moment they pass) or it is already IN the merge
+            #    queue. A re-arm is at best a redundant write and at worst a
+            #    queue re-submission — a re-submitted entry re-renders its
+            #    group and supersedes every in-flight lane run, and every
+            #    queue-visible write against an armed pull request is one
+            #    more chance to reset the queue's batch window (the 2026-10-19
+            #    storm's amplifier; docs/ci-notes/merge-queue-render-storm.md).
+            #    The sweep's job is to GET a pull request armed; once armed,
+            #    GitHub is better left completely alone. A transient read
+            #    failure (`unknown`) falls through to the arm attempt, whose
+            #    own error paths are warnings — the pre-guard behaviour.
+            armed=$(gh pr view "$pr" --json autoMergeRequest --jq '.autoMergeRequest != null' 2>/dev/null) || armed="unknown"
+            if [ "$armed" = "true" ]; then
+              echo "PR #$pr already has auto-merge armed (or is queued); GitHub owns it from here -- no re-arm."
+            elif err=$(gh pr merge "$pr" --auto --merge 2>&1); then
               echo "Auto-merge armed for PR #$pr."
             elif printf '%s' "$err" | grep -qi 'clean status'; then
               # The PR is already fully green and up to date: the auto-merge
