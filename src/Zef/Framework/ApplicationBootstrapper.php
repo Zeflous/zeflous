@@ -12,7 +12,9 @@ use Zef\Framework\Config\ConfigBootstrapper;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Merge\LayeredConfigBuilder;
+use Zef\Framework\Container\Aot\ContainerAotCache;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Container\ContainerCompileLane;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Middleware\MiddlewarePipeline;
 use Zef\Framework\Middleware\PipelineFactory;
@@ -53,7 +55,11 @@ use Zef\Framework\Middleware\PipelineFactory;
  *   contract the boot tests pin).
  * - **Container** is the {@see ContainerBootstrapper}: the frozen
  *   repository's `services` key is parsed, graph-validated and installed
- *   fail-closed.
+ *   fail-closed -- and the optional {@see ContainerAotCache} is the
+ *   compile/dump lane's artifact location (the `aot` knob's seam; a
+ *   present artifact with a matching digest installs without a single
+ *   reflection, an absent one is dumped by the first boot that wires
+ *   the seam, a proven-stale one is never run).
  *
  * Before any definition is installed, the frozen repository itself is
  * registered as the container's `framework.config` service ({@see
@@ -75,6 +81,7 @@ final readonly class ApplicationBootstrapper
     public function __construct(
         private ?ConfigCache $configCache = null,
         private DefinitionCompiler $definitionCompiler = new DefinitionCompiler(),
+        private ?ContainerAotCache $containerAotCache = null,
     ) {
     }
 
@@ -111,7 +118,10 @@ final readonly class ApplicationBootstrapper
             static fn (): Config => $config,
         );
 
-        $container = new ContainerBootstrapper($this->definitionCompiler)
+        $container = new ContainerBootstrapper(
+            containerCompileLane: new ContainerCompileLane(definitionCompiler: $this->definitionCompiler),
+            containerAotCache: $this->containerAotCache,
+        )
             ->bootstrap($config, $container)
         ;
 

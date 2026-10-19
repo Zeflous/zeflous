@@ -32,7 +32,7 @@ final class TaggedServicesTest extends TestCase
 {
     public function testTheIndexCarriesNoTagWhenNoDeclarationHasOne(): void
     {
-        $serviceTagIndex = new ServiceTagIndex([
+        $serviceTagIndex = ServiceTagIndex::fromDefinitions([
             new InstanceDefinition('app.greeter', Greeter::class),
         ]);
 
@@ -64,7 +64,7 @@ final class TaggedServicesTest extends TestCase
             new ServiceTags(['shared.label']),
         );
 
-        $serviceTagIndex = new ServiceTagIndex([$greeter, $announcer, $factoryDefinition]);
+        $serviceTagIndex = ServiceTagIndex::fromDefinitions([$greeter, $announcer, $factoryDefinition]);
 
         $locator = $this->indexed($serviceTagIndex);
 
@@ -77,7 +77,7 @@ final class TaggedServicesTest extends TestCase
 
     public function testTheIndexAnswersInFirstDeclarationOrder(): void
     {
-        $serviceTagIndex = new ServiceTagIndex([
+        $serviceTagIndex = ServiceTagIndex::fromDefinitions([
             $this->laneCarrier('app.third'),
             $this->laneCarrier('app.first'),
             $this->laneCarrier('app.second'),
@@ -88,7 +88,7 @@ final class TaggedServicesTest extends TestCase
 
     public function testARedeclaredIdentifierContributesItsLastTagsAtItsFirstPosition(): void
     {
-        $serviceTagIndex = new ServiceTagIndex([
+        $serviceTagIndex = ServiceTagIndex::fromDefinitions([
             $this->carrier('app.greeter', ['framework.old']),
             $this->carrier('app.other', ['lane']),
             $this->carrier('app.greeter', ['host.new']),
@@ -103,7 +103,7 @@ final class TaggedServicesTest extends TestCase
 
     public function testARedeclaredIdentifierKeepsFirstPositionUnderItsNewTags(): void
     {
-        $serviceTagIndex = new ServiceTagIndex([
+        $serviceTagIndex = ServiceTagIndex::fromDefinitions([
             $this->carrier('app.early', ['lane']),
             $this->carrier('app.greeter', ['dropped']),
             $this->carrier('app.late', ['lane']),
@@ -278,7 +278,7 @@ final class TaggedServicesTest extends TestCase
         );
 
         $taggedServices = new TaggedServices(
-            new ServiceTagIndex([$this->carrier('app.trouble', ['lane'])]),
+            ServiceTagIndex::fromDefinitions([$this->carrier('app.trouble', ['lane'])]),
             $container,
         );
 

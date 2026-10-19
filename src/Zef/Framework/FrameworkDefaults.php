@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework;
 
+use Zef\Framework\Container\ContainerServices;
 use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
@@ -65,8 +66,12 @@ use Zef\Framework\Middleware\TracingFactory;
  * own explicit rebind. The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
  * `http.trusted_hosts`, ...) migrate with their wiring, and the
- * container's `aot` switch arrives with the compile/dump area (roadmap
- * area 8). The tags lane is live: the reserved `framework.tags`
+ * container's `aot` switch has arrived with the compile/dump area
+ * (roadmap area 8): the `aot` knob below, declared off by default
+ * because the framework ships no artifact of its own and a host opts
+ * in from their configuration, and the reserved `framework.aot`
+ * registration ({@see AOT_SERVICE}) answering the lane's boot outcome.
+ * The tags lane is live: the reserved `framework.tags`
  * registration ({@see TAGS_SERVICE}) answers the boot-built locator,
  * and the `tags.interfaces` map below is the autoconfiguration seam
  * (roadmap area 3) -- empty by default, because the framework ships
@@ -93,7 +98,17 @@ final readonly class FrameworkDefaults
      * profile's other reserved names so the framework's own namespace
      * stays one catalogue.
      */
-    public const string TAGS_SERVICE = 'framework.tags';
+    public const string TAGS_SERVICE = ContainerServices::TAGS_SERVICE;
+
+    /**
+     * The container service identifier under which the compile/dump
+     * lane's boot answer ({@see Container\Aot\AotOutcome}) is registered
+     * at boot: which lane answered, why, and what the compile saw. The
+     * `framework.config` precedent -- introspection through the
+     * container's own public surface, registered ahead of the
+     * definitions so a host's same-identifier rebind wins.
+     */
+    public const string AOT_SERVICE = ContainerServices::AOT_SERVICE;
 
     /** The config-driven factories' shared construction entry, as the
      * service registrations spell it. */
@@ -243,6 +258,10 @@ final readonly class FrameworkDefaults
             ],
             'contextual' => [],
             'parameters' => [],
+            'aot' => [
+                'enabled' => false,
+                'warm' => false,
+            ],
         ];
     }
 }
