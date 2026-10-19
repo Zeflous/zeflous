@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
+use Throwable;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\StreamSnapshot;
 
@@ -23,31 +24,19 @@ final class DebugToolbarInjector
             return $response;
         }
 
-        $toolbar = self::toolbar($durationMs, $queries, $exceptions, $traceId);
-        $count = 0;
-        $updated = preg_replace_callback(
-            '/<\/body\s*>/i',
-            static fn (array $match): string => $toolbar . $match[0],
-            $html,
-            1,
-            $count,
-        );
-        if (!is_string($updated) || $count !== 1) {
+        $toolbar = DebugToolbarMarkup::build($durationMs, $queries, $exceptions, $traceId);
+        $updated = DebugToolbarBodySplice::insertBeforeClosingBody($html, $toolbar);
+        if ($updated === null) {
             return $response;
         }
 
-        $resource = fopen('php://temp', 'r+b');
-        if ($resource === false) {
+        try {
+            $body = Stream::fromString($updated);
+        } catch (Throwable) {
             return $response;
         }
 
-        if (fwrite($resource, $updated) !== strlen($updated) || !rewind($resource)) {
-            fclose($resource);
-
-            return $response;
-        }
-
-        $updatedResponse = $response->withBody(new Stream($resource))
+        $updatedResponse = $response->withBody($body)
             ->withoutHeader('Content-Length')
             ->withoutHeader('ETag')
             ->withoutHeader('Content-MD5')
@@ -56,30 +45,9 @@ final class DebugToolbarInjector
                 'Content-Security-Policy',
                 "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'",
             )
-            ->withHeader('X-Debug-Toolbar', 'enabled');
+            ->withHeader('X-Debug-Toolbar', 'enabled')
+        ;
 
         return $updatedResponse instanceof ResponseInterface ? $updatedResponse : $response;
-    }
-
-    private static function toolbar(float $durationMs, int $queries, int $exceptions, string $traceId): string
-    {
-        return '<aside id="zef-debug-toolbar" aria-label="ZEF debug toolbar" '
-            . 'style="position:fixed;bottom:0;left:0;right:0;background:#111827;color:#f9fafb;'
-            . 'padding:.65rem 1rem;font:12px/1.5 ui-monospace,monospace;display:flex;gap:1.25rem;'
-            . 'flex-wrap:wrap;z-index:2147483647">'
-            . '<strong>ZEF Profiler</strong>'
-            . '<span>Duration: ' . number_format(max(0.0, $durationMs), 2, '.', '') . ' ms</span>'
-            . '<span>DB queries: ' . max(0, $queries) . '</span>'
-            . '<span>Exceptions: ' . max(0, $exceptions) . '</span>'
-            . '<span>Trace: ' . self::escape($traceId) . '</span>'
-            . '<details><summary>Request / log details</summary>'
-            . '<p>Find related server-side records by request ID:</p><code>bin/zef errors:report --request-id='
-            . self::escape($traceId) . '</code></details>'
-            . '</aside>';
-    }
-
-    private static function escape(string $value): string
-    {
-        return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }

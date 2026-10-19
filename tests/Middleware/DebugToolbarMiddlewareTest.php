@@ -12,12 +12,13 @@ use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
-use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\StreamSnapshot;
 use Zef\Framework\Http\Uri;
-use Zef\Framework\Middleware\DebugToolbarFactory;
+use Zef\Framework\Middleware\DebugToolbarBodySplice;
 use Zef\Framework\Middleware\DebugToolbarEligibility;
+use Zef\Framework\Middleware\DebugToolbarFactory;
 use Zef\Framework\Middleware\DebugToolbarInjector;
+use Zef\Framework\Middleware\DebugToolbarMarkup;
 use Zef\Framework\Middleware\DebugToolbarMiddleware;
 use Zef\Test\Support\Http\FixedResponseHandler;
 
@@ -26,6 +27,8 @@ use Zef\Test\Support\Http\FixedResponseHandler;
 #[CoversClass(DebugToolbarMiddleware::class)]
 #[CoversClass(DebugToolbarEligibility::class)]
 #[CoversClass(DebugToolbarInjector::class)]
+#[CoversClass(DebugToolbarMarkup::class)]
+#[CoversClass(DebugToolbarBodySplice::class)]
 #[CoversClass(StreamSnapshot::class)]
 #[CoversClass(ErrorRequestContext::class)]
 final class DebugToolbarMiddlewareTest extends TestCase
@@ -37,7 +40,7 @@ final class DebugToolbarMiddlewareTest extends TestCase
         $context->recordQuery();
         $request = $this->request('text/html')->withAttribute(ErrorRequestContext::ATTRIBUTE, $context);
 
-        $response = (new DebugToolbarMiddleware(true))->process(
+        $response = new DebugToolbarMiddleware(true)->process(
             $request,
             new FixedResponseHandler(new Response(
                 200,
@@ -67,7 +70,7 @@ final class DebugToolbarMiddlewareTest extends TestCase
             '<html><body>application</body></html>',
         );
 
-        $actual = (new DebugToolbarMiddleware(true))->process(
+        $actual = new DebugToolbarMiddleware(true)->process(
             $this->request('text/html'),
             new FixedResponseHandler($response),
         );
@@ -131,7 +134,7 @@ final class DebugToolbarMiddlewareTest extends TestCase
     {
         $policy = "default-src 'self'; script-src 'self'";
 
-        $response = (new DebugToolbarMiddleware(true))->process(
+        $response = new DebugToolbarMiddleware(true)->process(
             $this->request('text/html'),
             new FixedResponseHandler(new Response(
                 200,
@@ -148,6 +151,7 @@ final class DebugToolbarMiddlewareTest extends TestCase
     public function testFactoryRequiresDebugAndLocalEnvironment(): void
     {
         $previous = getenv('APP_ENV');
+
         try {
             putenv('APP_ENV=local');
             $enabled = DebugToolbarFactory::fromConfig(new Config([
@@ -193,8 +197,9 @@ final class DebugToolbarMiddlewareTest extends TestCase
 
     private function request(string $accept): ServerRequest
     {
-        $request = (new ServerRequest('GET', new Uri('https://app.example.test/')))
-            ->withHeader('Accept', $accept);
+        $request = new ServerRequest('GET', new Uri('https://app.example.test/'))
+            ->withHeader('Accept', $accept)
+        ;
         self::assertInstanceOf(ServerRequest::class, $request);
 
         return $request;
