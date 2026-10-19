@@ -10,7 +10,13 @@ use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Logging\JsonLineLogger;
 use Zef\Framework\Telemetry\MeterInterface;
 
-/** Builds the global error boundary from the frozen configuration. */
+/** Builds the global error boundary from the frozen configuration.
+ *
+ * @api the framework profile's `http.errors` service registration names
+ *      this factory through the container's string-addressed grammar
+ *      (`FrameworkDefaults::profile()`), so the analyser cannot see the
+ *      call -- the same `@api` posture every sibling factory carries.
+ */
 final class ErrorMappingFactory
 {
     public static function fromConfig(Config $config, ?MeterInterface $meter = null): ErrorMappingMiddleware

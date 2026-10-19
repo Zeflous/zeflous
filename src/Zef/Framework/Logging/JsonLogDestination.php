@@ -17,7 +17,7 @@ final class JsonLogDestination
 
         $directory = realpath(\dirname($path));
         $filename = basename($path);
-        if (!\is_string($directory) || $filename === '' || $filename === '.' || $filename === '..') {
+        if (!\is_string($directory) || $filename === '.' || $filename === '..') {
             throw new InvalidArgumentException('The JSON log path must be a file in an existing directory.');
         }
 

@@ -32,11 +32,11 @@ final readonly class DebugToolbarMiddleware implements MiddlewareInterface
             return $response;
         }
 
-        $context = $request->getAttribute(ErrorRequestContext::ATTRIBUTE);
-        $duration = $context instanceof ErrorRequestContext
+        $context = ErrorRequestContext::fromAttribute($request->getAttribute(ErrorRequestContext::ATTRIBUTE));
+        $duration = $context !== null
             ? $context->durationMilliseconds()
             : (hrtime(true) - $startedAt) / 1_000_000;
-        $traceId = $context instanceof ErrorRequestContext
+        $traceId = $context !== null
             ? $context->traceId()
             : CorrelationId::for($request);
 

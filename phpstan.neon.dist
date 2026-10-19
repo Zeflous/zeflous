@@ -10,10 +10,12 @@ parameters:
         - src
         - tests
         - benchmarks
-    # The optional phpredis extension's class, as the rate-limit store's
-    # boundary sees it (environments without ext-redis still analyse it).
+    # Optional-dependency analysis stubs: the phpredis extension's class and
+    # the Guzzle transport-failure contract the error boundary recognises,
+    # seen by the analyser in environments that carry neither at runtime.
     scanFiles:
         - stubs/ext-redis.php
+        - stubs/guzzle-exception.php
     tmpDir: build/phpstan
     treatPhpDocTypesAsCertain: true
     reportUnmatchedIgnoredErrors: true

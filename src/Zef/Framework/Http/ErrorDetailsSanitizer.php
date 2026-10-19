@@ -19,18 +19,23 @@ final class ErrorDetailsSanitizer
         }
 
         $safe = [];
-        foreach (\array_slice($details, 0, 50, true) as $key => $value) {
+        $entries = \array_slice($details, 0, 50, true);
+
+        foreach (array_keys($entries) as $key) {
             if (!\is_string($key) || preg_match('/^[a-zA-Z0-9_.-]{1,80}$/D', $key) !== 1) {
                 continue;
             }
 
-            $safe[$key] = self::value($value, $depth);
+            $safe[$key] = self::value($entries[$key], $depth);
         }
 
         return $safe;
     }
 
-    private static function value(mixed $value, int $depth): mixed
+    /**
+     * @return null|array<string, mixed>|bool|float|int|string the sanitized value
+     */
+    private static function value(mixed $value, int $depth): array|bool|float|int|string|null
     {
         if (\is_string($value)) {
             return RedactedMessage::of(mb_substr($value, 0, 2048));

@@ -23,7 +23,9 @@ final class ProblemDetailsResponseFactory
         bool $debug,
     ): ResponseInterface {
         $detail = ErrorDisclosure::message($throwable, $status, $debug);
-        $errorRequestContext = $request->getAttribute(ErrorRequestContext::ATTRIBUTE);
+        $errorRequestContext = ErrorRequestContext::fromAttribute(
+            $request->getAttribute(ErrorRequestContext::ATTRIBUTE),
+        );
         $traceId = ErrorTraceIdResolver::resolve($throwable, $errorRequestContext, $requestId, $request);
         $instance = $request->getUri()->getPath();
 

@@ -121,10 +121,12 @@ final readonly class CorrelationMiddleware implements MiddlewareInterface
     ): ResponseInterface {
         $correlationRequestSpan = CorrelationRequestSpan::open($this->tracer, $request);
         $span = $correlationRequestSpan->span();
-        $errorRequestContext = $request->getAttribute(ErrorRequestContext::ATTRIBUTE);
+        $errorRequestContext = ErrorRequestContext::fromAttribute(
+            $request->getAttribute(ErrorRequestContext::ATTRIBUTE),
+        );
         $spanContext = $span->getContext();
 
-        if ($errorRequestContext instanceof ErrorRequestContext && $spanContext->isValid()) {
+        if ($errorRequestContext !== null && $spanContext->isValid()) {
             $errorRequestContext->setTraceId($spanContext->traceId);
         }
 

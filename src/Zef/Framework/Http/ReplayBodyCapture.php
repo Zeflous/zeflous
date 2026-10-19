@@ -52,9 +52,11 @@ final class ReplayBodyCapture
     private static function json(string $body): array
     {
         $decoded = json_decode($body, true, 32, \JSON_THROW_ON_ERROR);
-        $safe = ReplayPayloadSanitizer::sanitize($decoded);
+        if (!\is_array($decoded)) {
+            return ['', false];
+        }
 
-        return [json_encode($safe, \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE), true];
+        return [json_encode(ReplayPayloadSanitizer::sanitize($decoded), \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE), true];
     }
 
     /** @return array{string, bool} */

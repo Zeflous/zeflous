@@ -127,14 +127,14 @@ final readonly class FrameworkDefaults
             'framework' => [
                 'services' => [
                     'http.errors' => [
-                        'factory' => ErrorMappingFactory::class . self::CONFIG_FACTORY_ENTRY,
+                        'factory' => ErrorMappingFactory::class . '::fromConfig',
                         'arguments' => [
                             ['service' => self::CONFIG_SERVICE],
                             ['service' => 'observability.meter'],
                         ],
                     ],
                     'http.debug_toolbar' => [
-                        'factory' => DebugToolbarFactory::class . self::CONFIG_FACTORY_ENTRY,
+                        'factory' => DebugToolbarFactory::class . '::fromConfig',
                         'arguments' => [
                             ['service' => self::CONFIG_SERVICE],
                         ],

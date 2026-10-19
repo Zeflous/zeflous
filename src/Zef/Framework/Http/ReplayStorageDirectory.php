@@ -25,16 +25,12 @@ final class ReplayStorageDirectory
             throw new InvalidArgumentException('Replay storage directory must have owner-only permissions.');
         }
 
-        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
-        $resolvedDocumentRoot = \is_string($documentRoot) && $documentRoot !== ''
+        $documentRoot = self::documentRoot();
+        $resolvedDocumentRoot = $documentRoot !== ''
             ? realpath($documentRoot)
             : false;
 
-        if (
-            \is_string($documentRoot)
-            && $documentRoot !== ''
-            && !\is_string($resolvedDocumentRoot)
-        ) {
+        if ($documentRoot !== '' && !\is_string($resolvedDocumentRoot)) {
             throw new InvalidArgumentException('The public document root cannot be resolved safely.');
         }
 
@@ -47,5 +43,25 @@ final class ReplayStorageDirectory
         }
 
         return $resolved;
+    }
+
+    /**
+     * Answers the SAPI document root, or the empty string when the runtime
+     * carries none (CLI workers) or a corrupt entry -- the whole-array @var
+     * seam the RequestFactory bag reads use (the KDD-H10 idiom), so the
+     * analyser sees the bag's entries as the mixed they are at runtime.
+     */
+    private static function documentRoot(): string
+    {
+        /** @var array<string, mixed> $server the engine's process state */
+        $server = $_SERVER;
+
+        return self::rootOf($server['DOCUMENT_ROOT'] ?? '');
+    }
+
+    /** @param mixed $root the raw document-root entry, null when the key is absent */
+    private static function rootOf(mixed $root): string
+    {
+        return \is_string($root) ? $root : '';
     }
 }

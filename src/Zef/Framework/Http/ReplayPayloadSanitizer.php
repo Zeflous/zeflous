@@ -7,26 +7,19 @@ namespace Zef\Framework\Http;
 /** Redacts sensitive fields from opt-in local replay snapshots. */
 final class ReplayPayloadSanitizer
 {
-    public static function sanitize(mixed $value, int $depth = 0): mixed
+    /**
+     * @param mixed $value the decoded payload value
+     *
+     * @return null|array<string, mixed>|bool|float|int|string the sanitized value
+     */
+    public static function sanitize(mixed $value, int $depth = 0): array|bool|float|int|string|null
     {
         if ($depth >= 6) {
             return '[TRUNCATED]';
         }
 
         if (\is_array($value)) {
-            $safe = [];
-            foreach (\array_slice($value, 0, 100, true) as $key => $item) {
-                $name = \is_string($key) ? $key : (string) $key;
-                if (preg_match('/password|passwd|secret|token|authorization|cookie|csrf|api[_-]?key/i', $name) === 1) {
-                    $safe[$name] = '[REDACTED]';
-
-                    continue;
-                }
-
-                $safe[$name] = self::sanitize($item, $depth + 1);
-            }
-
-            return $safe;
+            return self::entries($value, $depth);
         }
 
         if (\is_string($value)) {
@@ -45,5 +38,29 @@ final class ReplayPayloadSanitizer
         }
 
         return '[UNSUPPORTED]';
+    }
+
+    /**
+     * @param array<array-key, mixed> $value
+     *
+     * @return array<string, mixed>
+     */
+    private static function entries(array $value, int $depth): array
+    {
+        $safe = [];
+        $entries = \array_slice($value, 0, 100, true);
+
+        foreach (array_keys($entries) as $key) {
+            $name = \is_string($key) ? $key : (string) $key;
+            if (preg_match('/password|passwd|secret|token|authorization|cookie|csrf|api[_-]?key/i', $name) === 1) {
+                $safe[$name] = '[REDACTED]';
+
+                continue;
+            }
+
+            $safe[$name] = self::sanitize($entries[$key], $depth + 1);
+        }
+
+        return $safe;
     }
 }

@@ -31,6 +31,18 @@ final class ErrorRequestContext
         $this->startedAt = (int) hrtime(true);
     }
 
+    /**
+     * Narrows a raw request-attribute value to the context it may carry -- the
+     * PSR-7 bag is untyped, so the boundary consumes it without ever assigning
+     * the mixed raw value to a local.
+     *
+     * @param mixed $attribute the raw request attribute value
+     */
+    public static function fromAttribute(mixed $attribute): ?self
+    {
+        return $attribute instanceof self ? $attribute : null;
+    }
+
     /** Only a valid non-zero W3C trace ID can replace the request-ID fallback. */
     public function setTraceId(string $traceId): void
     {
@@ -54,13 +66,15 @@ final class ErrorRequestContext
     /**
      * Lets an adapter increment the active request's counter without storing
      * mutable request state on a persistent-worker singleton.
+     *
+     * @api the documented host-adapter hook (`docs/error-handling.md`) --
+     *      database adapters call this from their own code, so the framework
+     *      tree alone cannot show the call.
      */
     public static function recordQueryFor(ServerRequestInterface $request): void
     {
-        $context = $request->getAttribute(self::ATTRIBUTE);
-        if ($context instanceof self) {
-            $context->recordQuery();
-        }
+        $context = self::fromAttribute($request->getAttribute(self::ATTRIBUTE));
+        $context?->recordQuery();
     }
 
     public function queryCount(): int

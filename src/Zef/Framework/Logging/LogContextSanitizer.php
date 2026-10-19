@@ -37,7 +37,9 @@ final class LogContextSanitizer
         }
 
         $safe = [];
-        foreach (\array_slice($context, 0, 100, true) as $key => $value) {
+        $entries = \array_slice($context, 0, 100, true);
+
+        foreach (array_keys($entries) as $key) {
             $name = \is_string($key) ? $key : (string) $key;
             if (preg_match('/password|secret|token|authorization|cookie|api[_-]?key/i', $name) === 1) {
                 $safe[$name] = '[REDACTED]';
@@ -45,13 +47,16 @@ final class LogContextSanitizer
                 continue;
             }
 
-            $safe[$name] = self::value($value, $depth);
+            $safe[$name] = self::value($entries[$key], $depth);
         }
 
         return $safe;
     }
 
-    private static function value(mixed $value, int $depth): mixed
+    /**
+     * @return null|array<string, mixed>|bool|float|int|string the sanitized value
+     */
+    private static function value(mixed $value, int $depth): array|bool|float|int|string|null
     {
         if ($value instanceof Throwable) {
             return [

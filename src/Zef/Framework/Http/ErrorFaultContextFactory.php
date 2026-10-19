@@ -17,7 +17,9 @@ final class ErrorFaultContextFactory
         string $correlationId,
         ServerRequestInterface $request,
     ): array {
-        $errorRequestContext = $request->getAttribute(ErrorRequestContext::ATTRIBUTE);
+        $errorRequestContext = ErrorRequestContext::fromAttribute(
+            $request->getAttribute(ErrorRequestContext::ATTRIBUTE),
+        );
         $traceId = ErrorTraceIdResolver::resolve($exception, $errorRequestContext, $correlationId, $request);
         $context = [
             'exception.message' => RedactedMessage::of(mb_substr($exception->getMessage(), 0, 2048)),

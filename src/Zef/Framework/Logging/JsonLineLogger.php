@@ -67,6 +67,7 @@ final readonly class JsonLineLogger implements LoggerInterface
     }
 
     /**
+     * @param string               $level   one of the eight PSR-3 level names
      * @param array<string, mixed> $context
      */
     #[Override]

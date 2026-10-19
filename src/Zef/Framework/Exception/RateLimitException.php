@@ -17,6 +17,11 @@ use Override;
  * window the limiter already decided. A negative window is a defect
  * (the caller is never told to retry "in the past") and is refused
  * here, the same value-object discipline the declaration grammars hold.
+ *
+ * @api the typed family's published refusal vocabulary: hosts catch and
+ *      throw these across their own code, and the rate-limit lane's
+ *      throw site is still ahead -- the analyser cannot see either
+ *      consumer from the framework tree alone.
  */
 final class RateLimitException extends ZefException implements CarriesHttpStatus
 {
