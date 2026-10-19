@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T16:47:46Z",
+  "as_of": "2026-10-19T17:47:36Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 208,
+  "unreleased_count": 209,
   "versions": [
     {
       "version": "Unreleased",
@@ -5147,6 +5147,27 @@
                 "sha": "99a7e6bb1d78c9ff4e3d2a333a20b7dc63ea55b8",
                 "short_sha": "99a7e6b",
                 "subject": "docs(roadmap): pin the decoration lane -- history row 469"
+              }
+            ]
+          },
+          {
+            "pr": 476,
+            "title": "docs(roadmap): pin the interception lane -- history row 475",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-19T17:47:36Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/476",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "94199af055d02a2507375d02653ccf73540d80b5",
+                "short_sha": "94199af",
+                "subject": "docs(roadmap): pin the interception lane -- history row 475"
+              },
+              {
+                "sha": "9a22758aff0923bc21318e59cc47eeea4c3a5e96",
+                "short_sha": "9a22758",
+                "subject": "test(tooling): the lint roster's sort kill rests on the directory order"
               }
             ]
           }
@@ -10619,6 +10640,27 @@
               "sha": "889dacf54abdd472fb98dca963d23aedea1647dc",
               "short_sha": "889dacf",
               "subject": "refactor(container): the build half's refusal words take their own unit"
+            }
+          ]
+        },
+        {
+          "pr": 476,
+          "title": "docs(roadmap): pin the interception lane -- history row 475",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-19T17:47:36Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/476",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "94199af055d02a2507375d02653ccf73540d80b5",
+              "short_sha": "94199af",
+              "subject": "docs(roadmap): pin the interception lane -- history row 475"
+            },
+            {
+              "sha": "9a22758aff0923bc21318e59cc47eeea4c3a5e96",
+              "short_sha": "9a22758",
+              "subject": "test(tooling): the lint roster's sort kill rests on the directory order"
             }
           ]
         }
