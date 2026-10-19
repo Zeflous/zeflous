@@ -16,14 +16,13 @@ use Zef\Test\Support\Excëption\UnicodeNamespaceException;
  * The typed-exception root's own constructor contracts: the stable error
  * code grammar, the trace id grammar, and the default error code derived
  * from the class identity -- including the multibyte and length corners
- * where the derivation's arithmetic is observable.
+ * where the derivation's arithmetic is observable. The fixtures the
+ * derivation probes live in the test tree, outside the coverage source
+ * scope, so only the root itself is declared a coverage target.
  *
  * @internal
  */
 #[CoversClass(ZefException::class)]
-#[CoversClass(ExplanatoryException::class)]
-#[CoversClass(UnicodeNamespaceException::class)]
-#[CoversClass(Ü9ProbeException::class)]
 final class ZefExceptionTest extends TestCase
 {
     public function testTheRootDefaultsItsCodeAndDerivesItsErrorCode(): void
