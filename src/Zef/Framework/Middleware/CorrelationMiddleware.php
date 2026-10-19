@@ -126,7 +126,7 @@ final readonly class CorrelationMiddleware implements MiddlewareInterface
         );
         $spanContext = $span->getContext();
 
-        if ($errorRequestContext !== null && $spanContext->isValid()) {
+        if ($errorRequestContext instanceof ErrorRequestContext && $spanContext->isValid()) {
             $errorRequestContext->setTraceId($spanContext->traceId);
         }
 

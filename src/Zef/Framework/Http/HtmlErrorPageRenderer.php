@@ -11,16 +11,16 @@ use Zef\Framework\Exception\ZefException;
 /** Renders an escaped, branded HTML error page for browsers. */
 final class HtmlErrorPageRenderer
 {
-    public static function render(Throwable $throwable, HtmlErrorPageContext $context): ResponseInterface
+    public static function render(Throwable $throwable, HtmlErrorPageContext $htmlErrorPageContext): ResponseInterface
     {
-        $status = $context->status;
-        $detail = $context->detail;
-        $instance = $context->instance;
-        $traceId = $context->traceId;
-        $debug = $context->debug;
-        $durationMs = $context->durationMilliseconds;
-        $queryCount = $context->queryCount;
-        $exceptionCount = $context->exceptionCount;
+        $status = $htmlErrorPageContext->status;
+        $detail = $htmlErrorPageContext->detail;
+        $instance = $htmlErrorPageContext->instance;
+        $traceId = $htmlErrorPageContext->traceId;
+        $debug = $htmlErrorPageContext->debug;
+        $durationMs = $htmlErrorPageContext->durationMilliseconds;
+        $queryCount = $htmlErrorPageContext->queryCount;
+        $exceptionCount = $htmlErrorPageContext->exceptionCount;
         $title = ProblemDetailsMetadata::titleFor($status);
         $body = '<!doctype html><html lang="en"><head><meta charset="utf-8">'
             . '<meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -66,9 +66,6 @@ final class HtmlErrorPageRenderer
             }
 
             $body .= '</section>';
-        }
-
-        if ($debug) {
             $body .= '<aside id="zef-debug-toolbar" aria-label="ZEF debug toolbar">'
                 . '<strong>ZEF Profiler</strong>'
                 . '<span>Duration: ' . number_format(max(0.0, $durationMs), 2, '.', '') . ' ms</span>'

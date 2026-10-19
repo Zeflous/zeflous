@@ -14,7 +14,7 @@ final class ErrorFaultLogWriter
     public static function write(?LoggerInterface $logger, string $level, array $context): void
     {
         try {
-            if ($logger !== null) {
+            if ($logger instanceof LoggerInterface) {
                 $logger->log($level, 'Request failed', $context);
 
                 return;

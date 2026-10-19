@@ -127,35 +127,35 @@ final class CorrelationMiddlewareTest extends TestCase
 
     public function testRequestErrorContextRejectsMalformedTraceIds(): void
     {
-        $context = new ErrorRequestContext('request-fallback');
-        $context->setTraceId('not-a-trace-id');
-        self::assertSame('request-fallback', $context->traceId());
+        $errorRequestContext = new ErrorRequestContext('request-fallback');
+        $errorRequestContext->setTraceId('not-a-trace-id');
+        self::assertSame('request-fallback', $errorRequestContext->traceId());
 
-        $context->setTraceId(str_repeat('0', 32));
-        self::assertSame('request-fallback', $context->traceId());
+        $errorRequestContext->setTraceId(str_repeat('0', 32));
+        self::assertSame('request-fallback', $errorRequestContext->traceId());
 
-        $context->setTraceId(mb_strtoupper(self::PARENT_TRACE_ID));
-        self::assertSame(self::PARENT_TRACE_ID, $context->traceId());
+        $errorRequestContext->setTraceId(mb_strtoupper(self::PARENT_TRACE_ID));
+        self::assertSame(self::PARENT_TRACE_ID, $errorRequestContext->traceId());
 
-        $context->setReplayId('invalid');
-        self::assertNull($context->replayId());
+        $errorRequestContext->setReplayId('invalid');
+        self::assertNull($errorRequestContext->replayId());
         $replayId = str_repeat('a', 32);
-        $context->setReplayId($replayId);
-        self::assertSame($replayId, $context->replayId());
+        $errorRequestContext->setReplayId($replayId);
+        self::assertSame($replayId, $errorRequestContext->replayId());
     }
 
     public function testOuterErrorBoundaryAndTraceSpanShareTheSameTraceId(): void
     {
         $recordingLogger = new RecordingLogger();
-        $errorMiddleware = new ErrorMappingMiddleware($recordingLogger);
+        $errorMappingMiddleware = new ErrorMappingMiddleware($recordingLogger);
         $correlationMiddleware = $this->middleware(enabled: true, echo: false);
-        $handler = new DelegatingHandler(
+        $delegatingHandler = new DelegatingHandler(
             $correlationMiddleware,
             new ThrowingHandler(new RuntimeException('trace-boundary failure')),
         );
         $request = $this->withHeader($this->request(self::PARENT_TRACEPARENT), 'X-Request-ID', 'req-trace');
 
-        $response = $errorMiddleware->process($request, $handler);
+        $response = $errorMappingMiddleware->process($request, $delegatingHandler);
         $problem = json_decode((string) $response->getBody(), true, 512, \JSON_THROW_ON_ERROR);
         self::assertIsArray($problem);
 

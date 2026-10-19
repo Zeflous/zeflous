@@ -20,11 +20,11 @@ final class DebugToolbarInjector
         string $traceId,
     ): ResponseInterface {
         $body = self::updatedBody($response, $durationMs, $queries, $exceptions, $traceId);
-        if ($body === null) {
+        if (!$body instanceof Stream) {
             return $response;
         }
 
-        $updatedResponse = $response->withBody($body)
+        $message = $response->withBody($body)
             ->withoutHeader('Content-Length')
             ->withoutHeader('ETag')
             ->withoutHeader('Content-MD5')
@@ -36,7 +36,7 @@ final class DebugToolbarInjector
             ->withHeader('X-Debug-Toolbar', 'enabled')
         ;
 
-        return $updatedResponse instanceof ResponseInterface ? $updatedResponse : $response;
+        return $message instanceof ResponseInterface ? $message : $response;
     }
 
     /**

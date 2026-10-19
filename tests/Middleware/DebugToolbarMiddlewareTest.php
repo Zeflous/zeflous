@@ -35,10 +35,11 @@ final class DebugToolbarMiddlewareTest extends TestCase
 {
     public function testAddsToolbarAndRequestMetricsToSmallHtmlResponses(): void
     {
-        $context = new ErrorRequestContext('trace-toolbar');
-        $context->recordQuery();
-        $context->recordQuery();
-        $request = $this->request('text/html')->withAttribute(ErrorRequestContext::ATTRIBUTE, $context);
+        $errorRequestContext = new ErrorRequestContext('trace-toolbar');
+        $errorRequestContext->recordQuery();
+        $errorRequestContext->recordQuery();
+
+        $request = $this->request('text/html')->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
 
         $response = new DebugToolbarMiddleware(true)->process(
             $request,
@@ -82,47 +83,47 @@ final class DebugToolbarMiddlewareTest extends TestCase
 
     public function testDoesNotModifyNonHtmlOrNonSuccessfulResponses(): void
     {
-        $middleware = new DebugToolbarMiddleware(true);
+        $debugToolbarMiddleware = new DebugToolbarMiddleware(true);
         $request = $this->request('application/json');
         $json = new Response(200, ['Content-Type' => 'application/json'], '{"ok":true}');
-        $jsonResponse = $middleware->process($request, new FixedResponseHandler($json));
+        $jsonResponse = $debugToolbarMiddleware->process($request, new FixedResponseHandler($json));
         self::assertSame('{"ok":true}', (string) $jsonResponse->getBody());
         self::assertSame('', $jsonResponse->getHeaderLine('X-Debug-Toolbar'));
 
         $htmlRequest = $this->request('text/html');
         $error = new Response(500, ['Content-Type' => 'text/html'], '<html><body>error</body></html>');
-        $errorResponse = $middleware->process($htmlRequest, new FixedResponseHandler($error));
+        $errorResponse = $debugToolbarMiddleware->process($htmlRequest, new FixedResponseHandler($error));
         self::assertSame('<html><body>error</body></html>', (string) $errorResponse->getBody());
         self::assertSame('', $errorResponse->getHeaderLine('X-Debug-Toolbar'));
     }
 
     public function testDoesNotModifyHeadCompressedLargeOrUnclosedBodies(): void
     {
-        $middleware = new DebugToolbarMiddleware(true);
+        $debugToolbarMiddleware = new DebugToolbarMiddleware(true);
         $head = $this->request('text/html')->withMethod('HEAD');
         self::assertInstanceOf(ServerRequestInterface::class, $head);
-        $headResponse = $middleware->process($head, new FixedResponseHandler(new Response(
+        $headResponse = $debugToolbarMiddleware->process($head, new FixedResponseHandler(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><body>head</body></html>',
         )));
         self::assertSame('', $headResponse->getHeaderLine('X-Debug-Toolbar'));
 
-        $compressed = $middleware->process($this->request('text/html'), new FixedResponseHandler(new Response(
+        $compressed = $debugToolbarMiddleware->process($this->request('text/html'), new FixedResponseHandler(new Response(
             200,
             ['Content-Type' => 'text/html', 'Content-Encoding' => 'gzip'],
             '<html><body>compressed</body></html>',
         )));
         self::assertSame('', $compressed->getHeaderLine('X-Debug-Toolbar'));
 
-        $large = $middleware->process($this->request('text/html'), new FixedResponseHandler(new Response(
+        $large = $debugToolbarMiddleware->process($this->request('text/html'), new FixedResponseHandler(new Response(
             200,
             ['Content-Type' => 'text/html'],
             str_repeat('x', 2_000_001),
         )));
         self::assertSame('', $large->getHeaderLine('X-Debug-Toolbar'));
 
-        $unclosed = $middleware->process($this->request('text/html'), new FixedResponseHandler(new Response(
+        $unclosed = $debugToolbarMiddleware->process($this->request('text/html'), new FixedResponseHandler(new Response(
             200,
             ['Content-Type' => 'text/html'],
             '<html><body>missing close',

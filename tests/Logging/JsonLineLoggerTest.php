@@ -53,9 +53,9 @@ final class JsonLineLoggerTest extends TestCase
     public function testWritesOneStructuredAndRedactedJsonRecord(): void
     {
         $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
-        $logger = new JsonLineLogger($this->path);
+        $jsonLineLogger = new JsonLineLogger($this->path);
 
-        $logger->warning('Request failed for token=secret123', [
+        $jsonLineLogger->warning('Request failed for token=secret123', [
             'request_id' => 'req-123',
             'password' => 'hunter2',
             'exception' => new RuntimeException('authorization=Bearer secret123'),
@@ -83,13 +83,13 @@ final class JsonLineLoggerTest extends TestCase
     public function testSanitizesNestedAndUnsupportedContextValues(): void
     {
         $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
-        $logger = new JsonLineLogger($this->path);
+        $jsonLineLogger = new JsonLineLogger($this->path);
         $nested = ['token' => 'private', 'child' => ['value' => 'visible']];
         for ($depth = 0; $depth < 7; ++$depth) {
             $nested = ['next' => $nested];
         }
 
-        $logger->info('safe', [
+        $jsonLineLogger->info('safe', [
             'count' => 5,
             'ratio' => 1.5,
             'enabled' => true,
@@ -120,13 +120,13 @@ final class JsonLineLoggerTest extends TestCase
     public function testRejectsUnknownLevels(): void
     {
         $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
-        $logger = new JsonLineLogger($this->path);
+        $jsonLineLogger = new JsonLineLogger($this->path);
 
         try {
-            $logger->log('verbose', 'not a PSR-3 level');
+            $jsonLineLogger->log('verbose', 'not a PSR-3 level');
             self::fail('Unknown levels must be rejected.');
-        } catch (InvalidArgumentException $exception) {
-            self::assertSame('Unknown PSR-3 log level.', $exception->getMessage());
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame('Unknown PSR-3 log level.', $invalidArgumentException->getMessage());
         }
     }
 
@@ -181,6 +181,7 @@ final class JsonLineLoggerTest extends TestCase
             } else {
                 unset($_SERVER['DOCUMENT_ROOT']);
             }
+
             rmdir($root);
         }
     }
@@ -208,16 +209,16 @@ final class JsonLineLoggerTest extends TestCase
     public function testEveryPsr3LevelWritesItsOwnRecord(): void
     {
         $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
-        $logger = new JsonLineLogger($this->path);
+        $jsonLineLogger = new JsonLineLogger($this->path);
 
-        $logger->emergency('level one');
-        $logger->alert('level two');
-        $logger->critical('level three');
-        $logger->error('level four');
-        $logger->warning('level five');
-        $logger->notice('level six');
-        $logger->info('level seven');
-        $logger->debug('level eight');
+        $jsonLineLogger->emergency('level one');
+        $jsonLineLogger->alert('level two');
+        $jsonLineLogger->critical('level three');
+        $jsonLineLogger->error('level four');
+        $jsonLineLogger->warning('level five');
+        $jsonLineLogger->notice('level six');
+        $jsonLineLogger->info('level seven');
+        $jsonLineLogger->debug('level eight');
 
         $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
         self::assertIsArray($lines);
@@ -262,8 +263,8 @@ final class JsonLineLoggerTest extends TestCase
         try {
             JsonLineWriter::append($link, '{}');
             self::fail('A symlink destination must be refused at append time.');
-        } catch (JsonLogWriteException $exception) {
-            self::assertSame('Refusing to write through a symlink log destination.', $exception->getMessage());
+        } catch (JsonLogWriteException $jsonLogWriteException) {
+            self::assertSame('Refusing to write through a symlink log destination.', $jsonLogWriteException->getMessage());
         } finally {
             @unlink($link);
             @unlink($target);
@@ -283,8 +284,8 @@ final class JsonLineLoggerTest extends TestCase
             } finally {
                 restore_error_handler();
             }
-        } catch (JsonLogWriteException $exception) {
-            self::assertSame('Unable to open the configured JSON log destination.', $exception->getMessage());
+        } catch (JsonLogWriteException $jsonLogWriteException) {
+            self::assertSame('Unable to open the configured JSON log destination.', $jsonLogWriteException->getMessage());
         } finally {
             stream_wrapper_unregister(self::UNOPENABLE_PROTOCOL);
         }
@@ -303,8 +304,8 @@ final class JsonLineLoggerTest extends TestCase
         try {
             JsonLogFileSecurity::secure($stream, $path);
             self::fail('A destination replaced underneath the open handle must be refused.');
-        } catch (JsonLogWriteException $exception) {
-            self::assertSame('The JSON log destination changed while it was being opened.', $exception->getMessage());
+        } catch (JsonLogWriteException $jsonLogWriteException) {
+            self::assertSame('The JSON log destination changed while it was being opened.', $jsonLogWriteException->getMessage());
         } finally {
             if (\is_resource($stream)) {
                 fclose($stream);
@@ -323,10 +324,10 @@ final class JsonLineLoggerTest extends TestCase
         try {
             JsonLogFilePrivacy::assertExistingFileIsPrivate($path);
             self::fail('A group-readable destination must be rejected.');
-        } catch (InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $invalidArgumentException) {
             self::assertSame(
                 'The existing JSON log file must be writable with owner-only permissions.',
-                $exception->getMessage(),
+                $invalidArgumentException->getMessage(),
             );
         } finally {
             @chmod($path, 0o600);
@@ -343,10 +344,10 @@ final class JsonLineLoggerTest extends TestCase
         try {
             JsonLogFilePrivacy::assertExistingFileIsPrivate($path);
             self::fail('A read-only destination must be rejected.');
-        } catch (InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $invalidArgumentException) {
             self::assertSame(
                 'The existing JSON log file must be writable with owner-only permissions.',
-                $exception->getMessage(),
+                $invalidArgumentException->getMessage(),
             );
         } finally {
             @chmod($path, 0o600);

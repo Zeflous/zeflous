@@ -13,10 +13,10 @@ final class DebugToolbarEligibility
 {
     private const int MAX_HTML_BYTES = 2_000_000;
 
-    public static function allows(ServerRequestInterface $request, ResponseInterface $response): bool
+    public static function allows(ServerRequestInterface $serverRequest, ResponseInterface $response): bool
     {
-        return mb_strtoupper($request->getMethod()) !== 'HEAD'
-            && ErrorContentNegotiator::prefersHtml($request->getHeaderLine('Accept'))
+        return mb_strtoupper($serverRequest->getMethod()) !== 'HEAD'
+            && ErrorContentNegotiator::prefersHtml($serverRequest->getHeaderLine('Accept'))
             && !$response->hasHeader('Content-Security-Policy')
             && str_starts_with(mb_strtolower($response->getHeaderLine('Content-Type')), 'text/html')
             && $response->getStatusCode() >= 200

@@ -18,17 +18,17 @@ use Zef\Framework\Middleware\CorrelationMiddleware;
  * handler (typically one that throws the failure the outer boundary is
  * expected to render).
  */
-final class DelegatingHandler implements RequestHandlerInterface
+final readonly class DelegatingHandler implements RequestHandlerInterface
 {
     public function __construct(
-        private readonly CorrelationMiddleware $middleware,
-        private readonly RequestHandlerInterface $next,
+        private CorrelationMiddleware $correlationMiddleware,
+        private RequestHandlerInterface $requestHandler,
     ) {
     }
 
     #[Override]
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $serverRequest): ResponseInterface
     {
-        return $this->middleware->process($request, $this->next);
+        return $this->correlationMiddleware->process($serverRequest, $this->requestHandler);
     }
 }

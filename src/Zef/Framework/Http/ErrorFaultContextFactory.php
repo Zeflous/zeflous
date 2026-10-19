@@ -13,24 +13,24 @@ final class ErrorFaultContextFactory
 {
     /** @return array<string, mixed> */
     public static function create(
-        Throwable $exception,
+        Throwable $throwable,
         string $correlationId,
-        ServerRequestInterface $request,
+        ServerRequestInterface $serverRequest,
     ): array {
         $errorRequestContext = ErrorRequestContext::fromAttribute(
-            $request->getAttribute(ErrorRequestContext::ATTRIBUTE),
+            $serverRequest->getAttribute(ErrorRequestContext::ATTRIBUTE),
         );
-        $traceId = ErrorTraceIdResolver::resolve($exception, $errorRequestContext, $correlationId, $request);
+        $traceId = ErrorTraceIdResolver::resolve($throwable, $errorRequestContext, $correlationId, $serverRequest);
         $context = [
-            'exception.message' => RedactedMessage::of(mb_substr($exception->getMessage(), 0, 2048)),
-            'exception_class' => $exception::class,
-            'exception_code' => $exception instanceof ZefException
-                ? $exception->getErrorCode()
-                : (string) $exception->getCode(),
+            'exception.message' => RedactedMessage::of(mb_substr($throwable->getMessage(), 0, 2048)),
+            'exception_class' => $throwable::class,
+            'exception_code' => $throwable instanceof ZefException
+                ? $throwable->getErrorCode()
+                : (string) $throwable->getCode(),
             'request_id' => $correlationId,
             'trace_id' => $traceId,
-            'method' => $request->getMethod(),
-            'path' => mb_substr($request->getUri()->getPath(), 0, 2048),
+            'method' => $serverRequest->getMethod(),
+            'path' => mb_substr($serverRequest->getUri()->getPath(), 0, 2048),
         ];
 
         if ($errorRequestContext instanceof ErrorRequestContext && $errorRequestContext->replayId() !== null) {

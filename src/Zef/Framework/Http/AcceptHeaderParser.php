@@ -36,7 +36,7 @@ final class AcceptHeaderParser
             return null;
         }
 
-        $segments = array_map('trim', explode(';', $part));
+        $segments = array_map(trim(...), explode(';', $part));
         $mediaType = array_shift($segments);
 
         return [$mediaType, self::quality($segments)];

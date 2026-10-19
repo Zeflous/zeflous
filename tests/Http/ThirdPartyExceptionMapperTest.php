@@ -19,23 +19,23 @@ final class ThirdPartyExceptionMapperTest extends TestCase
 {
     public function testPdoFailureIsNormalizedWithoutExposingDriverMessage(): void
     {
-        $previous = new PDOException('SQL error with private query data');
-        $previous->errorInfo = ['23000', 1062, 'private driver details'];
+        $pdoException = new PDOException('SQL error with private query data');
+        $pdoException->errorInfo = ['23000', 1062, 'private driver details'];
 
-        $mapped = ThirdPartyExceptionMapper::normalize($previous);
+        $mapped = ThirdPartyExceptionMapper::normalize($pdoException);
 
         self::assertInstanceOf(InternalException::class, $mapped);
         self::assertSame('A database operation failed.', $mapped->getMessage());
         self::assertSame('DATABASE_ERROR', $mapped->getErrorCode());
         self::assertSame(['sql_state' => '23000'], $mapped->getDetails());
-        self::assertSame($previous, $mapped->getPrevious());
+        self::assertSame($pdoException, $mapped->getPrevious());
         self::assertStringNotContainsString('private query data', $mapped->getMessage());
     }
 
     public function testUnknownThrowableIsPreserved(): void
     {
-        $exception = new RuntimeException('application fault');
+        $runtimeException = new RuntimeException('application fault');
 
-        self::assertSame($exception, ThirdPartyExceptionMapper::normalize($exception));
+        self::assertSame($runtimeException, ThirdPartyExceptionMapper::normalize($runtimeException));
     }
 }

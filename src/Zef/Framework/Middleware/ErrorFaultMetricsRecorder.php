@@ -13,24 +13,24 @@ final class ErrorFaultMetricsRecorder
 {
     public static function record(
         ?MeterInterface $meter,
-        Throwable $exception,
+        Throwable $throwable,
         int $status,
-        ServerRequestInterface $request,
+        ServerRequestInterface $serverRequest,
     ): void {
         try {
             $meter?->increment('zef.http.errors.total', 1, [
-                'http.request.method' => $request->getMethod(),
+                'http.request.method' => $serverRequest->getMethod(),
                 'http.response.status_code' => $status,
-                'exception.type' => self::exceptionType($exception),
+                'exception.type' => self::exceptionType($throwable),
             ]);
         } catch (Throwable) {
             // Metrics are best-effort and must never replace the original failure.
         }
     }
 
-    private static function exceptionType(Throwable $exception): string
+    private static function exceptionType(Throwable $throwable): string
     {
-        $class = $exception::class;
+        $class = $throwable::class;
         $separator = mb_strrpos($class, '\\');
 
         return $separator === false ? $class : mb_substr($class, $separator + 1);

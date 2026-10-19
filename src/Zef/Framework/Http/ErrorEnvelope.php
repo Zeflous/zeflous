@@ -16,14 +16,14 @@ final class ErrorEnvelope
         int $status,
         bool $debug,
         string $correlationId,
-        ?ServerRequestInterface $request = null,
+        ?ServerRequestInterface $serverRequest = null,
     ): ResponseInterface {
         try {
-            if ($request !== null) {
+            if ($serverRequest instanceof ServerRequestInterface) {
                 $response = ProblemDetailsResponseFactory::create(
                     $throwable,
                     $status,
-                    $request,
+                    $serverRequest,
                     $correlationId,
                     $debug,
                 );
@@ -38,9 +38,9 @@ final class ErrorEnvelope
             $response = FallbackResponse::internalError($correlationId);
         }
 
-        $stamped = $response->withHeader('X-Request-ID', $correlationId);
-        \assert($stamped instanceof ResponseInterface, 'withHeader() must preserve the response type.');
+        $message = $response->withHeader('X-Request-ID', $correlationId);
+        \assert($message instanceof ResponseInterface, 'withHeader() must preserve the response type.');
 
-        return $stamped;
+        return $message;
     }
 }

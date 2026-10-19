@@ -15,7 +15,7 @@ final class ErrorTraceIdResolver
         Throwable $throwable,
         mixed $requestContext,
         string $requestId,
-        ServerRequestInterface $request,
+        ServerRequestInterface $serverRequest,
     ): string {
         $exceptionTraceId = $throwable instanceof ZefException ? $throwable->getTraceId() : null;
 
@@ -29,6 +29,6 @@ final class ErrorTraceIdResolver
 
         return preg_match('/^[A-Za-z0-9._:-]{1,128}$/D', $candidate) === 1
             ? $candidate
-            : CorrelationId::for($request);
+            : CorrelationId::for($serverRequest);
     }
 }

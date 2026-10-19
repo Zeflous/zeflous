@@ -545,7 +545,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testProblemDetailsUseStableCodesAndOmitQueryStrings(): void
     {
-        $request = new ServerRequest(
+        $serverRequest = new ServerRequest(
             'GET',
             new Uri('https://app.example/users?token=secret'),
             [],
@@ -557,7 +557,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
         );
 
         $response = $this->middleware()->process(
-            $request,
+            $serverRequest,
             new ThrowingHandler(new NotFoundException('User not found.')),
         );
         $problem = $this->envelope($response);
@@ -585,14 +585,14 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testDeveloperDetailsAreOnlyIncludedInDebugProblemResponsesAndRedacted(): void
     {
-        $exception = new ExplanatoryException(
+        $explanatoryException = new ExplanatoryException(
             'Invalid input.',
             0,
             null,
             'INVALID_INPUT',
             ['diagnostic' => 'password=secret123'],
         );
-        $request = new ServerRequest(
+        $serverRequest = new ServerRequest(
             'POST',
             new Uri('https://app.example/users'),
             [],
@@ -603,7 +603,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
             ['X-Request-ID' => self::CLAIMED_ID, 'Accept' => 'application/problem+json'],
         );
 
-        $response = $this->middleware(debug: true)->process($request, new ThrowingHandler($exception));
+        $response = $this->middleware(debug: true)->process($serverRequest, new ThrowingHandler($explanatoryException));
         $problem = $this->envelope($response);
         $details = $problem['details'] ?? null;
 
@@ -653,6 +653,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
         for ($depth = 0; $depth < 5; ++$depth) {
             $deep = ['next' => $deep];
         }
+
         $details['deep'] = $deep;
 
         $safe = ErrorDetailsSanitizer::sanitize($details);
@@ -714,18 +715,18 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testErrorCounterIsRecordedOnlyWhenMetricsAreEnabled(): void
     {
-        $meter = new CounterMeter();
+        $counterMeter = new CounterMeter();
         $middleware = ErrorMappingFactory::fromConfig(new Config([
             'http' => ['error_handling' => ['debug' => false]],
             'observability' => ['metrics' => ['enabled' => true]],
-        ]), $meter);
+        ]), $counterMeter);
 
         $middleware->process(
             $this->requestWithClaim('metric-req'),
             new ThrowingHandler(new NotFoundException('Not found.')),
         );
 
-        $series = array_values($meter->snapshot());
+        $series = array_values($counterMeter->snapshot());
         self::assertCount(1, $series);
         self::assertSame(1, $series[0]['count']);
         self::assertSame(1.0, $series[0]['sum']);
@@ -758,7 +759,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
                     ],
                 ],
             ]));
-            $request = new ServerRequest(
+            $serverRequest = new ServerRequest(
                 'POST',
                 new Uri('https://app.example.test/users?token=secret123'),
                 [],
@@ -769,7 +770,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
                 ['X-Request-ID' => 'replay-req', 'Content-Type' => 'application/json'],
                 new Stream($resource),
             );
-            $response = $middleware->process($request, new ThrowingHandler(new RuntimeException('replay failure')));
+            $response = $middleware->process($serverRequest, new ThrowingHandler(new RuntimeException('replay failure')));
             $files = glob($directory . '/*.json');
             $files = $files === false ? [] : $files;
             self::assertCount(1, $files);
@@ -787,10 +788,12 @@ final class ErrorMappingMiddlewareTest extends TestCase
             } else {
                 putenv('APP_ENV=' . $previousEnvironment);
             }
+
             $leftover = glob($directory . '/*');
             foreach (\is_array($leftover) ? $leftover : [] as $file) {
                 @unlink($file);
             }
+
             @rmdir($directory);
         }
     }
@@ -862,7 +865,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testHtmlDebugPageIncludesSanitizedDeveloperContextAndSecurityHeaders(): void
     {
-        $exception = new ExplanatoryException(
+        $explanatoryException = new ExplanatoryException(
             'Failed safely.',
             0,
             null,
@@ -871,7 +874,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
         );
         $response = $this->middleware(debug: true)->process(
             $this->requestWithClaim(self::CLAIMED_ID, 'text/html'),
-            new ThrowingHandler($exception),
+            new ThrowingHandler($explanatoryException),
         );
 
         self::assertSame(
@@ -886,11 +889,11 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testStatusMappingFailureFallsBackToInternalServerError(): void
     {
-        $exception = new ThrowingStatusException('mapping failure');
+        $throwingStatusException = new ThrowingStatusException('mapping failure');
 
         $response = $this->middleware()->process(
             $this->requestWithClaim(),
-            new ThrowingHandler($exception),
+            new ThrowingHandler($throwingStatusException),
         );
 
         self::assertSame(500, $response->getStatusCode());
@@ -920,8 +923,8 @@ final class ErrorMappingMiddlewareTest extends TestCase
             }
         };
 
-        $middleware = new ErrorMappingMiddleware(new RecordingLogger(), false, $meter);
-        $response = $middleware->process(
+        $errorMappingMiddleware = new ErrorMappingMiddleware(new RecordingLogger(), false, $meter);
+        $response = $errorMappingMiddleware->process(
             $this->requestWithClaim(),
             new ThrowingHandler(new RuntimeException('application failure')),
         );
@@ -932,11 +935,11 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testResponseTraceIdFallsBackWhenAnExtensionOverridesValidation(): void
     {
-        $exception = new ForgedTraceIdException('bad trace');
+        $forgedTraceIdException = new ForgedTraceIdException('bad trace');
 
         $response = $this->middleware()->process(
             $this->requestWithClaim(),
-            new ThrowingHandler($exception),
+            new ThrowingHandler($forgedTraceIdException),
         );
 
         self::assertSame(self::CLAIMED_ID, $this->envelope($response)['trace_id']);

@@ -36,8 +36,8 @@ final readonly class ErrorFaultRecorder
             ErrorFaultMetricsRecorder::record($this->meter, $exception, $status, $serverRequest);
             $context = ErrorFaultContextFactory::create($exception, $correlationId, $serverRequest);
             ErrorFaultLogWriter::write($this->logger, $level, $context);
-        } catch (Throwable $recorderFailure) {
-            error_log('ZEF error recorder failure: ' . $recorderFailure::class);
+        } catch (Throwable $throwable) {
+            error_log('ZEF error recorder failure: ' . $throwable::class);
         }
     }
 }

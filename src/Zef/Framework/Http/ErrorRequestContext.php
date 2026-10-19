@@ -15,8 +15,6 @@ final class ErrorRequestContext
 {
     public const string ATTRIBUTE = 'zef.error_context';
 
-    private string $traceId;
-
     private int $queryCount = 0;
 
     private int $exceptionCount = 0;
@@ -25,9 +23,8 @@ final class ErrorRequestContext
 
     private readonly int $startedAt;
 
-    public function __construct(string $requestId)
+    public function __construct(private string $traceId)
     {
-        $this->traceId = $requestId;
         $this->startedAt = (int) hrtime(true);
     }
 
@@ -71,9 +68,9 @@ final class ErrorRequestContext
      *      database adapters call this from their own code, so the framework
      *      tree alone cannot show the call.
      */
-    public static function recordQueryFor(ServerRequestInterface $request): void
+    public static function recordQueryFor(ServerRequestInterface $serverRequest): void
     {
-        $context = self::fromAttribute($request->getAttribute(self::ATTRIBUTE));
+        $context = self::fromAttribute($serverRequest->getAttribute(self::ATTRIBUTE));
         $context?->recordQuery();
     }
 

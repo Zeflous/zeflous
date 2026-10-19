@@ -18,14 +18,14 @@ final class ErrorRequestContextTest extends TestCase
 {
     public function testDatabaseAdapterCanIncrementOnlyTheActiveRequestCounter(): void
     {
-        $request = new ServerRequest('GET', new Uri('https://app.example/users'));
-        $context = new ErrorRequestContext('request-123');
-        $requestWithContext = $request->withAttribute(ErrorRequestContext::ATTRIBUTE, $context);
+        $serverRequest = new ServerRequest('GET', new Uri('https://app.example/users'));
+        $errorRequestContext = new ErrorRequestContext('request-123');
+        $requestWithContext = $serverRequest->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
 
         ErrorRequestContext::recordQueryFor($requestWithContext);
         ErrorRequestContext::recordQueryFor($requestWithContext);
-        ErrorRequestContext::recordQueryFor($request);
+        ErrorRequestContext::recordQueryFor($serverRequest);
 
-        self::assertSame(2, $context->queryCount());
+        self::assertSame(2, $errorRequestContext->queryCount());
     }
 }

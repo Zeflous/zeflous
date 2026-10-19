@@ -23,9 +23,10 @@ final class ThirdPartyExceptionMappingIntegrationTest extends TestCase
 {
     public function testPdoFailuresBecomeSafeProblemDetailsAtTheGlobalBoundary(): void
     {
-        $exception = new PDOException('SQL error with private query data');
-        $exception->errorInfo = ['23000', 1062, 'private driver details'];
-        $request = new ServerRequest(
+        $pdoException = new PDOException('SQL error with private query data');
+        $pdoException->errorInfo = ['23000', 1062, 'private driver details'];
+
+        $serverRequest = new ServerRequest(
             'POST',
             new Uri('https://app.example/users'),
             [],
@@ -35,11 +36,11 @@ final class ThirdPartyExceptionMappingIntegrationTest extends TestCase
             null,
             [],
         );
-        $logger = new RecordingLogger();
+        $recordingLogger = new RecordingLogger();
 
-        $response = new ErrorMappingMiddleware($logger)->process(
-            $request,
-            new ThrowingHandler($exception),
+        $response = new ErrorMappingMiddleware($recordingLogger)->process(
+            $serverRequest,
+            new ThrowingHandler($pdoException),
         );
 
         $payload = json_decode((string) $response->getBody(), true, 32, \JSON_THROW_ON_ERROR);

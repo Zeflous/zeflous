@@ -89,10 +89,10 @@ final readonly class ErrorMappingMiddleware implements MiddlewareInterface
     ): ResponseInterface {
         $correlationId = CorrelationId::for($request);
         $errorRequestContext = new ErrorRequestContext($correlationId);
-        $contextualRequest = $request->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
+        $serverRequest = $request->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
 
         try {
-            return $this->stamped($handler->handle($contextualRequest), $correlationId);
+            return $this->stamped($handler->handle($serverRequest), $correlationId);
         } catch (Throwable $throwable) {
             try {
                 $mappedThrowable = ThirdPartyExceptionMapper::normalize($throwable);
@@ -104,23 +104,24 @@ final readonly class ErrorMappingMiddleware implements MiddlewareInterface
             }
 
             $errorRequestContext->recordException();
-            if ($this->errorReplayStore !== null) {
+            if ($this->errorReplayStore instanceof ErrorReplayStore) {
                 try {
                     $errorRequestContext->setReplayId(
-                        $this->errorReplayStore->save($contextualRequest, $mappedThrowable, $status, $correlationId),
+                        $this->errorReplayStore->save($serverRequest, $mappedThrowable, $status, $correlationId),
                     );
                 } catch (Throwable) {
                     error_log('ZEF error replay capture failed.');
                 }
             }
-            $this->errorFaultRecorder->record($mappedThrowable, $status, $correlationId, $contextualRequest);
+
+            $this->errorFaultRecorder->record($mappedThrowable, $status, $correlationId, $serverRequest);
 
             return ErrorEnvelope::answered(
                 $mappedThrowable,
                 $status,
                 $this->debug,
                 $correlationId,
-                $contextualRequest,
+                $serverRequest,
             );
         }
     }

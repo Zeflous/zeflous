@@ -72,7 +72,7 @@ final class ErrorReplayStoreTest extends TestCase
         );
         rewind($resource);
         $stream = new Stream($resource);
-        $request = new ServerRequest(
+        $serverRequest = new ServerRequest(
             'POST',
             new Uri('https://app.example.test/users?token=secret123&filter=active'),
             [],
@@ -89,7 +89,7 @@ final class ErrorReplayStoreTest extends TestCase
         );
 
         $id = new ErrorReplayStore($this->directory)->save(
-            $request,
+            $serverRequest,
             new RuntimeException('request failed'),
             400,
             'req-replay-1',
@@ -134,7 +134,7 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertIsResource($resource);
         fwrite($resource, 'password=hunter2&access_token=secret123');
         rewind($resource);
-        $request = new ServerRequest(
+        $serverRequest = new ServerRequest(
             'POST',
             new Uri('https://app.example.test/upload'),
             [],
@@ -147,7 +147,7 @@ final class ErrorReplayStoreTest extends TestCase
         );
 
         $id = new ErrorReplayStore($this->directory)->save(
-            $request,
+            $serverRequest,
             new RuntimeException('request failed'),
             500,
             'req-replay-2',
@@ -178,7 +178,7 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertIsResource($resource);
         fwrite($resource, '<user><password>hunter2</password><name>alice</name></user>');
         rewind($resource);
-        $request = new ServerRequest(
+        $serverRequest = new ServerRequest(
             'POST',
             new Uri('https://app.example.test/xml'),
             [],
@@ -191,7 +191,7 @@ final class ErrorReplayStoreTest extends TestCase
         );
 
         $id = new ErrorReplayStore($this->directory)->save(
-            $request,
+            $serverRequest,
             new RuntimeException('request failed'),
             400,
             'req-replay-xml',
@@ -222,7 +222,7 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertIsResource($resource);
         fwrite($resource, '{"token":"secret123"}');
         rewind($resource);
-        $request = new ServerRequest(
+        $serverRequest = new ServerRequest(
             'POST',
             new Uri('https://app.example.test/submit'),
             [],
@@ -235,7 +235,7 @@ final class ErrorReplayStoreTest extends TestCase
         );
 
         $id = new ErrorReplayStore($this->directory)->save(
-            $request,
+            $serverRequest,
             new RuntimeException('request failed'),
             500,
             'req-replay-invalid-media',
@@ -258,12 +258,12 @@ final class ErrorReplayStoreTest extends TestCase
 
     public function testEmptyAndOversizedBodiesHaveExplicitReplayability(): void
     {
-        $store = new ErrorReplayStore($this->directory);
+        $errorReplayStore = new ErrorReplayStore($this->directory);
         $emptyRequest = new ServerRequest(
             'GET',
             new Uri('https://app.example.test/users'),
         );
-        $emptyId = $store->save($emptyRequest, new RuntimeException('empty'), 404, 'empty-req');
+        $emptyId = $errorReplayStore->save($emptyRequest, new RuntimeException('empty'), 404, 'empty-req');
         $emptySnapshot = json_decode(
             (string) file_get_contents($this->directory . '/' . $emptyId . '.json'),
             true,
@@ -289,7 +289,7 @@ final class ErrorReplayStoreTest extends TestCase
             ['Content-Type' => 'application/json'],
             new Stream($resource),
         );
-        $largeId = $store->save($largeRequest, new RuntimeException('large'), 413, 'large-req');
+        $largeId = $errorReplayStore->save($largeRequest, new RuntimeException('large'), 413, 'large-req');
         $largeSnapshot = json_decode(
             (string) file_get_contents($this->directory . '/' . $largeId . '.json'),
             true,
@@ -349,6 +349,7 @@ final class ErrorReplayStoreTest extends TestCase
             } else {
                 $_SERVER['DOCUMENT_ROOT'] = $previous;
             }
+
             rmdir($replayDirectory);
             rmdir($publicRoot);
         }
@@ -365,8 +366,8 @@ final class ErrorReplayStoreTest extends TestCase
         try {
             ReplaySnapshotWriter::write($this->directory, $id, '{"two":true}');
             self::fail('An existing snapshot file must be refused.');
-        } catch (ReplaySnapshotException $exception) {
-            self::assertSame('Unable to create an exclusive replay snapshot.', $exception->getMessage());
+        } catch (ReplaySnapshotException $replaySnapshotException) {
+            self::assertSame('Unable to create an exclusive replay snapshot.', $replaySnapshotException->getMessage());
         } finally {
             restore_error_handler();
         }
@@ -378,7 +379,7 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertIsResource($resource);
         fwrite($resource, 'username=alice&password=hunter2');
         rewind($resource);
-        $request = new ServerRequest(
+        $serverRequest = new ServerRequest(
             'POST',
             new Uri('https://app.example.test/users'),
             [],
@@ -391,7 +392,7 @@ final class ErrorReplayStoreTest extends TestCase
         );
 
         $id = new ErrorReplayStore($this->directory)->save(
-            $request,
+            $serverRequest,
             new RuntimeException('form request failed'),
             400,
             'form-req',

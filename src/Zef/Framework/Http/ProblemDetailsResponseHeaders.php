@@ -27,6 +27,7 @@ final class ProblemDetailsResponseHeaders
             if (!$updated instanceof ResponseInterface) {
                 throw new LogicException(self::HEADER_UPDATE_INVARIANT);
             }
+
             $response = $updated;
         }
 
@@ -35,6 +36,7 @@ final class ProblemDetailsResponseHeaders
             if (!$updated instanceof ResponseInterface) {
                 throw new LogicException(self::HEADER_UPDATE_INVARIANT);
             }
+
             $response = $updated;
         }
 

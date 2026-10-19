@@ -10,12 +10,12 @@ use Zef\Framework\Exception\ZefException;
 /** Maps HTTP error status and exception category to the PSR-3 severity. */
 final class ErrorFaultSeverity
 {
-    public static function for(Throwable $exception, int $status): string
+    public static function for(Throwable $throwable, int $status): string
     {
         if ($status < 500) {
             return 'warning';
         }
 
-        return $exception instanceof ZefException ? 'error' : 'critical';
+        return $throwable instanceof ZefException ? 'error' : 'critical';
     }
 }

@@ -26,32 +26,32 @@ final class StreamSnapshotTest extends TestCase
 
     public function testAnswersNullAndSkipsTheRestoreWhenThePositionCannotBeRead(): void
     {
-        $stream = new SnapshotHostileStream(failTell: true);
+        $snapshotHostileStream = new SnapshotHostileStream(failTell: true);
 
-        self::assertNull(StreamSnapshot::capture($stream));
-        self::assertSame([], $stream->soughtOffsets, 'No position was read, so no restore may run.');
+        self::assertNull(StreamSnapshot::capture($snapshotHostileStream));
+        self::assertSame([], $snapshotHostileStream->soughtOffsets, 'No position was read, so no restore may run.');
     }
 
     public function testAnswersNullAndRestoresTheReadPositionWhenTheContentsCannotBeRead(): void
     {
-        $stream = new SnapshotHostileStream(failRead: true);
+        $snapshotHostileStream = new SnapshotHostileStream(failRead: true);
 
-        self::assertNull(StreamSnapshot::capture($stream));
+        self::assertNull(StreamSnapshot::capture($snapshotHostileStream));
         self::assertSame(
             [SnapshotHostileStream::POSITION],
-            $stream->soughtOffsets,
+            $snapshotHostileStream->soughtOffsets,
             'The restore must return the cursor to the position read before the failure.',
         );
     }
 
     public function testAnswersNullWhenThePositionCannotBeRestored(): void
     {
-        $stream = new SnapshotHostileStream(failSeek: true);
+        $snapshotHostileStream = new SnapshotHostileStream(failSeek: true);
 
-        self::assertNull(StreamSnapshot::capture($stream));
+        self::assertNull(StreamSnapshot::capture($snapshotHostileStream));
         self::assertSame(
             [SnapshotHostileStream::POSITION],
-            $stream->soughtOffsets,
+            $snapshotHostileStream->soughtOffsets,
             'The restore was attempted with the position read before it.',
         );
     }

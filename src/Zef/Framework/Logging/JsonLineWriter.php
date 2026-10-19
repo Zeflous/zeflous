@@ -24,6 +24,7 @@ final class JsonLineWriter
             if (!flock($stream, \LOCK_EX)) {
                 throw new JsonLogWriteException('Unable to acquire the JSON log write lock.');
             }
+
             $locked = true;
 
             $startOffset = JsonLogFileSecurity::secure($stream, $path);
@@ -32,6 +33,7 @@ final class JsonLineWriter
             if ($locked) {
                 flock($stream, \LOCK_UN);
             }
+
             fclose($stream);
         }
     }

@@ -27,6 +27,7 @@ final class ReplaySnapshotWriter
             if (!flock($stream, \LOCK_EX)) {
                 throw new ReplaySnapshotException('Unable to lock the replay snapshot file.');
             }
+
             $locked = true;
 
             self::writeAll($stream, $json . "\n");
@@ -34,6 +35,7 @@ final class ReplaySnapshotWriter
             if ($locked) {
                 flock($stream, \LOCK_UN);
             }
+
             fclose($stream);
 
             if (!unlink($destination)) {

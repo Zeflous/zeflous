@@ -11,9 +11,9 @@ final class ReplayBodyReader
 {
     private const int MAX_BODY_BYTES = 65_536;
 
-    public static function read(ServerRequestInterface $request): ?string
+    public static function read(ServerRequestInterface $serverRequest): ?string
     {
-        $stream = $request->getBody();
+        $stream = $serverRequest->getBody();
         $size = $stream->getSize();
         if ($size === 0) {
             return '';

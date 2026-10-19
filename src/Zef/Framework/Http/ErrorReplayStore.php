@@ -26,13 +26,13 @@ final readonly class ErrorReplayStore
      * @throws JsonException when a snapshot cannot be encoded
      */
     public function save(
-        ServerRequestInterface $request,
-        Throwable $exception,
+        ServerRequestInterface $serverRequest,
+        Throwable $throwable,
         int $status,
         string $requestId,
     ): string {
-        [$body, $bodyReplayable] = ReplayBodyCapture::capture($request);
-        $path = $request->getUri()->getPath();
+        [$body, $bodyReplayable] = ReplayBodyCapture::capture($serverRequest);
+        $path = $serverRequest->getUri()->getPath();
         if ($path === '' || preg_match('/[\x00-\x1F\x7F]/', $path) === 1 || !str_starts_with($path, '/')) {
             $path = '/';
         }
@@ -41,11 +41,11 @@ final readonly class ErrorReplayStore
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'request_id' => $requestId,
             'status' => $status,
-            'exception_class' => $exception::class,
-            'method' => mb_strtoupper($request->getMethod()),
+            'exception_class' => $throwable::class,
+            'method' => mb_strtoupper($serverRequest->getMethod()),
             'path' => $path,
-            'query' => $this->query($request->getUri()->getQuery()),
-            'headers' => $this->headers($request->getHeaders()),
+            'query' => $this->query($serverRequest->getUri()->getQuery()),
+            'headers' => $this->headers($serverRequest->getHeaders()),
             'body' => $body,
             'body_replayable' => $bodyReplayable,
         ];

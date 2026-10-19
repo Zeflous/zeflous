@@ -17,10 +17,10 @@ use Zef\Framework\Exception\InternalException;
  */
 final class ThirdPartyExceptionMapper
 {
-    public static function normalize(Throwable $exception): Throwable
+    public static function normalize(Throwable $throwable): Throwable
     {
-        if ($exception instanceof PDOException) {
-            $sqlState = self::sqlState($exception);
+        if ($throwable instanceof PDOException) {
+            $sqlState = self::sqlState($throwable);
             $details = preg_match('/^[0-9A-Z]{5}$/iD', $sqlState) === 1
                 ? ['sql_state' => mb_strtoupper($sqlState)]
                 : [];
@@ -28,7 +28,7 @@ final class ThirdPartyExceptionMapper
             return new InternalException(
                 'A database operation failed.',
                 0,
-                $exception,
+                $throwable,
                 'DATABASE_ERROR',
                 $details,
             );
@@ -38,25 +38,25 @@ final class ThirdPartyExceptionMapper
         // at runtime (instanceof never autoloads, so an absent Guzzle simply
         // answers false) while the analysis stub makes the contract visible
         // to both analysers -- the ext-redis stub's exact role.
-        if ($exception instanceof GuzzleException) {
+        if ($throwable instanceof GuzzleException) {
             return new InternalException(
                 'An upstream service request failed.',
                 0,
-                $exception,
+                $throwable,
                 'UPSTREAM_REQUEST_FAILED',
-                ['exception_class' => self::shortClassName($exception)],
+                ['exception_class' => self::shortClassName($throwable)],
             );
         }
 
-        return $exception;
+        return $throwable;
     }
 
     /** Answers the SQLSTATE the driver reported, or the coarse code when it did not. */
-    private static function sqlState(PDOException $exception): string
+    private static function sqlState(PDOException $pdoException): string
     {
         return self::sqlStateOf(
-            \is_array($exception->errorInfo) ? $exception->errorInfo[0] ?? null : null,
-            $exception->getCode(),
+            \is_array($pdoException->errorInfo) ? $pdoException->errorInfo[0] ?? null : null,
+            $pdoException->getCode(),
         );
     }
 
@@ -69,9 +69,9 @@ final class ThirdPartyExceptionMapper
         return \is_string($element) ? $element : (string) $code;
     }
 
-    private static function shortClassName(Throwable $exception): string
+    private static function shortClassName(Throwable $throwable): string
     {
-        $class = $exception::class;
+        $class = $throwable::class;
         $separator = mb_strrpos($class, '\\');
 
         return $separator === false ? $class : mb_substr($class, $separator + 1);

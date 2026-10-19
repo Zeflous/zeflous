@@ -18,18 +18,18 @@ final class ProblemDetailsResponseFactory
     public static function create(
         Throwable $throwable,
         int $status,
-        ServerRequestInterface $request,
+        ServerRequestInterface $serverRequest,
         string $requestId,
         bool $debug,
     ): ResponseInterface {
         $detail = ErrorDisclosure::message($throwable, $status, $debug);
         $errorRequestContext = ErrorRequestContext::fromAttribute(
-            $request->getAttribute(ErrorRequestContext::ATTRIBUTE),
+            $serverRequest->getAttribute(ErrorRequestContext::ATTRIBUTE),
         );
-        $traceId = ErrorTraceIdResolver::resolve($throwable, $errorRequestContext, $requestId, $request);
-        $instance = $request->getUri()->getPath();
+        $traceId = ErrorTraceIdResolver::resolve($throwable, $errorRequestContext, $requestId, $serverRequest);
+        $instance = $serverRequest->getUri()->getPath();
 
-        if (ErrorContentNegotiator::prefersHtml($request->getHeaderLine('Accept'))) {
+        if (ErrorContentNegotiator::prefersHtml($serverRequest->getHeaderLine('Accept'))) {
             $response = HtmlErrorPageRenderer::render(
                 $throwable,
                 new HtmlErrorPageContext(
