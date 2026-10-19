@@ -456,7 +456,55 @@
                 // slice are killed by the same fixtures, and the truncation
                 // bound by the 64-character one. The ignore is scoped to
                 // that single source line.
-                "\\$shortName = \\$separator === false \\? \\$class : mb_substr\\(\\$class, \\$separator \\+ 1\\);"
+                "\\$shortName = \\$separator === false \\? \\$class : mb_substr\\(\\$class, \\$separator \\+ 1\\);",
+                // The browser factory's flat query-count fallback is the
+                // one integer the decrement can rewrite without any
+                // observable difference: every consumer of the count
+                // clamps it at zero before rendering -- the HTML page's
+                // own profiler row reads max(0, $queryCount) and the
+                // debug toolbar's markup the same -- so a fallback of
+                // minus one renders as the identical "DB queries: 0"
+                // (verified by running the factory battery under the
+                // manually applied mutation -- the complete battery
+                // passes). The neighbouring fallbacks stay under the
+                // mutator: the duration's one-zero rewrite and the
+                // exception count's decrement are both visible through
+                // the rendered page and the tests kill them. The ignore
+                // is scoped to that single source line.
+                "\\$errorRequestContext instanceof ErrorRequestContext \\? \\$errorRequestContext->queryCount\\(\\) : 0,",
+                // The toolbar's flat count fallbacks are the two integers
+                // the decrement can rewrite without any observable
+                // difference: the markup the injector renders reads both
+                // counts through their own zero clamps -- the queries row
+                // answers max(0, $queries) and the exceptions row
+                // max(0, $exceptions) -- so fallbacks of minus one render
+                // as the identical "DB queries: 0" and "Exceptions: 0"
+                // (verified by running the toolbar battery under the
+                // manually applied mutations -- the complete battery
+                // passes, the no-context page still shows both zeroes).
+                // The increment direction stays under the mutator: it
+                // lifts each fallback to one and the battery kills it,
+                // and the factory's own query-count fallback carries its
+                // own ignore one entry above. The ignore is scoped to
+                // these two source lines.
+                "\\$context instanceof ErrorRequestContext \\? \\$context->(queryCount|exceptionCount)\\(\\) : 0,",
+                // The opened-file size clamp's lower bound is the one
+                // integer the decrement can rewrite without any
+                // observable difference: the guard two statements
+                // earlier has already proven the stream is the real
+                // file at the path (same device, same inode, no link),
+                // and the engine's stat contract answers a regular
+                // file's size as a non-negative count on every
+                // supported platform -- so max(0, size) and
+                // max(-1, size) agree on every reachable input
+                // (verified by running the security battery under the
+                // manually applied mutation -- the complete battery
+                // passes, the empty-file rollback offset still reads
+                // zero). The increment direction stays under the
+                // mutator: max(1, size) lifts an empty file's rollback
+                // offset to one and the battery kills it. The ignore
+                // is scoped to that single source line.
+                "\\return max\\(0, \\$opened\\['size'\\]\\);"
             ]
         },
         // The settled memo's early return in
@@ -647,6 +695,45 @@
         "LogicalOr": {
             "ignore": [
                 "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
+            ],
+            "ignoreSourceCodeByRegex": [
+                // The opened-file guard's link-device merge is subsumed by
+                // the inode clause that stays live: lstat() answers the
+                // SYMLINK's own inode while the stream's fstat() answers
+                // the target's, and no engine-openable stream can carry
+                // the link's own inode -- so every input the merged
+                // clause would let through the device equality (a link
+                // whose target shares its filesystem) still dies on the
+                // inode inequality two clauses later (verified by
+                // running the security battery under the manually
+                // applied mutation -- the complete battery passes, the
+                // vanished-path refusal still fires one warning deep).
+                // The neighbouring array guards stay under the mutator:
+                // their fallthrough reads the boolean as an array
+                // offset and the warning ledger tells the two apart.
+                "\\|\\| \\$opened\\['dev'\\] !== \\$current\\['dev'\\]"
+            ]
+        },
+        // The document-root resolvers' empty-string arm is the one
+        // boolean the value flip cannot observe: the arm's literal is
+        // read through is_string() alone -- once by the resolvability
+        // guard the empty document root itself short-circuits closed,
+        // and once by the containment guard, and a flipped true is
+        // exactly as non-string as the original false there -- so both
+        // resolvers answer the identical verdict for every runtime
+        // with or without a document root (verified by running both
+        // batteries under the manually applied mutations -- the
+        // complete batteries pass, including the document-root-set
+        // refusals that never reach the arm). The regex form cannot
+        // express this: the arm's own line is a bare ": false;" that
+        // a health check's narrowing arm shares, and that shared arm
+        // is observably false for every non-boolean answer, so the
+        // ignore is scoped to the two resolver methods instead, each
+        // of which carries exactly one boolean literal.
+        "FalseValue": {
+            "ignore": [
+                "Zef\\Framework\\Http\\ReplayStorageDirectory::resolve",
+                "Zef\\Framework\\Logging\\JsonLogDocumentRoot::assertDestinationIsOutside"
             ]
         },
         // The TYPE bookkeeping's boolean stores are

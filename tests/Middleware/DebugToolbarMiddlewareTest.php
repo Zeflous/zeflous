@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Middleware;
 
+use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,6 +22,8 @@ use Zef\Framework\Middleware\DebugToolbarInjector;
 use Zef\Framework\Middleware\DebugToolbarMarkup;
 use Zef\Framework\Middleware\DebugToolbarMiddleware;
 use Zef\Test\Support\Http\FixedResponseHandler;
+use Zef\Test\Support\Middleware\HrtimeDoubleState;
+use Zef\Test\Support\Middleware\HrtimeFunctionDoubles;
 
 /** @internal */
 #[CoversClass(DebugToolbarFactory::class)]
@@ -33,6 +36,12 @@ use Zef\Test\Support\Http\FixedResponseHandler;
 #[CoversClass(ErrorRequestContext::class)]
 final class DebugToolbarMiddlewareTest extends TestCase
 {
+    #[Override]
+    protected function tearDown(): void
+    {
+        HrtimeDoubleState::reset();
+    }
+
     public function testAddsToolbarAndRequestMetricsToSmallHtmlResponses(): void
     {
         $errorRequestContext = new ErrorRequestContext('trace-toolbar');
@@ -197,6 +206,64 @@ final class DebugToolbarMiddlewareTest extends TestCase
         DebugToolbarFactory::fromConfig(new Config([
             'http' => ['error_handling' => ['debug' => 'yes']],
         ]));
+    }
+
+    public function testTheToolbarStaysAwayWhenTheMiddlewareCarriesItsDefaultDisabledFlag(): void
+    {
+        $response = new DebugToolbarMiddleware()->process(
+            $this->request('text/html'),
+            new FixedResponseHandler(new Response(
+                200,
+                ['Content-Type' => 'text/html'],
+                '<html><body>plain production page</body></html>',
+            )),
+        );
+
+        self::assertSame('<html><body>plain production page</body></html>', (string) $response->getBody());
+        self::assertSame('', $response->getHeaderLine('X-Debug-Toolbar'));
+    }
+
+    public function testPinsTheMeasuredWallClockWhenNoErrorContextCarriesADuration(): void
+    {
+        HrtimeFunctionDoubles::define([2_000_000_000, 12_000_000_000]);
+
+        $response = new DebugToolbarMiddleware(true)->process(
+            $this->request('text/html'),
+            new FixedResponseHandler(new Response(
+                200,
+                ['Content-Type' => 'text/html'],
+                '<html><body>clocked</body></html>',
+            )),
+        );
+
+        $body = (string) $response->getBody();
+        self::assertStringContainsString('<span>Duration: 10000.00 ms</span>', $body);
+        self::assertStringContainsString('<span>DB queries: 0</span>', $body);
+        self::assertStringContainsString('<span>Exceptions: 0</span>', $body);
+    }
+
+    public function testTheErrorContextDurationWinsOverTheMiddlewareMeasuredWallClock(): void
+    {
+        HrtimeFunctionDoubles::define([2_000_000_000, 12_000_000_000]);
+
+        $errorRequestContext = new ErrorRequestContext('trace-context-duration');
+        $errorRequestContext->recordQuery();
+        $errorRequestContext->recordQuery();
+
+        $response = new DebugToolbarMiddleware(true)->process(
+            $this->request('text/html')->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext),
+            new FixedResponseHandler(new Response(
+                200,
+                ['Content-Type' => 'text/html'],
+                '<html><body>context carries the clock</body></html>',
+            )),
+        );
+
+        $body = (string) $response->getBody();
+        self::assertStringNotContainsString('<span>Duration: 10000.00 ms</span>', $body);
+        self::assertMatchesRegularExpression('/<span>Duration: \d+\.\d{2} ms<\/span>/', $body);
+        self::assertStringContainsString('<span>DB queries: 2</span>', $body);
+        self::assertStringContainsString('Trace: trace-context-duration', $body);
     }
 
     private function request(string $accept): ServerRequest
