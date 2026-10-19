@@ -23,6 +23,12 @@ use Closure;
  * memoises anywhere; a request-scoped id resolves through the scope
  * machinery, which refuses honestly when no scope is open.
  *
+ * The store also owns the interception registry's wiring
+ * ({@see Interceptions}): constructed here, threaded into the
+ * resolution lanes' guarded seam, and reached by the boot's arming
+ * through the container's own accessor -- the machinery the boot
+ * arms before it warms a single singleton.
+ *
  * @phpstan-type Factory Closure(Container): mixed
  */
 final readonly class ServiceStore
@@ -35,18 +41,32 @@ final readonly class ServiceStore
 
     private RequestInstances $requestInstances;
 
+    private Interceptions $interceptions;
+
     public function __construct(
         CycleGuard $cycleGuard = new CycleGuard(),
     ) {
         $this->singletonMemo = new SingletonMemo();
         $this->factoryRegistrations = new FactoryRegistrations();
         $this->requestInstances = new RequestInstances($this);
+        $this->interceptions = new Interceptions();
         $this->serviceResolutions = new ServiceResolutions(
             $this->singletonMemo,
             $this->factoryRegistrations,
             $this->requestInstances,
             $cycleGuard,
+            $this->interceptions,
         );
+    }
+
+    /**
+     * The interception registry the resolution lanes consult and the
+     * boot arms ({@see Container::interceptions()} for the facade's
+     * own reach-through).
+     */
+    public function interceptions(): Interceptions
+    {
+        return $this->interceptions;
     }
 
     /**

@@ -258,6 +258,8 @@ final readonly class FrameworkDefaults
             ],
             'contextual' => [],
             'decorators' => [],
+            'interceptors' => [],
+            'listeners' => [],
             'parameters' => [],
             'aot' => [
                 'enabled' => false,

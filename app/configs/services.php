@@ -121,6 +121,55 @@ declare(strict_types=1);
  * decoration wraps whatever the identifier resolves. The whole lane is
  * bounded at 128 declared decorators across every target.
  *
+ * The top-level 'interceptors' configuration key declares the
+ * construction onion -- interceptor entries wrapped around service
+ * construction (the cache-miss path every lifetime lane rides; a
+ * memoised answer pays nothing):
+ *
+ *   'interceptors' => [
+ *       ['class' => TimingInterceptor::class, 'arguments' => [...], 'priority' => 100],
+ *       ['factory' => 'Hooks::interceptor', 'arguments' => [...]],
+ *   ]
+ *
+ * Each entry is one shape -- 'class' or 'factory' -- whose 'arguments'
+ * follow the ordinary reference grammar (a service reference resolves
+ * through the container once, at the boot's materialisation). The
+ * entry itself is never a container service: resolving an interceptor
+ * through the container would run it through the very seam it arms, so
+ * the boot builds its entries directly. 'priority' orders the onion
+ * HIGHEST FIRST (the outermost), ties keep declaration order, and must
+ * be an integer (absent is 0). Calling $next() runs the next layer
+ * inward; returning without calling it short-circuits the construction
+ * (the answer becomes the instance, still passing through the
+ * listeners and the per-lifetime memoisation). The whole lane is
+ * bounded at 128 declared interceptors, and the container's own
+ * machinery identifiers ('@decor:', '@contextual:', '@value:') bypass
+ * the onion -- an interceptor wraps the host's services, not the
+ * container's plumbing, so a decorated identifier's chain is wrapped
+ * as one construction.
+ *
+ * The top-level 'listeners' configuration key declares the
+ * construction events -- listeners fired around every actual
+ * construction (a memoised answer fires nothing):
+ *
+ *   'listeners' => [
+ *       'resolving' => [ ['class' => SlowQueryLog::class] ],
+ *       'resolved'  => [ ['factory' => 'Metrics::wrap'] ],
+ *   ]
+ *
+ * The two known kinds are 'resolving' (fired when a construction
+ * starts, before the factory runs) and 'resolved' (fired over the
+ * constructed instance -- a non-null answer replaces the instance
+ * before the memoisation records it, null keeps it; a replacement
+ * chain composes in declaration order). Listener entries carry no
+ * 'priority' -- the firing order is the declaration order, and an
+ * entry spelling the key is refused. Each kind is bounded at 32
+ * declared listeners. The arming happens once per boot, after the
+ * install loop and before the warmup -- so an eagerly warmed
+ * singleton rides the interception like any other construction --
+ * and both knobs fold into the AOT digest (a changed interception set
+ * is a proven-stale artifact, never run).
+ *
  * The top-level 'parameters' configuration key declares the global
  * parameter namespace -- the injectable scalars a constructor
  * parameter reads through the #[Value] attribute:

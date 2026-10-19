@@ -16,7 +16,11 @@ use Psr\Container\ContainerInterface;
  * passes, tags and per-request scopes described in `ROADMAP.md` are layered on
  * top of this class, not inside it -- the scope entry point below is the one
  * deliberate widening: a request scope is a resolution surface over the same
- * store, so the facade that owns the store owns its opening too.
+ * store, so the facade that owns the store owns its opening too. The
+ * interception registry's accessor is the second: the boot's lanes arm the
+ * registry the resolution lanes consult, and the facade that owns the store
+ * owns the reach-through ({@see Interceptions} -- the registry refuses a
+ * second arming itself, so what the accessor exposes cannot be re-armed).
  */
 final readonly class Container implements ContainerInterface
 {
@@ -24,10 +28,24 @@ final readonly class Container implements ContainerInterface
 
     private RequestInstances $requestInstances;
 
+    private Interceptions $interceptions;
+
     public function __construct()
     {
         $this->serviceStore = new ServiceStore();
         $this->requestInstances = $this->serviceStore->requestInstances();
+        $this->interceptions = $this->serviceStore->interceptions();
+    }
+
+    /**
+     * The interception registry the resolution lanes consult and the
+     * boot arms once, before a single singleton warms: the
+     * declarative `interceptors` and `listeners` knobs' materialised
+     * form (the construction-time extension points, ROADMAP area 9).
+     */
+    public function interceptions(): Interceptions
+    {
+        return $this->interceptions;
     }
 
     /**

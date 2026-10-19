@@ -11,19 +11,21 @@ use Zef\Framework\Container\Autowiring\AutoconfigMap;
 use Zef\Framework\Container\ContextualMap;
 use Zef\Framework\Container\DecoratorMap;
 use Zef\Framework\Container\DefinitionMap;
+use Zef\Framework\Container\InterceptorsMap;
+use Zef\Framework\Container\ListenersMap;
 use Zef\Framework\Container\ParameterMap;
 use Zef\Framework\Container\ServiceDefinition;
 
 /**
- * The boot's parsed knob set: the six configuration knobs the
+ * The boot's parsed knob set: the eight configuration knobs the
  * container boot reads, parsed and validated in one place so the
- * bootstrapper's lanes hand one object around instead of six --
+ * bootstrapper's lanes hand one object around instead of eight --
  * the definition maps (the framework's own registrations first, the
  * host's declarations second, the collision order the install loop
  * depends on), the parameters, the autoconfiguration rules, the
- * contextual bindings, the decoration chains, and the AOT lane's own
- * switch -- together with the fingerprint of the source they were
- * parsed from.
+ * contextual bindings, the decoration chains, the interception
+ * entries, and the AOT lane's own switch -- together with the
+ * fingerprint of the source they were parsed from.
  *
  * The fingerprint is *lazy* by design ({@see fingerprint()}): the full
  * lane runs for every boot, but the digest the AOT lane needs folds
@@ -44,12 +46,14 @@ final readonly class ContainerKnobs
         public AutoconfigMap $autoconfig,
         public ContextualMap $contextual,
         public DecoratorMap $decorators,
+        public InterceptorsMap $interceptors,
+        public ListenersMap $listeners,
         public AotMap $aot,
     ) {
     }
 
     /**
-     * Parses the six knobs straight out of the frozen repository.
+     * Parses the eight knobs straight out of the frozen repository.
      */
     public static function parsed(Config $config): self
     {
@@ -63,6 +67,8 @@ final readonly class ContainerKnobs
             AutoconfigMap::parse('tags', $config->get('tags')),
             ContextualMap::parse('contextual', $config->get('contextual')),
             DecoratorMap::parse('decorators', $config->get('decorators')),
+            InterceptorsMap::parse('interceptors', $config->get('interceptors')),
+            ListenersMap::parse('listeners', $config->get('listeners')),
             AotMap::parse('aot', $config->get('aot')),
         );
     }
@@ -70,7 +76,7 @@ final readonly class ContainerKnobs
     /**
      * The source configuration's fingerprint: the number that decides
      * whether an artifact still describes the configuration it was
-     * dumped from -- six source maps and the framework version, folded
+     * dumped from -- eight source maps and the framework version, folded
      * only on the lane that asked.
      *
      * @return non-empty-string the SHA-256 fingerprint
@@ -85,6 +91,8 @@ final readonly class ContainerKnobs
                 'tags' => $this->config->get('tags'),
                 'contextual' => $this->config->get('contextual'),
                 'decorators' => $this->config->get('decorators'),
+                'interceptors' => $this->config->get('interceptors'),
+                'listeners' => $this->config->get('listeners'),
             ],
             Version::current(),
         );

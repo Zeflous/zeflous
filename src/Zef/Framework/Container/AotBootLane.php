@@ -6,7 +6,6 @@ namespace Zef\Framework\Container;
 
 use Zef\Framework\Container\Aot\AotArtifact;
 use Zef\Framework\Container\Aot\AotDefinitions;
-use Zef\Framework\Container\Aot\AotOutcome;
 use Zef\Framework\Container\Aot\ContainerAotCache;
 use Zef\Framework\ContainerKnobs;
 
@@ -41,54 +40,36 @@ final readonly class AotBootLane
             return false;
         }
 
-        $this->install($container, $aotArtifact, $containerKnobs->aot->warm());
+        $this->install($container, $aotArtifact, $containerKnobs);
 
         return true;
     }
 
     /**
      * The artifact's install half: the baked tag index, the lane's own
-     * boot answer, the entries, and the warmup -- in the order the
-     * compile lane's own registers use.
+     * boot answer, the entries, the interception arming, and the
+     * warmup -- in the order the compile lane's own registers use. The
+     * interception materialises fresh from the live knobs every boot:
+     * the artifact carries definitions (data), the interception
+     * carries objects (the digest folds the knobs themselves, so a
+     * changed set is a proven-stale artifact the boot never runs).
      */
-    private function install(Container $container, AotArtifact $aotArtifact, bool $warm): void
+    private function install(Container $container, AotArtifact $aotArtifact, ContainerKnobs $containerKnobs): void
     {
         ContainerRegistrations::tagsLocator($container, ServiceTagIndex::fromIdsByTag($aotArtifact->tags()));
 
-        ContainerRegistrations::outcome($container, AotOutcome::artifactLoaded(
-            $aotArtifact->unreferenced(),
-            \count($aotArtifact->entries()),
-        ));
+        ContainerRegistrations::artifactOutcome($container, $aotArtifact);
 
         AotDefinitions::install($container, $aotArtifact);
 
-        if (!$warm) {
+        // The compile lane's own order ({@see ContainerArming}): arm
+        // before the warmup.
+        ContainerArming::interceptions($container, $containerKnobs);
+
+        if (!$containerKnobs->aot->warm()) {
             return;
         }
 
-        SingletonWarmer::warm($this->singletonIds($aotArtifact), $container);
-    }
-
-    /**
-     * The singleton-lifetime identifiers the artifact's entries carry,
-     * in declaration order.
-     *
-     * @param AotArtifact $aotArtifact the loaded artifact
-     *
-     * @return list<string>
-     */
-    private function singletonIds(AotArtifact $aotArtifact): array
-    {
-        $ids = [];
-
-        foreach ($aotArtifact->entries() as $id => $entry) {
-            if ($entry->lifetime !== ServiceLifetime::SINGLETON) {
-                continue;
-            }
-
-            $ids[] = $id;
-        }
-
-        return $ids;
+        SingletonWarmer::warm(ContainerSingletons::carried($aotArtifact), $container);
     }
 }
