@@ -129,7 +129,12 @@ registry is the lanes' fifth collaborator, defaulting to the unarmed
 registry: the fast path answers the guarded call the way it always
 did, byte-identical mechanics, and the memo-hit path never reaches the
 seam at all — the hot answer pays nothing by construction (the bench
-pins the parity at noise level).
+pins the parity at noise level). The registry's own `run()` is the
+armed set's run, nothing less: a direct run on an unarmed registry is
+the honest refusal (`InterceptionRefusals::notArmed()`), not a silent
+terminal passthrough — the fast path belongs to the caller's own
+`armed()` check, and a registry without a set does not duplicate that
+check one layer down, silently forgiving the caller that skipped it.
 
 The run order keeps the reference's own: the resolving listeners fire
 when the construction starts (before the onion), the onion wraps the
@@ -226,3 +231,12 @@ the parity is by construction, not by measurement.
   refusal — a registry armed with nothing is unarmed in every
   observable way but the second arming's refusal, and an empty-knob
   boot keeps byte-identical construction mechanics.
+- **The unarmed run is a refusal, not a duplicated fast path.** The
+  first draft answered the terminal itself when the registry carried
+  no set — the caller's fast path copied one layer down, silently
+  forgiving a caller that skipped its own `armed()` check. The crisper
+  contract won: `run()` is the armed set's run, and a registry without
+  a set refuses loudly — the same fail-closed posture as the request
+  scope's no-open-scope refusal and the registry's own second-arming
+  refusal. The unarmed state a failed arming honestly leaves behind
+  is never a state to silently paper over.

@@ -19,8 +19,8 @@ use Zef\Framework\Container\InterceptionFires;
 use Zef\Framework\Container\InterceptionMaterialisations;
 use Zef\Framework\Container\InterceptionPipeline;
 use Zef\Framework\Container\InterceptionRefusals;
-use Zef\Framework\Container\InterceptionSet;
 use Zef\Framework\Container\Interceptions;
+use Zef\Framework\Container\InterceptionSet;
 use Zef\Framework\Container\InterceptorsMap;
 use Zef\Framework\Container\ListenersMap;
 use Zef\Framework\Container\NotFoundException;
@@ -79,19 +79,27 @@ final class InterceptionsTest extends TestCase
         self::assertInstanceOf(stdClass::class, $instance);
     }
 
-    public function testAnUnarmedRunAnswersTheTerminalItself(): void
+    public function testADirectRunOnAnUnarmedRegistryIsRefused(): void
     {
         $container = new Container();
 
-        // The caller's armed() check is the fast path; the honest
-        // safety beneath it: an unarmed registry's own run answers
-        // the construction untouched.
-        $answer = $container->interceptions()->run(
-            'never.constructed',
-            static fn (): stdClass => new stdClass(),
-        );
-
-        self::assertInstanceOf(stdClass::class, $answer);
+        // The caller's armed() check is the fast path; the registry's
+        // own run is the armed set's run -- a registry without a set
+        // has nothing to run a construction under, and the honest
+        // refusal says so rather than silently answering the terminal.
+        try {
+            $container->interceptions()->run(
+                'never.constructed',
+                static fn (): stdClass => new stdClass(),
+            );
+            self::fail('Expected a thrown refusal.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "The container's interception registry is not armed -- the boot arms it once, "
+                . 'before the first resolution.',
+                $definitionException->getMessage(),
+            );
+        }
     }
 
     public function testAHandBuiltEntryCarryingNoShapeIsRefused(): void

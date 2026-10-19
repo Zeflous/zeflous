@@ -252,21 +252,6 @@ final class InterceptedBootTest extends TestCase
         self::assertContains('observed: @decor:app.logger:base', $lines);
     }
 
-    /**
-     * The booted container's own log service, typed for the tape the
-     * assertions read.
-     */
-    private function log(Container $container): InterceptionLog
-    {
-        $log = $container->get('test.log');
-        self::assertInstanceOf(InterceptionLog::class, $log);
-
-        return $log;
-    }
-
-    /**
-     * @param array<string, mixed> $config
-     */
     public function testTheArtifactLanesWarmupRidesTheArmedInterception(): void
     {
         $containerAotCache = new ContainerAotCache($this->artifactFile);
@@ -305,6 +290,21 @@ final class InterceptedBootTest extends TestCase
         );
     }
 
+    /**
+     * The booted container's own log service, typed for the tape the
+     * assertions read.
+     */
+    private function log(Container $container): InterceptionLog
+    {
+        $log = $container->get('test.log');
+        self::assertInstanceOf(InterceptionLog::class, $log);
+
+        return $log;
+    }
+
+    /**
+     * @param array<string, mixed> $config
+     */
     private function booted(array $config): Container
     {
         return new ContainerBootstrapper()->bootstrap(new Config($config), new Container());

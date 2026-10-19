@@ -75,17 +75,18 @@ final class Interceptions
     /**
      * Runs one construction under the armed set -- the terminal itself
      * when the registry carries nothing (the caller's armed() check is
-     * the fast path; this is the honest safety beneath it).
+     * the fast path; a direct run on an unarmed registry is the
+     * honest refusal -- there is no set to run a construction under).
      *
      * @param Closure(): mixed $terminal the guarded factory call
      */
     public function run(string $id, Closure $terminal): mixed
     {
         $set = $this->interceptionSet;
-        if ($set instanceof InterceptionSet) {
-            return $set->run($id, $terminal);
+        if (!$set instanceof InterceptionSet) {
+            throw InterceptionRefusals::notArmed();
         }
 
-        return $terminal();
+        return $set->run($id, $terminal);
     }
 }

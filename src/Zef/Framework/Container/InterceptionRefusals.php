@@ -272,4 +272,16 @@ final readonly class InterceptionRefusals
             "The container's interception registry is already armed -- the boot arms it once.",
         );
     }
+
+    /**
+     * The registry's run is the armed set's run -- an unarmed
+     * registry has nothing to run a construction under.
+     */
+    public static function notArmed(): DefinitionException
+    {
+        return new DefinitionException(
+            "The container's interception registry is not armed -- the boot arms it once, "
+            . 'before the first resolution.',
+        );
+    }
 }
