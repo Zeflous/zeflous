@@ -86,7 +86,7 @@ final class AotToggles
      * @param string $knob the toggle's family-qualified name, as the
      *                     rejection spells it (`aot.enabled`)
      */
-    public static function read(mixed $value, string $knob): bool
+    private static function read(mixed $value, string $knob): bool
     {
         if (\is_bool($value)) {
             return $value;

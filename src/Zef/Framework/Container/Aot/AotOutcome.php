@@ -51,7 +51,7 @@ final readonly class AotOutcome
      *                                       off, or on with no artifact present)
      * @param list<string>     $unreferenced
      */
-    public static function fullCompiled(string $note, array $unreferenced, int $definitions): self
+    private static function fullCompiled(string $note, array $unreferenced, int $definitions): self
     {
         return new self(AotLane::FullCompile, $note, $unreferenced, $definitions);
     }
@@ -74,7 +74,7 @@ final readonly class AotOutcome
      * @param non-empty-string $reason       why the artifact was set aside
      * @param list<string>     $unreferenced the full pipeline's own report
      */
-    public static function artifactBypassed(string $reason, array $unreferenced, int $definitions): self
+    private static function artifactBypassed(string $reason, array $unreferenced, int $definitions): self
     {
         return new self(AotLane::ArtifactBypassed, $reason, $unreferenced, $definitions);
     }
@@ -87,7 +87,7 @@ final readonly class AotOutcome
      *
      * @param list<string> $unreferenced the compile's own report
      */
-    public static function forFullLane(bool $laneEnabled, array $unreferenced, int $definitions): self
+    private static function forFullLane(bool $laneEnabled, array $unreferenced, int $definitions): self
     {
         return self::fullCompiled(
             $laneEnabled
