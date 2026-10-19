@@ -504,7 +504,7 @@
                 // mutator: max(1, size) lifts an empty file's rollback
                 // offset to one and the battery kills it. The ignore
                 // is scoped to that single source line.
-                "\\return max\\(0, \\$opened\\['size'\\]\\);"
+                "return max\\(0, \\$opened\\['size'\\]\\);"
             ]
         },
         // The settled memo's early return in
