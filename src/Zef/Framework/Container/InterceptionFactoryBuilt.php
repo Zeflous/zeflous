@@ -10,7 +10,7 @@ namespace Zef\Framework\Container;
  * container has registered resolves and runs as an instance method, a
  * class-named target runs statically -- both under {@see
  * FactoryInvocation}'s callable contract proof, and the built answer
- * proven an object ({@see InterceptionRefusals::builtNotAnObject()}
+ * proven an object ({@see InterceptionBuiltRefusals::builtNotAnObject()}
  * -- the contracts the knobs demand are interfaces, and only an object
  * can carry one).
  */
@@ -35,7 +35,7 @@ final readonly class InterceptionFactoryBuilt
 
         $service = $container->get($target);
         if (!\is_object($service)) {
-            throw InterceptionRefusals::factoryTargetNotAnObject($label, $target, $service);
+            throw InterceptionBuiltRefusals::factoryTargetNotAnObject($label, $target, $service);
         }
 
         return self::objectAnswer(
@@ -52,7 +52,7 @@ final readonly class InterceptionFactoryBuilt
     private static function objectAnswer(mixed $answer, string $label): object
     {
         if (!\is_object($answer)) {
-            throw InterceptionRefusals::builtNotAnObject($label, $answer);
+            throw InterceptionBuiltRefusals::builtNotAnObject($label, $answer);
         }
 
         return $answer;

@@ -40,12 +40,12 @@ final readonly class InterceptionClassFit
         $parameters = new ReflectionClass($class)->getConstructor()?->getParameters() ?? [];
 
         if (\count($arguments) > \count($parameters)) {
-            throw InterceptionRefusals::tooManyArguments($label, $class, \count($parameters));
+            throw InterceptionBuiltRefusals::tooManyArguments($label, $class, \count($parameters));
         }
 
         foreach (\array_slice($parameters, \count($arguments)) as $reflectionParameter) {
             if (!$reflectionParameter->isOptional()) {
-                throw InterceptionRefusals::stopsBeforeRequired($label, $class, $reflectionParameter->getName());
+                throw InterceptionBuiltRefusals::stopsBeforeRequired($label, $class, $reflectionParameter->getName());
             }
         }
     }

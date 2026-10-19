@@ -38,7 +38,7 @@ final readonly class InterceptionMaterialisations
         foreach ($entries as $position => $entry) {
             $built = InterceptionBuilder::built($entry, 'interceptors.' . $position, $container);
             if (!$built instanceof ServiceInterceptor) {
-                throw InterceptionRefusals::notImplementingContract(
+                throw InterceptionBuiltRefusals::notImplementingContract(
                     'interceptors.' . $position,
                     ServiceInterceptor::class,
                     $built,
@@ -96,7 +96,7 @@ final readonly class InterceptionMaterialisations
         foreach ($entries as $position => $entry) {
             $built = InterceptionBuilder::built($entry, $label . '.' . $position, $container);
             if (!$built instanceof $contract) {
-                throw InterceptionRefusals::notImplementingContract(
+                throw InterceptionBuiltRefusals::notImplementingContract(
                     $label . '.' . $position,
                     $contract,
                     $built,

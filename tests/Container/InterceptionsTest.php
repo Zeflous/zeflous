@@ -11,6 +11,7 @@ use stdClass;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\InterceptionBuilder;
+use Zef\Framework\Container\InterceptionBuiltRefusals;
 use Zef\Framework\Container\InterceptionClassBuilt;
 use Zef\Framework\Container\InterceptionClassFit;
 use Zef\Framework\Container\InterceptionEntry;
@@ -67,6 +68,7 @@ use Zef\Test\Support\Container\Interception\ShortCircuitInterceptor;
 #[CoversClass(InterceptionClassFit::class)]
 #[CoversClass(InterceptionEntry::class)]
 #[CoversClass(InterceptionRefusals::class)]
+#[CoversClass(InterceptionBuiltRefusals::class)]
 final class InterceptionsTest extends TestCase
 {
     public function testAnUnarmedRegistryLeavesTheConstructionPlain(): void

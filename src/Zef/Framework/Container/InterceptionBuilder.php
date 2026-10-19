@@ -36,6 +36,6 @@ final readonly class InterceptionBuilder
             return InterceptionFactoryBuilt::built($label, $interceptionEntry->arguments, $factory, $container);
         }
 
-        throw InterceptionRefusals::shapeNotSpelled($label);
+        throw InterceptionBuiltRefusals::shapeNotSpelled($label);
     }
 }
