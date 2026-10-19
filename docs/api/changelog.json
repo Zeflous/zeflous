@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T06:03:16Z",
+  "as_of": "2026-10-19T06:53:40Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 204,
+  "unreleased_count": 205,
   "versions": [
     {
       "version": "Unreleased",
@@ -5048,6 +5048,22 @@
                 "sha": "d8f212abc6c0a626903d1755f29a0c5c0d21ac9d",
                 "short_sha": "d8f212a",
                 "subject": "docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458"
+              }
+            ]
+          },
+          {
+            "pr": 466,
+            "title": "docs(roadmap): pin the merge-queue storm fix -- history row 463",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-19T06:53:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/466",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "633f813bdb6fb2a291924d8e06beca93c9dbe8d0",
+                "short_sha": "633f813",
+                "subject": "docs(roadmap): pin the merge-queue storm fix -- history row 463"
               }
             ]
           }
@@ -10421,6 +10437,22 @@
               "sha": "262fb390fbf1a54f81b92262a18bc0694d531b9c",
               "short_sha": "262fb39",
               "subject": "Merge branch 'main' into fix/merge-queue-render-storm"
+            }
+          ]
+        },
+        {
+          "pr": 466,
+          "title": "docs(roadmap): pin the merge-queue storm fix -- history row 463",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-19T06:53:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/466",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "633f813bdb6fb2a291924d8e06beca93c9dbe8d0",
+              "short_sha": "633f813",
+              "subject": "docs(roadmap): pin the merge-queue storm fix -- history row 463"
             }
           ]
         }

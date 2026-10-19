@@ -215,6 +215,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the merge-queue and ruleset-lint family to pull requests 446 and 447 [#450](https://github.com/Zeflous/zeflous/pull/450) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the parameters family to pull request 445 [#452](https://github.com/Zeflous/zeflous/pull/452) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458 [#459](https://github.com/Zeflous/zeflous/pull/459) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the merge-queue storm fix -- history row 463 [#466](https://github.com/Zeflous/zeflous/pull/466) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
