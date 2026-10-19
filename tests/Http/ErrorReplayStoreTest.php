@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Http\ReplayBodyCapture;
@@ -21,6 +22,8 @@ use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\StreamSnapshot;
 use Zef\Framework\Http\Uri;
+use Zef\Test\Support\Http\RawFactsServerRequest;
+use Zef\Test\Support\Http\RawPathUri;
 
 /** @internal */
 #[CoversClass(ErrorReplayStore::class)]
@@ -410,5 +413,146 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertIsString($body);
         self::assertStringContainsString('username=alice', $body);
         self::assertStringNotContainsString('hunter2', $body);
+    }
+
+    public function testTheSnapshotNormalisesHostileRequestLineFacts(): void
+    {
+        $relativePathRequest = new ServerRequest('GET', new Uri('users'));
+
+        $relativeSnapshot = $this->savedSnapshot($relativePathRequest);
+
+        self::assertSame('/', $relativeSnapshot['path'], 'a path without a leading slash is refused');
+
+        $rawFactsRequest = new RawFactsServerRequest(
+            new ServerRequest('GET', new Uri('https://app.example.test/users')),
+            'pätch',
+            new RawPathUri("/us\x01ers"),
+            [],
+        );
+
+        $rawSnapshot = $this->savedSnapshot($rawFactsRequest);
+
+        self::assertSame('/', $rawSnapshot['path'], 'a control byte in the path is refused');
+        self::assertSame('PÄTCH', $rawSnapshot['method'], 'a multibyte method token is uppercased whole');
+
+        $invalidUtf8PathRequest = new RawFactsServerRequest(
+            new ServerRequest('GET', new Uri('https://app.example.test/users')),
+            'GET',
+            new RawPathUri("/u\xB1s"),
+            [],
+        );
+
+        self::assertSame(
+            "/u\u{FFFD}s",
+            $this->savedSnapshot($invalidUtf8PathRequest)['path'],
+            'an invalid UTF-8 path byte survives as the substitution marker',
+        );
+    }
+
+    public function testTheSnapshotCarriesEverySanitisedHeaderFact(): void
+    {
+        $serverRequest = new ServerRequest(
+            'POST',
+            new Uri('https://app.example.test/users'),
+            [],
+            [],
+            [],
+            [],
+            null,
+            [
+                'X-Api-Key' => 'k1',
+                'Accept' => 'text/html',
+                'Content-Length' => '42',
+                'X-Keep' => 'yes',
+                'X-Trace' => 'password=secret123',
+                'X-Long' => str_repeat('é', 600),
+                'X-Multi' => ['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11'],
+                'X-Bin' => "bad \xB1 byte",
+            ],
+        );
+
+        $contents = $this->savedContents($serverRequest);
+        $snapshot = json_decode($contents, true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($snapshot);
+
+        self::assertArrayHasKey('timestamp', $snapshot);
+        $timestamp = $snapshot['timestamp'];
+        self::assertIsString($timestamp);
+        self::assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/D', $timestamp);
+        self::assertSame(
+            [
+                'Accept' => ['text/html'],
+                'X-Keep' => ['yes'],
+                'X-Trace' => ['password=[REDACTED]'],
+                'X-Long' => [str_repeat('é', 512)],
+                'X-Multi' => ['v0', 'v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9'],
+                'X-Bin' => ['bad ? byte'],
+            ],
+            $snapshot['headers'],
+        );
+    }
+
+    public function testTheQueryGuardBoundsLengthInCharactersAndRefusesTheOversized(): void
+    {
+        $exactBound = new ServerRequest(
+            'GET',
+            new Uri('https://app.example.test/users?a=1&q=' . str_repeat('q', 8186)),
+        );
+
+        self::assertSame('a=1&q=' . str_repeat('q', 4096), $this->savedSnapshot($exactBound)['query']);
+
+        // The real URI percent-encodes multibyte bytes out of the query, so
+        // the character-scale length bound is only reachable through a
+        // double that answers the raw, still-encoded form.
+        $multibyte = new RawFactsServerRequest(
+            new ServerRequest('GET', new Uri('https://app.example.test/users')),
+            'GET',
+            new RawPathUri('/users', 'f=' . str_repeat('é', 8098)),
+            [],
+        );
+
+        self::assertSame(
+            'f=' . urlencode(str_repeat('é', 4096)),
+            $this->savedSnapshot($multibyte)['query'],
+        );
+
+        $oversized = new ServerRequest(
+            'GET',
+            new Uri('https://app.example.test/users?' . str_repeat('a', 9000)),
+        );
+
+        self::assertSame('', $this->savedSnapshot($oversized)['query']);
+    }
+
+    /**
+     * Saves one snapshot and answers its decoded form.
+     *
+     * @return array<array-key, mixed> the decoded snapshot
+     */
+    private function savedSnapshot(ServerRequestInterface $serverRequest): array
+    {
+        $contents = $this->savedContents($serverRequest);
+        $snapshot = json_decode($contents, true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($snapshot);
+
+        return $snapshot;
+    }
+
+    /**
+     * Saves one snapshot and answers the raw JSONL bytes it persisted.
+     */
+    private function savedContents(ServerRequestInterface $serverRequest): string
+    {
+        $id = new ErrorReplayStore($this->directory)->save(
+            $serverRequest,
+            new RuntimeException('request failed'),
+            400,
+            'req-facts',
+        );
+
+        $contents = file_get_contents($this->directory . '/' . $id . '.json');
+        self::assertIsString($contents);
+
+        return $contents;
     }
 }

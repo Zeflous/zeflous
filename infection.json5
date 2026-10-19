@@ -286,7 +286,35 @@
                 "Zef\\Framework\\Health\\ProbeName::sanitized"
             ],
             "ignoreSourceCodeByRegex": [
-                "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);"
+                "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",
+                // The four lines below carry the same ASCII-only zone, each
+                // verified against the engine by running the owning suite
+                // under the manually applied mutation (the complete battery
+                // passes):
+                //
+                // ErrorReplayStore::headers() folds a header name against a
+                // blocklist of pure ASCII words. The only Unicode lowercase
+                // fold that lands in ASCII is U+212A to k, and no blocklist
+                // word carries a k (host, content-length, connection,
+                // transfer-encoding), so every fold-divergent name misses
+                // the list under both spellings and every blocklist hit is
+                // byte-identical under both lowerings.
+                //
+                // ErrorRequestContext::setTraceId() lowercases a trace id
+                // whose accepted domain is ^[a-f0-9]{32}$ -- pure ASCII by
+                // the same gate that admits it, so both lowerings agree on
+                // every value the assignment can ever see.
+                //
+                // ZefException::defaultErrorCode() uppercases an operand
+                // that is pure ASCII by construction: the [^A-Z0-9_] wash
+                // ahead of it has already replaced every other byte with
+                // the underscore. The closing mb_rtrim() trims a charlist
+                // of single-byte underscores, where byte-scale and
+                // character-scale agree exactly.
+                ".*in_array\\(mb_strtolower\\(\\$name\\), \\['host'.*",
+                "\\$this->traceId = mb_strtolower\\(\\$traceId\\);",
+                "\\$normalized = mb_strtoupper\\(\\(string\\) preg_replace.*",
+                "return mb_rtrim\\(mb_substr\\(\\$normalized, 0, 64\\).*"
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is
@@ -390,7 +418,23 @@
         // scoped to that single source line.
         "DecrementInteger": {
             "ignoreSourceCodeByRegex": [
-                "\\$offset = \\$match\\[3\\]\\[1\\];"
+                "\\$offset = \\$match\\[3\\]\\[1\\];",
+                // ZefException::defaultErrorCode()'s short-name slice start
+                // is the next integer the decrement can rewrite without any
+                // observable difference: the -1 window only re-includes the
+                // namespace separator byte, and the derivation's own wash
+                // replaces every non-[A-Z0-9_] byte with the underscore and
+                // its two-sided trim then erases that leading underscore,
+                // so the derived code is byte-identical for every class
+                // name (verified by running the exception battery under the
+                // manually applied mutation, with the multibyte-namespace
+                // and overlong digit-name fixtures in play -- the complete
+                // battery passes). The neighbouring arithmetic stays under
+                // the mutator: the byte-scale separator read and the byte
+                // slice are killed by the same fixtures, and the truncation
+                // bound by the 64-character one. The ignore is scoped to
+                // that single source line.
+                "\\$shortName = \\$separator === false \\? \\$class : mb_substr\\(\\$class, \\$separator \\+ 1\\);"
             ]
         },
         // The settled memo's early return in
@@ -525,10 +569,30 @@
         // the analyser's narrowing of an int|float stub, never a
         // runtime coercion (verified by running the family suite
         // under the manually applied mutation -- the complete suite
-        // passes). This ignore is scoped to that single method.
+        // passes). ErrorRequestContext::__construct()'s start stamp
+        // carries the same platform fact for the same reason, verified
+        // the same way against its own battery. This ignore is scoped
+        // to those two methods.
         "CastInt": {
             "ignore": [
-                "Zef\\Framework\\Health\\HealthScrapeClock::__construct"
+                "Zef\\Framework\\Health\\HealthScrapeClock::__construct",
+                "Zef\\Framework\\Http\\ErrorRequestContext::__construct"
+            ]
+        },
+        // The Exception suffix strip in ZefException::defaultErrorCode()
+        // is the one string cast in the error lane that is value-equivalent
+        // under the CastString mutator: preg_replace() answers null only on
+        // a PCRE error, and the fixed literal pattern ('Exception$' against
+        // a class name) cannot reach one, so the operand is a string for
+        // every value the line can ever see and the cast is the analyser's
+        // narrowing, never a runtime coercion (verified by running the
+        // exception battery under the manually applied mutation -- the
+        // complete battery passes, including the multibyte-namespace and
+        // overlong-name fixtures). This ignore is scoped to that single
+        // source line.
+        "CastString": {
+            "ignoreSourceCodeByRegex": [
+                "\\$shortName = \\(string\\) preg_replace\\('/Exception\\$/'.*"
             ]
         },
         // The divergence judgement's NaN guards in
