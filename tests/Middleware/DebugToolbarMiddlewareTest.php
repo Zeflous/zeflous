@@ -109,11 +109,14 @@ final class DebugToolbarMiddlewareTest extends TestCase
         )));
         self::assertSame('', $headResponse->getHeaderLine('X-Debug-Toolbar'));
 
-        $compressed = $debugToolbarMiddleware->process($this->request('text/html'), new FixedResponseHandler(new Response(
-            200,
-            ['Content-Type' => 'text/html', 'Content-Encoding' => 'gzip'],
-            '<html><body>compressed</body></html>',
-        )));
+        $compressed = $debugToolbarMiddleware->process(
+            $this->request('text/html'),
+            new FixedResponseHandler(new Response(
+                200,
+                ['Content-Type' => 'text/html', 'Content-Encoding' => 'gzip'],
+                '<html><body>compressed</body></html>',
+            ))
+        );
         self::assertSame('', $compressed->getHeaderLine('X-Debug-Toolbar'));
 
         $large = $debugToolbarMiddleware->process($this->request('text/html'), new FixedResponseHandler(new Response(

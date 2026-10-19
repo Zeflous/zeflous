@@ -22,7 +22,9 @@ use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CorrelationMiddleware;
 use Zef\Framework\Middleware\CsrfFactory;
+use Zef\Framework\Middleware\DebugToolbarFactory;
 use Zef\Framework\Middleware\DebugToolbarMiddleware;
+use Zef\Framework\Middleware\ErrorMappingFactory;
 use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Middleware\MetricsFactory;
 use Zef\Framework\Middleware\MetricsMiddleware;
@@ -83,14 +85,14 @@ final class ApplicationBootstrapperTest extends TestCase
         self::assertSame(
             [
                 'http.errors' => [
-                    'factory' => \Zef\Framework\Middleware\ErrorMappingFactory::class . '::fromConfig',
+                    'factory' => ErrorMappingFactory::class . '::fromConfig',
                     'arguments' => [
                         ['service' => FrameworkDefaults::CONFIG_SERVICE],
                         ['service' => 'observability.meter'],
                     ],
                 ],
                 'http.debug_toolbar' => [
-                    'factory' => \Zef\Framework\Middleware\DebugToolbarFactory::class . '::fromConfig',
+                    'factory' => DebugToolbarFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
                 ],
                 'security.headers' => [

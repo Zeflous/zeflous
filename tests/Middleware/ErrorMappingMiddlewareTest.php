@@ -770,7 +770,10 @@ final class ErrorMappingMiddlewareTest extends TestCase
                 ['X-Request-ID' => 'replay-req', 'Content-Type' => 'application/json'],
                 new Stream($resource),
             );
-            $response = $middleware->process($serverRequest, new ThrowingHandler(new RuntimeException('replay failure')));
+            $response = $middleware->process(
+                $serverRequest,
+                new ThrowingHandler(new RuntimeException('replay failure')),
+            );
             $files = glob($directory . '/*.json');
             $files = $files === false ? [] : $files;
             self::assertCount(1, $files);

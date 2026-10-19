@@ -264,7 +264,10 @@ final class JsonLineLoggerTest extends TestCase
             JsonLineWriter::append($link, '{}');
             self::fail('A symlink destination must be refused at append time.');
         } catch (JsonLogWriteException $jsonLogWriteException) {
-            self::assertSame('Refusing to write through a symlink log destination.', $jsonLogWriteException->getMessage());
+            self::assertSame(
+                'Refusing to write through a symlink log destination.',
+                $jsonLogWriteException->getMessage(),
+            );
         } finally {
             @unlink($link);
             @unlink($target);
@@ -285,7 +288,10 @@ final class JsonLineLoggerTest extends TestCase
                 restore_error_handler();
             }
         } catch (JsonLogWriteException $jsonLogWriteException) {
-            self::assertSame('Unable to open the configured JSON log destination.', $jsonLogWriteException->getMessage());
+            self::assertSame(
+                'Unable to open the configured JSON log destination.',
+                $jsonLogWriteException->getMessage(),
+            );
         } finally {
             stream_wrapper_unregister(self::UNOPENABLE_PROTOCOL);
         }
@@ -305,7 +311,10 @@ final class JsonLineLoggerTest extends TestCase
             JsonLogFileSecurity::secure($stream, $path);
             self::fail('A destination replaced underneath the open handle must be refused.');
         } catch (JsonLogWriteException $jsonLogWriteException) {
-            self::assertSame('The JSON log destination changed while it was being opened.', $jsonLogWriteException->getMessage());
+            self::assertSame(
+                'The JSON log destination changed while it was being opened.',
+                $jsonLogWriteException->getMessage(),
+            );
         } finally {
             if (\is_resource($stream)) {
                 fclose($stream);
