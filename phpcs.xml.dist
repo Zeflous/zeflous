@@ -41,7 +41,7 @@
          uppercase ASCII letter, and PHP refuses a class name that merely
          starts with a digit, so the one shape that reaches the fallback
          from a legal class name begins with a multibyte letter followed
-         by a digit -- a head the ASCII PascalCase grammar cannot admit by
+         by a digit: a head the ASCII PascalCase grammar cannot admit by
          construction. The class-name rule excludes that one fixture. -->
     <rule ref="Squiz.Classes.ValidClassName.NotPascalCase">
         <exclude-pattern>*/tests/Support/Exception/Ü9ProbeException.php</exclude-pattern>
