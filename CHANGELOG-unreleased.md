@@ -68,6 +68,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(container): add the parameters family and the value attribute lane [#445](https://github.com/Zeflous/zeflous/pull/445) ([mbetixz](https://github.com/mbetixz))
 - feat(ci): make every required check merge-queue aware [#446](https://github.com/Zeflous/zeflous/pull/446) ([mbetixz](https://github.com/mbetixz))
 - feat(ci): lint the ruleset against the merged heads' check evidence [#447](https://github.com/Zeflous/zeflous/pull/447) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the compiler passes and the AOT artifact lane [#458](https://github.com/Zeflous/zeflous/pull/458) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -212,6 +213,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the injector and contextual-binding family to pull request 439 [#440](https://github.com/Zeflous/zeflous/pull/440) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the merge-queue and ruleset-lint family to pull requests 446 and 447 [#450](https://github.com/Zeflous/zeflous/pull/450) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the parameters family to pull request 445 [#452](https://github.com/Zeflous/zeflous/pull/452) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458 [#459](https://github.com/Zeflous/zeflous/pull/459) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

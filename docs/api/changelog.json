@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-18T23:46:55Z",
+  "as_of": "2026-10-19T04:36:44Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 201,
+  "unreleased_count": 203,
   "versions": [
     {
       "version": "Unreleased",
@@ -1619,6 +1619,77 @@
                 "sha": "a81666903fffa8cb2f1c7f49c5787fbe10ef2223",
                 "short_sha": "a816669",
                 "subject": "Merge branch 'main' into hardening/ruleset-lint"
+              }
+            ]
+          },
+          {
+            "pr": 458,
+            "title": "feat(container): add the compiler passes and the AOT artifact lane",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-19T04:15:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/458",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c5d47f22394f5920aac8faacdd5822490d2cd38b",
+                "short_sha": "c5d47f2",
+                "subject": "feat(container): add the compiler passes and the AOT artifact lane"
+              },
+              {
+                "sha": "510b61b52887b6c131d06a2487658ffeb1e2acab",
+                "short_sha": "510b61b",
+                "subject": "test(container): kill the AOT lane's first-round escaped mutants"
+              },
+              {
+                "sha": "625c4e451867a7c2cf0b6cb09f0306132ea65e52",
+                "short_sha": "625c4e4",
+                "subject": "test(container): kill the AOT lane's second-round escaped mutants"
+              },
+              {
+                "sha": "d660e9722aeb1d67d67301e13490362b35922371",
+                "short_sha": "d660e97",
+                "subject": "test(container): pin the artifact file's verbatim envelope and the lane's remaining escapes"
+              },
+              {
+                "sha": "31aa072a1994cb42a1181432a4c6934a14b1554b",
+                "short_sha": "31aa072",
+                "subject": "test(container): kill the knob-off-artifact, graph-refusal and profile-shape escapes"
+              },
+              {
+                "sha": "4083437a3175884f96de6cfd686ae3e28d7745ec",
+                "short_sha": "4083437",
+                "subject": "test(container): the pipeline's own cycle battery, the staging-name contract, and the covers fix"
+              },
+              {
+                "sha": "a0d6a86302ace39b71376f6ca5226fe7e03cd176",
+                "short_sha": "a0d6a86",
+                "subject": "test(container): the verbatim artifact pin survives the formatters"
+              },
+              {
+                "sha": "b562baebd27e48d60574fec8eba4e852ed8a3529",
+                "short_sha": "b562bae",
+                "subject": "style(container): one space the formatter owns"
+              },
+              {
+                "sha": "186322fcc763fce4521e6360ed4615561febdf53",
+                "short_sha": "186322f",
+                "subject": "test(container): a real unplanned-shape fixture replaces the anonymous class"
+              },
+              {
+                "sha": "6a528b443419d4fc15bb6b49167bb9ef4801b392",
+                "short_sha": "6a528b4",
+                "subject": "refactor(container): the prologue constant, the one-return fold, and the covers the new units earned"
+              },
+              {
+                "sha": "15a50c8ce802bac88181a460d928fa43dccff1c4",
+                "short_sha": "15a50c8",
+                "subject": "test(container): kill the full-run's eight escapes -- the boundary keys and shapes, the lazy artifact lane, the knob-off dump, and the fingerprint's fifth map"
+              },
+              {
+                "sha": "a40219cc3ccb92247685b07fabddb7ebeff02c9f",
+                "short_sha": "a40219c",
+                "subject": "chore(container): drop the docblock the late gate round duplicated"
               }
             ]
           }
@@ -4935,6 +5006,22 @@
                 "sha": "cff898bf102b79519f9447ac704cb51365ae9cad",
                 "short_sha": "cff898b",
                 "subject": "Merge branch 'main' into docs/roadmap-parameters-pin"
+              }
+            ]
+          },
+          {
+            "pr": 459,
+            "title": "docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-19T04:36:44Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/459",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d8f212abc6c0a626903d1755f29a0c5c0d21ac9d",
+                "short_sha": "d8f212a",
+                "subject": "docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458"
               }
             ]
           }
@@ -10195,6 +10282,93 @@
               "sha": "a169bfeb801ec0998c1107529a86510d96456a56",
               "short_sha": "a169bfe",
               "subject": "Merge branch 'main' into fix/automerge-armed-branch-sync"
+            }
+          ]
+        },
+        {
+          "pr": 458,
+          "title": "feat(container): add the compiler passes and the AOT artifact lane",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-19T04:15:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/458",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c5d47f22394f5920aac8faacdd5822490d2cd38b",
+              "short_sha": "c5d47f2",
+              "subject": "feat(container): add the compiler passes and the AOT artifact lane"
+            },
+            {
+              "sha": "510b61b52887b6c131d06a2487658ffeb1e2acab",
+              "short_sha": "510b61b",
+              "subject": "test(container): kill the AOT lane's first-round escaped mutants"
+            },
+            {
+              "sha": "625c4e451867a7c2cf0b6cb09f0306132ea65e52",
+              "short_sha": "625c4e4",
+              "subject": "test(container): kill the AOT lane's second-round escaped mutants"
+            },
+            {
+              "sha": "d660e9722aeb1d67d67301e13490362b35922371",
+              "short_sha": "d660e97",
+              "subject": "test(container): pin the artifact file's verbatim envelope and the lane's remaining escapes"
+            },
+            {
+              "sha": "31aa072a1994cb42a1181432a4c6934a14b1554b",
+              "short_sha": "31aa072",
+              "subject": "test(container): kill the knob-off-artifact, graph-refusal and profile-shape escapes"
+            },
+            {
+              "sha": "4083437a3175884f96de6cfd686ae3e28d7745ec",
+              "short_sha": "4083437",
+              "subject": "test(container): the pipeline's own cycle battery, the staging-name contract, and the covers fix"
+            },
+            {
+              "sha": "a0d6a86302ace39b71376f6ca5226fe7e03cd176",
+              "short_sha": "a0d6a86",
+              "subject": "test(container): the verbatim artifact pin survives the formatters"
+            },
+            {
+              "sha": "b562baebd27e48d60574fec8eba4e852ed8a3529",
+              "short_sha": "b562bae",
+              "subject": "style(container): one space the formatter owns"
+            },
+            {
+              "sha": "186322fcc763fce4521e6360ed4615561febdf53",
+              "short_sha": "186322f",
+              "subject": "test(container): a real unplanned-shape fixture replaces the anonymous class"
+            },
+            {
+              "sha": "6a528b443419d4fc15bb6b49167bb9ef4801b392",
+              "short_sha": "6a528b4",
+              "subject": "refactor(container): the prologue constant, the one-return fold, and the covers the new units earned"
+            },
+            {
+              "sha": "15a50c8ce802bac88181a460d928fa43dccff1c4",
+              "short_sha": "15a50c8",
+              "subject": "test(container): kill the full-run's eight escapes -- the boundary keys and shapes, the lazy artifact lane, the knob-off dump, and the fingerprint's fifth map"
+            },
+            {
+              "sha": "a40219cc3ccb92247685b07fabddb7ebeff02c9f",
+              "short_sha": "a40219c",
+              "subject": "chore(container): drop the docblock the late gate round duplicated"
+            }
+          ]
+        },
+        {
+          "pr": 459,
+          "title": "docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-19T04:36:44Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/459",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d8f212abc6c0a626903d1755f29a0c5c0d21ac9d",
+              "short_sha": "d8f212a",
+              "subject": "docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458"
             }
           ]
         }
