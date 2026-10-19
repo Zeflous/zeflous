@@ -9,11 +9,11 @@ namespace Zef\Framework\Container\Aot;
  * the definition-source maps, the one number that decides whether an
  * artifact still describes the configuration it was dumped from.
  *
- * The digest folds the eight source maps (the framework's own
+ * The digest folds the nine source maps (the framework's own
  * registrations, the host's declarations, the parameters, the
  * autoconfiguration rules, the contextual bindings, the decoration
- * chains, the interception entries and the listener entries) plus the
- * framework
+ * chains, the interception entries, the listener entries and the
+ * namespace scope policy) plus the framework
  * version into a SHA-256 over a canonical type-tagged walk. The walk is
  * deliberate about the three things a naive serialisation gets wrong:
  *

@@ -170,6 +170,62 @@ declare(strict_types=1);
  * and both knobs fold into the AOT digest (a changed interception set
  * is a proven-stale artifact, never run).
  *
+ * The top-level 'namespaces' configuration key declares the namespace
+ * lane's scope policy -- boot-time governance over the dependency graph
+ * by namespace position, no manual module tagging:
+ *
+ *   'namespaces' => [
+ *       'scopes' => [
+ *           'App\Internal\' => 'internal',
+ *           'Vendor\Modules\' => 'module',
+ *       ],
+ *       'max_cross_scope_refs' => 4,
+ *   ]
+ *
+ * Identifiers segment on both separators the framework's world spells
+ * -- the dot (`framework.config`) and the backslash a class name
+ * carries -- so `App\Internal\Thing` and `App.Internal.Thing` address
+ * the same namespace position. A 'scopes' annotation governs its whole
+ * subtree (the trailing separator normalised): 'public' (the default
+ * every unannotated identifier carries -- any service may depend on
+ * it), 'internal' (only services INSIDE the subtree may reference it;
+ * an outside reference is a boot refusal naming the consumer, the
+ * target and the guarded namespace), or 'module' (outside services may
+ * reach into it, spending the cross-scope budget: at most
+ * 'max_cross_scope_refs' DISTINCT targets per consumer=>target pair;
+ * 0 -- the default -- denies every outbound reference). The nearest
+ * ancestor annotation wins, so an inner 'public' can reopen what an
+ * outer 'internal' closed. The knob carries a hard bound of 64
+ * annotations, and it folds into the AOT digest: a changed scope policy
+ * is a proven-stale artifact, never run.
+ *
+ * The lane's read side is the reserved 'framework.namespaces' service:
+ * a NamespacedServices locator answering idsUnder()/servicesUnder()
+ * (every booted identifier under a prefix, resolved), scopeOf() (the
+ * nearest annotation governing an identifier) and stats() (the sealed
+ * radix tree's own measurements). Only the boot's declarative set is
+ * indexed: a closure-registered identifier never enters the tree.
+ *
+ * Beside the knob, the namespace FALLBACK registry is the composition
+ * root's programmatic act -- never a declarative knob, because a
+ * fallback factory receives the identifier it is resolving, data the
+ * declarative grammar cannot spell:
+ *
+ *   $container->namespaceFallbacks()->fallback(
+ *       'App\Controllers\',
+ *       fn (Container $c, string $id): object => ...,
+ *   );
+ *
+ * A get() on an identifier nothing declared resolves through the
+ * longest covering prefix's factory (has() answers true for what a
+ * fallback covers); a singleton fallback memoises per identifier, a
+ * transient one builds every resolution, and the request scope is
+ * refused (a fallback identifier is not a scope member). A fallback
+ * construction is construction: it rides the cycle guard and the armed
+ * interception like any registered service would. The registry carries
+ * a hard bound of 64 prefixes; re-registering a prefix replaces its
+ * factory and forgets the memoised answers.
+ *
  * The top-level 'parameters' configuration key declares the global
  * parameter namespace -- the injectable scalars a constructor
  * parameter reads through the #[Value] attribute:

@@ -49,9 +49,12 @@ final readonly class ContainerCompileLane
             $containerKnobs->autoconfig,
             $containerKnobs->contextual,
             $containerKnobs->decorators,
+            $containerKnobs->namespaces,
         );
 
         ContainerRegistrations::tagsLocator($container, $containerCompilePlan->tagIndex);
+
+        ContainerRegistrations::namespacesLocator($container, $containerCompilePlan->namespaceTree);
 
         ContainerRegistrations::outcome(
             $container,

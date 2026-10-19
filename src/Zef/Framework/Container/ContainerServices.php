@@ -24,4 +24,10 @@ final readonly class ContainerServices
      * and what the compile saw.
      */
     public const string AOT_SERVICE = 'framework.aot';
+
+    /**
+     * The namespace layer's read side: the boot-built locator over the
+     * sealed radix tree.
+     */
+    public const string NAMESPACES_SERVICE = 'framework.namespaces';
 }
