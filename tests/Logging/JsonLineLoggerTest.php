@@ -10,18 +10,28 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
+use Zef\Framework\Logging\JsonLineFormatter;
 use Zef\Framework\Logging\JsonLineLogger;
+use Zef\Framework\Logging\JsonLineRecordWriter;
 use Zef\Framework\Logging\JsonLineWriter;
 use Zef\Framework\Logging\JsonLogDestination;
+use Zef\Framework\Logging\JsonLogDocumentRoot;
+use Zef\Framework\Logging\JsonLogFilePrivacy;
+use Zef\Framework\Logging\JsonLogFileSecurity;
 use Zef\Framework\Logging\LogContextSanitizer;
 
 /**
  * @internal
  */
 #[CoversClass(JsonLineLogger::class)]
+#[CoversClass(JsonLineFormatter::class)]
 #[CoversClass(LogContextSanitizer::class)]
 #[CoversClass(JsonLogDestination::class)]
+#[CoversClass(JsonLogDocumentRoot::class)]
+#[CoversClass(JsonLogFilePrivacy::class)]
 #[CoversClass(JsonLineWriter::class)]
+#[CoversClass(JsonLogFileSecurity::class)]
+#[CoversClass(JsonLineRecordWriter::class)]
 final class JsonLineLoggerTest extends TestCase
 {
     private ?string $path = null;

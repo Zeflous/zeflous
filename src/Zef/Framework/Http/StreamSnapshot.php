@@ -13,21 +13,23 @@ final class StreamSnapshot
     /** @return null|string the captured contents, or null when the stream could not be read or restored */
     public static function capture(StreamInterface $stream): ?string
     {
-        $position = null;
-
         try {
             $position = $stream->tell();
             $stream->rewind();
             $contents = $stream->getContents();
         } catch (Throwable) {
-            if (\is_int($position)) {
+            if (isset($position)) {
                 self::restore($stream, $position);
             }
 
             return null;
         }
 
-        return self::restore($stream, $position) ? $contents : null;
+        if (!self::restore($stream, $position)) {
+            return null;
+        }
+
+        return $contents;
     }
 
     private static function restore(StreamInterface $stream, int $position): bool

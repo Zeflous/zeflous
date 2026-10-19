@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Logging;
 
-use InvalidArgumentException;
 use Override;
 use Psr\Log\LoggerInterface;
 use Stringable;
@@ -12,10 +11,6 @@ use Stringable;
 /** Dependency-free PSR-3 logger that writes one structured JSON object per line. */
 final readonly class JsonLineLogger implements LoggerInterface
 {
-    private const array LEVELS = [
-        'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug',
-    ];
-
     private string $path;
 
     public function __construct(string $path)
@@ -77,17 +72,6 @@ final readonly class JsonLineLogger implements LoggerInterface
     #[Override]
     public function log($level, string|Stringable $message, array $context = []): void
     {
-        if (!\in_array($level, self::LEVELS, true)) {
-            throw new InvalidArgumentException('Unknown PSR-3 log level.');
-        }
-
-        $line = json_encode([
-            'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
-            'level' => $level,
-            'message' => LogContextSanitizer::redact((string) $message),
-            'context' => LogContextSanitizer::sanitize($context),
-        ], \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE) . "\n";
-
-        JsonLineWriter::append($this->path, $line);
+        JsonLineWriter::append($this->path, JsonLineFormatter::line($level, $message, $context));
     }
 }

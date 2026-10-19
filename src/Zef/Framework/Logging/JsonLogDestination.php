@@ -22,39 +22,8 @@ final class JsonLogDestination
         }
 
         $resolvedPath = $directory . \DIRECTORY_SEPARATOR . $filename;
-        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
-        $resolvedDocumentRoot = \is_string($documentRoot) && $documentRoot !== ''
-            ? realpath($documentRoot)
-            : false;
-
-        if (
-            \is_string($documentRoot)
-            && $documentRoot !== ''
-            && !\is_string($resolvedDocumentRoot)
-        ) {
-            throw new InvalidArgumentException('The public document root cannot be resolved safely.');
-        }
-
-        if (
-            \is_string($resolvedDocumentRoot)
-            && str_starts_with(
-                $resolvedPath . \DIRECTORY_SEPARATOR,
-                mb_rtrim($resolvedDocumentRoot, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR,
-            )
-        ) {
-            throw new InvalidArgumentException('The JSON log destination must be outside the public document root.');
-        }
-
-        if (file_exists($resolvedPath)) {
-            if (!is_file($resolvedPath) || is_link($resolvedPath)) {
-                throw new InvalidArgumentException('The JSON log destination must be a regular non-symlink file.');
-            }
-
-            $permissions = fileperms($resolvedPath);
-            if (!\is_int($permissions) || ($permissions & 0o077) !== 0 || !is_writable($resolvedPath)) {
-                throw new InvalidArgumentException('The existing JSON log file must be writable with owner-only permissions.');
-            }
-        }
+        JsonLogDocumentRoot::assertDestinationIsOutside($resolvedPath);
+        JsonLogFilePrivacy::assertExistingFileIsPrivate($resolvedPath);
 
         return $resolvedPath;
     }
