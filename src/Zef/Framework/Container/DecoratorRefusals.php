@@ -12,6 +12,9 @@ namespace Zef\Framework\Container;
  */
 final readonly class DecoratorRefusals
 {
+    /** The type-given tail the shape refusals share (the S1192 line: one spelling). */
+    private const string GIVEN = ' given.';
+
     /**
      * The knob itself must be a map of targets to decorator lists.
      */
@@ -19,7 +22,7 @@ final readonly class DecoratorRefusals
     {
         return new DefinitionException(
             "The '{$key}' configuration must be a map of service identifiers to decorator lists, "
-            . get_debug_type($source) . ' given.',
+            . get_debug_type($source) . self::GIVEN,
         );
     }
 
@@ -30,7 +33,7 @@ final readonly class DecoratorRefusals
     {
         return new DefinitionException(
             'A decorator target must be a non-empty service identifier, '
-            . get_debug_type($target) . ' given.',
+            . get_debug_type($target) . self::GIVEN,
         );
     }
 
@@ -41,7 +44,7 @@ final readonly class DecoratorRefusals
     {
         return new DefinitionException(
             "The decorator list for '{$target}' must be a positional list, "
-            . get_debug_type($chain) . ' given.',
+            . get_debug_type($chain) . self::GIVEN,
         );
     }
 
@@ -63,7 +66,7 @@ final readonly class DecoratorRefusals
     {
         return new DefinitionException(
             "Each decorator for '{$target}' must be a map, "
-            . get_debug_type($entry) . ' given.',
+            . get_debug_type($entry) . self::GIVEN,
         );
     }
 

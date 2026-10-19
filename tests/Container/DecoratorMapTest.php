@@ -14,6 +14,7 @@ use Zef\Framework\Container\DecoratorEntryKeys;
 use Zef\Framework\Container\DecoratorEntryParser;
 use Zef\Framework\Container\DecoratorEntryShapes;
 use Zef\Framework\Container\DecoratorMap;
+use Zef\Framework\Container\DecoratorRefusals;
 use Zef\Framework\Container\DecoratorTargets;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Test\Support\Container\Decorators\FileLogger;
@@ -30,6 +31,7 @@ use Zef\Test\Support\Container\Decorators\PrefixedLogger;
  * @internal
  */
 #[CoversClass(DecoratorMap::class)]
+#[CoversClass(DecoratorRefusals::class)]
 #[CoversClass(DecoratorTargets::class)]
 #[CoversClass(DecoratorEntries::class)]
 #[CoversClass(DecoratorEntry::class)]

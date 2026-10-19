@@ -13,6 +13,7 @@ use Zef\Framework\Container\DecoratorEntry;
 use Zef\Framework\Container\DecoratorInner;
 use Zef\Framework\Container\DecoratorLayers;
 use Zef\Framework\Container\DecoratorMap;
+use Zef\Framework\Container\DecoratorRefusals;
 use Zef\Framework\Container\DecoratorRehoming;
 use Zef\Framework\Container\DecoratorRewrites;
 use Zef\Framework\Container\Decorators;
@@ -51,6 +52,7 @@ use Zef\Test\Support\Container\Decorators\ValueWrappers;
  * @internal
  */
 #[CoversClass(Decorators::class)]
+#[CoversClass(DecoratorRefusals::class)]
 #[CoversClass(DecoratorApplication::class)]
 #[CoversClass(DecoratorSet::class)]
 #[CoversClass(DecoratorSpellings::class)]
