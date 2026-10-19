@@ -69,6 +69,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(ci): make every required check merge-queue aware [#446](https://github.com/Zeflous/zeflous/pull/446) ([mbetixz](https://github.com/mbetixz))
 - feat(ci): lint the ruleset against the merged heads' check evidence [#447](https://github.com/Zeflous/zeflous/pull/447) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the compiler passes and the AOT artifact lane [#458](https://github.com/Zeflous/zeflous/pull/458) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the decoration lane over the declarative grammar [#469](https://github.com/Zeflous/zeflous/pull/469) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 

@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T06:53:40Z",
+  "as_of": "2026-10-19T10:48:49Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 205,
+  "unreleased_count": 206,
   "versions": [
     {
       "version": "Unreleased",
@@ -1690,6 +1690,42 @@
                 "sha": "a40219cc3ccb92247685b07fabddb7ebeff02c9f",
                 "short_sha": "a40219c",
                 "subject": "chore(container): drop the docblock the late gate round duplicated"
+              }
+            ]
+          },
+          {
+            "pr": 469,
+            "title": "feat(container): add the decoration lane over the declarative grammar",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-19T10:48:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/469",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "58dbf453f570ffbd6867c8bcff04e2b2972d1aa5",
+                "short_sha": "58dbf45",
+                "subject": "feat(container): add the decoration lane over the declarative grammar"
+              },
+              {
+                "sha": "083f778afd3b54323e068456282c606ceb6c870c",
+                "short_sha": "083f778",
+                "subject": "test(container): the decoration lane's battery -- grammar, surgery, boot and AOT round-trip"
+              },
+              {
+                "sha": "0e0e9d162d382fc491ba3d381b86885939516d09",
+                "short_sha": "0e0e9d1",
+                "subject": "test(container): kill the decoration lane's escaped mutants -- and the range-descent bug they exposed"
+              },
+              {
+                "sha": "e0df48ac926eed4f3bb0196b308809cd23c67eb2",
+                "short_sha": "e0df48a",
+                "subject": "docs(ci-notes): the decoration lane's KDD -- attribution, grammar, surgery, digest, and the saga lessons"
+              },
+              {
+                "sha": "4d4e6097e59719d8be3c408a5d2019f4f7290518",
+                "short_sha": "4d4e609",
+                "subject": "fix(container): the decoration refusals join the covered record -- and the S1192 line"
               }
             ]
           }
@@ -10453,6 +10489,42 @@
               "sha": "633f813bdb6fb2a291924d8e06beca93c9dbe8d0",
               "short_sha": "633f813",
               "subject": "docs(roadmap): pin the merge-queue storm fix -- history row 463"
+            }
+          ]
+        },
+        {
+          "pr": 469,
+          "title": "feat(container): add the decoration lane over the declarative grammar",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-19T10:48:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/469",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "58dbf453f570ffbd6867c8bcff04e2b2972d1aa5",
+              "short_sha": "58dbf45",
+              "subject": "feat(container): add the decoration lane over the declarative grammar"
+            },
+            {
+              "sha": "083f778afd3b54323e068456282c606ceb6c870c",
+              "short_sha": "083f778",
+              "subject": "test(container): the decoration lane's battery -- grammar, surgery, boot and AOT round-trip"
+            },
+            {
+              "sha": "0e0e9d162d382fc491ba3d381b86885939516d09",
+              "short_sha": "0e0e9d1",
+              "subject": "test(container): kill the decoration lane's escaped mutants -- and the range-descent bug they exposed"
+            },
+            {
+              "sha": "e0df48ac926eed4f3bb0196b308809cd23c67eb2",
+              "short_sha": "e0df48a",
+              "subject": "docs(ci-notes): the decoration lane's KDD -- attribution, grammar, surgery, digest, and the saga lessons"
+            },
+            {
+              "sha": "4d4e6097e59719d8be3c408a5d2019f4f7290518",
+              "short_sha": "4d4e609",
+              "subject": "fix(container): the decoration refusals join the covered record -- and the S1192 line"
             }
           ]
         }
