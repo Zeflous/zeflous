@@ -94,6 +94,33 @@ declare(strict_types=1);
  * lifetimes through the binding are refused exactly as a direct
  * reference's would be.
  *
+ * The top-level 'decorators' configuration key declares the decoration
+ * lane -- wrapper chains over declared services:
+ *
+ *   'decorators' => ['logger' => [
+ *       ['class' => CachedLogger::class, 'arguments' => [['service' => '@inner'], 300]],
+ *       ['factory' => 'LoggerDecorators::timing'],
+ *   ]]
+ *
+ * The first entry is the outermost wrapper: the example answers
+ * CachedLogger(TimingLogger(inner)). Each entry is one shape -- 'class'
+ * or 'factory' -- whose 'arguments' follow the ordinary reference
+ * grammar, with the reserved ['service' => '@inner'] naming the layer
+ * the entry wraps; at least one argument must spell it (a decorator
+ * that never sees the service it decorates is a rebinding, and the
+ * boot refuses it as such). The apply is compile-time definition
+ * surgery: the target is re-homed under '@decor:<id>:base', the
+ * wrappers are ordinary definitions referencing the next layer inward,
+ * and every layer carries the decorated declaration's lifetime -- so
+ * the boot graph's guarantees hold unchanged, the install loop
+ * installs the chain like any other declaration, and the AOT dump
+ * exports it for free. The tags travel with the original identifier
+ * (the tag locator answers the *decorated* instance), and the lane's
+ * own '@decor:' namespace is reserved while the lane runs. All four
+ * shapes may be decorated -- a class, a factory, an alias or a value:
+ * decoration wraps whatever the identifier resolves. The whole lane is
+ * bounded at 128 declared decorators across every target.
+ *
  * The top-level 'parameters' configuration key declares the global
  * parameter namespace -- the injectable scalars a constructor
  * parameter reads through the #[Value] attribute:
