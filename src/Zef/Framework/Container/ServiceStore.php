@@ -27,7 +27,12 @@ use Closure;
  * ({@see Interceptions}): constructed here, threaded into the
  * resolution lanes' guarded seam, and reached by the boot's arming
  * through the container's own accessor -- the machinery the boot
- * arms before it warms a single singleton.
+ * arms before it warms a single singleton. The namespace fallback
+ * registry's wiring is the same posture ({@see NamespaceFallbacks}):
+ * constructed here with the guard and the interception registry the
+ * fallback construction rides, and reached by the container's miss
+ * path through its own accessor -- the factories a host registers
+ * for identifiers nobody declared.
  *
  * @phpstan-type Factory Closure(Container): mixed
  */
@@ -43,6 +48,8 @@ final readonly class ServiceStore
 
     private Interceptions $interceptions;
 
+    private NamespaceFallbacks $namespaceFallbacks;
+
     public function __construct(
         CycleGuard $cycleGuard = new CycleGuard(),
     ) {
@@ -50,6 +57,7 @@ final readonly class ServiceStore
         $this->factoryRegistrations = new FactoryRegistrations();
         $this->requestInstances = new RequestInstances($this);
         $this->interceptions = new Interceptions();
+        $this->namespaceFallbacks = new NamespaceFallbacks($cycleGuard, $this->interceptions);
         $this->serviceResolutions = new ServiceResolutions(
             $this->singletonMemo,
             $this->factoryRegistrations,
@@ -67,6 +75,16 @@ final readonly class ServiceStore
     public function interceptions(): Interceptions
     {
         return $this->interceptions;
+    }
+
+    /**
+     * The namespace fallback registry the container's miss path
+     * consults ({@see Container::namespaceFallbacks()} for the
+     * facade's own reach-through).
+     */
+    public function namespaceFallbacks(): NamespaceFallbacks
+    {
+        return $this->namespaceFallbacks;
     }
 
     /**

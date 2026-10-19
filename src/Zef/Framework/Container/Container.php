@@ -21,6 +21,10 @@ use Psr\Container\ContainerInterface;
  * registry the resolution lanes consult, and the facade that owns the store
  * owns the reach-through ({@see Interceptions} -- the registry refuses a
  * second arming itself, so what the accessor exposes cannot be re-armed).
+ * The namespace fallback registry's accessor is the third: the miss path
+ * consults the registry the composition root registered its fallback
+ * factories against ({@see NamespaceFallbacks}), and the facade that owns
+ * the store owns that reach-through too.
  */
 final readonly class Container implements ContainerInterface
 {
@@ -30,11 +34,17 @@ final readonly class Container implements ContainerInterface
 
     private Interceptions $interceptions;
 
+    private NamespaceFallbacks $namespaceFallbacks;
+
+    private ContainerAnswers $containerAnswers;
+
     public function __construct()
     {
         $this->serviceStore = new ServiceStore();
         $this->requestInstances = $this->serviceStore->requestInstances();
         $this->interceptions = $this->serviceStore->interceptions();
+        $this->namespaceFallbacks = $this->serviceStore->namespaceFallbacks();
+        $this->containerAnswers = new ContainerAnswers($this->serviceStore, $this->namespaceFallbacks);
     }
 
     /**
@@ -46,6 +56,18 @@ final readonly class Container implements ContainerInterface
     public function interceptions(): Interceptions
     {
         return $this->interceptions;
+    }
+
+    /**
+     * The namespace fallback registry the miss path consults: the
+     * longest-prefix factories a composition root registers for
+     * identifiers nobody declared (ROADMAP area 9's namespace half
+     * -- definitions on demand, spelled in code because the factory
+     * receives the identifier it resolves).
+     */
+    public function namespaceFallbacks(): NamespaceFallbacks
+    {
+        return $this->namespaceFallbacks;
     }
 
     /**
@@ -76,16 +98,12 @@ final readonly class Container implements ContainerInterface
     #[Override]
     public function has(string $id): bool
     {
-        return $this->serviceStore->has($id);
+        return $this->containerAnswers->carries($id);
     }
 
     #[Override]
     public function get(string $id): mixed
     {
-        if ($this->serviceStore->has($id)) {
-            return $this->serviceStore->resolve($id, $this);
-        }
-
-        throw new NotFoundException('Service "' . $id . '" is not defined.');
+        return $this->containerAnswers->answer($id, $this);
     }
 }

@@ -76,7 +76,14 @@ use Zef\Framework\Middleware\TracingFactory;
  * and the `tags.interfaces` map below is the autoconfiguration seam
  * (roadmap area 3) -- empty by default, because the framework ships
  * no marker-interface rules of its own; the host's rules arrive with
- * the host's configuration.
+ * the host's configuration. The namespace lane is live in the same
+ * posture: the `namespaces` knob below declares no scope annotations
+ * and a zero cross-scope budget, because the framework ships no
+ * namespace governance of its own -- a host's `scopes` map arrives
+ * with the host's configuration, and the empty knob boots the honest
+ * ungoverned tree; the reserved `framework.namespaces` registration
+ * ({@see NAMESPACES_SERVICE}) answers the boot-built locator either
+ * way.
  */
 final readonly class FrameworkDefaults
 {
@@ -109,6 +116,16 @@ final readonly class FrameworkDefaults
      * definitions so a host's same-identifier rebind wins.
      */
     public const string AOT_SERVICE = ContainerServices::AOT_SERVICE;
+
+    /**
+     * The container service identifier under which the namespace
+     * layer's read side ({@see Container\NamespacedServices}) is
+     * registered at boot: the locator over the boot's sealed radix
+     * tree. The `framework.tags` precedent -- introspection through
+     * the container's own public surface, registered ahead of the
+     * definitions so a host's same-identifier rebind wins.
+     */
+    public const string NAMESPACES_SERVICE = ContainerServices::NAMESPACES_SERVICE;
 
     /** The config-driven factories' shared construction entry, as the
      * service registrations spell it. */
@@ -260,6 +277,10 @@ final readonly class FrameworkDefaults
             'decorators' => [],
             'interceptors' => [],
             'listeners' => [],
+            'namespaces' => [
+                'scopes' => [],
+                'max_cross_scope_refs' => 0,
+            ],
             'parameters' => [],
             'aot' => [
                 'enabled' => false,

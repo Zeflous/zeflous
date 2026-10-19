@@ -26,7 +26,12 @@ use Zef\Framework\Container\Autowiring\AutowireCompilerPass;
  * synthetic alias), the decoration apply fourth (each decorated target
  * re-homed and wrapped, the tags travelling with the original
  * identifier), the reference graph proven resolvable, acyclic and
- * lifetime-honest fifth, and the tag index walked out of the planned
+ * lifetime-honest fifth, the namespace tree sealed over the planned set's
+ * public identifiers and the scope policy enforced against the graph
+ * sixth ({@see NamespaceTree}, {@see NamespaceScopes} -- area 9's
+ * namespace half, staged where the reference staged its own radix
+ * pass: after the graph validator, because the policy reads the edges
+ * the validator proved), and the tag index walked out of the planned
  * set last -- the collecting half of the tags lane's read side, now a
  * named stage whose product the AOT artifact bakes.
  *
@@ -59,6 +64,7 @@ final readonly class ContainerCompilePipeline
      * @param AutoconfigMap           $autoconfigMap   the earned-tag rules
      * @param ContextualMap           $contextualMap   the contextual bindings
      * @param DecoratorMap            $decoratorMap    the decoration chains
+     * @param NamespacesMap           $namespacesMap   the namespace scope policy
      */
     public function compile(
         array $definitions,
@@ -67,6 +73,7 @@ final readonly class ContainerCompilePipeline
         AutoconfigMap $autoconfigMap,
         ContextualMap $contextualMap,
         DecoratorMap $decoratorMap,
+        NamespacesMap $namespacesMap,
     ): ContainerCompilePlan {
         $autowireResult = $this->autowireCompilerPass->process($definitions, $container, $parameterValues);
 
@@ -78,11 +85,36 @@ final readonly class ContainerCompilePipeline
 
         ServiceDefinitionGraph::validate($planned, $container);
 
+        $namespaceRadixTree = NamespaceTree::sealed($this->ids($planned), $namespacesMap);
+
+        NamespaceScopes::enforce($planned, $container, $namespaceRadixTree, $namespacesMap);
+
         return new ContainerCompilePlan(
             $planned,
             ServiceTagIndex::fromDefinitions($planned),
             $this->unreferenced($planned, $container),
+            $namespaceRadixTree,
         );
+    }
+
+    /**
+     * The planned set's identifiers, in declaration order -- the tree
+     * build's own input (the `@`-prefixed machinery spellings are the
+     * build's own exemption, one spelling of it).
+     *
+     * @param list<ServiceDefinition> $planned
+     *
+     * @return list<string>
+     */
+    private function ids(array $planned): array
+    {
+        $ids = [];
+
+        foreach ($planned as $definition) {
+            $ids[] = $definition->id;
+        }
+
+        return $ids;
     }
 
     /**
