@@ -30,7 +30,7 @@ final readonly class NamespaceScopesSource
      * @param string $key    the knob's own key, for the refusals
      * @param mixed  $source the raw `scopes` value from the configuration
      *
-     * @return array<string, mixed> the annotation entries, prefix => kind
+     * @return array<array-key, mixed> the annotation entries, keys validated strings
      */
     public function entries(string $key, mixed $source): array
     {
@@ -48,10 +48,6 @@ final readonly class NamespaceScopesSource
             }
         }
 
-        /**
-         * The keys are strings by the walk above -- the one shape the
-         * storage type widens away.
-         */
         return $source;
     }
 }

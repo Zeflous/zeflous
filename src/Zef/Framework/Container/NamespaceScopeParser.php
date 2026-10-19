@@ -39,6 +39,12 @@ final readonly class NamespaceScopeParser
             return [];
         }
 
+        /**
+         * The entries' keys are strings by the source unit's own walk
+         * -- the one shape the storage type widens away.
+         *
+         * @var array<string, mixed> $entries
+         */
         $entries = new NamespaceScopesSource()->entries($key, $source);
         $namespacePrefixGrammar = new NamespacePrefixGrammar();
         $scopes = [];
