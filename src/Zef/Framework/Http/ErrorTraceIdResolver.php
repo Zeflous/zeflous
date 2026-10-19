@@ -18,9 +18,14 @@ final class ErrorTraceIdResolver
         ServerRequestInterface $request,
     ): string {
         $exceptionTraceId = $throwable instanceof ZefException ? $throwable->getTraceId() : null;
-        $candidate = \is_string($exceptionTraceId)
-            ? $exceptionTraceId
-            : ($requestContext instanceof ErrorRequestContext ? $requestContext->traceId() : $requestId);
+
+        if (\is_string($exceptionTraceId)) {
+            $candidate = $exceptionTraceId;
+        } elseif ($requestContext instanceof ErrorRequestContext) {
+            $candidate = $requestContext->traceId();
+        } else {
+            $candidate = $requestId;
+        }
 
         return preg_match('/^[A-Za-z0-9._:-]{1,128}$/D', $candidate) === 1
             ? $candidate

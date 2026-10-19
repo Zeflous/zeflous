@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Logging;
 
-use RuntimeException;
-
 /** Verifies the opened log file is the file on disk and restricts it to owner-only permissions. */
 final class JsonLogFileSecurity
 {
@@ -25,11 +23,11 @@ final class JsonLogFileSecurity
             || $opened['dev'] !== $current['dev']
             || $opened['ino'] !== $current['ino']
         ) {
-            throw new RuntimeException('The JSON log destination changed while it was being opened.');
+            throw new JsonLogWriteException('The JSON log destination changed while it was being opened.');
         }
 
         if (!chmod($path, 0o600)) {
-            throw new RuntimeException('Unable to secure the JSON log destination permissions.');
+            throw new JsonLogWriteException('Unable to secure the JSON log destination permissions.');
         }
 
         return max(0, $opened['size']);

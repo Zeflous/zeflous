@@ -19,20 +19,8 @@ final class DebugToolbarInjector
         int $exceptions,
         string $traceId,
     ): ResponseInterface {
-        $html = StreamSnapshot::capture($response->getBody());
-        if ($html === null) {
-            return $response;
-        }
-
-        $toolbar = DebugToolbarMarkup::build($durationMs, $queries, $exceptions, $traceId);
-        $updated = DebugToolbarBodySplice::insertBeforeClosingBody($html, $toolbar);
-        if ($updated === null) {
-            return $response;
-        }
-
-        try {
-            $body = Stream::fromString($updated);
-        } catch (Throwable) {
+        $body = self::updatedBody($response, $durationMs, $queries, $exceptions, $traceId);
+        if ($body === null) {
             return $response;
         }
 
@@ -49,5 +37,39 @@ final class DebugToolbarInjector
         ;
 
         return $updatedResponse instanceof ResponseInterface ? $updatedResponse : $response;
+    }
+
+    /**
+     * The toolbar-spliced replacement body, or null when the response must
+     * pass through untouched: a snapshot the injector cannot take, a body
+     * without a closing tag to splice before, or a stream the canonical
+     * seam refuses to build.
+     *
+     * @return null|Stream the updated response body
+     */
+    private static function updatedBody(
+        ResponseInterface $response,
+        float $durationMs,
+        int $queries,
+        int $exceptions,
+        string $traceId,
+    ): ?Stream {
+        $html = StreamSnapshot::capture($response->getBody());
+        if ($html === null) {
+            return null;
+        }
+
+        $toolbar = DebugToolbarMarkup::build($durationMs, $queries, $exceptions, $traceId);
+        $spliced = DebugToolbarBodySplice::insertBeforeClosingBody($html, $toolbar);
+
+        if ($spliced !== null) {
+            try {
+                return Stream::fromString($spliced);
+            } catch (Throwable) {
+                return null;
+            }
+        }
+
+        return null;
     }
 }

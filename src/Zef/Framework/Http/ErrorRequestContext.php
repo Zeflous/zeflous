@@ -99,9 +99,11 @@ final class ErrorRequestContext
 
     public function setReplayId(string $replayId): void
     {
-        if (preg_match('/^[a-f0-9]{32}$/D', $replayId) === 1) {
-            $this->replayId = $replayId;
+        if (preg_match('/^[a-f0-9]{32}$/D', $replayId) !== 1) {
+            return;
         }
+
+        $this->replayId = $replayId;
     }
 
     public function replayId(): ?string

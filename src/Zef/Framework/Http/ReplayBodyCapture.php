@@ -16,30 +16,22 @@ final class ReplayBodyCapture
     public static function capture(ServerRequestInterface $request): array
     {
         $body = ReplayBodyReader::read($request);
-        if ($body === null) {
-            return ['', false];
-        }
-
-        if ($body === '') {
-            return ['', true];
+        if ($body === null || $body === '') {
+            return ['', $body !== null];
         }
 
         $contentType = mb_strtolower($request->getHeaderLine('Content-Type'));
         $mediaType = mb_trim(explode(';', $contentType, 2)[0]);
 
         try {
-            if (self::isJsonMediaType($mediaType)) {
-                return self::json($body);
-            }
-
-            if ($mediaType === 'application/x-www-form-urlencoded') {
-                return self::form($body);
-            }
+            return match (true) {
+                self::isJsonMediaType($mediaType) => self::json($body),
+                $mediaType === 'application/x-www-form-urlencoded' => self::form($body),
+                default => ['', false],
+            };
         } catch (Throwable) {
             return ['', false];
         }
-
-        return ['', false];
     }
 
     private static function isJsonMediaType(string $mediaType): bool
@@ -56,7 +48,13 @@ final class ReplayBodyCapture
             return ['', false];
         }
 
-        return [json_encode(ReplayPayloadSanitizer::sanitize($decoded), \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE), true];
+        return [
+            json_encode(
+                ReplayPayloadSanitizer::sanitize($decoded),
+                \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE,
+            ),
+            true,
+        ];
     }
 
     /** @return array{string, bool} */

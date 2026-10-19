@@ -41,7 +41,9 @@ abstract class ZefException extends RuntimeException
 
         $resolvedErrorCode = $errorCode !== '' ? $errorCode : self::defaultErrorCode(static::class);
         if (preg_match('/^[A-Z][A-Z0-9_]{0,63}$/D', $resolvedErrorCode) !== 1) {
-            throw new InvalidArgumentException('The error code must be 1-64 uppercase letters, digits, or underscores and start with a letter.');
+            throw new InvalidArgumentException(
+                'The error code must be 1-64 uppercase letters, digits, or underscores and start with a letter.',
+            );
         }
 
         if ($traceId !== null && preg_match('/^[A-Za-z0-9._:-]{1,128}$/D', $traceId) !== 1) {

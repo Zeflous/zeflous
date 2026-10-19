@@ -29,7 +29,9 @@ final class AcceptHeaderParser
     /** @return null|array{string, float} */
     private static function mediaRange(string $part): ?array
     {
-        if ($part === '' || preg_match('/^[a-z0-9!#$&^_.+*-]+\/[a-z0-9!#$&^_.+*-]+$/D', mb_trim(explode(';', $part, 2)[0])) !== 1) {
+        if ($part === ''
+            || preg_match('/^[a-z0-9!#$&^_.+*-]+\/[a-z0-9!#$&^_.+*-]+$/D', mb_trim(explode(';', $part, 2)[0])) !== 1
+        ) {
             return null;
         }
 

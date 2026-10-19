@@ -21,7 +21,9 @@ final class JsonLogFilePrivacy
 
         $permissions = fileperms($resolvedPath);
         if (!\is_int($permissions) || ($permissions & 0o077) !== 0 || !is_writable($resolvedPath)) {
-            throw new InvalidArgumentException('The existing JSON log file must be writable with owner-only permissions.');
+            throw new InvalidArgumentException(
+                'The existing JSON log file must be writable with owner-only permissions.',
+            );
         }
     }
 }

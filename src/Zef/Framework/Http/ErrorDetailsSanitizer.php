@@ -37,18 +37,11 @@ final class ErrorDetailsSanitizer
      */
     private static function value(mixed $value, int $depth): array|bool|float|int|string|null
     {
-        if (\is_string($value)) {
-            return RedactedMessage::of(mb_substr($value, 0, 2048));
-        }
-
-        if (\is_int($value) || \is_float($value) || \is_bool($value) || $value === null) {
-            return $value;
-        }
-
-        if (\is_array($value)) {
-            return self::sanitize($value, $depth + 1);
-        }
-
-        return '[' . get_debug_type($value) . ']';
+        return match (true) {
+            \is_string($value) => RedactedMessage::of(mb_substr($value, 0, 2048)),
+            \is_int($value), \is_float($value), \is_bool($value), $value === null => $value,
+            \is_array($value) => self::sanitize($value, $depth + 1),
+            default => '[' . get_debug_type($value) . ']',
+        };
     }
 }

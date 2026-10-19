@@ -11,8 +11,12 @@ use Zef\Framework\Telemetry\MeterInterface;
 /** Best-effort error metric emission isolated from the response path. */
 final class ErrorFaultMetricsRecorder
 {
-    public static function record(?MeterInterface $meter, Throwable $exception, int $status, ServerRequestInterface $request): void
-    {
+    public static function record(
+        ?MeterInterface $meter,
+        Throwable $exception,
+        int $status,
+        ServerRequestInterface $request,
+    ): void {
         try {
             $meter?->increment('zef.http.errors.total', 1, [
                 'http.request.method' => $request->getMethod(),

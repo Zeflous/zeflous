@@ -125,79 +125,7 @@ final readonly class FrameworkDefaults
     {
         return [
             'framework' => [
-                'services' => [
-                    'http.errors' => [
-                        'factory' => ErrorMappingFactory::class . '::fromConfig',
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                            ['service' => 'observability.meter'],
-                        ],
-                    ],
-                    'http.debug_toolbar' => [
-                        'factory' => DebugToolbarFactory::class . '::fromConfig',
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                        ],
-                    ],
-                    'security.headers' => [
-                        'factory' => SecurityHeadersFactory::class . self::CONFIG_FACTORY_ENTRY,
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                        ],
-                    ],
-                    'security.rate_limit' => [
-                        'factory' => RateLimitFactory::class . self::CONFIG_FACTORY_ENTRY,
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                        ],
-                    ],
-                    'security.csrf' => [
-                        'factory' => CsrfFactory::class . self::CONFIG_FACTORY_ENTRY,
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                        ],
-                    ],
-                    'security.auth' => [
-                        'factory' => AuthFactory::class . self::CONFIG_FACTORY_ENTRY,
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                        ],
-                    ],
-                    'observability.timing' => [
-                        'factory' => TimingFactory::class . self::CONFIG_FACTORY_ENTRY,
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                        ],
-                    ],
-                    'observability.tracing' => [
-                        'factory' => TracingFactory::class . self::CONFIG_FACTORY_ENTRY,
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                        ],
-                    ],
-                    'observability.correlation' => [
-                        'factory' => CorrelationFactory::class . self::CONFIG_FACTORY_ENTRY,
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                            ['service' => 'observability.tracing'],
-                        ],
-                    ],
-                    'observability.meter' => [
-                        'factory' => MetricsFactory::class . '::meter',
-                        'arguments' => [],
-                    ],
-                    'observability.health' => [
-                        'class' => HealthChecker::class,
-                    ],
-                    'observability.metrics' => [
-                        'factory' => MetricsFactory::class . self::CONFIG_FACTORY_ENTRY,
-                        'arguments' => [
-                            ['service' => self::CONFIG_SERVICE],
-                            ['service' => 'observability.meter'],
-                            ['service' => 'observability.health'],
-                        ],
-                    ],
-                ],
+                'services' => self::serviceRegistrations(),
             ],
             'security' => [
                 'headers' => [
@@ -276,6 +204,93 @@ final readonly class FrameworkDefaults
             'aot' => [
                 'enabled' => false,
                 'warm' => false,
+            ],
+        ];
+    }
+
+    /**
+     * The boot-ordered service registrations the default profile wires:
+     * the HTTP error boundary and debug toolbar lanes, the security
+     * middleware family, and the observability collaborators -- each
+     * config-driven factory addressed through the shared construction
+     * entry ({@see CONFIG_FACTORY_ENTRY}) so a host's same-identifier
+     * rebind wins over the framework's own defaults.
+     *
+     * @return array<non-empty-string, array<string, mixed>>
+     */
+    private static function serviceRegistrations(): array
+    {
+        return [
+            'http.errors' => [
+                'factory' => ErrorMappingFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                    ['service' => 'observability.meter'],
+                ],
+            ],
+            'http.debug_toolbar' => [
+                'factory' => DebugToolbarFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'security.headers' => [
+                'factory' => SecurityHeadersFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'security.rate_limit' => [
+                'factory' => RateLimitFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'security.csrf' => [
+                'factory' => CsrfFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'security.auth' => [
+                'factory' => AuthFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'observability.timing' => [
+                'factory' => TimingFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'observability.tracing' => [
+                'factory' => TracingFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'observability.correlation' => [
+                'factory' => CorrelationFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                    ['service' => 'observability.tracing'],
+                ],
+            ],
+            'observability.meter' => [
+                'factory' => MetricsFactory::class . '::meter',
+                'arguments' => [],
+            ],
+            'observability.health' => [
+                'class' => HealthChecker::class,
+            ],
+            'observability.metrics' => [
+                'factory' => MetricsFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                    ['service' => 'observability.meter'],
+                    ['service' => 'observability.health'],
+                ],
             ],
         ];
     }

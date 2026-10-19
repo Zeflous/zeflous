@@ -22,22 +22,27 @@ final class ReplayPayloadSanitizer
             return self::entries($value, $depth);
         }
 
-        if (\is_string($value)) {
-            $redacted = RedactedMessage::of(mb_substr($value, 0, 4096));
-            $redacted = preg_replace(
-                '/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i',
-                '[REDACTED_EMAIL]',
-                $redacted,
-            );
+        return match (true) {
+            \is_string($value) => self::redactedString($value),
+            \is_int($value), \is_float($value), \is_bool($value), $value === null => $value,
+            default => '[UNSUPPORTED]',
+        };
+    }
 
-            return \is_string($redacted) ? $redacted : '[REDACTED]';
-        }
+    /**
+     * Redacts one bounded string value, masking e-mail addresses the
+     * replay snapshot must never persist.
+     */
+    private static function redactedString(string $value): string
+    {
+        $redacted = RedactedMessage::of(mb_substr($value, 0, 4096));
+        $redacted = preg_replace(
+            '/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i',
+            '[REDACTED_EMAIL]',
+            $redacted,
+        );
 
-        if (\is_int($value) || \is_float($value) || \is_bool($value) || $value === null) {
-            return $value;
-        }
-
-        return '[UNSUPPORTED]';
+        return \is_string($redacted) ? $redacted : '[REDACTED]';
     }
 
     /**

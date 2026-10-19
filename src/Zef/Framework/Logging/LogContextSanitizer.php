@@ -58,26 +58,16 @@ final class LogContextSanitizer
      */
     private static function value(mixed $value, int $depth): array|bool|float|int|string|null
     {
-        if ($value instanceof Throwable) {
-            return [
+        return match (true) {
+            $value instanceof Throwable => [
                 'class' => $value::class,
                 'message' => self::redact($value->getMessage()),
                 'code' => $value->getCode(),
-            ];
-        }
-
-        if (\is_string($value)) {
-            return self::redact(mb_substr($value, 0, 4096));
-        }
-
-        if (\is_int($value) || \is_float($value) || \is_bool($value) || $value === null) {
-            return $value;
-        }
-
-        if (\is_array($value)) {
-            return self::sanitize($value, $depth + 1);
-        }
-
-        return '[' . get_debug_type($value) . ']';
+            ],
+            \is_string($value) => self::redact(mb_substr($value, 0, 4096)),
+            \is_int($value), \is_float($value), \is_bool($value), $value === null => $value,
+            \is_array($value) => self::sanitize($value, $depth + 1),
+            default => '[' . get_debug_type($value) . ']',
+        };
     }
 }

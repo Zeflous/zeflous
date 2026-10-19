@@ -37,7 +37,10 @@ final class ReplayStorageDirectory
         if (
             \is_string($resolvedDocumentRoot)
             && ($resolved === $resolvedDocumentRoot
-                || str_starts_with($resolved, mb_rtrim($resolvedDocumentRoot, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR))
+                || str_starts_with(
+                    $resolved,
+                    mb_rtrim($resolvedDocumentRoot, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR,
+                ))
         ) {
             throw new InvalidArgumentException('Replay storage must be outside the public document root.');
         }

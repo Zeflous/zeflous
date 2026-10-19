@@ -12,7 +12,9 @@ final class JsonLogDestination
     public static function resolve(string $path): string
     {
         if ($path === '' || str_contains($path, "\0") || is_dir($path) || is_link($path)) {
-            throw new InvalidArgumentException('The JSON log path must be a non-symlink file in an existing directory.');
+            throw new InvalidArgumentException(
+                'The JSON log path must be a non-symlink file in an existing directory.',
+            );
         }
 
         $directory = realpath(\dirname($path));

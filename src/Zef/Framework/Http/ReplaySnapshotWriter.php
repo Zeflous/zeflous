@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Http;
 
-use RuntimeException;
 use Throwable;
 
 /** Writes one exclusive, owner-only replay snapshot and removes partial files on failure. */
@@ -15,18 +14,18 @@ final class ReplaySnapshotWriter
         $destination = $directory . \DIRECTORY_SEPARATOR . $id . '.json';
         $stream = fopen($destination, 'xb');
         if ($stream === false) {
-            throw new RuntimeException('Unable to create an exclusive replay snapshot.');
+            throw new ReplaySnapshotException('Unable to create an exclusive replay snapshot.');
         }
 
         $locked = false;
 
         try {
             if (!chmod($destination, 0o600)) {
-                throw new RuntimeException('Unable to secure the replay snapshot file.');
+                throw new ReplaySnapshotException('Unable to secure the replay snapshot file.');
             }
 
             if (!flock($stream, \LOCK_EX)) {
-                throw new RuntimeException('Unable to lock the replay snapshot file.');
+                throw new ReplaySnapshotException('Unable to lock the replay snapshot file.');
             }
             $locked = true;
 
@@ -38,7 +37,7 @@ final class ReplaySnapshotWriter
             fclose($stream);
 
             if (!unlink($destination)) {
-                throw new RuntimeException('Unable to remove an incomplete replay snapshot.', 0, $throwable);
+                throw new ReplaySnapshotException('Unable to remove an incomplete replay snapshot.', 0, $throwable);
             }
 
             throw $throwable;
@@ -56,7 +55,7 @@ final class ReplaySnapshotWriter
         while ($offset < $length) {
             $written = fwrite($stream, mb_substr($contents, $offset));
             if ($written === false || $written === 0) {
-                throw new RuntimeException('Unable to write a complete replay snapshot.');
+                throw new ReplaySnapshotException('Unable to write a complete replay snapshot.');
             }
 
             $offset += $written;
