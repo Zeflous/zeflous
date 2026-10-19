@@ -251,6 +251,15 @@
         // methods.
         "MBString": {
             "ignore": [
+                // The AOT knob's toggle fold is value-equivalent under the
+                // MBString mutator by the same construction the class's own
+                // docblock argues: the vocabulary carries no letter whose
+                // Unicode case map diverges from the ASCII fold (the only
+                // single-character lowercase landing in ASCII the map
+                // carries is U+212A to k, and no vocabulary word contains
+                // a k), so every fold-divergent value is rejected under
+                // both spellings.
+                "Zef\\Framework\\Container\\Aot\\AotToggles::read",
                 "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
                 "Zef\\Framework\\Http\\AuthCredential::fromBearerLine",
                 "Zef\\Framework\\Http\\BodyBudget::refuses",

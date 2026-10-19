@@ -29,6 +29,9 @@ use Zef\Framework\Container\Autowiring\AutowireReuse;
 use Zef\Framework\Container\Autowiring\AutowireSpecFactory;
 use Zef\Framework\Container\Autowiring\AutowireStaticReturn;
 use Zef\Framework\Container\Autowiring\AutowireTargetBinding;
+use Zef\Framework\Container\Autowiring\AutowireValueMaterialisations;
+use Zef\Framework\Container\Autowiring\AutowireValueRefusals;
+use Zef\Framework\Container\Autowiring\AutowireValueServices;
 use Zef\Framework\Container\Autowiring\AutowireVariadicCollection;
 use Zef\Framework\Container\Autowiring\AutowiringException;
 use Zef\Framework\Container\Autowiring\ConstructorFitRefusals;
@@ -36,13 +39,17 @@ use Zef\Framework\Container\Autowiring\ConstructorSpecs;
 use Zef\Framework\Container\Autowiring\NamedFit;
 use Zef\Framework\Container\Autowiring\PositionalFit;
 use Zef\Framework\Container\Autowiring\ReflectionMetadataExtractor;
+use Zef\Framework\Container\Autowiring\SyntheticValueGuard;
+use Zef\Framework\Container\Autowiring\Value;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\DefinitionMap;
 use Zef\Framework\Container\FactoryDefinition;
 use Zef\Framework\Container\InstanceDefinition;
+use Zef\Framework\Container\ParameterValues;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\ServiceDefinitionGraph;
+use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\Autowiring\BirthChainAlpha;
 use Zef\Test\Support\Container\Autowiring\BirthChainBeta;
 use Zef\Test\Support\Container\Autowiring\BuiltinStaticFactory;
@@ -73,6 +80,17 @@ use Zef\Test\Support\Container\Autowiring\UnionVariadicHouse;
 use Zef\Test\Support\Container\Autowiring\VariadicHouse;
 use Zef\Test\Support\Container\ExternalFactory;
 use Zef\Test\Support\Container\Greeter;
+use Zef\Test\Support\Container\Parameters\ClassTypedValueHouse;
+use Zef\Test\Support\Container\Parameters\ConnectionHouse;
+use Zef\Test\Support\Container\Parameters\DefaultedHouse;
+use Zef\Test\Support\Container\Parameters\DoubledIntentHouse;
+use Zef\Test\Support\Container\Parameters\DoubledValueHouse;
+use Zef\Test\Support\Container\Parameters\PoolHouse;
+use Zef\Test\Support\Container\Parameters\SharedFlagAudit;
+use Zef\Test\Support\Container\Parameters\SharedFlagHouse;
+use Zef\Test\Support\Container\Parameters\SpelledHouse;
+use Zef\Test\Support\Container\Parameters\UnionValueHouse;
+use Zef\Test\Support\Container\Parameters\VariadicValueHouse;
 
 /**
  * @internal
@@ -81,6 +99,12 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(AutowireParameterPlanner::class)]
 #[CoversClass(AutowireResult::class)]
 #[CoversClass(AutowireAttributes::class)]
+#[CoversClass(AutowireValueServices::class)]
+#[CoversClass(SyntheticValueGuard::class)]
+#[CoversClass(AutowireValueMaterialisations::class)]
+#[CoversClass(AutowireValueRefusals::class)]
+#[CoversClass(Value::class)]
+#[CoversClass(ParameterValues::class)]
 #[CoversClass(AutowireBirther::class)]
 #[CoversClass(AutowireBirths::class)]
 #[CoversClass(AutowireFactoryProduct::class)]
@@ -376,6 +400,7 @@ final class AutowireCompilerPassTest extends TestCase
         $autowireReferences = new AutowireReferences(
             new ReflectionMetadataExtractor(),
             new AutowireBirths(),
+            new AutowireValueServices(),
         );
         $autowireReferences->open([], new Container());
 
@@ -813,6 +838,245 @@ final class AutowireCompilerPassTest extends TestCase
         ]);
 
         self::assertSame([], $this->firstInstance($planned)->arguments);
+    }
+
+    public function testAValueAddressPlansTheSyntheticServiceReference(): void
+    {
+        $result = $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+            'app.connection' => ['class' => ConnectionHouse::class, 'autowire' => true],
+        ]), new Container(), new ParameterValues([
+            'db.host' => 'localhost',
+            'db.port' => 3306,
+        ]));
+
+        $planned = $result->definitions[0];
+        self::assertInstanceOf(InstanceDefinition::class, $planned);
+        self::assertSame(
+            [['service' => '@value:db.host'], ['service' => '@value:db.port']],
+            $planned->arguments,
+        );
+
+        $hostValue = $result->definitions[1];
+        $portValue = $result->definitions[2];
+        self::assertInstanceOf(ValueDefinition::class, $hostValue);
+        self::assertInstanceOf(ValueDefinition::class, $portValue);
+        self::assertSame('@value:db.host', $hostValue->id);
+        self::assertSame('localhost', $hostValue->value);
+        self::assertSame('@value:db.port', $portValue->id);
+        self::assertSame(3306, $portValue->value);
+        self::assertSame(['@value:db.host', '@value:db.port'], $result->values);
+        self::assertSame([], $result->generated);
+    }
+
+    public function testTwoConsumersOfOneAddressShareOneMaterialisation(): void
+    {
+        $result = $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+            'app.house' => ['class' => SharedFlagHouse::class, 'autowire' => true],
+            'app.audit' => ['class' => SharedFlagAudit::class, 'autowire' => true],
+        ]), new Container(), new ParameterValues([
+            'shared.flag' => true,
+        ]));
+
+        self::assertSame([['service' => '@value:shared.flag']], $this->firstInstance($result->definitions)->arguments);
+        self::assertSame(
+            [['service' => '@value:shared.flag']],
+            $this->firstInstance($result->definitions, 1)->arguments,
+        );
+        self::assertCount(3, $result->definitions);
+        self::assertSame(['@value:shared.flag'], $result->values);
+    }
+
+    public function testAnArrayParameterMaterialisesTheWholeValue(): void
+    {
+        $result = $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+            'app.pool' => ['class' => PoolHouse::class, 'autowire' => true],
+        ]), new Container(), new ParameterValues([
+            'db.replicas' => ['a.example', 'b.example'],
+        ]));
+
+        $planned = $result->definitions[0];
+        self::assertInstanceOf(InstanceDefinition::class, $planned);
+        self::assertSame([['service' => '@value:db.replicas']], $planned->arguments);
+
+        $value = $result->definitions[1];
+        self::assertInstanceOf(ValueDefinition::class, $value);
+        self::assertSame(['a.example', 'b.example'], $value->value);
+    }
+
+    public function testAMissingAddressRefusesEvenWhenTheConstructorCarriesADefault(): void
+    {
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.house' => ['class' => DefaultedHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Cannot plan 'app.house': the parameter '\$name' carries #[Value('missing.default')]",
+                $autowiringException->getMessage(),
+            );
+            self::assertStringContainsString(
+                "drop the attribute so the parameter's own default or explicit spelling applies",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheDefaultValueParameterAnswersWithoutValuesThreaded(): void
+    {
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.house' => ['class' => ConnectionHouse::class, 'autowire' => true],
+            ]), new Container());
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "the 'parameters' configuration has no value for 'db.host'",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testADeclaredSpellingOfTheSyntheticNamespaceRefusesThePlan(): void
+    {
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.house' => ['class' => ConnectionHouse::class, 'autowire' => true],
+                '@value:db.host' => ['value' => 'shadowed'],
+            ]), new Container(), new ParameterValues([
+                'db.host' => 'localhost',
+                'db.port' => 3306,
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "the synthetic value service '@value:db.host' collides with a declared definition",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnExplicitSpellingWinsOverTheValueAttribute(): void
+    {
+        $result = $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+            'app.house' => ['class' => SpelledHouse::class, 'arguments' => ['host' => 'spelled.example']],
+        ]), new Container(), new ParameterValues([
+            'db.host' => 'localhost',
+        ]));
+
+        $planned = $result->definitions[0];
+        self::assertInstanceOf(InstanceDefinition::class, $planned);
+        self::assertSame(['spelled.example'], $planned->arguments);
+        self::assertSame([], $result->values);
+    }
+
+    public function testAValueAttributeCannotRideAClassTypedParameter(): void
+    {
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.house' => ['class' => ClassTypedValueHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([
+                'app.greeter' => 'x',
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Parameter '\$greeter' cannot carry #[Value] on a class-typed parameter",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testAValueAttributeCannotRideAUnionParameter(): void
+    {
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.house' => ['class' => UnionValueHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([
+                'app.either' => 'x',
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Parameter '\$either' cannot carry #[Value] on a union or intersection parameter",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testAValueAttributeCannotRideAVariadicParameter(): void
+    {
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.house' => ['class' => VariadicValueHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([
+                'app.tags' => 'x',
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Parameter '\$tags' cannot carry #[Value] on a variadic parameter",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testAValueAttributeCannotCombineWithInject(): void
+    {
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.house' => ['class' => DoubledIntentHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([
+                'app.clock.value' => 'x',
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "Parameter '\$clock' cannot combine #[Value] with #[Inject] or #[Target]",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testADoubledValueAttributeIsTheAmbiguityItIs(): void
+    {
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.house' => ['class' => DoubledValueHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([
+                'db.host' => 'localhost',
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertSame(
+                "Parameter '\$host' carries more than one Value attribute.",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testASecondRunDoesNotLeakTheFirstRunsMaterialisations(): void
+    {
+        $services = DefinitionMap::parse('services', [
+            'app.house' => ['class' => SharedFlagHouse::class, 'autowire' => true],
+        ]);
+
+        $first = $this->autowireCompilerPass->process(
+            $services,
+            new Container(),
+            new ParameterValues(['shared.flag' => true]),
+        );
+        self::assertSame(['@value:shared.flag'], $first->values);
+
+        try {
+            $this->autowireCompilerPass->process($services, new Container());
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "the 'parameters' configuration has no value for 'shared.flag'",
+                $autowiringException->getMessage(),
+            );
+        }
     }
 
     /**

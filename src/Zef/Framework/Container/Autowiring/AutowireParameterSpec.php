@@ -17,9 +17,13 @@ namespace Zef\Framework\Container\Autowiring;
  * The unsupported-type reason carries the honest verdict for union and
  * intersection types (a parameter admitting several types names no single
  * binding); scalar and untyped parameters carry a null class name and
- * resolve only through the explicit, defaulted or refused arms -- there
- * is no value guessing in this lane (the config-value attribute is the
- * registration-completion family's seam, not this one's).
+ * resolve through the explicit, defaulted, value or refused arms. The
+ * `#[Value]` key is the registration-completion family's seam: a scalar
+ * parameter whose value the parameters map answers, materialised by
+ * {@see AutowireValueServices} -- never combined with the binding
+ * attributes, never on a variadic, a class-typed or a union parameter
+ * (a value is one scalar or array, not a collection, an instance or a
+ * type union).
  */
 final readonly class AutowireParameterSpec
 {
@@ -33,6 +37,7 @@ final readonly class AutowireParameterSpec
         public ?string $unsupportedTypeReason = null,
         public ?string $injectId = null,
         public ?string $targetClass = null,
+        public ?string $valueKey = null,
     ) {
         if ($this->injectId !== null && $this->targetClass !== null) {
             throw new AutowiringException(
@@ -54,6 +59,34 @@ final readonly class AutowireParameterSpec
                 . "(collection binding is the tags lane's concern).",
             );
         }
+
+        if ($this->valueKey !== null && ($this->injectId !== null || $this->targetClass !== null)) {
+            throw new AutowiringException(
+                "Parameter '\${$this->name}' cannot combine #[Value] with #[Inject] or #[Target] "
+                . '(one parameter carries one binding intent).',
+            );
+        }
+
+        if ($this->valueKey !== null && $this->isVariadic) {
+            throw new AutowiringException(
+                "Parameter '\${$this->name}' cannot carry #[Value] on a variadic parameter "
+                . '(a variadic is a collection, not one value).',
+            );
+        }
+
+        if ($this->valueKey !== null && $this->className !== null) {
+            throw new AutowiringException(
+                "Parameter '\${$this->name}' cannot carry #[Value] on a class-typed parameter "
+                . "({$this->className} is an instance type, a value is a scalar or an array).",
+            );
+        }
+
+        if ($this->valueKey !== null && $this->unsupportedTypeReason !== null) {
+            throw new AutowiringException(
+                "Parameter '\${$this->name}' cannot carry #[Value] on a union or intersection "
+                . 'parameter (a value names no single type).',
+            );
+        }
     }
 
     /**
@@ -64,6 +97,17 @@ final readonly class AutowireParameterSpec
     public function carriesBinding(): bool
     {
         return $this->injectId !== null || $this->targetClass !== null || $this->className !== null;
+    }
+
+    /**
+     * Whether the value arm carries this parameter: the `#[Value]`
+     * attribute named its parameter address (the class-typed and union
+     * guards make the value and binding arms mutually exclusive by
+     * construction).
+     */
+    public function carriesValue(): bool
+    {
+        return $this->valueKey !== null;
     }
 
     /**

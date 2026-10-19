@@ -47,14 +47,21 @@ its own CI job so a slow lane cannot block the others:
 The `CI Strict` job is a thin aggregator that is **event-driven**: it is
 triggered by `workflow_run` the moment any of the four lanes completes, so it
 reacts instead of waiting (it does not use a `needs:` dependency graph, and it
-runs no long polling loop). On every firing it re-reads the four lane
-check-runs for the commit under verification and creates/updates the required
-`CI Strict` check-run on that commit's head sha through the Checks API, so the
-required status-check context is unchanged. It **fails** (never silently skips)
-whenever a lane is red — a skipped required check would otherwise count as
-satisfied and let a red pull request merge. A bounded fallback loop (60-second
-sleep, 45-minute deadline) covers the bootstrap case where `workflow_run` cannot
-yet fire because the file is not on the default branch.
+runs no long polling loop). Merge-group lane completions are deliberately
+excluded from that path (`branches-ignore: 'gh-readonly-queue/**'`): a merge
+group's `CI Strict` verdict is owned by the `merge_group` polling run, which
+writes it exactly once — an event-driven write on a group head is the
+re-render trigger that deadlocked the queue on 2026-10-19 (see
+[`docs/ci-notes/merge-queue-render-storm.md`](docs/ci-notes/merge-queue-render-storm.md)).
+On every firing it re-reads the four lane check-runs for the commit under
+verification and creates/updates the required `CI Strict` check-run on that
+commit's head sha through the Checks API, so the required status-check context
+is unchanged, and a concluded verdict is never re-opened. It **fails** (never
+silently skips) whenever a lane is red — a skipped required check would
+otherwise count as satisfied and let a red pull request merge. A bounded
+fallback loop (60-second sleep, 45-minute deadline) covers the bootstrap case
+where `workflow_run` cannot yet fire because the file is not on the default
+branch.
 
 ## Mandatory rules
 
@@ -369,25 +376,33 @@ accurate.
 
 ## Quality gates
 
-The following checks run on every pull request. `CI Strict`, `PR Validator`,
-`PhpCodeArcheology SARIF`, `SonarCloud Code Analysis` and `SonarCloud
-analysis` are **required** — the rest are advisory signals.
+The following checks run on every pull request, and every merge into `main`
+is validated through a **merge queue**: once the required checks are green on
+the pull request, GitHub re-runs them on the combined merge-group ref using
+the workflow files from `main` itself, so what gets certified is the merged
+result — not the pull request's own workflow version. `CI Strict`, `PR
+Validator`, `PhpCodeArcheology SARIF` and `SonarCloud analysis` are
+**required** — the rest are advisory signals. `SonarCloud Code Analysis`
+(the SonarCloud GitHub App's check) stays on pull requests as advisory
+decoration; the blocking server-side verdict travels with `SonarCloud
+analysis`, which waits on the same gate.
 
 | Check | What it enforces |
 | --- | --- |
-| `CI Strict` | Aggregator: green only when `CI Static`, `CI Coverage`, `CI Infection` and `CI Bench` are all green. It is event-driven (`workflow_run`) and fails (never skips) if any lane did not succeed. |
+| `CI Strict` | Aggregator: green only when `CI Static`, `CI Coverage`, `CI Infection` and `CI Bench` are all green. It is event-driven (`workflow_run`) and fails (never skips) if any lane did not succeed. Merge-group heads are excluded from the event-driven path — the `merge_group` polling run owns a group head's verdict (the re-render storm fix). |
 | `CI Static` | `composer ci:static` — PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector, PHPUnit, the persistent-worker smoke test and the strict supply-chain audit — plus Psalm (level 1 + baseline), Progpilot (static security analysis) and PhpCodeArcheology (architecture & maintainability gate). |
 | `CI Coverage` | `composer ci:coverage` — the 90% line-coverage gate. |
 | `CI Infection` | `composer ci:infection` — Infection mutation testing (MSI 100) and the mutation-score floor. |
 | `CI Bench` | `composer ci:bench` — PHPBench. |
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
-| `SonarCloud Code Analysis` | The server-side quality gate. |
+| `SonarCloud Code Analysis` | The SonarCloud GitHub App's check on pull requests — advisory decoration; the blocking server-side quality gate is carried by `SonarCloud analysis`, which waits on the same server-side verdict. |
 | `SonarCloud analysis` | The scanner lane that produces the analysis (bridging the CI Coverage artifact); fail-closed when uncredentialed in a context that must have credentials — see [`docs/security/sonarcloud.md`](docs/security/sonarcloud.md). |
 | `Dependency Review` | Supply-chain review of dependency changes. |
 | `API Documentation Check` | The generated API documentation is up to date. |
 | `PHPBench` | Benchmark regression check. |
 | `Changelog generator tests` | Unit tests for the changelog generator. |
+| `CI Ruleset Lint` | Weekly guard: every required status-check context in the live `main` ruleset must have a check-run on each of the last ten merged pull-request heads (the dead-required-check failure mode of the merge-gate audit). |
 
 Do not weaken a gate, add a rule exclusion, or lower a threshold to make a
 change pass. Fix the underlying issue instead.

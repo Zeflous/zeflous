@@ -65,6 +65,10 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(tooling): refuse a stale roadmap pin on main [#417](https://github.com/Zeflous/zeflous/pull/417) ([mbetixz](https://github.com/mbetixz))
 - feat(errors): add the typed HTTP exception family and retire the message sniffing [#434](https://github.com/Zeflous/zeflous/pull/434) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the method-call injection lane and contextual bindings [#439](https://github.com/Zeflous/zeflous/pull/439) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the parameters family and the value attribute lane [#445](https://github.com/Zeflous/zeflous/pull/445) ([mbetixz](https://github.com/mbetixz))
+- feat(ci): make every required check merge-queue aware [#446](https://github.com/Zeflous/zeflous/pull/446) ([mbetixz](https://github.com/mbetixz))
+- feat(ci): lint the ruleset against the merged heads' check evidence [#447](https://github.com/Zeflous/zeflous/pull/447) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the compiler passes and the AOT artifact lane [#458](https://github.com/Zeflous/zeflous/pull/458) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -98,6 +102,10 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(composer): exclude the vendored psr shims from the dev classmap [#410](https://github.com/Zeflous/zeflous/pull/410) ([mbetixz](https://github.com/mbetixz))
 - fix(ci): resolve the merge-gate audit's code-side findings (aggregator stall, Sonar fail-open, approve sweep) [#422](https://github.com/Zeflous/zeflous/pull/422) ([mbetixz](https://github.com/mbetixz))
 - fix(tooling): the update-merges of every branch kind are bookkeeping [#426](https://github.com/Zeflous/zeflous/pull/426) ([mbetixz](https://github.com/mbetixz))
+- fix(ci): upload the archeology SARIF on merge groups so the code scanning rule can pass [#451](https://github.com/Zeflous/zeflous/pull/451) ([mbetixz](https://github.com/mbetixz))
+- fix(ci): name the queue-path SonarCloud branch per entry so concurrent group scans cannot collide [#453](https://github.com/Zeflous/zeflous/pull/453) ([mbetixz](https://github.com/mbetixz))
+- fix(ci): suspend the auto-merge branch sync while the merge queue is active [#456](https://github.com/Zeflous/zeflous/pull/456) ([mbetixz](https://github.com/mbetixz))
+- fix(ci): stop the merge queue self-re-render storm [#463](https://github.com/Zeflous/zeflous/pull/463) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
@@ -204,6 +212,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the status refresh to pull request 431 [#432](https://github.com/Zeflous/zeflous/pull/432) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the typed exception family to pull request 434 [#435](https://github.com/Zeflous/zeflous/pull/435) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the injector and contextual-binding family to pull request 439 [#440](https://github.com/Zeflous/zeflous/pull/440) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the merge-queue and ruleset-lint family to pull requests 446 and 447 [#450](https://github.com/Zeflous/zeflous/pull/450) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the parameters family to pull request 445 [#452](https://github.com/Zeflous/zeflous/pull/452) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458 [#459](https://github.com/Zeflous/zeflous/pull/459) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

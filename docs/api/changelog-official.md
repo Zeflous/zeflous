@@ -6,6 +6,18 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the merge-queue storm fix -- history row 463 [\#466](https://github.com/Zeflous/zeflous/pull/466) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): stop the merge queue self-re-render storm [\#463](https://github.com/Zeflous/zeflous/pull/463) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): pin the compiler passes area -- status area 8 implemented, history row 458 [\#459](https://github.com/Zeflous/zeflous/pull/459) ([mbetixz](https://github.com/mbetixz))
+- feat\(container\): add the compiler passes and the AOT artifact lane [\#458](https://github.com/Zeflous/zeflous/pull/458) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): suspend the auto-merge branch sync while the merge queue is active [\#456](https://github.com/Zeflous/zeflous/pull/456) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): name the queue-path SonarCloud branch per entry so concurrent group scans cannot collide [\#453](https://github.com/Zeflous/zeflous/pull/453) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): pin the parameters family to pull request 445 [\#452](https://github.com/Zeflous/zeflous/pull/452) ([mbetixz](https://github.com/mbetixz))
+- fix\(ci\): upload the archeology SARIF on merge groups so the code scanning rule can pass [\#451](https://github.com/Zeflous/zeflous/pull/451) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): pin the merge-queue and ruleset-lint family to pull requests 446 and 447 [\#450](https://github.com/Zeflous/zeflous/pull/450) ([mbetixz](https://github.com/mbetixz))
+- feat\(ci\): lint the ruleset against the merged heads' check evidence [\#447](https://github.com/Zeflous/zeflous/pull/447) ([mbetixz](https://github.com/mbetixz))
+- feat\(ci\): make every required check merge-queue aware [\#446](https://github.com/Zeflous/zeflous/pull/446) ([mbetixz](https://github.com/mbetixz))
+- feat\(container\): add the parameters family and the value attribute lane [\#445](https://github.com/Zeflous/zeflous/pull/445) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the injector and contextual-binding family to pull request 439 [\#440](https://github.com/Zeflous/zeflous/pull/440) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): add the method-call injection lane and contextual bindings [\#439](https://github.com/Zeflous/zeflous/pull/439) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the typed exception family to pull request 434 [\#435](https://github.com/Zeflous/zeflous/pull/435) ([mbetixz](https://github.com/mbetixz))

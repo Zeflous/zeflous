@@ -6,6 +6,7 @@ namespace Zef\Framework\Container\Autowiring;
 
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\InstanceDefinition;
+use Zef\Framework\Container\ParameterValues;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\UnplannedInstanceDefinition;
 
@@ -42,12 +43,21 @@ use Zef\Framework\Container\UnplannedInstanceDefinition;
  *   (the controlled reading of the roadmap's aggressive-vs-controlled
  *   bullet: undeclared identifiers never resolve, an unregistered class
  *   only ever lives because a *declared* parameter asked for it, at
- *   boot, on the record).
+ *   boot, on the record);
+ * - a **materialised value** -- a planned parameter's `#[Value]`
+ *   address ({@see AutowireValueServices}, the registration-completion
+ *   family's lane) -- becomes the synthetic `@value:` value service the
+ *   plan references, visible in the answered set and in the report's
+ *   values column. The parameters themselves arrive as plain data
+ *   ({@see ParameterValues}, threaded by the kernel-layer bootstrapper
+ *   through {@see self::process()}), keeping this layer free of the
+ *   configuration seam the deptrac build order guards.
  *
  * One run per {@see process()} call: the run's accumulators reset with
- * the {@see AutowireReferences::open()} call, so a pass instance may
- * serve successive boots without one boot's births leaking into the
- * next.
+ * the {@see AutowireReferences::open()} and
+ * {@see AutowireValueServices::open()} calls, so a pass instance may
+ * serve successive boots without one boot's births or materialised
+ * values leaking into the next.
  */
 final readonly class AutowireCompilerPass
 {
@@ -57,22 +67,34 @@ final readonly class AutowireCompilerPass
 
     private AutowireRequestPlanning $autowireRequestPlanning;
 
+    private AutowireValueServices $autowireValueServices;
+
     public function __construct()
     {
         $this->autowireBirths = new AutowireBirths();
-        $this->autowireReferences = new AutowireReferences(new ReflectionMetadataExtractor(), $this->autowireBirths);
+        $this->autowireValueServices = new AutowireValueServices();
+        $this->autowireReferences = new AutowireReferences(
+            new ReflectionMetadataExtractor(),
+            $this->autowireBirths,
+            $this->autowireValueServices,
+        );
         $this->autowireRequestPlanning = new AutowireRequestPlanning($this->autowireReferences);
     }
 
     /**
      * Plans the declared set: every class-shaped definition rewritten to
-     * the positional form, every birth appended, the report answering
-     * what the run generated and reused.
+     * the positional form, every birth appended, every `#[Value]` address
+     * materialised, the report answering what the run generated, reused
+     * and materialised.
      *
      * @param list<ServiceDefinition> $definitions
      */
-    public function process(array $definitions, Container $container): AutowireResult
-    {
+    public function process(
+        array $definitions,
+        Container $container,
+        ParameterValues $parameterValues = new ParameterValues(),
+    ): AutowireResult {
+        $this->autowireValueServices->open($parameterValues, $definitions, $container);
         $this->autowireReferences->open($definitions, $container);
 
         $planned = array_map(
@@ -80,7 +102,7 @@ final readonly class AutowireCompilerPass
             $definitions,
         );
 
-        return AutowireResult::of($planned, $this->autowireBirths);
+        return AutowireResult::of($planned, $this->autowireBirths, $this->autowireValueServices);
     }
 
     /**

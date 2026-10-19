@@ -25,6 +25,8 @@
 #     `update-branch` endpoint). This both satisfies the ruleset's
 #     "require branches to be up to date" policy and re-triggers CI, which
 #     puts the PR back into a *waiting* state where auto-merge can be armed.
+#     Queue era: the sync is suspended entirely while a merge queue is
+#     active — the queue owns up-to-dateness (see the amendment below).
 #   * Arm auto-merge: `gh pr merge --auto --merge` (the same call the
 #     reference uses). Auto-merge then obeys the branch ruleset: the merge
 #     happens automatically once `CI Strict` is green.
@@ -71,6 +73,51 @@
 # the arming race: it now waits (bounded) for the `CI Strict` check-run to be
 # CREATED before arming, so the arm lands while the PR is genuinely "waiting"
 # instead of being refused with "clean status".
+#
+# QUEUE-ERA AMENDMENT: THE BRANCH SYNC FOLLOWS THE QUEUE (2026-10-18)
+# ------------------------------------------------------------------
+# The merge queue is live (ruleset `merge_queue` rule, #446/#447), and it
+# changes what "up to date" means: an armed pull request is validated by the
+# queue on a GROUP HEAD built from live `main`, so its own branch running
+# behind `main` is not a defect. Syncing it is worse than useless — any new
+# commit on the head branch (including the merge commit this lane's own
+# update-branch step pushes) removes the entry from the queue, disarms
+# auto-merge, and restarts the whole check cycle. The 2026-10-18 drill
+# watched the sweep push three such merge commits onto an ARMED pull
+# request's branch in 32 minutes (`4d62759`, `bf41ec4`, `a658b2d` — each
+# within minutes of a changelog merge moving `main`), each push discarding a
+# running check cycle; #449 sat open for four hours in the same churn, and
+# the maintainer's 22:18Z decision to switch the queue off released the
+# stuck pull requests (#448, #452, #454, #453 all merged within 53 minutes).
+# The same drill showed the other half of the truth: with the queue OFF, the
+# sync is load-bearing — the ruleset's strict up-to-date policy leaves a
+# behind branch unmergeable, and each post-toggle merge followed a sync or a
+# fresh changelog regeneration. The fix is therefore a MODE SWITCH, not a
+# ban: the sweep reads the repository rulesets once per sweep; while any
+# active branch ruleset runs a merge queue, the sync is suspended outright;
+# the moment the queue is off, the sweep syncs exactly as it always did. An
+# unreadable ruleset suspends the sync for that sweep (fail closed).
+#
+# STORM-ERA AMENDMENT: THE SWEEP STOPS TOUCHING QUEUED PRs (2026-10-19)
+# ------------------------------------------------------------------
+# The 2026-10-19 merge-queue storm (docs/ci-notes/merge-queue-render-storm.md)
+# had a second self-inflicted half beyond the aggregator's group-head writes:
+# this sweep fired every 1-2 minutes for hours. The trigger chain was
+# `merge-group lane completes -> CI Strict aggregator completes -> changelog
+# lane runs (guard skips it) -> its "completed" event fires THIS workflow` --
+# a SKIPPED changelog run still counts as completed, so every beat of the
+# storm launched a full sweep that processed the very pull requests the
+# queue was validating. Two changes close that:
+#   * a `workflow_run` firing whose changelog run concluded `skipped` now
+#     skips the job outright (nothing changed -- the changelog guard found
+#     no validated main merge to react to; the cron and pull-request
+#     triggers keep the arming coverage);
+#   * the arm step NEVER re-arms a pull request that is already armed
+#     (`autoMergeRequest != null`): an armed PR is owned by GitHub from
+#     that moment (it queues itself the instant its checks pass), and every
+#     redundant write against a queued PR is one more chance to reset the
+#     queue's batch window. The sweep's job is to GET a PR armed -- not to
+#     keep touching it afterwards.
 #
 # CONVENTIONS
 # -----------
@@ -146,6 +193,15 @@ jobs:
     # This stops the "human-PAT push" trick from being abused by an
     # unrecognised account that gained write access. Non-PR events (schedule,
     # workflow_run, workflow_dispatch) always run.
+    # CASCADE DAMPER (2026-10-19): a `workflow_run` firing whose changelog run
+    # concluded `skipped` is a no-op notification -- the changelog guard found
+    # no validated `main` merge to react to, so no repository state changed
+    # and a sweep would only re-process pull requests the queue (or GitHub)
+    # already owns. During the merge-queue storm such skipped firings launched
+    # a full sweep every 1-2 minutes for hours (docs/ci-notes/
+    # merge-queue-render-storm.md). Skipping them costs nothing: a REAL
+    # changelog completion (success or failure) still sweeps, and the cron
+    # (7,27,47) plus the pull-request triggers keep the arming coverage.
     if: >-
       (github.event_name != 'pull_request_target' ||
        github.actor == 'Zeflous' ||
@@ -153,7 +209,9 @@ jobs:
        github.actor == 'github-actions[bot]') &&
       (github.event_name != 'pull_request_target' ||
        github.event.action != 'closed' ||
-       github.event.pull_request.merged == true)
+       github.event.pull_request.merged == true) &&
+      (github.event_name != 'workflow_run' ||
+       github.event.workflow_run.conclusion != 'skipped')
     name: Auto Merge
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -261,6 +319,39 @@ jobs:
             exit 0
           fi
 
+          # Discover whether a merge queue currently governs this repository
+          # (one read per sweep, not per pull request). While a queue is
+          # active the branch sync below is suspended ENTIRELY: the queue
+          # validates each entry on a group head built from live `main`, so
+          # an armed pull request's own branch never needs to be up to date
+          # — and any new commit pushed to it (including the merge commit
+          # this lane's own update-branch step pushes) removes the entry from
+          # the queue, disarms auto-merge, and restarts the check cycle. With
+          # the queue inactive the sync is load-bearing again (the ruleset's
+          # strict up-to-date policy leaves a behind branch unmergeable), so
+          # the sweep then syncs exactly as it always did. The read fails
+          # CLOSED: an unreadable ruleset suspends the sync for one sweep,
+          # because the cost of a wrongly-synced queued entry is a lost queue
+          # position, while the cost of one skipped sweep is a short delay.
+          # (Full drill evidence: the header amendment above and
+          # docs/ci-notes/merge-gate-audit.md, finding 7.)
+          queue_active="unreadable"
+          rs_ids=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/rulesets" \
+            --jq '[.[] | select(.target == "branch") | select(.enforcement == "active") | .id] | join(" ")' 2>/dev/null) || rs_ids=""
+          if [ -n "$rs_ids" ]; then
+            queue_active="no"
+            for rs in $rs_ids; do
+              if gh api "repos/${GITHUB_REPOSITORY}/rulesets/${rs}" \
+                   --jq '([.rules[]? | select(.type == "merge_queue")] | length) > 0' 2>/dev/null \
+                   | grep -qx true; then
+                queue_active="yes"
+                echo "Ruleset ${rs} runs a merge queue - branch syncs are suspended for this sweep (the queue owns up-to-dateness at the group head)."
+              fi
+            done
+          else
+            echo "::warning::Could not read the repository rulesets - suspending the branch sync for this sweep (fail closed: a wrong sync costs a queue entry)."
+          fi
+
           for pr in $prs; do
             echo "----------------------------------------"
             echo "Processing PR #$pr..."
@@ -278,12 +369,22 @@ jobs:
             # Timestamp taken 5s in the past to absorb runner/server clock skew.
             update_started=$(date -u -d '5 seconds ago' +%Y-%m-%dT%H:%M:%SZ)
 
-            # 1. Sync the branch if it is behind `main`. The REST endpoint
-            #    returns 202 (async) on success and 422 "no new commits on the
-            #    base branch" when already up to date. The `if` form captures
-            #    the exit code safely under `set -e`-style handling.
+            # 1. Sync the branch if it is behind `main` — suspended outright
+            #    while the merge queue is active (the discovery block above
+            #    the loop and the header amendment hold the full rationale
+            #    and drill evidence; docs/ci-notes/merge-gate-audit.md §7).
+            #    The REST endpoint returns 202 (async) on success and 422
+            #    "no new commits on the base branch" when already up to
+            #    date. The `if` form captures the exit code safely under
+            #    `set -e`-style handling.
             updated=0
             for attempt in 1 2 3; do
+              if [ "$queue_active" != "no" ]; then
+                if [ "$queue_active" = "yes" ]; then
+                  echo "PR #$pr: branch sync suspended - the merge queue is active and owns up-to-dateness at the group head."
+                fi
+                break
+              fi
               if resp=$(gh api -X PUT "repos/${GITHUB_REPOSITORY}/pulls/${pr}/update-branch" 2>&1); then
                 echo "PR #$pr: branch update accepted (202) — CI will re-run."
                 updated=1
@@ -456,10 +557,24 @@ jobs:
               sleep 5
             done
 
-            # 4. Arm auto-merge. This is the whole point of the lane: once
-            #    armed, GitHub merges the PR itself as soon as `CI Strict` is
-            #    green. Re-arming on every run keeps the state from being lost.
-            if err=$(gh pr merge "$pr" --auto --merge 2>&1); then
+            # 4. Arm auto-merge -- but NEVER a pull request that is already
+            #    armed. `autoMergeRequest != null` means GitHub already owns
+            #    this PR: it is either waiting for its own checks (it will be
+            #    queued the moment they pass) or it is already IN the merge
+            #    queue. A re-arm is at best a redundant write and at worst a
+            #    queue re-submission — a re-submitted entry re-renders its
+            #    group and supersedes every in-flight lane run, and every
+            #    queue-visible write against an armed pull request is one
+            #    more chance to reset the queue's batch window (the 2026-10-19
+            #    storm's amplifier; docs/ci-notes/merge-queue-render-storm.md).
+            #    The sweep's job is to GET a pull request armed; once armed,
+            #    GitHub is better left completely alone. A transient read
+            #    failure (`unknown`) falls through to the arm attempt, whose
+            #    own error paths are warnings — the pre-guard behaviour.
+            armed=$(gh pr view "$pr" --json autoMergeRequest --jq '.autoMergeRequest != null' 2>/dev/null) || armed="unknown"
+            if [ "$armed" = "true" ]; then
+              echo "PR #$pr already has auto-merge armed (or is queued); GitHub owns it from here -- no re-arm."
+            elif err=$(gh pr merge "$pr" --auto --merge 2>&1); then
               echo "Auto-merge armed for PR #$pr."
             elif printf '%s' "$err" | grep -qi 'clean status'; then
               # The PR is already fully green and up to date: the auto-merge

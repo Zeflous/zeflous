@@ -37,6 +37,16 @@ on:
     # `edited` re-runs the gate when the title is fixed, so a corrected title
     # turns the check green without a new commit.
     types: [opened, edited, synchronize, reopened]
+  # MERGE QUEUE: a `merge_group` event carries no pull-request title, but the
+  # group's branch name embeds the number of the pull request being validated
+  # (gh-readonly-queue/main/pr-<N>-<sha>). The queue path resolves that pull
+  # request through the API and validates its title against the same taxonomy,
+  # so a title that would fail the pull-request path also fails the queue path
+  # (fail closed -- a group whose pull request cannot be resolved is rejected,
+  # not waved through).
+  merge_group:
+    branches:
+      - main
   # Manual run. A title can be supplied for a dry-run; without one the job
   # reports that there is nothing to validate and passes.
   workflow_dispatch:
@@ -73,13 +83,47 @@ jobs:
         with:
           python-version: '3.11'
 
+      # MERGE QUEUE PATH: `github.event.pull_request.title` is empty on a
+      # `merge_group` event, so the title is recovered from the pull request
+      # whose number the merge-group branch name carries. Every failure mode
+      # (an unparsable ref, an API failure, an empty title) fails the job: the
+      # queue path must never validate "nothing".
+      - name: Resolve the queued pull request's title
+        if: github.event_name == 'merge_group'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          number=$(printf '%s' "${GITHUB_REF_NAME}" \
+            | sed -n 's|^gh-readonly-queue/main/pr-\([0-9][0-9]*\)-.*$|\1|p')
+          if [ -z "${number}" ]; then
+            echo "::error::The merge-group ref '${GITHUB_REF_NAME}' carries no pull-request number -- the queued title cannot be validated (fail closed)."
+            exit 1
+          fi
+          title=$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${number}" --jq '.title' 2>/dev/null) || {
+            echo "::error::Could not read pull request #${number} -- the queued title cannot be validated (fail closed)."
+            exit 1
+          }
+          if [ -z "${title}" ]; then
+            echo "::error::Pull request #${number} carries an empty title -- the queued title cannot be validated (fail closed)."
+            exit 1
+          fi
+          {
+            echo "QUEUE_PR_TITLE<<QUEUE_PR_TITLE_EOF"
+            printf '%s' "${title}"
+            echo ""
+            echo "QUEUE_PR_TITLE_EOF"
+          } >> "$GITHUB_ENV"
+          echo "Merge-group path: validating the title of pull request #${number}."
+
       - name: Validate the pull-request title
         # The title is passed through the environment (never interpolated into
         # the shell), so a title containing shell metacharacters cannot inject a
         # command. The validator imports the shared taxonomy module, so the
-        # accepted types are exactly the changelog's.
+        # accepted types are exactly the changelog's. On the merge-group path
+        # the resolved queued title (QUEUE_PR_TITLE) feeds the same validator.
         env:
-          PR_TITLE: ${{ github.event.pull_request.title || inputs.title || '' }}
+          PR_TITLE: ${{ github.event.pull_request.title || inputs.title || env.QUEUE_PR_TITLE || '' }}
         run: |
           if [ -z "$PR_TITLE" ]; then
             echo "::notice::No pull-request title to validate (manual run without a title input)."

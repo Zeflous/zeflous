@@ -81,6 +81,26 @@
 # REQUIRED check in the `main` ruleset, and a required check must never be
 # green without an analysis. Never work around the secret withholding with
 # `pull_request_target`.
+#
+# MERGE QUEUE (2026-10-18, finding 3 of the merge-gate audit): the queue path
+# analyses the merge group's head sha using this file's DEFAULT-BRANCH version.
+# Secrets are injectable in a `merge_group` context, so the guard above treats
+# it exactly like a push to `main` (an absent SONAR_TOKEN fails closed). The
+# scan targets a short-lived, PER-ENTRY SonarCloud branch (`merge-queue/pr-N`,
+# resolved from the queue ref) because the
+# SonarCloud GitHub App does not report on merge groups (product management
+# statement, May 2024, community.sonarsource.com/t/112436 -- still without
+# official merge-queue support as of this writing): the workflow's own required
+# check therefore carries the queue-path enforcement, and
+# `sonar.qualitygate.wait=true` (sonar-project.properties) makes the job wait
+# for the server-side gate verdict on that branch -- the same server-side
+# quality gate the pull-request path decorates. (The branch name is per entry
+# because a group of N entries runs N concurrent scans, and a shared name made
+# their server-side compute-engine tasks race -- the loser died with
+# "CE Task finished abnormally", 2026-10-18.) When the ruleset's merge queue
+# is enabled, the `SonarCloud Code Analysis` APP check moves OFF the required
+# set (it cannot report on merge groups); it stays on pull requests as
+# advisory decoration, and the blocking verdict travels with this job.
 
 name: SonarCloud
 
@@ -92,6 +112,14 @@ on:
     branches:
       - main
     types: [opened, synchronize, reopened]
+  # MERGE QUEUE: analyse the merge group the queue assembled (see the MERGE
+  # QUEUE note in the header). Secrets are injectable in this context, so the
+  # guard below holds it to the push-to-main standard: an absent SONAR_TOKEN
+  # fails closed. The scan runs against the short-lived SonarCloud branch
+  # `merge-queue` (see the scanner step's args).
+  merge_group:
+    branches:
+      - main
   # Allow a manual run (e.g. right after adding the SONAR_TOKEN secret).
   # `pr_number` lets an automation lane analyse a pull request whose
   # `pull_request` event never fired (a PR opened by the built-in
@@ -201,7 +229,8 @@ jobs:
               echo "### SonarCloud analysis — failed closed (no credentials in a context that must have them)"
               echo ""
               echo "The \`SONAR_TOKEN\` secret is absent in a context where it is always injectable"
-              echo "(a same-repository pull request, a push to \`main\`, or a manual run)."
+              echo "(a same-repository pull request, a push to \`main\`, a merge-group validation,"
+              echo "or a manual run)."
               echo "\`SonarCloud analysis\` is a REQUIRED check in the \`main\` ruleset: reporting"
               echo "green here would certify an analysis that never ran. Restore the secret"
               echo "(Settings → Secrets and variables → Actions → \`SONAR_TOKEN\`; setup"
@@ -242,8 +271,9 @@ jobs:
             echo "repository secrets in this context (${WITHHELD_REASON}). The check"
             echo "reports green so a context that cannot be credentialed cannot block the"
             echo "pull request queue. In every other context (a same-repository pull"
-            echo "request, a push to \`main\`, a manual run) an absent \`SONAR_TOKEN\` now"
-            echo "fails closed — see docs/security/sonarcloud.md, section 2."
+            echo "request, a push to \`main\`, a merge-group validation, a manual run) an"
+            echo "absent \`SONAR_TOKEN\` now fails closed — see docs/security/sonarcloud.md,"
+            echo "section 2."
             echo ""
             echo "Setup checklist: docs/security/sonarcloud.md, section 3."
           } >> "$GITHUB_STEP_SUMMARY"
@@ -270,10 +300,11 @@ jobs:
       # duplicated dependency download (the site of the transient
       # `codeload.github.com` HTTP/2 429 rate-limit failure, run 37721082020).
       - name: Wait for the CI Coverage lane and fetch its coverage artifact (bridge)
-        # Runs on EVERY event (push to main, pull requests, manual dispatch):
-        # the CI Coverage lane publishes the report for this commit, so the
-        # quality gate's coverage-on-new-code condition is computed on real
-        # PHPUnit data without installing a single dependency in this job.
+        # Runs on EVERY event (push to main, pull requests, merge groups,
+        # manual dispatch): the CI Coverage lane publishes the report for this
+        # commit, so the quality gate's coverage-on-new-code condition is
+        # computed on real PHPUnit data without installing a single dependency
+        # in this job.
         if: steps.sonar_guard.outputs.available == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -283,7 +314,10 @@ jobs:
           # `pull_request` event GITHUB_SHA is the ephemeral merge commit of
           # refs/pull/N/merge -- workflow runs are reported by the PR HEAD sha,
           # so read it from the event payload (the authoritative source). Manual
-          # dispatches look up the head of this ref through the API.
+          # dispatches look up the head of this ref through the API. On a
+          # `merge_group` event GITHUB_SHA is already the merge group's head
+          # sha, which is exactly where the CI Coverage lane's run (and its
+          # artifact) is reported, so no resolution is needed.
           sha="${GITHUB_SHA}"
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
             pr_head=$(jq -r '.pull_request.head.sha // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null || true)
@@ -360,6 +394,35 @@ jobs:
 
           echo "COVERAGE_ARGS=${args}" >> "$GITHUB_ENV"
 
+      - name: Resolve the queue-path SonarCloud branch (per entry)
+        # A group of N queued entries runs N of these scans CONCURRENTLY, one
+        # per cumulative group head, and a group rebuild starts them all at
+        # once. A single shared branch name made those concurrent submissions
+        # fight over one SonarCloud branch: the server-side compute-engine
+        # task that lost the race died with "CE Task finished abnormally with
+        # status: FAILED" (2026-10-18, the first-entry drill: entries #448 and
+        # #449 started their scans within seconds of each other after a group
+        # rebuild, and the loser's required check went red while the winner
+        # went green on the same branch). The branch is therefore named PER
+        # ENTRY, derived from the queue ref itself
+        # (gh-readonly-queue/main/pr-449-<sha> -> merge-queue/pr-449):
+        # concurrent entries can never collide, retries of the same entry
+        # re-analyse their own branch in place, and the branches expire as
+        # short-lived like every other queue-path analysis.
+        if: github.event_name == 'merge_group' && steps.sonar_guard.outputs.available == 'true'
+        run: |
+          set -euo pipefail
+          # gh-readonly-queue/main/pr-<N>-<40 hex> -> merge-queue/pr-<N>
+          if [[ "${GITHUB_REF_NAME}" =~ ^gh-readonly-queue/main/pr-([0-9]+)-[0-9a-f]{40}$ ]]; then
+            echo "QUEUE_SONAR_BRANCH=merge-queue/pr-${BASH_REMATCH[1]}" >> "$GITHUB_ENV"
+          else
+            # Fail closed: an unparsable queue ref must not silently fall back
+            # to a shared branch name -- that is the collision this step exists
+            # to prevent.
+            echo "::error::Unparsable merge-group ref '${GITHUB_REF_NAME}' -- refusing to scan a shared SonarCloud branch."
+            exit 1
+          fi
+
       - name: Analysis scope (diagnostic)
         if: steps.sonar_guard.outputs.available == 'true'
         run: |
@@ -384,10 +447,23 @@ jobs:
           # behaves identically. When a `pr_number` input is supplied (a manual
           # run for a PR whose `pull_request` event never fired), pass the
           # pull-request context explicitly so the analysis is attached to that
-          # PR and the ruleset's `code_quality` rule can read it.
+          # PR and the ruleset's `code_quality` rule can read it. On a
+          # `merge_group` event the scan pins a SHORT-LIVED, PER-ENTRY SonarCloud
+          # branch (`merge-queue/pr-<N>`, resolved from the queue ref by the
+          # step above): the ref the group actually runs on
+          # (gh-readonly-queue/main/pr-N-...) is single-use and would otherwise
+          # accumulate throwaway long-lived branches in SonarCloud, while a
+          # per-entry branch is re-analysed in place on every retry of that
+          # entry and expires as a short-lived branch -- and two concurrent
+          # entries of one group can never collide on it (a shared name made
+          # their server-side compute-engine tasks race, 2026-10-18).
+          # `sonar.qualitygate.wait=true` still makes the job wait for the
+          # server-side verdict on that branch, so the queue path enforces the
+          # same server-side quality gate.
           args: >-
             -Dsonar.projectBaseDir=.
             ${{ env.COVERAGE_ARGS }}
+            ${{ github.event_name == 'merge_group' && format('-Dsonar.branch.name={0}', env.QUEUE_SONAR_BRANCH) || '' }}
             ${{ inputs.pr_number != '' && format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base=main', inputs.pr_number, github.ref_name) || '' }}
         env:
           # Reported to SonarCloud for the SCM/CI sensor. Decoration itself is

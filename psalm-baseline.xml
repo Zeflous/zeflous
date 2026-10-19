@@ -110,6 +110,68 @@
       <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Container/Aot/AotArguments.php">
+    <MixedAssignment>
+      <code><![CDATA[$argument]]></code>
+      <code><![CDATA[$argument]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotArtifact.php">
+    <MixedAssignment>
+      <code><![CDATA[$ids]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotArtifactEntries.php">
+    <MixedAssignment>
+      <code><![CDATA[$entry]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotArtifactEntry.php">
+    <MixedAssignment>
+      <code><![CDATA[$kind]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotClosureEntry.php">
+    <MixedArgumentTypeCoercion>
+      <code><![CDATA[$closure]]></code>
+    </MixedArgumentTypeCoercion>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotDefinitions.php">
+    <PossiblyUnusedReturnValue>
+      <code><![CDATA[int]]></code>
+    </PossiblyUnusedReturnValue>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotDigest.php">
+    <MixedAssignment>
+      <code><![CDATA[$entry]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotLiterals.php">
+    <MixedAssignment>
+      <code><![CDATA[$entry]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotOutcome.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$definitions]]></code>
+      <code><![CDATA[$lane]]></code>
+      <code><![CDATA[$note]]></code>
+      <code><![CDATA[$unreferenced]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/ContainerAotCache.php">
+    <MixedAssignment>
+      <code><![CDATA[$payload]]></code>
+    </MixedAssignment>
+    <PossiblyUndefinedArrayOffset>
+      <code><![CDATA[$entry['closure']]]></code>
+    </PossiblyUndefinedArrayOffset>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+      <code><![CDATA[file]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Container/Autowiring/AutowireImplementations.php">
     <ArgumentTypeCoercion>
       <code><![CDATA[$type]]></code>
@@ -119,6 +181,7 @@
     <PossiblyUnusedProperty>
       <code><![CDATA[$generated]]></code>
       <code><![CDATA[$reused]]></code>
+      <code><![CDATA[$values]]></code>
     </PossiblyUnusedProperty>
   </file>
   <file src="src/Zef/Framework/Container/Autowiring/Inject.php">
@@ -141,6 +204,11 @@
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Container/Autowiring/Value.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Container/Container.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[createRequestScope]]></code>
@@ -151,6 +219,39 @@
       <code><![CDATA[$entry]]></code>
       <code><![CDATA[$named[$name]]]></code>
     </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterInjectability.php">
+    <MixedAssignment>
+      <code><![CDATA[$element]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterLiterals.php">
+    <MixedAssignment>
+      <code><![CDATA[$nested]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterMap.php">
+    <MixedAssignment>
+      <code><![CDATA[$providerSource]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterProviderAnswers.php">
+    <MixedAssignment>
+      <code><![CDATA[$answer]]></code>
+      <code><![CDATA[$computed[$address]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterProviders.php">
+    <MixedAssignment>
+      <code><![CDATA[$provider]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/ParameterValues.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[addresses]]></code>
+      <code><![CDATA[toArray]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Container/RequestScope.php">
     <MixedAssignment>

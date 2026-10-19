@@ -40,6 +40,40 @@
 # that just completed is the last one, so a single aggregation pass is enough.
 # The LAST lane to complete therefore drives the definitive verdict.
 #
+# MERGE-GROUP HEADS ARE EXCLUDED FROM THE EVENT-DRIVEN PATH (2026-10-19)
+# -------------------------------------------------------------------
+# The `workflow_run` trigger below carries `branches-ignore:
+# 'gh-readonly-queue/**'`: a lane run on a merge group reports its completion
+# with the queue ref as its head branch, and an event-driven aggregator firing
+# there used to write the required `CI Strict` check-run on the GROUP HEAD
+# from outside the `merge_group` path. Measured on the 2026-10-19 storm
+# (docs/ci-notes/merge-queue-render-storm.md): every such write landed 40-60
+# seconds after a fast lane completed and correlated 1:1 with the queue
+# re-synthesising the group (02:07:52->02:08:38, 02:11:04->02:11:55,
+# 02:14:16->02:15:15), superseding every in-flight lane run. The storm period
+# (~3 minutes at its peak) sat far below the certification time (~10 minutes,
+# CI Infection), so the group could NEVER certify -- the queue appeared
+# blocked for hours while every individual run read green (superseded runs
+# keep their success conclusion). The `merge_group` polling run is now the
+# SOLE writer of a group head's verdict: it writes exactly once, the final
+# conclusion, well inside the ruleset's 90-minute check-response timeout.
+# Pull-request and push heads keep the event-driven fast path unchanged.
+#
+# MERGE QUEUE (2026-10-18, finding 3 of the merge-gate audit)
+# ------------------------------------------------------------
+# The `main` ruleset's merge queue validates pull requests on temporary
+# `gh-readonly-queue/main/pr-N-...` refs, running the required checks from the
+# DEFAULT BRANCH's workflow files -- the queue, not the pull request, supplies
+# the workflow version, which is what kills the PR-version spoof class
+# (docs/ci-notes/merge-gate-audit.md, finding 3). This aggregator therefore
+# also runs on `merge_group` and reports `CI Strict` on the merge group's head
+# sha. That path deliberately uses the BOUNDED-POLLING machinery of the
+# fallback path below: `workflow_run` firing from a `gh-readonly-queue` ref is
+# not a documented guarantee, so the queue-path verdict must not depend on it --
+# the lanes carry their own `merge_group` triggers, their check-runs land on the
+# group head sha, and the poller below resolves them within the same 70-minute
+# deadline (with the same visible `timed_out` expiry) it gives a pull request.
+#
 # WHY A BOUNDED FALLBACK STILL EXISTS
 # -----------------------------------
 # `workflow_run` only fires for a workflow file that exists on the DEFAULT
@@ -106,7 +140,13 @@ name: CI Strict
 
 on:
   # EVENT-DRIVEN PRIMARY: fire the moment any strict lane completes. On this
-  # path the aggregator runs a single pass -- no polling loop.
+  # path the aggregator runs a single pass -- no polling loop. MERGE-GROUP
+  # lane completions are EXCLUDED on purpose: their head branch IS the queue
+  # ref (`gh-readonly-queue/...`), and an event-driven write on a group head
+  # is the re-render trigger of the 2026-10-19 storm (see the MERGE-GROUP
+  # HEADS note in the header). The `merge_group` trigger below owns those
+  # heads. The in-script guard double-checks the branch, so a filter that
+  # fails to match cannot reintroduce the storm.
   workflow_run:
     workflows:
       - "CI Static"
@@ -114,6 +154,8 @@ on:
       - "CI Infection"
       - "CI Bench"
     types: [completed]
+    branches-ignore:
+      - 'gh-readonly-queue/**'
   # Register the required `CI Strict` check on the pull request the moment it
   # opens (as `in_progress`), so the required context is visible immediately and
   # the pull request is correctly `blocked` until the lanes finish. This is also
@@ -123,6 +165,13 @@ on:
     branches:
       - main
     types: [opened, synchronize, reopened]
+  # MERGE QUEUE: validate the merge group the queue assembled (see the MERGE
+  # QUEUE note in the header). On this event `github.sha` is the merge group's
+  # head sha, so the polling path below tracks exactly the lanes the queue is
+  # waiting for, and the `CI Strict` check-run lands on the group ref.
+  merge_group:
+    branches:
+      - main
   # Keep the same gate visible on the default branch, so a post-merge audit of
   # `main` shows the strict pipeline result for the merged commit.
   push:
@@ -142,7 +191,8 @@ permissions:
 # ----------------------------------------------------------
 # The group is keyed on the COMMIT under verification. For a `workflow_run`
 # firing that is the lane run's head sha; for a `pull_request` event it is the
-# pull request head sha; for `push`/`workflow_dispatch` it is the pushed sha.
+# pull request head sha; for `push`/`workflow_dispatch` it is the pushed sha;
+# for a `merge_group` event it is the merge group's head sha.
 # Two different commits land in two different groups, so a new run never queues
 # behind a stale one and its check-run is always created.
 concurrency:
@@ -186,12 +236,34 @@ jobs:
             // A `workflow_run` firing carries the lane run's head sha (the pull
             // request head sha for a PR-triggered lane, the pushed sha for a
             // push-triggered lane). A `pull_request` event carries the PR head
-            // sha. `push`/`workflow_dispatch` fall back to the pushed sha.
+            // sha. `push`/`workflow_dispatch` fall back to the pushed sha; a
+            // `merge_group` event falls back to the merge group's head sha
+            // (github.sha), which is exactly the commit the queue validates.
             const wr = context.payload.workflow_run;
             const pr = context.payload.pull_request;
             const sha = (wr && wr.head_sha) || (pr && pr.head && pr.head.sha) || context.sha;
             if (!sha) {
               core.setFailed("Could not resolve the commit under verification.");
+              return;
+            }
+
+            // --- Merge-queue heads: the polling path owns the verdict. ------
+            // The `workflow_run` trigger excludes `gh-readonly-queue/**`, so
+            // an event-driven firing for a group head should never happen;
+            // this guard is the fail-safe for a filter that fails to match
+            // (a glob semantics change, a dropped filter attribute). Writing
+            // a group head's check-run from OUTSIDE the `merge_group` path is
+            // the re-render trigger of the 2026-10-19 storm: a fast lane
+            // completes, this path writes the check-run while CI Infection is
+            // still running, and the queue re-synthesises the group,
+            // superseding every in-flight lane run. Fail closed: log and exit
+            // WITHOUT a write -- the `merge_group` polling run resolves the
+            // same head within its own deadline and writes the final verdict
+            // exactly once (docs/ci-notes/merge-queue-render-storm.md).
+            if (wr && typeof wr.head_branch === "string" && wr.head_branch.startsWith("gh-readonly-queue/")) {
+              core.info(
+                `Lane completed on the merge-group head ${wr.head_branch}; the merge_group polling path owns its verdict -- no check-run write from the event-driven path.`,
+              );
               return;
             }
 
@@ -249,7 +321,9 @@ jobs:
             // On the `workflow_run` path the lane that just completed is the
             // last one, so a single pass suffices -- NO polling. On the
             // bootstrap/fallback path (`pull_request`/`push`/`workflow_dispatch`)
-            // we wait with a BOUNDED loop: sleep 60s (raised from 20s, cutting
+            // -- and on the MERGE QUEUE path (`merge_group`, which cannot rely
+            // on `workflow_run` firing from a `gh-readonly-queue` ref) -- we
+            // wait with a BOUNDED loop: sleep 60s (raised from 20s, cutting
             // the API request rate by two thirds) and a 70-minute deadline that
             // sits ABOVE the slowest lane's own timeout (ci-infection.yml: 60
             // minutes), so a lane that merely runs long is still awaited. When
@@ -310,6 +384,26 @@ jobs:
             const mine = existing
               .filter((c) => c.app && c.app.id === 15368)
               .sort((a, b) => b.id - a.id)[0];
+
+            // A COMPLETED verdict is never RE-OPENED, but it can still be
+            // REFRESHED. `completed -> in_progress` is the storm's regression
+            // shape (a late pass with lanes still pending flipping a concluded
+            // head back open -- the merge queue reads that as fresh check
+            // activity on a group head), so a pending-only pass against a
+            // concluded check-run is logged and dropped: the lanes it is
+            // waiting for will re-fire this workflow when THEY conclude. A
+            // pass carrying a DEFINITE conclusion (success/failure/timed_out)
+            // still updates the check-run: a re-run lane that went red must be
+            // able to turn the recorded verdict red (fail-closed), and a
+            // fixed re-run must be able to turn it green again -- verdicts
+            // follow the lane check-runs, which are the source of truth.
+            if (mine && mine.status === "completed" && !conclusion) {
+              core.info(
+                `CI Strict check-run ${mine.id} on ${sha.slice(0, 8)} is already completed (${mine.conclusion}); a still-pending aggregation pass never re-opens a concluded verdict.`,
+              );
+              core.info(summary);
+              return;
+            }
 
             const output = { title: CHECK_NAME, summary };
             if (mine) {
