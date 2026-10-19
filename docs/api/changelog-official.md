@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): pin the interception lane -- history row 475 [\#476](https://github.com/Zeflous/zeflous/pull/476) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): add the interception lane over the resolution seam [\#475](https://github.com/Zeflous/zeflous/pull/475) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the decoration lane -- history row 469 [\#472](https://github.com/Zeflous/zeflous/pull/472) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): add the decoration lane over the declarative grammar [\#469](https://github.com/Zeflous/zeflous/pull/469) ([mbetixz](https://github.com/mbetixz))
