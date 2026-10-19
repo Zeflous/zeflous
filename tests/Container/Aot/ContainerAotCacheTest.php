@@ -32,6 +32,7 @@ use Zef\Test\Support\Container\Aot\CallsHouse;
 use Zef\Test\Support\Container\Aot\FactoryProduct;
 use Zef\Test\Support\Container\Aot\FactorySource;
 use Zef\Test\Support\Container\Aot\House;
+use Zef\Test\Support\Container\Aot\LooseDefinition;
 use Zef\Test\Support\Container\Aot\Roof;
 use Zef\Test\Support\Container\Aot\StampingFactory;
 use Zef\Test\Support\Container\Aot\StampingProduct;
@@ -252,8 +253,7 @@ final class ContainerAotCacheTest extends TestCase
     public function testAnUnplannedDefinitionRefusesTheDump(): void
     {
         try {
-            AotEntries::all([new readonly class('app.loose') extends ServiceDefinition {
-            }]);
+            AotEntries::all([new LooseDefinition('app.loose')]);
             self::fail('Expected an AotException to be thrown.');
         } catch (AotException $aotException) {
             self::assertSame(
