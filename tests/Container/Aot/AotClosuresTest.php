@@ -133,6 +133,11 @@ final class AotClosuresTest extends TestCase
 
         $code = AotClosures::instance($instanceDefinition);
 
+        self::assertStringStartsWith(
+            'static fn (Zef\Framework\Container\Container $c): object => '
+            . MethodCallInvocations::class . '::apply(',
+            $code,
+        );
         self::assertStringContainsString(
             MethodCallInvocations::class . '::apply(new Zef\Test\Support\Container\Aot\CallsHouse(',
             $code,

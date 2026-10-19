@@ -8,6 +8,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\Aot\AotArguments;
 use Zef\Framework\Container\Aot\AotArtifact;
@@ -32,6 +33,8 @@ use Zef\Test\Support\Container\Aot\FactoryProduct;
 use Zef\Test\Support\Container\Aot\FactorySource;
 use Zef\Test\Support\Container\Aot\House;
 use Zef\Test\Support\Container\Aot\Roof;
+use Zef\Test\Support\Container\Aot\StampingFactory;
+use Zef\Test\Support\Container\Aot\StampingProduct;
 use Zef\Test\Support\Container\Aot\Window;
 
 /**
@@ -105,6 +108,81 @@ final class ContainerAotCacheTest extends TestCase
             ['frame.house' => ['app.house'], 'warm.batch' => ['app.window', 'app.calls']],
             $artifact->tags(),
         );
+    }
+
+    public function testAFactoryCarryingCallsSurvivesTheRoundTrip(): void
+    {
+        $cache = new ContainerAotCache($this->file);
+
+        $cache->dump('d', AotEntries::all([
+            new InstanceDefinition('app.window', Window::class),
+            new FactoryDefinition(
+                'app.stamped',
+                StampingFactory::class . '::make',
+                [['service' => 'app.window']],
+                calls: [new MethodCall('stamp', ['serial-42'])],
+            ),
+        ]), [], []);
+
+        $container = new Container();
+
+        AotDefinitions::install($container, $cache->load());
+
+        $stamped = $container->get('app.stamped');
+        self::assertInstanceOf(StampingProduct::class, $stamped);
+        self::assertSame('serial-42', $stamped->serial);
+    }
+
+    public function testAFactoryCarryingAnObjectArgumentRefusesTheDump(): void
+    {
+        try {
+            AotEntries::all([
+                new FactoryDefinition('app.built', FactorySource::class . '::make', [new stdClass()]),
+            ]);
+            self::fail('Expected an AotException to be thrown.');
+        } catch (AotException $aotException) {
+            self::assertSame(
+                "Service 'app.built' carries a value the AOT artifact cannot export at 'arguments.0' (stdClass) -- "
+                . 'move the computation behind the factory shape, or boot without the AOT lane.',
+                $aotException->getMessage(),
+            );
+        }
+    }
+
+    public function testAFactoryCarryingAnObjectInsideACallsArgumentsRefusesTheDump(): void
+    {
+        try {
+            AotEntries::all([
+                new FactoryDefinition(
+                    'app.built',
+                    FactorySource::class . '::make',
+                    [],
+                    calls: [new MethodCall('stamp', [new stdClass()])],
+                ),
+            ]);
+            self::fail('Expected an AotException to be thrown.');
+        } catch (AotException $aotException) {
+            self::assertSame(
+                "Service 'app.built' carries a value the AOT artifact cannot export at 'calls.stamp.0' (stdClass) -- "
+                . 'move the computation behind the factory shape, or boot without the AOT lane.',
+                $aotException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnplannedDefinitionRefusesTheDump(): void
+    {
+        try {
+            AotEntries::all([new readonly class('app.loose') extends ServiceDefinition {
+            }]);
+            self::fail('Expected an AotException to be thrown.');
+        } catch (AotException $aotException) {
+            self::assertSame(
+                "The service 'app.loose' reaches the AOT dump unplanned -- "
+                . 'run the autowire compiler pass before the dump.',
+                $aotException->getMessage(),
+            );
+        }
     }
 
     public function testTheLoadedClosureEntriesAreLiveClosures(): void
