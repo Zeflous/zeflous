@@ -231,6 +231,32 @@ final class ContainerAotCacheTest extends TestCase
         self::assertSame('serial-42', $stamped->serial);
     }
 
+    public function testAFactoryCarryingTwoCallsAppliesThemBothAfterTheRoundTrip(): void
+    {
+        $containerAotCache = new ContainerAotCache($this->file);
+
+        $containerAotCache->dump('d', AotEntries::all([
+            new InstanceDefinition('app.window', Window::class),
+            new FactoryDefinition(
+                'app.stamped',
+                StampingFactory::class . '::make',
+                [['service' => 'app.window']],
+                calls: [
+                    new MethodCall('stamp', ['serial-42']),
+                    new MethodCall('stamp', ['serial-99']),
+                ],
+            ),
+        ]), [], []);
+
+        $container = new Container();
+
+        AotDefinitions::install($container, $containerAotCache->load());
+
+        $stamped = $container->get('app.stamped');
+        self::assertInstanceOf(StampingProduct::class, $stamped);
+        self::assertSame('serial-99', $stamped->serial);
+    }
+
     public function testAFactoryCarryingAnObjectArgumentRefusesTheDump(): void
     {
         try {
@@ -520,6 +546,36 @@ final class ContainerAotCacheTest extends TestCase
                 . " 'entries' => ['a' => ['kind' => 'build', 'factory' => 'T::m', 'arguments' => [],"
                 . " 'calls' => ['nope'], 'lifetime' => 'singleton']]];",
                 "The artifact entry for service 'a' is malformed.",
+            ],
+            'entry key not a string' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [],"
+                . " 'entries' => [5 => ['kind' => 'closure', 'closure' => function () {},"
+                . " 'lifetime' => 'singleton']]];",
+                "The artifact entry for service '5' is malformed.",
+            ],
+            'entry key empty' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [],"
+                . " 'entries' => ['' => ['kind' => 'closure', 'closure' => function () {},"
+                . " 'lifetime' => 'singleton']]];",
+                "The artifact entry for service '' is malformed.",
+            ],
+            'entry an offset-accessible object' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [],"
+                . " 'entries' => ['a' => new \\ArrayObject(['kind' => 'build'])]];",
+                "The artifact entry for service 'a' is malformed.",
+            ],
+            'build arguments not a list' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [],"
+                . " 'entries' => ['a' => ['kind' => 'build', 'factory' => 'T::m',"
+                . " 'arguments' => ['style' => 'x'], 'calls' => [], 'lifetime' => 'singleton']]];",
+                "The artifact entry for service 'a' member 'arguments' must be a list, array given.",
+            ],
+            'call arguments not a list' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [],"
+                . " 'entries' => ['a' => ['kind' => 'build', 'factory' => 'T::m', 'arguments' => [],"
+                . " 'calls' => [['method' => 'stamp', 'arguments' => ['serial' => 'x']]],"
+                . " 'lifetime' => 'singleton']]];",
+                "The artifact entry for service 'a' member 'arguments' must be a list, array given.",
             ],
         ]);
     }

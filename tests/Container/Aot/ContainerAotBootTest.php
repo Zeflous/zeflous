@@ -375,6 +375,29 @@ final class ContainerAotBootTest extends TestCase
         self::assertSame(1, WarmCounter::$constructions);
     }
 
+    public function testWithoutTheWarmKnobTheLoadedLaneStaysLazy(): void
+    {
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $config = $this->config(['enabled' => true]);
+        $config['services']['app.warm'] = ['class' => WarmCounter::class];
+
+        $containerBootstrapper->bootstrap(new Config($config), new Container());
+
+        WarmCounter::reset();
+
+        $loaded = $containerBootstrapper->bootstrap(new Config($config), new Container());
+
+        $loadedOutcome = $loaded->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $loadedOutcome);
+        self::assertSame(AotLane::ArtifactLoaded, $loadedOutcome->lane);
+        self::assertSame(0, WarmCounter::$constructions);
+
+        $loaded->get('app.warm');
+        self::assertSame(1, WarmCounter::$constructions);
+    }
+
     public function testWarmingHaltsTheBootWhenConstructionFails(): void
     {
         $config = $this->config(['warm' => true]);
@@ -416,6 +439,47 @@ final class ContainerAotBootTest extends TestCase
         self::assertSame(AotLane::FullCompile, $outcome->lane);
         self::assertSame('the aot knob is off', $outcome->note);
         self::assertInstanceOf(House::class, $container->get('app.house'));
+    }
+
+    public function testAKnobOffBootNeverDumpsAnArtifact(): void
+    {
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $container = $containerBootstrapper->bootstrap(new Config($this->config()), new Container());
+
+        $outcome = $container->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $outcome);
+        self::assertSame(AotLane::FullCompile, $outcome->lane);
+        self::assertFileDoesNotExist($this->artifactFile);
+    }
+
+    public function testTheFrameworkServicesKnobInstallsItsDeclarations(): void
+    {
+        $config = $this->config();
+        $config['framework'] = ['services' => ['app.reserved' => ['class' => Window::class]]];
+
+        $container = $this->booter()->bootstrap(new Config($config), new Container());
+
+        self::assertInstanceOf(Window::class, $container->get('app.reserved'));
+    }
+
+    public function testTheFingerprintFoldsTheFrameworkServicesMap(): void
+    {
+        $withReserved = $this->config();
+        $withReserved['framework'] = ['services' => ['app.reserved' => ['class' => Window::class]]];
+
+        $withoutReserved = $this->config();
+        $withoutReserved['framework'] = ['services' => []];
+
+        self::assertSame(
+            ContainerKnobs::parsed(new Config($withReserved))->fingerprint(),
+            ContainerKnobs::parsed(new Config($withReserved))->fingerprint(),
+        );
+        self::assertNotSame(
+            ContainerKnobs::parsed(new Config($withReserved))->fingerprint(),
+            ContainerKnobs::parsed(new Config($withoutReserved))->fingerprint(),
+        );
     }
 
     public function testASetWithAnUnresolvableReferenceRefusesTheCompile(): void
