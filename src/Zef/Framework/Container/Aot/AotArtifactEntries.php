@@ -13,15 +13,6 @@ namespace Zef\Framework\Container\Aot;
  * The refusals stay {@see AotRefusals'} alone, the file named in every
  * envelope-level one.
  */
-/**
- * The artifact's entries walk: the per-definition half of the boundary's
- * strictest surface -- every payload entry handed to the reader that
- * validates its own kind ({@see AotArtifactEntry}), the map keyed by
- * the identifiers the walk guards.
- *
- * The refusals stay {@see AotRefusals'} alone, the file named in every
- * envelope-level one.
- */
 final readonly class AotArtifactEntries
 {
     /**
