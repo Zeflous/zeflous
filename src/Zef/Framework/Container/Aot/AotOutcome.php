@@ -47,16 +47,6 @@ final readonly class AotOutcome
     }
 
     /**
-     * @param non-empty-string $note         why the full pipeline ran (the knob
-     *                                       off, or on with no artifact present)
-     * @param list<string>     $unreferenced
-     */
-    private static function fullCompiled(string $note, array $unreferenced, int $definitions): self
-    {
-        return new self(AotLane::FullCompile, $note, $unreferenced, $definitions);
-    }
-
-    /**
      * @param list<string> $unreferenced the report baked into the artifact
      *                                   at dump time
      */
@@ -65,34 +55,6 @@ final readonly class AotOutcome
         return new self(
             AotLane::ArtifactLoaded,
             'the artifact answered the boot',
-            $unreferenced,
-            $definitions,
-        );
-    }
-
-    /**
-     * @param non-empty-string $reason       why the artifact was set aside
-     * @param list<string>     $unreferenced the full pipeline's own report
-     */
-    private static function artifactBypassed(string $reason, array $unreferenced, int $definitions): self
-    {
-        return new self(AotLane::ArtifactBypassed, $reason, $unreferenced, $definitions);
-    }
-
-    /**
-     * The full lane's answer under the knob it ran with: the lane on
-     * with no artifact yet (the compile below lays one down for the
-     * next boot), or the lane off -- the note the host's own
-     * configuration chose.
-     *
-     * @param list<string> $unreferenced the compile's own report
-     */
-    private static function forFullLane(bool $laneEnabled, array $unreferenced, int $definitions): self
-    {
-        return self::fullCompiled(
-            $laneEnabled
-                ? 'the artifact was absent -- compiled and dumped for the next boot'
-                : 'the aot knob is off',
             $unreferenced,
             $definitions,
         );
@@ -120,6 +82,44 @@ final readonly class AotOutcome
             $laneEnabled,
             $containerCompilePlan->unreferenced,
             \count($containerCompilePlan->definitions),
+        );
+    }
+
+    /**
+     * @param non-empty-string $note         why the full pipeline ran (the knob
+     *                                       off, or on with no artifact present)
+     * @param list<string>     $unreferenced
+     */
+    private static function fullCompiled(string $note, array $unreferenced, int $definitions): self
+    {
+        return new self(AotLane::FullCompile, $note, $unreferenced, $definitions);
+    }
+
+    /**
+     * @param non-empty-string $reason       why the artifact was set aside
+     * @param list<string>     $unreferenced the full pipeline's own report
+     */
+    private static function artifactBypassed(string $reason, array $unreferenced, int $definitions): self
+    {
+        return new self(AotLane::ArtifactBypassed, $reason, $unreferenced, $definitions);
+    }
+
+    /**
+     * The full lane's answer under the knob it ran with: the lane on
+     * with no artifact yet (the compile below lays one down for the
+     * next boot), or the lane off -- the note the host's own
+     * configuration chose.
+     *
+     * @param list<string> $unreferenced the compile's own report
+     */
+    private static function forFullLane(bool $laneEnabled, array $unreferenced, int $definitions): self
+    {
+        return self::fullCompiled(
+            $laneEnabled
+                ? 'the artifact was absent -- compiled and dumped for the next boot'
+                : 'the aot knob is off',
+            $unreferenced,
+            $definitions,
         );
     }
 }

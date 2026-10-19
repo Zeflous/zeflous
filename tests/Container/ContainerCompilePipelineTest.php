@@ -14,6 +14,7 @@ use Zef\Framework\Container\ContextualMap;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\ParameterValues;
+use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\ServiceDefinitionGraph;
 use Zef\Test\Support\Container\Aot\Window;
 
@@ -40,10 +41,10 @@ final class ContainerCompilePipelineTest extends TestCase
      */
     public function testACycleIsRefusedBeforeAnythingInstalls(): void
     {
-        $pipeline = new ContainerCompilePipeline();
+        $containerCompilePipeline = new ContainerCompilePipeline();
 
         try {
-            $pipeline->compile(
+            $containerCompilePipeline->compile(
                 [
                     new InstanceDefinition('app.a', Window::class, [['service' => 'app.b']]),
                     new InstanceDefinition('app.b', Window::class, [['service' => 'app.a']]),
@@ -70,9 +71,9 @@ final class ContainerCompilePipelineTest extends TestCase
      */
     public function testTheHappyPathAnswersThePlan(): void
     {
-        $pipeline = new ContainerCompilePipeline();
+        $containerCompilePipeline = new ContainerCompilePipeline();
 
-        $plan = $pipeline->compile(
+        $plan = $containerCompilePipeline->compile(
             [
                 new InstanceDefinition('app.window', Window::class),
                 new InstanceDefinition(
@@ -88,7 +89,7 @@ final class ContainerCompilePipelineTest extends TestCase
         );
 
         self::assertSame(['app.window', 'app.house'], array_map(
-            static fn ($definition): string => $definition->id,
+            static fn (ServiceDefinition $serviceDefinition): string => $serviceDefinition->id,
             $plan->definitions,
         ));
         self::assertSame([], $plan->tagIndex->ids('any.tag'));

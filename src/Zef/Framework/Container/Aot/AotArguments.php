@@ -21,22 +21,6 @@ namespace Zef\Framework\Container\Aot;
 final readonly class AotArguments
 {
     /**
-     * Renders one argument entry: the reference form as the container
-     * call, anything else as the literal.
-     *
-     * @param string $serviceId the definition the argument serves
-     * @param string $path      the dotted position, for the refusal
-     */
-    private static function code(mixed $argument, string $serviceId, string $path): string
-    {
-        if (\is_array($argument) && \array_key_exists('service', $argument) && \is_string($argument['service'])) {
-            return '$c->get(' . var_export($argument['service'], true) . ')';
-        }
-
-        return AotLiterals::export($argument, $serviceId, $path);
-    }
-
-    /**
      * Renders a positional argument list for a call site: the entries,
      * comma-joined.
      *
@@ -73,5 +57,21 @@ final readonly class AotArguments
         }
 
         return '[' . implode(', ', $rendered) . ']';
+    }
+
+    /**
+     * Renders one argument entry: the reference form as the container
+     * call, anything else as the literal.
+     *
+     * @param string $serviceId the definition the argument serves
+     * @param string $path      the dotted position, for the refusal
+     */
+    private static function code(mixed $argument, string $serviceId, string $path): string
+    {
+        if (\is_array($argument) && \array_key_exists('service', $argument) && \is_string($argument['service'])) {
+            return '$c->get(' . var_export($argument['service'], true) . ')';
+        }
+
+        return AotLiterals::export($argument, $serviceId, $path);
     }
 }

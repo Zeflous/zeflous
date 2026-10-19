@@ -170,7 +170,8 @@ final class AotDigestTest extends TestCase
             '70eafe0547db338f32ab5a625a3f45aa7c1d3dbfae47dd64e468e26d8ecf3146',
             AotDigest::over([
                 'framework.services' => ['x' => ['factory' => 'A::b']],
-                'services' => ['a' => ['class' => 'C', 'arguments' => [1, '1', 1.5, true, false, null, ['nested' => 'v']]]],
+                'services' => ['a' => ['class' => 'C', 'arguments' => [1, '1', 1.5, true, false, null,
+                    ['nested' => 'v']]]],
                 'parameters' => ['db.host' => 'localhost'],
                 'tags' => ['interfaces' => []],
                 'contextual' => [],

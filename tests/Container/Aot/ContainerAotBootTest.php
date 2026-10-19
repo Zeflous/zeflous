@@ -371,14 +371,14 @@ final class ContainerAotBootTest extends TestCase
 
     public function testAKnobOffBootIgnoresAPresentArtifact(): void
     {
-        $cache = new ContainerAotCache($this->artifactFile);
-        $booter = new ContainerBootstrapper(containerAotCache: $cache);
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
 
-        $booter->bootstrap(new Config(self::config(['enabled' => true])), new Container());
+        $containerBootstrapper->bootstrap(new Config(self::config(['enabled' => true])), new Container());
 
         // The artifact exists and its digest would match -- but the knob
         // is off, so the full lane must answer, not the artifact one.
-        $container = $booter->bootstrap(new Config(self::config()), new Container());
+        $container = $containerBootstrapper->bootstrap(new Config(self::config()), new Container());
 
         $outcome = $container->get(FrameworkDefaults::AOT_SERVICE);
         self::assertInstanceOf(AotOutcome::class, $outcome);
