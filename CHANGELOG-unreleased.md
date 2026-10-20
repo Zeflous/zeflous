@@ -65,6 +65,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(tooling): refuse a stale roadmap pin on main [#417](https://github.com/Zeflous/zeflous/pull/417) ([mbetixz](https://github.com/mbetixz))
 - feat(errors): add the typed HTTP exception family and retire the message sniffing [#434](https://github.com/Zeflous/zeflous/pull/434) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the method-call injection lane and contextual bindings [#439](https://github.com/Zeflous/zeflous/pull/439) ([mbetixz](https://github.com/mbetixz))
+- feat(errors): harden enterprise error handling [#444](https://github.com/Zeflous/zeflous/pull/444) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the parameters family and the value attribute lane [#445](https://github.com/Zeflous/zeflous/pull/445) ([mbetixz](https://github.com/mbetixz))
 - feat(ci): make every required check merge-queue aware [#446](https://github.com/Zeflous/zeflous/pull/446) ([mbetixz](https://github.com/mbetixz))
 - feat(ci): lint the ruleset against the merged heads' check evidence [#447](https://github.com/Zeflous/zeflous/pull/447) ([mbetixz](https://github.com/mbetixz))
