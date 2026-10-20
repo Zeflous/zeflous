@@ -553,4 +553,49 @@ final class JsonLineLoggerTest extends TestCase
             self::assertSame('Unable to write a complete JSON log record.', $jsonLogWriteException->getMessage());
         }
     }
+
+    /**
+     * A refused first record leaves the destination empty, not even one
+     * byte of it: the rollback clamps to the very top of the file, so a
+     * destination that never held a complete record answers the refusal
+     * with zero bytes -- never a padded null the truncation's lower bound
+     * would manufacture.
+     */
+    public function testARefusedFirstRecordLeavesTheDestinationEmpty(): void
+    {
+        JsonLineFunctionDoubles::define();
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        JsonLineDoubleState::$fwriteAnswers = [0];
+
+        try {
+            JsonLineWriter::append($this->path, '{"level":"info"}' . "\n");
+            self::fail('A zero-byte write must be refused.');
+        } catch (JsonLogWriteException $jsonLogWriteException) {
+            self::assertSame('Unable to write a complete JSON log record.', $jsonLogWriteException->getMessage());
+        }
+
+        self::assertSame('', file_get_contents($this->path), 'The refused first record must leave zero bytes behind.');
+    }
+
+    /**
+     * A negative start offset still rolls back to the top of the file:
+     * the clamp absorbs the impossible offset a future collaborator might
+     * pass, so the refusal the caller hears is the write's own -- never
+     * the engine's negative-size refusal the truncation would otherwise
+     * throw.
+     */
+    public function testANegativeStartOffsetStillRollsBackToTheTop(): void
+    {
+        JsonLineFunctionDoubles::define();
+        JsonLineDoubleState::$fwriteAnswers = [0];
+        $stream = fopen('php://temp', 'r+b');
+        self::assertIsResource($stream);
+
+        try {
+            JsonLineRecordWriter::write($stream, 'ab', -5);
+            self::fail('A zero-byte write must be refused whatever the start offset.');
+        } catch (JsonLogWriteException $jsonLogWriteException) {
+            self::assertSame('Unable to write a complete JSON log record.', $jsonLogWriteException->getMessage());
+        }
+    }
 }
