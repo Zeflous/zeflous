@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): record the pin-freshness resurrection [\#501](https://github.com/Zeflous/zeflous/pull/501) ([mbetixz](https://github.com/mbetixz))
+- fix\(tests\): pin the document-audit gate test to a pull-request lane [\#500](https://github.com/Zeflous/zeflous/pull/500) ([mbetixz](https://github.com/mbetixz))
 - fix\(tooling\): resurrect the roadmap pin-freshness verdict on the main lanes [\#496](https://github.com/Zeflous/zeflous/pull/496) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the lazy, locator and inventory lanes [\#493](https://github.com/Zeflous/zeflous/pull/493) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record merged error handling verification [\#488](https://github.com/Zeflous/zeflous/pull/488) ([mbetixz](https://github.com/mbetixz))
