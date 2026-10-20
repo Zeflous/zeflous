@@ -23,10 +23,10 @@ final readonly class LazyDeclarations
      * Whether the declaration asks to defer, refusing the one lifetime
      * whose materialisation could not name its scope.
      *
-     * @param array<array-key, mixed> $entry    the declaration's raw map
-     * @param null|ServiceLifetime $serviceLifetime the declaration's parsed
-     *                                          lifetime, null the class
-     *                                          shape's default spelling
+     * @param array<array-key, mixed> $entry           the declaration's raw map
+     * @param null|ServiceLifetime    $serviceLifetime the declaration's parsed
+     *                                                 lifetime, null the class
+     *                                                 shape's default spelling
      */
     public static function deferred(string $id, array $entry, ?ServiceLifetime $serviceLifetime): bool
     {

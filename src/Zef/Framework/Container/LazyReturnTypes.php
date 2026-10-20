@@ -27,15 +27,15 @@ final readonly class LazyReturnTypes
     /**
      * Answers the declared return class the proxy stands behind.
      *
-     * @param string              $factory    the validated `'Target::method'` spelling
+     * @param string              $factory        the validated `'Target::method'` spelling
      * @param null|ReflectionType $reflectionType the reflected declaration, null when
-     *                                        the factory declares no return type
+     *                                            the factory declares no return type
      *
      * @return class-string the declared return class
      */
     public static function named(string $id, string $factory, ?ReflectionType $reflectionType): string
     {
-        if (!$reflectionType instanceof \ReflectionType) {
+        if (!$reflectionType instanceof ReflectionType) {
             throw LazyRefusals::returnUndeclared($id, $factory);
         }
 
