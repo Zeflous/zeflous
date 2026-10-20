@@ -94,7 +94,7 @@ final class RoadmapPinFreshnessTest extends TestCase
         self::assertCount(1, $failures);
         self::assertSame(
             'ROADMAP-STATUS.md "Last updated" pin `058ab8c` is stale: 2 commit(s) landed on main after it'
-            . ' that are not changelog or pin bookkeeping, starting with'
+            . ' that are not changelog or roadmap bookkeeping, starting with'
             . ' "chore(license): add the MIT license text (#409)".'
             . ' Refresh the pin (CONTRIBUTING.md, rule 13).',
             $failures[0],
@@ -104,15 +104,21 @@ final class RoadmapPinFreshnessTest extends TestCase
     public function testTheBookkeepingAnchorsAreExact(): void
     {
         // The three record-keeping shapes the pattern must accept, taken from
-        // the real subjects the changelog and pin lanes and the branch-update
-        // machinery produce -- the update merges arrive for every branch
-        // kind, each one observed in this repository's own history.
+        // the real subjects the changelog and roadmap lanes and the
+        // branch-update machinery produce -- the roadmap lanes' full verb
+        // vocabulary (pin, record, point, refresh, keep) observed in this
+        // repository's own history, and the update merges arrive for every
+        // branch kind, each one observed in this repository's own history.
         $accepted = [
             'chore(changelog): regenerate API changelog',
             'chore(changelog): regenerate API changelog (#408)',
             'chore(changelog-official): regenerate official changelog',
             'chore(changelog-official): regenerate official changelog (#406)',
             'docs(roadmap): pin the tags & autoconfiguration family to pull request 404',
+            'docs(roadmap): record merged error handling verification (#488)',
+            'docs(roadmap): point the history pin at the #444 merge commit',
+            'docs(roadmap): refresh the status meter for the radix lane (#482)',
+            'docs(roadmap): keep the history pointer current',
             "Merge branch 'main' into chore/changelog-update",
             "Merge branch 'main' into docs/roadmap-engineering-pin",
             "Merge branch 'main' into feat/tooling-roadmap-pin-freshness",
@@ -132,14 +138,19 @@ final class RoadmapPinFreshnessTest extends TestCase
     public function testNearMissesOfTheBookkeepingAnchorsAreRefused(): void
     {
         // One character off any anchor and the steady state turns red: a
-        // mutated pattern must not swallow a real change.
+        // mutated pattern must not swallow a real change. The roadmap
+        // anchor's boundary is the scope-and-colon head itself: anything
+        // that is not exactly `docs(roadmap): ` followed by a subject is a
+        // landed change.
         $refused = [
             'chore(changelog): regenerate API changelogs',
             'chore(changelog): regenerate the API changelog',
             'chore(changelog): regenerate API changelog hand-edited',
             'chore(changelog-api): regenerate API changelog',
-            'docs(roadmap): pinned the tags family to pull request 404',
-            'docs(roadmap): unpin the tags family',
+            'docs (roadmap): record the lane',
+            'docs(roadmap):record the lane',
+            'docs(roadmaps): record the lane',
+            'Docs(roadmap): record the lane',
             "Merge branch 'dev' into chore/changelog-update",
             "Merge branch 'feat/container' into main",
             'Merge pull request #417 from Zeflous/feat/tooling-roadmap-pin-freshness',

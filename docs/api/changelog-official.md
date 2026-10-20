@@ -6,7 +6,10 @@
 
 **Merged pull requests:**
 
+- fix\(tooling\): resurrect the roadmap pin-freshness verdict on the main lanes [\#496](https://github.com/Zeflous/zeflous/pull/496) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): pin the lazy, locator and inventory lanes [\#493](https://github.com/Zeflous/zeflous/pull/493) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record merged error handling verification [\#488](https://github.com/Zeflous/zeflous/pull/488) ([mbetixz](https://github.com/mbetixz))
+- feat\(container\): add the lazy, locator and inventory lanes [\#487](https://github.com/Zeflous/zeflous/pull/487) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the namespace radix lane -- history row 481 [\#482](https://github.com/Zeflous/zeflous/pull/482) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): add the namespace radix lane over the booted identifiers [\#481](https://github.com/Zeflous/zeflous/pull/481) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the interception lane -- history row 475 [\#476](https://github.com/Zeflous/zeflous/pull/476) ([mbetixz](https://github.com/mbetixz))

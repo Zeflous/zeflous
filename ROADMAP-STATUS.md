@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-20 · `main` @ `6588328`
+**Last updated:** 2026-10-21 · `main` @ `4cc6a86`
 
 ---
 
@@ -109,7 +109,7 @@ see how far the code has moved against the roadmap.
 | Static analysis | ✅ Implemented | PHPStan max + ratchet, Psalm level 1 + baseline, Progpilot (PHAR, SHA-256 pinned). |
 | Supply chain | ✅ Implemented | `composer audit` strict gate, SBOM workflows, dependency review. |
 | Zero-dependency gate | ✅ Implemented | `composer zero-deps` (part of `composer ci:static`) → `src/Zef/Framework/Tooling/ZeroDependencyGate.php` asserts `composer.json` `require === {php: ^8.4}` and `composer.lock` `packages === []`. |
-| Roadmap document gate | ✅ Implemented | `composer roadmap:gate` (part of `composer ci:static`) → `src/Zef/Framework/Tooling/RoadmapDocGate.php` audits the structural integrity of the roadmap documents, and `src/Zef/Framework/Tooling/RoadmapPinFreshness.php` — fed by `RoadmapPinCommitCollector.php`, on the lanes that validate `main` — enforces the pin-freshness invariant: the `Last updated` commit must be an ancestor of the validated commit and may only be followed by changelog or pin bookkeeping. |
+| Roadmap document gate | ✅ Implemented | `composer roadmap:gate` (part of `composer ci:static`) → `src/Zef/Framework/Tooling/RoadmapDocGate.php` audits the structural integrity of the roadmap documents, and `src/Zef/Framework/Tooling/RoadmapPinFreshness.php` — fed by `RoadmapPinCommitCollector.php`, on the lanes that validate `main` — enforces the pin-freshness invariant: the `Last updated` commit must be an ancestor of the validated commit and may only be followed by changelog or roadmap bookkeeping (changelog regenerations, `docs(roadmap):` document commits, and the branch-update machinery's `main`-into-branch merges). |
 
 ---
 
