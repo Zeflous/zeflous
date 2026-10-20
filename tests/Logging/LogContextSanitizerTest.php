@@ -74,6 +74,28 @@ final class LogContextSanitizerTest extends TestCase
         );
     }
 
+    /**
+     * Non-finite floats answer their string spelling -- the telemetry
+     * sanitizer's own doctrine -- because the record's JSON encoding
+     * refuses them as values: a bare NAN context entry must degrade to
+     * its diagnostic spelling, never take the whole record down with it.
+     */
+    public function testNonFiniteFloatsAnswerTheirStringSpelling(): void
+    {
+        $sanitized = LogContextSanitizer::sanitize([
+            'budget' => \NAN,
+            'cap' => \INF,
+            'floor' => -\INF,
+            'ratio' => 1.5,
+            'count' => 3,
+        ]);
+
+        self::assertSame(
+            ['budget' => 'NAN', 'cap' => 'INF', 'floor' => '-INF', 'ratio' => 1.5, 'count' => 3],
+            $sanitized,
+        );
+    }
+
     public function testThrowablesFoldToClassMessageAndCode(): void
     {
         $sanitized = LogContextSanitizer::sanitize(

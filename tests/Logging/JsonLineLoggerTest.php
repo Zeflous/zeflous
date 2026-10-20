@@ -84,6 +84,33 @@ final class JsonLineLoggerTest extends TestCase
         self::assertStringNotContainsString('hunter2', $lines[0]);
     }
 
+    /**
+     * A non-finite float context entry keeps the record alive: the value
+     * degrades to its diagnostic string spelling at the sanitizer's gate,
+     * so the JSON encoding never refuses the record -- the whole point of
+     * writing the failure down is lost if the diagnostic that arrives with
+     * it can silence the record.
+     */
+    public function testANonFiniteFloatContextValueKeepsTheRecordAlive(): void
+    {
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $jsonLineLogger = new JsonLineLogger($this->path);
+
+        $jsonLineLogger->error('Request failed', ['budget' => \NAN, 'cap' => \INF]);
+
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(1, $lines);
+
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame('error', $record['level']);
+        $context = $record['context'] ?? null;
+        self::assertIsArray($context);
+        self::assertSame('NAN', $context['budget']);
+        self::assertSame('INF', $context['cap']);
+    }
+
     public function testSanitizesNestedAndUnsupportedContextValues(): void
     {
         $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
