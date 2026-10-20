@@ -23,29 +23,29 @@ final readonly class ContainerInventoryLine
     /**
      * One identifier's table line.
      */
-    public static function rendered(InventoryEntry $entry): string
+    public static function rendered(InventoryEntry $inventoryEntry): string
     {
-        $parts = [$entry->id, $entry->shape, $entry->lifetime];
+        $parts = [$inventoryEntry->id, $inventoryEntry->shape, $inventoryEntry->lifetime];
 
-        if ($entry->class !== null) {
-            $parts[] = $entry->class;
-        } elseif ($entry->alias !== null) {
-            $parts[] = '-> ' . $entry->alias;
-        } elseif ($entry->factory !== null) {
-            $parts[] = $entry->factory . '()';
+        if ($inventoryEntry->class !== null) {
+            $parts[] = $inventoryEntry->class;
+        } elseif ($inventoryEntry->alias !== null) {
+            $parts[] = '-> ' . $inventoryEntry->alias;
+        } elseif ($inventoryEntry->factory !== null) {
+            $parts[] = $inventoryEntry->factory . '()';
         } else {
-            $parts[] = get_debug_type($entry->value);
+            $parts[] = get_debug_type($inventoryEntry->value);
         }
 
-        if ($entry->tags !== []) {
-            $parts[] = 'tags: ' . implode(',', $entry->tags);
+        if ($inventoryEntry->tags !== []) {
+            $parts[] = 'tags: ' . implode(',', $inventoryEntry->tags);
         }
 
-        if ($entry->dependencies !== []) {
-            $parts[] = 'deps: ' . implode(',', $entry->dependencies);
+        if ($inventoryEntry->dependencies !== []) {
+            $parts[] = 'deps: ' . implode(',', $inventoryEntry->dependencies);
         }
 
-        if ($entry->lazy !== null) {
+        if ($inventoryEntry->lazy !== null) {
             $parts[] = 'lazy';
         }
 

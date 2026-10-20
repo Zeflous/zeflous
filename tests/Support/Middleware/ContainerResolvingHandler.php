@@ -18,7 +18,7 @@ use Zef\Framework\Http\Response;
  * the error boundary exactly the way a host's controller would let
  * it ({@see \Zef\Test\Middleware\ContainerRefusalBoundaryIntegrationTest}).
  */
-final class ContainerResolvingHandler implements RequestHandlerInterface
+final readonly class ContainerResolvingHandler implements RequestHandlerInterface
 {
     public function __construct(
         private Container $container,
@@ -27,7 +27,7 @@ final class ContainerResolvingHandler implements RequestHandlerInterface
     }
 
     #[Override]
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $serverRequest): ResponseInterface
     {
         $this->container->get($this->identifier);
 

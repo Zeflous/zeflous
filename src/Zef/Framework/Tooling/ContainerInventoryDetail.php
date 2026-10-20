@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Tooling;
 
 use Zef\Framework\Container\ContainerInventory;
+use Zef\Framework\Container\InventoryEntry;
 
 /**
  * The container inventory's detail view: the `--id=` form the
@@ -23,11 +24,11 @@ final readonly class ContainerInventoryDetail
      * the analysis was asked a question the configuration does not
      * answer, and the caller's exit code must say so.
      */
-    public static function rendered(ContainerInventory $inventory, string $identifier): string
+    public static function rendered(ContainerInventory $containerInventory, string $identifier): string
     {
-        $inventoryEntry = $inventory->entry($identifier);
+        $inventoryEntry = $containerInventory->entry($identifier);
 
-        if ($inventoryEntry === null) {
+        if (!$inventoryEntry instanceof InventoryEntry) {
             throw new ToolingException("The boot declared no service '{$identifier}'.");
         }
 

@@ -7,6 +7,8 @@ namespace Zef\Test\Scripts;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
+use Zef\Framework\Middleware\DebugToolbarFactory;
+use Zef\Framework\Middleware\ErrorMappingFactory;
 
 /**
  * Exercises the container analysis command end to end as a real
@@ -33,7 +35,7 @@ final class ContainerInventoryCommandTest extends TestCase
         self::assertStringContainsString('Container inventory -- ', $output);
         self::assertStringContainsString('boot: the aot knob is off', $output);
         self::assertStringContainsString(
-            'http.errors  factory  singleton  Zef\Framework\Middleware\ErrorMappingFactory::fromConfig()',
+            'http.errors  factory  singleton  ' . ErrorMappingFactory::class . '::fromConfig()',
             $output,
         );
     }
@@ -50,7 +52,7 @@ final class ContainerInventoryCommandTest extends TestCase
         self::assertStringContainsString('http.debug_toolbar', $output);
         self::assertStringContainsString('shape:        factory', $output);
         self::assertStringContainsString(
-            'factory:      Zef\Framework\Middleware\DebugToolbarFactory::fromConfig',
+            'factory:      ' . DebugToolbarFactory::class . '::fromConfig',
             $output,
         );
         self::assertStringContainsString('dependencies: framework.config', $output);

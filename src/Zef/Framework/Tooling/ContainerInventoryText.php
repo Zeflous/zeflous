@@ -6,6 +6,7 @@ namespace Zef\Framework\Tooling;
 
 use Zef\Framework\Container\Aot\AotOutcome;
 use Zef\Framework\Container\ContainerInventory;
+use Zef\Framework\Container\InventoryEntry;
 
 /**
  * The container inventory's table form: the plain listing the
@@ -25,27 +26,27 @@ final readonly class ContainerInventoryText
     /**
      * The whole declared set, one line per identifier.
      */
-    public static function table(ContainerInventory $inventory, AotOutcome $outcome): string
+    public static function table(ContainerInventory $containerInventory, AotOutcome $aotOutcome): string
     {
-        $ids = $inventory->ids();
+        $ids = $containerInventory->ids();
 
         $lines = [
             \sprintf('Container inventory -- %d services', \count($ids)),
-            'boot: ' . $outcome->note,
+            'boot: ' . $aotOutcome->note,
         ];
 
-        if ($outcome->unreferenced !== []) {
-            $lines[] = 'unreferenced: ' . implode(', ', $outcome->unreferenced);
+        if ($aotOutcome->unreferenced !== []) {
+            $lines[] = 'unreferenced: ' . implode(', ', $aotOutcome->unreferenced);
         }
 
         foreach ($ids as $id) {
-            $entry = $inventory->entry($id);
-            $lines[] = $entry === null
-                ? '  ' . $id
-                : '  ' . ContainerInventoryLine::rendered($entry);
+            $entry = $containerInventory->entry($id);
+            $lines[] = $entry instanceof InventoryEntry
+                ? '  ' . ContainerInventoryLine::rendered($entry)
+                : '  ' . $id;
         }
 
-        $lazy = $inventory->lazy();
+        $lazy = $containerInventory->lazy();
 
         if ($lazy !== []) {
             $lines[] = \sprintf('lazy marks -- %d', \count($lazy));

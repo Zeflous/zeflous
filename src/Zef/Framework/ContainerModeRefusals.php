@@ -40,7 +40,7 @@ final readonly class ContainerModeRefusals
     {
         return new DefinitionException(
             "The '{$key}' configuration carries the unknown key '"
-            . implode("', '", array_map('strval', $unknown))
+            . implode("', '", array_map(strval(...), $unknown))
             . "' (known keys: mode).",
         );
     }
