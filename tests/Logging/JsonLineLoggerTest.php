@@ -21,6 +21,8 @@ use Zef\Framework\Logging\JsonLogFileSecurity;
 use Zef\Framework\Logging\JsonLogWriteException;
 use Zef\Framework\Logging\LogContextSanitizer;
 use Zef\Test\Support\Http\UnopenableStreamWrapper;
+use Zef\Test\Support\Logging\JsonLineDoubleState;
+use Zef\Test\Support\Logging\JsonLineFunctionDoubles;
 
 /**
  * @internal
@@ -43,6 +45,8 @@ final class JsonLineLoggerTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
+        JsonLineFunctionDoubles::reset();
+
         if ($this->path === null || (!is_file($this->path) && !is_link($this->path))) {
             return;
         }
@@ -361,6 +365,188 @@ final class JsonLineLoggerTest extends TestCase
         } finally {
             @chmod($path, 0o600);
             @unlink($path);
+        }
+    }
+
+    /**
+     * Every record carries the UTC stamp: the first key of the JSONL line
+     * is the timestamp in the engine's own strict format, so a record
+     * without one is a record the formatter refused to sign.
+     */
+    public function testEveryRecordCarriesTheUtcTimestamp(): void
+    {
+        $line = JsonLineFormatter::line('info', 'stamped', []);
+
+        $record = json_decode($line, true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        $timestamp = $record['timestamp'] ?? null;
+        self::assertIsString($timestamp, 'The record must carry the UTC timestamp.');
+        self::assertMatchesRegularExpression(
+            '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/',
+            $timestamp,
+            "The record must carry the UTC timestamp in the engine's strict format.",
+        );
+        self::assertSame('stamped', $record['message']);
+    }
+
+    /**
+     * A message that is not valid UTF-8 is substituted, not refused: the
+     * throwing encoder runs with the substitution flag, so the broken
+     * byte pair becomes the replacement character escape inside the line
+     * and the record still decodes -- the flag combination is the
+     * contract, and the bitwise rewrite that drops it answers an empty
+     * line instead.
+     */
+    public function testSubstitutesInvalidUtf8RatherThanRefusingTheRecord(): void
+    {
+        $line = JsonLineFormatter::line('warning', "\xC3\x28 broken bytes", []);
+
+        self::assertStringContainsString('\ufffd', $line, 'The broken lead byte must surface as the replacement escape.');
+        $record = json_decode($line, true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame("\u{FFFD}( broken bytes", $record['message']);
+    }
+
+    /**
+     * The append's lock hygiene on the success path: the advisory lock is
+     * taken and released around the record, exactly one exclusive
+     * acquisition and one release, and nothing else.
+     */
+    public function testReleasesTheAdvisoryLockOnTheAppendSuccessPath(): void
+    {
+        JsonLineFunctionDoubles::define();
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+
+        JsonLineWriter::append($this->path, '{"level":"info"}' . "\n");
+
+        self::assertSame(
+            [\LOCK_EX, \LOCK_UN],
+            array_map(static fn (array $call): int => $call[0], JsonLineDoubleState::$flockCalls),
+            'A completed append must release its advisory lock before the stream closes.',
+        );
+    }
+
+    /**
+     * A lock refusal fails closed without releasing a lock never taken:
+     * the flag starts false, so the finally arm skips the release -- a
+     * refusal that still unlocked would leave the unlocked stream's
+     * release recorded after a lock that never existed.
+     */
+    public function testALockRefusalFailsClosedWithoutReleasingALockNeverTaken(): void
+    {
+        JsonLineFunctionDoubles::define();
+        JsonLineDoubleState::$flockAnswer = false;
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+
+        try {
+            JsonLineWriter::append($this->path, '{"level":"info"}' . "\n");
+            self::fail('A lock refusal must fail closed.');
+        } catch (JsonLogWriteException $jsonLogWriteException) {
+            self::assertSame('Unable to acquire the JSON log write lock.', $jsonLogWriteException->getMessage());
+        }
+
+        self::assertSame(
+            [\LOCK_EX],
+            array_map(static fn (array $call): int => $call[0], JsonLineDoubleState::$flockCalls),
+            'No lock was taken when the acquisition failed, so none may be released.',
+        );
+    }
+
+    /**
+     * A zero-byte write refusal still runs the finally arm: the lock the
+     * writer took is released and the stream closed even while the
+     * exception travels, and the partial record is rolled back to the
+     * byte offset the append started from -- the first record survives
+     * whole and the refused second record leaves nothing behind.
+     */
+    public function testAWriteRefusalReleasesTheLockAndRollsTheRecordBack(): void
+    {
+        JsonLineFunctionDoubles::define();
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $firstRecord = '{"level":"info"}' . "\n";
+
+        JsonLineWriter::append($this->path, $firstRecord);
+        JsonLineDoubleState::$fwriteAnswers = [0];
+
+        try {
+            JsonLineWriter::append($this->path, '{"level":"error"}' . "\n");
+            self::fail('A zero-byte write must be refused.');
+        } catch (JsonLogWriteException $jsonLogWriteException) {
+            self::assertSame('Unable to write a complete JSON log record.', $jsonLogWriteException->getMessage());
+        }
+
+        self::assertSame(
+            [\LOCK_EX, \LOCK_UN, \LOCK_EX, \LOCK_UN],
+            array_map(static fn (array $call): int => $call[0], JsonLineDoubleState::$flockCalls),
+            'Every append releases the lock it took, the refused one included.',
+        );
+        self::assertSame($firstRecord, file_get_contents($this->path), 'The refused record must leave nothing behind.');
+    }
+
+    /**
+     * The record writer's loop bound counts characters and its slices
+     * read character offsets: a one-byte-per-call budget walks a
+     * two-character line whose second character is the two-byte e-acute
+     * in exactly two calls, and the second call's payload is the plain
+     * ASCII tail -- never the e-acute's second byte stitched ahead of it.
+     */
+    public function testTheRecordLoopSlicesOnCharacterOffsetsUnderAByteBudget(): void
+    {
+        JsonLineFunctionDoubles::define();
+        JsonLineDoubleState::$fwriteChunk = 1;
+        $stream = fopen('php://temp', 'r+b');
+        self::assertIsResource($stream);
+
+        JsonLineRecordWriter::write($stream, 'éa', 0);
+
+        $payloads = array_map(
+            static fn (array $call): string => $call[0],
+            JsonLineDoubleState::$fwriteCalls,
+        );
+        self::assertSame(['éa', 'a'], $payloads, 'The cursor advances on character offsets under the byte budget.');
+    }
+
+    /**
+     * The character bound is the exit, not the byte count: a line of two
+     * characters whose second is two bytes wide completes in two
+     * one-budget calls -- a byte-based bound would demand a third call
+     * whose slice is the empty string past the end, and the empty write's
+     * refusal would fail an append that the contract completes.
+     */
+    public function testTheRecordLoopExitsOnTheCharacterBoundNotTheByteCount(): void
+    {
+        JsonLineFunctionDoubles::define();
+        JsonLineDoubleState::$fwriteChunk = 1;
+        $stream = fopen('php://temp', 'r+b');
+        self::assertIsResource($stream);
+
+        JsonLineRecordWriter::write($stream, 'aé', 0);
+
+        $payloads = array_map(
+            static fn (array $call): string => $call[0],
+            JsonLineDoubleState::$fwriteCalls,
+        );
+        self::assertSame(['aé', 'é'], $payloads, 'Two characters complete in two calls whatever their byte widths.');
+    }
+
+    /**
+     * An interim zero-byte write is a refusal even after progress: the
+     * first call advanced the cursor, and the second answered zero -- the
+     * rollback and the exception answer immediately rather than spinning
+     * on a cursor that never advances.
+     */
+    public function testAnInterimZeroByteWriteIsRefusedAfterProgress(): void
+    {
+        JsonLineFunctionDoubles::define();
+        JsonLineDoubleState::$fwriteAnswers = [1, 0];
+        $stream = fopen('php://temp', 'r+b');
+        self::assertIsResource($stream);
+
+        try {
+            JsonLineRecordWriter::write($stream, 'ab', 0);
+            self::fail('An interim zero-byte write must be refused.');
+        } catch (JsonLogWriteException $jsonLogWriteException) {
+            self::assertSame('Unable to write a complete JSON log record.', $jsonLogWriteException->getMessage());
         }
     }
 }

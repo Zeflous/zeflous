@@ -27,4 +27,6 @@ require __DIR__ . '/../vendor/autoload.php';
 
 require __DIR__ . '/Support/Http/replay_snapshot_function_doubles.php';
 
+require __DIR__ . '/Support/Logging/json_line_function_doubles.php';
+
 require __DIR__ . '/Support/Middleware/hrtime_double.php';
