@@ -55,9 +55,11 @@ final class ReplayStorageDirectoryTest extends TestCase
 
         $leftovers = glob($this->directory . '/*');
         foreach (\is_array($leftovers) ? $leftovers : [] as $leftover) {
-            if (is_file($leftover)) {
-                unlink($leftover);
+            if (!is_file($leftover)) {
+                continue;
             }
+
+            unlink($leftover);
         }
 
         rmdir($this->directory);

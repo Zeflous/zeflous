@@ -43,14 +43,18 @@ final class ReplaySnapshotWriterTest extends TestCase
 
         $files = glob($this->directory . '/*');
         foreach (\is_array($files) ? $files : [] as $file) {
-            if (is_file($file)) {
-                unlink($file);
+            if (!is_file($file)) {
+                continue;
             }
+
+            unlink($file);
         }
 
-        if (is_dir($this->directory)) {
-            rmdir($this->directory);
+        if (!is_dir($this->directory)) {
+            return;
         }
+
+        rmdir($this->directory);
     }
 
     public function testWritesTheDocumentFollowedByExactlyOneNewline(): void

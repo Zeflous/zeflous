@@ -51,9 +51,8 @@ function chmod(string $filename, int $permissions): bool
 /**
  * @param resource  $stream
  * @param int<0, 7> $operation
- * @param null|int  $would_block
  */
-function flock($stream, int $operation, &$would_block = null): bool
+function flock($stream, int $operation, ?int &$would_block = null): bool
 {
     if (ReplaySnapshotDoubleState::$flockAnswer !== null) {
         $result = ReplaySnapshotDoubleState::$flockAnswer;
