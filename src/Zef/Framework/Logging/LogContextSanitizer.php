@@ -41,7 +41,7 @@ final class LogContextSanitizer
 
         foreach (array_keys($entries) as $key) {
             $name = \is_string($key) ? $key : (string) $key;
-            if (preg_match('/password|secret|token|authorization|cookie|api[_-]?key/i', $name) === 1) {
+            if (preg_match('/password|passwd|secret|token|authorization|cookie|csrf|api[_-]?key/i', $name) === 1) {
                 $safe[$name] = '[REDACTED]';
 
                 continue;
