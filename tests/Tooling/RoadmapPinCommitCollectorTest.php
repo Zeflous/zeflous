@@ -38,6 +38,27 @@ final class RoadmapPinCommitCollectorTest extends TestCase
         self::assertNull($this->collector([])->state(null));
     }
 
+    public function testAMainLaneUnderAnEmptyBaseRefIsRecognised(): void
+    {
+        // The GitHub runner exports GITHUB_BASE_REF as an EMPTY STRING on the
+        // push and workflow_dispatch events: the variable is present but
+        // carries no base branch, so only a NON-EMPTY value marks a
+        // pull-request lane. A presence-only check read this shape as a
+        // pull-request lane and the rule never judged a single commit.
+        putenv('GITHUB_BASE_REF=');
+        putenv('GITHUB_REF=refs/heads/main');
+
+        $state = $this->collector([
+            'merge-base --is-ancestor' => [0, ''],
+            'log --format=%s' => [0, "docs(roadmap): record the lane\n"],
+        ])->state(self::STATUS);
+
+        self::assertNotNull($state);
+        self::assertSame('058ab8c', $state->pinnedSha);
+        self::assertTrue($state->pinIsAncestor);
+        self::assertSame(['docs(roadmap): record the lane'], $state->subjects);
+    }
+
     public function testAMainLaneFromTheCiEnvironmentReadsTheRange(): void
     {
         putenv('GITHUB_REF=refs/heads/main');
