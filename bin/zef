@@ -134,6 +134,59 @@ if ($command === 'errors:replay') {
     exit(0);
 }
 
+if ($command === 'container:inventory') {
+    $configDirectory = $argv[2] ?? '';
+    $identifier = null;
+    foreach (array_slice($argv, 3) as $argument) {
+        if (str_starts_with($argument, '--id=')) {
+            $identifier = substr($argument, strlen('--id='));
+        }
+    }
+
+    if ($configDirectory === '' || str_starts_with($configDirectory, '--')) {
+        fwrite(STDERR, "Usage: bin/zef container:inventory <config-directory> [--id=<service>]\n");
+        exit(2);
+    }
+
+    $resolved = realpath($configDirectory);
+    if ($resolved === false || !is_dir($resolved)) {
+        fwrite(STDERR, "Configuration directory does not exist: {$configDirectory}\n");
+        exit(2);
+    }
+
+    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    if (is_file($autoload)) {
+        require_once $autoload;
+    } else {
+        // The zero-dependency spelling: the framework's own tree is the
+        // only thing the analysis needs, so a bare install loads it
+        // through a minimal PSR-4 registration instead of Composer.
+        spl_autoload_register(static function (string $class): void {
+            if (str_starts_with($class, 'Zef\\Framework\\')) {
+                $file = dirname(__DIR__) . '/src/'
+                    . str_replace('\\', '/', substr($class, strlen('Zef\\Framework\\'))) . '.php';
+                if (is_file($file)) {
+                    require $file;
+                }
+            }
+        });
+    }
+
+    try {
+        fwrite(
+            STDOUT,
+            Zef\Framework\Tooling\ContainerInventoryReport::rendering(
+                $resolved,
+                $identifier === '' ? null : $identifier,
+            ),
+        );
+        exit(0);
+    } catch (Throwable $bootFailure) {
+        fwrite(STDERR, 'The container boot refused: ' . $bootFailure->getMessage() . "\n");
+        exit(1);
+    }
+}
+
 $path = getenv('ZEF_ERROR_LOG') ?: DEFAULT_ERROR_LOG;
 $requestIdFilter = null;
 foreach (array_slice($argv, 2) as $argument) {
