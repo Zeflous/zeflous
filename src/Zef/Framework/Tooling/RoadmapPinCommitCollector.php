@@ -14,8 +14,9 @@ use Closure;
  * pull request's merge ref, where the pin is behind by construction, and a
  * developer's checkout usually sits on a feature branch. The collector
  * therefore decides -- from the CI environment first (a pull-request lane is
- * recognised by `GITHUB_BASE_REF`, a main lane by `GITHUB_REF`), from the
- * checked-out branch second -- whether it is on `main`. When it is not, it
+ * recognised by a non-empty `GITHUB_BASE_REF`, a main lane by `GITHUB_REF`),
+ * from the checked-out branch second -- whether it is on `main`. When it is
+ * not, it
  * returns null and the gate says so in its pass message instead of silently
  * skipping; the main-validation watchdog guarantees the rule does run on
  * `main`, which is the only place its verdict means anything.
@@ -25,6 +26,12 @@ use Closure;
  * and anything else is an error it cannot convert into a verdict) throws
  * rather than pass, because an unreadable answer about the pin must never be
  * convertible into a pass.
+ *
+ * CI environment note: the GitHub runner exports `GITHUB_BASE_REF` as an
+ * EMPTY STRING on the push and workflow_dispatch events (the variable is
+ * present but carries no base branch), so a pull-request lane is recognised
+ * only by a NON-EMPTY `GITHUB_BASE_REF` -- a mere presence check mistakes
+ * every main lane for a pull-request lane and the rule never judges.
  */
 final readonly class RoadmapPinCommitCollector
 {
@@ -109,7 +116,9 @@ final readonly class RoadmapPinCommitCollector
      */
     private function onMain(): bool
     {
-        if (getenv('GITHUB_BASE_REF') !== false) {
+        $baseRef = getenv('GITHUB_BASE_REF');
+
+        if (\is_string($baseRef) && $baseRef !== '') {
             return false;
         }
 
