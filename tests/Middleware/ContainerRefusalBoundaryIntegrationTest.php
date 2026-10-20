@@ -50,7 +50,7 @@ final class ContainerRefusalBoundaryIntegrationTest extends TestCase
 
     public function testDevelopmentDisclosesTheRedactedRefusal(): void
     {
-        $response = $this->boundary(debug: true)->process(
+        $response = $this->boundary(new RecordingLogger(), debug: true)->process(
             $this->request(),
             $this->resolving('app.absent'),
         );
@@ -100,7 +100,7 @@ final class ContainerRefusalBoundaryIntegrationTest extends TestCase
         $container = new Container();
         $container->set('app.known', static fn (): object => new stdClass());
 
-        $response = $this->boundary(debug: false)->process(
+        $response = $this->boundary(new RecordingLogger(), debug: false)->process(
             $this->request(),
             $this->resolving('app.never-declared'),
         );

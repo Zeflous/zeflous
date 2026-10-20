@@ -62,7 +62,10 @@ final class ReflectionMemoTest extends TestCase
             $reflectionMemo->reflect('Zef\Test\Support\Container\DoesNotExistAnywhere');
             self::fail('Expected a ReflectionException to be thrown.');
         } catch (ReflectionException $reflectionException) {
-            self::assertStringContainsString('DoesNotExistAnywhere', $reflectionException->getMessage());
+            self::assertSame(
+                "The class 'Zef\\Test\\Support\\Container\\DoesNotExistAnywhere' does not exist",
+                $reflectionException->getMessage(),
+            );
         }
 
         self::assertSame(0, $reflectionMemo->count());

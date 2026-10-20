@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
+use Zef\Framework\Tooling\ContainerAnalysisArtifact;
 use Zef\Framework\Tooling\ContainerInventoryReport;
 use Zef\Framework\Tooling\ToolingException;
 use Zef\Test\Support\Container\Aot\CallsHouse;
@@ -162,6 +163,51 @@ final class ContainerInventoryReportTest extends TestCase
         $report = ContainerInventoryReport::rendering($this->configDirectory);
 
         self::assertStringContainsString('app.window  class  singleton  ' . Window::class . '  lazy', $report);
+    }
+
+    public function testTheThrowawayArtifactPathCarriesItsOwnShape(): void
+    {
+        $path = ContainerAnalysisArtifact::path();
+
+        $basename = basename($path);
+
+        self::assertMatchesRegularExpression(
+            '/^zef-container-inventory-[a-f0-9]{13}\.php$/',
+            $basename,
+        );
+        self::assertSame(sys_get_temp_dir(), \dirname($path));
+    }
+
+    /**
+     * Two allocations never collide: the throwaway seam's whole
+     * promise -- two analyses in one temporary directory are two
+     * files.
+     */
+    public function testTwoAllocationsNeverCollide(): void
+    {
+        self::assertNotSame(ContainerAnalysisArtifact::path(), ContainerAnalysisArtifact::path());
+    }
+
+    /**
+     * The dump the analysis's own throwaway seam wrote is gone when
+     * the report answers: an `aot.enabled` boot under the production
+     * default dumps through the seam, and the report's finally leaves
+     * no `zef-container-inventory-` artifact behind -- the temporary
+     * directory carries none after the rendering.
+     */
+    public function testTheDumpedThrowawayArtifactNeverOutlivesTheReport(): void
+    {
+        $this->declare(['app.window' => ['class' => Window::class]]);
+        file_put_contents(
+            $this->configDirectory . '/aot.php',
+            '<?php return ["enabled" => true];',
+        );
+
+        $report = ContainerInventoryReport::rendering($this->configDirectory);
+
+        self::assertStringContainsString('app.window', $report);
+        self::assertStringContainsString('boot: the artifact was absent', $report);
+        self::assertSame([], glob(sys_get_temp_dir() . '/zef-container-inventory-*.php'));
     }
 
     /**

@@ -52,7 +52,7 @@ final class ReflectionMemo
      * reflecting the same class repeatedly pays the map lookup alone.
      *
      * A name no class answers is refused at the boundary, reflection's
-     * own refusal carried verbatim ({@see \ReflectionException}) -- the
+     * own refusal carried verbatim ({@see ReflectionException}) -- the
      * memo stores answers, it never invents them, and the guard is what
      * proves the carried key's class claim for the type system (the
      * narrowing {@see class_exists()} answers).
@@ -64,7 +64,7 @@ final class ReflectionMemo
     public function reflect(string $class): ReflectionClass
     {
         if (!class_exists($class)) {
-            throw new ReflectionException("Class {$class} does not exist");
+            throw new ReflectionException("The class '{$class}' does not exist");
         }
 
         return $this->reflected[$class] ??= new ReflectionClass($class);

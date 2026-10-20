@@ -22,58 +22,12 @@ use Zef\Framework\ContainerKnobs;
  * LazyMarking::marks()}).
  *
  * One spelling of each registration, shared by the lanes that register
- * them ({@see AotBootLane}, {@see ContainerCompileLane}).
+ * them through their composites ({@see readSides} the compile lane's own,
+ * {@see artifactReadSides} the artifact lane's) -- the individual
+ * registrations are the composites' own internals.
  */
 final readonly class ContainerRegistrations
 {
-    /**
-     * The tags lane's read side.
-     */
-    public static function tagsLocator(Container $container, ServiceTagIndex $serviceTagIndex): void
-    {
-        $container->set(
-            ContainerServices::TAGS_SERVICE,
-            static fn (Container $container): TaggedServices => new TaggedServices($serviceTagIndex, $container),
-        );
-    }
-
-    /**
-     * The namespace layer's read side: the locator over the boot's
-     * sealed radix tree.
-     */
-    public static function namespacesLocator(Container $container, NamespaceRadixTree $namespaceRadixTree): void
-    {
-        $container->set(
-            ContainerServices::NAMESPACES_SERVICE,
-            static fn (Container $container): NamespacedServices => new NamespacedServices(
-                $namespaceRadixTree,
-                $container,
-            ),
-        );
-    }
-
-    /**
-     * The debug inventory's read side (ROADMAP area 12): the parsed
-     * declarations the boot spelled, captured as the inventory's own
-     * snapshot, with the lazy marks read live through the registry
-     * the resolution lanes consult -- one registration both lanes
-     * take from their own knobs, so the inventory answers the same
-     * declarations whichever lane booted.
-     *
-     * @param list<ServiceDefinition> $definitions the boot's parsed
-     *                                             declaration set
-     */
-    public static function debugLocator(Container $container, array $definitions): void
-    {
-        $container->set(
-            ContainerServices::INVENTORY_SERVICE,
-            static fn (Container $container): ContainerInventory => new ContainerInventory(
-                $definitions,
-                $container->lazyIdentities(),
-            ),
-        );
-    }
-
     /**
      * The artifact lane's three read-side registrations in the order
      * the compile lane's own registers use: the baked tag index, the
@@ -86,14 +40,16 @@ final readonly class ContainerRegistrations
     public static function artifactReadSides(
         Container $container,
         AotArtifact $aotArtifact,
-        NamespacesMap $namespacesMap,
+        ContainerKnobs $containerKnobs,
     ): void {
         self::tagsLocator($container, ServiceTagIndex::fromIdsByTag($aotArtifact->tags()));
 
         self::namespacesLocator(
             $container,
-            NamespaceTree::sealed(array_keys($aotArtifact->entries()), $namespacesMap),
+            NamespaceTree::sealed(array_keys($aotArtifact->entries()), $containerKnobs->namespaces),
         );
+
+        self::debugLocator($container, $containerKnobs->definitions);
 
         self::artifactOutcome($container, $aotArtifact);
     }
@@ -132,9 +88,57 @@ final readonly class ContainerRegistrations
     }
 
     /**
+     * The tags lane's read side.
+     */
+    private static function tagsLocator(Container $container, ServiceTagIndex $serviceTagIndex): void
+    {
+        $container->set(
+            ContainerServices::TAGS_SERVICE,
+            static fn (Container $container): TaggedServices => new TaggedServices($serviceTagIndex, $container),
+        );
+    }
+
+    /**
+     * The namespace layer's read side: the locator over the boot's
+     * sealed radix tree.
+     */
+    private static function namespacesLocator(Container $container, NamespaceRadixTree $namespaceRadixTree): void
+    {
+        $container->set(
+            ContainerServices::NAMESPACES_SERVICE,
+            static fn (Container $container): NamespacedServices => new NamespacedServices(
+                $namespaceRadixTree,
+                $container,
+            ),
+        );
+    }
+
+    /**
+     * The debug inventory's read side (ROADMAP area 12): the parsed
+     * declarations the boot spelled, captured as the inventory's own
+     * snapshot, with the lazy marks read live through the registry
+     * the resolution lanes consult -- one registration both lanes
+     * take from their own knobs, so the inventory answers the same
+     * declarations whichever lane booted.
+     *
+     * @param list<ServiceDefinition> $definitions the boot's parsed
+     *                                             declaration set
+     */
+    private static function debugLocator(Container $container, array $definitions): void
+    {
+        $container->set(
+            ContainerServices::INVENTORY_SERVICE,
+            static fn (Container $container): ContainerInventory => new ContainerInventory(
+                $definitions,
+                $container->lazyIdentities(),
+            ),
+        );
+    }
+
+    /**
      * The compile/dump lane's boot answer.
      */
-    public static function outcome(Container $container, AotOutcome $aotOutcome): void
+    private static function outcome(Container $container, AotOutcome $aotOutcome): void
     {
         $container->set(
             ContainerServices::AOT_SERVICE,

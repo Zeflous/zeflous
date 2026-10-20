@@ -49,7 +49,7 @@ final readonly class ContainerInventoryReport
      */
     public static function rendering(string $configDirectory, ?string $identifier = null): string
     {
-        $artifactFile = sys_get_temp_dir() . '/zef-container-inventory-' . uniqid('', false) . '.php';
+        $artifactFile = ContainerAnalysisArtifact::path();
 
         try {
             $kernel = new ApplicationBootstrapper(
