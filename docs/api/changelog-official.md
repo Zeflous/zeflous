@@ -24,6 +24,7 @@
 - feat\(ci\): lint the ruleset against the merged heads' check evidence [\#447](https://github.com/Zeflous/zeflous/pull/447) ([mbetixz](https://github.com/mbetixz))
 - feat\(ci\): make every required check merge-queue aware [\#446](https://github.com/Zeflous/zeflous/pull/446) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): add the parameters family and the value attribute lane [\#445](https://github.com/Zeflous/zeflous/pull/445) ([mbetixz](https://github.com/mbetixz))
+- feat\(errors\): harden enterprise error handling [\#444](https://github.com/Zeflous/zeflous/pull/444) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the injector and contextual-binding family to pull request 439 [\#440](https://github.com/Zeflous/zeflous/pull/440) ([mbetixz](https://github.com/mbetixz))
 - feat\(container\): add the method-call injection lane and contextual bindings [\#439](https://github.com/Zeflous/zeflous/pull/439) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): pin the typed exception family to pull request 434 [\#435](https://github.com/Zeflous/zeflous/pull/435) ([mbetixz](https://github.com/mbetixz))
