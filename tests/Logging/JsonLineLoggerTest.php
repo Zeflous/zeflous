@@ -401,7 +401,11 @@ final class JsonLineLoggerTest extends TestCase
     {
         $line = JsonLineFormatter::line('warning', "\xC3\x28 broken bytes", []);
 
-        self::assertStringContainsString('\ufffd', $line, 'The broken lead byte must surface as the replacement escape.');
+        self::assertStringContainsString(
+            '\ufffd',
+            $line,
+            'The broken lead byte must surface as the replacement escape.',
+        );
         $record = json_decode($line, true, 512, \JSON_THROW_ON_ERROR);
         self::assertIsArray($record);
         self::assertSame("\u{FFFD}( broken bytes", $record['message']);

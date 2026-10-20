@@ -90,8 +90,16 @@ final class DebugToolbarMiddlewareTest extends TestCase
 
         $body = (string) $response->getBody();
         self::assertSame('enabled', $response->getHeaderLine('X-Debug-Toolbar'));
-        self::assertSame(1, mb_substr_count($body, 'ZEF Profiler'), 'The toolbar appears exactly once, before the first closing tag.');
-        self::assertStringEndsWith(' tail </body>', $body, 'The stray second closing tag survives untouched at the tail.');
+        self::assertSame(
+            1,
+            mb_substr_count($body, 'ZEF Profiler'),
+            'The toolbar appears exactly once, before the first closing tag.',
+        );
+        self::assertStringEndsWith(
+            ' tail </body>',
+            $body,
+            'The stray second closing tag survives untouched at the tail.',
+        );
     }
 
     public function testPreservesExistingContentSecurityPolicyWithoutInjectingToolbar(): void

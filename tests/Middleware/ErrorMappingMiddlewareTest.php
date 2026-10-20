@@ -978,7 +978,11 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertSame('Error mapping failed.', $this->envelope($response)['detail']);
 
         $routedLog = $this->routedErrorLogContents();
-        self::assertSame(1, mb_substr_count($routedLog, "\n"), 'Exactly one line reaches the SAPI log for one mapping failure.');
+        self::assertSame(
+            1,
+            mb_substr_count($routedLog, "\n"),
+            'Exactly one line reaches the SAPI log for one mapping failure.',
+        );
         self::assertStringEndsWith(
             'ZEF error status mapping failed: RuntimeException' . "\n",
             $routedLog,
@@ -991,7 +995,11 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertSame('Request failed', $message);
         self::assertSame('Error mapping failed.', $context['exception.message']);
         self::assertSame(RuntimeException::class, $context['exception_class']);
-        self::assertSame('0', $context['exception_code'], 'The wrapper carries the neutral zero code, not a mutation of it.');
+        self::assertSame(
+            '0',
+            $context['exception_code'],
+            'The wrapper carries the neutral zero code, not a mutation of it.',
+        );
     }
 
     /**
@@ -1033,7 +1041,11 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertSame(500, $response->getStatusCode());
 
         $routedLog = $this->routedErrorLogContents();
-        self::assertSame(1, mb_substr_count($routedLog, "\n"), 'Exactly one record reaches the SAPI log for one failure.');
+        self::assertSame(
+            1,
+            mb_substr_count($routedLog, "\n"),
+            'Exactly one record reaches the SAPI log for one failure.',
+        );
         $record = json_decode((string) mb_strstr($routedLog, '{'), true, 512, \JSON_THROW_ON_ERROR);
         self::assertIsArray($record);
         $timestamp = $record['timestamp'] ?? null;
