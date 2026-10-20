@@ -13,6 +13,12 @@ namespace Zef\Framework\Container;
  * positional argument list. The optional `calls` list parses without
  * the method-existence proof: the factory's product type is unknown at
  * boot, so the proof waits for the first resolution.
+ *
+ * The `lazy` key asks the resolution lane to defer the invocation
+ * behind a native proxy of the factory method's declared return class
+ * ({@see LazyReturns::behindTheDeclaredReturn()} -- the only honest
+ * source of the class a lazy factory can name, each unnameable
+ * return-type spelling refused with the way out in the message).
  */
 final readonly class FactoryShape
 {
@@ -28,12 +34,18 @@ final readonly class FactoryShape
             );
         }
 
+        $factory = FactorySpellings::validated($id, $entry['factory']);
+        $lifetime = ServiceLifetime::fromKey($id, $entry['lifetime'] ?? null) ?? ServiceLifetime::SINGLETON;
+
         return new FactoryDefinition(
             $id,
-            FactorySpellings::validated($id, $entry['factory']),
+            $factory,
             DefinitionArguments::assertValid($id, $entry['arguments'] ?? []),
-            ServiceLifetime::fromKey($id, $entry['lifetime'] ?? null) ?? ServiceLifetime::SINGLETON,
+            $lifetime,
             ServiceTagKey::fromKey($id, $entry['tags'] ?? null) ?? new ServiceTags(),
-        )->withMethodCalls(MethodCalls::fromKey($id, null, $entry));
+        )
+            ->withMethodCalls(MethodCalls::fromKey($id, null, $entry))
+            ->withLazyClass(LazyReturns::behindTheDeclaredReturn($id, $entry, $lifetime, $factory))
+        ;
     }
 }

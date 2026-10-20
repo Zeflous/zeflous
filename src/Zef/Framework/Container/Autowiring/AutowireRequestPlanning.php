@@ -50,6 +50,7 @@ final readonly class AutowireRequestPlanning
             $unplannedInstanceDefinition->lifetime,
             $unplannedInstanceDefinition->tags,
             $unplannedInstanceDefinition->calls,
+            $unplannedInstanceDefinition->lazyClass,
         );
     }
 }

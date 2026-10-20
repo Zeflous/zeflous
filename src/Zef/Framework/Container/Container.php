@@ -24,7 +24,10 @@ use Psr\Container\ContainerInterface;
  * The namespace fallback registry's accessor is the third: the miss path
  * consults the registry the composition root registered its fallback
  * factories against ({@see NamespaceFallbacks}), and the facade that owns
- * the store owns that reach-through too.
+ * the store owns that reach-through too. The lazy registry's accessor is
+ * the fourth: the boot's lanes mark the identifiers the resolution lanes
+ * defer behind native proxies ({@see LazyIdentities}), and the facade that
+ * owns the store owns that reach-through too.
  */
 final readonly class Container implements ContainerInterface
 {
@@ -36,6 +39,8 @@ final readonly class Container implements ContainerInterface
 
     private NamespaceFallbacks $namespaceFallbacks;
 
+    private LazyIdentities $lazyIdentities;
+
     private ContainerAnswers $containerAnswers;
 
     public function __construct()
@@ -44,6 +49,7 @@ final readonly class Container implements ContainerInterface
         $this->requestInstances = $this->serviceStore->requestInstances();
         $this->interceptions = $this->serviceStore->interceptions();
         $this->namespaceFallbacks = $this->serviceStore->namespaceFallbacks();
+        $this->lazyIdentities = $this->serviceStore->lazyIdentities();
         $this->containerAnswers = new ContainerAnswers($this->serviceStore, $this->namespaceFallbacks);
     }
 
@@ -68,6 +74,50 @@ final readonly class Container implements ContainerInterface
     public function namespaceFallbacks(): NamespaceFallbacks
     {
         return $this->namespaceFallbacks;
+    }
+
+    /**
+     * The lazy registry the resolution lanes consult and the boot's
+     * lanes mark: the identifiers that resolve to a native lazy proxy
+     * deferring their guarded construction to first use (ROADMAP area
+     * 7's proxy half). The marks are the boot's own post-install step
+     * ({@see ContainerRegistrations::lazyMarks()}), and a `set()`
+     * re-registration forgets them with the memo -- the eager surface
+     * re-registers eagerly.
+     */
+    public function lazyIdentities(): LazyIdentities
+    {
+        return $this->lazyIdentities;
+    }
+
+    /**
+     * Marks a registered identifier lazy behind the class its native
+     * proxy stands in for -- the programmatic spelling of the
+     * declarative `lazy` key ({@see LazyKey}), the composition root's
+     * own deferral request beside the grammar's. The identifier must
+     * already carry a registration, and a request lifetime refuses
+     * (its deferred materialisation could not name its scope); a
+     * `set()` re-registration forgets the mark with the memo.
+     *
+     * @param class-string $class
+     */
+    public function markLazy(string $id, string $class): void
+    {
+        LazyMarking::mark($this->serviceStore->factoryRegistrations(), $this->lazyIdentities, $id, $class);
+    }
+
+    /**
+     * Answers a subset locator over the named identifiers (ROADMAP
+     * area 10's service locator): a light read-only PSR-11 view whose
+     * resolution delegates to this container's own lanes -- the same
+     * memoisation, the same lazy deferral, the same refusals -- with
+     * the subset's boundary enforced, not advisory. Every asked
+     * identifier must already be one the container can answer, and
+     * the boot's `@`-prefixed machinery is refused with the ask.
+     */
+    public function locator(string ...$ids): ContainerLocator
+    {
+        return new ContainerLocator($this, ...$ids);
     }
 
     /**

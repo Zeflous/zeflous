@@ -8,14 +8,17 @@ use Zef\Framework\Container\Aot\AotArtifact;
 use Zef\Framework\Container\Aot\AotOutcome;
 
 /**
- * The boot's reserved-service registrations: the three read-side
- * services both lanes register ahead of the definitions (so a host's
- * same-identifier entry is an explicit rebind that wins) -- the tags
- * locator under {@see ContainerServices::TAGS_SERVICE}, the boot's
- * lane answer under {@see ContainerServices::AOT_SERVICE}, and the
+ * The boot's reserved-service registrations and lazy marks: the four
+ * read-side services both lanes register ahead of the definitions (so
+ * a host's same-identifier entry is an explicit rebind that wins) --
+ * the tags locator under {@see ContainerServices::TAGS_SERVICE}, the
+ * boot's lane answer under {@see ContainerServices::AOT_SERVICE}, the
  * namespace layer's locator under
- * {@see ContainerServices::NAMESPACES_SERVICE}, the `framework.config`
- * precedent.
+ * {@see ContainerServices::NAMESPACES_SERVICE}, and the debug
+ * inventory under {@see ContainerServices::INVENTORY_SERVICE}, the
+ * `framework.config` precedent -- plus the lazy registry's
+ * post-install marking step both lanes share a name for ({@see
+ * LazyMarking::marks()}).
  *
  * One spelling of each registration, shared by the lanes that register
  * them ({@see AotBootLane}, {@see ContainerCompileLane}).
@@ -44,6 +47,28 @@ final readonly class ContainerRegistrations
             static fn (Container $container): NamespacedServices => new NamespacedServices(
                 $namespaceRadixTree,
                 $container,
+            ),
+        );
+    }
+
+    /**
+     * The debug inventory's read side (ROADMAP area 12): the parsed
+     * declarations the boot spelled, captured as the inventory's own
+     * snapshot, with the lazy marks read live through the registry
+     * the resolution lanes consult -- one registration both lanes
+     * take from their own knobs, so the inventory answers the same
+     * declarations whichever lane booted.
+     *
+     * @param list<ServiceDefinition> $definitions the boot's parsed
+     *                                             declaration set
+     */
+    public static function debugLocator(Container $container, array $definitions): void
+    {
+        $container->set(
+            ContainerServices::INVENTORY_SERVICE,
+            static fn (Container $container): ContainerInventory => new ContainerInventory(
+                $definitions,
+                $container->lazyIdentities(),
             ),
         );
     }

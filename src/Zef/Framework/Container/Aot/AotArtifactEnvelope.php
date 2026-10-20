@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Container\Aot;
 
 /**
- * The artifact's envelope validation: the four keys the dump always
+ * The artifact's envelope validation: the five keys the dump always
  * writes, exactly -- the structural promises that precede any
  * per-member or per-entry validation, split as their own unit the way
  * the entries and the identifier lists already are.
@@ -14,11 +14,25 @@ namespace Zef\Framework\Container\Aot;
  * along, every required key is present, and the digest is a non-empty
  * string. What answers is the raw member map with the digest proven --
  * the members' own validators ({@see AotArtifactIds},
- * {@see AotArtifact::validatedTags()}, {@see AotArtifactEntries}) take
- * it from there.
+ * {@see AotArtifact::validatedTags()}, {@see AotArtifactLazies::validated()},
+ * {@see AotArtifactEntries}) take it from there.
+ *
+ * The {@see GENERATION} constant is the boundary's format version the
+ * digest folds ({@see AotDigest::ARTIFACT_GENERATION}): an artifact of
+ * an older generation is proven stale by the digest itself, so the
+ * envelope's strict five-key contract never meets a four-key artifact
+ * -- the strictness and the generation travel together, and a future
+ * shape change bumps both in the same breath.
  */
 final readonly class AotArtifactEnvelope
 {
+    /**
+     * The envelope's format generation, folded into every digest
+     * ({@see AotDigest::ARTIFACT_GENERATION} -- the two constants are
+     * one number, spelled where each unit needs it).
+     */
+    public const int GENERATION = AotDigest::ARTIFACT_GENERATION;
+
     /**
      * The envelope the dump always writes, exactly.
      */
@@ -26,6 +40,7 @@ final readonly class AotArtifactEnvelope
         'digest' => true,
         'unreferenced' => true,
         'tags' => true,
+        'lazy' => true,
         'entries' => true,
     ];
 
@@ -34,7 +49,7 @@ final readonly class AotArtifactEnvelope
      *
      * @param mixed $payload whatever the artifact file returned
      *
-     * @return array{digest: string, unreferenced: mixed, tags: mixed, entries: mixed}
+     * @return array{digest: string, unreferenced: mixed, tags: mixed, lazy: mixed, entries: mixed}
      */
     public static function validated(string $file, mixed $payload): array
     {
@@ -62,6 +77,7 @@ final readonly class AotArtifactEnvelope
             'digest' => $digest,
             'unreferenced' => $payload['unreferenced'],
             'tags' => $payload['tags'],
+            'lazy' => $payload['lazy'],
             'entries' => $payload['entries'],
         ];
     }

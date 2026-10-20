@@ -13,12 +13,15 @@ namespace Zef\Framework\Container\Aot;
  * planned set -- but it crosses a file boundary, and a torn write, a
  * truncated copy or a hand edit must refuse rather than half-boot. So
  * the validation is the strict mirror of the dump's own shape: the
- * envelope's four keys exactly ({@see AotRefusals::artifactShape()}),
+ * envelope's five keys exactly ({@see AotRefusals::artifactShape()}),
  * the digest a non-empty string, the unreferenced report a list of
- * identifiers, the tag index a map of identifier lists, and the entries
- * each their typed form ({@see AotArtifactEntries} -- the per-definition
- * walk's own unit, the same split the definition grammar's map and
- * entry validation use).
+ * identifiers, the tag index a map of identifier lists, the lazy map a
+ * map of instantiable class names ({@see AotArtifactLazies} -- the
+ * lazy map's own unit, the same split the identifier lists and the
+ * per-definition walk take), and the entries each their typed form
+ * ({@see AotArtifactEntries} -- the per-definition walk's own unit,
+ * the same split the definition grammar's map and entry validation
+ * use).
  *
  * What the validation answers is typed, not re-checked: the raw
  * payload's entries become {@see AotClosureEntry} and
@@ -36,12 +39,14 @@ final readonly class AotArtifact
     /**
      * @param list<string>                                 $unreferenced the report baked at dump time
      * @param array<string, list<string>>                  $tags         the baked tag index
+     * @param array<string, class-string>                  $lazy         the baked lazy map
      * @param array<string, AotBuildEntry|AotClosureEntry> $entries      the validated entries
      */
     private function __construct(
         private string $digest,
         private array $unreferenced,
         private array $tags,
+        private array $lazy,
         private array $entries,
     ) {
     }
@@ -77,6 +82,21 @@ final readonly class AotArtifact
     }
 
     /**
+     * The baked lazy map: which identifiers defer behind which proxy
+     * class, the marks the load lane writes into the container's lazy
+     * registry after its install loop ({@see AotBootLane} -- the
+     * compile lane's own marking step, baked the same way the tag index
+     * bakes, because rebuilding it from the parsed declarations would
+     * not survive the decoration lane's re-homing).
+     *
+     * @return array<string, class-string>
+     */
+    public function lazy(): array
+    {
+        return $this->lazy;
+    }
+
+    /**
      * The validated entries, keyed by identifier in declaration order.
      *
      * @return array<string, AotBuildEntry|AotClosureEntry>
@@ -101,6 +121,7 @@ final readonly class AotArtifact
             $envelope['digest'],
             AotArtifactIds::validated($file, 'the unreferenced report', $envelope['unreferenced']),
             self::validatedTags($file, $envelope['tags']),
+            AotArtifactLazies::validated($file, $envelope['lazy']),
             AotArtifactEntries::validated($file, $envelope['entries']),
         );
     }

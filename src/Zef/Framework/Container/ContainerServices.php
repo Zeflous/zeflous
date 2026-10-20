@@ -30,4 +30,11 @@ final readonly class ContainerServices
      * sealed radix tree.
      */
     public const string NAMESPACES_SERVICE = 'framework.namespaces';
+
+    /**
+     * The debug inventory's read side (ROADMAP area 12): the
+     * declarations the boot spelled, answered as the inventory the
+     * developer experience reads.
+     */
+    public const string INVENTORY_SERVICE = 'framework.inventory';
 }

@@ -24,6 +24,7 @@ final readonly class DefinitionKeys
         'lifetime',
         'tags',
         'calls',
+        'lazy',
     ];
 
     /**

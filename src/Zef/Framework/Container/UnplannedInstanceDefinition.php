@@ -31,6 +31,8 @@ final readonly class UnplannedInstanceDefinition extends ServiceDefinition
      * @param list<MethodCall>          $calls          the method-call injection
      *                                                  list, carried to the planned
      *                                                  definition unchanged
+     * @param null|class-string         $lazyClass      the class the declaration's
+     *                                                  native proxy stands in for
      */
     public function __construct(
         string $id,
@@ -39,8 +41,9 @@ final readonly class UnplannedInstanceDefinition extends ServiceDefinition
         ServiceLifetime $serviceLifetime = ServiceLifetime::SINGLETON,
         ServiceTags $serviceTags = new ServiceTags(),
         public array $calls = [],
+        ?string $lazyClass = null,
     ) {
-        parent::__construct($id, $serviceLifetime, $serviceTags);
+        parent::__construct($id, $serviceLifetime, $serviceTags, $lazyClass);
     }
 
     /**
@@ -60,6 +63,26 @@ final readonly class UnplannedInstanceDefinition extends ServiceDefinition
             $this->lifetime,
             $this->tags,
             $methodCalls,
+            $this->lazyClass,
+        );
+    }
+
+    /**
+     * The same declaration deferring its planned construction behind
+     * a native lazy proxy -- the request the planned definition
+     * carries unchanged to the resolution lane.
+     */
+    #[Override]
+    public function withLazyClass(?string $lazyClass): static
+    {
+        return new self(
+            $this->id,
+            $this->class,
+            $this->namedArguments,
+            $this->lifetime,
+            $this->tags,
+            $this->calls,
+            $lazyClass,
         );
     }
 }

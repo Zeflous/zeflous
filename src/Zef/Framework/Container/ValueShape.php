@@ -58,6 +58,13 @@ final readonly class ValueShape
             );
         }
 
+        if (\array_key_exists('lazy', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries 'lazy' on a 'value' definition "
+                . '(a value is a constant: it is held, never built, and there is nothing to defer).',
+            );
+        }
+
         return new ValueDefinition($id, $entry['value']);
     }
 }
