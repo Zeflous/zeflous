@@ -70,12 +70,11 @@ final readonly class AotBootLane
      */
     private function install(Container $container, AotArtifact $aotArtifact, ContainerKnobs $containerKnobs): void
     {
-        ContainerRegistrations::artifactReadSides($container, $aotArtifact, $containerKnobs->namespaces);
-
-        // The debug inventory's declarations are the boot's parsed
-        // set, the same answer the compile lane's own registration
-        // takes ({@see ContainerRegistrations::debugLocator}).
-        ContainerRegistrations::debugLocator($container, $containerKnobs->definitions);
+        // The artifact lane's composite registration half -- the four
+        // read sides, the debug inventory's parsed declarations
+        // included, the same answer the compile lane's own composite
+        // takes ({@see ContainerRegistrations::artifactReadSides}).
+        ContainerRegistrations::artifactReadSides($container, $aotArtifact, $containerKnobs);
 
         AotDefinitions::install($container, $aotArtifact);
 

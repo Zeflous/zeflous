@@ -6,6 +6,7 @@ namespace Zef\Framework\Container;
 
 use Zef\Framework\Container\Aot\AotArtifact;
 use Zef\Framework\Container\Aot\AotOutcome;
+use Zef\Framework\ContainerKnobs;
 
 /**
  * The boot's reserved-service registrations and lazy marks: the four
@@ -21,14 +22,75 @@ use Zef\Framework\Container\Aot\AotOutcome;
  * LazyMarking::marks()}).
  *
  * One spelling of each registration, shared by the lanes that register
- * them ({@see AotBootLane}, {@see ContainerCompileLane}).
+ * them through their composites ({@see readSides} the compile lane's own,
+ * {@see artifactReadSides} the artifact lane's) -- the individual
+ * registrations are the composites' own internals.
  */
 final readonly class ContainerRegistrations
 {
     /**
+     * The artifact lane's three read-side registrations in the order
+     * the compile lane's own registers use: the baked tag index, the
+     * namespace locator over the tree rebuilt from the baked
+     * identifiers under the live knob the digest proved equal, and the
+     * lane's own boot answer -- one spelling of the artifact lane's
+     * registration half, so the lane itself keeps the install order
+     * alone.
+     */
+    public static function artifactReadSides(
+        Container $container,
+        AotArtifact $aotArtifact,
+        ContainerKnobs $containerKnobs,
+    ): void {
+        self::tagsLocator($container, ServiceTagIndex::fromIdsByTag($aotArtifact->tags()));
+
+        self::namespacesLocator(
+            $container,
+            NamespaceTree::sealed(array_keys($aotArtifact->entries()), $containerKnobs->namespaces),
+        );
+
+        self::debugLocator($container, $containerKnobs->definitions);
+
+        self::artifactOutcome($container, $aotArtifact);
+    }
+
+    /**
+     * The compile lane's registration half in one spelling: the four
+     * read-side services -- the tags locator over the planned index,
+     * the namespace locator over the planned tree, the debug inventory
+     * over the parsed declarations (the inventory answers what the host
+     * spelled, the same answer whichever lane booted), and the lane's
+     * own boot answer with the mode's development note -- so the lane
+     * itself keeps the install order alone ({@see artifactReadSides},
+     * the artifact lane's own composite spelling).
+     */
+    public static function readSides(
+        Container $container,
+        ContainerKnobs $containerKnobs,
+        ContainerCompilePlan $containerCompilePlan,
+        bool $bypassed,
+    ): void {
+        self::tagsLocator($container, $containerCompilePlan->tagIndex);
+
+        self::namespacesLocator($container, $containerCompilePlan->namespaceTree);
+
+        self::debugLocator($container, $containerKnobs->definitions);
+
+        self::outcome(
+            $container,
+            AotOutcome::forTheLane(
+                $containerCompilePlan,
+                $containerKnobs->aot->enabled(),
+                $bypassed,
+                $containerKnobs->mode->isDevelopment(),
+            ),
+        );
+    }
+
+    /**
      * The tags lane's read side.
      */
-    public static function tagsLocator(Container $container, ServiceTagIndex $serviceTagIndex): void
+    private static function tagsLocator(Container $container, ServiceTagIndex $serviceTagIndex): void
     {
         $container->set(
             ContainerServices::TAGS_SERVICE,
@@ -40,7 +102,7 @@ final readonly class ContainerRegistrations
      * The namespace layer's read side: the locator over the boot's
      * sealed radix tree.
      */
-    public static function namespacesLocator(Container $container, NamespaceRadixTree $namespaceRadixTree): void
+    private static function namespacesLocator(Container $container, NamespaceRadixTree $namespaceRadixTree): void
     {
         $container->set(
             ContainerServices::NAMESPACES_SERVICE,
@@ -62,7 +124,7 @@ final readonly class ContainerRegistrations
      * @param list<ServiceDefinition> $definitions the boot's parsed
      *                                             declaration set
      */
-    public static function debugLocator(Container $container, array $definitions): void
+    private static function debugLocator(Container $container, array $definitions): void
     {
         $container->set(
             ContainerServices::INVENTORY_SERVICE,
@@ -74,33 +136,9 @@ final readonly class ContainerRegistrations
     }
 
     /**
-     * The artifact lane's three read-side registrations in the order
-     * the compile lane's own registers use: the baked tag index, the
-     * namespace locator over the tree rebuilt from the baked
-     * identifiers under the live knob the digest proved equal, and the
-     * lane's own boot answer -- one spelling of the artifact lane's
-     * registration half, so the lane itself keeps the install order
-     * alone.
-     */
-    public static function artifactReadSides(
-        Container $container,
-        AotArtifact $aotArtifact,
-        NamespacesMap $namespacesMap,
-    ): void {
-        self::tagsLocator($container, ServiceTagIndex::fromIdsByTag($aotArtifact->tags()));
-
-        self::namespacesLocator(
-            $container,
-            NamespaceTree::sealed(array_keys($aotArtifact->entries()), $namespacesMap),
-        );
-
-        self::artifactOutcome($container, $aotArtifact);
-    }
-
-    /**
      * The compile/dump lane's boot answer.
      */
-    public static function outcome(Container $container, AotOutcome $aotOutcome): void
+    private static function outcome(Container $container, AotOutcome $aotOutcome): void
     {
         $container->set(
             ContainerServices::AOT_SERVICE,

@@ -357,7 +357,11 @@ final class InterceptedBootTest extends TestCase
      */
     private function aotConfig(): array
     {
-        return ['aot' => ['enabled' => true, 'warm' => false], ...$this->config(ObservingResolvedListener::class)];
+        return [
+            'aot' => ['enabled' => true, 'warm' => false],
+            'container' => ['mode' => 'production'],
+            ...$this->config(ObservingResolvedListener::class),
+        ];
     }
 
     /**

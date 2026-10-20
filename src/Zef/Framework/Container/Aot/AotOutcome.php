@@ -35,6 +35,14 @@ final readonly class AotOutcome
         = 'the artifact digest did not match the configuration -- recompiled and re-dumped';
 
     /**
+     * The note a development boot leaves when the knob is on: the mode
+     * held the artifact lane to the fresh compile, on both sides.
+     */
+    private const string DEVELOPMENT_NOTE
+        = 'development mode holds the artifact lane to the fresh compile -- '
+        . 'the artifact is neither probed nor dumped in development';
+
+    /**
      * @param list<string> $unreferenced the unreferenced identifiers, in
      *                                   declaration order
      */
@@ -63,12 +71,14 @@ final readonly class AotOutcome
     /**
      * The full lane's answer for the plan it just compiled: which note
      * the compile ran under -- a proven-stale artifact set aside and
-     * replaced, the lane on with no artifact yet, or the lane off.
+     * replaced, the lane on with no artifact yet, the lane held to
+     * the fresh compile by development mode, or the lane off.
      */
     public static function forTheLane(
         ContainerCompilePlan $containerCompilePlan,
         bool $laneEnabled,
         bool $bypassed,
+        bool $developmentMode,
     ): self {
         if ($bypassed) {
             return self::artifactBypassed(
@@ -80,6 +90,7 @@ final readonly class AotOutcome
 
         return self::forFullLane(
             $laneEnabled,
+            $developmentMode,
             $containerCompilePlan->unreferenced,
             \count($containerCompilePlan->definitions),
         );
@@ -107,19 +118,26 @@ final readonly class AotOutcome
     /**
      * The full lane's answer under the knob it ran with: the lane on
      * with no artifact yet (the compile below lays one down for the
-     * next boot), or the lane off -- the note the host's own
+     * next boot), the lane on but held to the fresh compile by
+     * development mode, or the lane off -- the note the host's own
      * configuration chose.
      *
      * @param list<string> $unreferenced the compile's own report
      */
-    private static function forFullLane(bool $laneEnabled, array $unreferenced, int $definitions): self
-    {
-        return self::fullCompiled(
-            $laneEnabled
-                ? 'the artifact was absent -- compiled and dumped for the next boot'
-                : 'the aot knob is off',
-            $unreferenced,
-            $definitions,
-        );
+    private static function forFullLane(
+        bool $laneEnabled,
+        bool $developmentMode,
+        array $unreferenced,
+        int $definitions,
+    ): self {
+        $note = 'the aot knob is off';
+
+        if ($laneEnabled) {
+            $note = $developmentMode
+                ? self::DEVELOPMENT_NOTE
+                : 'the artifact was absent -- compiled and dumped for the next boot';
+        }
+
+        return self::fullCompiled($note, $unreferenced, $definitions);
     }
 }

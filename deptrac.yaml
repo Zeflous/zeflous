@@ -138,7 +138,13 @@ deptrac:
       - Exception
       - Middleware
     # Tooling gates are developer/CI utilities: they may use the kernel and the
-    # exception root, but no other domain layer.
+    # exception root, but no other domain layer. The widening to Container is
+    # the analysis CLI lane's own: the container inventory report renders the
+    # container's typed read-side answer (`ContainerInventory`, its entries,
+    # the AOT boot outcome) through the same boot the application rides --
+    # the composition the Kernel layer's own orchestrator already performs,
+    # added here the way the middleware lane's engine widenings were.
     Tooling:
       - Kernel
       - Exception
+      - Container

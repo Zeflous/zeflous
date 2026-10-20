@@ -20,13 +20,18 @@ use Closure;
  * later ({@see LazyMaterialisations} carries the step). The memo
  * holds the proxy (a singleton materialises once, through the one
  * proxy it keeps); a transient answers a fresh proxy per resolution,
- * each materialising its own instance.
+ * each materialising its own instance -- and the proxy construction's
+ * own reflection is memoised ({@see ReflectionMemo}, ROADMAP area
+ * 11's reflection caching: a transient's every resolution would
+ * otherwise construct a fresh `ReflectionClass` for the same proxy
+ * class, the per-resolution introspection cost the memo removes).
  */
 final readonly class LazyDeferrals
 {
     public function __construct(
         private LazyIdentities $lazyIdentities = new LazyIdentities(),
         private LazyMaterialisations $lazyMaterialisations = new LazyMaterialisations(),
+        private ReflectionMemo $reflectionMemo = new ReflectionMemo(),
     ) {
     }
 
@@ -67,6 +72,7 @@ final readonly class LazyDeferrals
         return $lazyClass === null
             ? $guarded($id, $container)
             : LazyConstructions::of(
+                $this->reflectionMemo,
                 $lazyClass,
                 fn (): object => $this->lazyMaterialisations->materialised($id, $container, $lazyClass, $guarded),
             );

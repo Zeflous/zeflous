@@ -259,6 +259,23 @@
         // methods.
         "MBString": {
             "ignore": [
+                // The container's environment fold reads the toolbar
+                // doctrine's own closed vocabulary (the two
+                // DebugToolbarFactory and ErrorMappingFactory entries
+                // below carry the same argument for the same words),
+                // and the container-side mirror inherits it: the
+                // allowlist (local, development, dev, test, testing)
+                // carries no ASCII letter the Unicode case map can
+                // reach from non-ASCII -- the Kelvin sign's landing on
+                // k -- so an environment whose fold diverges between
+                // the character map and the byte map misses the
+                // allowlist under both spellings and the fold answers
+                // not-development either way (verified by running the
+                // changed-set under the escaped mutation -- the
+                // complete mode battery passes, the fold-divergent
+                // spellings included). This ignore is scoped to that
+                // single method.
+                "Zef\\Framework\\AppEnvironment::isDevelopment",
                 // The AOT knob's toggle fold is value-equivalent under the
                 // MBString mutator by the same construction the class's own
                 // docblock argues: the vocabulary carries no letter whose
@@ -268,6 +285,21 @@
                 // a k), so every fold-divergent value is rejected under
                 // both spellings.
                 "Zef\\Framework\\Container\\Aot\\AotToggles::read",
+                // The mode knob's own spelling fold carries the same
+                // construction over its own closed vocabulary
+                // (development, production, auto): no word carries the
+                // one ASCII letter the Unicode case map can reach from
+                // non-ASCII -- the Kelvin sign's landing on k -- so
+                // every fold-divergent spelling misses the match arms
+                // under both spellings and lands on the
+                // unknown-spelling refusal either way (verified by
+                // running the changed-set under the escaped mutation
+                // -- the complete mode battery passes, the case-fold
+                // matrix included). The neighbouring environment
+                // consultation the auto arm answers stays under the
+                // mutator through its own entry above. This ignore is
+                // scoped to that single method.
+                "Zef\\Framework\\ContainerModeSpellings::verdict",
                 "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
                 "Zef\\Framework\\Http\\AuthCredential::fromBearerLine",
                 "Zef\\Framework\\Http\\BodyBudget::refuses",
@@ -937,6 +969,40 @@
         "Break_": {
             "ignore": [
                 "Zef\\Framework\\Telemetry\\PrometheusRenderer::render"
+            ]
+        },
+        // The unknown-key fold's array_values rewrap is
+        // value-equivalent by the key domain it reads: array_keys()
+        // answers int|string keys only, array_diff preserves them with
+        // gaps, and every consumer downstream -- the empty-list guard
+        // and the refusal's own implode -- reads the values in order
+        // and ignores the keys, so the re-indexing the rewrap performs
+        // is invisible to every observable the fold carries (verified
+        // by running the changed-set under the escaped mutation -- the
+        // complete mode battery passes, the gap-keyed refusals
+        // included). The rewrap exists for the static contract: the
+        // refusal's parameter promises a list, and the analysers hold
+        // the fold to it. This ignore is scoped to that single method.
+        "UnwrapArrayValues": {
+            "ignore": [
+                "Zef\\Framework\\ContainerModeSpellings::verdict"
+            ]
+        },
+        // The unknown-key refusal's strval map is value-equivalent by
+        // the same key-domain argument its caller's rewrap carries:
+        // the unknown list holds int|string keys only, and implode's
+        // implicit scalar cast agrees with strval on both domains, so
+        // unwrapping the map renders the identical refusal message for
+        // every unknown list the grammar can produce (verified by
+        // running the changed-set under the escaped mutation -- the
+        // complete mode battery passes, the integer-keyed list refusal
+        // included). The map exists for the static contract: the
+        // implode call the refusal spells wants a list of strings, and
+        // the analysers hold the fold to it. This ignore is scoped to
+        // that single method.
+        "UnwrapArrayMap": {
+            "ignore": [
+                "Zef\\Framework\\ContainerModeRefusals::unknownKeys"
             ]
         }
     },
