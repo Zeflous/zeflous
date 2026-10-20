@@ -17,12 +17,17 @@ namespace Zef\Framework\Tooling;
  * Not every commit between the pin and the validated commit demands a
  * refresh. The changelog lanes regenerate their documents after every merge,
  * and a pin refresh itself lands as commits above the pin it just set, and
+ * the roadmap lanes' record commits do the same (the pull request that
+ * records a merge refreshes the pin, so its own commits sit above the pin by
+ * construction -- a rule that refused them could never return to green), and
  * the branch-update machinery merges `main` into whatever pull-request
  * branch it refreshes -- `feat`, `fix`, `docs`, `test`, `chore` alike -- and
  * those merges ride into main's history when the pull request lands. The
- * bookkeeping patterns name exactly those: changelog regenerations, roadmap
- * pin refreshes, and the update machinery's `main`-into-branch merges of
- * every branch kind. An update merge is safe to accept whatever the branch:
+ * bookkeeping patterns name exactly those: changelog regenerations,
+ * roadmap-document commits (every `docs(roadmap):` subject -- pin refreshes,
+ * history records, status-meter updates alike), and the update machinery's
+ * `main`-into-branch merges of every branch kind. An update merge is safe to
+ * accept whatever the branch:
  * it reflects main's own commits back into a branch, and any real content
  * still reaches main through a pull-request merge commit of its own, which
  * the patterns refuse. So the steady state after a refresh stays green,
@@ -38,13 +43,14 @@ final class RoadmapPinFreshness
     /**
      * Subjects that keep the record current rather than change the code: the
      * changelog lanes' regenerations (their exact, generator-controlled
-     * shapes, with and without the pull-request suffix), the roadmap pin
-     * refreshes, and the branch-update machinery's `main`-into-branch merges
-     * of every branch kind.
+     * shapes, with and without the pull-request suffix), the roadmap lanes'
+     * document commits (every `docs(roadmap):` subject: pin refreshes,
+     * history records, status-meter updates alike), and the branch-update
+     * machinery's `main`-into-branch merges of every branch kind.
      */
     private const array BOOKKEEPING = [
         '/^chore\(changelog(?:-official)?\): regenerate (?:API|official) changelog(?: \(#\d+\))?$/',
-        '/^docs\(roadmap\): pin /',
+        '/^docs\(roadmap\): /',
         "/^Merge branch 'main' into /",
     ];
 
@@ -105,7 +111,7 @@ final class RoadmapPinFreshness
 
     /**
      * The violation of a usable pin: commits that landed on main after it and
-     * are not changelog or pin bookkeeping.
+     * are not changelog or roadmap bookkeeping.
      *
      * @param list<string> $subjects
      *
@@ -129,7 +135,7 @@ final class RoadmapPinFreshness
 
         return [\sprintf(
             '%s "Last updated" pin `%s` is stale: %d commit(s) landed on main after it'
-                . ' that are not changelog or pin bookkeeping, starting with "%s".'
+                . ' that are not changelog or roadmap bookkeeping, starting with "%s".'
                 . ' Refresh the pin (CONTRIBUTING.md, rule 13).',
             $name,
             $pinnedSha,
