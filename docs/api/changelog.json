@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-20T15:25:43Z",
+  "as_of": "2026-10-20T17:16:03Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 212,
+  "unreleased_count": 213,
   "versions": [
     {
       "version": "Unreleased",
@@ -5846,6 +5846,32 @@
                 "sha": "bc5c62d9831b42780e5d93a6de989acf5481767d",
                 "short_sha": "bc5c62d",
                 "subject": "docs(roadmap): pin the namespace radix lane -- history row 481"
+              }
+            ]
+          },
+          {
+            "pr": 488,
+            "title": "docs(roadmap): record merged error handling verification",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-20T17:16:03Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/488",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ada201d86da91e45dfaf0fa05359337a5030f038",
+                "short_sha": "ada201d",
+                "subject": "docs(roadmap): record merged error handling verification"
+              },
+              {
+                "sha": "43f3a356d5e6875c29c50aed0176cd70bb4f48a5",
+                "short_sha": "43f3a35",
+                "subject": "docs(roadmap): record error handling PR #444"
+              },
+              {
+                "sha": "7988b10bbadf450c05aa17d5819a188cf66d79f8",
+                "short_sha": "7988b10",
+                "subject": "docs(roadmap): point the history pin at the #444 merge commit"
               }
             ]
           }
@@ -12017,6 +12043,32 @@
               "sha": "bc5c62d9831b42780e5d93a6de989acf5481767d",
               "short_sha": "bc5c62d",
               "subject": "docs(roadmap): pin the namespace radix lane -- history row 481"
+            }
+          ]
+        },
+        {
+          "pr": 488,
+          "title": "docs(roadmap): record merged error handling verification",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-20T17:16:03Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/488",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ada201d86da91e45dfaf0fa05359337a5030f038",
+              "short_sha": "ada201d",
+              "subject": "docs(roadmap): record merged error handling verification"
+            },
+            {
+              "sha": "43f3a356d5e6875c29c50aed0176cd70bb4f48a5",
+              "short_sha": "43f3a35",
+              "subject": "docs(roadmap): record error handling PR #444"
+            },
+            {
+              "sha": "7988b10bbadf450c05aa17d5819a188cf66d79f8",
+              "short_sha": "7988b10",
+              "subject": "docs(roadmap): point the history pin at the #444 merge commit"
             }
           ]
         }
