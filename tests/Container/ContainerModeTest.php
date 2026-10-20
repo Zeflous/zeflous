@@ -8,14 +8,20 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\AppEnvironment;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\ContainerMode;
+use Zef\Framework\ContainerModeRefusals;
+use Zef\Framework\ContainerModeSpellings;
 use Zef\Framework\FrameworkDefaults;
 
 /**
  * @internal
  */
 #[CoversClass(ContainerMode::class)]
+#[CoversClass(ContainerModeSpellings::class)]
+#[CoversClass(ContainerModeRefusals::class)]
+#[CoversClass(AppEnvironment::class)]
 #[CoversClass(FrameworkDefaults::class)]
 final class ContainerModeTest extends TestCase
 {

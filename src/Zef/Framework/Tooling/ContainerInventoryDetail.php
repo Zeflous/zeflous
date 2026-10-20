@@ -19,6 +19,12 @@ use Zef\Framework\Container\InventoryEntry;
 final readonly class ContainerInventoryDetail
 {
     /**
+     * The word an entry field the declaration left unset answers:
+     * the class, factory, alias and list fields' own empty marker.
+     */
+    private const string NONE = '(none)';
+
+    /**
      * One identifier's full entry. A queried identifier the boot
      * declared no service for refuses ({@see ToolingException}) --
      * the analysis was asked a question the configuration does not
@@ -35,9 +41,9 @@ final readonly class ContainerInventoryDetail
         $lines = [
             $inventoryEntry->id,
             '  shape:        ' . $inventoryEntry->shape,
-            '  class:        ' . ($inventoryEntry->class ?? '(none)'),
-            '  factory:      ' . ($inventoryEntry->factory ?? '(none)'),
-            '  alias:        ' . ($inventoryEntry->alias ?? '(none)'),
+            '  class:        ' . ($inventoryEntry->class ?? self::NONE),
+            '  factory:      ' . ($inventoryEntry->factory ?? self::NONE),
+            '  alias:        ' . ($inventoryEntry->alias ?? self::NONE),
             '  value:        ' . get_debug_type($inventoryEntry->value),
             '  lifetime:     ' . $inventoryEntry->lifetime,
             '  tags:         ' . self::listed($inventoryEntry->tags),
@@ -54,6 +60,6 @@ final readonly class ContainerInventoryDetail
      */
     private static function listed(array $values): string
     {
-        return $values === [] ? '(none)' : implode(', ', $values);
+        return $values === [] ? self::NONE : implode(', ', $values);
     }
 }
