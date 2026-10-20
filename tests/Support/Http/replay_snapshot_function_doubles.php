@@ -91,7 +91,21 @@ function fwrite($stream, string $data, ?int $length = null): false|int
 }
 
 /**
+ * The literals below are the boundary's two throw-mode flag
+ * spellings: 4194304 is JSON_THROW_ON_ERROR alone and 6291456 that
+ * flag together with JSON_INVALID_UTF8_SUBSTITUTE. PHPDoc's type
+ * grammar cannot spell the bitwise combination, so the two reachable
+ * spellings stand as the literals themselves -- every caller that
+ * carries the throwing flag sees the narrowed string the global's own
+ * analyser narrowing would answer, while every other flag set (the
+ * renderer's pretty-printed one, the flagless default) keeps the
+ * honest string|false the engine can still return for them.
+ *
  * @param int<1, max> $depth
+ *
+ * @phpstan-return ($flags is 4194304|6291456 ? string : string|false)
+ *
+ * @psalm-return ($flags is 4194304|6291456 ? string : string|false)
  */
 function json_encode(mixed $value, int $flags = 0, int $depth = 512): false|string
 {
