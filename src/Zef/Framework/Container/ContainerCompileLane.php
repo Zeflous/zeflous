@@ -25,7 +25,7 @@ final readonly class ContainerCompileLane
 {
     public function __construct(
         private ContainerCompilePipeline $containerCompilePipeline = new ContainerCompilePipeline(),
-        private DefinitionCompiler $definitionCompiler = new DefinitionCompiler(),
+        private ContainerInstalls $containerInstalls = new ContainerInstalls(),
     ) {
     }
 
@@ -48,38 +48,36 @@ final readonly class ContainerCompileLane
             $containerKnobs->parameters->values(),
             $containerKnobs->autoconfig,
             $containerKnobs->contextual,
+            $containerKnobs->decorators,
+            $containerKnobs->namespaces,
         );
 
         ContainerRegistrations::tagsLocator($container, $containerCompilePlan->tagIndex);
+
+        ContainerRegistrations::namespacesLocator($container, $containerCompilePlan->namespaceTree);
 
         ContainerRegistrations::outcome(
             $container,
             AotOutcome::forTheLane($containerCompilePlan, $containerKnobs->aot->enabled(), $bypassed),
         );
 
-        $this->installDefinitions($container, $containerCompilePlan->definitions);
+        $this->containerInstalls->definitions($container, $containerCompilePlan->definitions);
 
-        if ($containerKnobs->aot->warm()) {
+        // Arm before the warmup ({@see ContainerArming}): an eagerly
+        // constructed singleton rides the interception like any other
+        // construction.
+        ContainerArming::interceptions($container, $containerKnobs);
+
+        $aot = $containerKnobs->aot;
+
+        if ($aot->warm()) {
             SingletonWarmer::warm(ContainerSingletons::planned($containerCompilePlan->definitions), $container);
         }
 
-        if ($containerKnobs->aot->enabled() && $containerAotCache instanceof ContainerAotCache) {
+        if ($aot->enabled() && $containerAotCache instanceof ContainerAotCache) {
             $containerAotCache->dumpPlan($containerCompilePlan, $containerKnobs->fingerprint());
         }
 
         return $container;
-    }
-
-    /**
-     * The install loop: every planned definition compiled through the
-     * compiler's own closure lane and registered under its lifetime.
-     *
-     * @param list<ServiceDefinition> $definitions
-     */
-    private function installDefinitions(Container $container, array $definitions): void
-    {
-        foreach ($definitions as $definition) {
-            $container->set($definition->id, $this->definitionCompiler->compile($definition), $definition->lifetime);
-        }
     }
 }

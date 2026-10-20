@@ -69,6 +69,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(ci): make every required check merge-queue aware [#446](https://github.com/Zeflous/zeflous/pull/446) ([mbetixz](https://github.com/mbetixz))
 - feat(ci): lint the ruleset against the merged heads' check evidence [#447](https://github.com/Zeflous/zeflous/pull/447) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the compiler passes and the AOT artifact lane [#458](https://github.com/Zeflous/zeflous/pull/458) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the decoration lane over the declarative grammar [#469](https://github.com/Zeflous/zeflous/pull/469) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the interception lane over the resolution seam [#475](https://github.com/Zeflous/zeflous/pull/475) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the namespace radix lane over the booted identifiers [#481](https://github.com/Zeflous/zeflous/pull/481) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -216,6 +219,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the parameters family to pull request 445 [#452](https://github.com/Zeflous/zeflous/pull/452) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the compiler passes area -- status area 8 implemented, history row 458 [#459](https://github.com/Zeflous/zeflous/pull/459) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the merge-queue storm fix -- history row 463 [#466](https://github.com/Zeflous/zeflous/pull/466) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the decoration lane -- history row 469 [#472](https://github.com/Zeflous/zeflous/pull/472) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the interception lane -- history row 475 [#476](https://github.com/Zeflous/zeflous/pull/476) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): pin the namespace radix lane -- history row 481 [#482](https://github.com/Zeflous/zeflous/pull/482) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

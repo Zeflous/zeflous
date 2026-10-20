@@ -375,6 +375,17 @@ final class ApplicationBootstrapperTest extends TestCase
         self::assertSame(['interfaces' => []], FrameworkDefaults::profile()['tags']);
     }
 
+    public function testTheDefaultProfileShipsTheUngovernedNamespacesKnob(): void
+    {
+        // The absent namespace lane boots ungoverned: an empty scope
+        // map and the deny-all cross-scope budget, spelled in the
+        // default profile itself.
+        self::assertSame(
+            ['scopes' => [], 'max_cross_scope_refs' => 0],
+            FrameworkDefaults::profile()['namespaces'],
+        );
+    }
+
     /**
      * Removes a temporary directory tree; the cache test's known layout
      * keeps this walk shallow.

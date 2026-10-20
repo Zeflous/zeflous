@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T06:53:40Z",
+  "as_of": "2026-10-19T23:53:51Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 205,
+  "unreleased_count": 211,
   "versions": [
     {
       "version": "Unreleased",
@@ -1690,6 +1690,99 @@
                 "sha": "a40219cc3ccb92247685b07fabddb7ebeff02c9f",
                 "short_sha": "a40219c",
                 "subject": "chore(container): drop the docblock the late gate round duplicated"
+              }
+            ]
+          },
+          {
+            "pr": 469,
+            "title": "feat(container): add the decoration lane over the declarative grammar",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-19T10:48:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/469",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "58dbf453f570ffbd6867c8bcff04e2b2972d1aa5",
+                "short_sha": "58dbf45",
+                "subject": "feat(container): add the decoration lane over the declarative grammar"
+              },
+              {
+                "sha": "083f778afd3b54323e068456282c606ceb6c870c",
+                "short_sha": "083f778",
+                "subject": "test(container): the decoration lane's battery -- grammar, surgery, boot and AOT round-trip"
+              },
+              {
+                "sha": "0e0e9d162d382fc491ba3d381b86885939516d09",
+                "short_sha": "0e0e9d1",
+                "subject": "test(container): kill the decoration lane's escaped mutants -- and the range-descent bug they exposed"
+              },
+              {
+                "sha": "e0df48ac926eed4f3bb0196b308809cd23c67eb2",
+                "short_sha": "e0df48a",
+                "subject": "docs(ci-notes): the decoration lane's KDD -- attribution, grammar, surgery, digest, and the saga lessons"
+              },
+              {
+                "sha": "4d4e6097e59719d8be3c408a5d2019f4f7290518",
+                "short_sha": "4d4e609",
+                "subject": "fix(container): the decoration refusals join the covered record -- and the S1192 line"
+              }
+            ]
+          },
+          {
+            "pr": 475,
+            "title": "feat(container): add the interception lane over the resolution seam",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-19T16:47:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/475",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4b31f1174b85d8d368e2cb08ff89e439cf4d5445",
+                "short_sha": "4b31f11",
+                "subject": "feat(container): add the interception lane over the resolution seam"
+              },
+              {
+                "sha": "c9559ab09bcbda9be9cfaea8395ebd717c6967cb",
+                "short_sha": "c9559ab",
+                "subject": "fix(container): the unarmed interception run is the honest refusal"
+              },
+              {
+                "sha": "749cba10fbbc65a56b0a6e4cb6f73cf86fb80971",
+                "short_sha": "749cba1",
+                "subject": "test(container): kill the interception lane's escaped mutants"
+              },
+              {
+                "sha": "889dacf54abdd472fb98dca963d23aedea1647dc",
+                "short_sha": "889dacf",
+                "subject": "refactor(container): the build half's refusal words take their own unit"
+              }
+            ]
+          },
+          {
+            "pr": 481,
+            "title": "feat(container): add the namespace radix lane over the booted identifiers",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-19T23:10:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/481",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "31a6578fab9a1f81d173176bb2d097f48998dee3",
+                "short_sha": "31a6578",
+                "subject": "feat(container): add the namespace radix lane over the booted identifiers"
+              },
+              {
+                "sha": "d8af75d2b1e09df173ea41fb31684683fa624cd4",
+                "short_sha": "d8af75d",
+                "subject": "fix(container): the scope map's mixed flows read inline, the default knob fits one line"
+              },
+              {
+                "sha": "cca5089587a3a10e992d3552a26b8ff5bb076710",
+                "short_sha": "cca5089",
+                "subject": "fix(container): the entries map's string keys re-assert at the multi-use site"
               }
             ]
           }
@@ -5064,6 +5157,59 @@
                 "sha": "633f813bdb6fb2a291924d8e06beca93c9dbe8d0",
                 "short_sha": "633f813",
                 "subject": "docs(roadmap): pin the merge-queue storm fix -- history row 463"
+              }
+            ]
+          },
+          {
+            "pr": 472,
+            "title": "docs(roadmap): pin the decoration lane -- history row 469",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-19T11:36:23Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/472",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "99a7e6bb1d78c9ff4e3d2a333a20b7dc63ea55b8",
+                "short_sha": "99a7e6b",
+                "subject": "docs(roadmap): pin the decoration lane -- history row 469"
+              }
+            ]
+          },
+          {
+            "pr": 476,
+            "title": "docs(roadmap): pin the interception lane -- history row 475",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-19T17:47:36Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/476",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "94199af055d02a2507375d02653ccf73540d80b5",
+                "short_sha": "94199af",
+                "subject": "docs(roadmap): pin the interception lane -- history row 475"
+              },
+              {
+                "sha": "9a22758aff0923bc21318e59cc47eeea4c3a5e96",
+                "short_sha": "9a22758",
+                "subject": "test(tooling): the lint roster's sort kill rests on the directory order"
+              }
+            ]
+          },
+          {
+            "pr": 482,
+            "title": "docs(roadmap): pin the namespace radix lane -- history row 481",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-19T23:53:51Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/482",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "bc5c62d9831b42780e5d93a6de989acf5481767d",
+                "short_sha": "bc5c62d",
+                "subject": "docs(roadmap): pin the namespace radix lane -- history row 481"
               }
             ]
           }
@@ -10453,6 +10599,152 @@
               "sha": "633f813bdb6fb2a291924d8e06beca93c9dbe8d0",
               "short_sha": "633f813",
               "subject": "docs(roadmap): pin the merge-queue storm fix -- history row 463"
+            }
+          ]
+        },
+        {
+          "pr": 469,
+          "title": "feat(container): add the decoration lane over the declarative grammar",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-19T10:48:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/469",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "58dbf453f570ffbd6867c8bcff04e2b2972d1aa5",
+              "short_sha": "58dbf45",
+              "subject": "feat(container): add the decoration lane over the declarative grammar"
+            },
+            {
+              "sha": "083f778afd3b54323e068456282c606ceb6c870c",
+              "short_sha": "083f778",
+              "subject": "test(container): the decoration lane's battery -- grammar, surgery, boot and AOT round-trip"
+            },
+            {
+              "sha": "0e0e9d162d382fc491ba3d381b86885939516d09",
+              "short_sha": "0e0e9d1",
+              "subject": "test(container): kill the decoration lane's escaped mutants -- and the range-descent bug they exposed"
+            },
+            {
+              "sha": "e0df48ac926eed4f3bb0196b308809cd23c67eb2",
+              "short_sha": "e0df48a",
+              "subject": "docs(ci-notes): the decoration lane's KDD -- attribution, grammar, surgery, digest, and the saga lessons"
+            },
+            {
+              "sha": "4d4e6097e59719d8be3c408a5d2019f4f7290518",
+              "short_sha": "4d4e609",
+              "subject": "fix(container): the decoration refusals join the covered record -- and the S1192 line"
+            }
+          ]
+        },
+        {
+          "pr": 472,
+          "title": "docs(roadmap): pin the decoration lane -- history row 469",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-19T11:36:23Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/472",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "99a7e6bb1d78c9ff4e3d2a333a20b7dc63ea55b8",
+              "short_sha": "99a7e6b",
+              "subject": "docs(roadmap): pin the decoration lane -- history row 469"
+            }
+          ]
+        },
+        {
+          "pr": 475,
+          "title": "feat(container): add the interception lane over the resolution seam",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-19T16:47:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/475",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4b31f1174b85d8d368e2cb08ff89e439cf4d5445",
+              "short_sha": "4b31f11",
+              "subject": "feat(container): add the interception lane over the resolution seam"
+            },
+            {
+              "sha": "c9559ab09bcbda9be9cfaea8395ebd717c6967cb",
+              "short_sha": "c9559ab",
+              "subject": "fix(container): the unarmed interception run is the honest refusal"
+            },
+            {
+              "sha": "749cba10fbbc65a56b0a6e4cb6f73cf86fb80971",
+              "short_sha": "749cba1",
+              "subject": "test(container): kill the interception lane's escaped mutants"
+            },
+            {
+              "sha": "889dacf54abdd472fb98dca963d23aedea1647dc",
+              "short_sha": "889dacf",
+              "subject": "refactor(container): the build half's refusal words take their own unit"
+            }
+          ]
+        },
+        {
+          "pr": 476,
+          "title": "docs(roadmap): pin the interception lane -- history row 475",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-19T17:47:36Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/476",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "94199af055d02a2507375d02653ccf73540d80b5",
+              "short_sha": "94199af",
+              "subject": "docs(roadmap): pin the interception lane -- history row 475"
+            },
+            {
+              "sha": "9a22758aff0923bc21318e59cc47eeea4c3a5e96",
+              "short_sha": "9a22758",
+              "subject": "test(tooling): the lint roster's sort kill rests on the directory order"
+            }
+          ]
+        },
+        {
+          "pr": 481,
+          "title": "feat(container): add the namespace radix lane over the booted identifiers",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-19T23:10:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/481",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "31a6578fab9a1f81d173176bb2d097f48998dee3",
+              "short_sha": "31a6578",
+              "subject": "feat(container): add the namespace radix lane over the booted identifiers"
+            },
+            {
+              "sha": "d8af75d2b1e09df173ea41fb31684683fa624cd4",
+              "short_sha": "d8af75d",
+              "subject": "fix(container): the scope map's mixed flows read inline, the default knob fits one line"
+            },
+            {
+              "sha": "cca5089587a3a10e992d3552a26b8ff5bb076710",
+              "short_sha": "cca5089",
+              "subject": "fix(container): the entries map's string keys re-assert at the multi-use site"
+            }
+          ]
+        },
+        {
+          "pr": 482,
+          "title": "docs(roadmap): pin the namespace radix lane -- history row 481",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-19T23:53:51Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/482",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "bc5c62d9831b42780e5d93a6de989acf5481767d",
+              "short_sha": "bc5c62d",
+              "subject": "docs(roadmap): pin the namespace radix lane -- history row 481"
             }
           ]
         }

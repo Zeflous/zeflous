@@ -94,6 +94,138 @@ declare(strict_types=1);
  * lifetimes through the binding are refused exactly as a direct
  * reference's would be.
  *
+ * The top-level 'decorators' configuration key declares the decoration
+ * lane -- wrapper chains over declared services:
+ *
+ *   'decorators' => ['logger' => [
+ *       ['class' => CachedLogger::class, 'arguments' => [['service' => '@inner'], 300]],
+ *       ['factory' => 'LoggerDecorators::timing'],
+ *   ]]
+ *
+ * The first entry is the outermost wrapper: the example answers
+ * CachedLogger(TimingLogger(inner)). Each entry is one shape -- 'class'
+ * or 'factory' -- whose 'arguments' follow the ordinary reference
+ * grammar, with the reserved ['service' => '@inner'] naming the layer
+ * the entry wraps; at least one argument must spell it (a decorator
+ * that never sees the service it decorates is a rebinding, and the
+ * boot refuses it as such). The apply is compile-time definition
+ * surgery: the target is re-homed under '@decor:<id>:base', the
+ * wrappers are ordinary definitions referencing the next layer inward,
+ * and every layer carries the decorated declaration's lifetime -- so
+ * the boot graph's guarantees hold unchanged, the install loop
+ * installs the chain like any other declaration, and the AOT dump
+ * exports it for free. The tags travel with the original identifier
+ * (the tag locator answers the *decorated* instance), and the lane's
+ * own '@decor:' namespace is reserved while the lane runs. All four
+ * shapes may be decorated -- a class, a factory, an alias or a value:
+ * decoration wraps whatever the identifier resolves. The whole lane is
+ * bounded at 128 declared decorators across every target.
+ *
+ * The top-level 'interceptors' configuration key declares the
+ * construction onion -- interceptor entries wrapped around service
+ * construction (the cache-miss path every lifetime lane rides; a
+ * memoised answer pays nothing):
+ *
+ *   'interceptors' => [
+ *       ['class' => TimingInterceptor::class, 'arguments' => [...], 'priority' => 100],
+ *       ['factory' => 'Hooks::interceptor', 'arguments' => [...]],
+ *   ]
+ *
+ * Each entry is one shape -- 'class' or 'factory' -- whose 'arguments'
+ * follow the ordinary reference grammar (a service reference resolves
+ * through the container once, at the boot's materialisation). The
+ * entry itself is never a container service: resolving an interceptor
+ * through the container would run it through the very seam it arms, so
+ * the boot builds its entries directly. 'priority' orders the onion
+ * HIGHEST FIRST (the outermost), ties keep declaration order, and must
+ * be an integer (absent is 0). Calling $next() runs the next layer
+ * inward; returning without calling it short-circuits the construction
+ * (the answer becomes the instance, still passing through the
+ * listeners and the per-lifetime memoisation). The whole lane is
+ * bounded at 128 declared interceptors, and the container's own
+ * machinery identifiers ('@decor:', '@contextual:', '@value:') bypass
+ * the onion -- an interceptor wraps the host's services, not the
+ * container's plumbing, so a decorated identifier's chain is wrapped
+ * as one construction.
+ *
+ * The top-level 'listeners' configuration key declares the
+ * construction events -- listeners fired around every actual
+ * construction (a memoised answer fires nothing):
+ *
+ *   'listeners' => [
+ *       'resolving' => [ ['class' => SlowQueryLog::class] ],
+ *       'resolved'  => [ ['factory' => 'Metrics::wrap'] ],
+ *   ]
+ *
+ * The two known kinds are 'resolving' (fired when a construction
+ * starts, before the factory runs) and 'resolved' (fired over the
+ * constructed instance -- a non-null answer replaces the instance
+ * before the memoisation records it, null keeps it; a replacement
+ * chain composes in declaration order). Listener entries carry no
+ * 'priority' -- the firing order is the declaration order, and an
+ * entry spelling the key is refused. Each kind is bounded at 32
+ * declared listeners. The arming happens once per boot, after the
+ * install loop and before the warmup -- so an eagerly warmed
+ * singleton rides the interception like any other construction --
+ * and both knobs fold into the AOT digest (a changed interception set
+ * is a proven-stale artifact, never run).
+ *
+ * The top-level 'namespaces' configuration key declares the namespace
+ * lane's scope policy -- boot-time governance over the dependency graph
+ * by namespace position, no manual module tagging:
+ *
+ *   'namespaces' => [
+ *       'scopes' => [
+ *           'App\Internal\' => 'internal',
+ *           'Vendor\Modules\' => 'module',
+ *       ],
+ *       'max_cross_scope_refs' => 4,
+ *   ]
+ *
+ * Identifiers segment on both separators the framework's world spells
+ * -- the dot (`framework.config`) and the backslash a class name
+ * carries -- so `App\Internal\Thing` and `App.Internal.Thing` address
+ * the same namespace position. A 'scopes' annotation governs its whole
+ * subtree (the trailing separator normalised): 'public' (the default
+ * every unannotated identifier carries -- any service may depend on
+ * it), 'internal' (only services INSIDE the subtree may reference it;
+ * an outside reference is a boot refusal naming the consumer, the
+ * target and the guarded namespace), or 'module' (outside services may
+ * reach into it, spending the cross-scope budget: at most
+ * 'max_cross_scope_refs' DISTINCT targets per consumer=>target pair;
+ * 0 -- the default -- denies every outbound reference). The nearest
+ * ancestor annotation wins, so an inner 'public' can reopen what an
+ * outer 'internal' closed. The knob carries a hard bound of 64
+ * annotations, and it folds into the AOT digest: a changed scope policy
+ * is a proven-stale artifact, never run.
+ *
+ * The lane's read side is the reserved 'framework.namespaces' service:
+ * a NamespacedServices locator answering idsUnder()/servicesUnder()
+ * (every booted identifier under a prefix, resolved), scopeOf() (the
+ * nearest annotation governing an identifier) and stats() (the sealed
+ * radix tree's own measurements). Only the boot's declarative set is
+ * indexed: a closure-registered identifier never enters the tree.
+ *
+ * Beside the knob, the namespace FALLBACK registry is the composition
+ * root's programmatic act -- never a declarative knob, because a
+ * fallback factory receives the identifier it is resolving, data the
+ * declarative grammar cannot spell:
+ *
+ *   $container->namespaceFallbacks()->fallback(
+ *       'App\Controllers\',
+ *       fn (Container $c, string $id): object => ...,
+ *   );
+ *
+ * A get() on an identifier nothing declared resolves through the
+ * longest covering prefix's factory (has() answers true for what a
+ * fallback covers); a singleton fallback memoises per identifier, a
+ * transient one builds every resolution, and the request scope is
+ * refused (a fallback identifier is not a scope member). A fallback
+ * construction is construction: it rides the cycle guard and the armed
+ * interception like any registered service would. The registry carries
+ * a hard bound of 64 prefixes; re-registering a prefix replaces its
+ * factory and forgets the memoised answers.
+ *
  * The top-level 'parameters' configuration key declares the global
  * parameter namespace -- the injectable scalars a constructor
  * parameter reads through the #[Value] attribute:

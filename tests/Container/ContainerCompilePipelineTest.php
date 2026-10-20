@@ -11,8 +11,10 @@ use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContainerCompilePipeline;
 use Zef\Framework\Container\ContainerCompilePlan;
 use Zef\Framework\Container\ContextualMap;
+use Zef\Framework\Container\DecoratorMap;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\InstanceDefinition;
+use Zef\Framework\Container\NamespacesMap;
 use Zef\Framework\Container\ParameterValues;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\ServiceDefinitionGraph;
@@ -53,6 +55,8 @@ final class ContainerCompilePipelineTest extends TestCase
                 ParameterValues::empty(),
                 AutoconfigMap::parse('tags', null),
                 ContextualMap::parse('contextual', null),
+                DecoratorMap::parse('decorators', null),
+                NamespacesMap::parse('namespaces', null),
             );
             self::fail('Expected a DefinitionException to be thrown.');
         } catch (DefinitionException $definitionException) {
@@ -86,6 +90,8 @@ final class ContainerCompilePipelineTest extends TestCase
             ParameterValues::empty(),
             AutoconfigMap::parse('tags', null),
             ContextualMap::parse('contextual', null),
+            DecoratorMap::parse('decorators', null),
+            NamespacesMap::parse('namespaces', null),
         );
 
         self::assertSame(['app.window', 'app.house'], array_map(
@@ -94,5 +100,6 @@ final class ContainerCompilePipelineTest extends TestCase
         ));
         self::assertSame([], $plan->tagIndex->ids('any.tag'));
         self::assertSame(['app.house'], $plan->unreferenced);
+        self::assertSame(['app.house', 'app.window'], $plan->namespaceTree->idsUnderPrefix('app'));
     }
 }

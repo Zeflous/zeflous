@@ -15,6 +15,7 @@ use Zef\Framework\Config\Merge\LayeredConfigBuilder;
 use Zef\Framework\Container\Aot\ContainerAotCache;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContainerCompileLane;
+use Zef\Framework\Container\ContainerInstalls;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Middleware\MiddlewarePipeline;
 use Zef\Framework\Middleware\PipelineFactory;
@@ -119,7 +120,9 @@ final readonly class ApplicationBootstrapper
         );
 
         $container = new ContainerBootstrapper(
-            containerCompileLane: new ContainerCompileLane(definitionCompiler: $this->definitionCompiler),
+            containerCompileLane: new ContainerCompileLane(
+                containerInstalls: new ContainerInstalls($this->definitionCompiler),
+            ),
             containerAotCache: $this->containerAotCache,
         )
             ->bootstrap($config, $container)

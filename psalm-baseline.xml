@@ -211,6 +211,25 @@
   <file src="src/Zef/Framework/Container/Container.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[createRequestScope]]></code>
+      <code><![CDATA[namespaceFallbacks]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Container/NamespaceFallbacks.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[fallback]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Container/NamespaceRadixTree.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[containsExact]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Container/NamespacedServices.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[idsUnder]]></code>
+      <code><![CDATA[scopeOf]]></code>
+      <code><![CDATA[servicesUnder]]></code>
+      <code><![CDATA[stats]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Container/NamedArguments.php">
