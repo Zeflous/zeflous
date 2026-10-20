@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-20T17:16:03Z",
+  "as_of": "2026-10-20T18:17:07Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 213,
+  "unreleased_count": 214,
   "versions": [
     {
       "version": "Unreleased",
@@ -2419,6 +2419,67 @@
                 "sha": "cca5089587a3a10e992d3552a26b8ff5bb076710",
                 "short_sha": "cca5089",
                 "subject": "fix(container): the entries map's string keys re-assert at the multi-use site"
+              }
+            ]
+          },
+          {
+            "pr": 487,
+            "title": "feat(container): add the lazy, locator and inventory lanes",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-20T18:17:07Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/487",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "94545078260bd710260cc8aae36f3a7421c58ff8",
+                "short_sha": "9454507",
+                "subject": "feat(container): defer service construction behind lazy ghost proxies"
+              },
+              {
+                "sha": "54d76ae9f89a1cd9650a6f34cf032b68159a0254",
+                "short_sha": "54d76ae",
+                "subject": "feat(container): answer the service locator read side over the booted ids"
+              },
+              {
+                "sha": "b5146b57f86577254b3a4222ac9e4010583d54d1",
+                "short_sha": "b5146b5",
+                "subject": "feat(container): inventory the booted services for the developer"
+              },
+              {
+                "sha": "0d6a9e1b383e7dc076b362f8d305f99465450f96",
+                "short_sha": "0d6a9e1",
+                "subject": "feat(container): thread lazy declarations, locator and inventory through the lanes"
+              },
+              {
+                "sha": "284fe2acedb0140d9c7910643cf4c6ce0ed91b47",
+                "short_sha": "284fe2a",
+                "subject": "test(container): cover the lazy, locator and inventory lanes"
+              },
+              {
+                "sha": "3a22c9b458114102d41d02ee4c53fdae6cc06d3b",
+                "short_sha": "3a22c9b",
+                "subject": "docs(container): record the lazy, locator and inventory design notes"
+              },
+              {
+                "sha": "690bc51f6b9bef2a3ffbfa6fb459b8b110df939b",
+                "short_sha": "690bc51",
+                "subject": "style(container): align the lazy docblocks after the rector pass"
+              },
+              {
+                "sha": "18b87a4f42322bf7fb6260b081badfdf84e1e3a6",
+                "short_sha": "18b87a4",
+                "subject": "test(container): kill the six escaped mutants the CI lane caught"
+              },
+              {
+                "sha": "8b0c61ba8374c0d10d12ad0049e2803118ed7eda",
+                "short_sha": "8b0c61b",
+                "subject": "merge main (the errors lane #444) into the lazy-locator-debug lane"
+              },
+              {
+                "sha": "a04f2483c50fcd319d9edf901c1bad93bb756f31",
+                "short_sha": "a04f248",
+                "subject": "Merge branch 'main' into feat/container-lazy-locator-debug"
               }
             ]
           }
@@ -12043,6 +12104,67 @@
               "sha": "bc5c62d9831b42780e5d93a6de989acf5481767d",
               "short_sha": "bc5c62d",
               "subject": "docs(roadmap): pin the namespace radix lane -- history row 481"
+            }
+          ]
+        },
+        {
+          "pr": 487,
+          "title": "feat(container): add the lazy, locator and inventory lanes",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-20T18:17:07Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/487",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "94545078260bd710260cc8aae36f3a7421c58ff8",
+              "short_sha": "9454507",
+              "subject": "feat(container): defer service construction behind lazy ghost proxies"
+            },
+            {
+              "sha": "54d76ae9f89a1cd9650a6f34cf032b68159a0254",
+              "short_sha": "54d76ae",
+              "subject": "feat(container): answer the service locator read side over the booted ids"
+            },
+            {
+              "sha": "b5146b57f86577254b3a4222ac9e4010583d54d1",
+              "short_sha": "b5146b5",
+              "subject": "feat(container): inventory the booted services for the developer"
+            },
+            {
+              "sha": "0d6a9e1b383e7dc076b362f8d305f99465450f96",
+              "short_sha": "0d6a9e1",
+              "subject": "feat(container): thread lazy declarations, locator and inventory through the lanes"
+            },
+            {
+              "sha": "284fe2acedb0140d9c7910643cf4c6ce0ed91b47",
+              "short_sha": "284fe2a",
+              "subject": "test(container): cover the lazy, locator and inventory lanes"
+            },
+            {
+              "sha": "3a22c9b458114102d41d02ee4c53fdae6cc06d3b",
+              "short_sha": "3a22c9b",
+              "subject": "docs(container): record the lazy, locator and inventory design notes"
+            },
+            {
+              "sha": "690bc51f6b9bef2a3ffbfa6fb459b8b110df939b",
+              "short_sha": "690bc51",
+              "subject": "style(container): align the lazy docblocks after the rector pass"
+            },
+            {
+              "sha": "18b87a4f42322bf7fb6260b081badfdf84e1e3a6",
+              "short_sha": "18b87a4",
+              "subject": "test(container): kill the six escaped mutants the CI lane caught"
+            },
+            {
+              "sha": "8b0c61ba8374c0d10d12ad0049e2803118ed7eda",
+              "short_sha": "8b0c61b",
+              "subject": "merge main (the errors lane #444) into the lazy-locator-debug lane"
+            },
+            {
+              "sha": "a04f2483c50fcd319d9edf901c1bad93bb756f31",
+              "short_sha": "a04f248",
+              "subject": "Merge branch 'main' into feat/container-lazy-locator-debug"
             }
           ]
         },

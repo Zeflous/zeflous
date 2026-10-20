@@ -73,6 +73,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(container): add the decoration lane over the declarative grammar [#469](https://github.com/Zeflous/zeflous/pull/469) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the interception lane over the resolution seam [#475](https://github.com/Zeflous/zeflous/pull/475) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the namespace radix lane over the booted identifiers [#481](https://github.com/Zeflous/zeflous/pull/481) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the lazy, locator and inventory lanes [#487](https://github.com/Zeflous/zeflous/pull/487) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
