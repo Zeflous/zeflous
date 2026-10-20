@@ -237,6 +237,9 @@ final readonly class FrameworkDefaults
                 'enabled' => false,
                 'warm' => false,
             ],
+            'container' => [
+                'mode' => 'auto',
+            ],
         ];
     }
 

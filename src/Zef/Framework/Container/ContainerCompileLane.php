@@ -64,7 +64,12 @@ final readonly class ContainerCompileLane
 
         ContainerRegistrations::outcome(
             $container,
-            AotOutcome::forTheLane($containerCompilePlan, $containerKnobs->aot->enabled(), $bypassed),
+            AotOutcome::forTheLane(
+                $containerCompilePlan,
+                $containerKnobs->aot->enabled(),
+                $bypassed,
+                $containerKnobs->mode->isDevelopment(),
+            ),
         );
 
         $this->containerInstalls->definitions($container, $containerCompilePlan->definitions);
@@ -85,7 +90,15 @@ final readonly class ContainerCompileLane
             SingletonWarmer::warm(ContainerSingletons::planned($containerCompilePlan->definitions), $container);
         }
 
-        if ($aot->enabled() && $containerAotCache instanceof ContainerAotCache) {
+        // The dump is production's alone ({@see ContainerMode}): a
+        // development boot never lays an artifact down -- the churn a
+        // next development boot would only distrust again, and the
+        // fingerprint stays unpaid on the lane that will not dump.
+        if (
+            $aot->enabled()
+            && $containerKnobs->mode->isProduction()
+            && $containerAotCache instanceof ContainerAotCache
+        ) {
             $containerAotCache->dumpPlan($containerCompilePlan, $containerKnobs->fingerprint());
         }
 

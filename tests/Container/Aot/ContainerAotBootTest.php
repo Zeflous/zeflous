@@ -517,6 +517,99 @@ final class ContainerAotBootTest extends TestCase
     }
 
     /**
+     * The environment doctrine's own half of the artifact contract: a
+     * development boot holds the lane to the fresh compile on the dump
+     * side -- the knob may be on and the cache wired, but no artifact
+     * is ever laid down ({@see ContainerMode}, the performance area's
+     * "cache disesuaikan lingkungan").
+     */
+    public function testADevelopmentBootHoldsTheLaneToTheFreshCompileAndNeverDumps(): void
+    {
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $developmentConfig = $this->config(['enabled' => true]);
+        $developmentConfig['container'] = ['mode' => 'development'];
+
+        $container = $containerBootstrapper->bootstrap(new Config($developmentConfig), new Container());
+
+        $outcome = $container->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $outcome);
+        self::assertSame(AotLane::FullCompile, $outcome->lane);
+        self::assertSame(
+            'development mode holds the artifact lane to the fresh compile -- '
+            . 'the artifact is neither probed nor dumped in development',
+            $outcome->note,
+        );
+        self::assertFalse($containerAotCache->exists());
+        self::assertFileDoesNotExist($this->artifactFile);
+    }
+
+    /**
+     * The install side of the same doctrine: an artifact a production
+     * boot laid down is *not probed* by a development boot -- the digest
+     * proves configuration freshness, never source freshness, and
+     * development is the environment where source churn is the normal
+     * state. The artifact file rides through the dev boot untouched.
+     */
+    public function testADevelopmentBootDoesNotProbeAPresentArtifact(): void
+    {
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $containerBootstrapper->bootstrap(new Config($this->config(['enabled' => true])), new Container());
+
+        self::assertTrue($containerAotCache->exists());
+        $artifactBefore = (string) file_get_contents($this->artifactFile);
+
+        $developmentConfig = $this->config(['enabled' => true]);
+        $developmentConfig['container'] = ['mode' => 'development'];
+
+        $container = $containerBootstrapper->bootstrap(new Config($developmentConfig), new Container());
+
+        $outcome = $container->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $outcome);
+        self::assertSame(AotLane::FullCompile, $outcome->lane);
+        self::assertSame(
+            'development mode holds the artifact lane to the fresh compile -- '
+            . 'the artifact is neither probed nor dumped in development',
+            $outcome->note,
+        );
+        self::assertSame($artifactBefore, (string) file_get_contents($this->artifactFile));
+    }
+
+    /**
+     * The auto default with no `APP_ENV` in the environment answers
+     * production, so the unpinned boot keeps the full artifact contract
+     * -- the fail-closed side of the fold, pinned here because the test
+     * process's environment is the one thing a suite must never trust.
+     */
+    public function testTheAutoModeWithoutAnEnvironmentKeepsTheArtifactContract(): void
+    {
+        $previousEnvironment = getenv('APP_ENV');
+
+        try {
+            putenv('APP_ENV');
+
+            $containerAotCache = new ContainerAotCache($this->artifactFile);
+            $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+            $unpinnedConfig = $this->config(['enabled' => true]);
+            unset($unpinnedConfig['container']);
+
+            $containerBootstrapper->bootstrap(new Config($unpinnedConfig), new Container());
+
+            self::assertTrue($containerAotCache->exists());
+        } finally {
+            if ($previousEnvironment === false) {
+                putenv('APP_ENV');
+            } else {
+                putenv('APP_ENV=' . $previousEnvironment);
+            }
+        }
+    }
+
+    /**
      * The rich definition set both lanes must answer identically: the
      * four shapes, method-call injection, the `#[Value]` consumer, the
      * contextual rewrite, tags, the transient lifetime, and one
@@ -568,6 +661,7 @@ final class ContainerAotBootTest extends TestCase
                 'billing' => [PaymentGateway::class => 'gateway.stripe'],
             ],
             'aot' => $aot,
+            'container' => ['mode' => 'production'],
         ];
     }
 

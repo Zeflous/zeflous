@@ -498,11 +498,16 @@ final class LazyBootTest extends TestCase
      *
      * @return array{
      *     aot: array{enabled: bool, warm: bool},
+     *     container: array{mode: 'production'},
      *     services: array<string, array<string, mixed>>,
      * }
      */
     private function aotConfig(): array
     {
-        return ['aot' => ['enabled' => true, 'warm' => false], ...$this->config()];
+        return [
+            'aot' => ['enabled' => true, 'warm' => false],
+            'container' => ['mode' => 'production'],
+            ...$this->config(),
+        ];
     }
 }

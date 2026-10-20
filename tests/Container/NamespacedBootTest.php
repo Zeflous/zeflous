@@ -298,6 +298,7 @@ final class NamespacedBootTest extends TestCase
      *
      * @return array{
      *     aot: array{enabled: bool, warm: bool},
+     *     container: array{mode: 'production'},
      *     services: array<string, mixed>,
      *     decorators: array<string, mixed>,
      *     namespaces: array{scopes: array<string, string>, max_cross_scope_refs: int},
@@ -305,6 +306,10 @@ final class NamespacedBootTest extends TestCase
      */
     private function aotConfig(): array
     {
-        return ['aot' => ['enabled' => true, 'warm' => false], ...$this->config()];
+        return [
+            'aot' => ['enabled' => true, 'warm' => false],
+            'container' => ['mode' => 'production'],
+            ...$this->config(),
+        ];
     }
 }
