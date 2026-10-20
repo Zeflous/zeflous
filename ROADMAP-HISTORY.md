@@ -25,7 +25,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Container | 13 |
 | HTTP Layer | 25 |
 | Middleware Pipeline | 1 |
-| Error Handling | 2 |
+| Error Handling | 3 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 12 |
 | CI / Supply chain | 38 (incl. auto-merge + Sonar lanes) |
@@ -33,7 +33,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **151** |
+| **Total merged PRs** | **152** |
 
 ---
 
@@ -97,6 +97,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 |---|---|---|---|
 | fix(sonar): green Quality Gate — testable tooling, >90% coverage (touches `src/Zef/Framework/Exception/*`) | #2 | 2026-10-07 | `fbb1c2cdc9` |
 | feat(errors): add the typed HTTP exception family and retire the message sniffing (`CarriesHttpStatus` marker, eight family classes with payload-carrying refusals, `PayloadTooLargeException`, three-tier `ErrorStatusMap`, disclosure of typed messages through redaction, middleware split into `ErrorFaultRecorder` + `ErrorEnvelope`) | #434 | 2026-10-18 | `354de39dcb` |
+| feat(errors): harden enterprise error handling (RFC 9457 JSON/HTML boundary, validated trace/error identifiers, CSP-safe debug toolbar, hardened JSONL logging, fail-closed replay capture, guarded CLI, and regression coverage; strict CI lanes green) | #444 | 2026-10-20 | `6a883cf8b2` |
 
 ## 4. Kernel & Platform
 
