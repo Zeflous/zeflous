@@ -111,6 +111,53 @@ final class JsonLineLoggerTest extends TestCase
         self::assertSame('INF', $context['cap']);
     }
 
+    /**
+     * The message is bounded to 2048 bytes, both edges pinned: a message
+     * at the bound travels whole, one past it clamps to the bound, and a
+     * multibyte message clamps without splitting a valid character -- the
+     * cut is byte-wise (mb_strcut, not mb_substr) so invalid bytes survive
+     * to the encoder's own substitution, keeping the flag combination's
+     * pinned contract intact while a runaway host message can no longer
+     * turn one line into the file's whole budget.
+     */
+    public function testTheMessageIsBoundedToTwoThousandFortyEightBytes(): void
+    {
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $jsonLineLogger = new JsonLineLogger($this->path);
+
+        $jsonLineLogger->error(str_repeat('a', 2048) . 'b');
+
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(1, $lines);
+
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame(str_repeat('a', 2048), $record['message']);
+    }
+
+    /**
+     * The multibyte edge of the byte bound: a message of two-byte
+     * characters clamps at 1024 characters (2048 bytes) rather than
+     * splitting the 1025th, and never at a character count that would
+     * double the line's budget.
+     */
+    public function testAMultibyteMessageClampsOnTheByteBoundWithoutSplittingACharacter(): void
+    {
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $jsonLineLogger = new JsonLineLogger($this->path);
+
+        $jsonLineLogger->error(str_repeat("\u{00e9}", 1025));
+
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(1, $lines);
+
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame(str_repeat("\u{00e9}", 1024), $record['message']);
+    }
+
     public function testSanitizesNestedAndUnsupportedContextValues(): void
     {
         $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
