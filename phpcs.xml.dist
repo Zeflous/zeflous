@@ -27,6 +27,15 @@
         <exclude-pattern>*/tests/Support/</exclude-pattern>
     </rule>
 
+    <!-- The lazy lane's return-shape fixture: `none()` deliberately
+         carries no native return type; its whole subject is the
+         grammar's refusal of a lazy factory that cannot name its
+         product's class, and the analysers read the docblock instead.
+         The missing native hint is the fixture, not a defect. -->
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint">
+        <exclude-pattern>*/tests/Support/Container/Lazy/LazyReturnShapes.php</exclude-pattern>
+    </rule>
+
     <rule ref="PSR12"/>
 
     <!-- PHP's stream-wrapper protocol mandates snake_case method names

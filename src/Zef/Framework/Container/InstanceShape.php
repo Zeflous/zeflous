@@ -21,6 +21,15 @@ namespace Zef\Framework\Container;
  * ({@see InstanceArguments}): the class is known at parse time, so a
  * declared call that names a missing method is a boot refusal rather
  * than a first-resolution surprise.
+ *
+ * The `lazy` key asks the resolution lane to defer the construction
+ * behind a native proxy of the declared class ({@see
+ * LazyDeclarations::deferred()} for the request both shapes spell
+ * identically, {@see LazyClasses} for the instantiability proof) --
+ * a request both arguments forms carry to the planned definition
+ * unchanged, refused for the one lifetime whose materialisation could
+ * not name its scope ({@see LazyRefusals}). The class name itself is
+ * the {@see ClassSpellings} unit's own question.
  */
 final readonly class InstanceShape
 {
@@ -29,23 +38,19 @@ final readonly class InstanceShape
      */
     public static function fromEntry(string $id, array $entry): ServiceDefinition
     {
-        $class = $entry['class'];
-        if (!\is_string($class) || $class === '') {
-            throw new DefinitionException(
-                "Service '{$id}' class must be a non-empty class name, " . get_debug_type($class) . ' given.',
-            );
-        }
-
-        if (!class_exists($class)) {
-            throw new DefinitionException("Service '{$id}' class '{$class}' does not exist.");
-        }
+        $class = ClassSpellings::validated($id, $entry['class']);
+        $lifetime = ServiceLifetime::fromKey($id, $entry['lifetime'] ?? null);
 
         return InstanceArguments::definition(
             $id,
             $class,
             $entry,
-            ServiceLifetime::fromKey($id, $entry['lifetime'] ?? null),
+            $lifetime,
             ServiceTagKey::fromKey($id, $entry['tags'] ?? null),
+        )->withLazyClass(
+            LazyDeclarations::deferred($id, $entry, $lifetime)
+                ? LazyClasses::of($id, $class)
+                : null,
         );
     }
 }

@@ -25,12 +25,20 @@ namespace Zef\Framework\Container;
  */
 abstract readonly class ServiceDefinition
 {
+    /**
+     * @param null|class-string $lazyClass the class a lazy declaration's
+     *                                     native proxy stands in for; null --
+     *                                     the default -- is the eager
+     *                                     construction every earlier
+     *                                     declaration already had
+     */
     public function __construct(
         public string $id,
         /** How many instances this service's declarations may ever observe; the default is the behaviour every earlier declaration already had. */
         public ServiceLifetime $lifetime = ServiceLifetime::SINGLETON,
         /** The grouping labels the declaration carries; the default is no tags at all. */
         public ServiceTags $tags = new ServiceTags(),
+        public ?string $lazyClass = null,
     ) {
         if ($id === '') {
             throw new DefinitionException('A service definition requires a non-empty identifier.');
@@ -85,6 +93,25 @@ abstract readonly class ServiceDefinition
         throw new DefinitionException(
             "The '{$this->id}' definition shape carries no method calls "
             . "(the 'calls' key belongs to class and factory definitions).",
+        );
+    }
+
+    /**
+     * The same declaration deferring its construction behind a native
+     * lazy proxy -- the shapes that build nothing refuse ({@see
+     * AliasDefinition} and {@see ValueDefinition} keep the base's
+     * refusal; the grammar's own shape parsers refuse the `lazy` key
+     * earlier still, so the refusal here is the unreachable guard
+     * against hand-built misuse it nevertheless keeps).
+     *
+     * @param null|class-string $lazyClass the proxy's class, or null to
+     *                                     build eagerly
+     */
+    public function withLazyClass(?string $lazyClass): static
+    {
+        throw new DefinitionException(
+            "The '{$this->id}' definition shape cannot be lazy "
+            . "(the 'lazy' key belongs to class and factory definitions).",
         );
     }
 }

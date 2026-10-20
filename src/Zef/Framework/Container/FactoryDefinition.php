@@ -25,6 +25,10 @@ use Override;
  */
 final readonly class FactoryDefinition extends ServiceDefinition
 {
+    /**
+     * @param null|class-string $lazyClass the class the declaration's
+     *                                     native proxy stands in for
+     */
     public function __construct(
         string $id,
         public string $factory,
@@ -34,8 +38,9 @@ final readonly class FactoryDefinition extends ServiceDefinition
         ServiceTags $serviceTags = new ServiceTags(),
         /** @var list<MethodCall> */
         public array $calls = [],
+        ?string $lazyClass = null,
     ) {
-        parent::__construct($id, $serviceLifetime, $serviceTags);
+        parent::__construct($id, $serviceLifetime, $serviceTags, $lazyClass);
     }
 
     /**
@@ -55,6 +60,27 @@ final readonly class FactoryDefinition extends ServiceDefinition
             $this->lifetime,
             $this->tags,
             $methodCalls,
+            $this->lazyClass,
+        );
+    }
+
+    /**
+     * The same declaration deferring its factory invocation behind a
+     * native lazy proxy of the factory method's declared return class
+     * ({@see LazyReturns}: the only honest source of the class a lazy
+     * factory can name).
+     */
+    #[Override]
+    public function withLazyClass(?string $lazyClass): static
+    {
+        return new self(
+            $this->id,
+            $this->factory,
+            $this->arguments,
+            $this->lifetime,
+            $this->tags,
+            $this->calls,
+            $lazyClass,
         );
     }
 
@@ -76,6 +102,7 @@ final readonly class FactoryDefinition extends ServiceDefinition
                 static fn (MethodCall $methodCall): MethodCall => $methodCall->withSubstitutedReferences($dep, $via),
                 $this->calls,
             ),
+            $this->lazyClass,
         );
     }
 }

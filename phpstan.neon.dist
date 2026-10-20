@@ -12,8 +12,12 @@ parameters:
         - benchmarks
     # The optional phpredis extension's class, as the rate-limit store's
     # boundary sees it (environments without ext-redis still analyse it).
+    # The lazy lane's ghost-return fixture: a class the analysers see and
+    # the runtime may not carry (the boot's class-existence check refuses
+    # the declaration -- see LazyReturnShapes::ghosted()).
     scanFiles:
         - stubs/ext-redis.php
+        - stubs/lazy-ghost-engine.php
     tmpDir: build/phpstan
     treatPhpDocTypesAsCertain: true
     reportUnmatchedIgnoredErrors: true
@@ -26,3 +30,16 @@ parameters:
     checkPhpDocMethodSignatures: true
     checkExplicitMixedMissingReturn: true
     checkBenevolentUnionTypes: true
+    ignoreErrors:
+        # The lazy lane's absent-return fixture: `none()` deliberately
+        # carries no return type and no @return annotation -- the
+        # grammar's refusal of a lazy factory that cannot name its
+        # product's class is the fixture's whole subject, and both
+        # spellings a toolchain would demand would destroy it (a native
+        # type changes what reflection answers, an annotation hands
+        # rector the native type to add). The same posture as the
+        # stream-wrapper fixtures' rector/phpcs skips: the fixture's
+        # signature is load-bearing.
+        -
+            message: '#Method Zef\\Test\\Support\\Container\\Lazy\\LazyReturnShapes::none\(\) has no return type specified#'
+            path: tests/Support/Container/Lazy/LazyReturnShapes.php

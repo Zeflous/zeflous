@@ -32,7 +32,10 @@ use Closure;
  * constructed here with the guard and the interception registry the
  * fallback construction rides, and reached by the container's miss
  * path through its own accessor -- the factories a host registers
- * for identifiers nobody declared.
+ * for identifiers nobody declared. The lazy lane's registry is the
+ * third ({@see LazyIdentities}): the boot's own post-install marks,
+ * consulted by the resolution lanes and cleared by a `set()`
+ * re-registration together with the memo.
  *
  * @phpstan-type Factory Closure(Container): mixed
  */
@@ -64,6 +67,7 @@ final readonly class ServiceStore
             $this->requestInstances,
             $cycleGuard,
             $this->interceptions,
+            new LazyDeferrals(),
         );
     }
 
@@ -88,6 +92,28 @@ final readonly class ServiceStore
     }
 
     /**
+     * The registration core the container's own facade reaches
+     * through for the programmatic lazy mark ({@see
+     * Container::markLazy()} -- the guarded single mark itself is
+     * {@see LazyMarking}'s own question).
+     */
+    public function factoryRegistrations(): FactoryRegistrations
+    {
+        return $this->factoryRegistrations;
+    }
+
+    /**
+     * The lazy registry the resolution lanes consult and the boot
+     * marks ({@see Container::lazyIdentities()} for the facade's own
+     * reach-through), held through the resolution lanes' own
+     * deferral rider.
+     */
+    public function lazyIdentities(): LazyIdentities
+    {
+        return $this->serviceResolutions->lazyIdentities();
+    }
+
+    /**
      * The scope machinery the container's own facade opens scopes
      * through ({@see Container::createRequestScope()}).
      */
@@ -106,6 +132,7 @@ final readonly class ServiceStore
     ): void {
         $this->factoryRegistrations->set($id, $factory, $serviceLifetime);
         $this->singletonMemo->forget($id);
+        $this->serviceResolutions->forgetLazy($id);
     }
 
     public function has(string $id): bool

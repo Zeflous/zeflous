@@ -209,9 +209,37 @@
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Container/InventoryEntry.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$alias]]></code>
+      <code><![CDATA[$calls]]></code>
+      <code><![CDATA[$class]]></code>
+      <code><![CDATA[$dependencies]]></code>
+      <code><![CDATA[$factory]]></code>
+      <code><![CDATA[$id]]></code>
+      <code><![CDATA[$lazy]]></code>
+      <code><![CDATA[$lifetime]]></code>
+      <code><![CDATA[$shape]]></code>
+      <code><![CDATA[$tags]]></code>
+      <code><![CDATA[$value]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Container/ContainerInventory.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[entry]]></code>
+      <code><![CDATA[ids]]></code>
+      <code><![CDATA[lazy]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Container/ContainerLocator.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[ids]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Container/Container.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[createRequestScope]]></code>
+      <code><![CDATA[locator]]></code>
       <code><![CDATA[namespaceFallbacks]]></code>
     </PossiblyUnusedMethod>
   </file>
