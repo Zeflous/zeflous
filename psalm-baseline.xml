@@ -299,6 +299,11 @@
       <code><![CDATA[toArray]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Container/ReflectionMemo.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[count]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Container/RequestScope.php">
     <MixedAssignment>
       <code><![CDATA[$instance]]></code>

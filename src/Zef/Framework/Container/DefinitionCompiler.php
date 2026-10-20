@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Zef\Framework\Container;
 
 use Closure;
-use ReflectionClass;
 
 /**
  * Compiles a validated definition into the container's factory form.
@@ -21,11 +20,15 @@ use ReflectionClass;
  * standard container mechanism for a declared class with declared arguments
  * (no constructor analysis: that reflection-based resolution belongs to the
  * autowiring lane, ROADMAP area 2). Paid once per service thanks to the
- * container's memoisation; the compiler-pass lane (area 8) will replace it
- * with the dumped `new` literal. A declaration carrying `calls` has them
- * applied to the built instance through {@see MethodCallInvocations::apply()}
- * -- the method-call injection lane (area 4), an opt-in extension whose
- * absent key pays only the empty call list's loop guard.
+ * container's memoisation for the singleton lifetime -- and for every other
+ * resolution the reflection itself is memoised ({@see ReflectionMemo},
+ * ROADMAP area 11's "reflection caching": a transient's second `get()` pays
+ * a map lookup, not a fresh reflection construction); the compiler-pass
+ * lane (area 8) replaces the whole seam with the dumped `new` literal. A
+ * declaration carrying `calls` has them applied to the built instance
+ * through {@see MethodCallInvocations::apply()} -- the method-call injection
+ * lane (area 4), an opt-in extension whose absent key pays only the empty
+ * call list's loop guard.
  *
  * An unplanned definition reaching this compiler is a misuse of the
  * seam: the autowiring lane's declarations are compiled by
@@ -35,6 +38,11 @@ use ReflectionClass;
  */
 final readonly class DefinitionCompiler
 {
+    public function __construct(
+        private ReflectionMemo $reflectionMemo = new ReflectionMemo(),
+    ) {
+    }
+
     /**
      * @return Closure(Container): mixed
      */
@@ -64,8 +72,8 @@ final readonly class DefinitionCompiler
         $arguments = $instanceDefinition->arguments;
         $calls = $instanceDefinition->calls;
 
-        return static fn (Container $container): object => MethodCallInvocations::apply(
-            new ReflectionClass($class)
+        return fn (Container $container): object => MethodCallInvocations::apply(
+            $this->reflectionMemo->reflect($class)
                 ->newInstanceArgs(DefinitionArguments::resolve($arguments, $container)),
             $calls,
             $container,
