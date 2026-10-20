@@ -114,4 +114,36 @@ final class ErrorDisclosureTest extends TestCase
         self::assertSame('Content Too Large', ErrorDisclosure::message($payloadTooLargeException, 413, true));
         self::assertSame('Content Too Large', ErrorDisclosure::message($payloadTooLargeException, 413, false));
     }
+
+    /**
+     * The diagnostic message is clamped at exactly two thousand and
+     * forty-eight characters: the two-thousand-and-forty-eighth survives
+     * whole and the two-thousand-and-forty-ninth is the first the clamp
+     * drops -- both sides of the bound in one battery.
+     */
+    public function testTheDiagnosticMessageIsClampedAtTwoThousandAndFortyEightCharacters(): void
+    {
+        $notFoundExceptionAtTheBound = new NotFoundException(str_repeat('x', 2048));
+        $notFoundExceptionPastTheBound = new NotFoundException(str_repeat('x', 2049));
+
+        self::assertSame(str_repeat('x', 2048), ErrorDisclosure::message($notFoundExceptionAtTheBound, 404, false));
+        self::assertSame(str_repeat('x', 2048), ErrorDisclosure::message($notFoundExceptionPastTheBound, 404, false));
+    }
+
+    /**
+     * The clamp cuts on character boundaries: a message whose two thousand
+     * and forty-eighth character is the two-byte e-acute keeps that
+     * character whole -- the clamp answers characters, not bytes, so the
+     * tail never starts mid-character with an invalid byte.
+     */
+    public function testTheClampCutsOnCharacterBoundaries(): void
+    {
+        $message = str_repeat('x', 2047) . 'é' . str_repeat('y', 16);
+        $notFoundException = new NotFoundException($message);
+
+        self::assertSame(
+            str_repeat('x', 2047) . 'é',
+            ErrorDisclosure::message($notFoundException, 404, false),
+        );
+    }
 }

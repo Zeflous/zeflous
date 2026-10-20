@@ -14,7 +14,15 @@
     },
     "tmpDir": "build/infection",
     "testFramework": "phpunit",
-    "bootstrap": "vendor/autoload.php",
+    // The suite's own bootstrap (the Composer autoloader plus the
+    // engine-boundary function doubles, loaded before the first test
+    // executes) -- the doubles shadow real global functions, so a
+    // bootstrap that loads them only lazily would leave every call site
+    // the earlier tests warmed pinned to the globals, and the armed
+    // failure tests would silently exercise the real engine instead of
+    // the double. The initial run and every mutant process must load
+    // the doubles the same way the plain suite does.
+    "bootstrap": "tests/bootstrap.php",
     "phpUnit": {
         "configDir": "."
     },
@@ -271,6 +279,33 @@
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
                 "Zef\\Framework\\Http\\RateLimitStores::read",
                 "Zef\\Framework\\Http\\StrictToggles::read",
+                // The toolbar eligibility's two case folds are the same
+                // construction over their own closed vocabularies: the
+                // method arm folds against the literal HEAD (and the only
+                // single-character upper-case landings in ASCII, U+017F to
+                // S and U+0131 to I, spell neither an H, an E, an A nor a
+                // D), while the content-type arm folds against the literal
+                // text/html prefix (whose letters t, e, x, h, m and l
+                // admit no lower-case landing in ASCII -- the Kelvin sign
+                // lands on k, which the prefix does not carry), so every
+                // fold-divergent input misses under both spellings
+                // (verified by running the toolbar batteries under the
+                // manually applied mutations -- the complete batteries
+                // pass). This ignore is scoped to that single method.
+                "Zef\\Framework\\Middleware\\DebugToolbarEligibility::allows",
+                // Both factories' environment folds read the same closed
+                // vocabulary (local, development, dev, test, testing), and
+                // no word in it carries the one ASCII letter the Unicode
+                // case map can reach from non-ASCII -- the Kelvin sign's
+                // landing on k -- so an environment whose fold diverges
+                // between the character map and the byte map misses the
+                // list under both spellings and the debug gate stays shut
+                // either way (verified by running the factory batteries
+                // under the manually applied mutations -- the complete
+                // batteries pass). These ignores are scoped to those two
+                // methods.
+                "Zef\\Framework\\Middleware\\DebugToolbarFactory::fromConfig",
+                "Zef\\Framework\\Middleware\\ErrorMappingFactory::fromConfig",
                 "Zef\\Framework\\Telemetry\\CorrelationAttributes::entry",
                 "Zef\\Framework\\Telemetry\\CorrelationBudget::scalarByteLength",
                 "Zef\\Framework\\Telemetry\\CorrelationBudget::spend",
@@ -286,7 +321,74 @@
                 "Zef\\Framework\\Health\\ProbeName::sanitized"
             ],
             "ignoreSourceCodeByRegex": [
-                "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);"
+                "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",
+                // The four lines below carry the same ASCII-only zone, each
+                // verified against the engine by running the owning suite
+                // under the manually applied mutation (the complete battery
+                // passes):
+                //
+                // ErrorReplayStore::headers() folds a header name against a
+                // blocklist of pure ASCII words. The only Unicode lowercase
+                // fold that lands in ASCII is U+212A to k, and no blocklist
+                // word carries a k (host, content-length, connection,
+                // transfer-encoding), so every fold-divergent name misses
+                // the list under both spellings and every blocklist hit is
+                // byte-identical under both lowerings.
+                //
+                // ErrorRequestContext::setTraceId() lowercases a trace id
+                // whose accepted domain is ^[a-f0-9]{32}$ -- pure ASCII by
+                // the same gate that admits it, so both lowerings agree on
+                // every value the assignment can ever see.
+                //
+                // ZefException::defaultErrorCode() uppercases an operand
+                // that is pure ASCII by construction: the [^A-Z0-9_] wash
+                // ahead of it has already replaced every other byte with
+                // the underscore. The closing mb_rtrim() trims a charlist
+                // of single-byte underscores, where byte-scale and
+                // character-scale agree exactly.
+                ".*in_array\\(mb_strtolower\\(\\$name\\), \\['host'.*",
+                "\\$this->traceId = mb_strtolower\\(\\$traceId\\);",
+                "\\$normalized = mb_strtoupper\\(\\(string\\) preg_replace.*",
+                "return mb_rtrim\\(mb_substr\\(\\$normalized, 0, 64\\).*",
+                // AcceptHeaderParser::quality()'s value slice is the same
+                // ASCII-only zone: the segment has already passed the
+                // str_starts_with('q=') gate, so the two-byte prefix is
+                // always the ASCII pair the offset counts, and the
+                // character-scale and byte-scale slices agree on every
+                // value the line can ever see (verified by running the
+                // parser battery under the manually applied mutation --
+                // the complete battery passes, including the multibyte
+                // header paths). The ignore is scoped to that single
+                // source line.
+                "\\$value = mb_substr\\(\\$segment, 2\\);",
+                // The SQLSTATE fold in ThirdPartyExceptionMapper::normalize()
+                // is the same ASCII-only zone, guarded by the grammar's own
+                // construction: the anchored ^[0-9A-Z]{5}$D gate ahead of it
+                // admits exactly five ASCII alphanumerics (the /i fold
+                // inside the byte class carries both letter cases), and the
+                // Unicode upper-case map and the byte upper-case map agree
+                // on every ASCII letter, so mb_strtoupper() and
+                // strtoupper() answer the identical fold for every string
+                // the gate can ever hand the line (verified by running the
+                // full suite under the manually applied mutation -- the
+                // complete suite passes, the lowercase-s SQLSTATE fixture
+                // still folds to its upper-case spelling). This ignore is
+                // scoped to that single source line.
+                "\\? \\[\\'sql_state\\' => mb_strtoupper\\(\\$sqlState\\)\\]",
+                // The content-type fold in ReplayBodyCapture::capture() is
+                // the same ASCII-gated zone, over the media-type vocabulary
+                // the decoder's own grammar reads: the gates (the exact
+                // application/json, the application/ prefix, the +json
+                // suffix, the exact x-www-form-urlencoded) contain no ASCII
+                // k, and the only single-character Unicode fold that lands
+                // in ASCII is the Kelvin sign's landing on k -- so every
+                // fold-divergent header value misses every gate under both
+                // spellings and the free-text refusal answers identically
+                // either way (verified by running the full suite under the
+                // manually applied mutation -- the complete suite passes,
+                // the parameterised and multibyte header paths included).
+                // This ignore is scoped to that single source line.
+                "\\$contentType = mb_strtolower\\(\\$serverRequest->getHeaderLine\\('Content-Type'\\)\\);"
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is
@@ -372,7 +474,34 @@
                 "\\[\\$key, \\$value\\] = array_pad\\(explode\\('=', mb_trim\\(\\$pair\\), 2\\), 2, ''\\);",
                 "\\$milliseconds = max\\(0, \\$elapsedNs\\) / self::NANOSECONDS_PER_MILLISECOND;",
                 "private readonly RetryBackoffPolicy \\$retryBackoffPolicy = new RetryBackoffPolicy\\(0, 0, 0\\),",
-                "RetryBackoffPolicy \\$retryBackoffPolicy = new RetryBackoffPolicy\\(0, 0, 0\\),"
+                "RetryBackoffPolicy \\$retryBackoffPolicy = new RetryBackoffPolicy\\(0, 0, 0\\),",
+                // AcceptHeaderParser::mediaRange()'s explode limit is the
+                // next integer the increment can rewrite without any
+                // observable difference: the read takes element [0], and
+                // for every limit of two or more the first element is the
+                // substring before the first separator, so raising the
+                // limit to three only reshuffles bytes the read never
+                // touches (verified by running the parser battery under
+                // the manually applied mutation -- the complete battery
+                // passes). The ignore is scoped to that single source
+                // line.
+                ".*explode\\(';', \\$part, 2\\)\\[0\\].*",
+                // ReplayBodyCapture::capture()'s media-type split limit is
+                // the next integer the increment can rewrite without any
+                // observable difference, by the same construction the
+                // AcceptHeaderParser::mediaRange() entry above argues: the
+                // read takes element [0], and for every limit of two or more
+                // the first element is the substring before the first
+                // semicolon, so raising the limit only reshuffles bytes the
+                // read never touches (verified by running the full suite
+                // under the manually applied mutation -- the complete suite
+                // passes, the parameterised header fixture included). The
+                // decrement direction stays under the mutator: a limit of 1
+                // returns the whole parameterised line as the media type,
+                // the gate misses it, and the parameterised header test
+                // kills it. This ignore is scoped to that single source
+                // line.
+                ".*explode\\(';', \\$contentType, 2\\)\\[0\\].*"
             ]
         },
         // The scan resume's capture read in RedactedMessage::of() is the
@@ -390,7 +519,71 @@
         // scoped to that single source line.
         "DecrementInteger": {
             "ignoreSourceCodeByRegex": [
-                "\\$offset = \\$match\\[3\\]\\[1\\];"
+                "\\$offset = \\$match\\[3\\]\\[1\\];",
+                // ZefException::defaultErrorCode()'s short-name slice start
+                // is the next integer the decrement can rewrite without any
+                // observable difference: the -1 window only re-includes the
+                // namespace separator byte, and the derivation's own wash
+                // replaces every non-[A-Z0-9_] byte with the underscore and
+                // its two-sided trim then erases that leading underscore,
+                // so the derived code is byte-identical for every class
+                // name (verified by running the exception battery under the
+                // manually applied mutation, with the multibyte-namespace
+                // and overlong digit-name fixtures in play -- the complete
+                // battery passes). The neighbouring arithmetic stays under
+                // the mutator: the byte-scale separator read and the byte
+                // slice are killed by the same fixtures, and the truncation
+                // bound by the 64-character one. The ignore is scoped to
+                // that single source line.
+                "\\$shortName = \\$separator === false \\? \\$class : mb_substr\\(\\$class, \\$separator \\+ 1\\);",
+                // The browser factory's flat query-count fallback is the
+                // one integer the decrement can rewrite without any
+                // observable difference: every consumer of the count
+                // clamps it at zero before rendering -- the HTML page's
+                // own profiler row reads max(0, $queryCount) and the
+                // debug toolbar's markup the same -- so a fallback of
+                // minus one renders as the identical "DB queries: 0"
+                // (verified by running the factory battery under the
+                // manually applied mutation -- the complete battery
+                // passes). The neighbouring fallbacks stay under the
+                // mutator: the duration's one-zero rewrite and the
+                // exception count's decrement are both visible through
+                // the rendered page and the tests kill them. The ignore
+                // is scoped to that single source line.
+                "\\$errorRequestContext instanceof ErrorRequestContext \\? \\$errorRequestContext->queryCount\\(\\) : 0,",
+                // The toolbar's flat count fallbacks are the two integers
+                // the decrement can rewrite without any observable
+                // difference: the markup the injector renders reads both
+                // counts through their own zero clamps -- the queries row
+                // answers max(0, $queries) and the exceptions row
+                // max(0, $exceptions) -- so fallbacks of minus one render
+                // as the identical "DB queries: 0" and "Exceptions: 0"
+                // (verified by running the toolbar battery under the
+                // manually applied mutations -- the complete battery
+                // passes, the no-context page still shows both zeroes).
+                // The increment direction stays under the mutator: it
+                // lifts each fallback to one and the battery kills it,
+                // and the factory's own query-count fallback carries its
+                // own ignore one entry above. The ignore is scoped to
+                // these two source lines.
+                "\\$context instanceof ErrorRequestContext \\? \\$context->(queryCount|exceptionCount)\\(\\) : 0,",
+                // The opened-file size clamp's lower bound is the one
+                // integer the decrement can rewrite without any
+                // observable difference: the guard two statements
+                // earlier has already proven the stream is the real
+                // file at the path (same device, same inode, no link),
+                // and the engine's stat contract answers a regular
+                // file's size as a non-negative count on every
+                // supported platform -- so max(0, size) and
+                // max(-1, size) agree on every reachable input
+                // (verified by running the security battery under the
+                // manually applied mutation -- the complete battery
+                // passes, the empty-file rollback offset still reads
+                // zero). The increment direction stays under the
+                // mutator: max(1, size) lifts an empty file's rollback
+                // offset to one and the battery kills it. The ignore
+                // is scoped to that single source line.
+                "return max\\(0, \\$opened\\['size'\\]\\);"
             ]
         },
         // The settled memo's early return in
@@ -445,14 +638,66 @@
         // it). NB: this entry is the file's ONLY ReturnRemoval key --
         // a duplicate key silently disarms every ignore listed here
         // (the gate-round on PR #396 learned this the hard way).
+        // The injector's early null return is unreachable-in-effect
+        // behind the try's own Throwable net: removing it hands the null
+        // spliced document to Stream::fromString(), whose string
+        // parameter refuses the null with a TypeError under strict types,
+        // and the catch that exists for exactly those refusals answers
+        // the same null the guard answered (verified by running the
+        // toolbar batteries under the manually applied mutation -- the
+        // complete batteries pass, the unclosed-document passthrough
+        // included). The guard itself stays: the analysers read the
+        // narrowed string the try's build needs. The method scope is the
+        // engine's narrowest for this mutator; the try's own return
+        // stays under the mutator and its removal is killed by every
+        // injection test, though the engine no longer asks it here.
         "ReturnRemoval": {
             "ignore": [
                 "Zef\\Framework\\Container\\DefinitionCycles::visit",
+                "Zef\\Framework\\Middleware\\DebugToolbarInjector::updatedBody",
                 "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed",
                 "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
             ],
             "ignoreSourceCodeByRegex": [
                 "return \\$this->singletonMemo->instance\\(\\$id\\);"
+            ]
+        },
+        // The metrics recorder's null-safe increment is unreachable-in-
+        // effect behind the recorder's own Throwable net: removing the
+        // null-safe operator hands the null meter a method call that
+        // throws a TypeError, and the catch whose whole contract is
+        // "metrics are best-effort and must never replace the original
+        // failure" answers the same silent no-op the operator answered
+        // (verified by running the mapping battery under the manually
+        // applied mutation -- the complete battery passes, the
+        // metrics-disabled posture included). This ignore is scoped to
+        // that single method.
+        "NullSafeMethodCall": {
+            "ignore": [
+                "Zef\\Framework\\Middleware\\ErrorFaultMetricsRecorder::record"
+            ]
+        },
+        // The two problem-document encoders carry the substitution flag
+        // no input can ever exercise: every string either writer's map
+        // carries is valid UTF-8 by upstream construction -- the fault
+        // record's message and path leave their clamps through mb_substr,
+        // which replaces invalid bytes with the ASCII question mark before
+        // the record is built, its class name, code, method and identifiers
+        // pass their own ASCII-or-UTF-8 grammars, and the problem
+        // document's detail travels the same mb_substr clamp while its
+        // type, title, code, trace id and details answer fixed literals
+        // or grammar-validated spellings -- so the substitution arm the
+        // bitwise rewrite would drop never fires, and the throwing flag's
+        // removal changes nothing an encoder that cannot fail could
+        // observe (verified by running the mapping battery under the
+        // manually applied mutations -- the complete battery passes,
+        // the invalid-UTF-8 fixtures included: the broken bytes surface
+        // as question marks upstream of both writers). These ignores are
+        // scoped to those two methods.
+        "BitwiseOr": {
+            "ignore": [
+                "Zef\\Framework\\Http\\ErrorFaultLogWriter::write",
+                "Zef\\Framework\\Http\\ProblemDetailsJsonResponseFactory::create"
             ]
         },
         // The correlation pair's tolerant extraction is a chain of
@@ -525,10 +770,57 @@
         // the analyser's narrowing of an int|float stub, never a
         // runtime coercion (verified by running the family suite
         // under the manually applied mutation -- the complete suite
-        // passes). This ignore is scoped to that single method.
+        // passes). ErrorRequestContext::__construct()'s start stamp
+        // carries the same platform fact for the same reason, verified
+        // the same way against its own battery. This ignore is scoped
+        // to those two methods.
         "CastInt": {
             "ignore": [
-                "Zef\\Framework\\Health\\HealthScrapeClock::__construct"
+                "Zef\\Framework\\Health\\HealthScrapeClock::__construct",
+                "Zef\\Framework\\Http\\ErrorRequestContext::__construct"
+            ]
+        },
+        // The Exception suffix strip in ZefException::defaultErrorCode()
+        // is the one string cast in the error lane that is value-equivalent
+        // under the CastString mutator: preg_replace() answers null only on
+        // a PCRE error, and the fixed literal pattern ('Exception$' against
+        // a class name) cannot reach one, so the operand is a string for
+        // every value the line can ever see and the cast is the analyser's
+        // narrowing, never a runtime coercion (verified by running the
+        // exception battery under the manually applied mutation -- the
+        // complete battery passes, including the multibyte-namespace and
+        // overlong-name fixtures). This ignore is scoped to that single
+        // source line.
+        "CastString": {
+            "ignoreSourceCodeByRegex": [
+                "\\$shortName = \\(string\\) preg_replace\\('/Exception\\$/'.*"
+            ]
+        },
+        // The two anchored quality grammars in AcceptHeaderParser carry
+        // the /D flag whose removal is unobservable by construction: both
+        // operands are trimmed before the match (mb_trim on the whole
+        // part, trim on every segment), and a trailing newline is the only
+        // byte a non-D dollar anchor would admit, so the trimmed operand
+        // answers identically under both spellings (verified by running
+        // the parser battery under the manually applied mutation -- the
+        // complete battery passes). These ignores are scoped to those two
+        // source lines.
+        //
+        // The error-code fold's leading-letter probe in
+        // ZefException::defaultErrorCode() carries a /D flag the pattern
+        // itself cannot use: DOLLAR_ENDONLY constrains only a dollar
+        // metacharacter, and the probe's pattern is caret-anchored with no
+        // dollar at all, so both spellings admit exactly the same matches
+        // over every string the fold can ever hand the line (verified by
+        // running the exception battery under the manually applied
+        // mutation -- the complete battery passes, the FRAMEWORK_ERROR
+        // fallback fixtures included). This ignore is scoped to that
+        // single source line.
+        "PregMatchRemoveFlags": {
+            "ignoreSourceCodeByRegex": [
+                ".*explode\\(';', \\$part, 2\\)\\[0\\].*",
+                ".*preg_match\\('/\\^\\(\\?:0.*",
+                ".*preg_match\\('/\\^\\[A-Z\\]/D'.*"
             ]
         },
         // The divergence judgement's NaN guards in
@@ -546,6 +838,45 @@
         "LogicalOr": {
             "ignore": [
                 "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
+            ],
+            "ignoreSourceCodeByRegex": [
+                // The opened-file guard's link-device merge is subsumed by
+                // the inode clause that stays live: lstat() answers the
+                // SYMLINK's own inode while the stream's fstat() answers
+                // the target's, and no engine-openable stream can carry
+                // the link's own inode -- so every input the merged
+                // clause would let through the device equality (a link
+                // whose target shares its filesystem) still dies on the
+                // inode inequality two clauses later (verified by
+                // running the security battery under the manually
+                // applied mutation -- the complete battery passes, the
+                // vanished-path refusal still fires one warning deep).
+                // The neighbouring array guards stay under the mutator:
+                // their fallthrough reads the boolean as an array
+                // offset and the warning ledger tells the two apart.
+                "\\|\\| \\$opened\\['dev'\\] !== \\$current\\['dev'\\]"
+            ]
+        },
+        // The document-root resolvers' empty-string arm is the one
+        // boolean the value flip cannot observe: the arm's literal is
+        // read through is_string() alone -- once by the resolvability
+        // guard the empty document root itself short-circuits closed,
+        // and once by the containment guard, and a flipped true is
+        // exactly as non-string as the original false there -- so both
+        // resolvers answer the identical verdict for every runtime
+        // with or without a document root (verified by running both
+        // batteries under the manually applied mutations -- the
+        // complete batteries pass, including the document-root-set
+        // refusals that never reach the arm). The regex form cannot
+        // express this: the arm's own line is a bare ": false;" that
+        // a health check's narrowing arm shares, and that shared arm
+        // is observably false for every non-boolean answer, so the
+        // ignore is scoped to the two resolver methods instead, each
+        // of which carries exactly one boolean literal.
+        "FalseValue": {
+            "ignore": [
+                "Zef\\Framework\\Http\\ReplayStorageDirectory::resolve",
+                "Zef\\Framework\\Logging\\JsonLogDocumentRoot::assertDestinationIsOutside"
             ]
         },
         // The TYPE bookkeeping's boolean stores are

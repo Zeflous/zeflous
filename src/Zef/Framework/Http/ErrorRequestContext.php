@@ -1,0 +1,110 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zef\Framework\Http;
+
+use Psr\Http\Message\ServerRequestInterface;
+
+/**
+ * Mutable, request-scoped correlation between the outer error boundary and
+ * inner tracing middleware. The object is shared by reference through PSR-7
+ * request attributes, never stored on a persistent worker service.
+ */
+final class ErrorRequestContext
+{
+    public const string ATTRIBUTE = 'zef.error_context';
+
+    private int $queryCount = 0;
+
+    private int $exceptionCount = 0;
+
+    private ?string $replayId = null;
+
+    private readonly int $startedAt;
+
+    public function __construct(private string $traceId)
+    {
+        $this->startedAt = (int) hrtime(true);
+    }
+
+    /**
+     * Narrows a raw request-attribute value to the context it may carry -- the
+     * PSR-7 bag is untyped, so the boundary consumes it without ever assigning
+     * the mixed raw value to a local.
+     *
+     * @param mixed $attribute the raw request attribute value
+     */
+    public static function fromAttribute(mixed $attribute): ?self
+    {
+        return $attribute instanceof self ? $attribute : null;
+    }
+
+    /** Only a valid non-zero W3C trace ID can replace the request-ID fallback. */
+    public function setTraceId(string $traceId): void
+    {
+        if (preg_match('/^(?!0{32})[a-f0-9]{32}$/iD', $traceId) !== 1) {
+            return;
+        }
+
+        $this->traceId = mb_strtolower($traceId);
+    }
+
+    public function traceId(): string
+    {
+        return $this->traceId;
+    }
+
+    public function recordQuery(): void
+    {
+        $this->queryCount = min($this->queryCount + 1, 1_000_000);
+    }
+
+    /**
+     * Lets an adapter increment the active request's counter without storing
+     * mutable request state on a persistent-worker singleton.
+     *
+     * @api the documented host-adapter hook (`docs/error-handling.md`) --
+     *      database adapters call this from their own code, so the framework
+     *      tree alone cannot show the call.
+     */
+    public static function recordQueryFor(ServerRequestInterface $serverRequest): void
+    {
+        $context = self::fromAttribute($serverRequest->getAttribute(self::ATTRIBUTE));
+        $context?->recordQuery();
+    }
+
+    public function queryCount(): int
+    {
+        return $this->queryCount;
+    }
+
+    public function recordException(): void
+    {
+        $this->exceptionCount = min($this->exceptionCount + 1, 100);
+    }
+
+    public function exceptionCount(): int
+    {
+        return $this->exceptionCount;
+    }
+
+    public function durationMilliseconds(): float
+    {
+        return (hrtime(true) - $this->startedAt) / 1_000_000;
+    }
+
+    public function setReplayId(string $replayId): void
+    {
+        if (preg_match('/^[a-f0-9]{32}$/D', $replayId) !== 1) {
+            return;
+        }
+
+        $this->replayId = $replayId;
+    }
+
+    public function replayId(): ?string
+    {
+        return $this->replayId;
+    }
+}

@@ -10,13 +10,16 @@ parameters:
         - src
         - tests
         - benchmarks
-    # The optional phpredis extension's class, as the rate-limit store's
-    # boundary sees it (environments without ext-redis still analyse it).
-    # The lazy lane's ghost-return fixture: a class the analysers see and
-    # the runtime may not carry (the boot's class-existence check refuses
-    # the declaration -- see LazyReturnShapes::ghosted()).
+    # Optional-dependency analysis stubs, seen by the analyser in
+    # environments whose runtime carries none of them: the phpredis
+    # extension's class (the rate-limit store's boundary), the Guzzle
+    # transport-failure contract the error boundary recognises, and
+    # the lazy lane's ghost-return fixture (a class the analysers see
+    # and the runtime may not carry -- the boot's class-existence check
+    # refuses the declaration, see LazyReturnShapes::ghosted()).
     scanFiles:
         - stubs/ext-redis.php
+        - stubs/guzzle-exception.php
         - stubs/lazy-ghost-engine.php
     tmpDir: build/phpstan
     treatPhpDocTypesAsCertain: true

@@ -13,11 +13,13 @@ use Psr\Http\Message\ServerRequestInterface as PsrServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Zef\Framework\Http\CorrelationPolicy;
+use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\CorrelationMiddleware;
 use Zef\Framework\Middleware\CorrelationRequestSpan;
+use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Telemetry\BatchSpanProcessor;
 use Zef\Framework\Telemetry\InMemorySpanExporter;
 use Zef\Framework\Telemetry\NoopSpan;
@@ -28,6 +30,8 @@ use Zef\Framework\Telemetry\Tracer;
 use Zef\Framework\Telemetry\TracerInterface;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Http\ThrowingHandler;
+use Zef\Test\Support\Log\RecordingLogger;
+use Zef\Test\Support\Middleware\DelegatingHandler;
 use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 
 /**
@@ -45,6 +49,7 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 #[CoversClass(CorrelationMiddleware::class)]
 #[CoversClass(CorrelationRequestSpan::class)]
 #[CoversClass(CorrelationPolicy::class)]
+#[CoversClass(ErrorRequestContext::class)]
 #[CoversClass(TraceContextPropagator::class)]
 final class CorrelationMiddlewareTest extends TestCase
 {
@@ -118,6 +123,48 @@ final class CorrelationMiddlewareTest extends TestCase
         self::assertSame('GET', $record->attributes['http.request.method']);
         self::assertSame('/orders', $record->attributes['url.path']);
         self::assertSame('app.example.com', $record->attributes['server.address']);
+    }
+
+    public function testRequestErrorContextRejectsMalformedTraceIds(): void
+    {
+        $errorRequestContext = new ErrorRequestContext('request-fallback');
+        $errorRequestContext->setTraceId('not-a-trace-id');
+        self::assertSame('request-fallback', $errorRequestContext->traceId());
+
+        $errorRequestContext->setTraceId(str_repeat('0', 32));
+        self::assertSame('request-fallback', $errorRequestContext->traceId());
+
+        $errorRequestContext->setTraceId(mb_strtoupper(self::PARENT_TRACE_ID));
+        self::assertSame(self::PARENT_TRACE_ID, $errorRequestContext->traceId());
+
+        $errorRequestContext->setReplayId('invalid');
+        self::assertNull($errorRequestContext->replayId());
+        $replayId = str_repeat('a', 32);
+        $errorRequestContext->setReplayId($replayId);
+        self::assertSame($replayId, $errorRequestContext->replayId());
+    }
+
+    public function testOuterErrorBoundaryAndTraceSpanShareTheSameTraceId(): void
+    {
+        $recordingLogger = new RecordingLogger();
+        $errorMappingMiddleware = new ErrorMappingMiddleware($recordingLogger);
+        $correlationMiddleware = $this->middleware(enabled: true, echo: false);
+        $delegatingHandler = new DelegatingHandler(
+            $correlationMiddleware,
+            new ThrowingHandler(new RuntimeException('trace-boundary failure')),
+        );
+        $request = $this->withHeader($this->request(self::PARENT_TRACEPARENT), 'X-Request-ID', 'req-trace');
+
+        $response = $errorMappingMiddleware->process($request, $delegatingHandler);
+        $problem = json_decode((string) $response->getBody(), true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($problem);
+
+        self::assertSame(self::PARENT_TRACE_ID, $problem['trace_id']);
+        self::assertSame('req-trace', $response->getHeaderLine('X-Request-ID'));
+        self::assertCount(1, $recordingLogger->calls);
+        self::assertSame(self::PARENT_TRACE_ID, $recordingLogger->calls[0][2]['trace_id']);
+        $this->flush();
+        self::assertSame(self::PARENT_TRACE_ID, $this->theRequestRecord()->context->traceId);
     }
 
     public function testTheTraceStateCompanionParentsTheSpanUntouched(): void

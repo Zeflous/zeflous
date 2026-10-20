@@ -36,7 +36,6 @@
   </file>
   <file src="src/Contracts/Psr/Http/Message/ServerRequestInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[getAttribute]]></code>
       <code><![CDATA[getAttributes]]></code>
       <code><![CDATA[getCookieParams]]></code>
       <code><![CDATA[getParsedBody]]></code>
@@ -104,8 +103,8 @@
       <code><![CDATA[critical]]></code>
       <code><![CDATA[debug]]></code>
       <code><![CDATA[emergency]]></code>
+      <code><![CDATA[error]]></code>
       <code><![CDATA[info]]></code>
-      <code><![CDATA[log]]></code>
       <code><![CDATA[notice]]></code>
       <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
@@ -346,24 +345,9 @@
       <code><![CDATA[ConflictException]]></code>
     </UnusedClass>
   </file>
-  <file src="src/Zef/Framework/Exception/InternalException.php">
-    <UnusedClass>
-      <code><![CDATA[InternalException]]></code>
-    </UnusedClass>
-  </file>
-  <file src="src/Zef/Framework/Exception/MethodNotAllowedException.php">
-    <UnusedClass>
-      <code><![CDATA[MethodNotAllowedException]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/Zef/Framework/Exception/NotFoundException.php">
     <UnusedClass>
       <code><![CDATA[NotFoundException]]></code>
-    </UnusedClass>
-  </file>
-  <file src="src/Zef/Framework/Exception/RateLimitException.php">
-    <UnusedClass>
-      <code><![CDATA[RateLimitException]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Exception/ValidationException.php">
@@ -407,11 +391,6 @@
   <file src="src/Zef/Framework/Http/ETagMiddleware.php">
     <UnusedClass>
       <code><![CDATA[ETagMiddleware]]></code>
-    </UnusedClass>
-  </file>
-  <file src="src/Zef/Framework/Http/ErrorMappingMiddleware.php">
-    <UnusedClass>
-      <code><![CDATA[ErrorMappingMiddleware]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Http/HeadMiddleware.php">
@@ -490,7 +469,6 @@
   </file>
   <file src="src/Zef/Framework/Telemetry/MeterInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[increment]]></code>
       <code><![CDATA[observe]]></code>
     </PossiblyUnusedMethod>
   </file>
