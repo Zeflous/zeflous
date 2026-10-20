@@ -74,6 +74,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(container): add the interception lane over the resolution seam [#475](https://github.com/Zeflous/zeflous/pull/475) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the namespace radix lane over the booted identifiers [#481](https://github.com/Zeflous/zeflous/pull/481) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the lazy, locator and inventory lanes [#487](https://github.com/Zeflous/zeflous/pull/487) ([mbetixz](https://github.com/mbetixz))
+- feat(container): add the performance mode and the CLI analysis lane [#499](https://github.com/Zeflous/zeflous/pull/499) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -229,6 +230,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): record merged error handling verification [#488](https://github.com/Zeflous/zeflous/pull/488) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the lazy, locator and inventory lanes [#493](https://github.com/Zeflous/zeflous/pull/493) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the pin-freshness resurrection [#501](https://github.com/Zeflous/zeflous/pull/501) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the container performance and analysis CLI lane [#505](https://github.com/Zeflous/zeflous/pull/505) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

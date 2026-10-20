@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-20T21:28:47Z",
+  "as_of": "2026-10-20T23:19:48Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 218,
+  "unreleased_count": 220,
   "versions": [
     {
       "version": "Unreleased",
@@ -2480,6 +2480,67 @@
                 "sha": "a04f2483c50fcd319d9edf901c1bad93bb756f31",
                 "short_sha": "a04f248",
                 "subject": "Merge branch 'main' into feat/container-lazy-locator-debug"
+              }
+            ]
+          },
+          {
+            "pr": 499,
+            "title": "feat(container): add the performance mode and the CLI analysis lane",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-20T22:31:08Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/499",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b559a9b54eb704126c6315ecdea8e67eb58236a4",
+                "short_sha": "b559a9b",
+                "subject": "feat(container): add the environment mode doctrine and its cache gates"
+              },
+              {
+                "sha": "c662da3568a33fd3e52cb8560e9f1b07cb1a3f5c",
+                "short_sha": "c662da3",
+                "subject": "feat(container): memoise the resolution lanes' per-resolution reflection"
+              },
+              {
+                "sha": "fdb0f468996f7acff6e9ffcf26f49f0cd2e64246",
+                "short_sha": "fdb0f46",
+                "subject": "feat(container): add the container:inventory analysis CLI"
+              },
+              {
+                "sha": "da6d2868a0ed443718eeccfdacfde0685e5ff20a",
+                "short_sha": "da6d286",
+                "subject": "test(middleware): prove the container refusal composes with the error boundary"
+              },
+              {
+                "sha": "ae218b24d4e6758072f407b2b64d9a5afb62b160",
+                "short_sha": "ae218b2",
+                "subject": "docs(container): record the performance mode and analysis CLI KDD"
+              },
+              {
+                "sha": "a41b6b5171bd9e7f301212a308c1cba8d066debc",
+                "short_sha": "a41b6b5",
+                "subject": "refactor(container): keep the archeology gate over the new lanes"
+              },
+              {
+                "sha": "fc21a52f4c14f7d27fcda8006fc84e78bcaf7365",
+                "short_sha": "fc21a52",
+                "subject": "style(container): let the tools agree over the archeology round"
+              },
+              {
+                "sha": "0c864d63a5365e0d13885d2bee57e914b990385b",
+                "short_sha": "0c864d6",
+                "subject": "test(container): kill the thirteen escaped mutants the lane carried"
+              },
+              {
+                "sha": "64f2759520ea1f0a9d43a5dda6d92e861f0815ea",
+                "short_sha": "64f2759",
+                "subject": "fix(container): answer the sonar gate over the analysis lane"
+              },
+              {
+                "sha": "4599612bf486cdcd9f29dfbc5eb51c86811f0fc1",
+                "short_sha": "4599612",
+                "subject": "Merge branch 'main' into feat/container-performance-cli"
               }
             ]
           }
@@ -6012,6 +6073,22 @@
                 "sha": "19175e3b911c7699816229d495745571416170d2",
                 "short_sha": "19175e3",
                 "subject": "docs(roadmap): record the pin-freshness resurrection"
+              }
+            ]
+          },
+          {
+            "pr": 505,
+            "title": "docs(roadmap): record the container performance and analysis CLI lane",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-20T23:19:48Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/505",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1f4117c42d669638acef3f50fab5c4cf292a2562",
+                "short_sha": "1f4117c",
+                "subject": "docs(roadmap): record the container performance and analysis CLI lane"
               }
             ]
           }
@@ -12321,6 +12398,67 @@
           ]
         },
         {
+          "pr": 499,
+          "title": "feat(container): add the performance mode and the CLI analysis lane",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-20T22:31:08Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/499",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b559a9b54eb704126c6315ecdea8e67eb58236a4",
+              "short_sha": "b559a9b",
+              "subject": "feat(container): add the environment mode doctrine and its cache gates"
+            },
+            {
+              "sha": "c662da3568a33fd3e52cb8560e9f1b07cb1a3f5c",
+              "short_sha": "c662da3",
+              "subject": "feat(container): memoise the resolution lanes' per-resolution reflection"
+            },
+            {
+              "sha": "fdb0f468996f7acff6e9ffcf26f49f0cd2e64246",
+              "short_sha": "fdb0f46",
+              "subject": "feat(container): add the container:inventory analysis CLI"
+            },
+            {
+              "sha": "da6d2868a0ed443718eeccfdacfde0685e5ff20a",
+              "short_sha": "da6d286",
+              "subject": "test(middleware): prove the container refusal composes with the error boundary"
+            },
+            {
+              "sha": "ae218b24d4e6758072f407b2b64d9a5afb62b160",
+              "short_sha": "ae218b2",
+              "subject": "docs(container): record the performance mode and analysis CLI KDD"
+            },
+            {
+              "sha": "a41b6b5171bd9e7f301212a308c1cba8d066debc",
+              "short_sha": "a41b6b5",
+              "subject": "refactor(container): keep the archeology gate over the new lanes"
+            },
+            {
+              "sha": "fc21a52f4c14f7d27fcda8006fc84e78bcaf7365",
+              "short_sha": "fc21a52",
+              "subject": "style(container): let the tools agree over the archeology round"
+            },
+            {
+              "sha": "0c864d63a5365e0d13885d2bee57e914b990385b",
+              "short_sha": "0c864d6",
+              "subject": "test(container): kill the thirteen escaped mutants the lane carried"
+            },
+            {
+              "sha": "64f2759520ea1f0a9d43a5dda6d92e861f0815ea",
+              "short_sha": "64f2759",
+              "subject": "fix(container): answer the sonar gate over the analysis lane"
+            },
+            {
+              "sha": "4599612bf486cdcd9f29dfbc5eb51c86811f0fc1",
+              "short_sha": "4599612",
+              "subject": "Merge branch 'main' into feat/container-performance-cli"
+            }
+          ]
+        },
+        {
           "pr": 500,
           "title": "fix(tests): pin the document-audit gate test to a pull-request lane",
           "author": "mbetixz",
@@ -12349,6 +12487,22 @@
               "sha": "19175e3b911c7699816229d495745571416170d2",
               "short_sha": "19175e3",
               "subject": "docs(roadmap): record the pin-freshness resurrection"
+            }
+          ]
+        },
+        {
+          "pr": 505,
+          "title": "docs(roadmap): record the container performance and analysis CLI lane",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-20T23:19:48Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/505",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1f4117c42d669638acef3f50fab5c4cf292a2562",
+              "short_sha": "1f4117c",
+              "subject": "docs(roadmap): record the container performance and analysis CLI lane"
             }
           ]
         }
