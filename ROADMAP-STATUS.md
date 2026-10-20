@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-19 · `main` @ `f9b6ee3`
+**Last updated:** 2026-10-20 · `main` @ `6a883cf`
 
 ---
 
@@ -76,7 +76,7 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Standardisation, handler chain, observability, DX | 🟡 Partial | `ZefException` validates stable error codes and bounded trace IDs; the typed exception family and `ErrorStatusMap` provide status mapping; `ProblemDetailsResponseFactory` emits RFC 9457 JSON or escaped HTML; the boundary face and its composition seam live in the `Middleware` lane (`Zef\Framework\Middleware\ErrorMappingMiddleware` + `ErrorMappingFactory` — the `CorrelationMiddleware` doctrine, the render engine and replay family staying engine-free in `Http`), and the factory registers the boundary in the default middleware stack; `ThirdPartyExceptionMapper` normalizes PDO and optional Guzzle failures without runtime dependencies; `ErrorFaultRecorder` applies severity policy and request/trace context; `JsonLineLogger` writes bounded JSONL records to owner-only files outside the document root; `DebugToolbarMiddleware` preserves existing CSP by skipping toolbar injection when a policy is already present; `ErrorReplayStore` permits structured JSON/form payloads and omits free-form text/XML; `bin/zef` provides guarded report/clear/replay commands. Adversarial regression tests are present; strict CI verification remains required before merge. |
+| Standardisation, handler chain, observability, DX | 🟡 Partial | `ZefException` validates stable error codes and bounded trace IDs; the typed exception family and `ErrorStatusMap` provide status mapping; `ProblemDetailsResponseFactory` emits RFC 9457 JSON or escaped HTML; the boundary face and its composition seam live in the `Middleware` lane (`Zef\Framework\Middleware\ErrorMappingMiddleware` + `ErrorMappingFactory` — the `CorrelationMiddleware` doctrine, the render engine and replay family staying engine-free in `Http`), and the factory registers the boundary in the default middleware stack; `ThirdPartyExceptionMapper` normalizes PDO and optional Guzzle failures without runtime dependencies; `ErrorFaultRecorder` applies severity policy and request/trace context; `JsonLineLogger` writes bounded JSONL records to owner-only files outside the document root; `DebugToolbarMiddleware` preserves existing CSP by skipping toolbar injection when a policy is already present; `ErrorReplayStore` permits structured JSON/form payloads and omits free-form text/XML; `bin/zef` provides guarded report/clear/replay commands. Adversarial regression tests are present; GitHub Actions on PR #444 head `899860c11386d13766e2c6f60c108a5af5f1dd89` passed CI Strict, CI Static, CI Coverage, CI Infection, CI Bench, PhpCodeArcheology, API Documentation Check, PR Validator, Dependency Review, and SonarCloud. |
 
 ## Module Integration System
 
