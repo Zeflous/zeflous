@@ -58,6 +58,7 @@ use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Framework\Telemetry\MeterSlot;
+use Zef\Test\Support\Exception\Excëption\LocaleFailure;
 use Zef\Test\Support\Exception\ExplanatoryException;
 use Zef\Test\Support\Exception\ForgedTraceIdException;
 use Zef\Test\Support\Exception\ThrowingStatusException;
@@ -713,6 +714,56 @@ final class ErrorMappingMiddlewareTest extends TestCase
         }
     }
 
+    /**
+     * An unset debug key answers the production posture, not the
+     * development one: the default is the safe false, so a configuration
+     * that never mentions the knob still hides the diagnostic message in
+     * the very environment the knob would have unlocked.
+     */
+    public function testTheFactoryDefaultsAnUnsetDebugKeyToTheProductionPosture(): void
+    {
+        $previousEnvironment = getenv('APP_ENV');
+
+        try {
+            putenv('APP_ENV=local');
+            $middleware = ErrorMappingFactory::fromConfig(new Config([]));
+
+            $response = $middleware->process(
+                $this->requestWithClaim(),
+                new ThrowingHandler(new RuntimeException('never-disclosed')),
+            );
+
+            self::assertSame('An error occurred', $this->envelope($response)['detail']);
+            self::assertStringNotContainsString('never-disclosed', (string) $response->getBody());
+        } finally {
+            if ($previousEnvironment === false) {
+                putenv('APP_ENV');
+            } else {
+                putenv('APP_ENV=' . $previousEnvironment);
+            }
+        }
+    }
+
+    /**
+     * An unset metrics key answers the silent arm, not the recorded one:
+     * the default is the safe false, so a configuration that never
+     * mentions the knob leaves the injected meter untouched -- the error
+     * still answers, and the counter stays empty.
+     */
+    public function testTheFactoryDefaultsAnUnsetMetricsKeyToTheSilentArm(): void
+    {
+        $counterMeter = new CounterMeter();
+        $middleware = ErrorMappingFactory::fromConfig(new Config([]), $counterMeter);
+
+        $response = $middleware->process(
+            $this->requestWithClaim('unset-metrics'),
+            new ThrowingHandler(new RuntimeException('silent failure')),
+        );
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame([], $counterMeter->snapshot(), 'The default metrics posture leaves the meter untouched.');
+    }
+
     public function testErrorCounterIsRecordedOnlyWhenMetricsAreEnabled(): void
     {
         $counterMeter = new CounterMeter();
@@ -901,6 +952,68 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
         self::assertSame(500, $response->getStatusCode());
         self::assertSame('Internal Server Error', $this->envelope($response)['title']);
+    }
+
+    /**
+     * The mapping-failure fallback is observable at all three of its
+     * seams: the SAPI log line names the mapping's own failure (the
+     * class whose consultation crashed, prefixed so no later grep can
+     * mistake it for the application's failure), the fault record wraps
+     * the crash into a plain RuntimeException whose code and message the
+     * error lane carries forward, and the dev-mode envelope discloses
+     * the wrapper's message rather than the mapping's own words.
+     */
+    public function testStatusMappingFailureLogsWrapsAndDisclosesTheFallback(): void
+    {
+        $recordingLogger = new RecordingLogger();
+        $throwingStatusException = new ThrowingStatusException('mapping failure');
+
+        $response = $this->middleware($recordingLogger, true)->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler($throwingStatusException),
+        );
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame('Error mapping failed.', $this->envelope($response)['detail']);
+
+        $routedLog = $this->routedErrorLogContents();
+        self::assertSame(1, mb_substr_count($routedLog, "\n"), 'Exactly one line reaches the SAPI log for one mapping failure.');
+        self::assertStringEndsWith(
+            'ZEF error status mapping failed: RuntimeException' . "\n",
+            $routedLog,
+            'The SAPI log line must name the class whose consultation crashed, prefixed as the mapping failure it is.',
+        );
+
+        self::assertCount(1, $recordingLogger->calls);
+        [$level, $message, $context] = $recordingLogger->calls[0];
+        self::assertSame('critical', $level);
+        self::assertSame('Request failed', $message);
+        self::assertSame('Error mapping failed.', $context['exception.message']);
+        self::assertSame(RuntimeException::class, $context['exception_class']);
+        self::assertSame('0', $context['exception_code'], 'The wrapper carries the neutral zero code, not a mutation of it.');
+    }
+
+    /**
+     * The fault tag carries the short class name through the multibyte
+     * namespace: the separator search and the tail read are both
+     * character-based, so the two-byte e-acute ahead of the separator
+     * must not shift the tag's start -- the tag is the whole short name,
+     * never a tail that begins one character late.
+     */
+    public function testTheFaultTagCarriesTheWholeShortNameThroughAMultibyteNamespace(): void
+    {
+        $counterMeter = new CounterMeter();
+        $errorMappingMiddleware = new ErrorMappingMiddleware(null, false, $counterMeter);
+
+        $errorMappingMiddleware->process(
+            $this->requestWithClaim('multibyte-req'),
+            new ThrowingHandler(new LocaleFailure('locale failure')),
+        );
+
+        $series = array_values($counterMeter->snapshot());
+        self::assertCount(1, $series);
+        self::assertSame('LocaleFailure', $series[0]['attributes']['exception.type']);
+        self::assertSame(500, $series[0]['attributes']['http.response.status_code']);
     }
 
     public function testMetricBackendFailureDoesNotReplaceTheErrorResponse(): void

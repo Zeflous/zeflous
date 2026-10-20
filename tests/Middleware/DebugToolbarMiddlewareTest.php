@@ -71,6 +71,29 @@ final class DebugToolbarMiddlewareTest extends TestCase
         self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
     }
 
+    /**
+     * A document that carries two closing body tags is still spliced at
+     * the first: the splice policy replaces exactly one match, so the
+     * toolbar appears once -- before the document's first closing tag,
+     * never again before the stray second one.
+     */
+    public function testSplicesOnlyBeforeTheFirstClosingTagWhenTheDocumentCarriesTwo(): void
+    {
+        $response = new DebugToolbarMiddleware(true)->process(
+            $this->request('text/html'),
+            new FixedResponseHandler(new Response(
+                200,
+                ['Content-Type' => 'text/html'],
+                '<!doctype html><html><body>first</body> tail </body>',
+            )),
+        );
+
+        $body = (string) $response->getBody();
+        self::assertSame('enabled', $response->getHeaderLine('X-Debug-Toolbar'));
+        self::assertSame(1, mb_substr_count($body, 'ZEF Profiler'), 'The toolbar appears exactly once, before the first closing tag.');
+        self::assertStringEndsWith(' tail </body>', $body, 'The stray second closing tag survives untouched at the tail.');
+    }
+
     public function testPreservesExistingContentSecurityPolicyWithoutInjectingToolbar(): void
     {
         $policy = "default-src 'self'; script-src 'self'";
@@ -206,6 +229,38 @@ final class DebugToolbarMiddlewareTest extends TestCase
         DebugToolbarFactory::fromConfig(new Config([
             'http' => ['error_handling' => ['debug' => 'yes']],
         ]));
+    }
+
+    /**
+     * An unset debug key answers the disarmed toolbar, not the armed one:
+     * the default is the safe false, so a configuration that never
+     * mentions the knob keeps the page clean even in the very
+     * environment the knob would have unlocked.
+     */
+    public function testTheFactoryDefaultsAnUnsetDebugKeyToTheDisarmedToolbar(): void
+    {
+        $previous = getenv('APP_ENV');
+
+        try {
+            putenv('APP_ENV=local');
+            $response = DebugToolbarFactory::fromConfig(new Config([]))->process(
+                $this->request('text/html'),
+                new FixedResponseHandler(new Response(
+                    200,
+                    ['Content-Type' => 'text/html'],
+                    '<html><body>no knob mentioned</body></html>',
+                )),
+            );
+
+            self::assertSame('', $response->getHeaderLine('X-Debug-Toolbar'));
+            self::assertStringNotContainsString('ZEF Profiler', (string) $response->getBody());
+        } finally {
+            if ($previous === false) {
+                putenv('APP_ENV');
+            } else {
+                putenv('APP_ENV=' . $previous);
+            }
+        }
     }
 
     public function testTheToolbarStaysAwayWhenTheMiddlewareCarriesItsDefaultDisabledFlag(): void

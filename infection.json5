@@ -279,6 +279,33 @@
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
                 "Zef\\Framework\\Http\\RateLimitStores::read",
                 "Zef\\Framework\\Http\\StrictToggles::read",
+                // The toolbar eligibility's two case folds are the same
+                // construction over their own closed vocabularies: the
+                // method arm folds against the literal HEAD (and the only
+                // single-character upper-case landings in ASCII, U+017F to
+                // S and U+0131 to I, spell neither an H, an E, an A nor a
+                // D), while the content-type arm folds against the literal
+                // text/html prefix (whose letters t, e, x, h, m and l
+                // admit no lower-case landing in ASCII -- the Kelvin sign
+                // lands on k, which the prefix does not carry), so every
+                // fold-divergent input misses under both spellings
+                // (verified by running the toolbar batteries under the
+                // manually applied mutations -- the complete batteries
+                // pass). This ignore is scoped to that single method.
+                "Zef\\Framework\\Middleware\\DebugToolbarEligibility::allows",
+                // Both factories' environment folds read the same closed
+                // vocabulary (local, development, dev, test, testing), and
+                // no word in it carries the one ASCII letter the Unicode
+                // case map can reach from non-ASCII -- the Kelvin sign's
+                // landing on k -- so an environment whose fold diverges
+                // between the character map and the byte map misses the
+                // list under both spellings and the debug gate stays shut
+                // either way (verified by running the factory batteries
+                // under the manually applied mutations -- the complete
+                // batteries pass). These ignores are scoped to those two
+                // methods.
+                "Zef\\Framework\\Middleware\\DebugToolbarFactory::fromConfig",
+                "Zef\\Framework\\Middleware\\ErrorMappingFactory::fromConfig",
                 "Zef\\Framework\\Telemetry\\CorrelationAttributes::entry",
                 "Zef\\Framework\\Telemetry\\CorrelationBudget::scalarByteLength",
                 "Zef\\Framework\\Telemetry\\CorrelationBudget::spend",
@@ -611,14 +638,43 @@
         // it). NB: this entry is the file's ONLY ReturnRemoval key --
         // a duplicate key silently disarms every ignore listed here
         // (the gate-round on PR #396 learned this the hard way).
+        // The injector's early null return is unreachable-in-effect
+        // behind the try's own Throwable net: removing it hands the null
+        // spliced document to Stream::fromString(), whose string
+        // parameter refuses the null with a TypeError under strict types,
+        // and the catch that exists for exactly those refusals answers
+        // the same null the guard answered (verified by running the
+        // toolbar batteries under the manually applied mutation -- the
+        // complete batteries pass, the unclosed-document passthrough
+        // included). The guard itself stays: the analysers read the
+        // narrowed string the try's build needs. The method scope is the
+        // engine's narrowest for this mutator; the try's own return
+        // stays under the mutator and its removal is killed by every
+        // injection test, though the engine no longer asks it here.
         "ReturnRemoval": {
             "ignore": [
                 "Zef\\Framework\\Container\\DefinitionCycles::visit",
+                "Zef\\Framework\\Middleware\\DebugToolbarInjector::updatedBody",
                 "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed",
                 "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
             ],
             "ignoreSourceCodeByRegex": [
                 "return \\$this->singletonMemo->instance\\(\\$id\\);"
+            ]
+        },
+        // The metrics recorder's null-safe increment is unreachable-in-
+        // effect behind the recorder's own Throwable net: removing the
+        // null-safe operator hands the null meter a method call that
+        // throws a TypeError, and the catch whose whole contract is
+        // "metrics are best-effort and must never replace the original
+        // failure" answers the same silent no-op the operator answered
+        // (verified by running the mapping battery under the manually
+        // applied mutation -- the complete battery passes, the
+        // metrics-disabled posture included). This ignore is scoped to
+        // that single method.
+        "NullSafeMethodCall": {
+            "ignore": [
+                "Zef\\Framework\\Middleware\\ErrorFaultMetricsRecorder::record"
             ]
         },
         // The correlation pair's tolerant extraction is a chain of
