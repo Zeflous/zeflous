@@ -24,6 +24,12 @@ use Override;
  * no allowed method is a defect (the leaf matched at least one route by
  * construction), and an entry that is not a non-empty string is a
  * malformed signal -- both are refused rather than silently repaired.
+ *
+ * @api the typed family's published refusal vocabulary: hosts catch these
+ *      across their own code, and the router lane's throw site (the E3
+ *      dispatch translation that also consumes the method/path payload)
+ *      is still ahead -- the analyser cannot see either consumer from
+ *      the framework tree alone.
  */
 final class MethodNotAllowedException extends ZefException implements CarriesHttpStatus
 {

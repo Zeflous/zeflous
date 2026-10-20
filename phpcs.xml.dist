@@ -36,6 +36,17 @@
         <exclude-pattern>*/tests/Support/Http/*StreamWrapper.php</exclude-pattern>
     </rule>
 
+    <!-- The typed-exception root's default error code falls back to
+         FRAMEWORK_ERROR only when the derived code's head is not an
+         uppercase ASCII letter, and PHP refuses a class name that merely
+         starts with a digit, so the one shape that reaches the fallback
+         from a legal class name begins with a multibyte letter followed
+         by a digit: a head the ASCII PascalCase grammar cannot admit by
+         construction. The class-name rule excludes that one fixture. -->
+    <rule ref="Squiz.Classes.ValidClassName.NotPascalCase">
+        <exclude-pattern>*/tests/Support/Exception/Ü9ProbeException.php</exclude-pattern>
+    </rule>
+
     <!-- Strict types -->
     <!--
         The PSR-7 interface hierarchy (RequestInterface <- ServerRequestInterface)

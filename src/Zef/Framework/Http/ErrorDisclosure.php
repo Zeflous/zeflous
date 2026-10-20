@@ -50,12 +50,17 @@ final class ErrorDisclosure
         }
 
         if ($throwable instanceof CarriesHttpStatus) {
-            return RedactedMessage::of($throwable->getMessage());
+            return self::redact($throwable->getMessage());
         }
 
         return match ($status) {
-            400 => $debug ? $throwable->getMessage() : self::INVALID_REQUEST,
-            default => $debug ? RedactedMessage::of($throwable->getMessage()) : self::INTERNAL_ERROR,
+            400 => $debug ? self::redact($throwable->getMessage()) : self::INVALID_REQUEST,
+            default => $debug ? self::redact($throwable->getMessage()) : self::INTERNAL_ERROR,
         };
+    }
+
+    private static function redact(string $message): string
+    {
+        return RedactedMessage::of(mb_substr($message, 0, 2048));
     }
 }
