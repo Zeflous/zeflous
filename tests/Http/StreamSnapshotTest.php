@@ -24,6 +24,21 @@ final class StreamSnapshotTest extends TestCase
         self::assertSame(0, $stream->tell());
     }
 
+    /**
+     * The capture rewinds before it reads: a stream left at the end of its
+     * own payload still answers the whole payload, and the cursor it had
+     * is the cursor it keeps -- the snapshot never observes the stream from
+     * wherever the previous reader happened to leave it.
+     */
+    public function testCapturesFromTheEndOfTheStreamAndPutsTheCursorBack(): void
+    {
+        $stream = Stream::fromString('payload');
+        $stream->seek(7);
+
+        self::assertSame('payload', StreamSnapshot::capture($stream));
+        self::assertSame(7, $stream->tell());
+    }
+
     public function testAnswersNullAndSkipsTheRestoreWhenThePositionCannotBeRead(): void
     {
         $snapshotHostileStream = new SnapshotHostileStream(failTell: true);

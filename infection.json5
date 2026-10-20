@@ -726,10 +726,22 @@
         // the parser battery under the manually applied mutation -- the
         // complete battery passes). These ignores are scoped to those two
         // source lines.
+        //
+        // The error-code fold's leading-letter probe in
+        // ZefException::defaultErrorCode() carries a /D flag the pattern
+        // itself cannot use: DOLLAR_ENDONLY constrains only a dollar
+        // metacharacter, and the probe's pattern is caret-anchored with no
+        // dollar at all, so both spellings admit exactly the same matches
+        // over every string the fold can ever hand the line (verified by
+        // running the exception battery under the manually applied
+        // mutation -- the complete battery passes, the FRAMEWORK_ERROR
+        // fallback fixtures included). This ignore is scoped to that
+        // single source line.
         "PregMatchRemoveFlags": {
             "ignoreSourceCodeByRegex": [
                 ".*explode\\(';', \\$part, 2\\)\\[0\\].*",
-                ".*preg_match\\('/\\^\\(\\?:0.*"
+                ".*preg_match\\('/\\^\\(\\?:0.*",
+                ".*preg_match\\('/\\^\\[A-Z\\]/D'.*"
             ]
         },
         // The divergence judgement's NaN guards in

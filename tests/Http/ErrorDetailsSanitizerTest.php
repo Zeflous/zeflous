@@ -44,6 +44,21 @@ final class ErrorDetailsSanitizerTest extends TestCase
         self::assertSame(str_repeat('a', 2048), $safe['long']);
     }
 
+    /**
+     * The value clamp cuts on character boundaries: a string whose two
+     * thousand and forty-eighth character is the two-byte e-acute keeps
+     * that character whole, so a value can never surface with its tail
+     * starting mid-character as an invalid byte sequence.
+     */
+    public function testTheValueClampCutsOnCharacterBoundaries(): void
+    {
+        $value = str_repeat('a', 2047) . 'é' . str_repeat('b', 64);
+
+        $safe = ErrorDetailsSanitizer::sanitize(['boundary' => $value]);
+
+        self::assertSame(str_repeat('a', 2047) . 'é', $safe['boundary']);
+    }
+
     public function testTruncatesAtTheDepthBound(): void
     {
         self::assertSame(
