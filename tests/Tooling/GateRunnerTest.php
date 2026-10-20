@@ -32,6 +32,8 @@ final class GateRunnerTest extends TestCase
     protected function tearDown(): void
     {
         $this->removeTree($this->root);
+        putenv('GITHUB_BASE_REF');
+        putenv('GITHUB_REF');
     }
 
     public function testCoverageGateReadsTheCloverReport(): void
@@ -195,6 +197,16 @@ final class GateRunnerTest extends TestCase
 
     public function testRoadmapDocGateAuditsTheDocuments(): void
     {
+        // The document audit is judged on a pull-request lane: the fixture
+        // root is not a git repository and carries no ROADMAP-STATUS.md pin,
+        // so on a main lane (an empty GITHUB_BASE_REF and refs/heads/main,
+        // the shape the runner exports on push and workflow_dispatch) the
+        // collector would rightly claim the lane and the pin-less fixture
+        // would fail closed. The pin-freshness verdict has its own dedicated
+        // battery; this test pins the lane so the document rules are judged
+        // on their own, whatever lane the ambient process runs on.
+        putenv('GITHUB_BASE_REF=main');
+
         file_put_contents(
             $this->root . '/ROADMAP-HISTORY.md',
             "# History\n\n| A | B |\n|---|---|\n| 1 | 2 |\n",
