@@ -123,6 +123,19 @@ final class AotDigestTest extends TestCase
         );
     }
 
+    /**
+     * The artifact generation carries its weight the same way: a bumped
+     * generation is a different fingerprint, so every artifact of the
+     * older generation is proven stale the next boot.
+     */
+    public function testTheArtifactGenerationCarriesItsWeight(): void
+    {
+        self::assertNotSame(
+            AotDigest::over([], '0.1.0'),
+            $this->foldedWithoutGeneration('0.1.0'),
+        );
+    }
+
     public function testScalarTypesAreNamedInTheFold(): void
     {
         $digests = [
@@ -161,13 +174,14 @@ final class AotDigestTest extends TestCase
     /**
      * The fold's exact spelling, pinned: the digest's design contract is
      * stability across processes and releases -- every type-tagged
-     * prefix, map name and the version fold into one SHA-256 whose
-     * literal value the lane promises not to change silently.
+     * prefix, map name, the version and the artifact generation fold
+     * into one SHA-256 whose literal value the lane promises not to
+     * change silently.
      */
     public function testTheFoldSpellsItsCanonicalFormStably(): void
     {
         self::assertSame(
-            '70eafe0547db338f32ab5a625a3f45aa7c1d3dbfae47dd64e468e26d8ecf3146',
+            '522b16cf8d0237b464c78b738b701cbcd116db6351de9c83a57cb35b3b2ec654',
             AotDigest::over([
                 'framework.services' => ['x' => ['factory' => 'A::b']],
                 'services' => ['a' => ['class' => 'C', 'arguments' => [1, '1', 1.5, true, false, null,
@@ -179,7 +193,7 @@ final class AotDigestTest extends TestCase
         );
 
         self::assertSame(
-            'fb60fd65f24ff2c73b9f9c794f021ae42cb0265c47b943e01ce2806aade6b624',
+            '224db7de00e29302a8352bbab0b33e186061311797d096a9b765f324c70ba7db',
             AotDigest::over([], '1'),
         );
     }
@@ -224,5 +238,15 @@ final class AotDigestTest extends TestCase
                 $aotException->getMessage(),
             );
         }
+    }
+
+    /**
+     * The same fold without the generation suffix -- the older
+     * generation's spelling, mirrored here so the weight the generation
+     * carries stays pinned.
+     */
+    private function foldedWithoutGeneration(string $version): string
+    {
+        return hash('sha256', 'version:' . $version);
     }
 }
