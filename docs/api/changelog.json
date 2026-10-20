@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-20T19:46:07Z",
+  "as_of": "2026-10-20T21:28:47Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 216,
+  "unreleased_count": 218,
   "versions": [
     {
       "version": "Unreleased",
@@ -3479,6 +3479,22 @@
                 "subject": "Merge branch 'main' into fix/roadmap-pin-freshness-main-lane"
               }
             ]
+          },
+          {
+            "pr": 500,
+            "title": "fix(tests): pin the document-audit gate test to a pull-request lane",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-20T20:39:19Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/500",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "affb331f6a6a5e7de9ab3a6e99478648125bf93f",
+                "short_sha": "affb331",
+                "subject": "fix(tests): pin the document-audit gate test to a pull-request lane"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -5980,6 +5996,22 @@
                 "sha": "10d077dd047e4f7fc335ab1418bb089f27c365b1",
                 "short_sha": "10d077d",
                 "subject": "docs(roadmap): pin the lazy, locator and inventory lanes -- history row 487"
+              }
+            ]
+          },
+          {
+            "pr": 501,
+            "title": "docs(roadmap): record the pin-freshness resurrection",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-20T21:28:47Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/501",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "19175e3b911c7699816229d495745571416170d2",
+                "short_sha": "19175e3",
+                "subject": "docs(roadmap): record the pin-freshness resurrection"
               }
             ]
           }
@@ -12285,6 +12317,38 @@
               "sha": "bed3a775c21c408dc8cfac0ec4af6e61892e7749",
               "short_sha": "bed3a77",
               "subject": "Merge branch 'main' into fix/roadmap-pin-freshness-main-lane"
+            }
+          ]
+        },
+        {
+          "pr": 500,
+          "title": "fix(tests): pin the document-audit gate test to a pull-request lane",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-20T20:39:19Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/500",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "affb331f6a6a5e7de9ab3a6e99478648125bf93f",
+              "short_sha": "affb331",
+              "subject": "fix(tests): pin the document-audit gate test to a pull-request lane"
+            }
+          ]
+        },
+        {
+          "pr": 501,
+          "title": "docs(roadmap): record the pin-freshness resurrection",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-20T21:28:47Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/501",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "19175e3b911c7699816229d495745571416170d2",
+              "short_sha": "19175e3",
+              "subject": "docs(roadmap): record the pin-freshness resurrection"
             }
           ]
         }

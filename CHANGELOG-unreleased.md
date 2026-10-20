@@ -112,6 +112,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(ci): suspend the auto-merge branch sync while the merge queue is active [#456](https://github.com/Zeflous/zeflous/pull/456) ([mbetixz](https://github.com/mbetixz))
 - fix(ci): stop the merge queue self-re-render storm [#463](https://github.com/Zeflous/zeflous/pull/463) ([mbetixz](https://github.com/mbetixz))
 - fix(tooling): resurrect the roadmap pin-freshness verdict on the main lanes [#496](https://github.com/Zeflous/zeflous/pull/496) ([mbetixz](https://github.com/mbetixz))
+- fix(tests): pin the document-audit gate test to a pull-request lane [#500](https://github.com/Zeflous/zeflous/pull/500) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
@@ -227,6 +228,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the namespace radix lane -- history row 481 [#482](https://github.com/Zeflous/zeflous/pull/482) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record merged error handling verification [#488](https://github.com/Zeflous/zeflous/pull/488) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): pin the lazy, locator and inventory lanes [#493](https://github.com/Zeflous/zeflous/pull/493) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the pin-freshness resurrection [#501](https://github.com/Zeflous/zeflous/pull/501) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
