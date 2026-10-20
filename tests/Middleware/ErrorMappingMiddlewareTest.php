@@ -31,6 +31,7 @@ use Zef\Framework\Http\ErrorFaultContextFactory;
 use Zef\Framework\Http\ErrorFaultLogWriter;
 use Zef\Framework\Http\ErrorFaultSeverity;
 use Zef\Framework\Http\ErrorReplayStore;
+use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\ErrorResponseFactory;
 use Zef\Framework\Http\ErrorTraceIdResolver;
 use Zef\Framework\Http\FallbackResponse;
@@ -1014,6 +1015,109 @@ final class ErrorMappingMiddlewareTest extends TestCase
         self::assertCount(1, $series);
         self::assertSame('LocaleFailure', $series[0]['attributes']['exception.type']);
         self::assertSame(500, $series[0]['attributes']['http.response.status_code']);
+    }
+
+    /**
+     * The SAPI fallback record carries the UTC stamp: when no logger was
+     * injected, the structured record that reaches the SAPI log is signed
+     * with the engine's own strict format -- a record without one is a
+     * record the writer refused to timestamp.
+     */
+    public function testTheSapiFallbackRecordCarriesTheTimestamp(): void
+    {
+        $response = $this->middleware()->process(
+            $this->requestWithClaim('sapi-record'),
+            new ThrowingHandler(new RuntimeException('unlogged failure')),
+        );
+
+        self::assertSame(500, $response->getStatusCode());
+
+        $routedLog = $this->routedErrorLogContents();
+        self::assertSame(1, mb_substr_count($routedLog, "\n"), 'Exactly one record reaches the SAPI log for one failure.');
+        $record = json_decode((string) mb_strstr($routedLog, '{'), true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        $timestamp = $record['timestamp'] ?? null;
+        self::assertIsString($timestamp, 'The SAPI fallback record must carry the UTC timestamp.');
+        self::assertMatchesRegularExpression(
+            '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/',
+            $timestamp,
+            "The SAPI fallback record must carry the UTC timestamp in the engine's strict format.",
+        );
+        self::assertSame('critical', $record['level']);
+        self::assertSame('Request failed', $record['message']);
+        $recordContext = $record['context'] ?? null;
+        self::assertIsArray($recordContext);
+        self::assertSame(RuntimeException::class, $recordContext['exception_class']);
+    }
+
+    /**
+     * The resolver prefers the request context's own trace: the context
+     * the middleware attached carries the trace the request arrived with,
+     * and the resolver reads it before the correlation fallback -- never
+     * the other way around.
+     */
+    public function testTheResolverPrefersTheRequestContextsTraceId(): void
+    {
+        $errorRequestContext = new ErrorRequestContext('context-trace');
+
+        self::assertSame(
+            'context-trace',
+            ErrorTraceIdResolver::resolve(
+                new RuntimeException('untraced'),
+                $errorRequestContext,
+                'request-id',
+                $this->requestWithClaim('resolver-claim'),
+            ),
+        );
+    }
+
+    /**
+     * A trace candidate that ends in a newline is refused, not accepted:
+     * the grammar's dollar anchor matches the end of the candidate itself,
+     * not the position just before a final newline, so the resolver falls
+     * back to the request's own correlation id.
+     */
+    public function testTheResolverRefusesATraceCandidateEndingInANewline(): void
+    {
+        self::assertSame(
+            self::CLAIMED_ID,
+            ErrorTraceIdResolver::resolve(
+                new RuntimeException('untraced'),
+                null,
+                self::CLAIMED_ID . "\n",
+                $this->requestWithClaim(),
+            ),
+        );
+    }
+
+    /**
+     * The developer details travel only in debug mode and only when there
+     * is something to carry: the conjunction gates the envelope's details
+     * key on both the mode and the non-empty map, so production never
+     * sees the diagnostics and a typed failure without details never
+     * carries an empty key.
+     */
+    public function testTheEnvelopeCarriesTheDetailsOnlyInDebugModeAndOnlyWhenPresent(): void
+    {
+        $withDetails = new ExplanatoryException('carrying details', 0, null, 'E_DETAILS', ['safe' => 'visible']);
+        $withoutDetails = new ExplanatoryException('no details', 0, null, 'E_BARE');
+
+        $debugResponse = $this->middleware(null, true)->process(
+            $this->requestWithClaim('details-debug'),
+            new ThrowingHandler($withDetails),
+        );
+        $productionResponse = $this->middleware(null, false)->process(
+            $this->requestWithClaim('details-prod'),
+            new ThrowingHandler($withDetails),
+        );
+        $bareDebugResponse = $this->middleware(null, true)->process(
+            $this->requestWithClaim('details-bare'),
+            new ThrowingHandler($withoutDetails),
+        );
+
+        self::assertSame(['safe' => 'visible'], $this->envelope($debugResponse)['details']);
+        self::assertArrayNotHasKey('details', $this->envelope($productionResponse));
+        self::assertArrayNotHasKey('details', $this->envelope($bareDebugResponse));
     }
 
     public function testMetricBackendFailureDoesNotReplaceTheErrorResponse(): void

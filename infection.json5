@@ -677,6 +677,29 @@
                 "Zef\\Framework\\Middleware\\ErrorFaultMetricsRecorder::record"
             ]
         },
+        // The two problem-document encoders carry the substitution flag
+        // no input can ever exercise: every string either writer's map
+        // carries is valid UTF-8 by upstream construction -- the fault
+        // record's message and path leave their clamps through mb_substr,
+        // which replaces invalid bytes with the ASCII question mark before
+        // the record is built, its class name, code, method and identifiers
+        // pass their own ASCII-or-UTF-8 grammars, and the problem
+        // document's detail travels the same mb_substr clamp while its
+        // type, title, code, trace id and details answer fixed literals
+        // or grammar-validated spellings -- so the substitution arm the
+        // bitwise rewrite would drop never fires, and the throwing flag's
+        // removal changes nothing an encoder that cannot fail could
+        // observe (verified by running the mapping battery under the
+        // manually applied mutations -- the complete battery passes,
+        // the invalid-UTF-8 fixtures included: the broken bytes surface
+        // as question marks upstream of both writers). These ignores are
+        // scoped to those two methods.
+        "BitwiseOr": {
+            "ignore": [
+                "Zef\\Framework\\Http\\ErrorFaultLogWriter::write",
+                "Zef\\Framework\\Http\\ProblemDetailsJsonResponseFactory::create"
+            ]
+        },
         // The correlation pair's tolerant extraction is a chain of
         // small refusals whose every remaining return is load-bearing:
         // the line's oversize refusal is killed by the whitespace-
