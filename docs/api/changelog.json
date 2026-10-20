@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T23:10:46Z",
+  "as_of": "2026-10-19T23:53:51Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 210,
+  "unreleased_count": 211,
   "versions": [
     {
       "version": "Unreleased",
@@ -5194,6 +5194,22 @@
                 "sha": "9a22758aff0923bc21318e59cc47eeea4c3a5e96",
                 "short_sha": "9a22758",
                 "subject": "test(tooling): the lint roster's sort kill rests on the directory order"
+              }
+            ]
+          },
+          {
+            "pr": 482,
+            "title": "docs(roadmap): pin the namespace radix lane -- history row 481",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-19T23:53:51Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/482",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "bc5c62d9831b42780e5d93a6de989acf5481767d",
+                "short_sha": "bc5c62d",
+                "subject": "docs(roadmap): pin the namespace radix lane -- history row 481"
               }
             ]
           }
@@ -10713,6 +10729,22 @@
               "sha": "cca5089587a3a10e992d3552a26b8ff5bb076710",
               "short_sha": "cca5089",
               "subject": "fix(container): the entries map's string keys re-assert at the multi-use site"
+            }
+          ]
+        },
+        {
+          "pr": 482,
+          "title": "docs(roadmap): pin the namespace radix lane -- history row 481",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-19T23:53:51Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/482",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "bc5c62d9831b42780e5d93a6de989acf5481767d",
+              "short_sha": "bc5c62d",
+              "subject": "docs(roadmap): pin the namespace radix lane -- history row 481"
             }
           ]
         }
