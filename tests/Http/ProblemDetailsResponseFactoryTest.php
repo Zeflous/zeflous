@@ -7,82 +7,77 @@ namespace Zef\Test\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Zef\Framework\Http\ErrorContentNegotiator;
 use Zef\Framework\Http\ErrorRequestContext;
-use Zef\Framework\Http\ErrorTraceIdResolver;
-use Zef\Framework\Http\HtmlErrorPageContext;
-use Zef\Framework\Http\HtmlErrorPageRenderer;
 use Zef\Framework\Http\ProblemDetailsResponseFactory;
-use Zef\Framework\Http\ProblemDetailsResponseHeaders;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 
 /**
- * The browser-facing factory's profiler bridge: the request-scoped
- * ErrorRequestContext facts (duration, DB queries, exceptions) must
- * reach the debug toolbar exactly, and their absence must fall back to
- * the flat defaults -- the two directions every instanceof ternary on
- * that bridge can be rewritten in.
+ * Pins the browser error page's profiler counters at the factory seam: an
+ * attached request context contributes its live duration, query count and
+ * exception count, and a request without one falls back to the factory's
+ * own defaults (the failing request itself counts as the first exception).
+ * The page's markup, escaping and negative-counter clamping are pinned by
+ * the renderer's golden-master battery; this battery pins the ternaries
+ * that decide which numbers reach the renderer at all.
  *
  * @internal
  */
 #[CoversClass(ProblemDetailsResponseFactory::class)]
-#[CoversClass(HtmlErrorPageRenderer::class)]
-#[CoversClass(HtmlErrorPageContext::class)]
-#[CoversClass(ErrorContentNegotiator::class)]
-#[CoversClass(ErrorRequestContext::class)]
-#[CoversClass(ErrorTraceIdResolver::class)]
-#[CoversClass(ProblemDetailsResponseHeaders::class)]
 final class ProblemDetailsResponseFactoryTest extends TestCase
 {
-    public function testTheDebugPageCarriesTheRequestContextProfilerFacts(): void
+    public function testADebugPageCarriesTheRequestContextProfilerCounters(): void
     {
-        $errorRequestContext = new ErrorRequestContext('req-factory-1');
-        $errorRequestContext->recordQuery();
-        $errorRequestContext->recordQuery();
-        $errorRequestContext->recordQuery();
+        $errorRequestContext = new ErrorRequestContext('ctx-trace-1');
+        for ($i = 0; $i < 7; ++$i) {
+            $errorRequestContext->recordQuery();
+        }
+
         $errorRequestContext->recordException();
         $errorRequestContext->recordException();
-        usleep(2500);
 
-        $response = ProblemDetailsResponseFactory::create(
-            new RuntimeException('factory bridge'),
-            500,
-            $this->browserRequest()->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext),
-            'req-factory-1',
-            true,
+        // A two-millisecond floor guarantees the toolbar renders a duration
+        // the branch-swap mutants cannot answer with their zeroed default.
+        usleep(2000);
+
+        $serverRequest = $this->htmlRequest()->withAttribute(
+            ErrorRequestContext::ATTRIBUTE,
+            $errorRequestContext,
         );
 
-        $body = (string) $response->getBody();
-        self::assertStringContainsString('DB queries: 3', $body);
-        self::assertStringContainsString('Exceptions: 2', $body);
-        self::assertStringNotContainsString('Duration: 0.00 ms', $body);
-        self::assertMatchesRegularExpression('/Duration: [1-9]\d*\.\d{2} ms/D', $body);
-    }
-
-    public function testTheDebugPageFallsBackToFlatDefaultsWithoutARequestContext(): void
-    {
-        $response = ProblemDetailsResponseFactory::create(
-            new RuntimeException('factory defaults'),
+        $body = (string) ProblemDetailsResponseFactory::create(
+            new RuntimeException('boom'),
             500,
-            $this->browserRequest(),
-            'req-factory-2',
+            $serverRequest,
+            'req-123',
             true,
-        );
+        )->getBody();
 
-        $body = (string) $response->getBody();
-        self::assertStringContainsString('Duration: 0.00 ms', $body);
-        self::assertStringContainsString('DB queries: 0', $body);
-        self::assertStringContainsString('Exceptions: 1', $body);
+        self::assertStringContainsString('<span>DB queries: 7</span>', $body);
+        self::assertStringContainsString('<span>Exceptions: 2</span>', $body);
+        self::assertSame(1, preg_match('/Duration: (\d+\.\d{2}) ms/', $body, $duration));
+        self::assertGreaterThanOrEqual(1.0, (float) $duration[1]);
     }
 
-    private function browserRequest(): ServerRequest
+    public function testADebugPageWithoutARequestContextDefaultsTheProfilerCounters(): void
     {
-        $request = new ServerRequest('GET', new Uri('https://app.example.test/broken'))
-            ->withHeader('Accept', 'text/html')
-        ;
-        self::assertInstanceOf(ServerRequest::class, $request);
+        $body = (string) ProblemDetailsResponseFactory::create(
+            new RuntimeException('boom'),
+            500,
+            $this->htmlRequest(),
+            'req-123',
+            true,
+        )->getBody();
 
-        return $request;
+        self::assertStringContainsString('<span>Duration: 0.00 ms</span>', $body);
+        self::assertStringContainsString('<span>DB queries: 0</span>', $body);
+        self::assertStringContainsString('<span>Exceptions: 1</span>', $body);
+    }
+
+    private function htmlRequest(): ServerRequest
+    {
+        return new ServerRequest('GET', new Uri('https://app.example/orders'), [], [], [], [], null, [
+            'Accept' => 'text/html',
+        ]);
     }
 }

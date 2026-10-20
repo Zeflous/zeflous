@@ -14,7 +14,15 @@
     },
     "tmpDir": "build/infection",
     "testFramework": "phpunit",
-    "bootstrap": "vendor/autoload.php",
+    // The suite's own bootstrap (the Composer autoloader plus the
+    // engine-boundary function doubles, loaded before the first test
+    // executes) -- the doubles shadow real global functions, so a
+    // bootstrap that loads them only lazily would leave every call site
+    // the earlier tests warmed pinned to the globals, and the armed
+    // failure tests would silently exercise the real engine instead of
+    // the double. The initial run and every mutant process must load
+    // the doubles the same way the plain suite does.
+    "bootstrap": "tests/bootstrap.php",
     "phpUnit": {
         "configDir": "."
     },
@@ -325,7 +333,35 @@
                 // the complete battery passes, including the multibyte
                 // header paths). The ignore is scoped to that single
                 // source line.
-                "\\$value = mb_substr\\(\\$segment, 2\\);"
+                "\\$value = mb_substr\\(\\$segment, 2\\);",
+                // The SQLSTATE fold in ThirdPartyExceptionMapper::normalize()
+                // is the same ASCII-only zone, guarded by the grammar's own
+                // construction: the anchored ^[0-9A-Z]{5}$D gate ahead of it
+                // admits exactly five ASCII alphanumerics (the /i fold
+                // inside the byte class carries both letter cases), and the
+                // Unicode upper-case map and the byte upper-case map agree
+                // on every ASCII letter, so mb_strtoupper() and
+                // strtoupper() answer the identical fold for every string
+                // the gate can ever hand the line (verified by running the
+                // full suite under the manually applied mutation -- the
+                // complete suite passes, the lowercase-s SQLSTATE fixture
+                // still folds to its upper-case spelling). This ignore is
+                // scoped to that single source line.
+                "\\? \\[\\'sql_state\\' => mb_strtoupper\\(\\$sqlState\\)\\]",
+                // The content-type fold in ReplayBodyCapture::capture() is
+                // the same ASCII-gated zone, over the media-type vocabulary
+                // the decoder's own grammar reads: the gates (the exact
+                // application/json, the application/ prefix, the +json
+                // suffix, the exact x-www-form-urlencoded) contain no ASCII
+                // k, and the only single-character Unicode fold that lands
+                // in ASCII is the Kelvin sign's landing on k -- so every
+                // fold-divergent header value misses every gate under both
+                // spellings and the free-text refusal answers identically
+                // either way (verified by running the full suite under the
+                // manually applied mutation -- the complete suite passes,
+                // the parameterised and multibyte header paths included).
+                // This ignore is scoped to that single source line.
+                "\\$contentType = mb_strtolower\\(\\$serverRequest->getHeaderLine\\('Content-Type'\\)\\);"
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is
@@ -422,7 +458,23 @@
                 // the manually applied mutation -- the complete battery
                 // passes). The ignore is scoped to that single source
                 // line.
-                ".*explode\\(';', \\$part, 2\\)\\[0\\].*"
+                ".*explode\\(';', \\$part, 2\\)\\[0\\].*",
+                // ReplayBodyCapture::capture()'s media-type split limit is
+                // the next integer the increment can rewrite without any
+                // observable difference, by the same construction the
+                // AcceptHeaderParser::mediaRange() entry above argues: the
+                // read takes element [0], and for every limit of two or more
+                // the first element is the substring before the first
+                // semicolon, so raising the limit only reshuffles bytes the
+                // read never touches (verified by running the full suite
+                // under the manually applied mutation -- the complete suite
+                // passes, the parameterised header fixture included). The
+                // decrement direction stays under the mutator: a limit of 1
+                // returns the whole parameterised line as the media type,
+                // the gate misses it, and the parameterised header test
+                // kills it. This ignore is scoped to that single source
+                // line.
+                ".*explode\\(';', \\$contentType, 2\\)\\[0\\].*"
             ]
         },
         // The scan resume's capture read in RedactedMessage::of() is the

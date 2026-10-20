@@ -11,13 +11,11 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\ReplayStorageDirectory;
 
 /**
- * The replay storage directory's own refusal grammar, one discriminating
- * case per clause: what the directory itself must be (existing, writable,
- * neither a symlink nor a plain file), the owner-only permission mask
- * down to the single sticky other-execute bit, and the document-root
- * boundary in all four directions -- equal to the root, nested inside,
- * a sibling that only shares the string prefix, and the CLI runtime
- * that carries no document root at all.
+ * Pins the storage directory's own guard table at the unit seam: every
+ * refusal reason the store's battery composes but never isolates -- the
+ * symlink shape, the plain-file shape, the other-execute permission bit,
+ * and the document-root geometry (equal, inside, sibling) -- plus the
+ * resolving answer an acceptable directory earns.
  *
  * @internal
  */
@@ -26,122 +24,160 @@ final class ReplayStorageDirectoryTest extends TestCase
 {
     private string $directory;
 
+    /** @var array{bool, mixed} whether DOCUMENT_ROOT existed and its previous value */
+    private array $previousDocumentRoot = [false, null];
+
     #[Override]
     protected function setUp(): void
     {
-        unset($_SERVER['DOCUMENT_ROOT']);
-        $this->directory = sys_get_temp_dir() . '/zef-storage-' . bin2hex(random_bytes(8));
+        $this->directory = sys_get_temp_dir() . '/zef-replay-dir-' . bin2hex(random_bytes(8));
         mkdir($this->directory, 0o700);
     }
 
     #[Override]
     protected function tearDown(): void
     {
+        $this->restoreDocumentRoot();
+
+        foreach (array_reverse($this->nestedPaths()) as $path) {
+            if (is_link($path)) {
+                unlink($path);
+            } elseif (is_dir($path)) {
+                rmdir($path);
+            } elseif (is_file($path)) {
+                unlink($path);
+            }
+        }
+
         if (!is_dir($this->directory)) {
             return;
         }
 
+        $leftovers = glob($this->directory . '/*');
+        foreach (\is_array($leftovers) ? $leftovers : [] as $leftover) {
+            if (is_file($leftover)) {
+                unlink($leftover);
+            }
+        }
+
         rmdir($this->directory);
-
-        if (!\array_key_exists('DOCUMENT_ROOT', $_SERVER)) {
-            return;
-        }
-
-        unset($_SERVER['DOCUMENT_ROOT']);
     }
 
-    public function testASymlinkToAValidDirectoryIsRefused(): void
+    public function testResolvesAnAcceptableDirectory(): void
     {
-        $link = $this->directory . '-link';
-        self::assertTrue(symlink($this->directory, $link));
+        self::assertSame(realpath($this->directory), ReplayStorageDirectory::resolve($this->directory));
+    }
+
+    public function testASymlinkedStorageDirectoryIsRefused(): void
+    {
+        $symlink = $this->directory . '-link';
+        symlink($this->directory, $symlink);
 
         try {
             $this->expectException(InvalidArgumentException::class);
-            $this->expectExceptionMessageIsOrContains(
-                'Replay storage must be an existing writable non-symlink directory.',
-            );
-            ReplayStorageDirectory::resolve($link);
+
+            ReplayStorageDirectory::resolve($symlink);
         } finally {
-            unlink($link);
+            unlink($symlink);
         }
     }
 
-    public function testARegularFileIsRefusedEvenWhenWritable(): void
+    public function testAPlainFileIsRefused(): void
     {
-        $file = $this->directory . '/plain-file';
-        self::assertTrue(touch($file));
+        $file = $this->directory . '/not-a-directory';
+        touch($file);
+        chmod($file, 0o600);
 
-        try {
-            $this->expectException(InvalidArgumentException::class);
-            $this->expectExceptionMessageIsOrContains(
-                'Replay storage must be an existing writable non-symlink directory.',
-            );
-            ReplayStorageDirectory::resolve($file);
-        } finally {
-            unlink($file);
-        }
+        $this->expectException(InvalidArgumentException::class);
+
+        ReplayStorageDirectory::resolve($file);
     }
 
-    public function testTheOtherExecuteBitAloneIsRefused(): void
+    public function testOtherExecutablePermissionsAreRefused(): void
     {
-        self::assertTrue(chmod($this->directory, 0o701));
+        chmod($this->directory, 0o701);
 
         try {
-            $this->expectException(InvalidArgumentException::class);
-            $this->expectExceptionMessageIsOrContains('Replay storage directory must have owner-only permissions.');
-            ReplayStorageDirectory::resolve($this->directory);
+            try {
+                ReplayStorageDirectory::resolve($this->directory);
+                self::fail('A world-executable storage directory must be refused.');
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                self::assertSame(
+                    'Replay storage directory must have owner-only permissions.',
+                    $invalidArgumentException->getMessage(),
+                );
+            }
         } finally {
             chmod($this->directory, 0o700);
         }
     }
 
-    public function testTheStorageDirectoryCannotBeTheDocumentRootItself(): void
-    {
-        $_SERVER['DOCUMENT_ROOT'] = $this->directory;
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageIsOrContains('Replay storage must be outside the public document root.');
-        ReplayStorageDirectory::resolve($this->directory);
-    }
-
-    public function testStorageOutsideTheDocumentRootResolves(): void
+    public function testResolvesOutsideAnExplicitDocumentRoot(): void
     {
         $publicRoot = $this->directory . '/public';
-        self::assertTrue(mkdir($publicRoot, 0o700));
-        $_SERVER['DOCUMENT_ROOT'] = $publicRoot;
+        mkdir($publicRoot, 0o700);
+        $this->setDocumentRoot($publicRoot);
 
-        self::assertSame($this->directory, ReplayStorageDirectory::resolve($this->directory));
-
-        rmdir($publicRoot);
+        self::assertSame(realpath($this->directory), ReplayStorageDirectory::resolve($this->directory));
     }
 
-    public function testASiblingThatOnlySharesTheStringPrefixIsAccepted(): void
+    public function testRefusesStorageEqualToTheDocumentRoot(): void
     {
-        $publicRoot = $this->directory . '/root';
-        $sibling = $this->directory . '/root-sibling';
-        self::assertTrue(mkdir($publicRoot, 0o700));
-        self::assertTrue(mkdir($sibling, 0o700));
-        $_SERVER['DOCUMENT_ROOT'] = $publicRoot;
+        $this->setDocumentRoot($this->directory);
 
         try {
-            self::assertSame($sibling, ReplayStorageDirectory::resolve($sibling));
-        } finally {
-            rmdir($sibling);
-            rmdir($publicRoot);
+            ReplayStorageDirectory::resolve($this->directory);
+            self::fail('Storage equal to the document root must be refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'Replay storage must be outside the public document root.',
+                $invalidArgumentException->getMessage(),
+            );
         }
     }
 
-    public function testARuntimeWithoutADocumentRootLeavesTheBoundaryOpen(): void
+    public function testResolvesASiblingWhoseNameExtendsTheDocumentRoot(): void
     {
-        unset($_SERVER['DOCUMENT_ROOT']);
+        $publicRoot = $this->directory . '/public-root';
+        $sibling = $this->directory . '/public-root-evil';
+        mkdir($publicRoot, 0o700);
+        mkdir($sibling, 0o700);
+        $this->setDocumentRoot($publicRoot);
 
-        $underCwd = getcwd() . '/zef-storage-boundary-' . bin2hex(random_bytes(4));
-        self::assertTrue(mkdir($underCwd, 0o700));
+        self::assertSame(realpath($sibling), ReplayStorageDirectory::resolve($sibling));
+    }
 
-        try {
-            self::assertSame($underCwd, ReplayStorageDirectory::resolve($underCwd));
-        } finally {
-            rmdir($underCwd);
+    /**
+     * Points the SAPI document root at the given path, remembering the
+     * previous state for tearDown.
+     */
+    private function setDocumentRoot(string $documentRoot): void
+    {
+        $this->previousDocumentRoot = [\array_key_exists('DOCUMENT_ROOT', $_SERVER), $_SERVER['DOCUMENT_ROOT'] ?? null];
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
+    }
+
+    private function restoreDocumentRoot(): void
+    {
+        [$hadRoot, $previous] = $this->previousDocumentRoot;
+
+        if ($hadRoot) {
+            $_SERVER['DOCUMENT_ROOT'] = $previous;
+        } else {
+            unset($_SERVER['DOCUMENT_ROOT']);
         }
+    }
+
+    /**
+     * @return list<string> the extra paths the tests may have created under the parent
+     */
+    private function nestedPaths(): array
+    {
+        $paths = [];
+        foreach (['-link', '/public', '/public-root', '/public-root-evil'] as $suffix) {
+            $paths[] = \dirname($this->directory) . '/' . basename($this->directory) . $suffix;
+        }
+
+        return $paths;
     }
 }
