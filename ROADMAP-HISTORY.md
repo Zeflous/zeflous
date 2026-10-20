@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-20 · `main` @ `6588328`
+**Last updated:** 2026-10-21 · `main` @ `003123d0da`
 
 **How to read this file**
 
@@ -27,13 +27,13 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Middleware Pipeline | 1 |
 | Error Handling | 3 |
 | Kernel & Platform | 1 |
-| Quality Gates & Tooling | 12 |
+| Quality Gates & Tooling | 13 |
 | CI / Supply chain | 38 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **153** |
+| **Total merged PRs** | **154** |
 
 ---
 
@@ -126,6 +126,7 @@ The in-repo gate engine (`src/Zef/Framework/Tooling/*`, `scripts/ci/*`) that eve
 | feat(tooling): refuse a stale roadmap pin on main (the roadmap gate validated the documents' structure but never the freshness of the `ROADMAP-STATUS.md` pin against the branch it describes -- a pin naming a commit six merges behind HEAD passed CI untouched; the honest invariant is now enforced: the pinned commit must be an ancestor of the validated commit and every commit between them must be changelog or pin bookkeeping, any other landed change leaving the pin stale and the gate red until a pull request refreshes it; `RoadmapPinFreshness` the pure verdict, `RoadmapPinCommitCollector` the git side through the gate runner's process seam failing closed on any git answer it cannot interpret, `RoadmapPinState` the data between; the pull-request lanes cannot judge main's pin and say so in the pass message -- the watchdog's main lanes are where the verdict bites; the CI Static checkout gained `fetch-depth: 0` because a depth-1 clone cannot answer merge-base; proven end-to-end against a real worktree of main before pushing, and after merge it enforces itself on its own merge commit; one SonarCloud gate round -- the two five-return methods reshaped into focused helpers under the S1142 ceiling) | #417 | 2026-10-17 | `6367ff46b8` |
 | test(coverage): cover the eight orphan concrete classes (thirty-three classes had no test declaring them as a coverage target and eight are concrete logic covered only incidentally -- for `CorrelationBudget` a mutation blind spot: zero covering tests, every mutant infection generated there uncovered rather than killed; eight new test files, one per unit, behaviour-first: the config repository's mutation protocol, the PSR-7 URI's mutation protocol with the `1..65535` port boundaries on both sides, the auth family's two vocabularies read back through reflection -- a map the analyser can fold is a pin that asserts nothing -- the timing clock's monotonic seam, the correlation budget's rendered-width policy with two-sided boundaries on every arm, and the two roadmap table units; the coverage gate moves 98.89 -> 99.19 percent; the mutation battery on the changed set MSI 100 after the boolean width boundaries were pinned on both sides and after the budget's two `mb_strlen('8bit')` sites joined the documented MBString equivalence class, both verified by running the full suite under the manually applied mutation; the two traits ride their consumer's coverage, PHPUnit 13 refusing a trait as a coverage target) | #418 | 2026-10-17 | `fc7b1e7752` |
 | fix(tooling): the update-merges of every branch kind are bookkeeping (the final live verification of the pin-freshness gate caught its own false positive: the branch-update machinery merges main into whatever pull-request branch it refreshes -- feat, fix, docs, test, chore alike -- and those merges ride into main's history when the pull request lands; the first cut whitelisted only the chore/ spelling it had been observed on, so an auto-updated pin-refresh pull request left exactly one non-bookkeeping commit above its own pin -- a treadmill, main red by one commit after every refresh forever; the pattern now accepts the update machinery's main-into-branch merges of every branch kind, safe whatever the branch because an update merge only reflects main's own commits back into a branch and any real content still reaches main through a pull-request merge commit of its own, which the patterns refuse -- the word order matters, `Merge branch <feature> into main` and `Merge pull request #N from ...` both stay refused; the anchors test carries the five update-merge spellings this repository's own history produced plus the two refused word orders) | #426 | 2026-10-18 | `585dc210fe` |
+| fix(tooling): resurrect the pin-freshness verdict on the main lanes (the rule of #417 had never judged a single commit: the runner exports GITHUB_BASE_REF as an empty string on the push and workflow_dispatch events, and the collector's presence check read that shape as a pull-request lane, so all 68 post-#417 main CI Static runs said 'not judged' -- measured across the whole run history, zero verdicts in the rule's life, including the run on #417's own merge commit; a non-empty base ref now marks the pull-request lanes alone, regression-tested against the runner-realistic shape; the bookkeeping anchor widened from 'docs(roadmap): pin' subjects to every 'docs(roadmap):' subject -- the record pull request that follows a substantive merge refreshes the pin, so its own commits sit above that pin by construction, and the narrow anchor left the rule no reachable green state under the vocabulary the lanes actually produce (77 pin, 4 record, 2 refresh, 1 point, 1 keep over six months); the first post-merge main run judged the pin red exactly as designed -- the fix's own commits are substantive -- and the document-audit gate test pinned to a pull-request lane in the follow-up #500 after the resurrected detection flipped it red on the main lane; this row and the pin it refreshes are the record half of the dance, returning the steady state to 'pin freshness verified on main' for the first time in the repository's history) | #496 | 2026-10-21 | `003123d0da` |
 
 ## 6. CI / Supply chain
 
