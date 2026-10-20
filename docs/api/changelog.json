@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-19T23:53:51Z",
+  "as_of": "2026-10-20T15:25:43Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 211,
+  "unreleased_count": 212,
   "versions": [
     {
       "version": "Unreleased",
@@ -1526,6 +1526,642 @@
                 "sha": "0bf9c4552a016de1a252a34a71531ef18332e001",
                 "short_sha": "0bf9c45",
                 "subject": "style(tests): apply the formatter and rector passes to the escape-killing tests"
+              }
+            ]
+          },
+          {
+            "pr": 444,
+            "title": "feat(errors): harden enterprise error handling",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-20T15:25:43Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/444",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "625c53a07584757e28bc05769211d3638a431c20",
+                "short_sha": "625c53a",
+                "subject": "feat(errors): harden enterprise error handling"
+              },
+              {
+                "sha": "84be37f3eb95e104bbc1e5447e3a297d07eddfce",
+                "short_sha": "84be37f",
+                "subject": "fix(logging): correct namespace declarations"
+              },
+              {
+                "sha": "4f60a49292bb2618b9163c91cb5be057f37ff35c",
+                "short_sha": "4f60a49",
+                "subject": "test(logging): fix document-root test syntax"
+              },
+              {
+                "sha": "288cb18d6913158f0cec254f7678c37866fe29ef",
+                "short_sha": "288cb18",
+                "subject": "fix(errors): normalize generated codes for anonymous exceptions"
+              },
+              {
+                "sha": "d7659c835ebae914aa06000fe018f17bc1c67c8f",
+                "short_sha": "d7659c8",
+                "subject": "fix(errors): redact and bound all disclosed exception messages"
+              },
+              {
+                "sha": "b491bfc576f0ad9a98ee64c7b40b14cac4291a5f",
+                "short_sha": "b491bfc",
+                "subject": "docs(errors): describe the actual response fallback boundary"
+              },
+              {
+                "sha": "3288923a69502e1dd9e74297d7609ca1b675c84c",
+                "short_sha": "3288923",
+                "subject": "security(replay): require exact structured content types"
+              },
+              {
+                "sha": "fa3748b828b6e582adfc06c4836dc83c4bdc5b12",
+                "short_sha": "fa3748b",
+                "subject": "test(errors): cover message disclosure and coverage imports"
+              },
+              {
+                "sha": "c6154cfef703b358f772ae9792fefbf62fc74b06",
+                "short_sha": "c6154cf",
+                "subject": "test(kernel): assert default error services are registered"
+              },
+              {
+                "sha": "2d683a14686240e1efacc8a73d31ef5b8e24f0a3",
+                "short_sha": "2d683a1",
+                "subject": "test(kernel): account for default error middleware"
+              },
+              {
+                "sha": "2d20c315a85aeb7e9aaba8986d55eea9faea1358",
+                "short_sha": "2d20c31",
+                "subject": "test(kernel): account for default error middleware"
+              },
+              {
+                "sha": "2fd306fca8815ef02feb06d66152cdae098d9241",
+                "short_sha": "2fd306f",
+                "subject": "test(kernel): account for default error middleware"
+              },
+              {
+                "sha": "1a4a372f890afd96e7ca2e6159e1d666c42e3245",
+                "short_sha": "1a4a372",
+                "subject": "test(kernel): account for default error middleware"
+              },
+              {
+                "sha": "d501a9328c94f70f5ea18a1c20273b60328e3949",
+                "short_sha": "d501a93",
+                "subject": "test(logging): assert nested context truncation by contract"
+              },
+              {
+                "sha": "4d1cc3992f6f72751f8787bd0c7a8c1b4a65856d",
+                "short_sha": "4d1cc39",
+                "subject": "test(errors): declare replay coverage targets"
+              },
+              {
+                "sha": "9ab2764a51929deea091b5d3fb7aa0370bff3d98",
+                "short_sha": "9ab2764",
+                "subject": "test(replay): reject deceptive content type substrings"
+              },
+              {
+                "sha": "e66ca46706639e8bde7e8b205b2cf3dd9aa02c78",
+                "short_sha": "e66ca46",
+                "subject": "refactor(replay): isolate bounded stream reading"
+              },
+              {
+                "sha": "70de9f4fd3866c22fc2417c327ac48d9b91c545f",
+                "short_sha": "70de9f4",
+                "subject": "refactor(replay): isolate structured body capture"
+              },
+              {
+                "sha": "0474fcf5631177e223655a48a2215b97a80c86cf",
+                "short_sha": "0474fcf",
+                "subject": "refactor(replay): delegate body capture to focused collaborators"
+              },
+              {
+                "sha": "08cd8defe651ca4ed616c0f454fec10eaf73eb36",
+                "short_sha": "08cd8de",
+                "subject": "refactor(logging): isolate destination validation"
+              },
+              {
+                "sha": "f365b7760d1d712928ea67da4fc58e3ed2c74f0d",
+                "short_sha": "f365b77",
+                "subject": "refactor(logging): isolate locked JSONL writes"
+              },
+              {
+                "sha": "e126fb46aba94f7911704549b2aa16b310ec0eaa",
+                "short_sha": "e126fb4",
+                "subject": "refactor(logging): delegate destination and write mechanics"
+              },
+              {
+                "sha": "d18d1763565e5ac27ad7dfa4227fde67616e689e",
+                "short_sha": "d18d176",
+                "subject": "fix(replay): use valid throwable fallback"
+              },
+              {
+                "sha": "6386b068bd56b3f60de26d44f9be87d3a95be084",
+                "short_sha": "6386b06",
+                "subject": "refactor(http): isolate Accept header parsing"
+              },
+              {
+                "sha": "830aaf2fbfe3eaab130c05d22986b2bd941f0b87",
+                "short_sha": "830aaf2",
+                "subject": "refactor(http): simplify error content negotiation"
+              },
+              {
+                "sha": "618c20997835af392432f7f911961806d5bd3cb0",
+                "short_sha": "618c209",
+                "subject": "refactor(errors): add immutable HTML render context"
+              },
+              {
+                "sha": "d3be25715db91733a14fa464aa5f5949dd449cd0",
+                "short_sha": "d3be257",
+                "subject": "refactor(errors): isolate Problem Details JSON payload rendering"
+              },
+              {
+                "sha": "54276a341d1a2f14492c40d2c427b34f5787de15",
+                "short_sha": "54276a3",
+                "subject": "refactor(errors): centralize shared error response headers"
+              },
+              {
+                "sha": "8fca332bb64063b58758c677131b4f76e816b634",
+                "short_sha": "8fca332",
+                "subject": "refactor(errors): use a render context instead of nine parameters"
+              },
+              {
+                "sha": "4f7a87921b715f20b76a8e145152e165fdf2f65e",
+                "short_sha": "4f7a879",
+                "subject": "refactor(errors): split response rendering and harden trace IDs"
+              },
+              {
+                "sha": "a6038e0a374c99b84c2a370b57163ce18833e7c2",
+                "short_sha": "a6038e0",
+                "subject": "refactor(errors): centralize trace ID resolution"
+              },
+              {
+                "sha": "5ce09c865c83dfd3b90f34e2bc79c91179800460",
+                "short_sha": "5ce09c8",
+                "subject": "refactor(errors): isolate error severity policy"
+              },
+              {
+                "sha": "dc3f95508fb86e1007b4404b5f39b04d59664434",
+                "short_sha": "dc3f955",
+                "subject": "refactor(errors): isolate best-effort error metrics"
+              },
+              {
+                "sha": "bf342ded269e38b1b5ac1e67beb1fbdd6481b339",
+                "short_sha": "bf342de",
+                "subject": "refactor(errors): isolate safe error log context"
+              },
+              {
+                "sha": "c7b825957416390b3af23e3d09a9e47497d3f15f",
+                "short_sha": "c7b8259",
+                "subject": "refactor(errors): isolate error log fallback"
+              },
+              {
+                "sha": "e99adac140e0fa953a58b4133f3f60a200444557",
+                "short_sha": "e99adac",
+                "subject": "refactor(errors): compose recorder from focused collaborators"
+              },
+              {
+                "sha": "fc4cc5c0412d3967d6cc37f9a9c9d01e3074ef30",
+                "short_sha": "fc4cc5c",
+                "subject": "refactor(errors): reuse validated trace ID resolver"
+              },
+              {
+                "sha": "cbca552efee51a4de0eefa83801672bd2f3406bd",
+                "short_sha": "cbca552",
+                "subject": "refactor(debug): isolate toolbar response eligibility"
+              },
+              {
+                "sha": "0d405c5279151ddb289c9274c872023b7ea1794b",
+                "short_sha": "0d405c5",
+                "subject": "refactor(debug): isolate safe HTML toolbar injection"
+              },
+              {
+                "sha": "246330021b96a4872eeb5f32496dd7e95cb93ecb",
+                "short_sha": "2463300",
+                "subject": "refactor(debug): compose toolbar middleware from focused collaborators"
+              },
+              {
+                "sha": "30b309e424855960e5fc77a1614bdf47cc358f56",
+                "short_sha": "30b309e",
+                "subject": "style(errors): remove unused exception import"
+              },
+              {
+                "sha": "0b8d93e4cdd9d4f589c6c9ca67926ed8a32f8eec",
+                "short_sha": "0b8d93e",
+                "subject": "fix(debug): retain request duration without shared context"
+              },
+              {
+                "sha": "cdd792df450af0adcf5236086d282a3f7335f476",
+                "short_sha": "cdd792d",
+                "subject": "test(errors): cover collaborators and invalid extension trace IDs"
+              },
+              {
+                "sha": "25c540509df9606c5a57e75b597e0c0d864768bc",
+                "short_sha": "25c5405",
+                "subject": "test(replay): include focused body capture collaborators in coverage"
+              },
+              {
+                "sha": "57f63cdf7163d8d3466ad6d43f2b5ea5f1e311c7",
+                "short_sha": "57f63cd",
+                "subject": "test(logging): include destination and writer collaborators in coverage"
+              },
+              {
+                "sha": "230527f1801dcd66b7af34e8e9ffd60ac19802fe",
+                "short_sha": "230527f",
+                "subject": "test(debug): include toolbar collaborators in coverage"
+              },
+              {
+                "sha": "10e18c264929a967a49eb6bcaa7682d2dcb116ba",
+                "short_sha": "10e18c2",
+                "subject": "test(errors): import all covered collaborator classes"
+              },
+              {
+                "sha": "ce5130528265d75958d4fef6a3028708fff921a1",
+                "short_sha": "ce51305",
+                "subject": "test(replay): import body capture coverage targets"
+              },
+              {
+                "sha": "6ad405f5ba2928149eb2b764ef2c380430addbb7",
+                "short_sha": "6ad405f",
+                "subject": "test(logging): import destination and writer coverage targets"
+              },
+              {
+                "sha": "a634e118797d2c604df186f40c3bea7feb7a0368",
+                "short_sha": "a634e11",
+                "subject": "test(debug): import toolbar collaborator coverage targets"
+              },
+              {
+                "sha": "2b7166047622ac759a9827acf061937c3f977791",
+                "short_sha": "2b71660",
+                "subject": "fix(http): honor the most-specific Accept media range"
+              },
+              {
+                "sha": "aecdaab7b337776531340df82f7b16de4264ba90",
+                "short_sha": "aecdaab",
+                "subject": "security(logging): fail closed when document root cannot be resolved"
+              },
+              {
+                "sha": "830d9ded4900c23d699f2e3b81dea2c224f188b9",
+                "short_sha": "830d9de",
+                "subject": "refactor(replay): isolate storage directory policy"
+              },
+              {
+                "sha": "48f2297c1c255fcf4baed0c0b6501957a8517e4c",
+                "short_sha": "48f2297",
+                "subject": "refactor(replay): isolate secure snapshot writes"
+              },
+              {
+                "sha": "4c7a711cd44a748127144f66e6ecdcc73111b521",
+                "short_sha": "4c7a711",
+                "subject": "refactor(replay): delegate storage policy and snapshot writes"
+              },
+              {
+                "sha": "03bcc635f22814b890d925154c3a4138c6bf0940",
+                "short_sha": "03bcc63",
+                "subject": "style(replay): remove obsolete body capture declarations"
+              },
+              {
+                "sha": "4e11a6fd97434dcd429f05fae4a7454ae00ba816",
+                "short_sha": "4e11a6f",
+                "subject": "test(replay): include storage collaborators in coverage"
+              },
+              {
+                "sha": "775b65942093657e70003b1267c6626eb22c43c4",
+                "short_sha": "775b659",
+                "subject": "fix(errors): contain failures inside the fault recorder"
+              },
+              {
+                "sha": "ff9050f14663ca28847fcf6cf1fcc8b82057b1dd",
+                "short_sha": "ff9050f",
+                "subject": "fix(errors): fall back safely when status mapping itself fails"
+              },
+              {
+                "sha": "ec43a99dc77ba30bf0f0ac7772e5119d33cc4cd9",
+                "short_sha": "ec43a99",
+                "subject": "style(errors): import runtime exception fallback"
+              },
+              {
+                "sha": "5bc952dd20cf5837c5262c7309d595f67ca3cb44",
+                "short_sha": "5bc952d",
+                "subject": "test(errors): cover malformed negotiation and telemetry failures"
+              },
+              {
+                "sha": "1bd13d878d3ff1d826b7f5ec80f95be98d73fb3b",
+                "short_sha": "1bd13d8",
+                "subject": "test(replay): cover private directory and invalid document root"
+              },
+              {
+                "sha": "54673f43570f46ed7d8c9e04e6749ec41623de1e",
+                "short_sha": "54673f4",
+                "subject": "test(logging): cover invalid document root configuration"
+              },
+              {
+                "sha": "0a563e830f0ab2e8d1ffe3a2197b2e68e385f80c",
+                "short_sha": "0a563e8",
+                "subject": "test: fix fully qualified exception syntax"
+              },
+              {
+                "sha": "6c26c84d20b1bdf44801c446cf1c7efc301f0a94",
+                "short_sha": "6c26c84",
+                "subject": "test: fix fully qualified exception syntax"
+              },
+              {
+                "sha": "ef88976deede0e0a0c25db0c5fe807a8d7362467",
+                "short_sha": "ef88976",
+                "subject": "security(logging): minimize personal data in error context"
+              },
+              {
+                "sha": "0cc48f8a8572510183587841df92577e2179ada3",
+                "short_sha": "0cc48f8",
+                "subject": "security(logging): avoid raw exception objects in fallback records"
+              },
+              {
+                "sha": "8fec04ca65fd85f73ce5351a22c2909b520fc856",
+                "short_sha": "8fec04c",
+                "subject": "test(logging): assert raw exception objects are not logged"
+              },
+              {
+                "sha": "07dc249eb26c4a216cdc58277c24e86886fa19a8",
+                "short_sha": "07dc249",
+                "subject": "docs(errors): document identifier, privacy, CSP and storage guarantees"
+              },
+              {
+                "sha": "4aa6d152180b2a51ae82c54eb4338aacd35ace5d",
+                "short_sha": "4aa6d15",
+                "subject": "test(errors): align assertions with redacted logs and legacy codes"
+              },
+              {
+                "sha": "377c935f859ddd326ffbdc3c455d39baf27cc6d3",
+                "short_sha": "377c935",
+                "subject": "fix(logging): mark PSR-3 interface implementations"
+              },
+              {
+                "sha": "3fa0935c58a8f7e23d579ed84d7eeca7d248ca8c",
+                "short_sha": "3fa0935",
+                "subject": "fix(errors): remove redundant media-range type check"
+              },
+              {
+                "sha": "0a000a97b910f4dc9f4e7416369868e5747419ec",
+                "short_sha": "0a000a9",
+                "subject": "fix(errors): avoid overwriting replay snapshot placeholder"
+              },
+              {
+                "sha": "1bda5d3051e0f12ac659888520caee4fff31a1de",
+                "short_sha": "1bda5d3",
+                "subject": "fix(errors): normalize monotonic clock reading to integer"
+              },
+              {
+                "sha": "48d162b6d4c06d1f54df9316c07064c5c46c526b",
+                "short_sha": "48d162b",
+                "subject": "test(errors): annotate PHPUnit lifecycle overrides"
+              },
+              {
+                "sha": "578d3bfca73ff3a7cbb07cc6e2b4041a7db6a4ad",
+                "short_sha": "578d3bf",
+                "subject": "test(logging): annotate PHPUnit teardown override"
+              },
+              {
+                "sha": "2a7f5a34040c89a0562ab232ff86451bdde84625",
+                "short_sha": "2a7f5a3",
+                "subject": "fix(errors): remove redundant fallback encoding cast"
+              },
+              {
+                "sha": "d2ab26d2c5174462965cde33ed2615c8f75de794",
+                "short_sha": "d2ab26d",
+                "subject": "test(errors): import Override attribute explicitly"
+              },
+              {
+                "sha": "66526e318616ab08e0b6b010bda33b6935ebfd98",
+                "short_sha": "66526e3",
+                "subject": "test(logging): import Override attribute explicitly"
+              },
+              {
+                "sha": "5829f841221259d22bd5c19f829e1004c95882cc",
+                "short_sha": "5829f84",
+                "subject": "fix(debug-toolbar): preserve application content security policy"
+              },
+              {
+                "sha": "f9f10f1aad327b38f32ea16c2bfd4315688e7d16",
+                "short_sha": "f9f10f1",
+                "subject": "test(debug-toolbar): cover existing CSP preservation"
+              },
+              {
+                "sha": "5b1b988cb8273290fc77e3c416f5e365001fa45e",
+                "short_sha": "5b1b988",
+                "subject": "test(errors): remove suppressed filesystem operations"
+              },
+              {
+                "sha": "54e90ad906bd23cc7c2316e241679f0a7ff19f51",
+                "short_sha": "54e90ad",
+                "subject": "fix(errors): preserve response type across PSR-7 header updates"
+              },
+              {
+                "sha": "dc6348f28468ed8284beb06b141e0640004a2cec",
+                "short_sha": "dc6348f",
+                "subject": "fix(debug-toolbar): guard PSR-7 response type after body injection"
+              },
+              {
+                "sha": "8b78d05f6d6cef0491d87f4a43fc63bf53a15e59",
+                "short_sha": "8b78d05",
+                "subject": "fix(replay): make snapshot cleanup failure explicit"
+              },
+              {
+                "sha": "8e22e123ee945b3ee7e2e41db6a240dd87b7691e",
+                "short_sha": "8e22e12",
+                "subject": "fix(logging): constrain rollback offset to non-negative file size"
+              },
+              {
+                "sha": "7441eab575065eb65bbec1435df0adb78a229c2d",
+                "short_sha": "7441eab",
+                "subject": "fix(errors): simplify guaranteed replay lock release"
+              },
+              {
+                "sha": "c2135d1f3bbecc97e02aa2c3ff968ca2388f6de7",
+                "short_sha": "c2135d1",
+                "subject": "fix(logging): bound rollback size for PHPStan"
+              },
+              {
+                "sha": "2ee802ad4a6195df3039800baa19f5457015b653",
+                "short_sha": "2ee802a",
+                "subject": "test(errors): tighten static types and override contracts"
+              },
+              {
+                "sha": "7cb4687479a4e96630fb60d81dcc7b1fc264a202",
+                "short_sha": "7cb4687",
+                "subject": "test(errors): tighten static types and override contracts"
+              },
+              {
+                "sha": "e95a7f4a54c6a4854220158a69e07b66ff91ee61",
+                "short_sha": "e95a7f4",
+                "subject": "test(errors): tighten static types and override contracts"
+              },
+              {
+                "sha": "4226ecb88119b05090b681ded0c3d86bdcb87437",
+                "short_sha": "4226ecb",
+                "subject": "test(errors): narrow HEAD request to server request contract"
+              },
+              {
+                "sha": "09e8a591f6192256a2c18c7c5500e7b4d8d37189",
+                "short_sha": "09e8a59",
+                "subject": "Merge branch 'main' into feat/enterprise-error-handling_v3"
+              },
+              {
+                "sha": "bbc19df75834e75186044dbf1c37bc988c5851ba",
+                "short_sha": "bbc19df",
+                "subject": "test(errors): satisfy the strict static analyser"
+              },
+              {
+                "sha": "f0f74255943586278492e55f2130fef86c98357f",
+                "short_sha": "f0f7425",
+                "subject": "refactor(http): share the stream snapshot capture"
+              },
+              {
+                "sha": "79e92c426bebd846c1ab8127455f83cb139a2724",
+                "short_sha": "79e92c4",
+                "subject": "refactor(debug): isolate the toolbar markup and body splice"
+              },
+              {
+                "sha": "f506dfa2ba498c27da95fcf7615c1fd37679a57a",
+                "short_sha": "f506dfa",
+                "subject": "style(errors): satisfy the formatter across the draft tree"
+              },
+              {
+                "sha": "a0afaffc93053bad318940fe0c32d777414abad6",
+                "short_sha": "a0afaff",
+                "subject": "refactor(logging): isolate the JSONL line, file security and destination policies"
+              },
+              {
+                "sha": "4b41eb92a4fc53a246f58c351d917cd05b0c8019",
+                "short_sha": "4b41eb9",
+                "subject": "refactor(errors): move the boundary face to the middleware composition lane"
+              },
+              {
+                "sha": "4a222cbf5a5f0a254bd9c586c4e96f58f0ad378f",
+                "short_sha": "4a222cb",
+                "subject": "test(errors): satisfy psalm without growing the frozen baseline"
+              },
+              {
+                "sha": "bf2aa8886bb5b00ce4bbc5b3540476d5244d5ff4",
+                "short_sha": "bf2aa88",
+                "subject": "Merge branch 'main' into feat/enterprise-error-handling_v5"
+              },
+              {
+                "sha": "9edd0824a6bcf32cc1b2546f0e0dc2d9c7c919cc",
+                "short_sha": "9edd082",
+                "subject": "refactor(errors): answer the sonar round without weakening a single gate"
+              },
+              {
+                "sha": "f7597dfea0e9bb5cf8afabec1a7a1347cbe2fa54",
+                "short_sha": "f7597df",
+                "subject": "test(errors): keep the battery's last-resort SAPI writes off real stderr"
+              },
+              {
+                "sha": "df0edcb8bae237f58ed51cf4217e48ca7107527a",
+                "short_sha": "df0edcb",
+                "subject": "fix(errors): settle the second CI round -- difficulty splits, the cycle, and two stragglers"
+              },
+              {
+                "sha": "df6e390ad7ec4ce7d22ca49b7f3280ff83097460",
+                "short_sha": "df6e390",
+                "subject": "style(errors): settle the rector round the CI lanes finally reached"
+              },
+              {
+                "sha": "484e71b58f07c9568cef9045623d37e787ac3fe0",
+                "short_sha": "484e71b",
+                "subject": "refactor(debug): settle the sonar round's last straggler"
+              },
+              {
+                "sha": "e3389a62cb53b6d4b598618674085f260b9a3a3a",
+                "short_sha": "e3389a6",
+                "subject": "style(errors): sweep the rector round's phpcs stragglers"
+              },
+              {
+                "sha": "69bacc3fe426566c20ac3a9885905e0bfd8a52c2",
+                "short_sha": "69bacc3",
+                "subject": "test(errors): pin the error lane's presentation and replay contracts"
+              },
+              {
+                "sha": "6d5c368948b6fa30257adad092b252401a53abd3",
+                "short_sha": "6d5c368",
+                "subject": "test(errors): pin the accept parser, log sanitizer, and fault facts"
+              },
+              {
+                "sha": "b0cdc6d71f3f5ff0d34fe5d0cfb6892db7b66ccf",
+                "short_sha": "b0cdc6d",
+                "subject": "fix(errors): keep the coverage and coding-standard lanes over the fixtures"
+              },
+              {
+                "sha": "6298f47b65170df5f827431e208a481f8553d846",
+                "short_sha": "6298f47",
+                "subject": "fix(errors): keep the coding standard's ruleset a valid XML document"
+              },
+              {
+                "sha": "de7ea9ff7c25cdff13352907f43ba29564aaef07",
+                "short_sha": "de7ea9f",
+                "subject": "style(errors): adopt the engine's own names for the new fixtures and providers"
+              },
+              {
+                "sha": "c66ebd2f6b152831be7fa20082a3ef067f7b3137",
+                "short_sha": "c66ebd2",
+                "subject": "test(errors): pin the replay writer, log security, and the toolbar clock"
+              },
+              {
+                "sha": "f28a59d60fa7ecf34011d19b007b1aa3afc07ff6",
+                "short_sha": "f28a59d",
+                "subject": "fix(errors): keep the size-clamp ignore a matchable regex"
+              },
+              {
+                "sha": "6e7e19c89d3785a25c7caa410b673d2650bd7140",
+                "short_sha": "6e7e19c",
+                "subject": "test(errors): pin the remaining replay clusters and simplify the writer's double"
+              },
+              {
+                "sha": "3b7c5cf6e10cacdeaa1c2ded981bc3a9aacc1235",
+                "short_sha": "3b7c5cf",
+                "subject": "fix(errors): let the boundary's encode double narrow like the global"
+              },
+              {
+                "sha": "9861eb6c7b32744ff56812df94e929dbff378ebf",
+                "short_sha": "9861eb6",
+                "subject": "fix(errors): keep the coding standard over the new doubles and batteries"
+              },
+              {
+                "sha": "465f0fa20e8a2f9f006569a86c5dbd650f892951",
+                "short_sha": "465f0fa",
+                "subject": "test(errors): pin the key gate, the negotiator arithmetic, and the clamps"
+              },
+              {
+                "sha": "0e23e98e5a97bd4eeeea40a92a25c50742b2e69f",
+                "short_sha": "0e23e98",
+                "subject": "refactor(errors): let the negotiator's comparison carry the whole contract"
+              },
+              {
+                "sha": "981d9744c441a2c42423094e7726dd6ac3d7085d",
+                "short_sha": "981d974",
+                "subject": "test(errors): pin the toolbar guard table and the mapping fallback"
+              },
+              {
+                "sha": "1e36b425ceed3c059999b165803519e940fe3f3c",
+                "short_sha": "1e36b42",
+                "subject": "test(errors): pin the log line's lock, walk, and stamp contracts"
+              },
+              {
+                "sha": "ac93773dcc73dea13e58d4689cab9092e9c9c116",
+                "short_sha": "ac93773",
+                "subject": "test(errors): pin the trace resolution and the envelope's detail gates"
+              },
+              {
+                "sha": "21b00f59da14d0bdaae1fbf1f878e72e22a9f2e2",
+                "short_sha": "21b00f5",
+                "subject": "style(errors): keep the coding standard's line length over the new batteries"
+              },
+              {
+                "sha": "8418e902b1a94ed53fc369c5f8ac28a65ad31af5",
+                "short_sha": "8418e90",
+                "subject": "test(errors): pin the record rollback's zero clamp on both edges"
+              },
+              {
+                "sha": "899860c11386d13766e2c6f60c108a5af5f1dd89",
+                "short_sha": "899860c",
+                "subject": "Merge branch 'main' into feat/enterprise-error-handling_v3"
               }
             ]
           },
@@ -10257,6 +10893,642 @@
               "sha": "b03007a4908670e95974c6eb7c887d5e5a8cf490",
               "short_sha": "b03007a",
               "subject": "docs(roadmap): keep the pin tables pipe-safe and count the merged total"
+            }
+          ]
+        },
+        {
+          "pr": 444,
+          "title": "feat(errors): harden enterprise error handling",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-20T15:25:43Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/444",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "625c53a07584757e28bc05769211d3638a431c20",
+              "short_sha": "625c53a",
+              "subject": "feat(errors): harden enterprise error handling"
+            },
+            {
+              "sha": "84be37f3eb95e104bbc1e5447e3a297d07eddfce",
+              "short_sha": "84be37f",
+              "subject": "fix(logging): correct namespace declarations"
+            },
+            {
+              "sha": "4f60a49292bb2618b9163c91cb5be057f37ff35c",
+              "short_sha": "4f60a49",
+              "subject": "test(logging): fix document-root test syntax"
+            },
+            {
+              "sha": "288cb18d6913158f0cec254f7678c37866fe29ef",
+              "short_sha": "288cb18",
+              "subject": "fix(errors): normalize generated codes for anonymous exceptions"
+            },
+            {
+              "sha": "d7659c835ebae914aa06000fe018f17bc1c67c8f",
+              "short_sha": "d7659c8",
+              "subject": "fix(errors): redact and bound all disclosed exception messages"
+            },
+            {
+              "sha": "b491bfc576f0ad9a98ee64c7b40b14cac4291a5f",
+              "short_sha": "b491bfc",
+              "subject": "docs(errors): describe the actual response fallback boundary"
+            },
+            {
+              "sha": "3288923a69502e1dd9e74297d7609ca1b675c84c",
+              "short_sha": "3288923",
+              "subject": "security(replay): require exact structured content types"
+            },
+            {
+              "sha": "fa3748b828b6e582adfc06c4836dc83c4bdc5b12",
+              "short_sha": "fa3748b",
+              "subject": "test(errors): cover message disclosure and coverage imports"
+            },
+            {
+              "sha": "c6154cfef703b358f772ae9792fefbf62fc74b06",
+              "short_sha": "c6154cf",
+              "subject": "test(kernel): assert default error services are registered"
+            },
+            {
+              "sha": "2d683a14686240e1efacc8a73d31ef5b8e24f0a3",
+              "short_sha": "2d683a1",
+              "subject": "test(kernel): account for default error middleware"
+            },
+            {
+              "sha": "2d20c315a85aeb7e9aaba8986d55eea9faea1358",
+              "short_sha": "2d20c31",
+              "subject": "test(kernel): account for default error middleware"
+            },
+            {
+              "sha": "2fd306fca8815ef02feb06d66152cdae098d9241",
+              "short_sha": "2fd306f",
+              "subject": "test(kernel): account for default error middleware"
+            },
+            {
+              "sha": "1a4a372f890afd96e7ca2e6159e1d666c42e3245",
+              "short_sha": "1a4a372",
+              "subject": "test(kernel): account for default error middleware"
+            },
+            {
+              "sha": "d501a9328c94f70f5ea18a1c20273b60328e3949",
+              "short_sha": "d501a93",
+              "subject": "test(logging): assert nested context truncation by contract"
+            },
+            {
+              "sha": "4d1cc3992f6f72751f8787bd0c7a8c1b4a65856d",
+              "short_sha": "4d1cc39",
+              "subject": "test(errors): declare replay coverage targets"
+            },
+            {
+              "sha": "9ab2764a51929deea091b5d3fb7aa0370bff3d98",
+              "short_sha": "9ab2764",
+              "subject": "test(replay): reject deceptive content type substrings"
+            },
+            {
+              "sha": "e66ca46706639e8bde7e8b205b2cf3dd9aa02c78",
+              "short_sha": "e66ca46",
+              "subject": "refactor(replay): isolate bounded stream reading"
+            },
+            {
+              "sha": "70de9f4fd3866c22fc2417c327ac48d9b91c545f",
+              "short_sha": "70de9f4",
+              "subject": "refactor(replay): isolate structured body capture"
+            },
+            {
+              "sha": "0474fcf5631177e223655a48a2215b97a80c86cf",
+              "short_sha": "0474fcf",
+              "subject": "refactor(replay): delegate body capture to focused collaborators"
+            },
+            {
+              "sha": "08cd8defe651ca4ed616c0f454fec10eaf73eb36",
+              "short_sha": "08cd8de",
+              "subject": "refactor(logging): isolate destination validation"
+            },
+            {
+              "sha": "f365b7760d1d712928ea67da4fc58e3ed2c74f0d",
+              "short_sha": "f365b77",
+              "subject": "refactor(logging): isolate locked JSONL writes"
+            },
+            {
+              "sha": "e126fb46aba94f7911704549b2aa16b310ec0eaa",
+              "short_sha": "e126fb4",
+              "subject": "refactor(logging): delegate destination and write mechanics"
+            },
+            {
+              "sha": "d18d1763565e5ac27ad7dfa4227fde67616e689e",
+              "short_sha": "d18d176",
+              "subject": "fix(replay): use valid throwable fallback"
+            },
+            {
+              "sha": "6386b068bd56b3f60de26d44f9be87d3a95be084",
+              "short_sha": "6386b06",
+              "subject": "refactor(http): isolate Accept header parsing"
+            },
+            {
+              "sha": "830aaf2fbfe3eaab130c05d22986b2bd941f0b87",
+              "short_sha": "830aaf2",
+              "subject": "refactor(http): simplify error content negotiation"
+            },
+            {
+              "sha": "618c20997835af392432f7f911961806d5bd3cb0",
+              "short_sha": "618c209",
+              "subject": "refactor(errors): add immutable HTML render context"
+            },
+            {
+              "sha": "d3be25715db91733a14fa464aa5f5949dd449cd0",
+              "short_sha": "d3be257",
+              "subject": "refactor(errors): isolate Problem Details JSON payload rendering"
+            },
+            {
+              "sha": "54276a341d1a2f14492c40d2c427b34f5787de15",
+              "short_sha": "54276a3",
+              "subject": "refactor(errors): centralize shared error response headers"
+            },
+            {
+              "sha": "8fca332bb64063b58758c677131b4f76e816b634",
+              "short_sha": "8fca332",
+              "subject": "refactor(errors): use a render context instead of nine parameters"
+            },
+            {
+              "sha": "4f7a87921b715f20b76a8e145152e165fdf2f65e",
+              "short_sha": "4f7a879",
+              "subject": "refactor(errors): split response rendering and harden trace IDs"
+            },
+            {
+              "sha": "a6038e0a374c99b84c2a370b57163ce18833e7c2",
+              "short_sha": "a6038e0",
+              "subject": "refactor(errors): centralize trace ID resolution"
+            },
+            {
+              "sha": "5ce09c865c83dfd3b90f34e2bc79c91179800460",
+              "short_sha": "5ce09c8",
+              "subject": "refactor(errors): isolate error severity policy"
+            },
+            {
+              "sha": "dc3f95508fb86e1007b4404b5f39b04d59664434",
+              "short_sha": "dc3f955",
+              "subject": "refactor(errors): isolate best-effort error metrics"
+            },
+            {
+              "sha": "bf342ded269e38b1b5ac1e67beb1fbdd6481b339",
+              "short_sha": "bf342de",
+              "subject": "refactor(errors): isolate safe error log context"
+            },
+            {
+              "sha": "c7b825957416390b3af23e3d09a9e47497d3f15f",
+              "short_sha": "c7b8259",
+              "subject": "refactor(errors): isolate error log fallback"
+            },
+            {
+              "sha": "e99adac140e0fa953a58b4133f3f60a200444557",
+              "short_sha": "e99adac",
+              "subject": "refactor(errors): compose recorder from focused collaborators"
+            },
+            {
+              "sha": "fc4cc5c0412d3967d6cc37f9a9c9d01e3074ef30",
+              "short_sha": "fc4cc5c",
+              "subject": "refactor(errors): reuse validated trace ID resolver"
+            },
+            {
+              "sha": "cbca552efee51a4de0eefa83801672bd2f3406bd",
+              "short_sha": "cbca552",
+              "subject": "refactor(debug): isolate toolbar response eligibility"
+            },
+            {
+              "sha": "0d405c5279151ddb289c9274c872023b7ea1794b",
+              "short_sha": "0d405c5",
+              "subject": "refactor(debug): isolate safe HTML toolbar injection"
+            },
+            {
+              "sha": "246330021b96a4872eeb5f32496dd7e95cb93ecb",
+              "short_sha": "2463300",
+              "subject": "refactor(debug): compose toolbar middleware from focused collaborators"
+            },
+            {
+              "sha": "30b309e424855960e5fc77a1614bdf47cc358f56",
+              "short_sha": "30b309e",
+              "subject": "style(errors): remove unused exception import"
+            },
+            {
+              "sha": "0b8d93e4cdd9d4f589c6c9ca67926ed8a32f8eec",
+              "short_sha": "0b8d93e",
+              "subject": "fix(debug): retain request duration without shared context"
+            },
+            {
+              "sha": "cdd792df450af0adcf5236086d282a3f7335f476",
+              "short_sha": "cdd792d",
+              "subject": "test(errors): cover collaborators and invalid extension trace IDs"
+            },
+            {
+              "sha": "25c540509df9606c5a57e75b597e0c0d864768bc",
+              "short_sha": "25c5405",
+              "subject": "test(replay): include focused body capture collaborators in coverage"
+            },
+            {
+              "sha": "57f63cdf7163d8d3466ad6d43f2b5ea5f1e311c7",
+              "short_sha": "57f63cd",
+              "subject": "test(logging): include destination and writer collaborators in coverage"
+            },
+            {
+              "sha": "230527f1801dcd66b7af34e8e9ffd60ac19802fe",
+              "short_sha": "230527f",
+              "subject": "test(debug): include toolbar collaborators in coverage"
+            },
+            {
+              "sha": "10e18c264929a967a49eb6bcaa7682d2dcb116ba",
+              "short_sha": "10e18c2",
+              "subject": "test(errors): import all covered collaborator classes"
+            },
+            {
+              "sha": "ce5130528265d75958d4fef6a3028708fff921a1",
+              "short_sha": "ce51305",
+              "subject": "test(replay): import body capture coverage targets"
+            },
+            {
+              "sha": "6ad405f5ba2928149eb2b764ef2c380430addbb7",
+              "short_sha": "6ad405f",
+              "subject": "test(logging): import destination and writer coverage targets"
+            },
+            {
+              "sha": "a634e118797d2c604df186f40c3bea7feb7a0368",
+              "short_sha": "a634e11",
+              "subject": "test(debug): import toolbar collaborator coverage targets"
+            },
+            {
+              "sha": "2b7166047622ac759a9827acf061937c3f977791",
+              "short_sha": "2b71660",
+              "subject": "fix(http): honor the most-specific Accept media range"
+            },
+            {
+              "sha": "aecdaab7b337776531340df82f7b16de4264ba90",
+              "short_sha": "aecdaab",
+              "subject": "security(logging): fail closed when document root cannot be resolved"
+            },
+            {
+              "sha": "830d9ded4900c23d699f2e3b81dea2c224f188b9",
+              "short_sha": "830d9de",
+              "subject": "refactor(replay): isolate storage directory policy"
+            },
+            {
+              "sha": "48f2297c1c255fcf4baed0c0b6501957a8517e4c",
+              "short_sha": "48f2297",
+              "subject": "refactor(replay): isolate secure snapshot writes"
+            },
+            {
+              "sha": "4c7a711cd44a748127144f66e6ecdcc73111b521",
+              "short_sha": "4c7a711",
+              "subject": "refactor(replay): delegate storage policy and snapshot writes"
+            },
+            {
+              "sha": "03bcc635f22814b890d925154c3a4138c6bf0940",
+              "short_sha": "03bcc63",
+              "subject": "style(replay): remove obsolete body capture declarations"
+            },
+            {
+              "sha": "4e11a6fd97434dcd429f05fae4a7454ae00ba816",
+              "short_sha": "4e11a6f",
+              "subject": "test(replay): include storage collaborators in coverage"
+            },
+            {
+              "sha": "775b65942093657e70003b1267c6626eb22c43c4",
+              "short_sha": "775b659",
+              "subject": "fix(errors): contain failures inside the fault recorder"
+            },
+            {
+              "sha": "ff9050f14663ca28847fcf6cf1fcc8b82057b1dd",
+              "short_sha": "ff9050f",
+              "subject": "fix(errors): fall back safely when status mapping itself fails"
+            },
+            {
+              "sha": "ec43a99dc77ba30bf0f0ac7772e5119d33cc4cd9",
+              "short_sha": "ec43a99",
+              "subject": "style(errors): import runtime exception fallback"
+            },
+            {
+              "sha": "5bc952dd20cf5837c5262c7309d595f67ca3cb44",
+              "short_sha": "5bc952d",
+              "subject": "test(errors): cover malformed negotiation and telemetry failures"
+            },
+            {
+              "sha": "1bd13d878d3ff1d826b7f5ec80f95be98d73fb3b",
+              "short_sha": "1bd13d8",
+              "subject": "test(replay): cover private directory and invalid document root"
+            },
+            {
+              "sha": "54673f43570f46ed7d8c9e04e6749ec41623de1e",
+              "short_sha": "54673f4",
+              "subject": "test(logging): cover invalid document root configuration"
+            },
+            {
+              "sha": "0a563e830f0ab2e8d1ffe3a2197b2e68e385f80c",
+              "short_sha": "0a563e8",
+              "subject": "test: fix fully qualified exception syntax"
+            },
+            {
+              "sha": "6c26c84d20b1bdf44801c446cf1c7efc301f0a94",
+              "short_sha": "6c26c84",
+              "subject": "test: fix fully qualified exception syntax"
+            },
+            {
+              "sha": "ef88976deede0e0a0c25db0c5fe807a8d7362467",
+              "short_sha": "ef88976",
+              "subject": "security(logging): minimize personal data in error context"
+            },
+            {
+              "sha": "0cc48f8a8572510183587841df92577e2179ada3",
+              "short_sha": "0cc48f8",
+              "subject": "security(logging): avoid raw exception objects in fallback records"
+            },
+            {
+              "sha": "8fec04ca65fd85f73ce5351a22c2909b520fc856",
+              "short_sha": "8fec04c",
+              "subject": "test(logging): assert raw exception objects are not logged"
+            },
+            {
+              "sha": "07dc249eb26c4a216cdc58277c24e86886fa19a8",
+              "short_sha": "07dc249",
+              "subject": "docs(errors): document identifier, privacy, CSP and storage guarantees"
+            },
+            {
+              "sha": "4aa6d152180b2a51ae82c54eb4338aacd35ace5d",
+              "short_sha": "4aa6d15",
+              "subject": "test(errors): align assertions with redacted logs and legacy codes"
+            },
+            {
+              "sha": "377c935f859ddd326ffbdc3c455d39baf27cc6d3",
+              "short_sha": "377c935",
+              "subject": "fix(logging): mark PSR-3 interface implementations"
+            },
+            {
+              "sha": "3fa0935c58a8f7e23d579ed84d7eeca7d248ca8c",
+              "short_sha": "3fa0935",
+              "subject": "fix(errors): remove redundant media-range type check"
+            },
+            {
+              "sha": "0a000a97b910f4dc9f4e7416369868e5747419ec",
+              "short_sha": "0a000a9",
+              "subject": "fix(errors): avoid overwriting replay snapshot placeholder"
+            },
+            {
+              "sha": "1bda5d3051e0f12ac659888520caee4fff31a1de",
+              "short_sha": "1bda5d3",
+              "subject": "fix(errors): normalize monotonic clock reading to integer"
+            },
+            {
+              "sha": "48d162b6d4c06d1f54df9316c07064c5c46c526b",
+              "short_sha": "48d162b",
+              "subject": "test(errors): annotate PHPUnit lifecycle overrides"
+            },
+            {
+              "sha": "578d3bfca73ff3a7cbb07cc6e2b4041a7db6a4ad",
+              "short_sha": "578d3bf",
+              "subject": "test(logging): annotate PHPUnit teardown override"
+            },
+            {
+              "sha": "2a7f5a34040c89a0562ab232ff86451bdde84625",
+              "short_sha": "2a7f5a3",
+              "subject": "fix(errors): remove redundant fallback encoding cast"
+            },
+            {
+              "sha": "d2ab26d2c5174462965cde33ed2615c8f75de794",
+              "short_sha": "d2ab26d",
+              "subject": "test(errors): import Override attribute explicitly"
+            },
+            {
+              "sha": "66526e318616ab08e0b6b010bda33b6935ebfd98",
+              "short_sha": "66526e3",
+              "subject": "test(logging): import Override attribute explicitly"
+            },
+            {
+              "sha": "5829f841221259d22bd5c19f829e1004c95882cc",
+              "short_sha": "5829f84",
+              "subject": "fix(debug-toolbar): preserve application content security policy"
+            },
+            {
+              "sha": "f9f10f1aad327b38f32ea16c2bfd4315688e7d16",
+              "short_sha": "f9f10f1",
+              "subject": "test(debug-toolbar): cover existing CSP preservation"
+            },
+            {
+              "sha": "5b1b988cb8273290fc77e3c416f5e365001fa45e",
+              "short_sha": "5b1b988",
+              "subject": "test(errors): remove suppressed filesystem operations"
+            },
+            {
+              "sha": "54e90ad906bd23cc7c2316e241679f0a7ff19f51",
+              "short_sha": "54e90ad",
+              "subject": "fix(errors): preserve response type across PSR-7 header updates"
+            },
+            {
+              "sha": "dc6348f28468ed8284beb06b141e0640004a2cec",
+              "short_sha": "dc6348f",
+              "subject": "fix(debug-toolbar): guard PSR-7 response type after body injection"
+            },
+            {
+              "sha": "8b78d05f6d6cef0491d87f4a43fc63bf53a15e59",
+              "short_sha": "8b78d05",
+              "subject": "fix(replay): make snapshot cleanup failure explicit"
+            },
+            {
+              "sha": "8e22e123ee945b3ee7e2e41db6a240dd87b7691e",
+              "short_sha": "8e22e12",
+              "subject": "fix(logging): constrain rollback offset to non-negative file size"
+            },
+            {
+              "sha": "7441eab575065eb65bbec1435df0adb78a229c2d",
+              "short_sha": "7441eab",
+              "subject": "fix(errors): simplify guaranteed replay lock release"
+            },
+            {
+              "sha": "c2135d1f3bbecc97e02aa2c3ff968ca2388f6de7",
+              "short_sha": "c2135d1",
+              "subject": "fix(logging): bound rollback size for PHPStan"
+            },
+            {
+              "sha": "2ee802ad4a6195df3039800baa19f5457015b653",
+              "short_sha": "2ee802a",
+              "subject": "test(errors): tighten static types and override contracts"
+            },
+            {
+              "sha": "7cb4687479a4e96630fb60d81dcc7b1fc264a202",
+              "short_sha": "7cb4687",
+              "subject": "test(errors): tighten static types and override contracts"
+            },
+            {
+              "sha": "e95a7f4a54c6a4854220158a69e07b66ff91ee61",
+              "short_sha": "e95a7f4",
+              "subject": "test(errors): tighten static types and override contracts"
+            },
+            {
+              "sha": "4226ecb88119b05090b681ded0c3d86bdcb87437",
+              "short_sha": "4226ecb",
+              "subject": "test(errors): narrow HEAD request to server request contract"
+            },
+            {
+              "sha": "09e8a591f6192256a2c18c7c5500e7b4d8d37189",
+              "short_sha": "09e8a59",
+              "subject": "Merge branch 'main' into feat/enterprise-error-handling_v3"
+            },
+            {
+              "sha": "bbc19df75834e75186044dbf1c37bc988c5851ba",
+              "short_sha": "bbc19df",
+              "subject": "test(errors): satisfy the strict static analyser"
+            },
+            {
+              "sha": "f0f74255943586278492e55f2130fef86c98357f",
+              "short_sha": "f0f7425",
+              "subject": "refactor(http): share the stream snapshot capture"
+            },
+            {
+              "sha": "79e92c426bebd846c1ab8127455f83cb139a2724",
+              "short_sha": "79e92c4",
+              "subject": "refactor(debug): isolate the toolbar markup and body splice"
+            },
+            {
+              "sha": "f506dfa2ba498c27da95fcf7615c1fd37679a57a",
+              "short_sha": "f506dfa",
+              "subject": "style(errors): satisfy the formatter across the draft tree"
+            },
+            {
+              "sha": "a0afaffc93053bad318940fe0c32d777414abad6",
+              "short_sha": "a0afaff",
+              "subject": "refactor(logging): isolate the JSONL line, file security and destination policies"
+            },
+            {
+              "sha": "4b41eb92a4fc53a246f58c351d917cd05b0c8019",
+              "short_sha": "4b41eb9",
+              "subject": "refactor(errors): move the boundary face to the middleware composition lane"
+            },
+            {
+              "sha": "4a222cbf5a5f0a254bd9c586c4e96f58f0ad378f",
+              "short_sha": "4a222cb",
+              "subject": "test(errors): satisfy psalm without growing the frozen baseline"
+            },
+            {
+              "sha": "bf2aa8886bb5b00ce4bbc5b3540476d5244d5ff4",
+              "short_sha": "bf2aa88",
+              "subject": "Merge branch 'main' into feat/enterprise-error-handling_v5"
+            },
+            {
+              "sha": "9edd0824a6bcf32cc1b2546f0e0dc2d9c7c919cc",
+              "short_sha": "9edd082",
+              "subject": "refactor(errors): answer the sonar round without weakening a single gate"
+            },
+            {
+              "sha": "f7597dfea0e9bb5cf8afabec1a7a1347cbe2fa54",
+              "short_sha": "f7597df",
+              "subject": "test(errors): keep the battery's last-resort SAPI writes off real stderr"
+            },
+            {
+              "sha": "df0edcb8bae237f58ed51cf4217e48ca7107527a",
+              "short_sha": "df0edcb",
+              "subject": "fix(errors): settle the second CI round -- difficulty splits, the cycle, and two stragglers"
+            },
+            {
+              "sha": "df6e390ad7ec4ce7d22ca49b7f3280ff83097460",
+              "short_sha": "df6e390",
+              "subject": "style(errors): settle the rector round the CI lanes finally reached"
+            },
+            {
+              "sha": "484e71b58f07c9568cef9045623d37e787ac3fe0",
+              "short_sha": "484e71b",
+              "subject": "refactor(debug): settle the sonar round's last straggler"
+            },
+            {
+              "sha": "e3389a62cb53b6d4b598618674085f260b9a3a3a",
+              "short_sha": "e3389a6",
+              "subject": "style(errors): sweep the rector round's phpcs stragglers"
+            },
+            {
+              "sha": "69bacc3fe426566c20ac3a9885905e0bfd8a52c2",
+              "short_sha": "69bacc3",
+              "subject": "test(errors): pin the error lane's presentation and replay contracts"
+            },
+            {
+              "sha": "6d5c368948b6fa30257adad092b252401a53abd3",
+              "short_sha": "6d5c368",
+              "subject": "test(errors): pin the accept parser, log sanitizer, and fault facts"
+            },
+            {
+              "sha": "b0cdc6d71f3f5ff0d34fe5d0cfb6892db7b66ccf",
+              "short_sha": "b0cdc6d",
+              "subject": "fix(errors): keep the coverage and coding-standard lanes over the fixtures"
+            },
+            {
+              "sha": "6298f47b65170df5f827431e208a481f8553d846",
+              "short_sha": "6298f47",
+              "subject": "fix(errors): keep the coding standard's ruleset a valid XML document"
+            },
+            {
+              "sha": "de7ea9ff7c25cdff13352907f43ba29564aaef07",
+              "short_sha": "de7ea9f",
+              "subject": "style(errors): adopt the engine's own names for the new fixtures and providers"
+            },
+            {
+              "sha": "c66ebd2f6b152831be7fa20082a3ef067f7b3137",
+              "short_sha": "c66ebd2",
+              "subject": "test(errors): pin the replay writer, log security, and the toolbar clock"
+            },
+            {
+              "sha": "f28a59d60fa7ecf34011d19b007b1aa3afc07ff6",
+              "short_sha": "f28a59d",
+              "subject": "fix(errors): keep the size-clamp ignore a matchable regex"
+            },
+            {
+              "sha": "6e7e19c89d3785a25c7caa410b673d2650bd7140",
+              "short_sha": "6e7e19c",
+              "subject": "test(errors): pin the remaining replay clusters and simplify the writer's double"
+            },
+            {
+              "sha": "3b7c5cf6e10cacdeaa1c2ded981bc3a9aacc1235",
+              "short_sha": "3b7c5cf",
+              "subject": "fix(errors): let the boundary's encode double narrow like the global"
+            },
+            {
+              "sha": "9861eb6c7b32744ff56812df94e929dbff378ebf",
+              "short_sha": "9861eb6",
+              "subject": "fix(errors): keep the coding standard over the new doubles and batteries"
+            },
+            {
+              "sha": "465f0fa20e8a2f9f006569a86c5dbd650f892951",
+              "short_sha": "465f0fa",
+              "subject": "test(errors): pin the key gate, the negotiator arithmetic, and the clamps"
+            },
+            {
+              "sha": "0e23e98e5a97bd4eeeea40a92a25c50742b2e69f",
+              "short_sha": "0e23e98",
+              "subject": "refactor(errors): let the negotiator's comparison carry the whole contract"
+            },
+            {
+              "sha": "981d9744c441a2c42423094e7726dd6ac3d7085d",
+              "short_sha": "981d974",
+              "subject": "test(errors): pin the toolbar guard table and the mapping fallback"
+            },
+            {
+              "sha": "1e36b425ceed3c059999b165803519e940fe3f3c",
+              "short_sha": "1e36b42",
+              "subject": "test(errors): pin the log line's lock, walk, and stamp contracts"
+            },
+            {
+              "sha": "ac93773dcc73dea13e58d4689cab9092e9c9c116",
+              "short_sha": "ac93773",
+              "subject": "test(errors): pin the trace resolution and the envelope's detail gates"
+            },
+            {
+              "sha": "21b00f59da14d0bdaae1fbf1f878e72e22a9f2e2",
+              "short_sha": "21b00f5",
+              "subject": "style(errors): keep the coding standard's line length over the new batteries"
+            },
+            {
+              "sha": "8418e902b1a94ed53fc369c5f8ac28a65ad31af5",
+              "short_sha": "8418e90",
+              "subject": "test(errors): pin the record rollback's zero clamp on both edges"
+            },
+            {
+              "sha": "899860c11386d13766e2c6f60c108a5af5f1dd89",
+              "short_sha": "899860c",
+              "subject": "Merge branch 'main' into feat/enterprise-error-handling_v3"
             }
           ]
         },
