@@ -12,6 +12,7 @@ use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\AliasShape;
 use Zef\Framework\Container\ArgumentsForm;
 use Zef\Framework\Container\AutowireKey;
+use Zef\Framework\Container\ClassSpellings;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\DefinitionKeys;
 use Zef\Framework\Container\DefinitionReferences;
@@ -45,6 +46,7 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(ServiceTagKey::class)]
 #[CoversClass(ServiceTags::class)]
 #[CoversClass(DefinitionKeys::class)]
+#[CoversClass(ClassSpellings::class)]
 #[CoversClass(DefinitionShapes::class)]
 #[CoversClass(InstanceShape::class)]
 #[CoversClass(InstanceArguments::class)]
@@ -245,7 +247,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key '5' "
-                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags, calls).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags, calls, lazy).',
                 $definitionException->getMessage(),
             );
         }
@@ -272,7 +274,7 @@ final class ServiceDefinitionTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' carries the unknown key 'clas' "
-                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags, calls).',
+                . '(known keys: class, factory, alias, value, arguments, autowire, lifetime, tags, calls, lazy).',
                 $definitionException->getMessage(),
             );
         }

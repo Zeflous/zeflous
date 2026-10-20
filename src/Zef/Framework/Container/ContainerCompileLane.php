@@ -56,12 +56,23 @@ final readonly class ContainerCompileLane
 
         ContainerRegistrations::namespacesLocator($container, $containerCompilePlan->namespaceTree);
 
+        // The debug inventory's declarations are the boot's parsed
+        // set, not the planned one ({@see ContainerRegistrations::
+        // debugLocator}): the inventory answers what the host spelled,
+        // the same answer whichever lane booted.
+        ContainerRegistrations::debugLocator($container, $containerKnobs->definitions);
+
         ContainerRegistrations::outcome(
             $container,
             AotOutcome::forTheLane($containerCompilePlan, $containerKnobs->aot->enabled(), $bypassed),
         );
 
         $this->containerInstalls->definitions($container, $containerCompilePlan->definitions);
+
+        // Mark the lazy identities after the install loop ({@see
+        // LazyMarking::marks()}): the resolution lanes consult the
+        // registry from the first resolution on.
+        LazyMarking::marks($container, $containerCompilePlan->definitions);
 
         // Arm before the warmup ({@see ContainerArming}): an eagerly
         // constructed singleton rides the interception like any other

@@ -19,6 +19,10 @@ use Override;
  */
 final readonly class InstanceDefinition extends ServiceDefinition
 {
+    /**
+     * @param null|class-string $lazyClass the class the declaration's
+     *                                     native proxy stands in for
+     */
     public function __construct(
         string $id,
         /** @var class-string */
@@ -29,8 +33,9 @@ final readonly class InstanceDefinition extends ServiceDefinition
         ServiceTags $serviceTags = new ServiceTags(),
         /** @var list<MethodCall> */
         public array $calls = [],
+        ?string $lazyClass = null,
     ) {
-        parent::__construct($id, $serviceLifetime, $serviceTags);
+        parent::__construct($id, $serviceLifetime, $serviceTags, $lazyClass);
     }
 
     /**
@@ -53,6 +58,7 @@ final readonly class InstanceDefinition extends ServiceDefinition
             $this->lifetime,
             new ServiceTags([...$this->tags->all(), ...$added]),
             $this->calls,
+            $this->lazyClass,
         );
     }
 
@@ -73,6 +79,27 @@ final readonly class InstanceDefinition extends ServiceDefinition
             $this->lifetime,
             $this->tags,
             $methodCalls,
+            $this->lazyClass,
+        );
+    }
+
+    /**
+     * The same declaration deferring its construction behind a native
+     * lazy proxy of this shape's own class ({@see LazyConstructions}:
+     * the class is the proxy's, so the lazy key's derivation is the
+     * class the declaration already carries).
+     */
+    #[Override]
+    public function withLazyClass(?string $lazyClass): static
+    {
+        return new self(
+            $this->id,
+            $this->class,
+            $this->arguments,
+            $this->lifetime,
+            $this->tags,
+            $this->calls,
+            $lazyClass,
         );
     }
 
@@ -94,6 +121,7 @@ final readonly class InstanceDefinition extends ServiceDefinition
                 static fn (MethodCall $methodCall): MethodCall => $methodCall->withSubstitutedReferences($dep, $via),
                 $this->calls,
             ),
+            $this->lazyClass,
         );
     }
 }

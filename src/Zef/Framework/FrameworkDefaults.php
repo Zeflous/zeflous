@@ -129,6 +129,17 @@ final readonly class FrameworkDefaults
      */
     public const string NAMESPACES_SERVICE = ContainerServices::NAMESPACES_SERVICE;
 
+    /**
+     * The container service identifier under which the debug
+     * inventory's read side ({@see Container\ContainerInventory}) is
+     * registered at boot: the declarations the boot spelled and the
+     * lazy marks the runtime holds, the `framework.tags` precedent's
+     * own family -- introspection through the container's own public
+     * surface, registered ahead of the definitions so a host's
+     * same-identifier rebind wins.
+     */
+    public const string INVENTORY_SERVICE = ContainerServices::INVENTORY_SERVICE;
+
     /** The config-driven factories' shared construction entry, as the
      * service registrations spell it. */
     private const string CONFIG_FACTORY_ENTRY = '::fromConfig';

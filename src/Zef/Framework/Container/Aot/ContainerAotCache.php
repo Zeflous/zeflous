@@ -106,9 +106,10 @@ final readonly class ContainerAotCache
      * @param non-empty-string                 $digest       the configuration fingerprint
      * @param array<string, ArtifactDumpEntry> $entries      the rendered entries
      * @param array<string, list<string>>      $tags         the baked tag index
+     * @param array<string, class-string>      $lazy         the baked lazy map
      * @param list<string>                     $unreferenced the baked unreferenced report
      */
-    public function dump(string $digest, array $entries, array $tags, array $unreferenced): void
+    public function dump(string $digest, array $entries, array $tags, array $lazy, array $unreferenced): void
     {
         $directory = \dirname($this->file);
 
@@ -120,6 +121,7 @@ final readonly class ContainerAotCache
             . "    'digest' => " . var_export($digest, true) . ",\n"
             . "    'unreferenced' => " . var_export($unreferenced, true) . ",\n"
             . "    'tags' => " . var_export($tags, true) . ",\n"
+            . "    'lazy' => " . var_export($lazy, true) . ",\n"
             . "    'entries' => [\n"
             . $this->renderedEntries($entries)
             . "    ],\n"
@@ -147,9 +149,10 @@ final readonly class ContainerAotCache
 
     /**
      * Dumps a compile plan as the fresh artifact: the planned set's
-     * rendered entries, baked tag index and unreferenced report under
-     * the source configuration's fingerprint -- the write the full lane
-     * leaves behind for the next boot.
+     * rendered entries, baked tag index, baked lazy map and
+     * unreferenced report under the source configuration's
+     * fingerprint -- the write the full lane leaves behind for the
+     * next boot.
      *
      * @param non-empty-string $digest the source configuration's fingerprint
      */
@@ -159,6 +162,7 @@ final readonly class ContainerAotCache
             $digest,
             AotEntries::all($containerCompilePlan->definitions),
             $containerCompilePlan->tagIndex->toArray(),
+            AotLazies::all($containerCompilePlan->definitions),
             $containerCompilePlan->unreferenced,
         );
     }

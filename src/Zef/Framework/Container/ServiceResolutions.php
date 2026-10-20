@@ -22,6 +22,17 @@ namespace Zef\Framework\Container;
  * lane's build step so a replacement lands before the memo records
  * it, while an empty registry leaves the call's mechanics
  * byte-identical (the fast path below).
+ *
+ * The lazy lane is the fourth rider over the same seam ({@see
+ * LazyDeferrals}): an identifier the boot marked lazy resolves to a
+ * native proxy whose materialiser runs the *guarded call itself* at
+ * first use -- so the cycle guard, the interception onion and the
+ * listeners all fire at materialisation, exactly as they would have
+ * at resolution, just later. The memo holds the proxy (a singleton
+ * materialises once, through the one proxy it keeps); a transient
+ * answers a fresh proxy per resolution, each materialising its own
+ * instance. An unmarked identifier resolves exactly as it always
+ * did: the empty registry's `null` answers the unchanged lane.
  */
 final readonly class ServiceResolutions
 {
@@ -31,7 +42,27 @@ final readonly class ServiceResolutions
         private RequestInstances $requestInstances,
         private CycleGuard $cycleGuard,
         private Interceptions $interceptions = new Interceptions(),
+        private LazyDeferrals $lazyDeferrals = new LazyDeferrals(),
     ) {
+    }
+
+    /**
+     * The lazy registry the boot marked ({@see LazyIdentities}) --
+     * the store's reach-through for the facade and the guarded mark
+     * ({@see LazyMarking}).
+     */
+    public function lazyIdentities(): LazyIdentities
+    {
+        return $this->lazyDeferrals->identities();
+    }
+
+    /**
+     * Forgets the identifier's mark -- the `set()` re-registration's
+     * own clearing step, beside the memo's.
+     */
+    public function forgetLazy(string $id): void
+    {
+        $this->lazyDeferrals->forget($id);
     }
 
     public function resolve(string $id, Container $container): mixed
@@ -42,8 +73,11 @@ final readonly class ServiceResolutions
 
         return match ($this->factoryRegistrations->lifetime($id)) {
             ServiceLifetime::REQUEST => $this->requestInstances->instance($id, $container),
-            ServiceLifetime::TRANSIENT => $this->guarded($id, $container),
-            default => $this->singletonMemo->answer($id, fn (): mixed => $this->guarded($id, $container)),
+            ServiceLifetime::TRANSIENT => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
+            default => $this->singletonMemo->answer(
+                $id,
+                fn (): mixed => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
+            ),
         };
     }
 

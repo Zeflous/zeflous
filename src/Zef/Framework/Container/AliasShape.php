@@ -63,6 +63,13 @@ final readonly class AliasShape
             );
         }
 
+        if (\array_key_exists('lazy', $entry)) {
+            throw new DefinitionException(
+                "Service '{$id}' carries 'lazy' on a 'alias' definition "
+                . '(an alias is transparent: it rides the laziness of the definition it points to).',
+            );
+        }
+
         return new AliasDefinition($id, $target);
     }
 }

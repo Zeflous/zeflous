@@ -10,12 +10,17 @@ parameters:
         - src
         - tests
         - benchmarks
-    # Optional-dependency analysis stubs: the phpredis extension's class and
-    # the Guzzle transport-failure contract the error boundary recognises,
-    # seen by the analyser in environments that carry neither at runtime.
+    # Optional-dependency analysis stubs, seen by the analyser in
+    # environments whose runtime carries none of them: the phpredis
+    # extension's class (the rate-limit store's boundary), the Guzzle
+    # transport-failure contract the error boundary recognises, and
+    # the lazy lane's ghost-return fixture (a class the analysers see
+    # and the runtime may not carry -- the boot's class-existence check
+    # refuses the declaration, see LazyReturnShapes::ghosted()).
     scanFiles:
         - stubs/ext-redis.php
         - stubs/guzzle-exception.php
+        - stubs/lazy-ghost-engine.php
     tmpDir: build/phpstan
     treatPhpDocTypesAsCertain: true
     reportUnmatchedIgnoredErrors: true
@@ -28,3 +33,16 @@ parameters:
     checkPhpDocMethodSignatures: true
     checkExplicitMixedMissingReturn: true
     checkBenevolentUnionTypes: true
+    ignoreErrors:
+        # The lazy lane's absent-return fixture: `none()` deliberately
+        # carries no return type and no @return annotation -- the
+        # grammar's refusal of a lazy factory that cannot name its
+        # product's class is the fixture's whole subject, and both
+        # spellings a toolchain would demand would destroy it (a native
+        # type changes what reflection answers, an annotation hands
+        # rector the native type to add). The same posture as the
+        # stream-wrapper fixtures' rector/phpcs skips: the fixture's
+        # signature is load-bearing.
+        -
+            message: '#Method Zef\\Test\\Support\\Container\\Lazy\\LazyReturnShapes::none\(\) has no return type specified#'
+            path: tests/Support/Container/Lazy/LazyReturnShapes.php

@@ -7,11 +7,14 @@ namespace Zef\Framework\Container;
 /**
  * The decoration lane's re-homing: the original declaration moved under
  * its synthetic base identifier -- the same shape, the same arguments,
- * the same lifetime and method calls, and no tags, because the tags
- * travel with the original identifier (which the outermost wrapper
- * takes over). The reference container's ZEF-DEEP-08: a re-homed base
- * that kept its tags silently indexed the *undecorated* inner instance
- * under the tag, and the tag locator answered it.
+ * the same lifetime, method calls and lazy proxy class, and no tags,
+ * because the tags travel with the original identifier (which the
+ * outermost wrapper takes over). The reference container's ZEF-DEEP-08:
+ * a re-homed base that kept its tags silently indexed the
+ * *undecorated* inner instance under the tag, and the tag locator
+ * answered it. A lazy target's deferral travels with the re-homed
+ * base: the wrapper chain constructs around the base's proxy, and
+ * the base materialises at the chain's first use of it.
  */
 final readonly class DecoratorRehoming
 {
@@ -29,6 +32,7 @@ final readonly class DecoratorRehoming
                 $serviceDefinition->lifetime,
                 new ServiceTags(),
                 $serviceDefinition->calls,
+                $serviceDefinition->lazyClass,
             ),
             $serviceDefinition instanceof FactoryDefinition => new FactoryDefinition(
                 $baseId,
@@ -37,6 +41,7 @@ final readonly class DecoratorRehoming
                 $serviceDefinition->lifetime,
                 new ServiceTags(),
                 $serviceDefinition->calls,
+                $serviceDefinition->lazyClass,
             ),
             $serviceDefinition instanceof AliasDefinition => new AliasDefinition(
                 $baseId,

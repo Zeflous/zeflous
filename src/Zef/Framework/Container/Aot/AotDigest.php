@@ -14,7 +14,8 @@ namespace Zef\Framework\Container\Aot;
  * autoconfiguration rules, the contextual bindings, the decoration
  * chains, the interception entries, the listener entries and the
  * namespace scope policy) plus the framework
- * version into a SHA-256 over a canonical type-tagged walk. The walk is
+ * version and the artifact boundary's format generation into a SHA-256
+ * over a canonical type-tagged walk. The walk is
  * deliberate about the three things a naive serialisation gets wrong:
  *
  * - **Types are named**: `1` (int), `'1'` (string), `1.0` (float) and
@@ -28,6 +29,13 @@ namespace Zef\Framework\Container\Aot;
  *   object identity is not stable across the two processes that must
  *   agree (the dump and the boot), so a configuration the digest cannot
  *   fold is a configuration the artifact cannot honestly carry either.
+ *
+ * The artifact generation is the boundary's own version ({@see
+ * AotArtifactEnvelope::GENERATION}): a changed envelope or entry shape
+ * bumps it, and because the digest folds it, every artifact of an older
+ * generation is *proven stale* -- the boot recompiles and re-dumps
+ * rather than running an artifact it cannot honestly read, the same
+ * graceful answer a changed configuration takes, never a crash.
  *
  * The invalidation contract this digest serves (ROADMAP area 8's
  * "cache invalidation otomatis", read through the repository's KDD-6
@@ -43,7 +51,14 @@ namespace Zef\Framework\Container\Aot;
 final readonly class AotDigest
 {
     /**
-     * Folds the source maps and the framework version into one digest.
+     * The artifact boundary's format generation this digest folds --
+     * bump it whenever the envelope or an entry shape changes.
+     */
+    public const int ARTIFACT_GENERATION = 2;
+
+    /**
+     * Folds the source maps, the framework version and the artifact
+     * generation into one digest.
      *
      * @param array<string, mixed> $sources the eight source maps under
      *                                      their own keys, in the one
@@ -62,7 +77,11 @@ final readonly class AotDigest
             $folded .= 'map:' . self::fold($value, $name) . "\n";
         }
 
-        return hash('sha256', $folded . 'version:' . $version);
+        return hash(
+            'sha256',
+            $folded . 'version:' . $version . "\n"
+                . 'artifact-generation:' . self::ARTIFACT_GENERATION,
+        );
     }
 
     /**

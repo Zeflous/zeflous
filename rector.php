@@ -17,6 +17,14 @@ return RectorConfig::configure()
         // (stream_open(stream read, ...)); the protocol's unused parameters
         // must not be pruned away.
         __DIR__ . '/tests/Support/Http',
+        // The lazy lane's return-shape fixture: `none()` deliberately
+        // carries no return type at all -- reflection's own question is
+        // the fixture's whole subject (the grammar refuses a lazy factory
+        // whose return type cannot name exactly one existing class), so
+        // the type-derived return rule keeps every hand off the signature.
+        'Rector\TypeDeclaration\Rector\ClassMethod\ReturnTypeFromReturnNewRector' => [
+            __DIR__ . '/tests/Support/Container/Lazy/LazyReturnShapes.php',
+        ],
         // Kept authoritative by php-cs-fixer; avoid a Rector/CS-Fixer tug-of-war.
         'Rector\PHPUnit\CodeQuality\Rector\Class_\PreferPHPUnitThisCallRector',
         // Kept authoritative by the vendored PSR contracts; psalm's
