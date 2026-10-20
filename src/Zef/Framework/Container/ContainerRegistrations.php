@@ -6,6 +6,7 @@ namespace Zef\Framework\Container;
 
 use Zef\Framework\Container\Aot\AotArtifact;
 use Zef\Framework\Container\Aot\AotOutcome;
+use Zef\Framework\ContainerKnobs;
 
 /**
  * The boot's reserved-service registrations and lazy marks: the four
@@ -95,6 +96,39 @@ final readonly class ContainerRegistrations
         );
 
         self::artifactOutcome($container, $aotArtifact);
+    }
+
+    /**
+     * The compile lane's registration half in one spelling: the four
+     * read-side services -- the tags locator over the planned index,
+     * the namespace locator over the planned tree, the debug inventory
+     * over the parsed declarations (the inventory answers what the host
+     * spelled, the same answer whichever lane booted), and the lane's
+     * own boot answer with the mode's development note -- so the lane
+     * itself keeps the install order alone ({@see artifactReadSides},
+     * the artifact lane's own composite spelling).
+     */
+    public static function readSides(
+        Container $container,
+        ContainerKnobs $containerKnobs,
+        ContainerCompilePlan $containerCompilePlan,
+        bool $bypassed,
+    ): void {
+        self::tagsLocator($container, $containerCompilePlan->tagIndex);
+
+        self::namespacesLocator($container, $containerCompilePlan->namespaceTree);
+
+        self::debugLocator($container, $containerKnobs->definitions);
+
+        self::outcome(
+            $container,
+            AotOutcome::forTheLane(
+                $containerCompilePlan,
+                $containerKnobs->aot->enabled(),
+                $bypassed,
+                $containerKnobs->mode->isDevelopment(),
+            ),
+        );
     }
 
     /**

@@ -81,6 +81,18 @@ final readonly class ContainerKnobs
     }
 
     /**
+     * Whether the compile lane may lay an artifact down this boot:
+     * the AOT knob on and the boot in production mode -- the two
+     * halves of the dump verdict the lane asks in one question (a
+     * development boot holds the lane to the fresh compile on both
+     * sides, {@see ContainerMode}'s own doctrine).
+     */
+    public function mayDump(): bool
+    {
+        return $this->aot->enabled() && $this->mode->isProduction();
+    }
+
+    /**
      * The source configuration's fingerprint: the number that decides
      * whether an artifact still describes the configuration it was
      * dumped from -- nine source maps and the framework version, folded

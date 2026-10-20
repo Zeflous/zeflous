@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Container;
 
-use Zef\Framework\Container\Aot\AotOutcome;
 use Zef\Framework\Container\Aot\ContainerAotCache;
 use Zef\Framework\ContainerKnobs;
 
@@ -52,25 +51,11 @@ final readonly class ContainerCompileLane
             $containerKnobs->namespaces,
         );
 
-        ContainerRegistrations::tagsLocator($container, $containerCompilePlan->tagIndex);
-
-        ContainerRegistrations::namespacesLocator($container, $containerCompilePlan->namespaceTree);
-
-        // The debug inventory's declarations are the boot's parsed
-        // set, not the planned one ({@see ContainerRegistrations::
-        // debugLocator}): the inventory answers what the host spelled,
-        // the same answer whichever lane booted.
-        ContainerRegistrations::debugLocator($container, $containerKnobs->definitions);
-
-        ContainerRegistrations::outcome(
-            $container,
-            AotOutcome::forTheLane(
-                $containerCompilePlan,
-                $containerKnobs->aot->enabled(),
-                $bypassed,
-                $containerKnobs->mode->isDevelopment(),
-            ),
-        );
+        // The four reserved read-side services in the lane's own
+        // composite spelling ({@see ContainerRegistrations::readSides})
+        // -- the same registration half the artifact lane spells
+        // through its own composite.
+        ContainerRegistrations::readSides($container, $containerKnobs, $containerCompilePlan, $bypassed);
 
         $this->containerInstalls->definitions($container, $containerCompilePlan->definitions);
 
@@ -84,9 +69,7 @@ final readonly class ContainerCompileLane
         // construction.
         ContainerArming::interceptions($container, $containerKnobs);
 
-        $aot = $containerKnobs->aot;
-
-        if ($aot->warm()) {
+        if ($containerKnobs->aot->warm()) {
             SingletonWarmer::warm(ContainerSingletons::planned($containerCompilePlan->definitions), $container);
         }
 
@@ -94,11 +77,7 @@ final readonly class ContainerCompileLane
         // development boot never lays an artifact down -- the churn a
         // next development boot would only distrust again, and the
         // fingerprint stays unpaid on the lane that will not dump.
-        if (
-            $aot->enabled()
-            && $containerKnobs->mode->isProduction()
-            && $containerAotCache instanceof ContainerAotCache
-        ) {
+        if ($containerKnobs->mayDump() && $containerAotCache instanceof ContainerAotCache) {
             $containerAotCache->dumpPlan($containerCompilePlan, $containerKnobs->fingerprint());
         }
 
