@@ -71,6 +71,21 @@ final class ContainerLocatorTest extends TestCase
         self::assertSame(['app.house', 'app.window'], $locator->ids());
     }
 
+    public function testTheAskAnswersTheMembershipMapItCarries(): void
+    {
+        $container = new Container();
+        $container->set('app.answer', static fn (): int => 42);
+        $container->set('app.word', static fn (): string => 'hello');
+
+        // The subset's membership is the ask's own answer: one true
+        // member per asked identifier, repeats collapsed into the
+        // first ask's position -- the map the locator's faces read.
+        self::assertSame(
+            ['app.answer' => true, 'app.word' => true],
+            LocatorAsks::validated($container, 'app.answer', 'app.word', 'app.answer'),
+        );
+    }
+
     public function testTheBoundaryRefusesIdentifiersOutsideTheSubset(): void
     {
         $container = $this->booted();

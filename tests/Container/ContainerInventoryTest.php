@@ -11,7 +11,9 @@ use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Aot\AotLane;
 use Zef\Framework\Container\Aot\AotOutcome;
 use Zef\Framework\Container\Aot\ContainerAotCache;
+use Zef\Framework\Container\AotBootLane;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Container\ContainerCompileLane;
 use Zef\Framework\Container\ContainerInventory;
 use Zef\Framework\Container\ContainerRegistrations;
 use Zef\Framework\Container\InventoryEntries;
@@ -38,6 +40,8 @@ use Zef\Test\Support\Container\Namespaces\NamespacedWrapper;
 #[CoversClass(InventoryEntries::class)]
 #[CoversClass(InventoryMembers::class)]
 #[CoversClass(ContainerRegistrations::class)]
+#[CoversClass(ContainerCompileLane::class)]
+#[CoversClass(AotBootLane::class)]
 final class ContainerInventoryTest extends TestCase
 {
     private string $artifactFile;
@@ -102,6 +106,14 @@ final class ContainerInventoryTest extends TestCase
         self::assertSame(['app.fuel'], $engine->dependencies);
         self::assertSame(['thrust'], $engine->calls, 'the method-call injections, by name');
 
+        $fuel = $inventory->entry('app.fuel');
+        self::assertNotNull($fuel);
+        self::assertSame(
+            ['burn', 'burn'],
+            $fuel->calls,
+            'the method-call injections answer in declaration order, repeats included',
+        );
+
         $answer = $inventory->entry('app.answer');
         self::assertNotNull($answer);
         self::assertSame('value', $answer->shape);
@@ -147,12 +159,30 @@ final class ContainerInventoryTest extends TestCase
         );
         $container->markLazy('@decor:app.window:base', NamespacedService::class);
 
+        // Two host marks land after the machinery mark -- the walk must
+        // continue past the machinery identifier, not stop at it, and
+        // the host-facing view answers every mark it walked.
+        $container->set(
+            'app.first',
+            static fn (): HeavyEngine => new HeavyEngine(new EngineFuel()),
+        );
+        $container->set(
+            'app.second',
+            static fn (): HeavyEngine => new HeavyEngine(new EngineFuel()),
+        );
+        $container->markLazy('app.first', HeavyEngine::class);
+        $container->markLazy('app.second', HeavyEngine::class);
+
         $inventory = $this->inventory($container);
 
-        // The registry holds the mark; the host-facing lazy view does
-        // not carry the boot's machinery identifiers.
+        // The registry holds the machinery mark; the host-facing lazy
+        // view does not carry the boot's machinery identifiers -- and
+        // the marks that follow the machinery id still answer.
         self::assertSame(NamespacedService::class, $container->lazyIdentities()->classOf('@decor:app.window:base'));
-        self::assertSame([], $inventory->lazy());
+        self::assertSame(
+            ['app.first' => HeavyEngine::class, 'app.second' => HeavyEngine::class],
+            $inventory->lazy(),
+        );
     }
 
     public function testTheArtifactLaneAnswersTheSameInventory(): void
@@ -224,7 +254,10 @@ final class ContainerInventoryTest extends TestCase
                     'arguments' => [['service' => 'app.fuel']],
                     'calls' => [['method' => 'thrust']],
                 ],
-                'app.fuel' => ['class' => EngineFuel::class],
+                'app.fuel' => [
+                    'class' => EngineFuel::class,
+                    'calls' => [['method' => 'burn'], ['method' => 'burn']],
+                ],
                 'app.answer' => ['value' => 42],
             ],
         ];
