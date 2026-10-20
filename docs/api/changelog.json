@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-20T18:17:07Z",
+  "as_of": "2026-10-20T19:46:07Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 214,
+  "unreleased_count": 216,
   "versions": [
     {
       "version": "Unreleased",
@@ -3448,6 +3448,37 @@
                 "subject": "Merge branch 'main' into fix/merge-queue-render-storm"
               }
             ]
+          },
+          {
+            "pr": 496,
+            "title": "fix(tooling): resurrect the roadmap pin-freshness verdict on the main lanes",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-20T19:46:07Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/496",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1b702d4e9a1baa3b46435c56f72f5ba848cd2b4f",
+                "short_sha": "1b702d4",
+                "subject": "fix(tooling): recognise the main lane under an empty GITHUB_BASE_REF"
+              },
+              {
+                "sha": "1c0ecbff6ec8d639ac296ab91f268a994ee8d611",
+                "short_sha": "1c0ecbf",
+                "subject": "fix(tooling): count every roadmap-document commit as pin bookkeeping"
+              },
+              {
+                "sha": "4351fe0328a4866416c0429a8d9c49c5c9055b58",
+                "short_sha": "4351fe0",
+                "subject": "docs(roadmap): pin the main lane at the #488 merge commit"
+              },
+              {
+                "sha": "bed3a775c21c408dc8cfac0ec4af6e61892e7749",
+                "short_sha": "bed3a77",
+                "subject": "Merge branch 'main' into fix/roadmap-pin-freshness-main-lane"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -5933,6 +5964,22 @@
                 "sha": "7988b10bbadf450c05aa17d5819a188cf66d79f8",
                 "short_sha": "7988b10",
                 "subject": "docs(roadmap): point the history pin at the #444 merge commit"
+              }
+            ]
+          },
+          {
+            "pr": 493,
+            "title": "docs(roadmap): pin the lazy, locator and inventory lanes",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-20T19:03:09Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/493",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "10d077dd047e4f7fc335ab1418bb089f27c365b1",
+                "short_sha": "10d077d",
+                "subject": "docs(roadmap): pin the lazy, locator and inventory lanes -- history row 487"
               }
             ]
           }
@@ -12191,6 +12238,53 @@
               "sha": "7988b10bbadf450c05aa17d5819a188cf66d79f8",
               "short_sha": "7988b10",
               "subject": "docs(roadmap): point the history pin at the #444 merge commit"
+            }
+          ]
+        },
+        {
+          "pr": 493,
+          "title": "docs(roadmap): pin the lazy, locator and inventory lanes",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-20T19:03:09Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/493",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "10d077dd047e4f7fc335ab1418bb089f27c365b1",
+              "short_sha": "10d077d",
+              "subject": "docs(roadmap): pin the lazy, locator and inventory lanes -- history row 487"
+            }
+          ]
+        },
+        {
+          "pr": 496,
+          "title": "fix(tooling): resurrect the roadmap pin-freshness verdict on the main lanes",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-20T19:46:07Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/496",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1b702d4e9a1baa3b46435c56f72f5ba848cd2b4f",
+              "short_sha": "1b702d4",
+              "subject": "fix(tooling): recognise the main lane under an empty GITHUB_BASE_REF"
+            },
+            {
+              "sha": "1c0ecbff6ec8d639ac296ab91f268a994ee8d611",
+              "short_sha": "1c0ecbf",
+              "subject": "fix(tooling): count every roadmap-document commit as pin bookkeeping"
+            },
+            {
+              "sha": "4351fe0328a4866416c0429a8d9c49c5c9055b58",
+              "short_sha": "4351fe0",
+              "subject": "docs(roadmap): pin the main lane at the #488 merge commit"
+            },
+            {
+              "sha": "bed3a775c21c408dc8cfac0ec4af6e61892e7749",
+              "short_sha": "bed3a77",
+              "subject": "Merge branch 'main' into fix/roadmap-pin-freshness-main-lane"
             }
           ]
         }
