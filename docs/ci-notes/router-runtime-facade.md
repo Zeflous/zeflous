@@ -130,9 +130,24 @@ identical unversioned-fallback guards; `RequestAuthority` merges the
 malformed-authority and port-range guards (and writes `\d` for the port
 class); `RadixTree::match()` becomes a flat walk -> host -> version ->
 method pipeline whose every narrowing stage answers an empty selection
-with the same not-found result; and `RouteDispatchHandler` moves the
-406/405/404 arms into a `problemFor()` fold so the handler itself reads
-as problem-or-representation. `RouteHostPatternBucket::offer()` takes the
-Slevomat early exit the CI log had shown all along. Every refold is
-behaviour-preserving, and the scoped mutation run over the eight touched
-files (127 mutants, 126 killed, 1 documented ignore) keeps MSI 100/100.
+with the same not-found result; and `RouteDispatchHandler` splits its
+handle at the executed boundary -- the handler answers the executed
+representation, a `problemFor()` fold answers the 406/405/404 arms with
+the branch shape the file already owned. `RouteHostPatternBucket::offer()`
+takes the Slevomat early exit the CI log had shown all along. Every
+refold is behaviour-preserving, and the scoped mutation run over the
+eight touched files (127 mutants, 126 killed, 1 documented ignore) keeps
+MSI 100/100.
+
+The first refold attempt for `RouteDispatchHandler` moved the arms into a
+`match (true)` behind a null coalesce -- and the archeology difficulty
+rose from 19 to 23, failing the SARIF lane a second time. Adding folds to
+the *same* class only adds operators to the aggregate: `match`, `true`
+and `??` raise the distinct-operator count, and three extra wrapper
+methods raise it further (21.57 -> 23.13 across the two attempts). The
+shape that passes is the one that reuses the file's existing operator
+vocabulary -- an if-chain split at the executed boundary -- landing at
+difficulty 19.17. The lesson stands next to the campaign's earlier ones:
+the difficulty gate rewards redistributing *between* classes, not
+proliferating methods *within* one, and a `match (true)` refold is not
+free the way a branch split is.
