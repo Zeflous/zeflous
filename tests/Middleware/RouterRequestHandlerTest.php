@@ -71,6 +71,7 @@ final class RouterRequestHandlerTest extends TestCase
 
         $notAcceptable = $handler->handle(self::request('GET', 'api.example.com', 'text/html'));
         self::assertSame(406, $notAcceptable->getStatusCode());
+        self::assertSame('Accept', $notAcceptable->getHeaderLine('Vary'));
         self::assertStringContainsString('application/json', $notAcceptable->getBody()->getContents());
     }
 

@@ -12,6 +12,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Router\Router;
 
 /**
@@ -25,12 +26,15 @@ use Zef\Framework\Router\Router;
  */
 final readonly class RouterRequestHandler implements RequestHandlerInterface
 {
+    private RouteDispatcher $routeDispatcher;
+
     public function __construct(
         private Router $router,
         private Container $container,
         private ResponseFactoryInterface $responseFactory,
         private StreamFactoryInterface $streamFactory,
     ) {
+        $this->routeDispatcher = $this->router->dispatcher($this->container);
     }
 
     #[Override]
@@ -60,7 +64,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         }
 
         $terminal = new RouteDispatchHandler(
-            $this->router->dispatcher($this->container),
+            $this->routeDispatcher,
             $match,
             $this->responseFactory,
             $this->streamFactory,

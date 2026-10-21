@@ -36,9 +36,13 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
         $outcome = $this->dispatcher->dispatchMatch($this->match);
 
         if ($outcome->isNotAcceptable()) {
-            return $this->textResponse(
-                406,
-                'Not Acceptable. Supported media types: ' . implode(', ', $outcome->acceptableMediaTypes()),
+            return $this->withHeader(
+                $this->textResponse(
+                    406,
+                    'Not Acceptable. Supported media types: ' . implode(', ', $outcome->acceptableMediaTypes()),
+                ),
+                'Vary',
+                'Accept',
             );
         }
 
