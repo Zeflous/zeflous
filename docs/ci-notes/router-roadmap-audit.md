@@ -21,7 +21,7 @@
 
 - **Host-aware routing — exact and parameterised-host slices implemented in this branch:** `RouteHost` accepts exact DNS names and whole-label parameters (`{tenant}.example.com`), captures host parameters into the dispatch parameter map, and rejects repeated host/path parameter names. Exact hosts outrank parameterised hosts, which outrank host-agnostic fallback routes; equal-specificity overlapping host patterns are rejected at compile time. `Router::absoluteUrl()` renders a safe absolute URL from a named host route. `*` wildcard syntax, IP literals, ports, tenant-context object injection and PSR-7 Host/URI authority integration remain open.
 - **Basic content negotiation — implemented in this branch:** the optional `produces` schema field is validated and normalised by `RouteAcceptNegotiator`; `Accept` ranges, wildcards and quality values are evaluated at match time; a mismatch yields a typed `MatchResult::notAcceptable()` and `DispatchOutcome::notAcceptable()` carrying the route's supported media types. Mapping that outcome to an HTTP 406 response / RFC 9457 envelope still belongs to the HTTP adapter.
-- **PSR-7 / PSR-15 Router integration:** the framework has PSR HTTP/middleware infrastructure, but this facade takes primitive method/path strings; it is not a `ServerRequestInterface` adapter or `RequestHandlerInterface`.
+- **PSR-7 / PSR-15 integration — implemented in this branch:** `Middleware\RouterRequestHandler` implements `RequestHandlerInterface`, extracts method/path/Host/Accept from `ServerRequestInterface`, and maps routing outcomes to responses. It composes inside the existing global `MiddlewarePipeline`; handler results must be `ResponseInterface`.
 - **Public dispatcher bridge — implemented in this branch:** `Router::dispatcher(Container)` exposes the existing `RouteDispatcher` over the same memoized runtime.
 - **Registration semantics:** DSL prefix groups, named routes, constraints and duplicate checks exist. Host-scoped conflict keys, a public Router registration lifecycle, route budget and explicit freeze contract remain open.
 - **Performance guarantees:** radix compression exists, but zero-allocation matching is not satisfied by current capture/result construction and requires measurement rather than assertion.
@@ -32,7 +32,7 @@
 - **Isolated tenant route tables:** no explicit API.
 - **Locale prefix routing / locale negotiation / localized URL generation:** a static prefix can be expressed with DSL groups, but locale negotiation and locale-aware URL generation are not integrated.
 - **API versioning:** path versioning can be expressed as ordinary paths; version-header matching and deprecation response middleware are missing.
-- **Per-route middleware execution:** identifiers are retained on matched route metadata, but dispatch does not resolve or execute that middleware list, order it with the global pipeline, or enforce fail-closed resolution.
+- **Per-route middleware execution — implemented in this branch:** `RouterRequestHandler` resolves each matched route's middleware service from the container, rejects missing or non-PSR-15 services, and composes the route list around `RouteDispatchHandler`. The global pipeline wraps this adapter, so route middleware runs inside global middleware and preserves route declaration order.
 
 ### Phase 3 — Performance & Production
 
@@ -46,7 +46,7 @@
 - **CLI route list/test/tree dump:** no Router-specific command was found in the audited entry points; repository-wide command inventory is still needed before claiming a global absence.
 - **Reverse-routing safety:** path reverse routing validates constraints and encodes parameters; `Router::absoluteUrl()` now renders host-pattern parameters as DNS labels. Round-trip and boundary cases still require CI validation.
 - **OpenAPI / Swagger UI / Postman export:** no Router integration evidenced in the audited entry points.
-- **Problem Details, CSRF and rate-limit hooks:** no Router-level integration evidenced; these are likely adapter/middleware concerns.
+- **Problem Details, CSRF and rate-limit hooks:** CSRF/rate limiting remain middleware concerns and can run in the global or route stack. Router-generated 404/405/406 bodies are currently plain text; RFC 9457 rendering remains open.
 
 ### Phase 5 — Ecosystem & Integration
 

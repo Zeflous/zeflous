@@ -11,8 +11,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zef\Framework\Container\Container;
 use Zef\Framework\Config\Routing\RouteDispatcher;
+use Zef\Framework\Container\Container;
 use Zef\Framework\Router\Router;
 
 /**
