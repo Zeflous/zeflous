@@ -80,9 +80,9 @@ final readonly class Router
     /**
      * Matches a method and path against the compiled route table.
      */
-    public function match(string $method, string $path, ?string $host = null): MatchResult
+    public function match(string $method, string $path, ?string $host = null, ?string $accept = null): MatchResult
     {
-        return $this->runtime->match($method, $path, $host);
+        return $this->runtime->match($method, $path, $host, $accept);
     }
 
     /**

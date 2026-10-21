@@ -37,6 +37,7 @@ final readonly class MatchResult
         private ?CompiledRoute $compiledRoute,
         private array $parameters,
         private ?array $allowedMethods,
+        private ?array $acceptableMediaTypes,
     ) {
     }
 
@@ -45,12 +46,12 @@ final readonly class MatchResult
      */
     public static function found(CompiledRoute $compiledRoute, array $parameters): self
     {
-        return new self($compiledRoute, $parameters, null);
+        return new self($compiledRoute, $parameters, null, null);
     }
 
     public static function notFound(): self
     {
-        return new self(null, [], null);
+        return new self(null, [], null, null);
     }
 
     /**
@@ -58,7 +59,39 @@ final readonly class MatchResult
      */
     public static function methodNotAllowed(array $allowedMethods): self
     {
-        return new self(null, [], $allowedMethods);
+        return new self(null, [], $allowedMethods, null);
+    }
+
+    /**
+     * Creates the 406 outcome without executing a handler.
+     *
+     * @param list<string> $acceptableMediaTypes
+     */
+    public static function notAcceptable(array $acceptableMediaTypes): self
+    {
+        return new self(null, [], null, $acceptableMediaTypes);
+    }
+
+    /**
+     * Whether content negotiation rejected all representations.
+     */
+    public function isNotAcceptable(): bool
+    {
+        return $this->acceptableMediaTypes !== null;
+    }
+
+    /**
+     * The media types supported by the route, for a 406 response.
+     *
+     * @return list<string>
+     */
+    public function acceptableMediaTypes(): array
+    {
+        if ($this->acceptableMediaTypes === null) {
+            throw new InvariantViolationException('The match result does not hold acceptable media types.');
+        }
+
+        return $this->acceptableMediaTypes;
     }
 
     /**

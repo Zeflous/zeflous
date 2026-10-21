@@ -91,7 +91,7 @@ final readonly class RadixTree
     /**
      * Matches a request method, path and optional exact host against the tree.
      */
-    public function match(string $method, string $path, ?string $host = null): MatchResult
+    public function match(string $method, string $path, ?string $host = null, ?string $accept = null): MatchResult
     {
         $captured = [];
         $routes = new RouteMatcher()->walk($this->radixNode, $path, 0, $captured);
@@ -134,6 +134,6 @@ final readonly class RadixTree
             return MatchResult::notFound();
         }
 
-        return RouteMethodAnswer::resolve($method, $routes, $captured, $requestHost);
+        return RouteMethodAnswer::resolve($method, $routes, $captured, $requestHost, $accept);
     }
 }

@@ -26,11 +26,15 @@ final class RouteMethodAnswer
      * @param list<CompiledRoute> $routes   the constraint-accepting candidates
      * @param list<string>        $captured the values the walk captured
      */
-    public static function resolve(string $method, array $routes, array $captured, ?string $host = null): MatchResult
+    public static function resolve(string $method, array $routes, array $captured, ?string $host = null, ?string $accept = null): MatchResult
     {
         foreach ($routes as $route) {
             if ($route->answersMethod($method)) {
                 $parameters = RouteParameters::zip($route, $captured);
+                if (!RouteAcceptNegotiator::accepts($accept, $route->produces())) {
+                    return MatchResult::notAcceptable($route->produces());
+                }
+
                 $hostParameters = $route->hostParameters($host) ?? [];
 
                 return MatchResult::found($route, array_merge($parameters, $hostParameters));
