@@ -30,6 +30,7 @@ final readonly class CompiledRoute
     /**
      * @param array{
      *     host: ?non-empty-string,
+     *     produces: list<string>,
      *     method: list<string>,
      *     handler: non-empty-string,
      *     name: ?non-empty-string,
@@ -69,6 +70,7 @@ final readonly class CompiledRoute
             RouteConstraints::fromMap($entry['constraints'], $routePath),
             [
                 'host' => $host,
+                'produces' => RouteAcceptNegotiator::normalizeProduces($entry['produces']),
                 'method' => self::normalizedMethods($entry['method']),
                 'handler' => $entry['handler'],
                 'name' => $entry['name'],
@@ -107,6 +109,16 @@ final readonly class CompiledRoute
         }
 
         return RouteHost::parameters($this->fields['host'], RouteHost::request($host));
+    }
+
+    /**
+     * The media types this route can produce, normalised to lower-case.
+     *
+     * @return list<string>
+     */
+    public function produces(): array
+    {
+        return $this->fields['produces'];
     }
 
     /**
