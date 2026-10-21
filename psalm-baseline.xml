@@ -3,7 +3,6 @@
   <file src="src/Contracts/Psr/Http/Message/MessageInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getProtocolVersion]]></code>
-      <code><![CDATA[withAddedHeader]]></code>
       <code><![CDATA[withProtocolVersion]]></code>
     </PossiblyUnusedMethod>
   </file>
@@ -472,11 +471,6 @@
     <MixedAssignment>
       <code><![CDATA[$decoded]]></code>
     </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Telemetry/SpanContext.php">
-    <PossiblyUnusedProperty>
-      <code><![CDATA[$traceState]]></code>
-    </PossiblyUnusedProperty>
   </file>
   <file src="src/Zef/Framework/Telemetry/SpanData.php">
     <PossiblyUnusedMethod>

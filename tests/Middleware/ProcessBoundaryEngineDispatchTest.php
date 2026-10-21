@@ -142,7 +142,7 @@ final class ProcessBoundaryEngineDispatchTest extends TestCase
         self::assertCount(
             1,
             $records,
-            "The deprecation notice is the one record: the converted user error is never re-witnessed as a fatal.",
+            'The deprecation notice is the one record: the converted user error is never re-witnessed as a fatal.',
         );
     }
 

@@ -280,11 +280,17 @@ final class ReviewThreadResolverTest extends TestCase
         self::assertSame('PRRT_page2', $calls[3]['threadId']);
     }
 
+    /**
+     * @param list<array<string, mixed>> $nodes
+     */
     private static function threadsPayload(array $nodes): string
     {
         return self::pagedThreadsPayload($nodes, false, null);
     }
 
+    /**
+     * @param list<array<string, mixed>> $nodes
+     */
     private static function pagedThreadsPayload(array $nodes, bool $hasNextPage, ?string $endCursor): string
     {
         return (string) json_encode([

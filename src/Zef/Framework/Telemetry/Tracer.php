@@ -74,7 +74,7 @@ final readonly class Tracer implements TracerInterface
 
         $traceId = $spanContext->traceId ?? bin2hex(random_bytes(16));
         $spanId = bin2hex(random_bytes(8));
-        $context = new SpanContext($traceId, $spanId, $spanContext?->sampled ?? true, $spanContext?->traceState);
+        $context = new SpanContext($traceId, $spanId, $spanContext->sampled ?? true, $spanContext?->traceState);
 
         return new Span(
             $name,

@@ -109,9 +109,9 @@ final readonly class ReviewThreadResolver
                 ['number' => $pullRequestNumber, 'cursor' => $cursor],
             );
 
-            $page = (new ReviewThreadPageInfo($payload))->page();
+            $page = new ReviewThreadPageInfo($payload)->page();
 
-            foreach ((new ReviewThreadPayload($payload))->report()->threads as $thread) {
+            foreach (new ReviewThreadPayload($payload)->report()->threads as $thread) {
                 $threads[] = $thread;
             }
 

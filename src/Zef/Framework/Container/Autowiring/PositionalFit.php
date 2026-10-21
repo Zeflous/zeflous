@@ -48,9 +48,9 @@ final readonly class PositionalFit
      */
     private static function capacity(array $specs): int
     {
-        $last = $specs[\count($specs) - 1] ?? null;
+        $lastIndex = array_key_last($specs);
 
-        return $last !== null && $last->isVariadic ? \PHP_INT_MAX : \count($specs);
+        return $lastIndex !== null && $specs[$lastIndex]->isVariadic ? \PHP_INT_MAX : \count($specs);
     }
 
     /**

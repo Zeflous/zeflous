@@ -44,7 +44,7 @@ final class RoadmapRuleHelpersTest extends TestCase
     {
         self::assertSame(['a', 'b'], RoadmapTableCells::cells("| a | b |\r"));
         self::assertTrue(RoadmapTableCells::isSeparator(RoadmapTableCells::cells("|---|---|\r")));
-        self::assertSame(2, \count(RoadmapTableCells::cells("|---|---|\r")));
+        self::assertCount(2, RoadmapTableCells::cells("|---|---|\r"));
     }
 
     public function testIsSeparatorAcceptsEveryAlignment(): void

@@ -165,10 +165,10 @@ final class ResponseEmitterTest extends TestCase
         $emitter = $this->recordingEmitter($fields, $statuses);
 
         foreach ([100, 101, 204] as $status) {
-            $before = count($fields);
+            $before = \count($fields);
             $this->emits($emitter, new Response($status, ['Content-Length' => '0', 'X-Framework' => 'zef'], ''));
 
-            $emitted = array_slice($this->fieldLines($fields), $before);
+            $emitted = \array_slice($this->fieldLines($fields), $before);
             self::assertSame(['X-Framework: zef'], $emitted, "status {$status} must not carry a Content-Length");
         }
     }

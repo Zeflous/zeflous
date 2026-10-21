@@ -15,7 +15,7 @@ namespace Zef\Framework\Http;
  */
 final class HttpMethod
 {
-    private const string METHOD_PATTERN = "/^[!#$%&'*+.^_`|~0-9A-Za-z-]+\z/";
+    private const string METHOD_PATTERN = "/^[!#$%&'*+.^_`|~0-9A-Za-z-]+\\z/";
 
     /**
      * @throws HttpException when the method is not a single valid token
