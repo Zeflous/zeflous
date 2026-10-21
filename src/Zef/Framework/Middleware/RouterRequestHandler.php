@@ -93,7 +93,9 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         );
 
         $response = (new MiddlewarePipeline($stack, $terminal))->handle($request);
-        if ($method !== 'HEAD') {
+        $response = $this->applyConditionalRequest($request, $response, $method);
+
+        if ($method !== 'HEAD' && $response->getStatusCode() !== 304) {
             return $response;
         }
 
@@ -103,6 +105,70 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         }
 
         return $headResponse;
+    }
+
+    /**
+     * Applies conditional GET/HEAD semantics to a successful representation.
+     *
+     * If-None-Match takes precedence over If-Modified-Since as required by HTTP.
+     */
+    private function applyConditionalRequest(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        string $method,
+    ): ResponseInterface {
+        if (!in_array($method, ['GET', 'HEAD'], true) || $response->getStatusCode() !== 200) {
+            return $response;
+        }
+
+        if ($request->hasHeader('If-None-Match')) {
+            $condition = trim($request->getHeaderLine('If-None-Match'));
+            if ($condition === '*') {
+                return $this->notModified($response);
+            }
+
+            $currentTag = trim($response->getHeaderLine('ETag'));
+            if ($currentTag === '') {
+                return $response;
+            }
+
+            $currentOpaqueTag = preg_replace('/\\AW\\//i', '', $currentTag);
+            preg_match_all('/(?:W\\/)?"[^"]*"|\\*/i', $condition, $matches);
+            foreach ($matches[0] as $candidate) {
+                if ($candidate === '*') {
+                    return $this->notModified($response);
+                }
+
+                $candidateOpaqueTag = preg_replace('/\\AW\\//i', '', $candidate);
+                if ($candidateOpaqueTag === $currentOpaqueTag) {
+                    return $this->notModified($response);
+                }
+            }
+
+            return $response;
+        }
+
+        if (!$request->hasHeader('If-Modified-Since')) {
+            return $response;
+        }
+
+        $lastModified = strtotime($response->getHeaderLine('Last-Modified'));
+        $ifModifiedSince = strtotime($request->getHeaderLine('If-Modified-Since'));
+        if ($lastModified !== false && $ifModifiedSince !== false && $lastModified <= $ifModifiedSince) {
+            return $this->notModified($response);
+        }
+
+        return $response;
+    }
+
+    private function notModified(ResponseInterface $response): ResponseInterface
+    {
+        $notModified = $response->withStatus(304)->withBody($this->streamFactory->createStream(''));
+        if (!$notModified instanceof ResponseInterface) {
+            throw new \\UnexpectedValueException('The conditional response operation did not return a ResponseInterface.');
+        }
+
+        return $notModified;
     }
 
     private static function requestPath(ServerRequestInterface $request): string

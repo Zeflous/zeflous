@@ -79,6 +79,59 @@ final class RouterRequestHandlerTest extends TestCase
         self::assertStringContainsString('application/json', $notAcceptable->getBody()->getContents());
     }
 
+    public function testIfNoneMatchReturnsNotModifiedWithoutExecutingASecondRepresentationBody(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'ETag' => 'W/"profile-v1"', 'X-Resource' => 'profile'],
+                '{"name":"profile"}',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $request = self::request('GET', 'api.example.com', 'application/json')
+            ->withHeader('If-None-Match', '"other", "profile-v1"');
+        $response = self::handler($router, $container)->handle($request);
+
+        self::assertSame(304, $response->getStatusCode());
+        self::assertSame('W/"profile-v1"', $response->getHeaderLine('ETag'));
+        self::assertSame('profile', $response->getHeaderLine('X-Resource'));
+        self::assertSame('', $response->getBody()->getContents());
+    }
+
+    public function testIfNoneMatchTakesPrecedenceOverIfModifiedSince(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                [
+                    'Content-Type' => 'text/plain',
+                    'ETag' => '"profile-v2"',
+                    'Last-Modified' => 'Wed, 21 Oct 2015 07:28:00 GMT',
+                ],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $request = self::request('GET', 'api.example.com', 'text/plain')
+            ->withHeader('If-None-Match', '"different"')
+            ->withHeader('If-Modified-Since', 'Wed, 21 Oct 2030 07:28:00 GMT');
+        $response = self::handler($router, $container)->handle($request);
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('profile', $response->getBody()->getContents());
+    }
+
     public function testHeadFallsBackToGetAndSuppressesResponseBody(): void
     {
         $container = new Container();
