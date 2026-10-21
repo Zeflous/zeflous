@@ -153,6 +153,41 @@ final class ResponseEmitterTest extends TestCase
         }
     }
 
+    /**
+     * RFC 9110 section 8.6: a 1xx or 204 answer MUST NOT carry a
+     * Content-Length at all -- even a truthful `0` against an empty
+     * body, which the reconciliation would otherwise let ship.
+     */
+    public function testDropsTheContentLengthOnTheStatusesThatMustNotCarryIt(): void
+    {
+        $fields = [];
+        $statuses = [];
+        $emitter = $this->recordingEmitter($fields, $statuses);
+
+        foreach ([100, 101, 204] as $status) {
+            $before = count($fields);
+            $this->emits($emitter, new Response($status, ['Content-Length' => '0', 'X-Framework' => 'zef'], ''));
+
+            $emitted = array_slice($this->fieldLines($fields), $before);
+            self::assertSame(['X-Framework: zef'], $emitted, "status {$status} must not carry a Content-Length");
+        }
+    }
+
+    /**
+     * The same section's second paragraph: a 304 may keep a truthful
+     * Content-Length, and the reconciliation still owns its honesty.
+     */
+    public function testKeepsATruthfulContentLengthOnNotModified(): void
+    {
+        $fields = [];
+        $statuses = [];
+        $emitter = $this->recordingEmitter($fields, $statuses);
+
+        $this->emits($emitter, new Response(304, ['Content-Length' => '0'], ''));
+
+        self::assertSame(['Content-Length: 0'], $this->fieldLines($fields));
+    }
+
     public function testCloseBodyClosesTheStreamAfterwards(): void
     {
         $body = Stream::fromString('hello');

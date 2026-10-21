@@ -27,9 +27,10 @@ use Psr\Http\Message\ResponseInterface;
 final class EmittedHeaders
 {
     /**
-     * Transmits the status code and the validated header fields, with a
-     * lying Content-Length reconciled away before any framing reaches
-     * the seam.
+     * Transmits the status code and the validated header fields, with
+     * the framing the status may not carry dropped outright and a lying
+     * Content-Length reconciled away before any framing reaches the
+     * seam.
      */
     public static function transmit(ResponseInterface $response, SapiTransmitter $sapiTransmitter): void
     {
@@ -38,7 +39,7 @@ final class EmittedHeaders
             $sapiTransmitter->status($status);
         }
 
-        $message = ContentLength::reconcile($response, $response->getBody());
+        $message = self::framingHonest($response, $status);
 
         $headerRows = self::rows($message);
         array_walk($headerRows, static function (mixed $values, int|string $name) use ($sapiTransmitter): void {
@@ -55,6 +56,25 @@ final class EmittedHeaders
                 },
             );
         });
+    }
+
+    /**
+     * The message with the framing header the status may carry.
+     *
+     * RFC 9110 section 8.6 forbids a Content-Length on any 1xx or 204
+     * answer outright -- a keep-alive intermediary that trusts the field
+     * for framing desynchronises -- so the forbidden classes lose the
+     * header before the reconciliation runs: a clean `0` against an
+     * empty body would otherwise reconcile and ship. A 304 may keep a
+     * truthful one (section 8.6, second paragraph).
+     */
+    private static function framingHonest(ResponseInterface $response, int $status): MessageInterface
+    {
+        if ($status < 200 || $status === 204) {
+            return $response->withoutHeader('Content-Length');
+        }
+
+        return ContentLength::reconcile($response, $response->getBody());
     }
 
     /**
