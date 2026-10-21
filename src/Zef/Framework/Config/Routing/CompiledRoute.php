@@ -30,6 +30,7 @@ final readonly class CompiledRoute
     /**
      * @param array{
      *     host: ?non-empty-string,
+     *     version: ?non-empty-string,
      *     produces: list<string>,
      *     method: list<string>,
      *     handler: non-empty-string,
@@ -70,6 +71,7 @@ final readonly class CompiledRoute
             RouteConstraints::fromMap($entry['constraints'], $routePath),
             [
                 'host' => $host,
+                'version' => $entry['version'] === null ? null : RouteVersion::canonical($entry['version']),
                 'produces' => RouteAcceptNegotiator::normalizeProduces($entry['produces']),
                 'method' => self::normalizedMethods($entry['method']),
                 'handler' => $entry['handler'],
@@ -109,6 +111,14 @@ final readonly class CompiledRoute
         }
 
         return RouteHost::parameters($this->fields['host'], RouteHost::request($host));
+    }
+
+    /**
+     * The canonical API version this route answers, or null for unversioned routes.
+     */
+    public function version(): ?string
+    {
+        return $this->fields['version'];
     }
 
     /**

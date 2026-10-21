@@ -42,11 +42,13 @@ final class RouteMethodClaims
         $pattern = $compiledRoute->path()->pattern();
         $host = $compiledRoute->host();
         $path = $compiledRoute->path()->canonical();
-        $canonical = ($host ?? '*') . '|' . $path;
+        $version = $compiledRoute->version();
+        $canonical = ($host ?? '*') . '|' . ($version ?? '*') . '|' . $path;
+        $hostClaimScope = $path . '|' . ($version ?? '*');
 
         foreach ($compiledRoute->methods() as $method) {
             if ($host !== null) {
-                foreach ($this->parameterHostClaims[$path][$method] ?? [] as $claim) {
+                foreach ($this->parameterHostClaims[$hostClaimScope][$method] ?? [] as $claim) {
                     if (
                         $host !== $claim['host']
                         && RouteHost::overlaps($host, $claim['host'])
@@ -64,7 +66,7 @@ final class RouteMethodClaims
                     }
                 }
 
-                $this->parameterHostClaims[$path][$method][] = ['host' => $host, 'pattern' => $pattern];
+                $this->parameterHostClaims[$hostClaimScope][$method][] = ['host' => $host, 'pattern' => $pattern];
             }
 
             $registeredBy = $this->claims[$canonical][$method] ?? null;

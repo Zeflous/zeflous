@@ -13,12 +13,14 @@ use Zef\Framework\Config\ConfigException;
  * "bahasa induk" every DSL output compiles down to before the Radix Tree
  * engine consumes it).
  *
- * The nine fields and their rules:
+ * The ten fields and their rules:
  *
  * - `path` (required, non-empty string) -- the URL pattern, e.g.
  *   `/users/{id}`.
  * - `host` (optional, non-empty string) -- a DNS hostname pattern with optional
  *   whole-label parameters, e.g. `api.example.com` or `{tenant}.example.com`.
+ * - `version` (optional, non-empty string) -- the API version selected by the
+ *   `Accept-Version` or `X-API-Version` request header.
  * - `produces` (optional, non-empty list of media types) -- representations
  *   supported by the route for basic `Accept` negotiation.
  * - `method` (required, non-empty list of non-empty strings) -- the HTTP
@@ -38,7 +40,7 @@ use Zef\Framework\Config\ConfigException;
  * decisions the engine layer owns. Host-pattern semantics are validated by
  * the routing compiler. Validation is fail-closed (KDD-5): an
  * invalid route is reported with its full path context, never silently
- * dropped, and a key outside the nine fields is a violation so a typo
+ * dropped, and a key outside the ten fields is a violation so a typo
  * cannot produce a route that half-exists.
  *
  * The class is a thin definition over the generic {@see ConfigSchema}
@@ -57,6 +59,7 @@ final readonly class RouteSchema
     private const array RULES = [
         'path' => ['required' => true, 'kind' => 'string'],
         'host' => ['required' => false, 'kind' => 'string'],
+        'version' => ['required' => false, 'kind' => 'string'],
         'produces' => ['required' => false, 'kind' => 'strings'],
         'method' => ['required' => true, 'kind' => 'strings'],
         'handler' => ['required' => true, 'kind' => 'string'],
