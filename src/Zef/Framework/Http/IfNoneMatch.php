@@ -12,9 +12,15 @@ namespace Zef\Framework\Http;
  * marker and the quoting are stripped before comparing, and surrounding
  * whitespace around candidates is not part of the comparison).
  *
+ * The list is split on the commas that separate members: a comma inside
+ * a quoted opaque validator (§8.8.3 `etagc` admits 0x2C) is part of the
+ * validator, never a separator -- one deliberate deviation from the
+ * reference's bare `explode`, whose fragments could compare equal to a
+ * validator the client never stored.
+ *
  * Ported from the reference implementation (legacy `zef-framework`
  * `Adapters.Http.ETagMiddleware::ifNoneMatchMatches` + `stripWeakness`),
- * move-verbatim.
+ * move-verbatim except for the quote-aware split.
  */
 final class IfNoneMatch
 {
@@ -29,7 +35,7 @@ final class IfNoneMatch
         }
 
         $canonical = self::withoutWeakness($etag);
-        foreach (explode(',', $ifNoneMatch) as $candidate) {
+        foreach (self::candidates($ifNoneMatch) as $candidate) {
             $candidate = mb_trim($candidate);
             if ($candidate === '') {
                 continue;
@@ -55,5 +61,44 @@ final class IfNoneMatch
         }
 
         return mb_trim($etag, '"');
+    }
+
+    /**
+     * The comma-separated candidates, split on the commas that separate
+     * list members: a comma inside a quoted opaque validator (§8.8.3
+     * `etagc` admits 0x2C, and the grammar admits no DQUOTE inside the
+     * quotes) belongs to the validator, so every DQUOTE toggles the
+     * quoting state and only an unquoted comma starts the next member.
+     *
+     * @return list<string>
+     */
+    private static function candidates(string $ifNoneMatch): array
+    {
+        $candidates = [];
+        $current = '';
+        $quoted = false;
+
+        $length = strlen($ifNoneMatch);
+        for ($offset = 0; $offset < $length; ++$offset) {
+            $byte = $ifNoneMatch[$offset];
+
+            if ($byte === '"') {
+                $quoted = !$quoted;
+                $current .= $byte;
+                continue;
+            }
+
+            if ($byte === ',' && !$quoted) {
+                $candidates[] = $current;
+                $current = '';
+                continue;
+            }
+
+            $current .= $byte;
+        }
+
+        $candidates[] = $current;
+
+        return $candidates;
     }
 }
