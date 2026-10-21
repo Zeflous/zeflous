@@ -9,9 +9,9 @@
 | Compressed radix tree and static-prefix splitting | `Config/Routing/RadixTree`, `RouteTreeBuilder`, `RouteNodeInserter`, `RoutePatternTokens` | Present; zero-allocation performance is not established. |
 | Method/path matching, parameter capture and constraints | `CompiledRoute`, `RouteMatcher`, `RouteMethodAnswer`, `MatchResult` | Present; route captures include path and host parameters. Captures and result objects are created during matching. |
 | 404 vs 405 and deterministic Allow methods | `MatchResult`, `RouteMethodAnswer` | Present in the engine. |
-| Named routes, duplicate detection and reverse routing | `RouteTableRegistry`, `RadixTree::route()`, `RouteUrlGenerator` | Present for the path-only schema; URL parameters are constraint-checked. |
+| Named routes, duplicate detection and reverse routing | `RouteTableRegistry`, `RadixTree::route()`, `RouteUrlGenerator` | Path URL generation validates path parameters; `Router::absoluteUrl()` additionally renders validated host parameters for named host routes. Round-trip boundary coverage still requires CI verification. |
 | DSL grouping and scoped middleware metadata | `RouteDsl`, `RouteDslScope`, `PendingRoute` | Present as route declarations/metadata; not a per-route middleware execution pipeline. |
-| Handler dispatch | `RouteDispatcher`, `RouteHandlerResolver`, `DispatchOutcome` | Present in `Config/Routing` for primitive method/path input and container-resolved handlers. The new `Zef\Framework\Router\Router` facade does not expose it yet. |
+| Handler dispatch | `RouteDispatcher`, `RouteHandlerResolver`, `DispatchOutcome`, `Router::dispatcher()` | The public facade exposes the container-backed dispatcher over the same memoized runtime. |
 | Compile once per runtime instance | `RoutingRuntime::tree()` memoizes `RadixTree::compile()` | Present lazily per instance. No public mutable tree builder is exposed by the facade. |
 | Standard route schema | `Config/Schema/RouteSchema`, `Config/Routing/RouteEntryShape`, `RouteHost` | Optional `host` accepts exact DNS names and whole-label parameters such as `{tenant}.example.com`; host patterns are canonicalised and checked for ambiguity. Ports, IP literals and `*` wildcard syntax remain unsupported. |
 
@@ -20,7 +20,7 @@
 ### Phase 1 — Core Engine & Foundation
 
 - **Host-aware routing — exact and parameterised-host slices implemented in this branch:** `RouteHost` accepts exact DNS names and whole-label parameters (`{tenant}.example.com`), captures host parameters into the dispatch parameter map, and rejects repeated host/path parameter names. Exact hosts outrank parameterised hosts, the most-specific parameterised pattern wins, and host-agnostic routes are the final fallback; equal-specificity overlapping host patterns are rejected at compile time. `Router::absoluteUrl()` renders a safe absolute URL from a named host route. `*` wildcard syntax, IP literals, ports, tenant-context object injection and PSR-7 Host/URI authority integration remain open.
-- **Basic content negotiation — implemented in this branch:** the optional `produces` schema field is validated and normalised by `RouteAcceptNegotiator`; `Accept` ranges, wildcards and quality values are evaluated at match time; a mismatch yields typed 406 outcomes carrying supported media types. The PSR-15 adapter maps this to a plain-text 406 and adds `Vary: Accept`; RFC 9457 responses use `about:blank` with title, status and detail fields; richer application-specific problem types remain open.
+- **Basic content negotiation — implemented in this branch:** the optional `produces` schema field is validated and normalised by `RouteAcceptNegotiator`; `Accept` ranges, wildcards and quality values are evaluated at match time; a mismatch yields typed 406 outcomes carrying supported media types. The PSR-15 adapter maps this to RFC 9457 `application/problem+json` and adds `Vary: Accept`; richer application-specific problem types remain open.
 - **PSR-7 / PSR-15 integration — implemented in this branch:** `Middleware\RouterRequestHandler` implements `RequestHandlerInterface`, extracts method/path/Host/Accept from `ServerRequestInterface`, and maps routing outcomes to responses. It composes inside the existing global `MiddlewarePipeline`; handler results must be `ResponseInterface`.
 - **Public dispatcher bridge — implemented in this branch:** `Router::dispatcher(Container)` exposes the existing `RouteDispatcher` over the same memoized runtime.
 - **Registration semantics:** DSL prefix groups, named routes, constraints and duplicate checks exist. Host-scoped conflict keys, a public Router registration lifecycle, route budget and explicit freeze contract remain open.
@@ -46,7 +46,7 @@
 - **CLI route list/test/tree dump:** no Router-specific command was found in the audited entry points; repository-wide command inventory is still needed before claiming a global absence.
 - **Reverse-routing safety:** path reverse routing validates constraints and encodes parameters; `Router::absoluteUrl()` now renders host-pattern parameters as DNS labels. Round-trip and boundary cases still require CI validation.
 - **OpenAPI / Swagger UI / Postman export:** no Router integration evidenced in the audited entry points.
-- **Problem Details, CSRF and rate-limit hooks:** CSRF/rate limiting remain middleware concerns and can run in the global or route stack. Router-generated 404/405/406 bodies are currently plain text; RFC 9457 rendering remains open.
+- **Problem Details, CSRF and rate-limit hooks:** generic RFC 9457 Problem Details (`about:blank`, title/status/detail) is implemented for router-generated 404/405/406 responses. Application-specific problem types, CSRF and rate limiting remain middleware concerns and can run in the global or route stack.
 
 ### Phase 5 — Ecosystem & Integration
 
