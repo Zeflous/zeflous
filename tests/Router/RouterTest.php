@@ -65,6 +65,21 @@ final class RouterTest extends TestCase
         self::assertSame($router->tree(), $router->tree());
     }
 
+    public function testFacadePassesTheRequestHostIntoMatching(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['GET'],
+                'handler' => 'Admin@dashboard',
+            ],
+        ]);
+
+        self::assertTrue($router->match('GET', '/dashboard', 'ADMIN.EXAMPLE.COM')->isFound());
+        self::assertFalse($router->match('GET', '/dashboard', 'api.example.com')->isFound());
+    }
+
     public function testDispatcherUsesTheFacadeRuntimeAndContainerHandler(): void
     {
         $container = new Container();
