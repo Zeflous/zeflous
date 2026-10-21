@@ -83,7 +83,7 @@ final class RouteHost
         }
 
         $patternLabels = explode('.', $pattern);
-        $hostLabels = explode($requestHost, '.');
+        $hostLabels = explode('.', $requestHost);
 
         if (count($patternLabels) !== count($hostLabels)) {
             return null;
@@ -118,7 +118,7 @@ final class RouteHost
     private static function invalid(string $host): ConfigException
     {
         return new ConfigException(
-            sprintf('The route host "%s" must be a DNS hostname pattern using whole-label parameters only, without a port or wildcard.', $host),
+            sprintf('The route host "%s" must be an exact DNS hostname without a port or wildcard, or use whole-label parameters.', $host),
         );
     }
 }
