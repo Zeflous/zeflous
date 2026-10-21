@@ -6,7 +6,6 @@ namespace Zef\Test\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Exception\CarriesHttpStatus;
 use Zef\Framework\Exception\NativeErrorException;
 
 /**
@@ -34,7 +33,6 @@ final class NativeErrorExceptionTest extends TestCase
         self::assertSame(42, $nativeErrorException->getDetails()['line']);
         self::assertSame('critical', $nativeErrorException->getDetails()['severity']);
         self::assertNull($nativeErrorException->getTraceId());
-        self::assertInstanceOf(CarriesHttpStatus::class, $nativeErrorException);
         self::assertSame(500, $nativeErrorException->httpStatus());
     }
 

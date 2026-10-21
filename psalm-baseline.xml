@@ -378,11 +378,6 @@
       <code><![CDATA[HeadMiddleware]]></code>
     </UnusedClass>
   </file>
-  <file src="src/Zef/Framework/Http/RequestFactory.php">
-    <UnusedClass>
-      <code><![CDATA[RequestFactory]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/Zef/Framework/Http/ServerProtocol.php">
     <LessSpecificReturnStatement>
       <code><![CDATA[$matches[1]]]></code>

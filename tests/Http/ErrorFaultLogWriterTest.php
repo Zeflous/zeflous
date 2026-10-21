@@ -104,7 +104,7 @@ final class ErrorFaultLogWriterTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed> the decoded fallback record
+     * @return array<array-key, mixed> the decoded fallback record
      */
     private function decodedFallbackRecord(): array
     {

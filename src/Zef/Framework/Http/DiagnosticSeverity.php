@@ -39,7 +39,7 @@ final class DiagnosticSeverity
     /**
      * Answers the PSR-3 level the severity records at.
      *
-     * @param int<0, max> $severity the engine's severity bits
+     * @param int $severity the engine's severity bits
      *
      * @return non-empty-string one of the PSR-3 levels the JSONL lane accepts
      */

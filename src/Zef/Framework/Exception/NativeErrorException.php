@@ -33,11 +33,11 @@ final class NativeErrorException extends ZefException implements CarriesHttpStat
      * The one construction site: the engine's diagnostic, bounded before it
      * crosses into the typed lane.
      *
-     * @param non-empty-string $message  the engine's diagnostic text, already
-     *                                   bounded by the caller
-     * @param string           $severity the PSR-3 level the diagnostic mapped to
-     * @param string           $file     the file the diagnostic names
-     * @param int              $line     the line the diagnostic names
+     * @param string $message  the engine's diagnostic text, already
+     *                         bounded by the caller
+     * @param string $severity the PSR-3 level the diagnostic mapped to
+     * @param string $file     the file the diagnostic names
+     * @param int    $line     the line the diagnostic names
      */
     public static function diagnostic(string $message, string $severity, string $file, int $line): self
     {

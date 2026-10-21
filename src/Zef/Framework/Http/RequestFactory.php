@@ -157,6 +157,10 @@ final class RequestFactory
      * empty list means pinning is not configured, not "trust nothing");
      * the body half always runs.
      *
+     * @api host applications and persistent-worker runtimes call this guard
+     *      on requests they constructed themselves, outside the analysed
+     *      source tree.
+     *
      * @param ServerRequestInterface $serverRequest     the request entering the application
      *                                                  ingress
      * @param list<string>           $trustedHosts      the trusted host allow-list

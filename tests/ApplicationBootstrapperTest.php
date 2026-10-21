@@ -28,6 +28,7 @@ use Zef\Framework\Middleware\ErrorMappingFactory;
 use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Middleware\MetricsFactory;
 use Zef\Framework\Middleware\MetricsMiddleware;
+use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Framework\Middleware\TimingFactory;
@@ -86,6 +87,13 @@ final class ApplicationBootstrapperTest extends TestCase
             [
                 'http.errors' => [
                     'factory' => ErrorMappingFactory::class . '::fromConfig',
+                    'arguments' => [
+                        ['service' => FrameworkDefaults::CONFIG_SERVICE],
+                        ['service' => 'observability.meter'],
+                    ],
+                ],
+                'http.errors.process_boundary' => [
+                    'factory' => ProcessErrorBoundaryFactory::class . '::fromConfig',
                     'arguments' => [
                         ['service' => FrameworkDefaults::CONFIG_SERVICE],
                         ['service' => 'observability.meter'],
