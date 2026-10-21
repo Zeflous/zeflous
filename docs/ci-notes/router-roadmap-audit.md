@@ -31,7 +31,7 @@
 - **Subdomain patterns and tenant parameters — partially implemented:** whole-label `{tenant}` host captures are included in the matched parameter map and usable in absolute URL generation. Explicit isolated tenant tables and a tenant-context service/object remain open.
 - **Isolated tenant route tables:** no explicit API.
 - **Locale prefix routing / locale negotiation / localized URL generation:** a static prefix can be expressed with DSL groups, but locale negotiation and locale-aware URL generation are not integrated.
-- **API versioning:** path versioning can be expressed as ordinary paths; version-header matching and deprecation response middleware are missing.
+- **API versioning — header selection implemented in this branch:** optional route `version` declarations are canonicalised, same path/method variants may coexist across versions, `Accept-Version` takes precedence over `X-API-Version`, and an absent version selects an unversioned fallback when one exists. Unknown or malformed explicit versions fail closed as not-found. Deprecation/Sunset response headers and version-aware OpenAPI output remain open.
 - **Per-route middleware execution — implemented in this branch:** `RouterRequestHandler` resolves each matched route's middleware service from the container, rejects missing or non-PSR-15 services, and composes the route list around `RouteDispatchHandler`. The global pipeline wraps this adapter, so route middleware runs inside global middleware and preserves route declaration order.
 
 ### Phase 3 — Performance & Production
@@ -65,7 +65,7 @@ Do not copy the reference repository's Router collaborators wholesale. Reuse the
 2. **Public integration seam — implemented in this branch:** `Router::dispatcher(Container)` returns the existing `RouteDispatcher` over the same memoized runtime. `tests/Router/RouterTest.php` adds an execution-path contract test; execution of the test suite is pending because the local clone is unavailable.
 3. **Exact-host core — implemented in this branch:** host schema, canonicalisation, host-scoped duplicate claims, exact-host match filtering and host-precedence tests are added. CI execution remains pending.
 4. **Host-pattern slice — implemented in this branch:** whole-label parameters, exact > parameterised > fallback precedence, ambiguity refusal, host/path parameter collision refusal, host capture and absolute URL generation. `*` wildcard syntax and authority parsing remain a distinct decision.
-5. **HTTP adapter:** integrate the typed 406 outcome and request/response mapping through PSR-7/15 boundaries; add standards-compliant error rendering.
+5. **HTTP adapter — implemented in this branch:** `RouterRequestHandler` maps match outcomes to PSR-7 responses and composes route middleware; RFC 9457 rendering, ETag/conditional semantics and HEAD behavior remain open.
 6. **Middleware lifecycle:** compose route middleware around the existing dispatcher with fail-closed resolution and explicit ordering.
 7. **Production/tooling:** freeze/budget semantics, cache, observability, CLI and exports as separate scoped slices with tests and roadmap evidence.
 
