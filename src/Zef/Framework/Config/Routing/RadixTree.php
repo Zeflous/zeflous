@@ -103,6 +103,7 @@ final readonly class RadixTree
         $requestHost = RouteHost::request($host);
         $exactHostRoutes = [];
         $hostPatternRoutes = [];
+        $hostPatternSpecificity = -1;
         $hostAgnosticRoutes = [];
 
         foreach ($routes as $route) {
@@ -118,7 +119,14 @@ final readonly class RadixTree
 
             if ($hostParameters === []) {
                 $exactHostRoutes[] = $route;
-            } else {
+                continue;
+            }
+
+            $specificity = RouteHost::specificity($route->host() ?? '');
+            if ($specificity > $hostPatternSpecificity) {
+                $hostPatternRoutes = [$route];
+                $hostPatternSpecificity = $specificity;
+            } elseif ($specificity === $hostPatternSpecificity) {
                 $hostPatternRoutes[] = $route;
             }
         }

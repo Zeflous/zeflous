@@ -230,6 +230,29 @@ final class RadixTreeTest extends TestCase
         self::assertSame('Fallback@dashboard', $radixTree->match('GET', '/dashboard', 'outside.test')->route()->handler());
     }
 
+    public function testMoreSpecificParameterizedHostWinsRegardlessOfRegistrationOrder(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '{sub}.{domain}.com',
+                'method' => ['GET'],
+                'handler' => 'GenericSubdomain@dashboard',
+            ],
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.{region}.com',
+                'method' => ['GET'],
+                'handler' => 'AdminRegion@dashboard',
+            ],
+        ]);
+
+        $match = $radixTree->match('GET', '/dashboard', 'admin.example.com');
+
+        self::assertSame('AdminRegion@dashboard', $match->route()->handler());
+        self::assertSame(['region' => 'example'], $match->parameters());
+    }
+
     public function testRejectsOverlappingHostPatternsAtEqualSpecificity(): void
     {
         $this->expectException(ConfigException::class);
