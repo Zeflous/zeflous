@@ -18,10 +18,12 @@ use Zef\Framework\Config\ConfigException;
  * or repaired at match time -- the tree is the roadmap's "makanan siap
  * saji": plain, pre-judged data.
  *
- * {@see self::match()} delegates the walk to {@see RouteMatcher} and
- * judges only the method: the walk settles the routes whose pattern
- * ended the path and whose constraints accept the captured values, and
- * {@see RouteMethodAnswer} selects the one answering the request method
+ * {@see self::match()} delegates the path walk to {@see RouteMatcher}, then
+ * narrows candidates by exact host before judging the method: a matching exact
+ * host takes precedence over host-agnostic routes, and a method mismatch on
+ * that exact host remains 405 rather than falling through. The walk settles
+ * routes whose pattern ended the path and whose constraints accept captured
+ * values, and {@see RouteMethodAnswer} selects the one answering the request method
  * (the request method is upper-cased once, by
  * {@see CompiledRoute::answersMethod()} -- the single owner of the case
  * policy). A path that matched while no settled route answers the
@@ -87,7 +89,7 @@ final readonly class RadixTree
     }
 
     /**
-     * Matches a request method and path against the tree.
+     * Matches a request method, path and optional exact host against the tree.
      */
     public function match(string $method, string $path, ?string $host = null): MatchResult
     {
