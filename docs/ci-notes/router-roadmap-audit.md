@@ -20,7 +20,7 @@
 ### Phase 1 — Core Engine & Foundation
 
 - **Host-aware routing — exact and parameterised-host slices implemented in this branch:** `RouteHost` accepts exact DNS names and whole-label parameters (`{tenant}.example.com`), captures host parameters into the dispatch parameter map, and rejects repeated host/path parameter names. Exact hosts outrank parameterised hosts, the most-specific parameterised pattern wins, and host-agnostic routes are the final fallback; equal-specificity overlapping host patterns are rejected at compile time. `Router::absoluteUrl()` renders a safe absolute URL from a named host route. `*` wildcard syntax, IP literals, ports, tenant-context object injection and PSR-7 Host/URI authority integration remain open.
-- **Basic content negotiation — implemented in this branch:** the optional `produces` schema field is validated and normalised by `RouteAcceptNegotiator`; `Accept` ranges, wildcards and quality values are evaluated at match time; a mismatch yields a typed `MatchResult::notAcceptable()` and `DispatchOutcome::notAcceptable()` carrying the route's supported media types. Mapping that outcome to an HTTP 406 response / RFC 9457 envelope still belongs to the HTTP adapter.
+- **Basic content negotiation — implemented in this branch:** the optional `produces` schema field is validated and normalised by `RouteAcceptNegotiator`; `Accept` ranges, wildcards and quality values are evaluated at match time; a mismatch yields typed 406 outcomes carrying supported media types. The PSR-15 adapter maps this to a plain-text 406 and adds `Vary: Accept`; RFC 9457 rendering remains open.
 - **PSR-7 / PSR-15 integration — implemented in this branch:** `Middleware\RouterRequestHandler` implements `RequestHandlerInterface`, extracts method/path/Host/Accept from `ServerRequestInterface`, and maps routing outcomes to responses. It composes inside the existing global `MiddlewarePipeline`; handler results must be `ResponseInterface`.
 - **Public dispatcher bridge — implemented in this branch:** `Router::dispatcher(Container)` exposes the existing `RouteDispatcher` over the same memoized runtime.
 - **Registration semantics:** DSL prefix groups, named routes, constraints and duplicate checks exist. Host-scoped conflict keys, a public Router registration lifecycle, route budget and explicit freeze contract remain open.
@@ -39,7 +39,7 @@
 - **Revision-aware compilation:** one runtime memoizes its tree; no route revision signature or automatic invalidation/rebuild API is exposed at Router level.
 - **Compiled radix-tree cache / route cache drivers / frozen-tree optimization:** not demonstrated by the facade. Configuration caching is not evidence of a compiled tree cache.
 - **Metrics, tracing, detailed debug mode:** absent from the audited Router surface.
-- **ETag, conditional requests, HEAD response-body handling:** response semantics are not integrated into the router dispatch path.
+- **ETag and conditional requests:** not implemented. `HEAD` fallback/body suppression is implemented in the PSR-15 adapter, but conditional semantics and other response caching rules remain open.
 
 ### Phase 4 — Developer Experience & Tooling
 
@@ -65,7 +65,7 @@ Do not copy the reference repository's Router collaborators wholesale. Reuse the
 2. **Public integration seam — implemented in this branch:** `Router::dispatcher(Container)` returns the existing `RouteDispatcher` over the same memoized runtime. `tests/Router/RouterTest.php` adds an execution-path contract test; execution of the test suite is pending because the local clone is unavailable.
 3. **Exact-host core — implemented in this branch:** host schema, canonicalisation, host-scoped duplicate claims, exact-host match filtering and host-precedence tests are added. CI execution remains pending.
 4. **Host-pattern slice — implemented in this branch:** whole-label parameters, exact > parameterised > fallback precedence, ambiguity refusal, host/path parameter collision refusal, host capture and absolute URL generation. `*` wildcard syntax and authority parsing remain a distinct decision.
-5. **HTTP adapter — implemented in this branch:** `RouterRequestHandler` maps match outcomes to PSR-7 responses and composes route middleware; RFC 9457 rendering, ETag/conditional semantics and HEAD behavior remain open.
+5. **HTTP adapter — implemented in this branch:** `RouterRequestHandler` maps match outcomes to PSR-7 responses, composes route middleware, and implements `HEAD` fallback/body suppression; RFC 9457 rendering and ETag/conditional semantics remain open.
 6. **Middleware lifecycle:** compose route middleware around the existing dispatcher with fail-closed resolution and explicit ordering.
 7. **Production/tooling:** freeze/budget semantics, cache, observability, CLI and exports as separate scoped slices with tests and roadmap evidence.
 
