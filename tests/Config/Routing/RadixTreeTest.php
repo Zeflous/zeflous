@@ -21,6 +21,7 @@ use Zef\Framework\Config\Routing\RouteParameters;
 use Zef\Framework\Config\Routing\RoutePatternTokens;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
 use Zef\Framework\Config\Routing\RouteHost;
+use Zef\Framework\Config\Routing\RouteAcceptNegotiator;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
 use Zef\Framework\Config\Routing\SegmentCapture;
 use Zef\Framework\Config\Routing\SharedPrefixLength;
@@ -50,6 +51,7 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(MatchResult::class)]
 #[CoversClass(CompiledRoute::class)]
 #[CoversClass(RouteHost::class)]
+#[CoversClass(RouteAcceptNegotiator::class)]
 final class RadixTreeTest extends TestCase
 {
     public function testARegistryCannotBeReadBeforeTheTreeIsBuilt(): void
@@ -63,6 +65,57 @@ final class RadixTreeTest extends TestCase
                 $invariantViolationException->getMessage(),
             );
         }
+    }
+
+    public function testNegotiatesAcceptAgainstRouteProducedMediaTypes(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json', 'text/html'],
+            ],
+        ]);
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, 'application/json')->isFound());
+        self::assertTrue($radixTree->match('GET', '/profile', null, 'text/*;q=0.8')->isFound());
+        self::assertTrue($radixTree->match('GET', '/profile', null, '*/*')->isFound());
+
+        $notAcceptable = $radixTree->match('GET', '/profile', null, 'image/png');
+        self::assertTrue($notAcceptable->isNotAcceptable());
+        self::assertSame(['application/json', 'text/html'], $notAcceptable->acceptableMediaTypes());
+    }
+
+    public function testSpecificZeroQualityOverridesWildcardAcceptRange(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, 'application/json;q=0, */*;q=1')->isNotAcceptable());
+    }
+
+    public function testRejectsInvalidAndDuplicateProducedMediaTypes(): void
+    {
+        try {
+            RadixTree::compile([
+                ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show', 'produces' => ['not-a-media-type']],
+            ]);
+            self::fail('Invalid produced media types must fail at compile time.');
+        } catch (ConfigException $exception) {
+            self::assertStringContainsString('invalid media type', $exception->getMessage());
+        }
+
+        $this->expectException(ConfigException::class);
+        RadixTree::compile([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show', 'produces' => ['application/json', 'APPLICATION/JSON']],
+        ]);
     }
 
     public function testMatchesAStaticRoute(): void

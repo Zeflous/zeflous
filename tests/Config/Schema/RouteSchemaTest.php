@@ -21,6 +21,7 @@ final class RouteSchemaTest extends TestCase
         $violations = $this->schema()->validate([
             'path' => '/users/{id}',
             'host' => 'api.example.com',
+            'produces' => ['application/json'],
             'method' => ['GET'],
             'handler' => 'App\Controller\UserController@show',
             'name' => 'users.show',

@@ -125,6 +125,25 @@ final class RouterTest extends TestCase
         $router->absoluteUrl('tenant.dashboard', ['tenant' => 'acme'], 'javascript');
     }
 
+    public function testDispatcherReturnsNotAcceptableWithoutExecutingHandler(): void
+    {
+        $container = new Container();
+        $container->set('Profile@show', static fn (): callable => static fn (array $parameters): string => 'should-not-run');
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+
+        $outcome = $router->dispatcher($container)->dispatch('GET', '/profile', null, 'text/html');
+
+        self::assertTrue($outcome->isNotAcceptable());
+        self::assertSame(['application/json'], $outcome->acceptableMediaTypes());
+    }
+
     public function testDispatcherUsesTheFacadeRuntimeAndContainerHandler(): void
     {
         $container = new Container();
