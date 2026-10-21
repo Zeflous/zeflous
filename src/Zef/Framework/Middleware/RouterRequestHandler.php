@@ -101,7 +101,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
 
         $headResponse = $response->withBody($this->streamFactory->createStream(''));
         if (!$headResponse instanceof ResponseInterface) {
-            throw new \\UnexpectedValueException('The HEAD response body operation did not return a ResponseInterface.');
+            throw new \UnexpectedValueException('The HEAD response body operation did not return a ResponseInterface.');
         }
 
         return $headResponse;
@@ -165,7 +165,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
     {
         $notModified = $response->withStatus(304)->withBody($this->streamFactory->createStream(''));
         if (!$notModified instanceof ResponseInterface) {
-            throw new \\UnexpectedValueException('The conditional response operation did not return a ResponseInterface.');
+            throw new \UnexpectedValueException('The conditional response operation did not return a ResponseInterface.');
         }
 
         return $notModified;
