@@ -123,7 +123,7 @@ final class RouteHost
             }
 
             $label = (string) $value;
-            if (!preg_match('/\\A[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\z/D', $label)) {
+            if (!preg_match('/\A[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\z/D', $label)) {
                 throw new ConfigException(sprintf('The host parameter "%s" must be a valid DNS label.', $name));
             }
 
