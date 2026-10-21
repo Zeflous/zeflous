@@ -75,6 +75,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(container): add the namespace radix lane over the booted identifiers [#481](https://github.com/Zeflous/zeflous/pull/481) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the lazy, locator and inventory lanes [#487](https://github.com/Zeflous/zeflous/pull/487) ([mbetixz](https://github.com/mbetixz))
 - feat(container): add the performance mode and the CLI analysis lane [#499](https://github.com/Zeflous/zeflous/pull/499) ([mbetixz](https://github.com/mbetixz))
+- feat(router): add host-aware routing and versioned PSR-15 dispatch [#512](https://github.com/Zeflous/zeflous/pull/512) ([mbetixz](https://github.com/mbetixz))
 - feat(errors): add the process error boundary [#513](https://github.com/Zeflous/zeflous/pull/513) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
@@ -235,6 +236,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): record the container performance and analysis CLI lane [#505](https://github.com/Zeflous/zeflous/pull/505) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the error hardening battery and pin the lane [#509](https://github.com/Zeflous/zeflous/pull/509) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the process error boundary and pin the lane [#514](https://github.com/Zeflous/zeflous/pull/514) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the router runtime facade and pin the lane [#519](https://github.com/Zeflous/zeflous/pull/519) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
