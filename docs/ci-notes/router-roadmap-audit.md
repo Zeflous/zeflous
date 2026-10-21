@@ -39,7 +39,7 @@
 - **Revision-aware compilation:** one runtime memoizes its tree; no route revision signature or automatic invalidation/rebuild API is exposed at Router level.
 - **Compiled radix-tree cache / route cache drivers / frozen-tree optimization:** not demonstrated by the facade. Configuration caching is not evidence of a compiled tree cache.
 - **Metrics, tracing, detailed debug mode:** absent from the audited Router surface.
-- **ETag and conditional requests:** not implemented. `HEAD` fallback/body suppression and RFC 9457 error bodies are implemented in the PSR-15 adapter, but conditional semantics and other response caching rules remain open.
+- **ETag and conditional requests — partial support implemented:** the PSR-15 adapter honors `If-None-Match` using weak comparison (including `*`) and `If-Modified-Since` for successful GET/HEAD responses, returning a bodyless 304 and giving `If-None-Match` precedence. The adapter does not generate validators; application handlers/middleware must provide `ETag` and/or `Last-Modified`. Preconditions such as `If-Match` / 412, range requests, cache directives and broader RFC conformance remain open. CI validation is pending.
 
 ### Phase 4 — Developer Experience & Tooling
 
@@ -65,7 +65,7 @@ Do not copy the reference repository's Router collaborators wholesale. Reuse the
 2. **Public integration seam — implemented in this branch:** `Router::dispatcher(Container)` returns the existing `RouteDispatcher` over the same memoized runtime. `tests/Router/RouterTest.php` adds an execution-path contract test; execution of the test suite is pending because the local clone is unavailable.
 3. **Exact-host core — implemented in this branch:** host schema, canonicalisation, host-scoped duplicate claims, exact-host match filtering and host-precedence tests are added. CI execution remains pending.
 4. **Host-pattern slice — implemented in this branch:** whole-label parameters, exact > parameterised > fallback precedence, ambiguity refusal, host/path parameter collision refusal, host capture and absolute URL generation. `*` wildcard syntax and authority parsing remain a distinct decision.
-5. **HTTP adapter — implemented in this branch:** `RouterRequestHandler` maps match outcomes to PSR-7 responses, emits RFC 9457 Problem Details for 404/405/406, composes route middleware, and implements `HEAD` fallback/body suppression; ETag/conditional semantics remain open.
+5. **HTTP adapter — implemented in this branch:** `RouterRequestHandler` maps match outcomes to PSR-7 responses, emits RFC 9457 Problem Details for 404/405/406, composes route middleware, implements `HEAD` fallback/body suppression, and handles conditional GET/HEAD requests with 304 responses when supplied validators match. Validator generation and the rest of HTTP caching/precondition semantics remain open.
 6. **Middleware lifecycle:** compose route middleware around the existing dispatcher with fail-closed resolution and explicit ordering.
 7. **Production/tooling:** freeze/budget semantics, cache, observability, CLI and exports as separate scoped slices with tests and roadmap evidence.
 
