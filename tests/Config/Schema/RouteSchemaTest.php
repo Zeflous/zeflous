@@ -397,7 +397,7 @@ final class RouteSchemaTest extends TestCase
 
         self::assertSame(
             [
-                'metod: expected one of path, method, handler, name, middleware, constraints, meta, '
+                'metod: expected one of path, host, version, produces, method, handler, name, middleware, constraints, meta, '
                     . 'got an unexpected key',
             ],
             $this->render($violations),
@@ -417,7 +417,7 @@ final class RouteSchemaTest extends TestCase
             self::assertSame(
                 'Configuration failed schema validation: '
                     . 'method: expected a non-empty list of non-empty strings, got missing; '
-                    . 'metod: expected one of path, method, handler, name, middleware, constraints, meta, '
+                    . 'metod: expected one of path, host, version, produces, method, handler, name, middleware, constraints, meta, '
                     . 'got an unexpected key.',
                 $configException->getMessage(),
             );
