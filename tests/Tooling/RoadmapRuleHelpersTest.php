@@ -33,6 +33,20 @@ final class RoadmapRuleHelpersTest extends TestCase
         self::assertSame(['a', 'b'], RoadmapTableCells::cells('| a | b |'));
     }
 
+    /**
+     * A Windows contributor without `.gitattributes` commits CRLF line
+     * endings: the trailing carriage return must not survive the row's
+     * edges, or every separator row grows an empty cell -- the count
+     * rules silently judge nothing and the commit rules false-fail the
+     * separator as a data row.
+     */
+    public function testCellsDropsTheCarriageReturnOfACrlfRow(): void
+    {
+        self::assertSame(['a', 'b'], RoadmapTableCells::cells("| a | b |\r"));
+        self::assertTrue(RoadmapTableCells::isSeparator(RoadmapTableCells::cells("|---|---|\r")));
+        self::assertSame(2, \count(RoadmapTableCells::cells("|---|---|\r")));
+    }
+
     public function testIsSeparatorAcceptsEveryAlignment(): void
     {
         self::assertTrue(RoadmapTableCells::isSeparator(['---', ':---', '---:']));
