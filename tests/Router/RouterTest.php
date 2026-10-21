@@ -1,0 +1,115 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zef\Test\Router;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Zef\Framework\Config\Config;
+use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Config\Routing\RouteDsl;
+use Zef\Framework\Router\Router;
+
+#[CoversClass(Router::class)]
+final class RouterTest extends TestCase
+{
+    public function testDefineCompilesDslAndMatchesParameters(): void
+    {
+        $router = Router::define(static function (RouteDsl $routes): void {
+            $routes->get('/health', 'Health@check')->name('health');
+            $routes->get('/users/{id}', 'Users@show')
+                ->name('users.show')
+                ->where(['id' => '[0-9]+']);
+        });
+
+        $match = $router->match('GET', '/users/42');
+
+        self::assertTrue($match->isFound());
+        self::assertSame('Users@show', $match->route()->handler());
+        self::assertSame(['id' => '42'], $match->parameters());
+    }
+
+    public function testFromConfigUsesTheConfiguredRouteTable(): void
+    {
+        $router = Router::fromConfig(new Config([
+            'routes' => [
+                [
+                    'path' => '/health',
+                    'method' => ['GET'],
+                    'handler' => 'Health@check',
+                    'name' => 'health',
+                ],
+            ],
+        ]));
+
+        self::assertTrue($router->match('GET', '/health')->isFound());
+        self::assertSame('Health@check', $router->route('health')->handler());
+    }
+
+    public function testFromRoutesSupportsNamedReverseRouting(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/users/{id}',
+                'method' => ['GET'],
+                'handler' => 'Users@show',
+                'name' => 'users.show',
+                'constraints' => ['id' => '[0-9]+'],
+            ],
+        ]);
+
+        self::assertSame('/users/42', $router->url('users.show', ['id' => 42]));
+        self::assertSame($router->tree(), $router->tree());
+    }
+
+    public function testMatchPreservesMethodNotAllowedAndNotFoundOutcomes(): void
+    {
+        $router = self::routerWithHealthRoute();
+
+        $methodMismatch = $router->match('POST', '/health');
+        self::assertTrue($methodMismatch->isMethodNotAllowed());
+        self::assertSame(['GET'], $methodMismatch->allowedMethods());
+
+        $missing = $router->match('GET', '/missing');
+        self::assertFalse($missing->isFound());
+        self::assertFalse($missing->isMethodNotAllowed());
+    }
+
+    public function testInvalidRouteTableFailsClosedWhenCompiled(): void
+    {
+        $router = Router::fromRoutes([
+            ['path' => 'health', 'method' => ['GET'], 'handler' => 'Health@check'],
+        ]);
+
+        $this->expectException(ConfigException::class);
+        $router->match('GET', '/health');
+    }
+
+    public function testUnknownRouteNamesFailClosed(): void
+    {
+        $router = self::routerWithHealthRoute();
+
+        try {
+            $router->route('missing');
+            self::fail('An unknown route name must be rejected.');
+        } catch (ConfigException $exception) {
+            self::assertSame('The route name "missing" is not registered.', $exception->getMessage());
+        }
+
+        $this->expectException(ConfigException::class);
+        $router->url('missing');
+    }
+
+    private static function routerWithHealthRoute(): Router
+    {
+        return Router::fromRoutes([
+            [
+                'path' => '/health',
+                'method' => ['GET'],
+                'handler' => 'Health@check',
+                'name' => 'health',
+            ],
+        ]);
+    }
+}
