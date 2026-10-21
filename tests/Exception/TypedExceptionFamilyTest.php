@@ -14,6 +14,7 @@ use Zef\Framework\Exception\ConflictException;
 use Zef\Framework\Exception\InternalException;
 use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Exception\MethodNotAllowedException;
+use Zef\Framework\Exception\NativeErrorException;
 use Zef\Framework\Exception\NotFoundException;
 use Zef\Framework\Exception\RateLimitException;
 use Zef\Framework\Exception\ValidationException;
@@ -35,6 +36,7 @@ use Zef\Framework\Exception\ZefException;
 #[CoversClass(ConflictException::class)]
 #[CoversClass(RateLimitException::class)]
 #[CoversClass(InternalException::class)]
+#[CoversClass(NativeErrorException::class)]
 final class TypedExceptionFamilyTest extends TestCase
 {
     #[DataProvider('provideTheFamilyAnswersItsContractStatusesCases')]
@@ -64,6 +66,11 @@ final class TypedExceptionFamilyTest extends TestCase
         yield 'rate limit answers 429' => [new RateLimitException(30), 429];
 
         yield 'internal answers 500' => [new InternalException('The queue worker observed an impossible state.'), 500];
+
+        yield 'native error answers 500' => [
+            NativeErrorException::diagnostic('A runtime notice.', 'warning', '/var/app/src/worker.php', 42),
+            500,
+        ];
     }
 
     public function testValidationCarriesTheAuthorMessage(): void

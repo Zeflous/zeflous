@@ -325,7 +325,7 @@
                 // manually applied mutations -- the complete batteries
                 // pass). This ignore is scoped to that single method.
                 "Zef\\Framework\\Middleware\\DebugToolbarEligibility::allows",
-                // Both factories' environment folds read the same closed
+                // The three factories' environment folds read the same closed
                 // vocabulary (local, development, dev, test, testing), and
                 // no word in it carries the one ASCII letter the Unicode
                 // case map can reach from non-ASCII -- the Kelvin sign's
@@ -334,10 +334,11 @@
                 // list under both spellings and the debug gate stays shut
                 // either way (verified by running the factory batteries
                 // under the manually applied mutations -- the complete
-                // batteries pass). These ignores are scoped to those two
+                // batteries pass). These ignores are scoped to those
                 // methods.
                 "Zef\\Framework\\Middleware\\DebugToolbarFactory::fromConfig",
                 "Zef\\Framework\\Middleware\\ErrorMappingFactory::fromConfig",
+                "Zef\\Framework\\Middleware\\ProcessErrorBoundaryFactory::fromConfig",
                 "Zef\\Framework\\Telemetry\\CorrelationAttributes::entry",
                 "Zef\\Framework\\Telemetry\\CorrelationBudget::scalarByteLength",
                 "Zef\\Framework\\Telemetry\\CorrelationBudget::spend",

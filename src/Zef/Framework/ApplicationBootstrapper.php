@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Zef\Framework;
 
-use FilesystemIterator;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zef\Framework\Config\Cache\ConfigCache;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigBootstrapper;
-use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Config\Loader\DirectoryInventory;
 use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Merge\LayeredConfigBuilder;
 use Zef\Framework\Container\Aot\ContainerAotCache;
@@ -19,6 +18,7 @@ use Zef\Framework\Container\ContainerInstalls;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Middleware\MiddlewarePipeline;
 use Zef\Framework\Middleware\PipelineFactory;
+use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 
 /**
  * Boots the whole framework from a directory of configuration files: the
@@ -62,6 +62,21 @@ use Zef\Framework\Middleware\PipelineFactory;
  *   reflection, an absent one is dumped by the first boot that wires
  *   the seam, a proven-stale one is never run).
  *
+ * The composition's last stage is the **process error boundary**
+ * ({@see Middleware\ProcessErrorBoundary}, the `http.error_handling.process_boundary`
+ * knob's seam): the one-call boot installs the process-level error face
+ * the configuration asks for, so a diagnostic the engine raises inside
+ * the booted process -- before the pipeline runs, outside the request
+ * scope, or after nothing caught it -- flows through the same error
+ * system the request boundary feeds, from the first line of host glue
+ * onward. The knob defaults to an uninstalled boundary (the honest
+ * default: a host opts its process in), and the resolution is the
+ * factory family's own seam ({@see ProcessErrorBoundaryFactory::
+ * resolveForInstallation()} -- the knob's grammar validated once, the
+ * profile's own service registration resolved, a rebind that does not
+ * answer the boundary's own class halting the boot, because a knob
+ * asking for the boundary cannot be answered by something else).
+ *
  * Before any definition is installed, the frozen repository itself is
  * registered as the container's `framework.config` service ({@see
  * FrameworkDefaults::CONFIG_SERVICE} -- the identifier the profile's own
@@ -101,7 +116,7 @@ final readonly class ApplicationBootstrapper
             ->withDefaults(FrameworkDefaults::profile())
         ;
 
-        $configFiles = $this->configFiles($configDirectory);
+        $configFiles = DirectoryInventory::names($configDirectory);
 
         if ($configFiles !== []) {
             $builder = $builder->withAppDirectory($configDirectory, $configFiles);
@@ -128,6 +143,8 @@ final readonly class ApplicationBootstrapper
             ->bootstrap($config, $container)
         ;
 
+        ProcessErrorBoundaryFactory::resolveForInstallation($config, $container)?->install();
+
         return new Kernel($container, $config);
     }
 
@@ -139,40 +156,5 @@ final readonly class ApplicationBootstrapper
     public function pipeline(Kernel $kernel, RequestHandlerInterface $requestHandler): MiddlewarePipeline
     {
         return new PipelineFactory($kernel->container(), $kernel->config(), $requestHandler)->build();
-    }
-
-    /**
-     * The configuration directory's own inventory: every direct child's
-     * basename, handed to the file loader as the executable allowlist. The
-     * narrow filter -- extension, hidden entries -- stays where it already
-     * lives, in the configuration layer's own directory adapter, so the
-     * orchestrator never second-guesses it; the allowlist is the directory's
-     * declared inventory, and a child the adapter skips is never executed.
-     *
-     * The directory must be a directory; anything else is a configuration
-     * failure naming the path, never a silent defaults-only boot.
-     *
-     * @param non-empty-string $directory
-     *
-     * @return list<non-empty-string>
-     */
-    private function configFiles(string $directory): array
-    {
-        if (!is_dir($directory)) {
-            throw new ConfigException(
-                \sprintf('The application configuration directory "%s" is not a directory.', $directory),
-            );
-        }
-
-        $configFiles = [];
-        foreach (new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS) as $file) {
-            $name = basename((string) $file);
-
-            \assert($name !== '');
-
-            $configFiles[] = $name;
-        }
-
-        return $configFiles;
     }
 }

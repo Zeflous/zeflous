@@ -12,6 +12,7 @@ use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\DebugToolbarFactory;
 use Zef\Framework\Middleware\ErrorMappingFactory;
 use Zef\Framework\Middleware\MetricsFactory;
+use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Framework\Middleware\TimingFactory;
@@ -140,6 +141,19 @@ final readonly class FrameworkDefaults
      */
     public const string INVENTORY_SERVICE = ContainerServices::INVENTORY_SERVICE;
 
+    /**
+     * The container service identifier under which the process error
+     * boundary ({@see Middleware\ProcessErrorBoundary}) is registered at
+     * boot: the composition lane's process-level error face, installed by
+     * the one-call boot orchestrator when the `http.error_handling.
+     * process_boundary` knob asks for it -- the `http.errors` precedent's
+     * own family, so the error lane's services stay one catalogue. The
+     * spelling is the boundary family's own
+     * (`ProcessErrorBoundaryFactory::SERVICE_ID`); this alias is the
+     * registration seam's single hand-off.
+     */
+    public const string PROCESS_BOUNDARY_SERVICE = ProcessErrorBoundaryFactory::SERVICE_ID;
+
     /** The config-driven factories' shared construction entry, as the
      * service registrations spell it. */
     private const string CONFIG_FACTORY_ENTRY = '::fromConfig';
@@ -258,6 +272,13 @@ final readonly class FrameworkDefaults
         return [
             'http.errors' => [
                 'factory' => ErrorMappingFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                    ['service' => 'observability.meter'],
+                ],
+            ],
+            'http.errors.process_boundary' => [
+                'factory' => ProcessErrorBoundaryFactory::class . self::CONFIG_FACTORY_ENTRY,
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                     ['service' => 'observability.meter'],
