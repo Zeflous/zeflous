@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-21T01:50:31Z",
+  "as_of": "2026-10-21T08:29:12Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 222,
+  "unreleased_count": 224,
   "versions": [
     {
       "version": "Unreleased",
@@ -2541,6 +2541,62 @@
                 "sha": "4599612bf486cdcd9f29dfbc5eb51c86811f0fc1",
                 "short_sha": "4599612",
                 "subject": "Merge branch 'main' into feat/container-performance-cli"
+              }
+            ]
+          },
+          {
+            "pr": 513,
+            "title": "feat(errors): add the process error boundary",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-21T07:39:48Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/513",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8ea4b9df77a07d3e9ef2cc8d78121a10065b444b",
+                "short_sha": "8ea4b9d",
+                "subject": "feat(errors): add the native diagnostic fold for the process boundary"
+              },
+              {
+                "sha": "8a151e35b73e9aff0be1a61143bc3e7b4238f3d5",
+                "short_sha": "8a151e3",
+                "subject": "feat(errors): add the process error boundary middleware"
+              },
+              {
+                "sha": "ceeb3285f8503fd43c69ed108376ad3019b8e85d",
+                "short_sha": "ceeb328",
+                "subject": "feat(errors): wire the process boundary into the one-call boot"
+              },
+              {
+                "sha": "39efcd7bd11d5371f5d56d59f1bac25a4dcaf2b5",
+                "short_sha": "39efcd7",
+                "subject": "refactor(errors): redistribute the process boundary into its cohesive folds"
+              },
+              {
+                "sha": "c909bf522badaec12c7880871da62959fa640c87",
+                "short_sha": "c909bf5",
+                "subject": "test(errors): kill the process boundary's escape batch"
+              },
+              {
+                "sha": "9e5e2ae03b418913865b7f73d33b8678fb31d959",
+                "short_sha": "9e5e2ae",
+                "subject": "docs(errors): record the process boundary lane's decisions"
+              },
+              {
+                "sha": "a8ab0e14e212b4b9a3c3f0b00c8cb119baea777e",
+                "short_sha": "a8ab0e1",
+                "subject": "Merge branch 'main' into feat/error-process-boundary"
+              },
+              {
+                "sha": "15fcac2ef906ceeb38a6ade8059d19e3c05d2678",
+                "short_sha": "15fcac2",
+                "subject": "fix(errors): attribute the redistributed units and settle SonarCloud"
+              },
+              {
+                "sha": "4711b94bd9abe14be3859abf5141e59d64d8b664",
+                "short_sha": "4711b94",
+                "subject": "fix(errors): kill the full-tree escape batch and drop double bounds"
               }
             ]
           }
@@ -6166,6 +6222,22 @@
                 "sha": "ba61141156bdb72ce907f962825c9039390483e3",
                 "short_sha": "ba61141",
                 "subject": "docs(roadmap): record the error hardening battery -- history row 508"
+              }
+            ]
+          },
+          {
+            "pr": 514,
+            "title": "docs(roadmap): record the process error boundary and pin the lane",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-21T08:29:12Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/514",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "fbe1519a46eeb83825082d35478d513ec22a1a91",
+                "short_sha": "fbe1519",
+                "subject": "docs(roadmap): record the process error boundary and pin the lane"
               }
             ]
           }
@@ -12657,6 +12729,78 @@
               "sha": "ba61141156bdb72ce907f962825c9039390483e3",
               "short_sha": "ba61141",
               "subject": "docs(roadmap): record the error hardening battery -- history row 508"
+            }
+          ]
+        },
+        {
+          "pr": 513,
+          "title": "feat(errors): add the process error boundary",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-21T07:39:48Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/513",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8ea4b9df77a07d3e9ef2cc8d78121a10065b444b",
+              "short_sha": "8ea4b9d",
+              "subject": "feat(errors): add the native diagnostic fold for the process boundary"
+            },
+            {
+              "sha": "8a151e35b73e9aff0be1a61143bc3e7b4238f3d5",
+              "short_sha": "8a151e3",
+              "subject": "feat(errors): add the process error boundary middleware"
+            },
+            {
+              "sha": "ceeb3285f8503fd43c69ed108376ad3019b8e85d",
+              "short_sha": "ceeb328",
+              "subject": "feat(errors): wire the process boundary into the one-call boot"
+            },
+            {
+              "sha": "39efcd7bd11d5371f5d56d59f1bac25a4dcaf2b5",
+              "short_sha": "39efcd7",
+              "subject": "refactor(errors): redistribute the process boundary into its cohesive folds"
+            },
+            {
+              "sha": "c909bf522badaec12c7880871da62959fa640c87",
+              "short_sha": "c909bf5",
+              "subject": "test(errors): kill the process boundary's escape batch"
+            },
+            {
+              "sha": "9e5e2ae03b418913865b7f73d33b8678fb31d959",
+              "short_sha": "9e5e2ae",
+              "subject": "docs(errors): record the process boundary lane's decisions"
+            },
+            {
+              "sha": "a8ab0e14e212b4b9a3c3f0b00c8cb119baea777e",
+              "short_sha": "a8ab0e1",
+              "subject": "Merge branch 'main' into feat/error-process-boundary"
+            },
+            {
+              "sha": "15fcac2ef906ceeb38a6ade8059d19e3c05d2678",
+              "short_sha": "15fcac2",
+              "subject": "fix(errors): attribute the redistributed units and settle SonarCloud"
+            },
+            {
+              "sha": "4711b94bd9abe14be3859abf5141e59d64d8b664",
+              "short_sha": "4711b94",
+              "subject": "fix(errors): kill the full-tree escape batch and drop double bounds"
+            }
+          ]
+        },
+        {
+          "pr": 514,
+          "title": "docs(roadmap): record the process error boundary and pin the lane",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-21T08:29:12Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/514",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "fbe1519a46eeb83825082d35478d513ec22a1a91",
+              "short_sha": "fbe1519",
+              "subject": "docs(roadmap): record the process error boundary and pin the lane"
             }
           ]
         }
