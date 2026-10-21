@@ -118,7 +118,7 @@ final class RouteHost
             }
 
             $value = $parameters[$name];
-            if (!is_scalar($value) && !$value instanceof \\Stringable) {
+            if (!is_scalar($value) && !$value instanceof \Stringable) {
                 throw new ConfigException(sprintf('The host parameter "%s" must be a DNS label value.', $name));
             }
 
