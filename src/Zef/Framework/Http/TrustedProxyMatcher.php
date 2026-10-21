@@ -12,7 +12,10 @@ namespace Zef\Framework\Http;
  * trusted, so `X-Forwarded-*` spoofing by an arbitrary client never
  * crosses the ingress. One entry matches either as an exact address
  * (`127.0.0.1`) or as a CIDR network (`10.0.0.0/8`), IPv4 and IPv6
- * alike; the containment arithmetic lives in the {@see CidrAddress}
+ * alike; an exact entry compares by its canonical packed form
+ * ({@see Ipv4MappedForm}), so hexadecimal case and an IPv4-mapped
+ * IPv6 spelling of the same host agree with the plain IPv4 spelling,
+ * and the containment arithmetic lives in the {@see CidrAddress}
  * collaborator.
  *
  * The entry grammar is deliberately soft-false: an entry that is empty,
@@ -48,10 +51,14 @@ final class TrustedProxyMatcher
     }
 
     /**
-     * Answers whether one entry claims the address: an exact string match
-     * or CIDR containment. An empty entry matches nothing downstream --
-     * neither the exact compare against a validated address nor the CIDR
-     * shape -- so there is no separate emptiness guard.
+     * Answers whether one entry claims the address: an exact match on
+     * the canonical packed forms ({@see Ipv4MappedForm} -- insensitive to
+     * hexadecimal case and to the IPv4-mapped spelling of the same host,
+     * so `FE80::1` claims `fe80::1` and `::ffff:10.0.0.1` claims
+     * `10.0.0.1`), or CIDR containment. An empty entry matches nothing
+     * downstream -- neither the exact compare against a validated
+     * address nor the CIDR shape -- so there is no separate emptiness
+     * guard.
      *
      * @param string $entry the raw trusted-list entry, whitespace-trimmed here
      * @param string $ip    the validated address under judgement
@@ -61,6 +68,13 @@ final class TrustedProxyMatcher
         $entry = mb_trim($entry);
 
         if ($entry === $ip) {
+            return true;
+        }
+
+        $entryBinary = Ipv4MappedForm::packed($entry);
+        $ipBinary = Ipv4MappedForm::packed($ip);
+
+        if ($entryBinary !== false && $entryBinary === $ipBinary) {
             return true;
         }
 
