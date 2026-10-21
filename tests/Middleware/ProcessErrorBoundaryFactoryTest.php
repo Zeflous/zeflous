@@ -12,8 +12,12 @@ use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Container\Container;
 use Zef\Framework\FrameworkDefaults;
+use Zef\Framework\Middleware\ProcessBoundaryRecords;
 use Zef\Framework\Middleware\ProcessErrorBoundary;
 use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
+use Zef\Framework\Middleware\ProcessNativeDiagnostics;
+use Zef\Framework\Middleware\ProcessShutdownFatals;
+use Zef\Framework\Middleware\ProcessUncaughtThrowables;
 use Zef\Framework\Telemetry\CounterMeter;
 
 /**
@@ -29,6 +33,10 @@ use Zef\Framework\Telemetry\CounterMeter;
  */
 #[CoversClass(ProcessErrorBoundaryFactory::class)]
 #[CoversClass(ProcessErrorBoundary::class)]
+#[CoversClass(ProcessBoundaryRecords::class)]
+#[CoversClass(ProcessNativeDiagnostics::class)]
+#[CoversClass(ProcessUncaughtThrowables::class)]
+#[CoversClass(ProcessShutdownFatals::class)]
 final class ProcessErrorBoundaryFactoryTest extends TestCase
 {
     private string $logPath = '';

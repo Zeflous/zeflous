@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Cache\ConfigCache;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Config\Loader\DirectoryInventory;
 use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\FrameworkDefaults;
@@ -54,6 +55,7 @@ use Zef\Test\Support\Middleware\MiddlewareTrace;
  * @internal
  */
 #[CoversClass(ApplicationBootstrapper::class)]
+#[CoversClass(DirectoryInventory::class)]
 #[CoversClass(FrameworkDefaults::class)]
 final class ApplicationBootstrapperTest extends TestCase
 {

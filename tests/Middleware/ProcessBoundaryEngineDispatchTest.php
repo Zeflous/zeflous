@@ -9,8 +9,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 use Zef\Framework\Middleware\ProcessBoundaryFatals;
+use Zef\Framework\Middleware\ProcessBoundaryRecords;
 use Zef\Framework\Middleware\ProcessBoundaryTransmission;
 use Zef\Framework\Middleware\ProcessErrorBoundary;
+use Zef\Framework\Middleware\ProcessNativeDiagnostics;
+use Zef\Framework\Middleware\ProcessShutdownFatals;
+use Zef\Framework\Middleware\ProcessUncaughtThrowables;
 
 /**
  * The engine-dispatch battery for the process error boundary: the three
@@ -34,7 +38,11 @@ use Zef\Framework\Middleware\ProcessErrorBoundary;
  */
 #[CoversClass(ProcessErrorBoundary::class)]
 #[CoversClass(ProcessBoundaryFatals::class)]
+#[CoversClass(ProcessBoundaryRecords::class)]
 #[CoversClass(ProcessBoundaryTransmission::class)]
+#[CoversClass(ProcessNativeDiagnostics::class)]
+#[CoversClass(ProcessUncaughtThrowables::class)]
+#[CoversClass(ProcessShutdownFatals::class)]
 final class ProcessBoundaryEngineDispatchTest extends TestCase
 {
     private string $logPath = '';

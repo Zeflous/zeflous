@@ -45,27 +45,14 @@ final class DiagnosticSeverity
      */
     public static function for(int $severity): string
     {
-        if (($severity & self::FATAL) !== 0) {
-            return 'critical';
-        }
-
-        if (($severity & self::RECOVERABLE) !== 0) {
-            return 'error';
-        }
-
-        if (($severity & self::WARNING) !== 0) {
-            return 'warning';
-        }
-
-        if (($severity & self::NOTICE) !== 0) {
-            return 'notice';
-        }
-
-        if (($severity & self::INFORMATIONAL) !== 0) {
-            return 'info';
-        }
-
-        return 'warning';
+        return match (true) {
+            ($severity & self::FATAL) !== 0 => 'critical',
+            ($severity & self::RECOVERABLE) !== 0 => 'error',
+            ($severity & self::WARNING) !== 0 => 'warning',
+            ($severity & self::NOTICE) !== 0 => 'notice',
+            ($severity & self::INFORMATIONAL) !== 0 => 'info',
+            default => 'warning',
+        };
     }
 
     /**

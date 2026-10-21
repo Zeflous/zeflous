@@ -18,8 +18,12 @@ use Zef\Framework\Exception\ValidationException;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\ProcessBoundaryFatals;
+use Zef\Framework\Middleware\ProcessBoundaryRecords;
 use Zef\Framework\Middleware\ProcessBoundaryTransmission;
 use Zef\Framework\Middleware\ProcessErrorBoundary;
+use Zef\Framework\Middleware\ProcessNativeDiagnostics;
+use Zef\Framework\Middleware\ProcessShutdownFatals;
+use Zef\Framework\Middleware\ProcessUncaughtThrowables;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Test\Support\Log\RecordingLogger;
 
@@ -43,6 +47,10 @@ use Zef\Test\Support\Log\RecordingLogger;
 #[CoversClass(ProcessErrorBoundary::class)]
 #[CoversClass(ProcessBoundaryTransmission::class)]
 #[CoversClass(ProcessBoundaryFatals::class)]
+#[CoversClass(ProcessBoundaryRecords::class)]
+#[CoversClass(ProcessNativeDiagnostics::class)]
+#[CoversClass(ProcessUncaughtThrowables::class)]
+#[CoversClass(ProcessShutdownFatals::class)]
 final class ProcessErrorBoundaryTest extends TestCase
 {
     private RecordingLogger $recordingLogger;
@@ -595,6 +603,39 @@ final class ProcessErrorBoundaryTest extends TestCase
         self::assertStringContainsString(
             'ZEF process boundary could not answer a fatal: headers already sent.',
             $this->routedErrorLogContents(),
+        );
+    }
+
+    public function testAFallbackEmissionFailureIsContained(): void
+    {
+        $processBoundaryTransmission = new ProcessBoundaryTransmission(
+            static function (ResponseInterface $response): never {
+                throw new RuntimeException('The emitter itself failed.');
+            },
+            static function (string $line): void {
+            },
+            static fn (): bool => false,
+            'fpm-fcgi',
+        );
+
+        $processErrorBoundary = new ProcessErrorBoundary(
+            $this->recordingLogger,
+            requestSource: static function (): ServerRequest {
+                throw new RuntimeException('The SAPI state is unreadable.');
+            },
+            transmission: $processBoundaryTransmission,
+        );
+
+        $processErrorBoundary->onUncaughtThrowable(new RuntimeException('The worker observed an impossible state.'));
+
+        self::assertStringContainsString(
+            'ZEF process boundary failure: RuntimeException',
+            $this->routedErrorLogContents(),
+        );
+        self::assertStringContainsString(
+            'ZEF process boundary fallback failed: RuntimeException',
+            $this->routedErrorLogContents(),
+            'The fallback emission failure is contained and named, never thrown out of the handler.',
         );
     }
 

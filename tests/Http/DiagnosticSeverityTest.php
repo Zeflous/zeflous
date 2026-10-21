@@ -71,4 +71,20 @@ final class DiagnosticSeverityTest extends TestCase
     {
         self::assertSame('warning', DiagnosticSeverity::for(0));
     }
+
+    public function testACombinedSeverityAnswersByTheHighestPriorityFamily(): void
+    {
+        self::assertSame('warning', DiagnosticSeverity::for(\E_WARNING | \E_USER_NOTICE));
+        self::assertSame('notice', DiagnosticSeverity::for(\E_USER_NOTICE | \E_DEPRECATED));
+    }
+
+    public function testTheFatalFamilyVerdictAnswersTrueOnlyForEngineFatals(): void
+    {
+        self::assertTrue(DiagnosticSeverity::isFatalAtShutdown(\E_ERROR));
+        self::assertTrue(DiagnosticSeverity::isFatalAtShutdown(\E_PARSE));
+        self::assertTrue(DiagnosticSeverity::isFatalAtShutdown(\E_COMPILE_ERROR));
+        self::assertFalse(DiagnosticSeverity::isFatalAtShutdown(\E_WARNING));
+        self::assertFalse(DiagnosticSeverity::isFatalAtShutdown(\E_RECOVERABLE_ERROR));
+        self::assertFalse(DiagnosticSeverity::isFatalAtShutdown(\E_DEPRECATED));
+    }
 }
