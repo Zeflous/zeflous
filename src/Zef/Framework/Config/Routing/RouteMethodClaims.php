@@ -48,7 +48,8 @@ final class RouteMethodClaims
             if ($host !== null) {
                 foreach ($this->parameterHostClaims[$path][$method] ?? [] as $claim) {
                     if (
-                        RouteHost::overlaps($host, $claim['host'])
+                        $host !== $claim['host']
+                        && RouteHost::overlaps($host, $claim['host'])
                         && RouteHost::specificity($host) === RouteHost::specificity($claim['host'])
                     ) {
                         throw new ConfigException(
