@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Config\Cache;
 
 use ParseError;
+use Throwable;
 use Zef\Framework\Config\ConfigException;
 
 /**
@@ -37,12 +38,21 @@ use Zef\Framework\Config\ConfigException;
  * cache file that is not valid PHP at all (a torn write, a hand edit, a
  * truncated file) all throw a {@see ConfigException} -- never a silent
  * empty configuration. The "not valid PHP" shape is the one a partial
- * `file_put_contents()` actually produces: `require` then raises a
+ * write actually produces: `require` then raises a
  * {@see ParseError} while parsing, which `load()` catches and re-throws as
- * a {@see ConfigException}, so the fail-closed contract covers *every*
- * corruption shape and not only those that happen to parse. A torn write is
- * therefore detectable, not dangerous: the next `load()` rejects it and the
- * rebuild overwrites it.
+ * a {@see ConfigException}, and a cache that parses but *raises* during
+ * its own load (a hand edit that calls something) answers the same
+ * contract through the broader `Throwable` arm -- the fail-closed
+ * contract covers *every* corruption shape and not only those that
+ * happen to parse.
+ *
+ * The write itself is atomic ({@see self::dump()}): the payload lands
+ * in a uniquely named sibling first and crosses to the cache's own
+ * name through one `rename()`, so concurrent cold boots against one
+ * artifact path can never tear the file a reader observes -- a reader
+ * sees either the whole previous artifact or the whole new one, and
+ * the in-place write a torn cache could once produce is gone (the
+ * staging-name doctrine the AOT artifact's own dump keeps).
  *
  * The class is the cache seam the kernel bootstrapper will wire (dump at
  * build time, load at boot), which is why it is marked `@api` rather than
@@ -64,7 +74,10 @@ final readonly class ConfigCache
 
     /**
      * Compiles the configuration into the cache file, replacing whatever
-     * the file carried before.
+     * the file carried before -- atomically: the payload lands in a
+     * uniquely named sibling and crosses to the cache's own name through
+     * one `rename()`, so a reader never observes a half-written artifact
+     * no matter how many cold boots race the same path.
      *
      * @param array<array-key, mixed> $data
      */
@@ -78,13 +91,37 @@ final readonly class ConfigCache
             );
         }
 
-        $bytes = file_put_contents($this->file, $this->render($data));
+        $temporary = $this->stagingName();
 
-        if (!\is_int($bytes)) {
+        if (file_put_contents($temporary, $this->render($data), \LOCK_EX) === false) {
             throw new ConfigException(
                 \sprintf('The configuration cache "%s" could not be written.', $this->file),
             );
         }
+
+        if (!rename($temporary, $this->file)) {
+            if (is_file($temporary)) {
+                unlink($temporary);
+            }
+
+            throw new ConfigException(
+                \sprintf('The configuration cache "%s" could not be finalised.', $this->file),
+            );
+        }
+    }
+
+    /**
+     * The staging sibling's name: the cache's own basename, the writing
+     * process's identity, and entropy enough that two concurrent writers
+     * never collide on one staging file -- each rename stays atomic for
+     * its own payload.
+     *
+     * @return non-empty-string the staging path, beside the artifact it feeds
+     */
+    private function stagingName(): string
+    {
+        return \dirname($this->file) . '/' . basename($this->file)
+            . '.' . getmypid() . '-' . uniqid('', false) . '.staging';
     }
 
     /**
@@ -114,14 +151,22 @@ final readonly class ConfigCache
         }
 
         try {
-            return $this->asArray(require $file, $file);
+            $payload = require $file;
         } catch (ParseError $parseError) {
             throw new ConfigException(
                 \sprintf('The configuration cache "%s" is corrupted: it is not valid PHP.', $file),
                 0,
                 $parseError,
             );
+        } catch (Throwable $throwable) {
+            throw new ConfigException(
+                \sprintf('The configuration cache "%s" is corrupted: it raised during its own load.', $file),
+                0,
+                $throwable,
+            );
         }
+
+        return $this->asArray($payload, $file);
     }
 
     /**

@@ -201,10 +201,13 @@ final class ConfigCacheTest extends TestCase
     public function testDumpThrowsWhenTheWriteFails(): void
     {
         // The cache target is the test directory itself: dirname() resolves to
-        // the (existing) parent, so the pre-check passes and the write itself
-        // fails. The custom error handler swallows the engine's diagnostic for
-        // the failing stream open; the branch under test is the failure
-        // handling, not the diagnostic.
+        // the (existing) parent, so the pre-check passes. The atomic staging
+        // write into the writable parent succeeds and the finalising rename
+        // onto the directory target fails -- the unwritable-target shape now
+        // lands on the finalisation arm, and the staging sibling never
+        // survives its own failed rename. The custom error handler swallows
+        // the engine's diagnostic for the failing rename; the branch under
+        // test is the failure handling, not the diagnostic.
         set_error_handler(static fn (): bool => true);
 
         try {
@@ -213,12 +216,46 @@ final class ConfigCacheTest extends TestCase
             self::fail('A failed configuration cache write must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(
-                \sprintf('The configuration cache "%s" could not be written.', $this->directory),
+                \sprintf('The configuration cache "%s" could not be finalised.', $this->directory),
                 $configException->getMessage(),
+            );
+            self::assertSame(
+                [],
+                glob(\dirname($this->directory) . '/' . basename($this->directory) . '.*.staging') ?: [],
+                'the failed rename cleaned its own staging sibling',
             );
         } finally {
             restore_error_handler();
         }
+    }
+
+    public function testADumpThatRaisesMidWriteLeavesNoTornArtifact(): void
+    {
+        // The atomic contract: an artifact the previous dump wrote survives
+        // a failed re-dump whole -- the staging sibling took the failure,
+        // the reader-facing name never saw a partial byte.
+        $file = $this->directory . '/cache-' . uniqid('', false) . '.php';
+        $configCache = new ConfigCache($file);
+        $configCache->dump(['previous' => 'whole']);
+
+        set_error_handler(static fn (): bool => true);
+
+        try {
+            $unfinalisable = new ConfigCache($this->directory . '/subdirectory-that-does-not-exist/x.php');
+
+            try {
+                $unfinalisable->dump(['next' => 'torn']);
+                self::fail('A dump into a missing directory must raise a ConfigException.');
+            } catch (ConfigException $configException) {
+                self::assertStringContainsString('does not exist.', $configException->getMessage());
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertSame(['previous' => 'whole'], $configCache->load(), 'the previous artifact survived whole');
+
+        unlink($file);
     }
 
     /**
