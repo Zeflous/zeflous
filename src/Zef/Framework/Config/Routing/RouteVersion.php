@@ -33,12 +33,12 @@ final class RouteVersion
      */
     public static function request(?string $version): ?string
     {
-        if ($version === null || $version === '') {
+        if ($version === null || trim($version) === '') {
             return null;
         }
 
         try {
-            return self::canonical($version);
+            return self::canonical(trim($version));
         } catch (ConfigException) {
             return null;
         }

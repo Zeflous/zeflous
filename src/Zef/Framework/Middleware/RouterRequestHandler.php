@@ -45,6 +45,9 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
             self::requestPath($request),
             self::requestHost($request),
             $request->getHeaderLine('Accept'),
+            $request->getHeaderLine('Accept-Version') !== ''
+                ? $request->getHeaderLine('Accept-Version')
+                : $request->getHeaderLine('X-API-Version'),
         );
 
         $stack = [];

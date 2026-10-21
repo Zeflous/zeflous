@@ -91,7 +91,7 @@ final readonly class RadixTree
     /**
      * Matches a request method, path and optional exact host against the tree.
      */
-    public function match(string $method, string $path, ?string $host = null, ?string $accept = null): MatchResult
+    public function match(string $method, string $path, ?string $host = null, ?string $accept = null, ?string $version = null): MatchResult
     {
         $captured = [];
         $routes = new RouteMatcher()->walk($this->radixNode, $path, 0, $captured);
@@ -137,6 +137,39 @@ final readonly class RadixTree
         $routes = $exactHostRoutes !== []
             ? $exactHostRoutes
             : ($hostPatternRoutes !== [] ? $hostPatternRoutes : $hostAgnosticRoutes);
+
+        if ($routes === []) {
+            return MatchResult::notFound();
+        }
+
+        $versionedRoutes = array_values(array_filter(
+            $routes,
+            static fn (CompiledRoute $route): bool => $route->version() !== null,
+        ));
+
+        if ($versionedRoutes !== []) {
+            if ($version === null || trim($version) === '') {
+                $routes = array_values(array_filter(
+                    $routes,
+                    static fn (CompiledRoute $route): bool => $route->version() === null,
+                ));
+            } else {
+                $requestVersion = RouteVersion::request($version);
+                if ($requestVersion === null) {
+                    return MatchResult::notFound();
+                }
+
+                $routes = array_values(array_filter(
+                    $versionedRoutes,
+                    static fn (CompiledRoute $route): bool => $route->version() === $requestVersion,
+                ));
+            }
+        } else {
+            $routes = array_values(array_filter(
+                $routes,
+                static fn (CompiledRoute $route): bool => $route->version() === null,
+            ));
+        }
 
         if ($routes === []) {
             return MatchResult::notFound();
