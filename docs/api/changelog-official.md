@@ -6,8 +6,10 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): record the router runtime facade and pin the lane [\#519](https://github.com/Zeflous/zeflous/pull/519) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the process error boundary and pin the lane [\#514](https://github.com/Zeflous/zeflous/pull/514) ([mbetixz](https://github.com/mbetixz))
 - feat\(errors\): add the process error boundary [\#513](https://github.com/Zeflous/zeflous/pull/513) ([mbetixz](https://github.com/mbetixz))
+- feat\(router\): add host-aware routing and versioned PSR-15 dispatch [\#512](https://github.com/Zeflous/zeflous/pull/512) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the error hardening battery and pin the lane [\#509](https://github.com/Zeflous/zeflous/pull/509) ([mbetixz](https://github.com/mbetixz))
 - fix\(errors\): harden the failure visibility, log bounds and CLI display [\#508](https://github.com/Zeflous/zeflous/pull/508) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the container performance and analysis CLI lane [\#505](https://github.com/Zeflous/zeflous/pull/505) ([mbetixz](https://github.com/mbetixz))
