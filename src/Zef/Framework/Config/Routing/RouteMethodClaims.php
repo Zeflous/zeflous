@@ -8,7 +8,7 @@ use Zef\Framework\Config\ConfigException;
 
 /**
  * The method claims of a route table: which registration first claimed
- * each method on each canonical pattern.
+ * each method on each canonical host + canonical path pattern.
  *
  * Several routes may share one parameter-blind pattern when their
  * method sets are disjoint (the REST convention -- `GET /photos` and
