@@ -20,6 +20,7 @@ use Zef\Framework\Config\Routing\RouteNodeInserter;
 use Zef\Framework\Config\Routing\RouteParameters;
 use Zef\Framework\Config\Routing\RoutePatternTokens;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
+use Zef\Framework\Config\Routing\RouteHost;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
 use Zef\Framework\Config\Routing\SegmentCapture;
 use Zef\Framework\Config\Routing\SharedPrefixLength;
@@ -48,6 +49,7 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(LeafRoute::class)]
 #[CoversClass(MatchResult::class)]
 #[CoversClass(CompiledRoute::class)]
+#[CoversClass(RouteHost::class)]
 final class RadixTreeTest extends TestCase
 {
     public function testARegistryCannotBeReadBeforeTheTreeIsBuilt(): void
@@ -101,6 +103,72 @@ final class RadixTreeTest extends TestCase
 
         self::assertTrue($radixTree->match('GET', '/u/42/hello')->isFound());
         self::assertFalse($radixTree->match('GET', '/u/42/42x2')->isFound());
+    }
+
+    public function testMatchesRoutesByExactHostWithoutCrossingHosts(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['GET'],
+                'handler' => 'Admin@dashboard',
+            ],
+            [
+                'path' => '/dashboard',
+                'host' => 'api.example.com',
+                'method' => ['GET'],
+                'handler' => 'Api@dashboard',
+            ],
+        ]);
+
+        self::assertSame(
+            'Admin@dashboard',
+            $radixTree->match('GET', '/dashboard', 'ADMIN.EXAMPLE.COM')->route()->handler(),
+        );
+        self::assertSame(
+            'Api@dashboard',
+            $radixTree->match('GET', '/dashboard', 'api.example.com')->route()->handler(),
+        );
+        self::assertFalse($radixTree->match('GET', '/dashboard', 'other.example.com')->isFound());
+        self::assertFalse($radixTree->match('GET', '/dashboard')->isFound());
+    }
+
+    public function testExactHostRouteTakesPrecedenceOverHostAgnosticFallback(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/dashboard', 'method' => ['GET'], 'handler' => 'Fallback@dashboard'],
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['POST'],
+                'handler' => 'Admin@dashboard',
+            ],
+        ]);
+
+        $exactHostMismatch = $radixTree->match('GET', '/dashboard', 'admin.example.com');
+        self::assertTrue($exactHostMismatch->isMethodNotAllowed());
+        self::assertSame(['POST'], $exactHostMismatch->allowedMethods());
+
+        self::assertSame(
+            'Fallback@dashboard',
+            $radixTree->match('GET', '/dashboard', 'www.example.com')->route()->handler(),
+        );
+    }
+
+    public function testRejectsAnInvalidExactRouteHostDuringCompilation(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessage('must be an exact DNS hostname without a port or wildcard');
+
+        RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '*.example.com',
+                'method' => ['GET'],
+                'handler' => 'Admin@dashboard',
+            ],
+        ]);
     }
 
     public function testMatchesTheRootRoute(): void
