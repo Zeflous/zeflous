@@ -30,6 +30,7 @@ final class RouteEntryShape
 {
     private const array KNOWN_FIELDS = [
         'path' => true,
+        'host' => true,
         'method' => true,
         'handler' => true,
         'name' => true,
@@ -43,6 +44,7 @@ final class RouteEntryShape
      *
      * @return array{
      *     path: non-empty-string,
+     *     host: ?non-empty-string,
      *     method: list<string>,
      *     handler: non-empty-string,
      *     name: ?non-empty-string,
@@ -69,6 +71,7 @@ final class RouteEntryShape
 
         return [
             'path' => self::requiredString($route, 'path'),
+            'host' => self::optionalString($route, 'host'),
             'method' => RouteEntryCollections::stringList($route, 'method', true),
             'handler' => self::requiredString($route, 'handler'),
             'name' => self::optionalString($route, 'name'),
