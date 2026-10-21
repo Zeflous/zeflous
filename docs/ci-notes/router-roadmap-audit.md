@@ -7,7 +7,7 @@
 | Contract | Existing evidence | Assessment |
 |---|---|---|
 | Compressed radix tree and static-prefix splitting | `Config/Routing/RadixTree`, `RouteTreeBuilder`, `RouteNodeInserter`, `RoutePatternTokens` | Present; zero-allocation performance is not established. |
-| Method/path matching, parameter capture and constraints | `CompiledRoute`, `RouteMatcher`, `RouteMethodAnswer`, `MatchResult` | Present for method/path. Captures and result objects are created during matching. |
+| Method/path matching, parameter capture and constraints | `CompiledRoute`, `RouteMatcher`, `RouteMethodAnswer`, `MatchResult` | Present; route captures include path and host parameters. Captures and result objects are created during matching. |
 | 404 vs 405 and deterministic Allow methods | `MatchResult`, `RouteMethodAnswer` | Present in the engine. |
 | Named routes, duplicate detection and reverse routing | `RouteTableRegistry`, `RadixTree::route()`, `RouteUrlGenerator` | Present for the path-only schema; URL parameters are constraint-checked. |
 | DSL grouping and scoped middleware metadata | `RouteDsl`, `RouteDslScope`, `PendingRoute` | Present as route declarations/metadata; not a per-route middleware execution pipeline. |
@@ -20,7 +20,7 @@
 ### Phase 1 — Core Engine & Foundation
 
 - **Host-aware routing — exact and parameterised-host slices implemented in this branch:** `RouteHost` accepts exact DNS names and whole-label parameters (`{tenant}.example.com`), captures host parameters into the dispatch parameter map, and rejects repeated host/path parameter names. Exact hosts outrank parameterised hosts, which outrank host-agnostic fallback routes; equal-specificity overlapping host patterns are rejected at compile time. `Router::absoluteUrl()` renders a safe absolute URL from a named host route. `*` wildcard syntax, IP literals, ports, tenant-context object injection and PSR-7 Host/URI authority integration remain open.
-- **Content negotiation:** no route-level supported MIME contract or Accept negotiation / 406 outcome exists in the audited matching/dispatch path.
+- **Basic content negotiation — implemented in this branch:** the optional `produces` schema field is validated and normalised by `RouteAcceptNegotiator`; `Accept` ranges, wildcards and quality values are evaluated at match time; a mismatch yields a typed `MatchResult::notAcceptable()` and `DispatchOutcome::notAcceptable()` carrying the route's supported media types. Mapping that outcome to an HTTP 406 response / RFC 9457 envelope still belongs to the HTTP adapter.
 - **PSR-7 / PSR-15 Router integration:** the framework has PSR HTTP/middleware infrastructure, but this facade takes primitive method/path strings; it is not a `ServerRequestInterface` adapter or `RequestHandlerInterface`.
 - **Public dispatcher bridge — implemented in this branch:** `Router::dispatcher(Container)` exposes the existing `RouteDispatcher` over the same memoized runtime.
 - **Registration semantics:** DSL prefix groups, named routes, constraints and duplicate checks exist. Host-scoped conflict keys, a public Router registration lifecycle, route budget and explicit freeze contract remain open.
@@ -65,7 +65,7 @@ Do not copy the reference repository's Router collaborators wholesale. Reuse the
 2. **Public integration seam — implemented in this branch:** `Router::dispatcher(Container)` returns the existing `RouteDispatcher` over the same memoized runtime. `tests/Router/RouterTest.php` adds an execution-path contract test; execution of the test suite is pending because the local clone is unavailable.
 3. **Exact-host core — implemented in this branch:** host schema, canonicalisation, host-scoped duplicate claims, exact-host match filtering and host-precedence tests are added. CI execution remains pending.
 4. **Host-pattern slice — implemented in this branch:** whole-label parameters, exact > parameterised > fallback precedence, ambiguity refusal, host/path parameter collision refusal, host capture and absolute URL generation. `*` wildcard syntax and authority parsing remain a distinct decision.
-5. **Negotiation and HTTP adapter:** add route MIME contracts and 406 semantics, then integrate request/response mapping through PSR-7/15 boundaries.
+5. **HTTP adapter:** integrate the typed 406 outcome and request/response mapping through PSR-7/15 boundaries; add standards-compliant error rendering.
 6. **Middleware lifecycle:** compose route middleware around the existing dispatcher with fail-closed resolution and explicit ordering.
 7. **Production/tooling:** freeze/budget semantics, cache, observability, CLI and exports as separate scoped slices with tests and roadmap evidence.
 
