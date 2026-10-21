@@ -160,6 +160,30 @@ final class JsonLineLoggerTest extends TestCase
         self::assertSame(str_repeat("\u{00e9}", 1024), $record['message']);
     }
 
+    /**
+     * The three-byte edge of the same bound: 2048 bytes lands two bytes
+     * into the 683rd character, and the cut must stop before it -- a
+     * byte-blind cut would leave a broken tail the encoder's substitution
+     * would surface as a replacement character, not the whole characters
+     * the record actually keeps. This is the edge that separates
+     * mb_strcut from a plain byte substr.
+     */
+    public function testAThreeByteMessageStopsBeforeTheCharacterTheBoundLandsInside(): void
+    {
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $jsonLineLogger = new JsonLineLogger($this->path);
+
+        $jsonLineLogger->error(str_repeat("\u{4e2d}", 700));
+
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(1, $lines);
+
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame(str_repeat("\u{4e2d}", 682), $record['message']);
+    }
+
     public function testSanitizesNestedAndUnsupportedContextValues(): void
     {
         $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
