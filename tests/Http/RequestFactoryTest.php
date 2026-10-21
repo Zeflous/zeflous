@@ -624,6 +624,38 @@ final class RequestFactoryTest extends TestCase
     }
 
     /**
+     * @dataProvider provideAuthorityFormTargetsFailClosedCases
+     */
+    #[DataProvider('provideAuthorityFormTargetsFailClosedCases')]
+    public function testAnAuthorityFormTargetFailsClosed(string $method, string $target): void
+    {
+        $this->assertThrows(
+            'Malformed request target.',
+            static function () use ($method, $target): void {
+                RequestFactory::fromServer([
+                    'REQUEST_METHOD' => $method,
+                    'REQUEST_URI' => $target,
+                    'HTTP_HOST' => 'example.com',
+                ]);
+            },
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideAuthorityFormTargetsFailClosedCases(): iterable
+    {
+        yield 'connect reg-name authority' => ['CONNECT', 'example.com:443'];
+
+        yield 'connect bracketed authority' => ['CONNECT', '[::1]:443'];
+
+        yield 'connect portless authority' => ['CONNECT', 'example.com'];
+
+        yield 'authority on a plain method' => ['GET', 'example.com:443'];
+    }
+
+    /**
      * @dataProvider provideTheFormBodyIsHonouredOnlyForFormMediaTypesCases
      *
      * @param null|array<string, mixed> $expected
