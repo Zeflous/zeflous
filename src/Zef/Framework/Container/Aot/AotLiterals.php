@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Container\Aot;
 
+use UnitEnum;
+
 /**
  * The data-only literal rendering of the artifact boundary: the one
  * exportability verdict and the one {@see var_export()} spelling every
@@ -49,7 +51,7 @@ final readonly class AotLiterals
             return var_export($value, true);
         }
 
-        if ($value instanceof \UnitEnum) {
+        if ($value instanceof UnitEnum) {
             return '\\' . $value::class . '::' . $value->name;
         }
 
@@ -58,26 +60,6 @@ final readonly class AotLiterals
         }
 
         throw AotRefusals::notExportable($serviceId, $path, $value);
-    }
-
-    /**
-     * Renders an array as its bracket literal, each entry through the
-     * same expression rendering (a nested enum case folds as the
-     * constant expression it is; a nested object still refuses).
-     *
-     * @param array<array-key, mixed> $value     the array to render
-     * @param string                  $serviceId the definition the value belongs to
-     * @param string                  $path      the dotted position, for the refusal
-     */
-    private static function arrayExpression(array $value, string $serviceId, string $path): string
-    {
-        $rendered = [];
-
-        foreach ($value as $key => $entry) {
-            $rendered[] = var_export($key, true) . ' => ' . self::export($entry, $serviceId, $path . '.' . $key);
-        }
-
-        return '[' . implode(', ', $rendered) . ']';
     }
 
     /**
@@ -105,5 +87,25 @@ final readonly class AotLiterals
         }
 
         throw AotRefusals::notExportable($serviceId, $path, $value);
+    }
+
+    /**
+     * Renders an array as its bracket literal, each entry through the
+     * same expression rendering (a nested enum case folds as the
+     * constant expression it is; a nested object still refuses).
+     *
+     * @param array<array-key, mixed> $value     the array to render
+     * @param string                  $serviceId the definition the value belongs to
+     * @param string                  $path      the dotted position, for the refusal
+     */
+    private static function arrayExpression(array $value, string $serviceId, string $path): string
+    {
+        $rendered = [];
+
+        foreach ($value as $key => $entry) {
+            $rendered[] = var_export($key, true) . ' => ' . self::export($entry, $serviceId, $path . '.' . $key);
+        }
+
+        return '[' . implode(', ', $rendered) . ']';
     }
 }

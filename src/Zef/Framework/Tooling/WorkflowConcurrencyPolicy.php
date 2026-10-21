@@ -72,7 +72,7 @@ final readonly class WorkflowConcurrencyPolicy
     public static function failures(string $workflow, string $contents): array
     {
         preg_match_all(self::GROUP_KEY, $contents, $groupMatches);
-        $groups = $groupMatches[1] ?? [];
+        $groups = $groupMatches[1];
 
         if ($groups === []) {
             return self::noGroupFailures($workflow, $contents);

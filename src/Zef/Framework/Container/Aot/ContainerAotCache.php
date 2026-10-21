@@ -148,26 +148,6 @@ final readonly class ContainerAotCache
     }
 
     /**
-     * Dumps a compile plan as the fresh artifact: the planned set's
-     * rendered entries, baked tag index, baked lazy map and
-     * unreferenced report under the source configuration's
-     * fingerprint -- the write the full lane leaves behind for the
-     * next boot.
-     *
-     * @param non-empty-string $digest the source configuration's fingerprint
-     */
-    public function dumpPlan(ContainerCompilePlan $containerCompilePlan, string $digest): void
-    {
-        $this->dump(
-            $digest,
-            AotEntries::all($containerCompilePlan->definitions),
-            $containerCompilePlan->tagIndex->toArray(),
-            AotLazies::all($containerCompilePlan->definitions),
-            $containerCompilePlan->unreferenced,
-        );
-    }
-
-    /**
      * Dumps the plan, or answers the degradation when the plan carries
      * a value the artifact boundary cannot render -- the compile lane's
      * degrade-to-full-compile decision: the boot already answered

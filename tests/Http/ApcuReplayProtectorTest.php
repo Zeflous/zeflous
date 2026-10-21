@@ -42,7 +42,7 @@ final class ApcuReplayProtectorTest extends TestCase
     {
         self::assertSame(
             ReplayDecision::NOT_REQUIRED,
-            (new ApcuReplayProtector())->check(null, 1_000),
+            new ApcuReplayProtector()->check(null, 1_000),
         );
     }
 
@@ -50,7 +50,7 @@ final class ApcuReplayProtectorTest extends TestCase
     {
         self::assertSame(
             ReplayDecision::REJECTED,
-            (new ApcuReplayProtector())->check(str_repeat('a', 200), 1_000),
+            new ApcuReplayProtector()->check(str_repeat('a', 200), 1_000),
         );
     }
 
@@ -71,7 +71,7 @@ final class ApcuReplayProtectorTest extends TestCase
 
     public function testTheWindowRoundsUpSoItIsNeverSilentlyShortened(): void
     {
-        (new ApcuReplayProtector(301_000))->check('replay-1', 1_000);
+        new ApcuReplayProtector(301_000)->check('replay-1', 1_000);
 
         self::assertSame(301, ApcuDoubleState::$addCalls[0][2], '301 seconds, the ceiling of 301 000 ms');
     }
@@ -104,7 +104,7 @@ final class ApcuReplayProtectorTest extends TestCase
     {
         ApcuDoubleState::$addSuccess = false;
 
-        $decision = (new ApcuReplayProtector(300_000))->check('replay-1', 1_000);
+        $decision = new ApcuReplayProtector(300_000)->check('replay-1', 1_000);
 
         self::assertSame(ReplayDecision::UNAVAILABLE, $decision, 'an outage is never an unaccounted admission');
     }
@@ -113,7 +113,7 @@ final class ApcuReplayProtectorTest extends TestCase
     {
         ApcuDoubleState::$entries = ['zef.replay.replay-1' => 'not-a-clock'];
 
-        $decision = (new ApcuReplayProtector(300_000))->check('replay-1', 1_000);
+        $decision = new ApcuReplayProtector(300_000)->check('replay-1', 1_000);
 
         self::assertSame(ReplayDecision::UNAVAILABLE, $decision, 'a corrupt sight is an outage, never a duplicate');
     }

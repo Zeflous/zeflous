@@ -13,9 +13,9 @@ use Zef\Framework\Http\AuthClock;
 use Zef\Framework\Http\AuthMiddleware;
 use Zef\Framework\Http\AuthPolicy;
 use Zef\Framework\Http\BoundedReplayProtector;
+use Zef\Framework\Http\ReplayProtectorInterface;
 use Zef\Framework\Http\ReplayStores;
 use Zef\Framework\Http\SecurityFamilies;
-use Zef\Framework\Http\ReplayProtectorInterface;
 use Zef\Framework\Http\StaticCredentialProvider;
 
 /**
@@ -117,4 +117,3 @@ final readonly class AuthFactory
         );
     }
 }
-

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Zef\Test\Logging;
 
+use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use LogicException;
 use RuntimeException;
 use stdClass;
 use Zef\Framework\Logging\LogContextSanitizer;
@@ -76,11 +76,14 @@ final class LogContextSanitizerTest extends TestCase
         $sanitized = LogContextSanitizer::sanitize(['failure' => $wrapped]);
 
         $fold = $sanitized['failure'];
+        self::assertIsArray($fold);
         self::assertSame(LogicException::class, $fold['class']);
         self::assertSame('the wrapper', $fold['message']);
-        self::assertSame(RuntimeException::class, $fold['previous']['class']);
-        self::assertSame('the root cause', $fold['previous']['message']);
-        self::assertArrayNotHasKey('previous', $fold['previous'], 'the chain ends where the wrap ends');
+        $previous = $fold['previous'];
+        self::assertIsArray($previous);
+        self::assertSame(RuntimeException::class, $previous['class']);
+        self::assertSame('the root cause', $previous['message']);
+        self::assertArrayNotHasKey('previous', $previous, 'the chain ends where the wrap ends');
     }
 
     public function testABareSchemeCredentialWithoutTheAuthorizationWordIsRedacted(): void

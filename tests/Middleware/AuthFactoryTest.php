@@ -9,11 +9,11 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Http\AuthClock;
 use Zef\Framework\Http\HttpException;
-use Zef\Test\Support\Http\ApcuFunctionDoubles;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\AuthFactory;
+use Zef\Test\Support\Http\ApcuFunctionDoubles;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Http\RecordingHandler;
 
@@ -142,7 +142,7 @@ final class AuthFactoryTest extends TestCase
             self::fail('An unknown replay store must halt the construction.');
         } catch (HttpException $httpException) {
             self::assertSame(
-                "The security.auth replay_store knob must be one of the known replay stores "
+                'The security.auth replay_store knob must be one of the known replay stores '
                 . "(memory, apcu), 'reddis' given.",
                 $httpException->getMessage(),
             );

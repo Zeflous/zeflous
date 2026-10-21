@@ -106,16 +106,6 @@ final readonly class AotOutcome
     }
 
     /**
-     * @param non-empty-string $note         why the full pipeline ran (the knob
-     *                                       off, or on with no artifact present)
-     * @param list<string>     $unreferenced
-     */
-    private static function fullCompiled(string $note, array $unreferenced, int $definitions): self
-    {
-        return new self(AotLane::FullCompile, $note, $unreferenced, $definitions);
-    }
-
-    /**
      * The degraded dump's boot answer: the render refusal the compile
      * lane answered by skipping the artifact write -- the note the
      * re-registered {@see ContainerRegistrations} outcome carries for
@@ -126,6 +116,16 @@ final readonly class AotOutcome
     public static function artifactUnrenderable(array $unreferenced, int $definitions): self
     {
         return self::fullCompiled(self::UNRENDERABLE_NOTE, $unreferenced, $definitions);
+    }
+
+    /**
+     * @param non-empty-string $note         why the full pipeline ran (the knob
+     *                                       off, or on with no artifact present)
+     * @param list<string>     $unreferenced
+     */
+    private static function fullCompiled(string $note, array $unreferenced, int $definitions): self
+    {
+        return new self(AotLane::FullCompile, $note, $unreferenced, $definitions);
     }
 
     /**

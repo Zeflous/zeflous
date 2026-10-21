@@ -219,9 +219,11 @@ final class ConfigCacheTest extends TestCase
                 \sprintf('The configuration cache "%s" could not be finalised.', $this->directory),
                 $configException->getMessage(),
             );
+            $staging = glob(\dirname($this->directory) . '/' . basename($this->directory) . '.*.staging');
+            self::assertIsArray($staging);
             self::assertSame(
                 [],
-                glob(\dirname($this->directory) . '/' . basename($this->directory) . '.*.staging') ?: [],
+                $staging,
                 'the failed rename cleaned its own staging sibling',
             );
         } finally {

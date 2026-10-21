@@ -85,7 +85,7 @@ final class InMemorySpanExporterTest extends TestCase
         $inMemorySpanExporter = new InMemorySpanExporter();
 
         $records = [];
-        for ($i = 0; $i < 5000; $i++) {
+        for ($i = 0; $i < 5000; ++$i) {
             $records[] = $this->record('span-' . $i);
         }
 

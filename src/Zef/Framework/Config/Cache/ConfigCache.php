@@ -111,20 +111,6 @@ final readonly class ConfigCache
     }
 
     /**
-     * The staging sibling's name: the cache's own basename, the writing
-     * process's identity, and entropy enough that two concurrent writers
-     * never collide on one staging file -- each rename stays atomic for
-     * its own payload.
-     *
-     * @return non-empty-string the staging path, beside the artifact it feeds
-     */
-    private function stagingName(): string
-    {
-        return \dirname($this->file) . '/' . basename($this->file)
-            . '.' . getmypid() . '-' . uniqid('', false) . '.staging';
-    }
-
-    /**
      * Whether a cache artifact is present for this path -- the bootstrapper's
      * fast-path probe: an existing cache is loaded (and never rebuilt),
      * a missing one is built from sources and compiled.
@@ -167,6 +153,22 @@ final readonly class ConfigCache
         }
 
         return $this->asArray($payload, $file);
+    }
+
+    /**
+     * The staging sibling's name: the cache's own basename, the writing
+     * process's identity, and entropy enough that two concurrent writers
+     * never collide on one staging file -- each rename stays atomic for
+     * its own payload.
+     *
+     * @return non-empty-string the staging path, beside the artifact it feeds
+     */
+    private function stagingName(): string
+    {
+        $pid = getmypid();
+
+        return \dirname($this->file) . '/' . basename($this->file)
+            . '.' . ($pid === false ? '0' : (string) $pid) . '-' . uniqid('', false) . '.staging';
     }
 
     /**

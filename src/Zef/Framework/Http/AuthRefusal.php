@@ -77,11 +77,11 @@ final readonly class AuthRefusal
      * The refusal a boundary failure earns.
      *
      * @param bool $credentialPresented whether the request carried a
-     *                                   credential at all; a credential-less
-     *                                   authentication refusal takes the bare
-     *                                   challenge (RFC 6750 §3.1: no error
-     *                                   code without authentication
-     *                                   information)
+     *                                  credential at all; a credential-less
+     *                                  authentication refusal takes the bare
+     *                                  challenge (RFC 6750 §3.1: no error
+     *                                  code without authentication
+     *                                  information)
      */
     public static function for(AuthFailure $authFailure, bool $credentialPresented = true): self
     {

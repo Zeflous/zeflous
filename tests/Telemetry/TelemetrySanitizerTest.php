@@ -434,7 +434,7 @@ final class TelemetrySanitizerTest extends TestCase
         // marker at the bound instead of exhausting the stack inside
         // the request path.
         $nested = ['leaf'];
-        for ($i = 0; $i < 64; $i++) {
+        for ($i = 0; $i < 64; ++$i) {
             $nested = ['level' => $nested];
         }
 

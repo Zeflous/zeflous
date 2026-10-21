@@ -72,10 +72,10 @@ final readonly class TracingFactory
      * fatal the dying process's own shutdown.
      *
      * @param null|Closure(callable(): void): void $shutdownRegistrar receives the exit
-     *                                                    drain's registration; null registers
-     *                                                    with the engine for real -- the same
-     *                                                    seam doctrine the process error
-     *                                                    boundary's shutdown arm keeps
+     *                                                                drain's registration; null registers
+     *                                                                with the engine for real -- the same
+     *                                                                seam doctrine the process error
+     *                                                                boundary's shutdown arm keeps
      */
     public static function fromConfig(Config $config, ?Closure $shutdownRegistrar = null): Tracer
     {
@@ -114,6 +114,9 @@ final readonly class TracingFactory
      * The exit drain's observer: one best-effort flush -- a collector
      * that is already gone is contained, never fatal, because the
      * measurement is not worth the dying process's own exit.
+     */
+    /**
+     * @return Closure(): void
      */
     private static function exitDrain(Tracer $tracer): Closure
     {

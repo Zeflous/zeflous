@@ -86,24 +86,6 @@ final readonly class ServiceResolutions
     }
 
     /**
-     * The request lane's captive guard: a request-scoped id resolving
-     * beneath an open singleton frame would be captured into that
-     * singleton's forever memo ({@see ResolutionFrames}), so the lane
-     * refuses it the way the boot graph refuses the same edge -- the
-     * frame ledger answers the innermost captor.
-     */
-    private function requestLane(string $id, Container $container): mixed
-    {
-        $captor = $this->frames->capturingSingleton();
-
-        if ($captor !== null) {
-            throw RequestScopeRefusals::capturedByAWiderFrame($id, $captor);
-        }
-
-        return $this->requestInstances->instance($id, $container);
-    }
-
-    /**
      * The guarded factory call -- the lanes' seam into the registration
      * core ({@see CycleGuard} keeps the re-entry refusal), and the
      * interception lane's seam: an armed registry wraps the call and
@@ -124,5 +106,23 @@ final readonly class ServiceResolutions
                 $container,
             ),
         );
+    }
+
+    /**
+     * The request lane's captive guard: a request-scoped id resolving
+     * beneath an open singleton frame would be captured into that
+     * singleton's forever memo ({@see ResolutionFrames}), so the lane
+     * refuses it the way the boot graph refuses the same edge -- the
+     * frame ledger answers the innermost captor.
+     */
+    private function requestLane(string $id, Container $container): mixed
+    {
+        $captor = $this->frames->capturingSingleton();
+
+        if ($captor !== null) {
+            throw RequestScopeRefusals::capturedByAWiderFrame($id, $captor);
+        }
+
+        return $this->requestInstances->instance($id, $container);
     }
 }

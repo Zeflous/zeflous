@@ -35,6 +35,7 @@ use Zef\Framework\Http\UploadCoercion;
 use Zef\Framework\Http\UploadedFile;
 use Zef\Framework\Http\UploadLeaf;
 use Zef\Framework\Http\UploadNode;
+use Zef\Framework\Http\UploadOrigin;
 
 /**
  * @internal
@@ -629,9 +630,9 @@ final class RequestFactoryTest extends TestCase
     }
 
     /**
-     * @dataProvider provideAuthorityFormTargetsFailClosedCases
+     * @dataProvider provideAnAuthorityFormTargetFailsClosedCases
      */
-    #[DataProvider('provideAuthorityFormTargetsFailClosedCases')]
+    #[DataProvider('provideAnAuthorityFormTargetFailsClosedCases')]
     public function testAnAuthorityFormTargetFailsClosed(string $method, string $target): void
     {
         $this->assertThrows(
@@ -649,7 +650,7 @@ final class RequestFactoryTest extends TestCase
     /**
      * @return iterable<string, array{string, string}>
      */
-    public static function provideAuthorityFormTargetsFailClosedCases(): iterable
+    public static function provideAnAuthorityFormTargetFailsClosedCases(): iterable
     {
         yield 'connect reg-name authority' => ['CONNECT', 'example.com:443'];
 
@@ -693,14 +694,22 @@ final class RequestFactoryTest extends TestCase
             $request = RequestFactory::fromGlobals();
 
             $uploads = $request->getUploadedFiles();
-            self::assertSame(\UPLOAD_ERR_NO_FILE, $uploads['avatar']->getError(), 'a path the engine disowns is no payload');
-            self::assertSame(\UPLOAD_ERR_NO_FILE, $uploads['photos'][0]->getError(), 'the nested disowned leaf is downgraded');
-            self::assertSame(\UPLOAD_ERR_NO_FILE, $uploads['photos'][1]->getError(), 'the leaf that was already honest is untouched');
+            $avatar = $uploads['avatar'];
+            self::assertInstanceOf(UploadedFile::class, $avatar);
+            $photos = $uploads['photos'];
+            self::assertIsArray($photos);
+            $firstPhoto = $photos[0];
+            self::assertInstanceOf(UploadedFile::class, $firstPhoto);
+            $secondPhoto = $photos[1];
+            self::assertInstanceOf(UploadedFile::class, $secondPhoto);
+            self::assertSame(\UPLOAD_ERR_NO_FILE, $avatar->getError(), 'a path the engine disowns is no payload');
+            self::assertSame(\UPLOAD_ERR_NO_FILE, $firstPhoto->getError(), 'the nested disowned leaf is downgraded');
+            self::assertSame(\UPLOAD_ERR_NO_FILE, $secondPhoto->getError(), 'the leaf that was already honest is untouched');
 
             $this->assertThrows(
                 'Uploaded file is not available (error 4).',
-                static function () use ($uploads): void {
-                    $uploads['avatar']->getStream();
+                static function () use ($avatar): void {
+                    $avatar->getStream();
                 },
             );
         } finally {
@@ -725,8 +734,10 @@ final class RequestFactoryTest extends TestCase
         ]);
 
         $uploads = $request->getUploadedFiles();
-        self::assertSame(\UPLOAD_ERR_OK, $uploads['avatar']->getError(), 'the explicitly-sourced lane owns its own trust');
-        self::assertSame('<?php', $uploads['avatar']->getStream()->read(5));
+        $avatar = $uploads['avatar'];
+        self::assertInstanceOf(UploadedFile::class, $avatar);
+        self::assertSame(\UPLOAD_ERR_OK, $avatar->getError(), 'the explicitly-sourced lane owns its own trust');
+        self::assertSame('<?php', $avatar->getStream()->read(5));
     }
 
     /**

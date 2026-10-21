@@ -64,10 +64,10 @@ final class ProcessErrorBoundary
 
     private readonly ProcessBoundaryRecords $processBoundaryRecords;
 
-    /** The exact error-handler instance this boundary pushes -- the restore probe's own reference. */
+    /** @var Closure(int, string, string, int): bool the exact error-handler instance this boundary pushes -- the restore probe's own reference */
     private readonly Closure $errorHandler;
 
-    /** The exact exception-handler instance this boundary pushes -- the restore probe's own reference. */
+    /** @var Closure(Throwable): void the exact exception-handler instance this boundary pushes -- the restore probe's own reference */
     private readonly Closure $exceptionHandler;
 
     /**
@@ -195,29 +195,6 @@ final class ProcessErrorBoundary
     }
 
     /**
-     * Whether the boundary still owns the top of both engine stacks: the
-     * probe pushes a throwaway handler of its own, reads the previous top
-     * the engine answers (the exact instance this boundary pushed, or a
-     * foreigner's), and pops the throwaway back off -- the one honest way
-     * to observe the stack's top, because PHP keeps no read-only window
-     * onto it.
-     */
-    private function ownsTheEngineHandlers(): bool
-    {
-        $errorProbe = static fn (): bool => true;
-        $currentError = set_error_handler($errorProbe);
-        restore_error_handler();
-
-        $exceptionProbe = static function (): void {
-        };
-
-        $currentException = set_exception_handler($exceptionProbe);
-        restore_exception_handler();
-
-        return $currentError === $this->errorHandler && $currentException === $this->exceptionHandler;
-    }
-
-    /**
      * Whether the boundary is currently installed.
      */
     public function installed(): bool
@@ -260,6 +237,29 @@ final class ProcessErrorBoundary
         }
 
         $this->processShutdownFatals->observe();
+    }
+
+    /**
+     * Whether the boundary still owns the top of both engine stacks: the
+     * probe pushes a throwaway handler of its own, reads the previous top
+     * the engine answers (the exact instance this boundary pushed, or a
+     * foreigner's), and pops the throwaway back off -- the one honest way
+     * to observe the stack's top, because PHP keeps no read-only window
+     * onto it.
+     */
+    private function ownsTheEngineHandlers(): bool
+    {
+        $errorProbe = static fn (): bool => true;
+        $currentError = set_error_handler($errorProbe);
+        restore_error_handler();
+
+        $exceptionProbe = static function (): void {
+        };
+
+        $currentException = set_exception_handler($exceptionProbe);
+        restore_exception_handler();
+
+        return $currentError === $this->errorHandler && $currentException === $this->exceptionHandler;
     }
 
     /**

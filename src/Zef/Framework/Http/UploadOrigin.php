@@ -59,34 +59,50 @@ final class UploadOrigin
      */
     private static function walk(array $spec): array
     {
+        /** @var mixed $error the spec's error axis: a scalar leaf or the parallel subtree */
         $error = $spec['error'];
 
         if (!\is_array($error)) {
-            $temporaryPath = $spec['tmp_name'] ?? null;
-
-            if (
-                $error === \UPLOAD_ERR_OK
-                && \is_string($temporaryPath)
-                && $temporaryPath !== ''
-                && !is_uploaded_file($temporaryPath)
-            ) {
-                $spec['error'] = \UPLOAD_ERR_NO_FILE;
-            }
+            $spec['error'] = self::leafError($spec['tmp_name'] ?? null, $error);
 
             return $spec;
         }
 
+        $downgraded = [];
+
         foreach ($error as $key => $leafError) {
-            $spec['error'][$key] = self::walk([
-                'name' => self::axis($spec['name'] ?? null, $key),
-                'type' => self::axis($spec['type'] ?? null, $key),
-                'tmp_name' => self::axis($spec['tmp_name'] ?? null, $key),
-                'error' => $leafError,
-                'size' => self::axis($spec['size'] ?? null, $key),
-            ])['error'];
+            $downgraded[$key] = self::leafError(self::axis($spec['tmp_name'] ?? null, $key), $leafError);
         }
 
+        // The parallel walk over the mixed error axis: every leaf's
+        // verdict lands in a freshly typed list, never re-indexed
+        // through the mixed axis itself.
+
+        $spec['error'] = $downgraded;
+
         return $spec;
+    }
+
+    /**
+     * One leaf's error axis after the ownership verdict: the disowned
+     * error-OK entry (a temporary file the engine never wrote) downgrades
+     * to `NO_FILE`, every other verdict passes untouched.
+     *
+     * @param mixed $temporaryPath the leaf's temporary-file axis value
+     * @param mixed $leafError     the leaf's error axis value
+     */
+    private static function leafError(mixed $temporaryPath, mixed $leafError): mixed
+    {
+        if (
+            $leafError === \UPLOAD_ERR_OK
+            && \is_string($temporaryPath)
+            && $temporaryPath !== ''
+            && !is_uploaded_file($temporaryPath)
+        ) {
+            return \UPLOAD_ERR_NO_FILE;
+        }
+
+        return $leafError;
     }
 
     /**

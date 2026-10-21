@@ -42,16 +42,16 @@ use Zef\Framework\Container\ServiceTagIndex;
 use Zef\Framework\Container\ServiceTags;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\Aot\CallsHouse;
+use Zef\Test\Support\Container\Aot\EnumHouse;
 use Zef\Test\Support\Container\Aot\FactoryProduct;
 use Zef\Test\Support\Container\Aot\FactorySource;
 use Zef\Test\Support\Container\Aot\House;
-use Zef\Test\Support\Container\Aot\EnumHouse;
 use Zef\Test\Support\Container\Aot\LooseDefinition;
+use Zef\Test\Support\Container\Aot\PlainSink;
 use Zef\Test\Support\Container\Aot\Roof;
 use Zef\Test\Support\Container\Aot\StampingFactory;
 use Zef\Test\Support\Container\Aot\StampingProduct;
 use Zef\Test\Support\Container\Aot\Tone;
-use Zef\Test\Support\Container\Aot\PlainSink;
 use Zef\Test\Support\Container\Aot\UnrenderableHouse;
 use Zef\Test\Support\Container\Aot\Window;
 
@@ -300,7 +300,7 @@ final class ContainerAotCacheTest extends TestCase
             [new InstanceDefinition('app.unrenderable', UnrenderableHouse::class, [new PlainSink()])],
             ServiceTagIndex::fromDefinitions([]),
             [],
-            new NamespaceRadixTree([], [], 0, 0, 0),
+            new NamespaceRadixTree(['ids' => [], 'children' => []], [], 0, 0, 0),
         );
 
         self::assertFalse($containerAotCache->dumpPlanOrDegrade($plan, 'digest'));
@@ -314,7 +314,7 @@ final class ContainerAotCacheTest extends TestCase
             [new InstanceDefinition('app.tone', EnumHouse::class, [Tone::CALM])],
             ServiceTagIndex::fromDefinitions([]),
             [],
-            new NamespaceRadixTree([], [], 0, 0, 0),
+            new NamespaceRadixTree(['ids' => [], 'children' => []], [], 0, 0, 0),
         );
 
         self::assertTrue($containerAotCache->dumpPlanOrDegrade($plan, 'digest'));

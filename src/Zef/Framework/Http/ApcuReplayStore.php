@@ -41,6 +41,7 @@ final class ApcuReplayStore implements ApcuReplayStoreInterface
     #[Override]
     public function readSight(string $key): ?int
     {
+        /** @var mixed $sight the fetched entry is the store's own mixed answer */
         $sight = apcu_fetch($key);
 
         return \is_int($sight) ? $sight : null;

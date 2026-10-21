@@ -23,9 +23,9 @@ use Zef\Framework\Middleware\ProcessBoundaryRecords;
 use Zef\Framework\Middleware\ProcessBoundaryTransmission;
 use Zef\Framework\Middleware\ProcessErrorBoundary;
 use Zef\Framework\Middleware\ProcessNativeDiagnostics;
-use Zef\Framework\Middleware\RequestFactsMemo;
 use Zef\Framework\Middleware\ProcessShutdownFatals;
 use Zef\Framework\Middleware\ProcessUncaughtThrowables;
+use Zef\Framework\Middleware\RequestFactsMemo;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Test\Support\Log\RecordingLogger;
 
@@ -808,40 +808,10 @@ final class ProcessErrorBoundaryTest extends TestCase
     }
 
     /**
-     * Runs the given observation against an armed boundary, restoring it
-     * afterwards -- the shutdown arm's direct-call battery must observe
-     * the armed posture the engine's own registration would run under.
-     *
-     * @param Closure(ProcessErrorBoundary): void    $observation   the armed observation
-     * @param null|Closure(): ServerRequestInterface $requestSource the failing request source,
-     *                                                              when the observation needs one
-     */
-    private function withAnArmedBoundary(
-        Closure $observation,
-        bool $headersSent = false,
-        string $sapi = 'fpm-fcgi',
-        ?Closure $requestSource = null,
-    ): void {
-        $processErrorBoundary = $this->boundary(requestSource: $requestSource, headersSent: $headersSent, sapi: $sapi);
-
-        $processErrorBoundary->install();
-
-        try {
-            $observation($processErrorBoundary);
-        } finally {
-            $processErrorBoundary->restore();
-        }
-    }
-
-    /**
      * Builds the boundary under observation: the recorder, the emitter,
      * the sink, the probe and the fatal witness all record into this
      * test's own state, and the request is the deterministic one the
      * arms' facts are asserted against.
-     *
-     * @param null|Closure(): ServerRequestInterface $requestSource     the arms' request source
-     * @param null|Closure(callable(): void): void   $shutdownRegistrar the shutdown-observer
-     *                                                                  registration observation
      */
     public function testTheFactsWindowKeepsOneCorrelationForEveryRecordOfTheWindow(): void
     {
@@ -900,7 +870,7 @@ final class ProcessErrorBoundaryTest extends TestCase
         // the rest are a counted silence.
         $processErrorBoundary = $this->boundary();
 
-        for ($i = 0; $i < 202; $i++) {
+        for ($i = 0; $i < 202; ++$i) {
             $processErrorBoundary->onNativeDiagnostic(
                 \E_DEPRECATED,
                 'The reference implementation is deprecated.',
@@ -972,6 +942,36 @@ final class ProcessErrorBoundaryTest extends TestCase
         self::assertFalse($processErrorBoundary->installed(), 'the honest unwind restored the boundary');
     }
 
+    /**
+     * Runs the given observation against an armed boundary, restoring it
+     * afterwards -- the shutdown arm's direct-call battery must observe
+     * the armed posture the engine's own registration would run under.
+     *
+     * @param Closure(ProcessErrorBoundary): void    $observation   the armed observation
+     * @param null|Closure(): ServerRequestInterface $requestSource the failing request source,
+     *                                                              when the observation needs one
+     */
+    private function withAnArmedBoundary(
+        Closure $observation,
+        bool $headersSent = false,
+        string $sapi = 'fpm-fcgi',
+        ?Closure $requestSource = null,
+    ): void {
+        $processErrorBoundary = $this->boundary(requestSource: $requestSource, headersSent: $headersSent, sapi: $sapi);
+
+        $processErrorBoundary->install();
+
+        try {
+            $observation($processErrorBoundary);
+        } finally {
+            $processErrorBoundary->restore();
+        }
+    }
+
+    /**
+     * @param null|Closure(): ServerRequestInterface $requestSource     the arms' request source
+     * @param null|Closure(callable(): void): void   $shutdownRegistrar the shutdown-observer registration observation
+     */
     private function boundary(
         ?Closure $requestSource = null,
         bool $headersSent = false,

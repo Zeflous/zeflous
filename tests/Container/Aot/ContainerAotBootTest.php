@@ -49,12 +49,12 @@ use Zef\Framework\ContainerKnobs;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Test\Support\Container\Aot\BrokenHouse;
 use Zef\Test\Support\Container\Aot\CallsHouse;
+use Zef\Test\Support\Container\Aot\EnumHouse;
 use Zef\Test\Support\Container\Aot\FactoryProduct;
 use Zef\Test\Support\Container\Aot\FactorySource;
 use Zef\Test\Support\Container\Aot\House;
-use Zef\Test\Support\Container\Aot\Roof;
-use Zef\Test\Support\Container\Aot\EnumHouse;
 use Zef\Test\Support\Container\Aot\PlainSink;
+use Zef\Test\Support\Container\Aot\Roof;
 use Zef\Test\Support\Container\Aot\Tone;
 use Zef\Test\Support\Container\Aot\UnrenderableHouse;
 use Zef\Test\Support\Container\Aot\WarmCounter;
@@ -210,12 +210,16 @@ final class ContainerAotBootTest extends TestCase
         $config['services']['app.tone'] = ['class' => EnumHouse::class, 'autowire' => true];
 
         $first = $containerBootstrapper->bootstrap(new Config($config), new Container());
-        self::assertSame(Tone::CALM, $first->get('app.tone')->tone);
+        $firstHouse = $first->get('app.tone');
+        self::assertInstanceOf(EnumHouse::class, $firstHouse);
+        self::assertSame(Tone::CALM, $firstHouse->tone);
 
         $second = $containerBootstrapper->bootstrap(new Config($config), new Container());
+        $secondHouse = $second->get('app.tone');
+        self::assertInstanceOf(EnumHouse::class, $secondHouse);
         self::assertSame(
             Tone::CALM,
-            $second->get('app.tone')->tone,
+            $secondHouse->tone,
             'the artifact lane answers the enum singleton the full lane baked',
         );
     }

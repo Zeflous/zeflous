@@ -103,12 +103,12 @@ abstract class ZefException extends RuntimeException
      */
     private static function anonymousErrorCode(string $class): string
     {
-        $parent = strstr($class, '@anonymous', true);
+        $parent = mb_strstr($class, '@anonymous', true);
         $parent = \is_string($parent) && $parent !== '' ? $parent : 'class';
 
         $tail = (string) mb_strrchr($class, '/');
         $tail = $tail === '' ? $class : mb_substr($tail, 1);
 
-        return 'ANONYMOUS_' . strtoupper(hash('crc32b', $parent . '|' . $tail));
+        return 'ANONYMOUS_' . mb_strtoupper(hash('crc32b', $parent . '|' . $tail));
     }
 }

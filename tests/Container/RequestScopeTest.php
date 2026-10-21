@@ -15,6 +15,7 @@ use Zef\Framework\Container\RequestInstances;
 use Zef\Framework\Container\RequestScope;
 use Zef\Framework\Container\RequestScopeException;
 use Zef\Framework\Container\RequestScopeRefusals;
+use Zef\Framework\Container\ResolutionFrames;
 use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ServiceResolutions;
 use Zef\Framework\Container\ServiceStore;
@@ -346,7 +347,12 @@ final class RequestScopeTest extends TestCase
         // own singleton frame is open.
         $container->set(
             'app.captor',
-            static fn (Container $c): stdClass => new CaptiveHolder($c->get('app.leaf')),
+            static function (Container $c): CaptiveHolder {
+                $leaf = $c->get('app.leaf');
+                \assert($leaf instanceof stdClass);
+
+                return new CaptiveHolder($leaf);
+            },
         );
 
         $scope = $container->createRequestScope();
@@ -374,7 +380,12 @@ final class RequestScopeTest extends TestCase
         $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
         $container->set(
             'app.captor',
-            static fn (Container $c): stdClass => new CaptiveHolder($c->get('app.leaf')),
+            static function (Container $c): CaptiveHolder {
+                $leaf = $c->get('app.leaf');
+                \assert($leaf instanceof stdClass);
+
+                return new CaptiveHolder($leaf);
+            },
         );
 
         try {
@@ -399,7 +410,12 @@ final class RequestScopeTest extends TestCase
         $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
         $container->set(
             'app.captor',
-            static fn (Container $c): stdClass => new CaptiveHolder($c->get('app.leaf')),
+            static function (Container $c): CaptiveHolder {
+                $leaf = $c->get('app.leaf');
+                \assert($leaf instanceof stdClass);
+
+                return new CaptiveHolder($leaf);
+            },
         );
 
         $scope = $container->createRequestScope();
@@ -423,7 +439,12 @@ final class RequestScopeTest extends TestCase
         $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
         $container->set(
             'app.branch',
-            static fn (Container $c): CaptiveHolder => new CaptiveHolder($c->get('app.leaf')),
+            static function (Container $c): CaptiveHolder {
+                $leaf = $c->get('app.leaf');
+                \assert($leaf instanceof stdClass);
+
+                return new CaptiveHolder($leaf);
+            },
             ServiceLifetime::TRANSIENT,
         );
 
@@ -440,11 +461,21 @@ final class RequestScopeTest extends TestCase
         $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
         $container->set(
             'app.inner',
-            static fn (Container $c): CaptiveHolder => new CaptiveHolder($c->get('app.leaf')),
+            static function (Container $c): CaptiveHolder {
+                $leaf = $c->get('app.leaf');
+                \assert($leaf instanceof stdClass);
+
+                return new CaptiveHolder($leaf);
+            },
         );
         $container->set(
             'app.outer',
-            static fn (Container $c): stdClass => new NestedHolder($c->get('app.inner')),
+            static function (Container $c): NestedHolder {
+                $inner = $c->get('app.inner');
+                \assert($inner instanceof stdClass);
+
+                return new NestedHolder($inner);
+            },
         );
 
         $scope = $container->createRequestScope();

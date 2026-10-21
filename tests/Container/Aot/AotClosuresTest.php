@@ -86,7 +86,7 @@ final class AotClosuresTest extends TestCase
         $code = AotClosures::instance($instanceDefinition);
 
         self::assertStringContainsString(
-            'new Zef\\Test\\Support\\Container\\Aot\\EnumHouse(\\Zef\\Test\\Support\\Container\\Aot\\Tone::CALM)',
+            'new Zef\Test\Support\Container\Aot\EnumHouse(\Zef\Test\Support\Container\Aot\Tone::CALM)',
             $code,
         );
 

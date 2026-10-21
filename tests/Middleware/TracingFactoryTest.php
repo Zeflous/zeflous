@@ -233,16 +233,6 @@ final class TracingFactoryTest extends TestCase
         self::assertSame([], $observers, 'the in-memory default keeps the drain in-process');
     }
 
-    /**
-     * The registrar double that keeps the suite's engine stacks clean:
-     * no real shutdown observer lands at the PHPUnit exit.
-     */
-    private static function noRegistrar(): Closure
-    {
-        return static function (): void {
-        };
-    }
-
     public function testTheFactoryBuildsTheFailClosedArmFromTheAbsentFamily(): void
     {
         $tracer = TracingFactory::fromConfig(new Config([]));
@@ -320,5 +310,18 @@ final class TracingFactoryTest extends TestCase
                 $httpException->getMessage(),
             );
         }
+    }
+
+    /**
+     * The registrar double that keeps the suite's engine stacks clean:
+     * no real shutdown observer lands at the PHPUnit exit.
+     */
+    /**
+     * @return Closure(callable(): void): void
+     */
+    private static function noRegistrar(): Closure
+    {
+        return static function (): void {
+        };
     }
 }

@@ -46,7 +46,7 @@ final class ResolutionFrames
     /**
      * Opens a singleton frame around one resolution.
      *
-     * @param string        $id         the singleton whose factory is resolving
+     * @param string           $id         the singleton whose factory is resolving
      * @param Closure(): mixed $resolution the resolution the frame wraps
      */
     public function withinSingleton(string $id, Closure $resolution): mixed

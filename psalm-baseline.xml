@@ -148,6 +148,7 @@
   <file src="src/Zef/Framework/Container/Aot/AotLiterals.php">
     <MixedAssignment>
       <code><![CDATA[$entry]]></code>
+      <code><![CDATA[$entry]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Container/Aot/AotOutcome.php">
@@ -361,6 +362,18 @@
     <UnusedClass>
       <code><![CDATA[TimeoutHealthCheck]]></code>
     </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Config/Cache/ConfigCache.php">
+    <MixedAssignment>
+      <code><![CDATA[$payload]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Http/UploadOrigin.php">
+    <MixedAssignment>
+      <code><![CDATA[$downgraded[$key]]]></code>
+      <code><![CDATA[$leafError]]></code>
+      <code><![CDATA[$spec['error']]]></code>
+    </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Http/CorsMiddleware.php">
     <UnusedClass>

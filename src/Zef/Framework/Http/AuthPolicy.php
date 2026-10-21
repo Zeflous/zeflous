@@ -62,7 +62,7 @@ final readonly class AuthPolicy
      *                                     ceiling (>= 1)
      * @param int          $replayWindow   the replay duplicate window,
      *                                     in seconds (>= 1)
-     * @param string       $replayStore   the seen-table's topology, one
+     * @param string       $replayStore    the seen-table's topology, one
      *                                     of the closed {@see ReplayStores}
      *                                     vocabulary -- `memory` keeps the
      *                                     reference's per-process table,

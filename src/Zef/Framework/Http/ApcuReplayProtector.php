@@ -41,13 +41,13 @@ final class ApcuReplayProtector implements ReplayProtectorInterface
     private const string KEY_PREFIX = 'zef.replay.';
 
     /**
-     * @param int                       $windowMs the duplicate window's length, in
-     *                                            milliseconds (>= 1) -- an id re-seen
-     *                                            inside the window is a duplicate, one
-     *                                            re-seen after it is fresh again
-     * @param ApcuReplayStoreInterface  $store    the atomic sight boundary; the real
-     *                                            APCu calls by default, the suite's
-     *                                            doubles in tests
+     * @param int                      $windowMs the duplicate window's length, in
+     *                                           milliseconds (>= 1) -- an id re-seen
+     *                                           inside the window is a duplicate, one
+     *                                           re-seen after it is fresh again
+     * @param ApcuReplayStoreInterface $store    the atomic sight boundary; the real
+     *                                           APCu calls by default, the suite's
+     *                                           doubles in tests
      *
      * @throws HttpException when the window bound is violated
      */
