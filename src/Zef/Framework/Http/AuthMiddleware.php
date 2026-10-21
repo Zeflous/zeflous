@@ -146,7 +146,8 @@ final readonly class AuthMiddleware implements MiddlewareInterface
         );
 
         if (!$authAdmission->allows()) {
-            return AuthRefusal::for($authAdmission->failure)->response($request);
+            return AuthRefusal::for($authAdmission->failure, $credential instanceof AuthCredential)
+                ->response($request);
         }
 
         \assert($authAdmission->context instanceof AuthContext, 'an allowed admission carries its context.');

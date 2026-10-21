@@ -141,7 +141,19 @@ final class AuthMiddlewareTest extends TestCase
         $response = $this->middleware()->process($this->request('GET'), $this->fixedResponseHandler);
 
         self::assertSame(401, $response->getStatusCode());
-        self::assertSame('Bearer error="invalid_token"', $response->getHeaderLine('WWW-Authenticate'));
+        self::assertSame('Bearer', $response->getHeaderLine('WWW-Authenticate'));
+    }
+
+    public function testACredentiallessAuthenticationRefusalCarriesTheBareChallenge(): void
+    {
+        $refusal = AuthRefusal::for(AuthFailure::AUTHENTICATION_FAILED, false);
+
+        self::assertSame(401, $refusal->status);
+        self::assertSame('Bearer', $refusal->challenge);
+
+        $expired = AuthRefusal::for(AuthFailure::CREDENTIAL_EXPIRED, false);
+
+        self::assertSame('Bearer', $expired->challenge, 'the expiry answer without a credential carries no error code either');
     }
 
     public function testAWrongTokenIsRefusedWithTheInvalidTokenChallenge(): void

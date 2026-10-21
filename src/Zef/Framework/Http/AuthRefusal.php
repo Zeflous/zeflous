@@ -31,13 +31,25 @@ use Psr\Http\Message\ServerRequestInterface;
  * the boundary speaks), `error="invalid_token"` when one was
  * presented and the provider refused it, `error="insufficient_scope"`
  * when the authenticated principal's grant did not cover the
- * request. The replay refusal carries no challenge: it is not an
- * authentication question.
+ * request. The bare-vs-coded split follows the section's own rule:
+ * a request lacking authentication information carries no error
+ * code regardless of which boundary arm refused it -- `invalid_token`
+ * describes a presented credential, so the credential-less 401 takes
+ * the same bare challenge the input seam answers, whether it arrives
+ * from the unsafe-method input refusal or from a safe method the
+ * provider's default posture refused. The replay refusal carries no
+ * challenge: it is not an authentication question.
  */
 final readonly class AuthRefusal
 {
     /** The invariant every with*() chain upholds: the PSR-7 instance type. */
     private const string PRESERVED_RESPONSE_TYPE = 'withHeader() must preserve the response type.';
+
+    /** The failures that earn the authentication refusal a presented credential answers coded. */
+    private const array AUTHENTICATION_REFUSALS = [
+        AuthFailure::AUTHENTICATION_FAILED,
+        AuthFailure::CREDENTIAL_EXPIRED,
+    ];
 
     /**
      * @param null|string $challenge the WWW-Authenticate value, null when
@@ -63,9 +75,20 @@ final readonly class AuthRefusal
 
     /**
      * The refusal a boundary failure earns.
+     *
+     * @param bool $credentialPresented whether the request carried a
+     *                                   credential at all; a credential-less
+     *                                   authentication refusal takes the bare
+     *                                   challenge (RFC 6750 §3.1: no error
+     *                                   code without authentication
+     *                                   information)
      */
-    public static function for(AuthFailure $authFailure): self
+    public static function for(AuthFailure $authFailure, bool $credentialPresented = true): self
     {
+        if (!$credentialPresented && \in_array($authFailure, self::AUTHENTICATION_REFUSALS, true)) {
+            return self::unauthenticated();
+        }
+
         return match ($authFailure) {
             AuthFailure::AUTHENTICATION_UNAVAILABLE, AuthFailure::REPLAY_UNAVAILABLE => new self(
                 503,
