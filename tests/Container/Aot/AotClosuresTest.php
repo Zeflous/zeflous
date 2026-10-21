@@ -87,7 +87,7 @@ final class AotClosuresTest extends TestCase
         $code = AotClosures::instance($instanceDefinition);
 
         self::assertStringContainsString(
-            'new Zef\Test\Support\Container\Aot\EnumHouse(\Zef\Test\Support\Container\Aot\Tone::CALM)',
+            'new Zef\Test\Support\Container\Aot\EnumHouse(\\' . Tone::class . '::CALM)',
             $code,
         );
 
@@ -109,7 +109,7 @@ final class AotClosuresTest extends TestCase
 
         $code = AotClosures::instance($instanceDefinition);
 
-        self::assertStringContainsString("'first' => \\Zef\\Test\\Support\\Container\\Aot\\Tone::CALM", $code);
+        self::assertStringContainsString("'first' => \\" . Tone::class . '::CALM', $code);
         self::assertStringContainsString("'plain' => 'data'", $code);
 
         $closure = eval('return ' . $code . ';');

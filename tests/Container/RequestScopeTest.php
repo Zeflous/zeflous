@@ -349,9 +349,9 @@ final class RequestScopeTest extends TestCase
         // own singleton frame is open.
         $container->set(
             'app.captor',
-            static function (Container $c): CaptiveHolder {
-                $leaf = $c->get('app.leaf');
-                \assert($leaf instanceof stdClass);
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
 
                 return new CaptiveHolder($leaf);
             },
@@ -382,9 +382,9 @@ final class RequestScopeTest extends TestCase
         $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
         $container->set(
             'app.captor',
-            static function (Container $c): CaptiveHolder {
-                $leaf = $c->get('app.leaf');
-                \assert($leaf instanceof stdClass);
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
 
                 return new CaptiveHolder($leaf);
             },
@@ -412,9 +412,9 @@ final class RequestScopeTest extends TestCase
         $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
         $container->set(
             'app.captor',
-            static function (Container $c): CaptiveHolder {
-                $leaf = $c->get('app.leaf');
-                \assert($leaf instanceof stdClass);
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
 
                 return new CaptiveHolder($leaf);
             },
@@ -441,9 +441,9 @@ final class RequestScopeTest extends TestCase
         $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
         $container->set(
             'app.branch',
-            static function (Container $c): CaptiveHolder {
-                $leaf = $c->get('app.leaf');
-                \assert($leaf instanceof stdClass);
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
 
                 return new CaptiveHolder($leaf);
             },
@@ -463,18 +463,18 @@ final class RequestScopeTest extends TestCase
         $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
         $container->set(
             'app.inner',
-            static function (Container $c): CaptiveHolder {
-                $leaf = $c->get('app.leaf');
-                \assert($leaf instanceof stdClass);
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
 
                 return new CaptiveHolder($leaf);
             },
         );
         $container->set(
             'app.outer',
-            static function (Container $c): NestedHolder {
-                $inner = $c->get('app.inner');
-                \assert($inner instanceof stdClass);
+            static function (Container $container): NestedHolder {
+                $inner = $container->get('app.inner');
+                Assert::assertInstanceOf(stdClass::class, $inner);
 
                 return new NestedHolder($inner);
             },

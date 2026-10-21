@@ -52,9 +52,14 @@ final class ContainerDumpLaneTest extends TestCase
      */
     public function testADevelopmentBootLaysNothingDown(): void
     {
-        $lane = new ContainerDumpLane();
+        $containerDumpLane = new ContainerDumpLane();
 
-        $lane->layDown(new Container(), $this->plan(), $this->knobs('development'), new ContainerAotCache($this->file));
+        $containerDumpLane->layDown(
+            new Container(),
+            $this->plan(),
+            $this->knobs('development'),
+            new ContainerAotCache($this->file),
+        );
 
         self::assertFileDoesNotExist($this->file);
     }
@@ -64,18 +69,23 @@ final class ContainerDumpLaneTest extends TestCase
      */
     public function testABootWithoutACacheLaysNothingDown(): void
     {
-        $lane = new ContainerDumpLane();
+        $containerDumpLane = new ContainerDumpLane();
 
-        $lane->layDown(new Container(), $this->plan(), $this->knobs('production'), null);
+        $containerDumpLane->layDown(new Container(), $this->plan(), $this->knobs('production'), null);
 
         self::assertFileDoesNotExist($this->file);
     }
 
     public function testARenderablePlanLaysTheArtifactDown(): void
     {
-        $lane = new ContainerDumpLane();
+        $containerDumpLane = new ContainerDumpLane();
 
-        $lane->layDown(new Container(), $this->plan(), $this->knobs('production'), new ContainerAotCache($this->file));
+        $containerDumpLane->layDown(
+            new Container(),
+            $this->plan(),
+            $this->knobs('production'),
+            new ContainerAotCache($this->file),
+        );
 
         self::assertFileExists($this->file);
         self::assertStringContainsString('Tone::CALM', (string) file_get_contents($this->file));
@@ -88,16 +98,21 @@ final class ContainerDumpLaneTest extends TestCase
      */
     public function testAnUnrenderablePlanDegradesWithTheOutcomeNote(): void
     {
-        $lane = new ContainerDumpLane();
+        $containerDumpLane = new ContainerDumpLane();
         $container = new Container();
-        $plan = new ContainerCompilePlan(
+        $containerCompilePlan = new ContainerCompilePlan(
             [new InstanceDefinition('app.unrenderable', EnumHouse::class, [new PlainSink()])],
             ServiceTagIndex::fromDefinitions([]),
             [],
             new NamespaceRadixTree(['ids' => [], 'children' => []], [], 0, 0, 0),
         );
 
-        $lane->layDown($container, $plan, $this->knobs('production'), new ContainerAotCache($this->file));
+        $containerDumpLane->layDown(
+            $container,
+            $containerCompilePlan,
+            $this->knobs('production'),
+            new ContainerAotCache($this->file),
+        );
 
         self::assertFileDoesNotExist($this->file);
         $outcome = $container->get(ContainerServices::AOT_SERVICE);

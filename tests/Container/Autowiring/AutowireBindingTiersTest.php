@@ -33,7 +33,7 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testTheValueAddressAnswersItsSyntheticServiceReference(): void
     {
-        $spec = new AutowireParameterSpec(
+        $autowireParameterSpec = new AutowireParameterSpec(
             name: 'tone',
             isVariadic: false,
             isOptional: true,
@@ -42,7 +42,7 @@ final class AutowireBindingTiersTest extends TestCase
         );
         $references = $this->references([], new ParameterValues(['app.tone' => 'calm']));
 
-        $stretch = AutowireBindingTiers::stretch('app.house', $spec, $references);
+        $stretch = AutowireBindingTiers::stretch('app.house', $autowireParameterSpec, $references);
 
         self::assertSame([['service' => '@value:app.tone']], $stretch);
     }
@@ -52,7 +52,7 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testADeclaredTypeAnswersItsServiceReference(): void
     {
-        $spec = new AutowireParameterSpec(
+        $autowireParameterSpec = new AutowireParameterSpec(
             name: 'window',
             isVariadic: false,
             isOptional: false,
@@ -61,7 +61,7 @@ final class AutowireBindingTiersTest extends TestCase
         );
         $references = $this->references([new InstanceDefinition(Window::class, Window::class, [])]);
 
-        $stretch = AutowireBindingTiers::stretch('app.house', $spec, $references);
+        $stretch = AutowireBindingTiers::stretch('app.house', $autowireParameterSpec, $references);
 
         self::assertSame([['service' => Window::class]], $stretch);
     }
@@ -71,7 +71,7 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testABirthableClassAnswersItsOwnReference(): void
     {
-        $spec = new AutowireParameterSpec(
+        $autowireParameterSpec = new AutowireParameterSpec(
             name: 'wing',
             isVariadic: false,
             isOptional: false,
@@ -80,7 +80,7 @@ final class AutowireBindingTiersTest extends TestCase
         );
         $references = $this->references();
 
-        $stretch = AutowireBindingTiers::stretch('app.house', $spec, $references);
+        $stretch = AutowireBindingTiers::stretch('app.house', $autowireParameterSpec, $references);
 
         self::assertSame([['service' => ParameterlessHouse::class]], $stretch);
     }
@@ -93,17 +93,16 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testAnUnboundDefaultedNullableReachesItsOwnFallback(): void
     {
-        $spec = new AutowireParameterSpec(
+        $autowireParameterSpec = new AutowireParameterSpec(
             name: 'logger',
             isVariadic: false,
             isOptional: true,
             hasDefault: true,
-            defaultValue: null,
             className: LoggerInterface::class,
         );
         $references = $this->references();
 
-        $stretch = AutowireBindingTiers::stretch('app.house', $spec, $references);
+        $stretch = AutowireBindingTiers::stretch('app.house', $autowireParameterSpec, $references);
 
         self::assertSame([null], $stretch);
     }
@@ -113,7 +112,7 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testADefaultedParameterWithoutABindingAnswersItsOwnDefault(): void
     {
-        $spec = new AutowireParameterSpec(
+        $autowireParameterSpec = new AutowireParameterSpec(
             name: 'count',
             isVariadic: false,
             isOptional: true,
@@ -122,7 +121,7 @@ final class AutowireBindingTiersTest extends TestCase
         );
         $references = $this->references();
 
-        $stretch = AutowireBindingTiers::stretch('app.house', $spec, $references);
+        $stretch = AutowireBindingTiers::stretch('app.house', $autowireParameterSpec, $references);
 
         self::assertSame([4], $stretch);
     }
@@ -134,18 +133,17 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testAnUnboundInjectArmKeepsTheRefusal(): void
     {
-        $spec = new AutowireParameterSpec(
+        $autowireParameterSpec = new AutowireParameterSpec(
             name: 'logger',
             isVariadic: false,
             isOptional: true,
             hasDefault: true,
-            defaultValue: null,
             injectId: 'app.absent',
         );
         $references = $this->references();
 
         try {
-            AutowireBindingTiers::stretch('app.house', $spec, $references);
+            AutowireBindingTiers::stretch('app.house', $autowireParameterSpec, $references);
             self::fail('Expected an AutowiringException to be thrown.');
         } catch (AutowiringException $autowiringException) {
             self::assertStringContainsString(
@@ -162,7 +160,7 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testAnUnboundInterfaceRefuses(): void
     {
-        $spec = new AutowireParameterSpec(
+        $autowireParameterSpec = new AutowireParameterSpec(
             name: 'logger',
             isVariadic: false,
             isOptional: false,
@@ -172,7 +170,7 @@ final class AutowireBindingTiersTest extends TestCase
         $references = $this->references();
 
         try {
-            AutowireBindingTiers::stretch('app.billing', $spec, $references);
+            AutowireBindingTiers::stretch('app.billing', $autowireParameterSpec, $references);
             self::fail('Expected an AutowiringException to be thrown.');
         } catch (AutowiringException $autowiringException) {
             self::assertStringContainsString(

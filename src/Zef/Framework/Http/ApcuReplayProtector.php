@@ -35,25 +35,25 @@ use Override;
  * table's bound is APCu's own memory budget, the operator's
  * `apc.shm_size` declaration.
  */
-final class ApcuReplayProtector implements ReplayProtectorInterface
+final readonly class ApcuReplayProtector implements ReplayProtectorInterface
 {
     /** The seen-table's key namespace: one prefix, no collision with the rate-limit counters. */
     private const string KEY_PREFIX = 'zef.replay.';
 
     /**
-     * @param int                      $windowMs the duplicate window's length, in
-     *                                           milliseconds (>= 1) -- an id re-seen
-     *                                           inside the window is a duplicate, one
-     *                                           re-seen after it is fresh again
-     * @param ApcuReplayStoreInterface $store    the atomic sight boundary; the real
-     *                                           APCu calls by default, the suite's
-     *                                           doubles in tests
+     * @param int                      $windowMs        the duplicate window's length, in
+     *                                                  milliseconds (>= 1) -- an id re-seen
+     *                                                  inside the window is a duplicate, one
+     *                                                  re-seen after it is fresh again
+     * @param ApcuReplayStoreInterface $apcuReplayStore the atomic sight boundary; the real
+     *                                                  APCu calls by default, the suite's
+     *                                                  doubles in tests
      *
      * @throws HttpException when the window bound is violated
      */
     public function __construct(
-        private readonly int $windowMs = 300_000,
-        private readonly ApcuReplayStoreInterface $store = new ApcuReplayStore(),
+        private int $windowMs = 300_000,
+        private ApcuReplayStoreInterface $apcuReplayStore = new ApcuReplayStore(),
     ) {
         if ($this->windowMs < 1) {
             throw new HttpException('The security.auth replay window must be 1 or above.');
@@ -88,11 +88,11 @@ final class ApcuReplayProtector implements ReplayProtectorInterface
      */
     private function sightVerdict(string $key, int $nowMs, int $ttl): ReplayDecision
     {
-        if ($this->store->claimSight($key, $nowMs, $ttl)) {
+        if ($this->apcuReplayStore->claimSight($key, $nowMs, $ttl)) {
             return ReplayDecision::ACCEPT;
         }
 
-        return $this->store->readSight($key) !== null
+        return $this->apcuReplayStore->readSight($key) !== null
             ? ReplayDecision::DUPLICATE
             : ReplayDecision::UNAVAILABLE;
     }

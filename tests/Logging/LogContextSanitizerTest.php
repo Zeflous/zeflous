@@ -70,10 +70,10 @@ final class LogContextSanitizerTest extends TestCase
         // The previous link is the root cause a wrapped diagnostic
         // exists to name: the fold keeps it, nested the way the wrap
         // itself nests, each link the same three facts.
-        $root = new RuntimeException('the root cause');
-        $wrapped = new LogicException('the wrapper', 0, $root);
+        $runtimeException = new RuntimeException('the root cause');
+        $logicException = new LogicException('the wrapper', 0, $runtimeException);
 
-        $sanitized = LogContextSanitizer::sanitize(['failure' => $wrapped]);
+        $sanitized = LogContextSanitizer::sanitize(['failure' => $logicException]);
 
         $fold = $sanitized['failure'];
         self::assertIsArray($fold);

@@ -71,7 +71,7 @@ final class TracingFactoryTest extends TestCase
             ],
         ]);
 
-        $tracer = TracingFactory::fromConfig($config, self::noRegistrar());
+        $tracer = TracingFactory::fromConfig($config, $this->noRegistrar());
         $tracer->startSpan('request')->end();
         $tracer->flush();
 
@@ -124,7 +124,7 @@ final class TracingFactoryTest extends TestCase
             ],
         ]);
 
-        $tracer = TracingFactory::fromConfig($config, self::noRegistrar());
+        $tracer = TracingFactory::fromConfig($config, $this->noRegistrar());
         $tracer->startSpan('request')->end();
         $tracer->flush();
 
@@ -160,7 +160,7 @@ final class TracingFactoryTest extends TestCase
             ],
         ]);
 
-        $tracer = TracingFactory::fromConfig($config, self::noRegistrar());
+        $tracer = TracingFactory::fromConfig($config, $this->noRegistrar());
         $tracer->startSpan('request')->end();
         $tracer->flush();
 
@@ -319,7 +319,7 @@ final class TracingFactoryTest extends TestCase
     /**
      * @return Closure(callable(): void): void
      */
-    private static function noRegistrar(): Closure
+    private function noRegistrar(): Closure
     {
         return static function (): void {
         };

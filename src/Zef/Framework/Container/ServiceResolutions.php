@@ -43,7 +43,7 @@ final readonly class ServiceResolutions
         private CycleGuard $cycleGuard,
         private Interceptions $interceptions = new Interceptions(),
         private LazyDeferrals $lazyDeferrals = new LazyDeferrals(),
-        private ResolutionFrames $frames = new ResolutionFrames(),
+        private ResolutionFrames $resolutionFrames = new ResolutionFrames(),
     ) {
     }
 
@@ -74,7 +74,7 @@ final readonly class ServiceResolutions
 
         return match ($this->factoryRegistrations->lifetime($id)) {
             ServiceLifetime::REQUEST => $this->requestInstances->instance(
-                $this->frames->assertedNotCaptured($id),
+                $this->resolutionFrames->assertedNotCaptured($id),
                 $container,
             ),
             ServiceLifetime::TRANSIENT => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
@@ -115,7 +115,7 @@ final readonly class ServiceResolutions
     {
         return $this->singletonMemo->answer(
             $id,
-            fn (): mixed => $this->frames->withinSingleton(
+            fn (): mixed => $this->resolutionFrames->withinSingleton(
                 $id,
                 fn (): mixed => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
             ),

@@ -295,28 +295,28 @@ final class ContainerAotCacheTest extends TestCase
         // cannot render answers false and leaves no artifact behind --
         // never the crashed boot the raw dump refusal was.
         $containerAotCache = new ContainerAotCache($this->file);
-        $plan = new ContainerCompilePlan(
+        $containerCompilePlan = new ContainerCompilePlan(
             [new InstanceDefinition('app.unrenderable', UnrenderableHouse::class, [new PlainSink()])],
             ServiceTagIndex::fromDefinitions([]),
             [],
             new NamespaceRadixTree(['ids' => [], 'children' => []], [], 0, 0, 0),
         );
 
-        self::assertFalse($containerAotCache->dumpPlanOrDegrade($plan, 'digest'));
+        self::assertFalse($containerAotCache->dumpPlanOrDegrade($containerCompilePlan, 'digest'));
         self::assertFileDoesNotExist($this->file);
     }
 
     public function testARenderablePlanStillDumpsThroughTheDegradeSeam(): void
     {
         $containerAotCache = new ContainerAotCache($this->file);
-        $plan = new ContainerCompilePlan(
+        $containerCompilePlan = new ContainerCompilePlan(
             [new InstanceDefinition('app.tone', EnumHouse::class, [Tone::CALM])],
             ServiceTagIndex::fromDefinitions([]),
             [],
             new NamespaceRadixTree(['ids' => [], 'children' => []], [], 0, 0, 0),
         );
 
-        self::assertTrue($containerAotCache->dumpPlanOrDegrade($plan, 'digest'));
+        self::assertTrue($containerAotCache->dumpPlanOrDegrade($containerCompilePlan, 'digest'));
         self::assertFileExists($this->file);
         self::assertStringContainsString('Tone::CALM', (string) file_get_contents($this->file));
     }

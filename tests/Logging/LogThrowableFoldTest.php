@@ -32,10 +32,10 @@ final class LogThrowableFoldTest extends TestCase
      */
     public function testTheWrappedChainRidesTheFold(): void
     {
-        $root = new RuntimeException('the root cause');
-        $wrapped = new LogicException('the wrapper', 0, $root);
+        $runtimeException = new RuntimeException('the root cause');
+        $logicException = new LogicException('the wrapper', 0, $runtimeException);
 
-        $fold = LogThrowableFold::fold($wrapped);
+        $fold = LogThrowableFold::fold($logicException);
 
         $previous = $fold['previous'];
         self::assertIsArray($previous);

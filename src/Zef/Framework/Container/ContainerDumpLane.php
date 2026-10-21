@@ -36,7 +36,7 @@ final readonly class ContainerDumpLane
         ContainerKnobs $containerKnobs,
         ?ContainerAotCache $containerAotCache,
     ): void {
-        if (!$containerKnobs->mayDump() || $containerAotCache === null) {
+        if (!$containerKnobs->mayDump() || !$containerAotCache instanceof ContainerAotCache) {
             return;
         }
 

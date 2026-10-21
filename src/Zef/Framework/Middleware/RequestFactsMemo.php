@@ -30,7 +30,7 @@ use Zef\Framework\Http\CorrelationId;
  */
 final class RequestFactsMemo
 {
-    private ?ServerRequestInterface $request = null;
+    private ?ServerRequestInterface $serverRequest = null;
 
     private string $correlation = '';
 
@@ -45,12 +45,12 @@ final class RequestFactsMemo
      */
     public function facts(Closure $requestSource): array
     {
-        if ($this->request === null) {
-            $this->request = ($requestSource)();
-            $this->correlation = CorrelationId::for($this->request);
+        if (!$this->serverRequest instanceof ServerRequestInterface) {
+            $this->serverRequest = ($requestSource)();
+            $this->correlation = CorrelationId::for($this->serverRequest);
         }
 
-        return ['request' => $this->request, 'correlation' => $this->correlation];
+        return ['request' => $this->serverRequest, 'correlation' => $this->correlation];
     }
 
     /**
@@ -59,7 +59,7 @@ final class RequestFactsMemo
      */
     public function forget(): void
     {
-        $this->request = null;
+        $this->serverRequest = null;
         $this->correlation = '';
     }
 }
