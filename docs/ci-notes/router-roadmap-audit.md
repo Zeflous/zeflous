@@ -13,13 +13,13 @@
 | DSL grouping and scoped middleware metadata | `RouteDsl`, `RouteDslScope`, `PendingRoute` | Present as route declarations/metadata; not a per-route middleware execution pipeline. |
 | Handler dispatch | `RouteDispatcher`, `RouteHandlerResolver`, `DispatchOutcome` | Present in `Config/Routing` for primitive method/path input and container-resolved handlers. The new `Zef\Framework\Router\Router` facade does not expose it yet. |
 | Compile once per runtime instance | `RoutingRuntime::tree()` memoizes `RadixTree::compile()` | Present lazily per instance. No public mutable tree builder is exposed by the facade. |
-| Standard route schema | `Config/Schema/RouteSchema`, `Config/Routing/RouteEntryShape` | Current fields are path, method, handler, name, middleware, constraints and meta; host/Accept fields are not part of the schema. |
+| Standard route schema | `Config/Schema/RouteSchema`, `Config/Routing/RouteEntryShape`, `RouteHost` | Optional exact DNS `host` is now schema-shaped and compiled/canonicalised; wildcard/port/host-parameter grammar is deliberately not in this slice. Accept negotiation remains absent. |
 
 ## Roadmap gaps by phase
 
 ### Phase 1 — Core Engine & Foundation
 
-- **Host-aware routing:** absent from the route schema, `CompiledRoute`, duplicate-claim signature and match API. Host-scoped routes cannot currently coexist on the same method/path.
+- **Host-aware routing — exact-host slice implemented in this branch:** optional exact DNS host is compiled and lower-cased; duplicate method claims are scoped by host; matching accepts an optional request host, prefers exact-host candidates over host-agnostic fallback routes, and preserves host-scoped 405 behavior. Wildcard subdomains, host parameters, IPv6/IP/port authorities, tenant context and full HTTP Host/URI integration remain open.
 - **Content negotiation:** no route-level supported MIME contract or Accept negotiation / 406 outcome exists in the audited matching/dispatch path.
 - **PSR-7 / PSR-15 Router integration:** the framework has PSR HTTP/middleware infrastructure, but this facade takes primitive method/path strings; it is not a `ServerRequestInterface` adapter or `RequestHandlerInterface`.
 - **Public dispatcher bridge:** the existing `RouteDispatcher` resolves and invokes handlers, but the new public facade does not expose a stable factory for it.
@@ -63,9 +63,10 @@ Do not copy the reference repository's Router collaborators wholesale. Reuse the
 
 1. **Audit baseline:** map existing behavior and gaps without overstating completeness.
 2. **Public integration seam — implemented in this branch:** `Router::dispatcher(Container)` returns the existing `RouteDispatcher` over the same memoized runtime. `tests/Router/RouterTest.php` adds an execution-path contract test; execution of the test suite is pending because the local clone is unavailable.
-3. **Host-aware core:** define host grammar, exact/wildcard precedence, conflict signatures, host parameter handling and exhaustive tests.
-4. **Negotiation and HTTP adapter:** define route MIME contracts and 406 semantics, then integrate request/response mapping.
-5. **Middleware lifecycle:** compose route middleware around the existing dispatcher with fail-closed resolution and explicit ordering.
+3. **Exact-host core — implemented in this branch:** host schema, canonicalisation, host-scoped duplicate claims, exact-host match filtering and host-precedence tests are added. CI execution remains pending.
+4. **Wildcard/host-parameter core:** define wildcard grammar, precedence, host capture and reverse-routing behavior with exhaustive tests.
+5. **Negotiation and HTTP adapter:** define route MIME contracts and 406 semantics, then integrate request/response mapping.
+6. **Middleware lifecycle:** compose route middleware around the existing dispatcher with fail-closed resolution and explicit ordering.
 6. **Production/tooling:** cache, observability, CLI and exports as separate scoped slices with tests and roadmap evidence.
 
 ## Verification limits
