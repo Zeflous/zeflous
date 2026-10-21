@@ -9,8 +9,10 @@ use Zef\Framework\Config\Config;
 use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RadixTree;
+use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Config\Routing\RouteDsl;
 use Zef\Framework\Config\Routing\RoutingRuntime;
+use Zef\Framework\Container\Container;
 
 /**
  * Public router facade over the configuration layer's compiled radix engine.
@@ -63,6 +65,16 @@ final readonly class Router
     public static function define(Closure $routes): self
     {
         return self::fromRoutes(RouteDsl::define($routes));
+    }
+
+    /**
+     * Creates the existing container-backed dispatcher over this router's
+     * memoized runtime. Keep the returned dispatcher for repeated dispatches
+     * rather than constructing one per request.
+     */
+    public function dispatcher(Container $container): RouteDispatcher
+    {
+        return new RouteDispatcher($this->runtime, $container);
     }
 
     /**
