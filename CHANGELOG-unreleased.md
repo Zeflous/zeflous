@@ -114,6 +114,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(ci): stop the merge queue self-re-render storm [#463](https://github.com/Zeflous/zeflous/pull/463) ([mbetixz](https://github.com/mbetixz))
 - fix(tooling): resurrect the roadmap pin-freshness verdict on the main lanes [#496](https://github.com/Zeflous/zeflous/pull/496) ([mbetixz](https://github.com/mbetixz))
 - fix(tests): pin the document-audit gate test to a pull-request lane [#500](https://github.com/Zeflous/zeflous/pull/500) ([mbetixz](https://github.com/mbetixz))
+- fix(errors): harden the failure visibility, log bounds and CLI display [#508](https://github.com/Zeflous/zeflous/pull/508) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
@@ -231,6 +232,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): pin the lazy, locator and inventory lanes [#493](https://github.com/Zeflous/zeflous/pull/493) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the pin-freshness resurrection [#501](https://github.com/Zeflous/zeflous/pull/501) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the container performance and analysis CLI lane [#505](https://github.com/Zeflous/zeflous/pull/505) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the error hardening battery and pin the lane [#509](https://github.com/Zeflous/zeflous/pull/509) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
