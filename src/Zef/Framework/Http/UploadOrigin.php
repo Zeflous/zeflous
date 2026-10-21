@@ -9,16 +9,10 @@ namespace Zef\Framework\Http;
  *
  * {@see RequestFactory::fromGlobals()} is the seam that claims its bags
  * ARE the engine's superglobal state, and on that seam the engine's own
- * testimony is checkable: a file the SAPI actually accepted through a
- * request body answers {@see is_uploaded_file()} true. An error-OK
- * entry whose temporary file the engine never wrote is the ghost
- * upload the leaf builder already downgrades ({@see UploadLeaf} -- a
- * body PHP never actually wrote reads as `NO_FILE`), and this
- * collaborator extends the same doctrine over the raw bag before it
- * enters the source-agnostic normalisation: the disowned entry is
- * downgraded to `NO_FILE`, the one honest answer for a payload the
- * engine disowns. A bag that lies about what the engine wrote stops
- * carrying a stream over whatever path it named.
+ * testimony is checkable through {@see UploadOwnership}: a bag that
+ * lies about what the engine wrote stops carrying a stream over
+ * whatever path it named -- the disowned entry is downgraded to
+ * `NO_FILE`, the one honest answer for a payload the engine disowns.
  *
  * The explicitly-sourced twin ({@see RequestFactory::fromServer()}) is
  * deliberately NOT anchored: a persistent worker that decodes its own
@@ -62,8 +56,11 @@ final class UploadOrigin
         /** @var mixed $error the spec's error axis: a scalar leaf or the parallel subtree */
         $error = $spec['error'];
 
+        /** @var mixed $temporaryPath the spec's temporary-file axis, absent when the engine wrote nothing */
+        $temporaryPath = $spec['tmp_name'] ?? null;
+
         if (!\is_array($error)) {
-            $spec['error'] = self::leafError($spec['tmp_name'] ?? null, $error);
+            $spec['error'] = UploadOwnership::leafError($temporaryPath, $error);
 
             return $spec;
         }
@@ -71,7 +68,7 @@ final class UploadOrigin
         $downgraded = [];
 
         foreach ($error as $key => $leafError) {
-            $downgraded[$key] = self::leafError(self::axis($spec['tmp_name'] ?? null, $key), $leafError);
+            $downgraded[$key] = UploadOwnership::leafError(self::axis($temporaryPath, $key), $leafError);
         }
 
         // The parallel walk over the mixed error axis: every leaf's
@@ -84,28 +81,6 @@ final class UploadOrigin
     }
 
     /**
-     * One leaf's error axis after the ownership verdict: the disowned
-     * error-OK entry (a temporary file the engine never wrote) downgrades
-     * to `NO_FILE`, every other verdict passes untouched.
-     *
-     * @param mixed $temporaryPath the leaf's temporary-file axis value
-     * @param mixed $leafError     the leaf's error axis value
-     */
-    private static function leafError(mixed $temporaryPath, mixed $leafError): mixed
-    {
-        if (
-            $leafError === \UPLOAD_ERR_OK
-            && \is_string($temporaryPath)
-            && $temporaryPath !== ''
-            && !is_uploaded_file($temporaryPath)
-        ) {
-            return \UPLOAD_ERR_NO_FILE;
-        }
-
-        return $leafError;
-    }
-
-    /**
      * Answers the value one parallel axis carries for a key, or null
      * when the axis is not an array or lacks the key.
      *
@@ -113,6 +88,10 @@ final class UploadOrigin
      */
     private static function axis(mixed $axis, int|string $key): mixed
     {
-        return \is_array($axis) ? ($axis[$key] ?? null) : null;
+        if (!\is_array($axis)) {
+            return null;
+        }
+
+        return $axis[$key] ?? null;
     }
 }

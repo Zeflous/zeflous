@@ -40,7 +40,8 @@ final readonly class AotLiterals
 {
     /**
      * Renders one data value or enum case as PHP code, refusing what
-     * the boundary cannot carry.
+     * the boundary cannot carry ({@see AotExportability} keeps the
+     * data verdict the build entries' plain-data arguments answer).
      *
      * @param string $serviceId the definition the value belongs to
      * @param string $path      the dotted position, for the refusal
@@ -57,33 +58,6 @@ final readonly class AotLiterals
 
         if (\is_array($value)) {
             return self::arrayExpression($value, $serviceId, $path);
-        }
-
-        throw AotRefusals::notExportable($serviceId, $path, $value);
-    }
-
-    /**
-     * The exportability verdict over a whole value: data folds, anything
-     * else refuses with the position named. The data verdict for the
-     * build entries' plain-data arguments -- enums included, an object
-     * the data array cannot carry (the expression lane folds them as
-     * code; {@see export()}).
-     *
-     * @param string $serviceId the definition the value belongs to
-     * @param string $path      the dotted position, for the refusal
-     */
-    public static function assertExportable(mixed $value, string $serviceId, string $path): void
-    {
-        if ($value === null || \is_scalar($value)) {
-            return;
-        }
-
-        if (\is_array($value)) {
-            foreach ($value as $key => $entry) {
-                self::assertExportable($entry, $serviceId, $path . '.' . $key);
-            }
-
-            return;
         }
 
         throw AotRefusals::notExportable($serviceId, $path, $value);

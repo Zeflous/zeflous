@@ -35,7 +35,7 @@ final class IfNoneMatch
         }
 
         $canonical = self::withoutWeakness($etag);
-        foreach (self::candidates($ifNoneMatch) as $candidate) {
+        foreach (EtagCandidates::split($ifNoneMatch) as $candidate) {
             $candidate = mb_trim($candidate);
             if ($candidate === '') {
                 continue;
@@ -61,52 +61,5 @@ final class IfNoneMatch
         }
 
         return mb_trim($etag, '"');
-    }
-
-    /**
-     * The comma-separated candidates, split on the commas that separate
-     * list members: a comma inside a quoted opaque validator (§8.8.3
-     * `etagc` admits 0x2C, and the grammar admits no DQUOTE inside the
-     * quotes) belongs to the validator, so every DQUOTE toggles the
-     * quoting state and only an unquoted comma starts the next member.
-     *
-     * @return list<string>
-     */
-    private static function candidates(string $ifNoneMatch): array
-    {
-        $candidates = [];
-        $current = '';
-        $quoted = false;
-
-        // Byte offsets, not character counts: a header may carry raw
-        // obs-text bytes that are not valid UTF-8, and a character-
-        // counted bound would stop the walk before the final byte.
-        $offset = 0;
-        while (isset($ifNoneMatch[$offset])) {
-            $byte = $ifNoneMatch[$offset];
-
-            if ($byte === '"') {
-                $quoted = !$quoted;
-                $current .= $byte;
-                ++$offset;
-
-                continue;
-            }
-
-            if ($byte === ',' && !$quoted) {
-                $candidates[] = $current;
-                $current = '';
-                ++$offset;
-
-                continue;
-            }
-
-            $current .= $byte;
-            ++$offset;
-        }
-
-        $candidates[] = $current;
-
-        return $candidates;
     }
 }

@@ -44,6 +44,24 @@ final class ResolutionFrames
     }
 
     /**
+     * The request lane's captive guard: refuses a request-scoped id
+     * that resolves beneath an open singleton frame -- the runtime
+     * mirror of the boot verdict, at the one moment it can still be
+     * seen (the frame ledger names the innermost captor) -- and hands
+     * the id back so the lane reads as one expression.
+     */
+    public function assertedNotCaptured(string $id): string
+    {
+        $captor = $this->capturingSingleton();
+
+        if ($captor === null) {
+            return $id;
+        }
+
+        throw RequestScopeRefusals::capturedByAWiderFrame($id, $captor);
+    }
+
+    /**
      * Opens a singleton frame around one resolution.
      *
      * @param string           $id         the singleton whose factory is resolving

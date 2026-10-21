@@ -36,7 +36,7 @@ abstract class ZefException extends RuntimeException
     ) {
         parent::__construct($message, $code, $previous);
 
-        $resolvedErrorCode = $errorCode !== '' ? $errorCode : $this->defaultErrorCode(static::class);
+        $resolvedErrorCode = $errorCode !== '' ? $errorCode : ExceptionErrorCode::for(static::class);
         if (preg_match('/^[A-Z][A-Z0-9_]{0,63}$/D', $resolvedErrorCode) !== 1) {
             throw new InvalidArgumentException(
                 'The error code must be 1-64 uppercase letters, digits, or underscores and start with a letter.',
@@ -65,50 +65,5 @@ abstract class ZefException extends RuntimeException
     public function getTraceId(): ?string
     {
         return $this->traceId;
-    }
-
-    private function defaultErrorCode(string $class): string
-    {
-        if (str_contains($class, '@anonymous')) {
-            return self::anonymousErrorCode($class);
-        }
-
-        $separator = mb_strrpos($class, '\\');
-        $shortName = $separator === false ? $class : mb_substr($class, $separator + 1);
-        $shortName = (string) preg_replace('/Exception$/', '', $shortName);
-
-        $snake = preg_replace('/(?<!^)[A-Z]/', '_$0', $shortName);
-        $normalized = mb_strtoupper((string) preg_replace('/[^A-Z0-9_]/', '_', (string) $snake));
-        $normalized = mb_trim((string) preg_replace('/_+/', '_', $normalized), '_');
-
-        if ($normalized === '' || preg_match('/^[A-Z]/D', $normalized) !== 1) {
-            $normalized = 'FRAMEWORK_ERROR';
-        }
-
-        return mb_rtrim(mb_substr($normalized, 0, 64), '_');
-    }
-
-    /**
-     * The anonymous class's own code: one digest over the stable identity
-     * the engine's anonymous name carries -- the parent it extends and
-     * the name's own tail (the file's basename, the declaration line,
-     * and the per-file instance counter). The absolute path the full
-     * name embeds is deployment layout, never identity (the same tree
-     * checked out elsewhere answers the same code), the digest never
-     * truncates into the collisions a 64-byte slice of the pathed
-     * spelling once invited, and two sibling files declaring at the
-     * same line answer different codes because their basenames differ.
-     *
-     * @param non-empty-string $class the engine's `Parent@anonymous/...:line$counter` spelling
-     */
-    private static function anonymousErrorCode(string $class): string
-    {
-        $parent = mb_strstr($class, '@anonymous', true);
-        $parent = \is_string($parent) && $parent !== '' ? $parent : 'class';
-
-        $tail = (string) mb_strrchr($class, '/');
-        $tail = $tail === '' ? $class : mb_substr($tail, 1);
-
-        return 'ANONYMOUS_' . mb_strtoupper(hash('crc32b', $parent . '|' . $tail));
     }
 }

@@ -50,7 +50,15 @@ final readonly class PositionalFit
     {
         $lastIndex = array_key_last($specs);
 
-        return $lastIndex !== null && $specs[$lastIndex]->isVariadic ? \PHP_INT_MAX : \count($specs);
+        if ($lastIndex === null) {
+            return 0;
+        }
+
+        if ($specs[$lastIndex]->isVariadic) {
+            return \PHP_INT_MAX;
+        }
+
+        return \count($specs);
     }
 
     /**

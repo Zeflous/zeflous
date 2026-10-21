@@ -112,10 +112,10 @@ final readonly class AotEntries
      */
     private static function build(FactoryDefinition $factoryDefinition): array
     {
-        AotLiterals::assertExportable($factoryDefinition->arguments, $factoryDefinition->id, 'arguments');
+        AotExportability::assertExportable($factoryDefinition->arguments, $factoryDefinition->id, 'arguments');
 
         foreach ($factoryDefinition->calls as $call) {
-            AotLiterals::assertExportable($call->arguments, $factoryDefinition->id, 'calls.' . $call->method);
+            AotExportability::assertExportable($call->arguments, $factoryDefinition->id, 'calls.' . $call->method);
         }
 
         return [

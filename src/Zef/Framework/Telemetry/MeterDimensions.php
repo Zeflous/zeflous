@@ -73,7 +73,7 @@ final class MeterDimensions
      */
     public static function normalized(string $name, array $attributes): array
     {
-        $clean = TelemetrySanitizer::attributes($attributes);
+        $clean = TelemetryValues::attributes($attributes);
 
         foreach (self::FRAMEWORK_DIMENSIONS as $prefix) {
             if (!str_starts_with($name, $prefix)) {

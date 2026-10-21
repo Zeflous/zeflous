@@ -101,9 +101,7 @@ final readonly class AutowireReferences
      */
     public function typeBindingResolvable(AutowireParameterSpec $autowireParameterSpec): bool
     {
-        $id = $autowireParameterSpec->identifier();
-
-        return $this->autowireReuse->known($id) || ConstructorSpecs::birthable($id);
+        return $this->autowireReuse->resolvable($autowireParameterSpec->identifier());
     }
 
     /**

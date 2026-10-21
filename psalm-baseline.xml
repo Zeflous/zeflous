@@ -145,9 +145,13 @@
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Container/Aot/AotLiterals.php">
+  <file src="src/Zef/Framework/Container/Aot/AotExportability.php">
     <MixedAssignment>
       <code><![CDATA[$entry]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotLiterals.php">
+    <MixedAssignment>
       <code><![CDATA[$entry]]></code>
     </MixedAssignment>
   </file>
@@ -506,11 +510,11 @@
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Telemetry/TelemetrySanitizer.php">
+  <file src="src/Zef/Framework/Telemetry/TelemetryValues.php">
     <MixedAssignment>
       <code><![CDATA[$entry]]></code>
       <code><![CDATA[$sanitized[$key]]]></code>
-      <code><![CDATA[$sanitized[$name]]]></code>
+      <code><![CDATA[$walked[$name]]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>

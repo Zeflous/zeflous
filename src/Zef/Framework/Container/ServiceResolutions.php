@@ -73,15 +73,12 @@ final readonly class ServiceResolutions
         }
 
         return match ($this->factoryRegistrations->lifetime($id)) {
-            ServiceLifetime::REQUEST => $this->requestLane($id, $container),
-            ServiceLifetime::TRANSIENT => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
-            default => $this->singletonMemo->answer(
-                $id,
-                fn (): mixed => $this->frames->withinSingleton(
-                    $id,
-                    fn (): mixed => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
-                ),
+            ServiceLifetime::REQUEST => $this->requestInstances->instance(
+                $this->frames->assertedNotCaptured($id),
+                $container,
             ),
+            ServiceLifetime::TRANSIENT => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
+            default => $this->singletonLane($id, $container),
         };
     }
 
@@ -109,20 +106,19 @@ final readonly class ServiceResolutions
     }
 
     /**
-     * The request lane's captive guard: a request-scoped id resolving
-     * beneath an open singleton frame would be captured into that
-     * singleton's forever memo ({@see ResolutionFrames}), so the lane
-     * refuses it the way the boot graph refuses the same edge -- the
-     * frame ledger answers the innermost captor.
+     * The singleton lane: the frame ledger opens its wider-lifetime
+     * frame around the guarded call, so the memo records exactly what
+     * the factory resolved -- and the request lane's captive guard can
+     * name the captor while it does.
      */
-    private function requestLane(string $id, Container $container): mixed
+    private function singletonLane(string $id, Container $container): mixed
     {
-        $captor = $this->frames->capturingSingleton();
-
-        if ($captor !== null) {
-            throw RequestScopeRefusals::capturedByAWiderFrame($id, $captor);
-        }
-
-        return $this->requestInstances->instance($id, $container);
+        return $this->singletonMemo->answer(
+            $id,
+            fn (): mixed => $this->frames->withinSingleton(
+                $id,
+                fn (): mixed => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
+            ),
+        );
     }
 }

@@ -10,6 +10,12 @@ use Throwable;
 final class LogContextSanitizer
 {
     /**
+     * The context fold's depth budget: levels beyond it stop at the
+     * truncation marker, never mid-structure.
+     */
+    private const int DEPTH_BUDGET = 5;
+
+    /**
      * The context fold's entry budget: the tail beyond it drops, and the
      * truncation marker names the drop (a silent shrink is a lie the
      * record never owed).
@@ -17,45 +23,38 @@ final class LogContextSanitizer
     private const int ENTRY_BUDGET = 100;
 
     /**
-     * The throwable fold's chain budget: wrap links beyond it stop at
-     * the marker, never at the stack.
+     * The string value's byte budget: a diagnostic longer than it is
+     * cut before the redaction reads it.
      */
-    private const int CHAIN_BUDGET = 10;
+    private const int MESSAGE_BOUND = 4096;
 
     /**
-     * Redacts credential-bearing shapes from a free-form string: any
-     * authorization scheme an `=`/`:` separator introduces (prose never
-     * carries the separator, so a sentence keeps its diagnostics), the
-     * two schemes a bare whitespace may introduce, the bare scheme word
-     * a credential-shaped value follows (`Bearer eyJ...` with no
-     * authorization word at all), the vocabulary pairs (`password=`,
-     * `token=` ...) whose values are secrets themselves, and the
-     * session-id grammar a URL query rides (`PHPSESSID=...`).
+     * The truncation marker every budgeted fold answers: the honest
+     * name of a drop, never a silent shrink.
+     */
+    private const string TRUNCATED = '_truncated';
+
+    /**
+     * The fail-closed answer a redaction lane can always give: the one
+     * safe string when no honest one remains.
+     */
+    private const string REDACTED = '[REDACTED]';
+
+    /**
+     * The key vocabulary a credential-bearing field name carries: the
+     * whole pair redacts, the value is the secret itself.
+     */
+    private const string SENSITIVE_NAME = '/password|passwd|secret|token|authorization|cookie|csrf|api[_-]?key'
+        . '|session|phpsessid|sid/i';
+
+    /**
+     * Redacts credential-bearing shapes from a free-form string:
+     * {@see LogCredentialRedaction} keeps the passes and their
+     * cascade, this seam keeps the callers' one spelling.
      */
     public static function redact(string $value): string
     {
-        $authorizationRedacted = preg_replace(
-            '/\b(authorization)\b(\s*[=:]\s*)[!#$%&\'*+.^_`|~0-9A-Za-z-]+\s+[^\r\n]*/i',
-            '$1$2[REDACTED]',
-            $value,
-        );
-        $authorizationRedacted = preg_replace(
-            '/\b(authorization)\b(\s+)(?:Bearer|Basic)\s+[^\r\n]*/i',
-            '$1$2[REDACTED]',
-            \is_string($authorizationRedacted) ? $authorizationRedacted : $value,
-        );
-        $bareSchemeRedacted = preg_replace(
-            '/\b(Bearer|Basic)\s+[A-Za-z0-9._~+\/=-]{8,}/i',
-            '$1 [REDACTED]',
-            \is_string($authorizationRedacted) ? $authorizationRedacted : $value,
-        );
-        $redacted = preg_replace(
-            '/\b(password|passwd|token|secret|api[_-]?key|phpsessid|session[_-]?id|sid)\b(\s*[=:]\s*|\s+)(["\']?)[^\s"\']{4,}/i',
-            '$1$2[REDACTED]',
-            \is_string($bareSchemeRedacted) ? $bareSchemeRedacted : $value,
-        );
-
-        return \is_string($redacted) ? $redacted : '[REDACTED]';
+        return LogCredentialRedaction::redact($value);
     }
 
     /**
@@ -65,17 +64,17 @@ final class LogContextSanitizer
      */
     public static function sanitize(array $context, int $depth = 0): array
     {
-        if ($depth >= 5) {
-            return ['_truncated' => true];
+        if ($depth >= self::DEPTH_BUDGET) {
+            return [self::TRUNCATED => true];
         }
 
         $safe = [];
         $entries = \array_slice($context, 0, self::ENTRY_BUDGET, true);
 
         foreach (array_keys($entries) as $key) {
-            $name = \is_string($key) ? $key : (string) $key;
-            if (preg_match('/password|passwd|secret|token|authorization|cookie|csrf|api[_-]?key|session|phpsessid|sid/i', $name) === 1) {
-                $safe[$name] = '[REDACTED]';
+            $name = (string) $key;
+            if (preg_match(self::SENSITIVE_NAME, $name) === 1) {
+                $safe[$name] = self::REDACTED;
 
                 continue;
             }
@@ -84,7 +83,7 @@ final class LogContextSanitizer
         }
 
         if (\count($context) > self::ENTRY_BUDGET) {
-            $safe['_truncated'] = true;
+            $safe[self::TRUNCATED] = true;
         }
 
         return $safe;
@@ -96,68 +95,12 @@ final class LogContextSanitizer
     private static function value(mixed $value, int $depth): array|bool|float|int|string|null
     {
         return match (true) {
-            $value instanceof Throwable => self::throwable($value),
-            \is_string($value) => self::redact(mb_substr($value, 0, 4096)),
+            $value instanceof Throwable => LogThrowableFold::fold($value),
+            \is_string($value) => self::redact(mb_substr($value, 0, self::MESSAGE_BOUND)),
             \is_float($value) => NonFiniteFloat::spelling($value),
-            \is_int($value), \is_bool($value), $value === null => $value,
+            \is_scalar($value), null === $value => $value,
             \is_array($value) => self::sanitize($value, $depth + 1),
             default => '[' . get_debug_type($value) . ']',
         };
-    }
-
-    /**
-     * The throwable fold: the exception's own three facts plus the
-     * wrapped chain it carries -- the previous link is the root cause a
-     * wrapped diagnostic exists to name, and a record that drops it
-     * answers a causeless failure. The chain folds under its own bound:
-     * a pathological wrap chain stops at the marker, never at the stack.
-     *
-     * @return array<string, mixed>
-     */
-    private static function throwable(Throwable $throwable): array
-    {
-        $fold = [
-            'class' => $throwable::class,
-            'message' => self::redact($throwable->getMessage()),
-            'code' => $throwable->getCode(),
-        ];
-
-        $previous = $throwable->getPrevious();
-
-        if ($previous instanceof Throwable) {
-            $fold['previous'] = self::throwableLink($previous, 1);
-        }
-
-        return $fold;
-    }
-
-    /**
-     * One wrapped link of the chain, nested under its parent the way
-     * the wrap itself nests -- each link the same three facts, the
-     * budget's marker the honest end of a pathological chain.
-     *
-     * @return array<string, mixed>
-     */
-    private static function throwableLink(Throwable $throwable, int $depth): array
-    {
-        $link = [
-            'class' => $throwable::class,
-            'message' => self::redact($throwable->getMessage()),
-            'code' => $throwable->getCode(),
-        ];
-
-        $previous = $throwable->getPrevious();
-
-        if ($previous instanceof Throwable) {
-            if ($depth >= self::CHAIN_BUDGET) {
-                $link['_truncated'] = true;
-
-                return $link;
-            }
-
-            $link['previous'] = self::throwableLink($previous, $depth + 1);
-        }
-
-        return $link;
     }
 }

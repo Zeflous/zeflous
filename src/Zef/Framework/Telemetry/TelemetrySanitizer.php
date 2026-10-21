@@ -56,8 +56,8 @@ namespace Zef\Framework\Telemetry;
  */
 final class TelemetrySanitizer
 {
-    /** The attribute walk's depth bound -- the logging sibling's own cap, mirrored. */
-    private const int MAX_DEPTH = 5;
+    /** The ellipsis that marks a truncated string's cut. */
+    private const string ELLIPSIS = '…';
 
     /**
      * The key fragments a recording refuses outright: the
@@ -195,55 +195,6 @@ final class TelemetrySanitizer
     }
 
     /**
-     * Sanitises one recorded value: strings clamp, the scalar
-     * identities pass, floats answer their JSON-safe forms (the
-     * NaN and infinities the encoder's own grammar refuses become
-     * their string spellings), arrays walk under their entry
-     * budget with sensitive entries marked, and anything else
-     * answers the debug type -- a value the lanes cannot carry is
-     * named, never serialized. The walk is depth-bounded the way
-     * the logging sibling's is ({@see \Zef\Framework\Logging\LogContextSanitizer}):
-     * a deeply-nested or self-referential attribute array answers
-     * the truncation marker at the bound instead of exhausting
-     * the stack inside the request path.
-     */
-    public static function value(mixed $value, int $depth = 0): mixed
-    {
-        return match (true) {
-            \is_string($value) => self::string($value),
-            \is_int($value), \is_bool($value), $value === null => $value,
-            \is_float($value) => self::floatValue($value),
-            \is_array($value) => self::arrayValue($value, $depth),
-            default => get_debug_type($value),
-        };
-    }
-
-    /**
-     * Sanitises an attribute map: the sensitive keys are dropped
-     * outright -- refused, not marked, because a recorded
-     * credential never exists to be redacted -- and every kept
-     * value answers the value sanitisation.
-     *
-     * @param array<string, mixed> $attributes
-     *
-     * @return array<string, mixed>
-     */
-    public static function attributes(array $attributes): array
-    {
-        $sanitized = [];
-
-        foreach ($attributes as $key => $value) {
-            if (self::isSensitiveKey($key)) {
-                continue;
-            }
-
-            $sanitized[$key] = self::value($value);
-        }
-
-        return $sanitized;
-    }
-
-    /**
      * Scrubs invalid UTF-8: the encoder's JSON grammar throws on
      * raw byte sequences, and a diagnostic that cannot encode
      * takes the whole delivery batch with it -- the bytes become
@@ -271,7 +222,7 @@ final class TelemetrySanitizer
             return mb_strcut($value, 0, $limit, 'UTF-8');
         }
 
-        return mb_strcut($value, 0, $limit - 3, 'UTF-8') . '…';
+        return mb_strcut($value, 0, $limit - 3, 'UTF-8') . self::ELLIPSIS;
     }
 
     /**
@@ -306,54 +257,5 @@ final class TelemetrySanitizer
             self::REDACT_PAIR_KEYS,
             static fn (string $suffix): bool => str_ends_with($needle, $suffix),
         );
-    }
-
-    /**
-     * Answers the float's JSON-safe form: the NaN and infinities
-     * the encoder's grammar refuses -- and a bare cast would
-     * spell into an engine warning -- answer their literal string
-     * forms instead.
-     */
-    private static function floatValue(float $value): float|string
-    {
-        if (is_nan($value)) {
-            return 'NAN';
-        }
-
-        if (is_infinite($value)) {
-            return $value === \INF ? 'INF' : '-INF';
-        }
-
-        return $value;
-    }
-
-    /**
-     * Walks an array value under its entry budget: the first
-     * thirty-two entries sanitise, sensitive keys answer the
-     * marker (a nested credential is marked, because the walk's
-     * own key was not the sensitive one the outer map refused),
-     * and the rest drop -- a recorded collection is bounded like
-     * every other telemetry cargo.
-     *
-     * @param array<array-key, mixed> $value
-     *
-     * @return array<array-key, mixed>
-     */
-    private static function arrayValue(array $value, int $depth): array
-    {
-        if ($depth >= self::MAX_DEPTH) {
-            return ['_truncated' => true];
-        }
-
-        $sanitized = [];
-
-        foreach (\array_slice($value, 0, 32, true) as $key => $entry) {
-            $name = (string) $key;
-            $sanitized[$name] = self::isSensitiveKey($name)
-                ? '[REDACTED]'
-                : self::value($entry, $depth + 1);
-        }
-
-        return $sanitized;
     }
 }

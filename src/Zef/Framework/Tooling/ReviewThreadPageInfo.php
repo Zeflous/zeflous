@@ -34,6 +34,39 @@ final readonly class ReviewThreadPageInfo
      */
     public function page(): array
     {
+        return $this->continuation($this->pageInfo());
+    }
+
+    /**
+     * The continuation pair off the walked page answer, narrowed from
+     * `mixed` and refused when the payload did not carry the shape.
+     *
+     * @param array<array-key, mixed> $pageInfo
+     *
+     * @return array{hasNextPage: bool, endCursor: null|string}
+     */
+    private function continuation(array $pageInfo): array
+    {
+        $hasNextPage = $pageInfo['hasNextPage'] ?? null;
+        $endCursor = $pageInfo['endCursor'] ?? null;
+        $shapeCarried = \is_bool($hasNextPage) && ($endCursor === null || \is_string($endCursor));
+
+        if (!$shapeCarried) {
+            throw new ToolingException(self::MISSING_PAGE_INFO);
+        }
+
+        return ['hasNextPage' => $hasNextPage, 'endCursor' => $endCursor];
+    }
+
+    /**
+     * The pageInfo map the payload carries, walked one path key at a
+     * time -- every level narrowed from `mixed`, a missing level the
+     * refusal.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function pageInfo(): array
+    {
         $decoded = json_decode($this->json, true);
 
         if (!\is_array($decoded)) {
@@ -52,13 +85,6 @@ final readonly class ReviewThreadPageInfo
             $value = $next;
         }
 
-        $hasNextPage = $value['hasNextPage'] ?? null;
-        $endCursor = $value['endCursor'] ?? null;
-
-        if (!\is_bool($hasNextPage) || ($endCursor !== null && !\is_string($endCursor))) {
-            throw new ToolingException(self::MISSING_PAGE_INFO);
-        }
-
-        return ['hasNextPage' => $hasNextPage, 'endCursor' => $endCursor];
+        return $value;
     }
 }

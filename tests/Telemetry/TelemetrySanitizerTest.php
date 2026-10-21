@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zef\Framework\Telemetry\TelemetrySanitizer;
+use Zef\Framework\Telemetry\TelemetryValues;
 
 /**
  * The telemetry hygiene unit, on its own terms: the key census
@@ -24,6 +25,7 @@ use Zef\Framework\Telemetry\TelemetrySanitizer;
  * @internal
  */
 #[CoversClass(TelemetrySanitizer::class)]
+#[CoversClass(TelemetryValues::class)]
 final class TelemetrySanitizerTest extends TestCase
 {
     #[DataProvider('provideEveryCensusFragmentIsSensitiveCases')]
@@ -352,11 +354,11 @@ final class TelemetrySanitizerTest extends TestCase
 
     public function testScalarValuesAnswerTheirIdentities(): void
     {
-        self::assertSame('plain', TelemetrySanitizer::value('plain'));
-        self::assertSame(7, TelemetrySanitizer::value(7));
-        self::assertTrue(TelemetrySanitizer::value(true));
-        self::assertNull(TelemetrySanitizer::value(null));
-        self::assertSame(1.5, TelemetrySanitizer::value(1.5));
+        self::assertSame('plain', TelemetryValues::value('plain'));
+        self::assertSame(7, TelemetryValues::value(7));
+        self::assertTrue(TelemetryValues::value(true));
+        self::assertNull(TelemetryValues::value(null));
+        self::assertSame(1.5, TelemetryValues::value(1.5));
     }
 
     /**
@@ -366,22 +368,22 @@ final class TelemetrySanitizerTest extends TestCase
      */
     public function testTheUnencodableFloatsAnswerTheirSpellings(): void
     {
-        self::assertSame('NAN', TelemetrySanitizer::value(\NAN));
-        self::assertSame('INF', TelemetrySanitizer::value(\INF));
-        self::assertSame('-INF', TelemetrySanitizer::value(-\INF));
+        self::assertSame('NAN', TelemetryValues::value(\NAN));
+        self::assertSame('INF', TelemetryValues::value(\INF));
+        self::assertSame('-INF', TelemetryValues::value(-\INF));
     }
 
     public function testAnOverBudgetStringValueClamps(): void
     {
         self::assertSame(
             str_repeat('a', 2045) . '…',
-            TelemetrySanitizer::value(str_repeat('a', 3000)),
+            TelemetryValues::value(str_repeat('a', 3000)),
         );
     }
 
     public function testAnObjectAnswersItsDebugType(): void
     {
-        self::assertSame(stdClass::class, TelemetrySanitizer::value(new stdClass()));
+        self::assertSame(stdClass::class, TelemetryValues::value(new stdClass()));
     }
 
     public function testAnArrayValueWalksUnderItsEntryBudget(): void
@@ -390,12 +392,12 @@ final class TelemetrySanitizerTest extends TestCase
 
         self::assertSame(
             $thirtyTwo,
-            TelemetrySanitizer::value($thirtyTwo),
+            TelemetryValues::value($thirtyTwo),
             'thirty-two entries all answer',
         );
 
         $thirtyThree = array_fill(0, 33, 'entry');
-        $sanitized = TelemetrySanitizer::value($thirtyThree);
+        $sanitized = TelemetryValues::value($thirtyThree);
 
         self::assertIsArray($sanitized);
         self::assertCount(32, $sanitized, 'the thirty-third entry drops');
@@ -405,7 +407,7 @@ final class TelemetrySanitizerTest extends TestCase
     {
         self::assertSame(
             ['api_token' => '[REDACTED]', 'honest' => 'value'],
-            TelemetrySanitizer::value(['api_token' => 'hunter2', 'honest' => 'value']),
+            TelemetryValues::value(['api_token' => 'hunter2', 'honest' => 'value']),
             'the walk saw an honest outer key and a sensitive entry key: the marker answers',
         );
     }
@@ -418,7 +420,7 @@ final class TelemetrySanitizerTest extends TestCase
                 'attempts' => 2,
                 'note' => str_repeat('a', 2045) . '…',
             ],
-            TelemetrySanitizer::attributes([
+            TelemetryValues::attributes([
                 'http.method' => 'GET',
                 'attempts' => 2,
                 'note' => str_repeat('a', 3000),
@@ -438,7 +440,7 @@ final class TelemetrySanitizerTest extends TestCase
             $nested = ['level' => $nested];
         }
 
-        $sanitized = TelemetrySanitizer::value($nested);
+        $sanitized = TelemetryValues::value($nested);
 
         $walk = $sanitized;
         $depth = 0;
@@ -457,7 +459,7 @@ final class TelemetrySanitizerTest extends TestCase
         $circular = [];
         $circular['self'] = &$circular;
 
-        $sanitized = TelemetrySanitizer::value($circular);
+        $sanitized = TelemetryValues::value($circular);
         unset($circular);
 
         // The walk terminates (the bound answered) and the marker sits
@@ -479,7 +481,7 @@ final class TelemetrySanitizerTest extends TestCase
     {
         self::assertSame(
             ['honest' => 'value'],
-            TelemetrySanitizer::attributes([
+            TelemetryValues::attributes([
                 'api_token' => 'material that must never exist in the collection',
                 'honest' => 'value',
             ]),
