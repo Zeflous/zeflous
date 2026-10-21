@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-21 · `feat/router-runtime-facade` (PR branch; not yet merged; PSR-15 adapter and route middleware added)
+**Last updated:** 2026-10-21 · `main` @ `117f7d3`
 
 ---
 
