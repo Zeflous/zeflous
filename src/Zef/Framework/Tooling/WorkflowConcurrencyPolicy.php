@@ -100,13 +100,15 @@ final readonly class WorkflowConcurrencyPolicy
                 );
             }
 
-            if ($workflow === self::AGGREGATOR) {
-                $failures[] = \sprintf(
-                    '%s must key its concurrency group on the commit sha, not the branch (found: %s).',
-                    $workflow,
-                    $group,
-                );
+            if ($workflow !== self::AGGREGATOR) {
+                continue;
             }
+
+            $failures[] = \sprintf(
+                '%s must key its concurrency group on the commit sha, not the branch (found: %s).',
+                $workflow,
+                $group,
+            );
         }
 
         return $failures;

@@ -99,15 +99,17 @@ final readonly class ConfigCache
             );
         }
 
-        if (!rename($temporary, $this->file)) {
-            if (is_file($temporary)) {
-                unlink($temporary);
-            }
-
-            throw new ConfigException(
-                \sprintf('The configuration cache "%s" could not be finalised.', $this->file),
-            );
+        if (rename($temporary, $this->file)) {
+            return;
         }
+
+        if (is_file($temporary)) {
+            unlink($temporary);
+        }
+
+        throw new ConfigException(
+            \sprintf('The configuration cache "%s" could not be finalised.', $this->file),
+        );
     }
 
     /**

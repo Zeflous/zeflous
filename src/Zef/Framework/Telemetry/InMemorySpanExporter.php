@@ -52,9 +52,11 @@ final class InMemorySpanExporter implements SpanExporterInterface
             $this->spans[] = $span;
         }
 
-        if (\count($this->spans) > self::MAX_SPANS) {
-            $this->spans = \array_slice($this->spans, -self::MAX_SPANS);
+        if (\count($this->spans) <= self::MAX_SPANS) {
+            return;
         }
+
+        $this->spans = \array_slice($this->spans, -self::MAX_SPANS);
     }
 
     #[Override]

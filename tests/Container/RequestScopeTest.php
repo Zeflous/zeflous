@@ -19,6 +19,8 @@ use Zef\Framework\Container\ResolutionFrames;
 use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ServiceResolutions;
 use Zef\Framework\Container\ServiceStore;
+use Zef\Test\Support\Container\CaptiveHolder;
+use Zef\Test\Support\Container\NestedHolder;
 use Zef\Test\Support\Container\ScopedBranch;
 
 /**
@@ -491,28 +493,5 @@ final class RequestScopeTest extends TestCase
                 $requestScopeException->getMessage(),
             );
         }
-    }
-}
-
-/**
- * A holder that captures one resolved dependency -- the test battery's
- * captive shape.
- */
-final readonly class CaptiveHolder
-{
-    public function __construct(
-        public object $leaf,
-    ) {
-    }
-}
-
-/**
- * A holder over a fellow singleton -- the nested-captor shape.
- */
-final readonly class NestedHolder
-{
-    public function __construct(
-        public object $inner,
-    ) {
     }
 }

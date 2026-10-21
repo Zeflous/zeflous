@@ -704,7 +704,11 @@ final class RequestFactoryTest extends TestCase
             self::assertInstanceOf(UploadedFile::class, $secondPhoto);
             self::assertSame(\UPLOAD_ERR_NO_FILE, $avatar->getError(), 'a path the engine disowns is no payload');
             self::assertSame(\UPLOAD_ERR_NO_FILE, $firstPhoto->getError(), 'the nested disowned leaf is downgraded');
-            self::assertSame(\UPLOAD_ERR_NO_FILE, $secondPhoto->getError(), 'the leaf that was already honest is untouched');
+            self::assertSame(
+                \UPLOAD_ERR_NO_FILE,
+                $secondPhoto->getError(),
+                'the leaf that was already honest is untouched',
+            );
 
             $this->assertThrows(
                 'Uploaded file is not available (error 4).',

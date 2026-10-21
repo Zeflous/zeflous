@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Exception\ZefException;
 use Zef\Test\Support\Exception\ExplanatoryException;
+use Zef\Test\Support\Exception\ExtendableException;
 use Zef\Test\Support\Exception\Ü9ProbeException;
 use Zef\Test\Support\Excëption\UnicodeNamespaceException;
 
@@ -77,8 +78,10 @@ final class ZefExceptionTest extends TestCase
         // identity; the absolute path the full name embeds is deployment
         // layout. The digest answers a stable token that never carries
         // the path and never truncates into a sibling's code.
-        $first = new class extends ExtendableException {};
-        $second = new class extends ExtendableException {};
+        $first = new class extends ExtendableException {
+        };
+        $second = new class extends ExtendableException {
+        };
 
         self::assertMatchesRegularExpression(
             '/^ANONYMOUS_[0-9A-F]{8}$/',
@@ -96,7 +99,8 @@ final class ZefExceptionTest extends TestCase
 
         // One declaration evaluated twice is one identity: the code is
         // deterministic for the class it names.
-        $birth = static fn (): ExtendableException => new class extends ExtendableException {};
+        $birth = static fn (): ExtendableException => new class extends ExtendableException {
+        };
 
         self::assertSame($birth()->getErrorCode(), $birth()->getErrorCode());
     }
@@ -109,11 +113,4 @@ final class ZefExceptionTest extends TestCase
 
         self::assertSame('U' . str_repeat('1', 63), $overlongException->getErrorCode());
     }
-}
-
-/**
- * A non-final shell the anonymous-code battery extends anonymously.
- */
-class ExtendableException extends ZefException
-{
 }

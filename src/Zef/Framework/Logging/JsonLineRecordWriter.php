@@ -30,10 +30,14 @@ final class JsonLineRecordWriter
         $offset = 0;
 
         while (isset($line[$offset])) {
-            /** @var null|string $remainder the unpacked byte-tail from the offset */
-            $remainder = unpack('a*', $line, $offset)[1] ?? null;
+            $unpacked = unpack('a*', $line, $offset);
+            $remainder = '';
 
-            $written = fwrite($stream, $remainder ?? '');
+            if (\is_array($unpacked) && isset($unpacked[1]) && \is_string($unpacked[1])) {
+                $remainder = $unpacked[1];
+            }
+
+            $written = fwrite($stream, $remainder);
 
             if ($written === false || $written === 0) {
                 if (!ftruncate($stream, max(0, $startOffset))) {

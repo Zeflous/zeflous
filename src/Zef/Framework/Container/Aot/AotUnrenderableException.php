@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Container\Aot;
 
+use Zef\Framework\Contracts\ContainerException;
+
 /**
  * The artifact boundary's render refusal: a value the boundary cannot
  * carry as code or data -- the verdict the compile lane *degrades* on
@@ -19,6 +21,6 @@ namespace Zef\Framework\Container\Aot;
  * directory) stay {@see AotException}: they are the operator's to fix,
  * not the plan's to route around.
  */
-final class AotUnrenderableException extends AotException
+final class AotUnrenderableException extends ContainerException
 {
 }

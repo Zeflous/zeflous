@@ -279,13 +279,12 @@ final class ContainerAotCacheTest extends TestCase
             AotEntries::all([
                 new FactoryDefinition('app.built', FactorySource::class . '::make', [new stdClass()]),
             ]);
-            self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
-            self::assertInstanceOf(AotUnrenderableException::class, $aotException, 'the render refusal is the degrade signal');
+            self::fail('Expected an AotUnrenderableException to be thrown.');
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.built' carries a value the AOT artifact cannot export at 'arguments.0' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }
@@ -334,11 +333,11 @@ final class ContainerAotCacheTest extends TestCase
                 ),
             ]);
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.built' carries a value the AOT artifact cannot export at 'calls.stamp.0' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }

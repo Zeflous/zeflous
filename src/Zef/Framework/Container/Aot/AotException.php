@@ -17,11 +17,7 @@ use Zef\Framework\Contracts\ContainerException;
  * the way the autowiring lane's own subtype carries its specifics -- a
  * caller catching the contracts' {@see ContainerException} root catches
  * every way a container-side boot can refuse.
- *
- * Not final: the render refusal carries its own subtype
- * ({@see AotUnrenderableException}) -- the verdict the compile lane
- * degrades on rather than crashes.
  */
-class AotException extends ContainerException
+final class AotException extends ContainerException
 {
 }

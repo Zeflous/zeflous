@@ -153,7 +153,11 @@ final class AuthMiddlewareTest extends TestCase
 
         $expired = AuthRefusal::for(AuthFailure::CREDENTIAL_EXPIRED, false);
 
-        self::assertSame('Bearer', $expired->challenge, 'the expiry answer without a credential carries no error code either');
+        self::assertSame(
+            'Bearer',
+            $expired->challenge,
+            'the expiry answer without a credential carries no error code either',
+        );
     }
 
     public function testAWrongTokenIsRefusedWithTheInvalidTokenChallenge(): void

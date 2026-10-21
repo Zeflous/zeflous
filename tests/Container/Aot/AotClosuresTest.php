@@ -12,9 +12,10 @@ use stdClass;
 use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\Aot\AotArguments;
 use Zef\Framework\Container\Aot\AotClosures;
-use Zef\Framework\Container\Aot\AotException;
+use Zef\Framework\Container\Aot\AotExportability;
 use Zef\Framework\Container\Aot\AotLiterals;
 use Zef\Framework\Container\Aot\AotRefusals;
+use Zef\Framework\Container\Aot\AotUnrenderableException;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\MethodCall;
@@ -154,11 +155,11 @@ final class AotClosuresTest extends TestCase
                 ],
             ));
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.calls' carries a value the AOT artifact cannot export at 'calls.addRoof.0' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }
@@ -254,11 +255,11 @@ final class AotClosuresTest extends TestCase
         try {
             AotClosures::value(new ValueDefinition('app.object', new stdClass()));
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.object' carries a value the AOT artifact cannot export at 'value' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }
@@ -272,11 +273,11 @@ final class AotClosuresTest extends TestCase
                 [['service' => 'app.window'], new stdClass()],
             ));
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.house' carries a value the AOT artifact cannot export at 'arguments.1' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }
@@ -340,13 +341,13 @@ final class AotClosuresTest extends TestCase
     public function testAssertExportableRefusesAnObjectAtItsDottedPath(): void
     {
         try {
-            AotLiterals::assertExportable(['a' => [new stdClass()]], 's', 'p');
+            AotExportability::assertExportable(['a' => [new stdClass()]], 's', 'p');
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 's' carries a value the AOT artifact cannot export at 'p.a.0' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }
