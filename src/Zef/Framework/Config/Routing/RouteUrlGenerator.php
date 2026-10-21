@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Config\Routing;
 
+use Zef\Framework\Config\ConfigException;
+
 /**
  * Reverse routing: a named route plus parameter values become a URL the
  * engine's own tree resolves back to that route (see `ROADMAP.md`,
