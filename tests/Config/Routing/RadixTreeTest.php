@@ -13,6 +13,8 @@ use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\PrefixConsumption;
 use Zef\Framework\Config\Routing\RadixNode;
 use Zef\Framework\Config\Routing\RadixTree;
+use Zef\Framework\Config\Routing\RouteAcceptNegotiator;
+use Zef\Framework\Config\Routing\RouteHost;
 use Zef\Framework\Config\Routing\RouteMatcher;
 use Zef\Framework\Config\Routing\RouteMethodAnswer;
 use Zef\Framework\Config\Routing\RouteMethodClaims;
@@ -20,10 +22,8 @@ use Zef\Framework\Config\Routing\RouteNodeInserter;
 use Zef\Framework\Config\Routing\RouteParameters;
 use Zef\Framework\Config\Routing\RoutePatternTokens;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
-use Zef\Framework\Config\Routing\RouteHost;
-use Zef\Framework\Config\Routing\RouteVersion;
-use Zef\Framework\Config\Routing\RouteAcceptNegotiator;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
+use Zef\Framework\Config\Routing\RouteVersion;
 use Zef\Framework\Config\Routing\SegmentCapture;
 use Zef\Framework\Config\Routing\SharedPrefixLength;
 use Zef\Framework\Config\Routing\StaticDescent;
@@ -86,7 +86,7 @@ final class RadixTreeTest extends TestCase
     public function testRejectsInvalidDeclaredApiVersionAtCompilation(): void
     {
         $this->expectException(ConfigException::class);
-        $this->expectExceptionMessage('must start with an alphanumeric character');
+        $this->expectExceptionMessageIsOrContains('must start with an alphanumeric character');
 
         RadixTree::compile([
             ['path' => '/api', 'method' => ['GET'], 'handler' => 'Api@show', 'version' => '../v1'],
@@ -134,8 +134,8 @@ final class RadixTreeTest extends TestCase
                 ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show', 'produces' => ['not-a-media-type']],
             ]);
             self::fail('Invalid produced media types must fail at compile time.');
-        } catch (ConfigException $exception) {
-            self::assertStringContainsString('invalid media type', $exception->getMessage());
+        } catch (ConfigException $configException) {
+            self::assertStringContainsString('invalid media type', $configException->getMessage());
         }
 
         $this->expectException(ConfigException::class);
@@ -282,7 +282,7 @@ final class RadixTreeTest extends TestCase
     public function testRejectsOverlappingHostPatternsAtEqualSpecificity(): void
     {
         $this->expectException(ConfigException::class);
-        $this->expectExceptionMessage('overlaps');
+        $this->expectExceptionMessageIsOrContains('overlaps');
 
         RadixTree::compile([
             [
@@ -303,7 +303,7 @@ final class RadixTreeTest extends TestCase
     public function testRejectsHostParameterNameCollisionsWithPathParameters(): void
     {
         $this->expectException(ConfigException::class);
-        $this->expectExceptionMessage('must not repeat parameter name');
+        $this->expectExceptionMessageIsOrContains('must not repeat parameter name');
 
         RadixTree::compile([
             [
@@ -340,7 +340,7 @@ final class RadixTreeTest extends TestCase
     public function testRejectsAnInvalidExactRouteHostDuringCompilation(): void
     {
         $this->expectException(ConfigException::class);
-        $this->expectExceptionMessage('must be an exact DNS hostname without a port or wildcard');
+        $this->expectExceptionMessageIsOrContains('must be an exact DNS hostname without a port or wildcard');
 
         RadixTree::compile([
             [

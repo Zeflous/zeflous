@@ -32,7 +32,7 @@ use Zef\Framework\Container\Container;
 final readonly class Router
 {
     private function __construct(
-        private RoutingRuntime $runtime,
+        private RoutingRuntime $routingRuntime,
     ) {
     }
 
@@ -74,7 +74,7 @@ final readonly class Router
      */
     public function dispatcher(Container $container): RouteDispatcher
     {
-        return new RouteDispatcher($this->runtime, $container);
+        return new RouteDispatcher($this->routingRuntime, $container);
     }
 
     /**
@@ -82,7 +82,7 @@ final readonly class Router
      */
     public function match(string $method, string $path, ?string $host = null, ?string $accept = null, ?string $version = null): MatchResult
     {
-        return $this->runtime->match($method, $path, $host, $accept, $version);
+        return $this->routingRuntime->match($method, $path, $host, $accept, $version);
     }
 
     /**
@@ -90,7 +90,7 @@ final readonly class Router
      */
     public function route(string $name): CompiledRoute
     {
-        return $this->runtime->route($name);
+        return $this->routingRuntime->route($name);
     }
 
     /**
@@ -100,7 +100,7 @@ final readonly class Router
      */
     public function url(string $name, array $parameters = []): string
     {
-        return $this->runtime->url($name, $parameters);
+        return $this->routingRuntime->url($name, $parameters);
     }
 
     /**
@@ -110,7 +110,7 @@ final readonly class Router
      */
     public function absoluteUrl(string $name, array $parameters, string $scheme = 'https'): string
     {
-        return $this->runtime->absoluteUrl($name, $parameters, $scheme);
+        return $this->routingRuntime->absoluteUrl($name, $parameters, $scheme);
     }
 
     /**
@@ -118,6 +118,6 @@ final readonly class Router
      */
     public function tree(): RadixTree
     {
-        return $this->runtime->tree();
+        return $this->routingRuntime->tree();
     }
 }

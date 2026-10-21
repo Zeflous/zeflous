@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use UnexpectedValueException;
-use Zef\Framework\Config\Routing\DispatchOutcome;
+use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
 
@@ -23,8 +23,8 @@ use Zef\Framework\Config\Routing\RouteDispatcher;
 final readonly class RouteDispatchHandler implements RequestHandlerInterface
 {
     public function __construct(
-        private RouteDispatcher $dispatcher,
-        private MatchResult $match,
+        private RouteDispatcher $routeDispatcher,
+        private MatchResult $matchResult,
         private ResponseFactoryInterface $responseFactory,
         private StreamFactoryInterface $streamFactory,
     ) {
@@ -33,40 +33,52 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
     #[Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $outcome = $this->dispatcher->dispatchMatch($this->match);
+        $dispatchOutcome = $this->routeDispatcher->dispatchMatch($this->matchResult);
 
-        if ($outcome->isNotAcceptable()) {
+        if ($dispatchOutcome->isNotAcceptable()) {
             return $this->withHeader(
                 $this->problemResponse(
                     406,
                     'Not Acceptable',
-                    'Supported media types: ' . implode(', ', $outcome->acceptableMediaTypes()),
+                    'Supported media types: ' . implode(', ', $dispatchOutcome->acceptableMediaTypes()),
                 ),
                 'Vary',
                 'Accept',
             );
         }
 
-        if ($outcome->isMethodNotAllowed()) {
+        if ($dispatchOutcome->isMethodNotAllowed()) {
             $response = $this->problemResponse(405, 'Method Not Allowed', 'The request method is not supported for this resource.');
-            return $this->withHeader($response, 'Allow', implode(', ', $outcome->allowedMethods()));
+
+            return $this->withHeader($response, 'Allow', implode(', ', $dispatchOutcome->allowedMethods()));
         }
 
-        if (!$outcome->isExecuted()) {
+        if (!$dispatchOutcome->isExecuted()) {
             return $this->problemResponse(404, 'Not Found', 'No route matches the requested resource.');
         }
 
-        $response = $outcome->result();
-        if (!$response instanceof ResponseInterface) {
-            throw new UnexpectedValueException(sprintf(
+        return $this->representation($dispatchOutcome->result(), $dispatchOutcome->route());
+    }
+
+    /**
+     * Narrows the executed handler's mixed result to a response, exactly
+     * like {@see \Zef\Framework\Config\Routing\RouteHandlerResolver::callableService()}
+     * narrows a resolved service: the mixed value arrives as a parameter,
+     * not an assignment, and a non-response result is refused with the
+     * handler's name.
+     */
+    private function representation(mixed $result, CompiledRoute $compiledRoute): ResponseInterface
+    {
+        if (!$result instanceof ResponseInterface) {
+            throw new UnexpectedValueException(\sprintf(
                 'The HTTP route handler "%s" must return a ResponseInterface.',
-                $outcome->route()->handler(),
+                $compiledRoute->handler(),
             ));
         }
 
-        return $outcome->route()->produces() === []
-            ? $response
-            : $this->varyOnAccept($response);
+        return $compiledRoute->produces() === []
+            ? $result
+            : $this->varyOnAccept($result);
     }
 
     private function problemResponse(int $status, string $title, string $detail): ResponseInterface
@@ -76,39 +88,40 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
             'title' => $title,
             'status' => $status,
             'detail' => $detail,
-        ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+        ], \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
 
         $response = $this->responseFactory->createResponse($status);
         $response = $this->withHeader($response, 'Content-Type', 'application/problem+json');
-        $updated = $response->withBody($this->streamFactory->createStream($body));
 
-        if (!$updated instanceof ResponseInterface) {
+        $message = $response->withBody($this->streamFactory->createStream($body));
+
+        if (!$message instanceof ResponseInterface) {
             throw new UnexpectedValueException('The response body operation did not return a ResponseInterface.');
         }
 
-        return $updated;
+        return $message;
     }
 
     private function withHeader(ResponseInterface $response, string $name, string $value): ResponseInterface
     {
-        $updated = $response->withHeader($name, $value);
-        if (!$updated instanceof ResponseInterface) {
+        $message = $response->withHeader($name, $value);
+        if (!$message instanceof ResponseInterface) {
             throw new UnexpectedValueException('The response header operation did not return a ResponseInterface.');
         }
 
-        return $updated;
+        return $message;
     }
 
     private function varyOnAccept(ResponseInterface $response): ResponseInterface
     {
-        $current = trim($response->getHeaderLine('Vary'));
+        $current = mb_trim($response->getHeaderLine('Vary'));
         if ($current === '*') {
             return $response;
         }
 
-        $tokens = $current === '' ? [] : array_map('trim', explode(',', $current));
+        $tokens = $current === '' ? [] : array_map(trim(...), explode(',', $current));
         foreach ($tokens as $token) {
-            if (strtolower($token) === 'accept') {
+            if (mb_strtolower($token) === 'accept') {
                 return $response;
             }
         }

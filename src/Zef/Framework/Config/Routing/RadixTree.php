@@ -107,8 +107,10 @@ final readonly class RadixTree
         $hostAgnosticRoutes = [];
 
         foreach ($routes as $route) {
-            if ($route->host() === null) {
+            $routeHost = $route->host();
+            if ($routeHost === null) {
                 $hostAgnosticRoutes[] = $route;
+
                 continue;
             }
 
@@ -119,10 +121,11 @@ final readonly class RadixTree
 
             if ($hostParameters === []) {
                 $exactHostRoutes[] = $route;
+
                 continue;
             }
 
-            $specificity = RouteHost::specificity($route->host() ?? '');
+            $specificity = RouteHost::specificity($routeHost);
             if ($specificity > $hostPatternSpecificity) {
                 $hostPatternRoutes = [$route];
                 $hostPatternSpecificity = $specificity;
@@ -144,14 +147,14 @@ final readonly class RadixTree
 
         $versionedRoutes = array_values(array_filter(
             $routes,
-            static fn (CompiledRoute $route): bool => $route->version() !== null,
+            static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() !== null,
         ));
 
         if ($versionedRoutes !== []) {
-            if ($version === null || trim($version) === '') {
+            if ($version === null || mb_trim($version) === '') {
                 $routes = array_values(array_filter(
                     $routes,
-                    static fn (CompiledRoute $route): bool => $route->version() === null,
+                    static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() === null,
                 ));
             } else {
                 $requestVersion = RouteVersion::request($version);
@@ -161,13 +164,13 @@ final readonly class RadixTree
 
                 $routes = array_values(array_filter(
                     $versionedRoutes,
-                    static fn (CompiledRoute $route): bool => $route->version() === $requestVersion,
+                    static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() === $requestVersion,
                 ));
             }
         } else {
             $routes = array_values(array_filter(
                 $routes,
-                static fn (CompiledRoute $route): bool => $route->version() === null,
+                static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() === null,
             ));
         }
 

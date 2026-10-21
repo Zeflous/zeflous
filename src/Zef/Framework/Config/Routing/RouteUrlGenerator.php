@@ -54,7 +54,7 @@ final readonly class RouteUrlGenerator
      */
     public function generateAbsolute(string $name, array $params, string $scheme = 'https'): string
     {
-        if (!in_array(strtolower($scheme), ['http', 'https'], true)) {
+        if (!\in_array(mb_strtolower($scheme), ['http', 'https'], true)) {
             throw new ConfigException('The absolute route URL scheme must be "http" or "https".');
         }
 
@@ -62,7 +62,7 @@ final readonly class RouteUrlGenerator
         $hostPattern = $route->host();
 
         if ($hostPattern === null) {
-            throw new ConfigException(sprintf('The route "%s" has no host pattern for absolute URL generation.', $name));
+            throw new ConfigException(\sprintf('The route "%s" has no host pattern for absolute URL generation.', $name));
         }
 
         $hostParameters = RouteHost::parameterNames($hostPattern);
@@ -71,6 +71,6 @@ final readonly class RouteUrlGenerator
         $pathValues = array_diff_key($params, array_fill_keys($hostParameters, true));
         $path = '/' . implode('/', RouteUrlSegments::render($route, $pathValues));
 
-        return strtolower($scheme) . '://' . $host . $path;
+        return mb_strtolower($scheme) . '://' . $host . $path;
     }
 }

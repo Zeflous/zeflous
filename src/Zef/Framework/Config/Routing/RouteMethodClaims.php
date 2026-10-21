@@ -30,7 +30,7 @@ final class RouteMethodClaims
     private array $claims = [];
 
     /**
-     * @var array<string, array<string, list<array{host: non-empty-string, pattern: non-empty-string}>>>
+     * @var array<string, array<string, list<array{host: string, pattern: string}>>>
      */
     private array $parameterHostClaims = [];
 
@@ -55,7 +55,7 @@ final class RouteMethodClaims
                         && RouteHost::specificity($host) === RouteHost::specificity($claim['host'])
                     ) {
                         throw new ConfigException(
-                            sprintf(
+                            \sprintf(
                                 'The route host pattern "%s" overlaps "%s" at equal specificity for method "%s" and path "%s".',
                                 $host,
                                 $claim['host'],

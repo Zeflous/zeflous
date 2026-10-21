@@ -8,21 +8,24 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
-use Zef\Framework\Config\Routing\DispatchOutcome;
 use Zef\Framework\Config\Routing\RouteDsl;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Router\Router;
 
+/**
+ * @internal
+ */
 #[CoversClass(Router::class)]
 final class RouterTest extends TestCase
 {
     public function testDefineCompilesDslAndMatchesParameters(): void
     {
-        $router = Router::define(static function (RouteDsl $routes): void {
-            $routes->get('/health', 'Health@check')->name('health');
-            $routes->get('/users/{id}', 'Users@show')
+        $router = Router::define(static function (RouteDsl $routeDsl): void {
+            $routeDsl->get('/health', 'Health@check')->name('health');
+            $routeDsl->get('/users/{id}', 'Users@show')
                 ->name('users.show')
-                ->where(['id' => '[0-9]+']);
+                ->where(['id' => '[0-9]+'])
+            ;
         });
 
         $match = $router->match('GET', '/users/42');
@@ -117,8 +120,8 @@ final class RouterTest extends TestCase
         try {
             $router->absoluteUrl('tenant.dashboard', ['tenant' => 'acme.evil']);
             self::fail('A host parameter must not inject another hostname.');
-        } catch (ConfigException $exception) {
-            self::assertStringContainsString('valid DNS label', $exception->getMessage());
+        } catch (ConfigException $configException) {
+            self::assertStringContainsString('valid DNS label', $configException->getMessage());
         }
 
         $this->expectException(ConfigException::class);
@@ -129,6 +132,7 @@ final class RouterTest extends TestCase
     {
         $container = new Container();
         $container->set('Profile@show', static fn (): callable => static fn (array $parameters): string => 'should-not-run');
+
         $router = Router::fromRoutes([
             [
                 'path' => '/profile',
@@ -152,11 +156,10 @@ final class RouterTest extends TestCase
             static fn (): callable => static fn (array $parameters): string => 'healthy',
         );
 
-        $router = self::routerWithHealthRoute();
+        $router = $this->routerWithHealthRoute();
         $dispatcher = $router->dispatcher($container);
         $outcome = $dispatcher->dispatch('GET', '/health');
 
-        self::assertInstanceOf(DispatchOutcome::class, $outcome);
         self::assertTrue($outcome->isExecuted());
         self::assertSame('healthy', $outcome->result());
         self::assertSame('Health@check', $outcome->route()->handler());
@@ -164,7 +167,7 @@ final class RouterTest extends TestCase
 
     public function testMatchPreservesMethodNotAllowedAndNotFoundOutcomes(): void
     {
-        $router = self::routerWithHealthRoute();
+        $router = $this->routerWithHealthRoute();
 
         $methodMismatch = $router->match('POST', '/health');
         self::assertTrue($methodMismatch->isMethodNotAllowed());
@@ -187,13 +190,13 @@ final class RouterTest extends TestCase
 
     public function testUnknownRouteNamesFailClosed(): void
     {
-        $router = self::routerWithHealthRoute();
+        $router = $this->routerWithHealthRoute();
 
         try {
             $router->route('missing');
             self::fail('An unknown route name must be rejected.');
-        } catch (ConfigException $exception) {
-            self::assertSame('The route name "missing" is not registered.', $exception->getMessage());
+        } catch (ConfigException $configException) {
+            self::assertSame('The route name "missing" is not registered.', $configException->getMessage());
         }
 
         $this->expectException(ConfigException::class);
@@ -216,7 +219,7 @@ final class RouterTest extends TestCase
         $router->url('users.show', ['id' => 'not-a-number']);
     }
 
-    private static function routerWithHealthRoute(): Router
+    private function routerWithHealthRoute(): Router
     {
         return Router::fromRoutes([
             [

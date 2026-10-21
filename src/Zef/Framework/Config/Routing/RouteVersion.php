@@ -18,14 +18,15 @@ final class RouteVersion
      */
     public static function canonical(string $version): string
     {
-        if (!preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,31}\z/D', $version)) {
-            throw new ConfigException(sprintf(
+        $canonical = mb_strtolower($version);
+        if ($canonical === '' || preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,31}\z/D', $canonical) !== 1) {
+            throw new ConfigException(\sprintf(
                 'The route version "%s" must start with an alphanumeric character and contain at most 32 letters, digits, dots, underscores or hyphens.',
                 $version,
             ));
         }
 
-        return strtolower($version);
+        return $canonical;
     }
 
     /**
@@ -33,12 +34,12 @@ final class RouteVersion
      */
     public static function request(?string $version): ?string
     {
-        if ($version === null || trim($version) === '') {
+        if ($version === null || mb_trim($version) === '') {
             return null;
         }
 
         try {
-            return self::canonical(trim($version));
+            return self::canonical(mb_trim($version));
         } catch (ConfigException) {
             return null;
         }

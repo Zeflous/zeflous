@@ -32,6 +32,7 @@ final readonly class MatchResult
     /**
      * @param array<string, string> $parameters
      * @param null|list<string>     $allowedMethods
+     * @param null|list<string>     $acceptableMediaTypes
      */
     private function __construct(
         private ?CompiledRoute $compiledRoute,

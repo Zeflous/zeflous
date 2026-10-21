@@ -22,17 +22,17 @@ final class RouteAcceptNegotiator
     {
         $normalized = [];
 
-        foreach ($produces as $mediaType) {
-            $mediaType = strtolower(trim($mediaType));
-            if (!preg_match('/\A[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+\z/D', $mediaType)) {
-                throw new ConfigException(sprintf('The route field "produces" contains an invalid media type "%s".', $mediaType));
+        foreach ($produces as $produce) {
+            $produce = mb_strtolower(mb_trim($produce));
+            if (preg_match('/\A[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+\z/D', $produce) !== 1) {
+                throw new ConfigException(\sprintf('The route field "produces" contains an invalid media type "%s".', $produce));
             }
 
-            if (isset($normalized[$mediaType])) {
-                throw new ConfigException(sprintf('The route field "produces" must not repeat media type "%s".', $mediaType));
+            if (isset($normalized[$produce])) {
+                throw new ConfigException(\sprintf('The route field "produces" must not repeat media type "%s".', $produce));
             }
 
-            $normalized[$mediaType] = $mediaType;
+            $normalized[$produce] = $produce;
         }
 
         return array_values($normalized);
@@ -47,15 +47,15 @@ final class RouteAcceptNegotiator
      */
     public static function accepts(?string $accept, array $produces): bool
     {
-        if ($produces === [] || $accept === null || trim($accept) === '') {
+        if ($produces === [] || $accept === null || mb_trim($accept) === '') {
             return true;
         }
 
         $ranges = [];
         foreach (explode(',', $accept) as $entry) {
-            $parts = array_map('trim', explode(';', $entry));
-            $mediaRange = strtolower(array_shift($parts) ?? '');
-            if (!preg_match('/\A(\*|[a-z0-9!#$&^_.+-]+)\/(\*|[a-z0-9!#$&^_.+-]+)\z/D', $mediaRange, $matches)) {
+            $parts = array_map(trim(...), explode(';', $entry));
+            $mediaRange = mb_strtolower(array_shift($parts));
+            if (preg_match('/\A(\*|[a-z0-9!#$&^_.+-]+)\/(\*|[a-z0-9!#$&^_.+-]+)\z/D', $mediaRange, $matches) !== 1) {
                 continue;
             }
 
@@ -65,14 +65,15 @@ final class RouteAcceptNegotiator
 
             $quality = 1.0;
             $valid = true;
-            foreach ($parts as $parameter) {
-                if (!str_starts_with(strtolower($parameter), 'q=')) {
+            foreach ($parts as $part) {
+                if (!str_starts_with(mb_strtolower($part), 'q=')) {
                     continue;
                 }
 
-                $rawQuality = substr($parameter, 2);
-                if (!preg_match('/\A(?:0(?:\.\d{0,3})?|1(?:\.0{0,3})?)\z/D', $rawQuality)) {
+                $rawQuality = mb_substr($part, 2);
+                if (preg_match('/\A(?:0(?:\.\d{0,3})?|1(?:\.0{0,3})?)\z/D', $rawQuality) !== 1) {
                     $valid = false;
+
                     break;
                 }
 
@@ -91,8 +92,13 @@ final class RouteAcceptNegotiator
             ];
         }
 
-        foreach ($produces as $mediaType) {
-            [$type, $subtype] = explode('/', $mediaType, 2);
+        foreach ($produces as $produce) {
+            $segments = explode('/', $produce, 2);
+            if (\count($segments) !== 2) {
+                throw new ConfigException(\sprintf('The route field "produces" contains an invalid media type "%s".', $produce));
+            }
+
+            [$type, $subtype] = $segments;
             $bestSpecificity = -1;
             $bestQuality = 0.0;
 

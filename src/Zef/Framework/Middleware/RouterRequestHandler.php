@@ -11,6 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use UnexpectedValueException;
 use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Router\Router;
@@ -43,8 +44,8 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         $method = mb_strtoupper($request->getMethod());
         $match = $this->router->match(
             $request->getMethod(),
-            self::requestPath($request),
-            self::requestHost($request),
+            $this->requestPath($request),
+            $this->requestHost($request),
             $request->getHeaderLine('Accept'),
             $request->getHeaderLine('Accept-Version') !== ''
                 ? $request->getHeaderLine('Accept-Version')
@@ -56,12 +57,12 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         if (
             $method === 'HEAD'
             && $match->isMethodNotAllowed()
-            && in_array('GET', $match->allowedMethods(), true)
+            && \in_array('GET', $match->allowedMethods(), true)
         ) {
             $match = $this->router->match(
                 'GET',
-                self::requestPath($request),
-                self::requestHost($request),
+                $this->requestPath($request),
+                $this->requestHost($request),
                 $request->getHeaderLine('Accept'),
                 $request->getHeaderLine('Accept-Version') !== ''
                     ? $request->getHeaderLine('Accept-Version')
@@ -73,38 +74,38 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         if ($match->isFound()) {
             foreach ($match->route()->middleware() as $serviceId) {
                 if (!$this->container->has($serviceId)) {
-                    throw new MiddlewareException(sprintf('Route middleware service "%s" is not registered.', $serviceId));
+                    throw new MiddlewareException(\sprintf('Route middleware service "%s" is not registered.', $serviceId));
                 }
 
                 $middleware = $this->container->get($serviceId);
                 if (!$middleware instanceof MiddlewareInterface) {
-                    throw new MiddlewareException(sprintf('Route middleware service "%s" does not implement MiddlewareInterface.', $serviceId));
+                    throw new MiddlewareException(\sprintf('Route middleware service "%s" does not implement MiddlewareInterface.', $serviceId));
                 }
 
                 $stack[] = $middleware;
             }
         }
 
-        $terminal = new RouteDispatchHandler(
+        $routeDispatchHandler = new RouteDispatchHandler(
             $this->routeDispatcher,
             $match,
             $this->responseFactory,
             $this->streamFactory,
         );
 
-        $response = (new MiddlewarePipeline($stack, $terminal))->handle($request);
+        $response = new MiddlewarePipeline($stack, $routeDispatchHandler)->handle($request);
         $response = $this->applyConditionalRequest($request, $response, $method);
 
         if ($method !== 'HEAD' && $response->getStatusCode() !== 304) {
             return $response;
         }
 
-        $headResponse = $response->withBody($this->streamFactory->createStream(''));
-        if (!$headResponse instanceof ResponseInterface) {
-            throw new \UnexpectedValueException('The HEAD response body operation did not return a ResponseInterface.');
+        $message = $response->withBody($this->streamFactory->createStream(''));
+        if (!$message instanceof ResponseInterface) {
+            throw new UnexpectedValueException('The HEAD response body operation did not return a ResponseInterface.');
         }
 
-        return $headResponse;
+        return $message;
     }
 
     /**
@@ -117,29 +118,29 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         ResponseInterface $response,
         string $method,
     ): ResponseInterface {
-        if (!in_array($method, ['GET', 'HEAD'], true) || $response->getStatusCode() !== 200) {
+        if (!\in_array($method, ['GET', 'HEAD'], true) || $response->getStatusCode() !== 200) {
             return $response;
         }
 
         if ($request->hasHeader('If-None-Match')) {
-            $condition = trim($request->getHeaderLine('If-None-Match'));
+            $condition = mb_trim($request->getHeaderLine('If-None-Match'));
             if ($condition === '*') {
                 return $this->notModified($response);
             }
 
-            $currentTag = trim($response->getHeaderLine('ETag'));
+            $currentTag = mb_trim($response->getHeaderLine('ETag'));
             if ($currentTag === '') {
                 return $response;
             }
 
-            $currentOpaqueTag = preg_replace('/\\AW\\//i', '', $currentTag);
-            preg_match_all('/(?:W\\/)?"[^"]*"|\\*/i', $condition, $matches);
+            $currentOpaqueTag = preg_replace('/\AW\//i', '', $currentTag);
+            preg_match_all('/(?:W\/)?"[^"]*"|\*/i', $condition, $matches);
             foreach ($matches[0] as $candidate) {
                 if ($candidate === '*') {
                     return $this->notModified($response);
                 }
 
-                $candidateOpaqueTag = preg_replace('/\\AW\\//i', '', $candidate);
+                $candidateOpaqueTag = preg_replace('/\AW\//i', '', $candidate);
                 if ($candidateOpaqueTag === $currentOpaqueTag) {
                     return $this->notModified($response);
                 }
@@ -163,15 +164,15 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
 
     private function notModified(ResponseInterface $response): ResponseInterface
     {
-        $notModified = $response->withStatus(304)->withBody($this->streamFactory->createStream(''));
-        if (!$notModified instanceof ResponseInterface) {
-            throw new \UnexpectedValueException('The conditional response operation did not return a ResponseInterface.');
+        $message = $response->withStatus(304)->withBody($this->streamFactory->createStream(''));
+        if (!$message instanceof ResponseInterface) {
+            throw new UnexpectedValueException('The conditional response operation did not return a ResponseInterface.');
         }
 
-        return $notModified;
+        return $message;
     }
 
-    private static function requestPath(ServerRequestInterface $request): string
+    private function requestPath(ServerRequestInterface $request): string
     {
         $path = $request->getUri()->getPath();
 
@@ -182,7 +183,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         return str_starts_with($path, '/') ? $path : '/' . $path;
     }
 
-    private static function requestHost(ServerRequestInterface $request): ?string
+    private function requestHost(ServerRequestInterface $request): ?string
     {
         if (!$request->hasHeader('Host')) {
             $uriHost = $request->getUri()->getHost();
@@ -190,7 +191,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
             return $uriHost === '' ? null : $uriHost;
         }
 
-        $authority = trim($request->getHeaderLine('Host'));
+        $authority = mb_trim($request->getHeaderLine('Host'));
         if (preg_match('/\A([^:]+)(?::([0-9]{1,5}))?\z/D', $authority, $matches) !== 1) {
             return null;
         }

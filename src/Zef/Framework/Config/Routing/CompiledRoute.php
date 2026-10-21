@@ -62,7 +62,7 @@ final readonly class CompiledRoute
 
         if ($collisions !== []) {
             throw new ConfigException(
-                sprintf('The route host and path must not repeat parameter name(s): %s.', implode(', ', $collisions)),
+                \sprintf('The route host and path must not repeat parameter name(s): %s.', implode(', ', $collisions)),
             );
         }
 
