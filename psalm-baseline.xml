@@ -19,11 +19,6 @@
       <code><![CDATA[withUri]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[createResponse]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Contracts/Psr/Http/Message/ResponseInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getReasonPhrase]]></code>
@@ -50,7 +45,6 @@
   </file>
   <file src="src/Contracts/Psr/Http/Message/StreamFactoryInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[createStream]]></code>
       <code><![CDATA[createStreamFromFile]]></code>
       <code><![CDATA[createStreamFromResource]]></code>
     </PossiblyUnusedMethod>

@@ -13,14 +13,32 @@ use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\PrefixConsumption;
 use Zef\Framework\Config\Routing\RadixNode;
 use Zef\Framework\Config\Routing\RadixTree;
+use Zef\Framework\Config\Routing\RouteAcceptMatch;
+use Zef\Framework\Config\Routing\RouteAcceptNegotiator;
+use Zef\Framework\Config\Routing\RouteAcceptRange;
+use Zef\Framework\Config\Routing\RouteAcceptRanges;
+use Zef\Framework\Config\Routing\RouteFields;
+use Zef\Framework\Config\Routing\RouteHostAmbiguities;
+use Zef\Framework\Config\Routing\RouteHostBinding;
+use Zef\Framework\Config\Routing\RouteHostClaims;
+use Zef\Framework\Config\Routing\RouteHostGrammar;
+use Zef\Framework\Config\Routing\RouteHostParameters;
+use Zef\Framework\Config\Routing\RouteHostPatternBucket;
+use Zef\Framework\Config\Routing\RouteHostPrecedence;
+use Zef\Framework\Config\Routing\RouteHostRendering;
+use Zef\Framework\Config\Routing\RouteHostRequest;
+use Zef\Framework\Config\Routing\RouteHostSelection;
 use Zef\Framework\Config\Routing\RouteMatcher;
 use Zef\Framework\Config\Routing\RouteMethodAnswer;
 use Zef\Framework\Config\Routing\RouteMethodClaims;
 use Zef\Framework\Config\Routing\RouteNodeInserter;
 use Zef\Framework\Config\Routing\RouteParameters;
 use Zef\Framework\Config\Routing\RoutePatternTokens;
+use Zef\Framework\Config\Routing\RouteProduces;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
+use Zef\Framework\Config\Routing\RouteVersion;
+use Zef\Framework\Config\Routing\RouteVersionSelection;
 use Zef\Framework\Config\Routing\SegmentCapture;
 use Zef\Framework\Config\Routing\SharedPrefixLength;
 use Zef\Framework\Config\Routing\StaticDescent;
@@ -48,6 +66,24 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(LeafRoute::class)]
 #[CoversClass(MatchResult::class)]
 #[CoversClass(CompiledRoute::class)]
+#[CoversClass(RouteHostGrammar::class)]
+#[CoversClass(RouteHostParameters::class)]
+#[CoversClass(RouteHostPrecedence::class)]
+#[CoversClass(RouteVersion::class)]
+#[CoversClass(RouteAcceptNegotiator::class)]
+#[CoversClass(RouteAcceptMatch::class)]
+#[CoversClass(RouteAcceptRange::class)]
+#[CoversClass(RouteAcceptRanges::class)]
+#[CoversClass(RouteFields::class)]
+#[CoversClass(RouteHostAmbiguities::class)]
+#[CoversClass(RouteHostBinding::class)]
+#[CoversClass(RouteHostClaims::class)]
+#[CoversClass(RouteHostPatternBucket::class)]
+#[CoversClass(RouteHostRendering::class)]
+#[CoversClass(RouteHostRequest::class)]
+#[CoversClass(RouteHostSelection::class)]
+#[CoversClass(RouteProduces::class)]
+#[CoversClass(RouteVersionSelection::class)]
 final class RadixTreeTest extends TestCase
 {
     public function testARegistryCannotBeReadBeforeTheTreeIsBuilt(): void
@@ -61,6 +97,99 @@ final class RadixTreeTest extends TestCase
                 $invariantViolationException->getMessage(),
             );
         }
+    }
+
+    public function testSelectsVersionedRoutesFromApiVersionHeaderValues(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'ApiV1@show', 'version' => 'v1'],
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'ApiV2@show', 'version' => 'v2'],
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'ApiDefault@show'],
+        ]);
+
+        self::assertSame('ApiV1@show', $radixTree->match('GET', '/api', null, null, 'V1')->route()->handler());
+        self::assertSame('ApiV2@show', $radixTree->match('GET', '/api', null, null, 'v2')->route()->handler());
+        self::assertSame('ApiDefault@show', $radixTree->match('GET', '/api')->route()->handler());
+        self::assertFalse($radixTree->match('GET', '/api', null, null, 'v3')->isFound());
+    }
+
+    public function testRejectsInvalidDeclaredApiVersionAtCompilation(): void
+    {
+        try {
+            RadixTree::compile([
+                ['path' => '/api', 'method' => ['GET'], 'handler' => 'Api@show', 'version' => '../v1'],
+            ]);
+            self::fail('An invalid declared API version must fail at compile time.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The route version "../v1" must start with an alphanumeric character and contain '
+                . 'at most 32 letters, digits, dots, underscores or hyphens.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testNegotiatesAcceptAgainstRouteProducedMediaTypes(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json', 'text/html'],
+            ],
+        ]);
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, 'application/json')->isFound());
+        self::assertTrue($radixTree->match('GET', '/profile', null, 'text/*;q=0.8')->isFound());
+        self::assertTrue($radixTree->match('GET', '/profile', null, '*/*')->isFound());
+
+        $notAcceptable = $radixTree->match('GET', '/profile', null, 'image/png');
+        self::assertTrue($notAcceptable->isNotAcceptable());
+        self::assertSame(['application/json', 'text/html'], $notAcceptable->acceptableMediaTypes());
+    }
+
+    public function testSpecificZeroQualityOverridesWildcardAcceptRange(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+
+        self::assertTrue(
+            $radixTree->match('GET', '/profile', null, 'application/json;q=0, */*;q=1')->isNotAcceptable(),
+        );
+    }
+
+    public function testRejectsInvalidAndDuplicateProducedMediaTypes(): void
+    {
+        try {
+            RadixTree::compile([
+                [
+                    'path' => '/profile',
+                    'method' => ['GET'],
+                    'handler' => 'Profile@show',
+                    'produces' => ['not-a-media-type'],
+                ],
+            ]);
+            self::fail('Invalid produced media types must fail at compile time.');
+        } catch (ConfigException $configException) {
+            self::assertStringContainsString('invalid media type', $configException->getMessage());
+        }
+
+        $this->expectException(ConfigException::class);
+        RadixTree::compile([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json', 'APPLICATION/JSON'],
+            ],
+        ]);
     }
 
     public function testMatchesAStaticRoute(): void
@@ -101,6 +230,486 @@ final class RadixTreeTest extends TestCase
 
         self::assertTrue($radixTree->match('GET', '/u/42/hello')->isFound());
         self::assertFalse($radixTree->match('GET', '/u/42/42x2')->isFound());
+    }
+
+    public function testMatchesRoutesByExactHostWithoutCrossingHosts(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['GET'],
+                'handler' => 'Admin@dashboard',
+            ],
+            [
+                'path' => '/dashboard',
+                'host' => 'api.example.com',
+                'method' => ['GET'],
+                'handler' => 'Api@dashboard',
+            ],
+        ]);
+
+        self::assertSame(
+            'Admin@dashboard',
+            $radixTree->match('GET', '/dashboard', 'ADMIN.EXAMPLE.COM')->route()->handler(),
+        );
+        self::assertSame(
+            'Api@dashboard',
+            $radixTree->match('GET', '/dashboard', 'api.example.com')->route()->handler(),
+        );
+        self::assertFalse($radixTree->match('GET', '/dashboard', 'other.example.com')->isFound());
+        self::assertFalse($radixTree->match('GET', '/dashboard', '*.example.com')->isFound());
+        self::assertFalse($radixTree->match('GET', '/dashboard')->isFound());
+    }
+
+    public function testCapturesWholeLabelHostParametersAndMergesThemWithPathParameters(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/users/{id}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+            ],
+        ]);
+
+        $match = $radixTree->match('GET', '/users/42', 'ACME.example.com');
+
+        self::assertTrue($match->isFound());
+        self::assertSame(['id' => '42', 'tenant' => 'acme'], $match->parameters());
+        self::assertFalse($radixTree->match('GET', '/users/42', 'example.com')->isFound());
+        self::assertFalse($radixTree->match('GET', '/users/42', 'a.b.example.com')->isFound());
+    }
+
+    public function testExactHostTakesPrecedenceOverParameterizedHostAndFallback(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/dashboard', 'method' => ['GET'], 'handler' => 'Fallback@dashboard'],
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+            ],
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['GET'],
+                'handler' => 'Admin@dashboard',
+            ],
+        ]);
+
+        self::assertSame(
+            'Admin@dashboard',
+            $radixTree->match('GET', '/dashboard', 'admin.example.com')->route()->handler(),
+        );
+        self::assertSame(
+            'Tenant@dashboard',
+            $radixTree->match('GET', '/dashboard', 'acme.example.com')->route()->handler(),
+        );
+        self::assertSame(
+            'Fallback@dashboard',
+            $radixTree->match('GET', '/dashboard', 'outside.test')->route()->handler(),
+        );
+    }
+
+    public function testMoreSpecificParameterizedHostWinsRegardlessOfRegistrationOrder(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '{sub}.{domain}.com',
+                'method' => ['GET'],
+                'handler' => 'GenericSubdomain@dashboard',
+            ],
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.{region}.com',
+                'method' => ['GET'],
+                'handler' => 'AdminRegion@dashboard',
+            ],
+        ]);
+
+        $match = $radixTree->match('GET', '/dashboard', 'admin.example.com');
+
+        self::assertSame('AdminRegion@dashboard', $match->route()->handler());
+        self::assertSame(['region' => 'example'], $match->parameters());
+    }
+
+    public function testRejectsOverlappingHostPatternsAtEqualSpecificity(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains('overlaps');
+
+        RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+            ],
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.{region}.com',
+                'method' => ['GET'],
+                'handler' => 'Region@dashboard',
+            ],
+        ]);
+    }
+
+    public function testRejectsHostParameterNameCollisionsWithPathParameters(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains('must not repeat parameter name');
+
+        RadixTree::compile([
+            [
+                'path' => '/users/{tenant}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+            ],
+        ]);
+    }
+
+    public function testExactHostRouteTakesPrecedenceOverHostAgnosticFallback(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/dashboard', 'method' => ['GET'], 'handler' => 'Fallback@dashboard'],
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['POST'],
+                'handler' => 'Admin@dashboard',
+            ],
+        ]);
+
+        $exactHostMismatch = $radixTree->match('GET', '/dashboard', 'admin.example.com');
+        self::assertTrue($exactHostMismatch->isMethodNotAllowed());
+        self::assertSame(['POST'], $exactHostMismatch->allowedMethods());
+
+        self::assertSame(
+            'Fallback@dashboard',
+            $radixTree->match('GET', '/dashboard', 'www.example.com')->route()->handler(),
+        );
+    }
+
+    public function testRejectsAnInvalidExactRouteHostDuringCompilation(): void
+    {
+        try {
+            RadixTree::compile([
+                [
+                    'path' => '/dashboard',
+                    'host' => '*.example.com',
+                    'method' => ['GET'],
+                    'handler' => 'Admin@dashboard',
+                ],
+            ]);
+            self::fail('An invalid exact route host must fail at compile time.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The route host "*.example.com" must be an exact DNS hostname without a port or wildcard, '
+                . 'or use whole-label parameters.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testRejectsAHostThatExceedsTheMaximumHostLength(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains('must be an exact DNS hostname without a port or wildcard');
+
+        RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => 'a.' . str_repeat('bbbb.', 49) . 'example.com',
+                'method' => ['GET'],
+                'handler' => 'Long@dashboard',
+            ],
+        ]);
+    }
+
+    public function testRejectsAHostThatExceedsTheMaximumLabelCount(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains('must be an exact DNS hostname without a port or wildcard');
+
+        RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => implode('.', array_fill(0, 128, 'a')),
+                'method' => ['GET'],
+                'handler' => 'Deep@dashboard',
+            ],
+        ]);
+    }
+
+    public function testRejectsAHostThatRepeatsItsOwnParameterLabel(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains('must be an exact DNS hostname without a port or wildcard');
+
+        RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.{tenant}.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+            ],
+        ]);
+    }
+
+    public function testAMalformedRequestVersionIsANotFoundMissNotAnError(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'Api@show', 'version' => 'v1'],
+        ]);
+
+        $matchResult = $radixTree->match('GET', '/api', null, null, '../v1');
+
+        self::assertFalse($matchResult->isFound());
+        self::assertFalse($matchResult->isMethodNotAllowed());
+    }
+
+    public function testAHostOfExactlyTheMaximumLengthIsAccepted(): void
+    {
+        // 42 labels of five characters, one of one, and the 42 dots
+        // between them: 42*5 + 1 + 42 = 253 bytes exactly.
+        $host = implode('.', array_merge(array_fill(0, 42, 'aaaaa'), ['b']));
+
+        $radixTree = RadixTree::compile([
+            ['path' => '/dashboard', 'host' => $host, 'method' => ['GET'], 'handler' => 'Admin@dashboard'],
+        ]);
+
+        self::assertSame('Admin@dashboard', $radixTree->match('GET', '/dashboard', $host)->route()->handler());
+    }
+
+    public function testAHostOfExactlyTheMaximumLabelCountIsAccepted(): void
+    {
+        $host = implode('.', array_fill(0, 127, 'a'));
+
+        self::assertSame(127, mb_substr_count($host, '.') + 1);
+        $radixTree = RadixTree::compile([
+            ['path' => '/dashboard', 'host' => $host, 'method' => ['GET'], 'handler' => 'Deep@dashboard'],
+        ]);
+
+        self::assertSame('Deep@dashboard', $radixTree->match('GET', '/dashboard', $host)->route()->handler());
+    }
+
+    public function testTheSameVersionServesDifferentPathsOnEquallySpecificHosts(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/one',
+                'host' => '{a}.example.com',
+                'version' => 'v1',
+                'method' => ['GET'],
+                'handler' => 'One@show',
+            ],
+            [
+                'path' => '/two',
+                'host' => '{b}.example.com',
+                'version' => 'v1',
+                'method' => ['GET'],
+                'handler' => 'Two@show',
+            ],
+        ]);
+
+        self::assertSame(
+            'One@show',
+            $radixTree->match('GET', '/one', 'acme.example.com', null, 'v1')->route()->handler(),
+        );
+        self::assertSame(
+            'Two@show',
+            $radixTree->match('GET', '/two', 'acme.example.com', null, 'v1')->route()->handler(),
+        );
+    }
+
+    public function testOnePathServesDifferentVersionsOnEquallySpecificHosts(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/api',
+                'host' => '{a}.example.com',
+                'version' => 'v1',
+                'method' => ['GET'],
+                'handler' => 'V1@show',
+            ],
+            [
+                'path' => '/api',
+                'host' => '{b}.example.com',
+                'version' => 'v2',
+                'method' => ['GET'],
+                'handler' => 'V2@show',
+            ],
+        ]);
+
+        self::assertSame(
+            'V1@show',
+            $radixTree->match('GET', '/api', 'acme.example.com', null, 'v1')->route()->handler(),
+        );
+        self::assertSame(
+            'V2@show',
+            $radixTree->match('GET', '/api', 'acme.example.com', null, 'v2')->route()->handler(),
+        );
+    }
+
+    public function testPathAndVersionKeepSeparateClaimScopes(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/x',
+                'host' => '{a}.example.com',
+                'version' => 'v1',
+                'method' => ['GET'],
+                'handler' => 'X@show',
+            ],
+            [
+                'path' => '/xv',
+                'host' => '{b}.example.com',
+                'version' => '1',
+                'method' => ['GET'],
+                'handler' => 'XV@show',
+            ],
+        ]);
+
+        self::assertSame('X@show', $radixTree->match('GET', '/x', 'acme.example.com', null, 'v1')->route()->handler());
+        self::assertSame('XV@show', $radixTree->match('GET', '/xv', 'acme.example.com', null, '1')->route()->handler());
+    }
+
+    public function testAnUnversionedRouteRemainsTheFallbackForAnUnknownExplicitVersion(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'Plain@show'],
+        ]);
+
+        self::assertSame('Plain@show', $radixTree->match('GET', '/api', null, null, 'v9')->route()->handler());
+    }
+
+    public function testAVersionlessRequestTakesTheUnversionedRouteAmongVersionedOnes(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'version' => 'v1', 'method' => ['GET'], 'handler' => 'V1@show'],
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'Plain@show'],
+        ]);
+
+        self::assertSame('Plain@show', $radixTree->match('GET', '/api')->route()->handler());
+    }
+
+    public function testAParameterisedHostLabelMismatchRefusesTheWholeHost(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+            ],
+        ]);
+
+        self::assertFalse($radixTree->match('GET', '/dashboard', 'acme.evil.com')->isFound());
+    }
+
+    public function testARequestHostWithMoreLabelsThanThePatternIsRefused(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+            ],
+        ]);
+
+        self::assertFalse($radixTree->match('GET', '/dashboard', 'acme.example.com.uk')->isFound());
+    }
+
+    public function testARequestHostWithFewerLabelsThanThePatternIsRefused(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+            ],
+        ]);
+
+        self::assertFalse($radixTree->match('GET', '/dashboard', 'example.com')->isFound());
+    }
+
+    public function testANullHostNeverMatchesASingleLabelHostPattern(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/dashboard', 'host' => '{t}', 'method' => ['GET'], 'handler' => 'Single@dashboard'],
+        ]);
+
+        self::assertFalse($radixTree->match('GET', '/dashboard')->isFound());
+    }
+
+    public function testANullHostNeverMatchesAHostBoundRoute(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['GET'],
+                'handler' => 'Admin@dashboard',
+            ],
+        ]);
+
+        self::assertFalse($radixTree->match('GET', '/dashboard')->isFound());
+    }
+
+    public function testANonMatchingHostRouteDoesNotHideTheAgnosticFallback(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['GET'],
+                'handler' => 'Admin@dashboard',
+            ],
+            ['path' => '/dashboard', 'method' => ['GET'], 'handler' => 'Fallback@dashboard'],
+        ]);
+
+        self::assertSame(
+            'Fallback@dashboard',
+            $radixTree->match('GET', '/dashboard', 'other.example.com')->route()->handler(),
+        );
+    }
+
+    public function testTwoExactHostRoutesContributeBothMethodsToTheAllowHeader(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/dashboard', 'host' => 'admin.example.com', 'method' => ['GET'], 'handler' => 'Get@dashboard'],
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['POST'],
+                'handler' => 'Post@dashboard',
+            ],
+        ]);
+
+        $methodNotAllowed = $radixTree->match('PUT', '/dashboard', 'admin.example.com');
+
+        self::assertTrue($methodNotAllowed->isMethodNotAllowed());
+        self::assertSame(['GET', 'POST'], $methodNotAllowed->allowedMethods());
+    }
+
+    public function testTwoEquallySpecificHostPatternsBothStaySelectable(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/dashboard', 'host' => '{a}.example.com', 'method' => ['GET'], 'handler' => 'A@dashboard'],
+            ['path' => '/dashboard', 'host' => '{b}.example.com', 'method' => ['POST'], 'handler' => 'B@dashboard'],
+        ]);
+
+        self::assertSame('A@dashboard', $radixTree->match('GET', '/dashboard', 'acme.example.com')->route()->handler());
+        self::assertSame(
+            'B@dashboard',
+            $radixTree->match('POST', '/dashboard', 'acme.example.com')->route()->handler(),
+        );
     }
 
     public function testMatchesTheRootRoute(): void

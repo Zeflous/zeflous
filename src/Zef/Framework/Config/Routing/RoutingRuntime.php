@@ -95,9 +95,14 @@ final class RoutingRuntime
      * (`CompiledRoute::answersMethod()`), so unicode request methods round-trip
      * unchanged.
      */
-    public function match(string $method, string $path): MatchResult
-    {
-        return $this->tree()->match($method, $path);
+    public function match(
+        string $method,
+        string $path,
+        ?string $host = null,
+        ?string $accept = null,
+        ?string $version = null,
+    ): MatchResult {
+        return $this->tree()->match($method, $path, $host, $accept, $version);
     }
 
     /**
@@ -107,6 +112,16 @@ final class RoutingRuntime
     public function route(string $name): CompiledRoute
     {
         return $this->tree()->route($name);
+    }
+
+    /**
+     * Generates an absolute URL for a named route with a declared host pattern.
+     *
+     * @param array<string, mixed> $parameters
+     */
+    public function absoluteUrl(string $name, array $parameters, string $scheme = 'https'): string
+    {
+        return new RouteUrlGenerator($this->tree())->generateAbsolute($name, $parameters, $scheme);
     }
 
     /**
