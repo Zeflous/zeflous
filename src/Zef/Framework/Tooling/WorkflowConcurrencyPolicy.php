@@ -28,6 +28,19 @@ namespace Zef\Framework\Tooling;
  *     per-branch group lets a new run queue behind a stale one, so the new
  *     run sits `pending` with zero jobs and its required check-run is never
  *     created (the "waiting" deadlock observed on PR #123).
+ *
+ *  3. EVERY GROUP IN THE FILE IS AUDITED. The walk reads every `group:`
+ *     spelling the file carries (`preg_match_all`), not only the first --
+ *     a job-level `concurrency:` block is as much a deadlock contributor
+ *     as the workflow-level one, and the first-only read left it
+ *     invisible.
+ *
+ *  4. EVERY TRIGGERING WORKFLOW DECLARES A GROUP. A workflow that
+ *     triggers itself and declares no concurrency at all used to pass
+ *     silently -- a blind spot inside the gate's own declared scope.
+ *     Only the reusable `workflow_call` shape is exempt: a called
+ *     workflow's concurrency is its caller's, so the file that never
+ *     triggers itself has no group of its own to key.
  */
 final readonly class WorkflowConcurrencyPolicy
 {
@@ -49,6 +62,8 @@ final readonly class WorkflowConcurrencyPolicy
 
     private const string CANCEL_KEY = '/^[ \t]*cancel-in-progress:[ \t]*(.+?)[ \t]*$/m';
 
+    private const string REUSABLE_TRIGGER_KEY = '/^[ \t]*workflow_call:/m';
+
     /**
      * Every rule violation for one workflow file, in a stable order.
      *
@@ -56,38 +71,68 @@ final readonly class WorkflowConcurrencyPolicy
      */
     public static function failures(string $workflow, string $contents): array
     {
-        preg_match(self::GROUP_KEY, $contents, $groupMatch);
-        preg_match(self::CANCEL_KEY, $contents, $cancelMatch);
+        preg_match_all(self::GROUP_KEY, $contents, $groupMatches);
+        $groups = $groupMatches[1] ?? [];
 
-        $group = $groupMatch[1] ?? 'none';
-
-        if (
-            str_contains($group, 'github.sha')
-            || str_contains($group, 'github.event.pull_request.head.sha')
-        ) {
-            return [];
+        if ($groups === []) {
+            return self::noGroupFailures($workflow, $contents);
         }
+
+        preg_match(self::CANCEL_KEY, $contents, $cancelMatch);
 
         $cancels = self::CANCELLING[$cancelMatch[1] ?? ''] ?? false;
 
         $failures = [];
 
-        if ($cancels) {
-            $failures[] = \sprintf(
-                '%s cancels in progress but its concurrency group is not keyed on the commit sha (found: %s).',
-                $workflow,
-                $group,
-            );
-        }
+        foreach ($groups as $group) {
+            if (
+                str_contains($group, 'github.sha')
+                || str_contains($group, 'github.event.pull_request.head.sha')
+            ) {
+                continue;
+            }
 
-        if ($workflow === self::AGGREGATOR) {
-            $failures[] = \sprintf(
-                '%s must key its concurrency group on the commit sha, not the branch (found: %s).',
-                $workflow,
-                $group,
-            );
+            if ($cancels) {
+                $failures[] = \sprintf(
+                    '%s cancels in progress but its concurrency group is not keyed on the commit sha (found: %s).',
+                    $workflow,
+                    $group,
+                );
+            }
+
+            if ($workflow === self::AGGREGATOR) {
+                $failures[] = \sprintf(
+                    '%s must key its concurrency group on the commit sha, not the branch (found: %s).',
+                    $workflow,
+                    $group,
+                );
+            }
         }
 
         return $failures;
+    }
+
+    /**
+     * The no-group verdict: a workflow that triggers itself declares no
+     * concurrency at all -- the blind spot the gate's own scope closes.
+     * The reusable `workflow_call` shape never triggers itself; its
+     * caller owns the group, so the file that only answers calls stays
+     * exempt.
+     *
+     * @return list<string>
+     */
+    private static function noGroupFailures(string $workflow, string $contents): array
+    {
+        if (preg_match(self::REUSABLE_TRIGGER_KEY, $contents) === 1) {
+            return [];
+        }
+
+        return [
+            \sprintf(
+                '%s declares no concurrency group at all -- every workflow that triggers itself must key one '
+                . '(a reusable workflow_call file is exempt: its caller owns the group).',
+                $workflow,
+            ),
+        ];
     }
 }
