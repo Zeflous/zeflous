@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-21 · `main` @ `ac481f4`
+**Last updated:** 2026-10-21 · `feat/router-runtime-facade` (PR branch; not yet merged)
 
 ---
 
@@ -38,7 +38,7 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Core engine, advanced routing, performance, DX, ecosystem | ⬜ Not started | No router code yet. |
+| Core engine, advanced routing, performance, DX, ecosystem | 🟡 Partial | Public facade `src/Zef/Framework/Router/Router.php` composes `RouteDsl` and the memoised `Config/Routing/RoutingRuntime`; facade contract covered by `tests/Router/RouterTest.php`. Host-aware routing, PSR-7 adaptation, middleware execution, observability and tooling remain open. |
 
 ## Configuration System + DSL + Radix Tree
 
