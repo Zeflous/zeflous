@@ -37,7 +37,7 @@ final readonly class RouteUrlGenerator
     public function generate(string $name, array $params): string
     {
         $route = $this->radixTree->route($name);
-        $hostParameters = RouteHost::parameterNames($route->host() ?? '');
+        $hostParameters = RouteHostParameters::parameterNames($route->host() ?? '');
         $pathParameters = array_diff_key($params, array_fill_keys($hostParameters, true));
         $rendered = RouteUrlSegments::render($route, $pathParameters);
 
@@ -65,9 +65,9 @@ final readonly class RouteUrlGenerator
             throw new ConfigException(\sprintf('The route "%s" has no host pattern for absolute URL generation.', $name));
         }
 
-        $hostParameters = RouteHost::parameterNames($hostPattern);
+        $hostParameters = RouteHostParameters::parameterNames($hostPattern);
         $hostValues = array_intersect_key($params, array_fill_keys($hostParameters, true));
-        $host = RouteHost::render($hostPattern, $hostValues);
+        $host = RouteHostRendering::render($hostPattern, $hostValues);
         $pathValues = array_diff_key($params, array_fill_keys($hostParameters, true));
         $path = '/' . implode('/', RouteUrlSegments::render($route, $pathValues));
 

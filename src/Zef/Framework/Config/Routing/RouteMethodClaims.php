@@ -15,7 +15,8 @@ use Zef\Framework\Config\ConfigException;
  * `POST /photos` are different resources), but a method claimed twice
  * on the same pattern would own the same tree position with the same
  * method: an ambiguity, not a merge, refused here with the method and
- * the first claimant in the message.
+ * the first claimant in the message. The parameterised-host side of the
+ * same ambiguity question lives in {@see RouteHostClaims}.
  *
  * @internal
  */
@@ -29,10 +30,12 @@ final class RouteMethodClaims
      */
     private array $claims = [];
 
-    /**
-     * @var array<string, array<string, list<array{host: string, pattern: string}>>>
-     */
-    private array $parameterHostClaims = [];
+    private RouteHostClaims $hostClaims;
+
+    public function __construct()
+    {
+        $this->hostClaims = new RouteHostClaims();
+    }
 
     /**
      * Claims the route's methods on its canonical pattern.
@@ -48,25 +51,7 @@ final class RouteMethodClaims
 
         foreach ($compiledRoute->methods() as $method) {
             if ($host !== null) {
-                foreach ($this->parameterHostClaims[$hostClaimScope][$method] ?? [] as $claim) {
-                    if (
-                        $host !== $claim['host']
-                        && RouteHost::overlaps($host, $claim['host'])
-                        && RouteHost::specificity($host) === RouteHost::specificity($claim['host'])
-                    ) {
-                        throw new ConfigException(
-                            \sprintf(
-                                'The route host pattern "%s" overlaps "%s" at equal specificity for method "%s" and path "%s".',
-                                $host,
-                                $claim['host'],
-                                $method,
-                                $pattern,
-                            ),
-                        );
-                    }
-                }
-
-                $this->parameterHostClaims[$hostClaimScope][$method][] = ['host' => $host, 'pattern' => $pattern];
+                $this->hostClaims->claim($hostClaimScope, $method, $host, $pattern);
             }
 
             $registeredBy = $this->claims[$canonical][$method] ?? null;

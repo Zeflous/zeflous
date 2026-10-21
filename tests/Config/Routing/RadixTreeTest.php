@@ -14,7 +14,9 @@ use Zef\Framework\Config\Routing\PrefixConsumption;
 use Zef\Framework\Config\Routing\RadixNode;
 use Zef\Framework\Config\Routing\RadixTree;
 use Zef\Framework\Config\Routing\RouteAcceptNegotiator;
-use Zef\Framework\Config\Routing\RouteHost;
+use Zef\Framework\Config\Routing\RouteHostGrammar;
+use Zef\Framework\Config\Routing\RouteHostParameters;
+use Zef\Framework\Config\Routing\RouteHostPrecedence;
 use Zef\Framework\Config\Routing\RouteMatcher;
 use Zef\Framework\Config\Routing\RouteMethodAnswer;
 use Zef\Framework\Config\Routing\RouteMethodClaims;
@@ -51,7 +53,9 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(LeafRoute::class)]
 #[CoversClass(MatchResult::class)]
 #[CoversClass(CompiledRoute::class)]
-#[CoversClass(RouteHost::class)]
+#[CoversClass(RouteHostGrammar::class)]
+#[CoversClass(RouteHostParameters::class)]
+#[CoversClass(RouteHostPrecedence::class)]
 #[CoversClass(RouteVersion::class)]
 #[CoversClass(RouteAcceptNegotiator::class)]
 final class RadixTreeTest extends TestCase

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Config\Routing;
 
-use Zef\Framework\Config\ConfigException;
-
 /**
  * One route entry, validated and normalised for the radix tree engine.
  *
@@ -55,30 +53,12 @@ final readonly class CompiledRoute
     {
         $entry = RouteEntryShape::fields($route);
         $routePath = RoutePath::parse($entry['path']);
-        $host = $entry['host'] === null ? null : RouteHost::canonical($entry['host']);
-        $collisions = $host === null
-            ? []
-            : array_intersect($routePath->parameterNames(), RouteHost::parameterNames($host));
-
-        if ($collisions !== []) {
-            throw new ConfigException(
-                \sprintf('The route host and path must not repeat parameter name(s): %s.', implode(', ', $collisions)),
-            );
-        }
+        $host = RouteHostBinding::declared($entry['host'], $routePath);
 
         return new self(
             $routePath,
             RouteConstraints::fromMap($entry['constraints'], $routePath),
-            [
-                'host' => $host,
-                'version' => $entry['version'] === null ? null : RouteVersion::canonical($entry['version']),
-                'produces' => RouteAcceptNegotiator::normalizeProduces($entry['produces']),
-                'method' => self::normalizedMethods($entry['method']),
-                'handler' => $entry['handler'],
-                'name' => $entry['name'],
-                'middleware' => $entry['middleware'],
-                'meta' => $entry['meta'],
-            ],
+            RouteFields::fromEntry($entry, $host),
         );
     }
 
@@ -110,7 +90,7 @@ final readonly class CompiledRoute
             return [];
         }
 
-        return RouteHost::parameters($this->fields['host'], RouteHost::request($host));
+        return RouteHostParameters::parameters($this->fields['host'], RouteHostRequest::canonicalise($host));
     }
 
     /**
@@ -212,34 +192,5 @@ final readonly class CompiledRoute
         }
 
         return true;
-    }
-
-    /**
-     * Upper-cases, de-duplicates and sorts a method list; `sort()`
-     * re-indexes the map into a list, so the returned methods are keyed 0..n.
-     *
-     * @param list<string> $methods
-     *
-     * @return list<string>
-     */
-    private static function normalizedMethods(array $methods): array
-    {
-        $upperCased = [];
-
-        foreach ($methods as $method) {
-            $upper = mb_strtoupper($method);
-
-            if (isset($upperCased[$upper])) {
-                throw new ConfigException(
-                    \sprintf('The route entry field "method" must not repeat the method "%s".', $upper),
-                );
-            }
-
-            $upperCased[$upper] = $upper;
-        }
-
-        sort($upperCased, \SORT_STRING);
-
-        return $upperCased;
     }
 }

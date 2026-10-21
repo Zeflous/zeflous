@@ -21,7 +21,10 @@ use Zef\Framework\Router\Router;
  *
  * The global middleware pipeline wraps this handler. Route middleware is then
  * composed inside it in the order stored on the matched route, and the terminal
- * handler executes the already-computed match through RouteDispatcher.
+ * handler executes the already-computed match through RouteDispatchHandler.
+ * The request-to-match face lives in {@see RouterRequestMatcher} (with
+ * {@see ServerRequestMetadata}), and conditional GET/HEAD semantics live in
+ * {@see ConditionalRequests}.
  *
  * @api
  */
@@ -29,46 +32,26 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
 {
     private RouteDispatcher $routeDispatcher;
 
+    private RouterRequestMatcher $requestMatcher;
+
+    private ConditionalRequests $conditionalRequests;
+
     public function __construct(
-        private Router $router,
+        Router $router,
         private Container $container,
         private ResponseFactoryInterface $responseFactory,
         private StreamFactoryInterface $streamFactory,
     ) {
-        $this->routeDispatcher = $this->router->dispatcher($this->container);
+        $this->routeDispatcher = $router->dispatcher($this->container);
+        $this->requestMatcher = new RouterRequestMatcher($router);
+        $this->conditionalRequests = new ConditionalRequests($this->streamFactory);
     }
 
     #[Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $method = mb_strtoupper($request->getMethod());
-        $match = $this->router->match(
-            $request->getMethod(),
-            $this->requestPath($request),
-            $this->requestHost($request),
-            $request->getHeaderLine('Accept'),
-            $request->getHeaderLine('Accept-Version') !== ''
-                ? $request->getHeaderLine('Accept-Version')
-                : $request->getHeaderLine('X-API-Version'),
-        );
-
-        // HEAD uses an explicit HEAD route when present; otherwise it may
-        // reuse GET metadata and handler semantics for the same resource.
-        if (
-            $method === 'HEAD'
-            && $match->isMethodNotAllowed()
-            && \in_array('GET', $match->allowedMethods(), true)
-        ) {
-            $match = $this->router->match(
-                'GET',
-                $this->requestPath($request),
-                $this->requestHost($request),
-                $request->getHeaderLine('Accept'),
-                $request->getHeaderLine('Accept-Version') !== ''
-                    ? $request->getHeaderLine('Accept-Version')
-                    : $request->getHeaderLine('X-API-Version'),
-            );
-        }
+        $metadata = ServerRequestMetadata::fromRequest($request);
+        $match = $this->requestMatcher->match($metadata);
 
         $stack = [];
         if ($match->isFound()) {
@@ -94,9 +77,9 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         );
 
         $response = new MiddlewarePipeline($stack, $routeDispatchHandler)->handle($request);
-        $response = $this->applyConditionalRequest($request, $response, $method);
+        $response = $this->conditionalRequests->apply($request, $response, $metadata->method);
 
-        if ($method !== 'HEAD' && $response->getStatusCode() !== 304) {
+        if ($metadata->method !== 'HEAD' && $response->getStatusCode() !== 304) {
             return $response;
         }
 
@@ -106,100 +89,5 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         }
 
         return $message;
-    }
-
-    /**
-     * Applies conditional GET/HEAD semantics to a successful representation.
-     *
-     * If-None-Match takes precedence over If-Modified-Since as required by HTTP.
-     */
-    private function applyConditionalRequest(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        string $method,
-    ): ResponseInterface {
-        if (!\in_array($method, ['GET', 'HEAD'], true) || $response->getStatusCode() !== 200) {
-            return $response;
-        }
-
-        if ($request->hasHeader('If-None-Match')) {
-            $condition = mb_trim($request->getHeaderLine('If-None-Match'));
-            if ($condition === '*') {
-                return $this->notModified($response);
-            }
-
-            $currentTag = mb_trim($response->getHeaderLine('ETag'));
-            if ($currentTag === '') {
-                return $response;
-            }
-
-            $currentOpaqueTag = preg_replace('/\AW\//i', '', $currentTag);
-            preg_match_all('/(?:W\/)?"[^"]*"|\*/i', $condition, $matches);
-            foreach ($matches[0] as $candidate) {
-                if ($candidate === '*') {
-                    return $this->notModified($response);
-                }
-
-                $candidateOpaqueTag = preg_replace('/\AW\//i', '', $candidate);
-                if ($candidateOpaqueTag === $currentOpaqueTag) {
-                    return $this->notModified($response);
-                }
-            }
-
-            return $response;
-        }
-
-        if (!$request->hasHeader('If-Modified-Since')) {
-            return $response;
-        }
-
-        $lastModified = strtotime($response->getHeaderLine('Last-Modified'));
-        $ifModifiedSince = strtotime($request->getHeaderLine('If-Modified-Since'));
-        if ($lastModified !== false && $ifModifiedSince !== false && $lastModified <= $ifModifiedSince) {
-            return $this->notModified($response);
-        }
-
-        return $response;
-    }
-
-    private function notModified(ResponseInterface $response): ResponseInterface
-    {
-        $message = $response->withStatus(304)->withBody($this->streamFactory->createStream(''));
-        if (!$message instanceof ResponseInterface) {
-            throw new UnexpectedValueException('The conditional response operation did not return a ResponseInterface.');
-        }
-
-        return $message;
-    }
-
-    private function requestPath(ServerRequestInterface $request): string
-    {
-        $path = $request->getUri()->getPath();
-
-        if ($path === '') {
-            return '/';
-        }
-
-        return str_starts_with($path, '/') ? $path : '/' . $path;
-    }
-
-    private function requestHost(ServerRequestInterface $request): ?string
-    {
-        if (!$request->hasHeader('Host')) {
-            $uriHost = $request->getUri()->getHost();
-
-            return $uriHost === '' ? null : $uriHost;
-        }
-
-        $authority = mb_trim($request->getHeaderLine('Host'));
-        if (preg_match('/\A([^:]+)(?::([0-9]{1,5}))?\z/D', $authority, $matches) !== 1) {
-            return null;
-        }
-
-        if (isset($matches[2]) && ((int) $matches[2] < 1 || (int) $matches[2] > 65535)) {
-            return null;
-        }
-
-        return $matches[1];
     }
 }

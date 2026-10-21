@@ -89,7 +89,10 @@ final readonly class RadixTree
     }
 
     /**
-     * Matches a request method, path and optional exact host against the tree.
+     * Matches a request method, path and optional exact host against the tree:
+     * the path walk settles candidates, {@see RouteHostSelection} picks the
+     * highest-precedence host bucket, {@see RouteVersionSelection} narrows by
+     * API version, and {@see RouteMethodAnswer} judges the method.
      */
     public function match(string $method, string $path, ?string $host = null, ?string $accept = null, ?string $version = null): MatchResult
     {
@@ -100,79 +103,14 @@ final readonly class RadixTree
             return MatchResult::notFound();
         }
 
-        $requestHost = RouteHost::request($host);
-        $exactHostRoutes = [];
-        $hostPatternRoutes = [];
-        $hostPatternSpecificity = -1;
-        $hostAgnosticRoutes = [];
-
-        foreach ($routes as $route) {
-            $routeHost = $route->host();
-            if ($routeHost === null) {
-                $hostAgnosticRoutes[] = $route;
-
-                continue;
-            }
-
-            $hostParameters = $route->hostParameters($requestHost);
-            if ($hostParameters === null) {
-                continue;
-            }
-
-            if ($hostParameters === []) {
-                $exactHostRoutes[] = $route;
-
-                continue;
-            }
-
-            $specificity = RouteHost::specificity($routeHost);
-            if ($specificity > $hostPatternSpecificity) {
-                $hostPatternRoutes = [$route];
-                $hostPatternSpecificity = $specificity;
-            } elseif ($specificity === $hostPatternSpecificity) {
-                $hostPatternRoutes[] = $route;
-            }
-        }
-
-        // Exact hosts outrank parameterised host patterns, which outrank the
-        // host-agnostic fallback. A method mismatch at the selected host
-        // specificity remains 405 rather than falling through.
-        $routes = $exactHostRoutes !== []
-            ? $exactHostRoutes
-            : ($hostPatternRoutes !== [] ? $hostPatternRoutes : $hostAgnosticRoutes);
+        $requestHost = RouteHostRequest::canonicalise($host);
+        $routes = RouteHostSelection::select($routes, $requestHost);
 
         if ($routes === []) {
             return MatchResult::notFound();
         }
 
-        $versionedRoutes = array_values(array_filter(
-            $routes,
-            static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() !== null,
-        ));
-
-        if ($versionedRoutes !== []) {
-            if ($version === null || mb_trim($version) === '') {
-                $routes = array_values(array_filter(
-                    $routes,
-                    static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() === null,
-                ));
-            } else {
-                $requestVersion = RouteVersion::request($version);
-                if ($requestVersion === null) {
-                    return MatchResult::notFound();
-                }
-
-                $routes = array_values(array_filter(
-                    $versionedRoutes,
-                    static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() === $requestVersion,
-                ));
-            }
-        } else {
-            $routes = array_values(array_filter(
-                $routes,
-                static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() === null,
-            ));
-        }
+        $routes = RouteVersionSelection::select($routes, $version);
 
         if ($routes === []) {
             return MatchResult::notFound();
