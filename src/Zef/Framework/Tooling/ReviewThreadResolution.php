@@ -19,16 +19,18 @@ final readonly class ReviewThreadResolution
         public int $total,
         public int $resolved,
         public int $failed,
+        public int $unusable = 0,
     ) {
     }
 
     public function message(): string
     {
         return \sprintf(
-            'Review threads: %d total, %d finished conversation(s) resolved, %d failed.',
+            'Review threads: %d total, %d finished conversation(s) resolved, %d failed, %d unusable.',
             $this->total,
             $this->resolved,
             $this->failed,
+            $this->unusable,
         );
     }
 }

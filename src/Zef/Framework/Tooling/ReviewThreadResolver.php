@@ -73,7 +73,7 @@ final readonly class ReviewThreadResolver
 
     public function resolve(int $pullRequestNumber): ReviewThreadResolution
     {
-        $report = new ReviewThreadReport($this->threads($pullRequestNumber));
+        $report = $this->report($pullRequestNumber);
 
         $resolved = 0;
         $failed = 0;
@@ -88,19 +88,24 @@ final readonly class ReviewThreadResolver
             }
         }
 
-        return new ReviewThreadResolution($report->count(), $resolved, $failed);
+        // The unusable nodes ride the failure total: a thread the sweep
+        // cannot account for still counts as unresolved for the required
+        // check, so the sweep's answer names it instead of reporting a
+        // clean zero over an unaccounted thread.
+        return new ReviewThreadResolution($report->count(), $resolved, $failed, $report->unusable);
     }
 
     /**
      * The pull request's review threads, every page of them: the walk
      * starts at the first page (a null cursor) and follows the page's
-     * own `endCursor` until `hasNextPage` answers false.
-     *
-     * @return list<ReviewThread>
+     * own `endCursor` until `hasNextPage` answers false -- each page's
+     * parsed report folding into one, threads and unusable nodes alike
+     * (the sweep's answer accounts for every node the pages carried).
      */
-    private function threads(int $pullRequestNumber): array
+    private function report(int $pullRequestNumber): ReviewThreadReport
     {
         $threads = [];
+        $unusable = 0;
         $cursor = null;
 
         do {
@@ -110,14 +115,14 @@ final readonly class ReviewThreadResolver
             );
 
             $page = new ReviewThreadPageInfo($payload)->page();
+            $parsed = new ReviewThreadPayload($payload)->report();
 
-            foreach (new ReviewThreadPayload($payload)->report()->threads as $thread) {
-                $threads[] = $thread;
-            }
+            $threads = [...$threads, ...$parsed->threads];
+            $unusable += $parsed->unusable;
 
             $cursor = $page['endCursor'];
         } while ($page['hasNextPage']);
 
-        return $threads;
+        return new ReviewThreadReport($threads, $unusable);
     }
 }
