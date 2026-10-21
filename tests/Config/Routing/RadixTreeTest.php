@@ -115,12 +115,18 @@ final class RadixTreeTest extends TestCase
 
     public function testRejectsInvalidDeclaredApiVersionAtCompilation(): void
     {
-        $this->expectException(ConfigException::class);
-        $this->expectExceptionMessageIsOrContains('must start with an alphanumeric character');
-
-        RadixTree::compile([
-            ['path' => '/api', 'method' => ['GET'], 'handler' => 'Api@show', 'version' => '../v1'],
-        ]);
+        try {
+            RadixTree::compile([
+                ['path' => '/api', 'method' => ['GET'], 'handler' => 'Api@show', 'version' => '../v1'],
+            ]);
+            self::fail('An invalid declared API version must fail at compile time.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The route version "../v1" must start with an alphanumeric character and contain '
+                . 'at most 32 letters, digits, dots, underscores or hyphens.',
+                $configException->getMessage(),
+            );
+        }
     }
 
     public function testNegotiatesAcceptAgainstRouteProducedMediaTypes(): void
@@ -390,17 +396,23 @@ final class RadixTreeTest extends TestCase
 
     public function testRejectsAnInvalidExactRouteHostDuringCompilation(): void
     {
-        $this->expectException(ConfigException::class);
-        $this->expectExceptionMessageIsOrContains('must be an exact DNS hostname without a port or wildcard');
-
-        RadixTree::compile([
-            [
-                'path' => '/dashboard',
-                'host' => '*.example.com',
-                'method' => ['GET'],
-                'handler' => 'Admin@dashboard',
-            ],
-        ]);
+        try {
+            RadixTree::compile([
+                [
+                    'path' => '/dashboard',
+                    'host' => '*.example.com',
+                    'method' => ['GET'],
+                    'handler' => 'Admin@dashboard',
+                ],
+            ]);
+            self::fail('An invalid exact route host must fail at compile time.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The route host "*.example.com" must be an exact DNS hostname without a port or wildcard, '
+                . 'or use whole-label parameters.',
+                $configException->getMessage(),
+            );
+        }
     }
 
     public function testRejectsAHostThatExceedsTheMaximumHostLength(): void
