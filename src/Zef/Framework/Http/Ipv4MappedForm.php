@@ -46,13 +46,23 @@ final class Ipv4MappedForm
             return $binary;
         }
 
-        /** @var array{head: string, embedded: string}|false $folded */
+        return self::folded($binary);
+    }
+
+    /**
+     * The mapped packing's embedded IPv4 bytes -- or the packing
+     * itself when the fold cannot read it (a sixteen-byte string is
+     * always foldable in practice; the guard keeps the contract
+     * honest).
+     */
+    private static function folded(string $binary): string
+    {
         $folded = unpack('a12head/a4embedded', $binary);
 
-        if ($folded === false) {
-            return $binary;
+        if (\is_array($folded) && isset($folded['embedded']) && \is_string($folded['embedded'])) {
+            return $folded['embedded'];
         }
 
-        return $folded['embedded'];
+        return $binary;
     }
 }

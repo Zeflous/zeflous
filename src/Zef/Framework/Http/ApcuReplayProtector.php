@@ -78,6 +78,16 @@ final class ApcuReplayProtector implements ReplayProtectorInterface
         // never silently shortened.
         $ttl = max(1, intdiv($this->windowMs + 999, 1000));
 
+        return $this->sightVerdict($key, $nowMs, $ttl);
+    }
+
+    /**
+     * The sight verdict: the first sighting accepts, a remembered one
+     * duplicates, and a store that cannot remember answers honestly
+     * unavailable -- never a silent fail-open.
+     */
+    private function sightVerdict(string $key, int $nowMs, int $ttl): ReplayDecision
+    {
         if ($this->store->claimSight($key, $nowMs, $ttl)) {
             return ReplayDecision::ACCEPT;
         }

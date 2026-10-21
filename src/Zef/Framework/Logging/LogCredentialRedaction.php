@@ -27,14 +27,20 @@ namespace Zef\Framework\Logging;
 final class LogCredentialRedaction
 {
     /**
+     * The replacement a redacted pair answers: the pair's own key and
+     * separator kept, the credential itself never crossing.
+     */
+    private const string PAIR_REDACTED = '$1$2[REDACTED]';
+
+    /**
      * Redacts the credential-bearing shapes from a free-form string.
      */
     public static function redact(string $value): string
     {
         $authorizationHeader = self::carry(
             preg_replace(
-                '/\b(authorization)\b(\s*[=:]\s*)[!#$%&\'*+.^_`|~0-9A-Za-z-]+\s+[^\r\n]*/i',
-                '$1$2[REDACTED]',
+                '/\b(authorization)\b(\s*[=:]\s*)[!#$%&\'*+.^_`|~0-9a-z-]+\s+[^\r\n]*/i',
+                self::PAIR_REDACTED,
                 $value,
             ),
             $value,
@@ -42,14 +48,14 @@ final class LogCredentialRedaction
         $authorizationProse = self::carry(
             preg_replace(
                 '/\b(authorization)\b(\s+)(?:Bearer|Basic)\s+[^\r\n]*/i',
-                '$1$2[REDACTED]',
+                self::PAIR_REDACTED,
                 $authorizationHeader,
             ),
             $value,
         );
         $bearerShape = self::carry(
             preg_replace(
-                '/\b(Bearer|Basic)\s+[A-Za-z0-9._~+\/=-]{8,}/i',
+                '/\b(Bearer|Basic)\s+[a-z0-9._~+\/=-]{8,}/i',
                 '$1 [REDACTED]',
                 $authorizationProse,
             ),
@@ -58,7 +64,7 @@ final class LogCredentialRedaction
         $redacted = preg_replace(
             '/\b(password|passwd|token|secret|api[_-]?key|phpsessid|session[_-]?id|sid)\b'
             . '(\s*[=:]\s*|\s+)(["\']?)[^\s"\']{4,}/i',
-            '$1$2[REDACTED]',
+            self::PAIR_REDACTED,
             $bearerShape,
         );
 

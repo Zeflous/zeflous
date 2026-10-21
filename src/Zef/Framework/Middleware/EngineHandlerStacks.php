@@ -33,8 +33,11 @@ final class EngineHandlerStacks
         $currentError = set_error_handler($errorProbe);
         restore_error_handler();
 
-        $exceptionProbe = static function (): void {
-        };
+        // The throwaway never runs: it exists only so the engine can be
+        // asked for the handler its push would replace -- pushed and
+        // popped immediately after. Its one statement is the honest
+        // rethrow a probe that somehow ran would owe.
+        $exceptionProbe = static fn (Throwable $throwable): never => throw $throwable;
 
         $currentException = set_exception_handler($exceptionProbe);
         restore_exception_handler();

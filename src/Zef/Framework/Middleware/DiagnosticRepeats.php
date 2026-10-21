@@ -55,11 +55,11 @@ final class DiagnosticRepeats
         $signature = $level . "\0" . $file . "\0" . $line . "\0" . $message;
 
         if (!\array_key_exists($signature, $this->suppressed)) {
-            if (\count($this->suppressed) >= self::MAX_SIGNATURES) {
-                return $message;
+            // A full ledger still answers the first occurrence verbatim
+            // -- it just stops remembering it.
+            if (\count($this->suppressed) < self::MAX_SIGNATURES) {
+                $this->suppressed[$signature] = 0;
             }
-
-            $this->suppressed[$signature] = 0;
 
             return $message;
         }

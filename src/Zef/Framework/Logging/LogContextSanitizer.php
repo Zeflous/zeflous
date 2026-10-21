@@ -98,7 +98,7 @@ final class LogContextSanitizer
             $value instanceof Throwable => LogThrowableFold::fold($value),
             \is_string($value) => self::redact(mb_substr($value, 0, self::MESSAGE_BOUND)),
             \is_float($value) => NonFiniteFloat::spelling($value),
-            \is_scalar($value), null === $value => $value,
+            \is_scalar($value), $value === null => $value,
             \is_array($value) => self::sanitize($value, $depth + 1),
             default => '[' . get_debug_type($value) . ']',
         };
