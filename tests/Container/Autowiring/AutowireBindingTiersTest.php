@@ -16,6 +16,7 @@ use Zef\Framework\Container\Autowiring\ReflectionMetadataExtractor;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\ParameterValues;
+use Zef\Framework\Container\ServiceDefinition;
 use Zef\Test\Support\Container\Aot\Window;
 use Zef\Test\Support\Container\Autowiring\LoggerInterface;
 use Zef\Test\Support\Container\Autowiring\ParameterlessHouse;
@@ -32,7 +33,13 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testTheValueAddressAnswersItsSyntheticServiceReference(): void
     {
-        $spec = new AutowireParameterSpec(name: 'tone', isVariadic: false, isOptional: true, hasDefault: false, valueKey: 'app.tone');
+        $spec = new AutowireParameterSpec(
+            name: 'tone',
+            isVariadic: false,
+            isOptional: true,
+            hasDefault: false,
+            valueKey: 'app.tone',
+        );
         $references = $this->references([], new ParameterValues(['app.tone' => 'calm']));
 
         $stretch = AutowireBindingTiers::stretch('app.house', $spec, $references);
@@ -45,7 +52,13 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testADeclaredTypeAnswersItsServiceReference(): void
     {
-        $spec = new AutowireParameterSpec(name: 'window', isVariadic: false, isOptional: false, hasDefault: false, className: Window::class);
+        $spec = new AutowireParameterSpec(
+            name: 'window',
+            isVariadic: false,
+            isOptional: false,
+            hasDefault: false,
+            className: Window::class,
+        );
         $references = $this->references([new InstanceDefinition(Window::class, Window::class, [])]);
 
         $stretch = AutowireBindingTiers::stretch('app.house', $spec, $references);
@@ -58,7 +71,13 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testABirthableClassAnswersItsOwnReference(): void
     {
-        $spec = new AutowireParameterSpec(name: 'wing', isVariadic: false, isOptional: false, hasDefault: false, className: ParameterlessHouse::class);
+        $spec = new AutowireParameterSpec(
+            name: 'wing',
+            isVariadic: false,
+            isOptional: false,
+            hasDefault: false,
+            className: ParameterlessHouse::class,
+        );
         $references = $this->references();
 
         $stretch = AutowireBindingTiers::stretch('app.house', $spec, $references);
@@ -94,7 +113,13 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testADefaultedParameterWithoutABindingAnswersItsOwnDefault(): void
     {
-        $spec = new AutowireParameterSpec(name: 'count', isVariadic: false, isOptional: true, hasDefault: true, defaultValue: 4);
+        $spec = new AutowireParameterSpec(
+            name: 'count',
+            isVariadic: false,
+            isOptional: true,
+            hasDefault: true,
+            defaultValue: 4,
+        );
         $references = $this->references();
 
         $stretch = AutowireBindingTiers::stretch('app.house', $spec, $references);
@@ -137,7 +162,13 @@ final class AutowireBindingTiersTest extends TestCase
      */
     public function testAnUnboundInterfaceRefuses(): void
     {
-        $spec = new AutowireParameterSpec(name: 'logger', isVariadic: false, isOptional: false, hasDefault: false, className: LoggerInterface::class);
+        $spec = new AutowireParameterSpec(
+            name: 'logger',
+            isVariadic: false,
+            isOptional: false,
+            hasDefault: false,
+            className: LoggerInterface::class,
+        );
         $references = $this->references();
 
         try {
@@ -152,7 +183,7 @@ final class AutowireBindingTiersTest extends TestCase
     }
 
     /**
-     * @param list<\Zef\Framework\Container\ServiceDefinition> $definitions the declared set
+     * @param list<ServiceDefinition> $definitions the declared set
      */
     private function references(array $definitions = [], ?ParameterValues $parameterValues = null): AutowireReferences
     {

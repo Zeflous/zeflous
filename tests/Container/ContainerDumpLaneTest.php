@@ -39,9 +39,11 @@ final class ContainerDumpLaneTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        if (is_file($this->file)) {
-            unlink($this->file);
+        if (!is_file($this->file)) {
+            return;
         }
+
+        unlink($this->file);
     }
 
     /**

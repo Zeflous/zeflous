@@ -20,8 +20,14 @@ final class LogCredentialRedactionTest extends TestCase
      */
     public function testAnAuthorizationPairLosesItsCredential(): void
     {
-        self::assertSame('authorization: [REDACTED]', LogCredentialRedaction::redact('authorization: Mutual 9f86d081884c7d65'));
-        self::assertSame('Authorization=[REDACTED]', LogCredentialRedaction::redact('Authorization=Digest username="u"'));
+        self::assertSame(
+            'authorization: [REDACTED]',
+            LogCredentialRedaction::redact('authorization: Mutual 9f86d081884c7d65'),
+        );
+        self::assertSame(
+            'Authorization=[REDACTED]',
+            LogCredentialRedaction::redact('Authorization=Digest username="u"'),
+        );
     }
 
     /**
@@ -29,7 +35,10 @@ final class LogCredentialRedactionTest extends TestCase
      */
     public function testTheAuthorizationSchemesInProseLoseTheirCredential(): void
     {
-        self::assertSame('authorization [REDACTED]', LogCredentialRedaction::redact('authorization Bearer abc123def45'));
+        self::assertSame(
+            'authorization [REDACTED]',
+            LogCredentialRedaction::redact('authorization Bearer abc123def45'),
+        );
     }
 
     /**
@@ -48,7 +57,10 @@ final class LogCredentialRedactionTest extends TestCase
     public function testTheVocabularyPairsLoseTheirValues(): void
     {
         self::assertSame('password=[REDACTED]', LogCredentialRedaction::redact('password=hunter2000'));
-        self::assertSame('the api_key=[REDACTED] rode', LogCredentialRedaction::redact('the api_key=sk-live-991177 rode'));
+        self::assertSame(
+            'the api_key=[REDACTED] rode',
+            LogCredentialRedaction::redact('the api_key=sk-live-991177 rode'),
+        );
     }
 
     /**
