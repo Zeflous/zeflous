@@ -53,6 +53,9 @@ final class ProcessErrorBoundary
 
     private bool $shutdownRegistered = false;
 
+    /** @var Closure(callable(): void): void */
+    private readonly Closure $shutdownRegistrar;
+
     private readonly ProcessNativeDiagnostics $processNativeDiagnostics;
 
     private readonly ProcessUncaughtThrowables $processUncaughtThrowables;
@@ -83,6 +86,13 @@ final class ProcessErrorBoundary
      *                                                                  last error (the shutdown arm's
      *                                                                  fatal witness); null asks the
      *                                                                  engine's own `error_get_last()`
+     * @param null|Closure(callable(): void): void   $shutdownRegistrar receives the
+     *                                                                  shutdown-observer registration;
+     *                                                                  null registers with the engine
+     *                                                                  for real -- the one arm no
+     *                                                                  restore can unwind, observed
+     *                                                                  through the same sink doctrine
+     *                                                                  the transmission lane carries
      */
     public function __construct(
         ?LoggerInterface $logger = null,
@@ -91,9 +101,11 @@ final class ProcessErrorBoundary
         ?Closure $requestSource = null,
         ?ProcessBoundaryTransmission $transmission = null,
         ?Closure $lastErrorProvider = null,
+        ?Closure $shutdownRegistrar = null,
     ) {
         $processBoundaryRecords = new ProcessBoundaryRecords($logger, $requestSource);
         $processBoundaryTransmission = $transmission ?? new ProcessBoundaryTransmission();
+        $this->shutdownRegistrar = $shutdownRegistrar ?? register_shutdown_function(...);
 
         $this->processNativeDiagnostics = new ProcessNativeDiagnostics($processBoundaryRecords);
         $this->processUncaughtThrowables = new ProcessUncaughtThrowables(
@@ -204,7 +216,7 @@ final class ProcessErrorBoundary
             return;
         }
 
-        register_shutdown_function($this->onShutdown(...));
+        ($this->shutdownRegistrar)($this->onShutdown(...));
         $this->shutdownRegistered = true;
     }
 }

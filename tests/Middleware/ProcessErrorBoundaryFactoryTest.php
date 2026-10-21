@@ -209,6 +209,31 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
         self::assertSame([], $disabledMeter->snapshot());
     }
 
+    public function testTheBuiltBoundaryDefaultsToTheClosedPosture(): void
+    {
+        $output = $this->uncaughtAnswerOutput(new Config());
+
+        self::assertStringContainsString('An error occurred', $output);
+        self::assertStringNotContainsString(
+            'The worker observed an impossible state.',
+            $output,
+            'An absent debug knob boots the closed posture.',
+        );
+    }
+
+    public function testTheMetricsFoldDefaultsToDisabled(): void
+    {
+        $counterMeter = new CounterMeter();
+
+        $this->uncaughtAnswerOutput(new Config(), $counterMeter);
+
+        self::assertSame(
+            [],
+            $counterMeter->snapshot(),
+            'An absent metrics knob leaves the counters alone.',
+        );
+    }
+
     public function testTheResolverAnswersNullWhenTheKnobStaysSilent(): void
     {
         self::assertNull(

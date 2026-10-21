@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use ReflectionFunction;
 use RuntimeException;
+use Throwable;
 use Zef\Framework\Exception\NativeErrorException;
 use Zef\Framework\Exception\ValidationException;
 use Zef\Framework\Http\ServerRequest;
@@ -98,6 +99,10 @@ final class ProcessErrorBoundaryTest extends TestCase
                 $this->activeErrorHandlerIsBoundTo($processErrorBoundary),
                 "The installed boundary must own the engine's error handler.",
             );
+            self::assertTrue(
+                $this->activeExceptionHandlerIsBoundTo($processErrorBoundary),
+                "The installed boundary must own the engine's exception handler.",
+            );
         } finally {
             $processErrorBoundary->restore();
         }
@@ -106,6 +111,31 @@ final class ProcessErrorBoundaryTest extends TestCase
         self::assertFalse(
             $this->activeErrorHandlerIsBoundTo($processErrorBoundary),
             "The restored boundary must no longer own the engine's error handler.",
+        );
+        self::assertFalse(
+            $this->activeExceptionHandlerIsBoundTo($processErrorBoundary),
+            "The restored boundary must no longer own the engine's exception handler.",
+        );
+    }
+
+    public function testTheShutdownObserverRegistersOnceAcrossReArmCycles(): void
+    {
+        $registrations = [];
+        $processErrorBoundary = $this->boundary(
+            shutdownRegistrar: static function (callable $observer) use (&$registrations): void {
+                $registrations[] = $observer;
+            },
+        );
+
+        $processErrorBoundary->install();
+        $processErrorBoundary->restore();
+        $processErrorBoundary->install();
+        $processErrorBoundary->restore();
+
+        self::assertCount(
+            1,
+            $registrations,
+            "The engine's one arm no restore can unwind registers exactly once per instance, re-armed or not.",
         );
     }
 
@@ -327,6 +357,35 @@ final class ProcessErrorBoundaryTest extends TestCase
             'A production answer must not disclose the uncaught message.',
         );
         self::assertSame([], $this->sinkLines);
+        self::assertSame(
+            '',
+            $this->routedErrorLogContents(),
+            'An answer that shipped names nothing on the SAPI log.',
+        );
+    }
+
+    public function testADefaultConstructedBoundaryStaysClosed(): void
+    {
+        $processErrorBoundary = new ProcessErrorBoundary(
+            transmission: new ProcessBoundaryTransmission(sapi: 'fpm-fcgi'),
+        );
+
+        ob_start();
+
+        try {
+            $processErrorBoundary->onUncaughtThrowable(
+                new RuntimeException('The worker observed an impossible state.'),
+            );
+        } finally {
+            $output = (string) ob_get_clean();
+        }
+
+        self::assertStringContainsString('An error occurred', $output);
+        self::assertStringNotContainsString(
+            'The worker observed an impossible state.',
+            $output,
+            'A default-constructed boundary discloses nothing: the closed posture is the default.',
+        );
     }
 
     public function testAnUncaughtTypedThrowableAnswersItsOwnStatus(): void
@@ -432,6 +491,35 @@ final class ProcessErrorBoundaryTest extends TestCase
     public function testTheShutdownArmIgnoresAMalformedLastError(): void
     {
         $this->lastError = ['type' => \E_ERROR];
+
+        $this->withAnArmedBoundary(
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+        );
+
+        self::assertSame([], $this->recordingLogger->calls);
+        self::assertSame([], $this->emitted);
+    }
+
+    public function testTheShutdownArmRefusesAFatalWithAMistypedFile(): void
+    {
+        $this->lastError = ['type' => \E_ERROR, 'message' => 'A fatal.', 'file' => 42, 'line' => 1];
+
+        $this->withAnArmedBoundary(
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+        );
+
+        self::assertSame([], $this->recordingLogger->calls);
+        self::assertSame([], $this->emitted);
+    }
+
+    public function testTheShutdownArmRefusesAFatalWithAMistypedLine(): void
+    {
+        $this->lastError = [
+            'type' => \E_ERROR,
+            'message' => 'A fatal.',
+            'file' => '/var/app/src/boot.php',
+            'line' => '1',
+        ];
 
         $this->withAnArmedBoundary(
             static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
@@ -561,6 +649,22 @@ final class ProcessErrorBoundaryTest extends TestCase
         );
     }
 
+    public function testTheSinkLineBoundsItsHeadByCharactersNotBytes(): void
+    {
+        $this->lastError = $this->fatalError(str_repeat("\u{00E9}", 200), 1);
+
+        $this->withAnArmedBoundary(
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+            sapi: 'cli',
+        );
+
+        self::assertSame(
+            ['zef: PHP fatal error: ' . str_repeat("\u{00E9}", 120)],
+            $this->sinkLines,
+            'The head bound is a character bound: a multibyte message keeps whole characters.',
+        );
+    }
+
     public function testTheSinkLineNamesAnEmptyMessageHonestly(): void
     {
         $this->boundary(sapi: 'cli')->onUncaughtThrowable(new RuntimeException("\x1b\x1b\r\n"));
@@ -664,7 +768,9 @@ final class ProcessErrorBoundaryTest extends TestCase
      * test's own state, and the request is the deterministic one the
      * arms' facts are asserted against.
      *
-     * @param null|Closure(): ServerRequestInterface $requestSource the arms' request source
+     * @param null|Closure(): ServerRequestInterface $requestSource     the arms' request source
+     * @param null|Closure(callable(): void): void   $shutdownRegistrar the shutdown-observer
+     *                                                                  registration observation
      */
     private function boundary(
         ?Closure $requestSource = null,
@@ -672,6 +778,7 @@ final class ProcessErrorBoundaryTest extends TestCase
         string $sapi = 'fpm-fcgi',
         ?CounterMeter $counterMeter = null,
         bool $debug = false,
+        ?Closure $shutdownRegistrar = null,
     ): ProcessErrorBoundary {
         return new ProcessErrorBoundary(
             $this->recordingLogger,
@@ -698,6 +805,7 @@ final class ProcessErrorBoundaryTest extends TestCase
                 $sapi,
             ),
             fn (): ?array => $this->lastError,
+            $shutdownRegistrar,
         );
     }
 
@@ -712,6 +820,26 @@ final class ProcessErrorBoundaryTest extends TestCase
     {
         $active = set_error_handler(static fn (int $severity, string $message, string $file, int $line): bool => true);
         restore_error_handler();
+
+        if (!$active instanceof Closure) {
+            return false;
+        }
+
+        $boundThis = new ReflectionFunction($active)->getClosureThis();
+
+        return $boundThis === $processErrorBoundary;
+    }
+
+    /**
+     * Whether the engine's currently active exception handler is the
+     * given boundary's own arm -- the same push-probe-pop observation the
+     * error handler answers to, over the engine's exception stack.
+     */
+    private function activeExceptionHandlerIsBoundTo(ProcessErrorBoundary $processErrorBoundary): bool
+    {
+        $active = set_exception_handler(static function (Throwable $throwable): void {
+        });
+        restore_exception_handler();
 
         if (!$active instanceof Closure) {
             return false;
