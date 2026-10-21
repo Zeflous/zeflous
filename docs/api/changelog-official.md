@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): record the error hardening battery and pin the lane [\#509](https://github.com/Zeflous/zeflous/pull/509) ([mbetixz](https://github.com/mbetixz))
+- fix\(errors\): harden the failure visibility, log bounds and CLI display [\#508](https://github.com/Zeflous/zeflous/pull/508) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the container performance and analysis CLI lane [\#505](https://github.com/Zeflous/zeflous/pull/505) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the pin-freshness resurrection [\#501](https://github.com/Zeflous/zeflous/pull/501) ([mbetixz](https://github.com/mbetixz))
 - fix\(tests\): pin the document-audit gate test to a pull-request lane [\#500](https://github.com/Zeflous/zeflous/pull/500) ([mbetixz](https://github.com/mbetixz))
