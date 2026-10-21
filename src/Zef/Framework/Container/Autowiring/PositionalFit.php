@@ -10,7 +10,8 @@ use Zef\Framework\Container\InstanceDefinition;
  * The positional shape's fit rule -- the arity verdict the compile pass
  * reads a hand-written plan against: the declared list must neither run
  * past the constructor's last parameter nor stop before its required
- * prefix.
+ * prefix. A trailing variadic parameter accepts an unbounded positional
+ * tail, so it never caps the list.
  *
  * Split from the pass so the verdict keeps its own archeology-sized
  * unit ({@see NamedFit} holds the name-keyed form's own verdict; the
@@ -25,14 +26,31 @@ final readonly class PositionalFit
      */
     public static function assert(InstanceDefinition $instanceDefinition, array $specs): void
     {
-        if (\count($instanceDefinition->arguments) > \count($specs)) {
-            throw ConstructorFitRefusals::tooManyArguments($instanceDefinition, \count($specs));
+        $capacity = self::capacity($specs);
+
+        if (\count($instanceDefinition->arguments) > $capacity) {
+            throw ConstructorFitRefusals::tooManyArguments($instanceDefinition, $capacity);
         }
 
         $beyond = \array_slice($specs, \count($instanceDefinition->arguments));
         foreach ($beyond as $autowireParameterSpec) {
             self::assertDeclared($instanceDefinition, $autowireParameterSpec);
         }
+    }
+
+    /**
+     * The number of positional arguments the parameter list accepts: a
+     * trailing variadic parameter accepts an unbounded tail --
+     * `newInstanceArgs(['a', 'b'])` over `__construct(...$notes)` is
+     * valid PHP -- and every other list accepts exactly its own length.
+     *
+     * @param list<AutowireParameterSpec> $specs
+     */
+    private static function capacity(array $specs): int
+    {
+        $last = $specs[\count($specs) - 1] ?? null;
+
+        return $last !== null && $last->isVariadic ? \PHP_INT_MAX : \count($specs);
     }
 
     /**
