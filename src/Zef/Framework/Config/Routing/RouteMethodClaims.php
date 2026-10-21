@@ -35,7 +35,7 @@ final class RouteMethodClaims
     public function claim(CompiledRoute $compiledRoute): void
     {
         $pattern = $compiledRoute->path()->pattern();
-        $canonical = $compiledRoute->path()->canonical();
+        $canonical = ($compiledRoute->host() ?? '*') . '|' . $compiledRoute->path()->canonical();
 
         foreach ($compiledRoute->methods() as $method) {
             $registeredBy = $this->claims[$canonical][$method] ?? null;
