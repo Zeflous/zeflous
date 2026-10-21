@@ -134,7 +134,11 @@ jobs:
           declare -A missing=()
           declare -A present_count=()
           while IFS=$'\t' read -r number sha; do
-            names=$(gh api "repos/${GITHUB_REPOSITORY}/commits/${sha}/check-runs?per_page=100" \
+            # --paginate walks every page: this repository's merged heads
+            # accumulate check-runs from 23 workflows plus external apps,
+            # and a capped first page would report required contexts that
+            # reported beyond it as missing on every head.
+            names=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/commits/${sha}/check-runs?per_page=100" \
               | jq -r '.check_runs[].name')
             while IFS= read -r context; do
               if printf '%s\n' "${names}" | grep -Fxq "${context}"; then
