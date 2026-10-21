@@ -104,6 +104,33 @@ final class RouterRequestHandlerTest extends TestCase
         self::assertSame('', $response->getBody()->getContents());
     }
 
+    public function testIfModifiedSinceReturnsNotModifiedWhenRepresentationIsNotNewer(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                [
+                    'Content-Type' => 'text/plain',
+                    'Last-Modified' => 'Wed, 21 Oct 2015 07:28:00 GMT',
+                ],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $request = self::request('GET', 'api.example.com', 'text/plain')
+            ->withHeader('If-Modified-Since', 'Wed, 21 Oct 2015 07:28:00 GMT');
+        $response = self::handler($router, $container)->handle($request);
+
+        self::assertSame(304, $response->getStatusCode());
+        self::assertSame('Wed, 21 Oct 2015 07:28:00 GMT', $response->getHeaderLine('Last-Modified'));
+        self::assertSame('', $response->getBody()->getContents());
+    }
+
     public function testIfNoneMatchTakesPrecedenceOverIfModifiedSince(): void
     {
         $container = new Container();
