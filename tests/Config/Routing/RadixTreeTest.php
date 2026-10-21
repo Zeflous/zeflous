@@ -21,6 +21,7 @@ use Zef\Framework\Config\Routing\RouteParameters;
 use Zef\Framework\Config\Routing\RoutePatternTokens;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
 use Zef\Framework\Config\Routing\RouteHost;
+use Zef\Framework\Config\Routing\RouteVersion;
 use Zef\Framework\Config\Routing\RouteAcceptNegotiator;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
 use Zef\Framework\Config\Routing\SegmentCapture;
@@ -51,6 +52,7 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(MatchResult::class)]
 #[CoversClass(CompiledRoute::class)]
 #[CoversClass(RouteHost::class)]
+#[CoversClass(RouteVersion::class)]
 #[CoversClass(RouteAcceptNegotiator::class)]
 final class RadixTreeTest extends TestCase
 {
@@ -65,6 +67,30 @@ final class RadixTreeTest extends TestCase
                 $invariantViolationException->getMessage(),
             );
         }
+    }
+
+    public function testSelectsVersionedRoutesFromApiVersionHeaderValues(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'ApiV1@show', 'version' => 'v1'],
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'ApiV2@show', 'version' => 'v2'],
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'ApiDefault@show'],
+        ]);
+
+        self::assertSame('ApiV1@show', $radixTree->match('GET', '/api', null, null, 'V1')->route()->handler());
+        self::assertSame('ApiV2@show', $radixTree->match('GET', '/api', null, null, 'v2')->route()->handler());
+        self::assertSame('ApiDefault@show', $radixTree->match('GET', '/api')->route()->handler());
+        self::assertFalse($radixTree->match('GET', '/api', null, null, 'v3')->isFound());
+    }
+
+    public function testRejectsInvalidDeclaredApiVersionAtCompilation(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessage('must start with an alphanumeric character');
+
+        RadixTree::compile([
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'Api@show', 'version' => '../v1'],
+        ]);
     }
 
     public function testNegotiatesAcceptAgainstRouteProducedMediaTypes(): void

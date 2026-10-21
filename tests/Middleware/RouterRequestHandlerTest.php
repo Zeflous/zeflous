@@ -75,6 +75,29 @@ final class RouterRequestHandlerTest extends TestCase
         self::assertStringContainsString('application/json', $notAcceptable->getBody()->getContents());
     }
 
+    public function testUsesAcceptVersionHeaderToSelectRouteVariant(): void
+    {
+        $container = new Container();
+        $container->set(
+            'ProfileV1@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(200, ['Content-Type' => 'text/plain'], 'v1'),
+        );
+        $container->set(
+            'ProfileV2@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(200, ['Content-Type' => 'text/plain'], 'v2'),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'ProfileV1@show', 'version' => 'v1'],
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'ProfileV2@show', 'version' => 'v2'],
+        ]);
+
+        $response = self::handler($router, $container)->handle(
+            self::request('GET', 'api.example.com', 'text/plain', '/profile', 'v2'),
+        );
+
+        self::assertSame('v2', $response->getBody()->getContents());
+    }
+
     public function testExecutesRouteMiddlewareAroundTheTerminalHandler(): void
     {
         $container = self::containerWithProfileHandler();
@@ -148,11 +171,17 @@ final class RouterRequestHandlerTest extends TestCase
         string $host,
         string $accept,
         string $path = '/profile',
+        ?string $version = null,
     ): ServerRequest {
+        $headers = ['Host' => $host, 'Accept' => $accept];
+        if ($version !== null) {
+            $headers['Accept-Version'] = $version;
+        }
+
         return new ServerRequest(
             $method,
             new Uri('https://' . explode(':', $host, 2)[0] . $path),
-            headers: ['Host' => $host, 'Accept' => $accept],
+            headers: $headers,
         );
     }
 }
