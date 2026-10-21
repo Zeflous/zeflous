@@ -49,3 +49,15 @@ from mutable external state.
 points, matching outcomes, named route lookup, reverse routing, lazy tree
 memoisation and invalid inputs. The strict repository pipeline remains the
 authoritative gate; local execution must be recorded separately from CI.
+
+
+## Conditional GET/HEAD responses
+
+The PSR-15 router adapter evaluates conditional requests after route middleware
+and handler execution. For successful (200) GET/HEAD representations, a matching
+`If-None-Match` (weak comparison, including `*`) or, when that header is absent,
+a valid `If-Modified-Since` condition produces a bodyless 304 response while
+preserving representation metadata. `If-None-Match` takes precedence over
+`If-Modified-Since`. The adapter does not generate ETags or Last-Modified
+values; application handlers or middleware remain responsible for those headers.
+The HTTP adapter tests were added, but CI validation remains pending.
