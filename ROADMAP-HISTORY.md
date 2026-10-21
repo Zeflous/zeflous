@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-21 · `main` @ `ac481f40d4`
+**Last updated:** 2026-10-21 · `main` @ `22a2560724`
 
 **How to read this file**
 
@@ -25,7 +25,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Container | 15 |
 | HTTP Layer | 25 |
 | Middleware Pipeline | 1 |
-| Error Handling | 4 |
+| Error Handling | 5 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 13 |
 | CI / Supply chain | 38 (incl. auto-merge + Sonar lanes) |
@@ -33,7 +33,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **156** |
+| **Total merged PRs** | **157** |
 
 ---
 
@@ -101,6 +101,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | feat(errors): add the typed HTTP exception family and retire the message sniffing (`CarriesHttpStatus` marker, eight family classes with payload-carrying refusals, `PayloadTooLargeException`, three-tier `ErrorStatusMap`, disclosure of typed messages through redaction, middleware split into `ErrorFaultRecorder` + `ErrorEnvelope`) | #434 | 2026-10-18 | `354de39dcb` |
 | feat(errors): harden enterprise error handling (RFC 9457 JSON/HTML boundary, validated trace/error identifiers, CSP-safe debug toolbar, hardened JSONL logging, fail-closed replay capture, guarded CLI, and regression coverage; strict CI lanes green) | #444 | 2026-10-20 | `6a883cf8b2` |
 | fix(errors): harden the failure visibility, log bounds and CLI display (the follow-up audit battery over #444's merged state: the envelope's double-failure fallback now names the construction failure's class on the SAPI log; the log context gate carries the replay sanitizer's full credential vocabulary — `passwd` and `csrf` spellings included; non-finite float context values answer their diagnostic spelling through a `NonFiniteFloat` leaf so one NAN can no longer silence the whole record; the PSR-3 message clamps at a 2048-byte `mb_strcut` bound whose three-byte edge is pinned; the CLI report strips control bytes from its display; the record writers' character-offset walk audited and retired as a documented contract) | #508 | 2026-10-21 | `ac481f40d4` |
+| feat(errors): add the process error boundary (the error system's integration lane — the composition's second error face, installed around the PHP process itself rather than around a request: the native diagnostic arm owning the engine's suppression contract and converting the abort severities into the typed `NativeErrorException` lane, the uncaught throwable arm answering RFC 9457 while a client listens or a bounded control-byte-stripped CLI sink line when the SAPI answers no client, the shutdown arm witnessing the fatal family only `error_get_last()` can see through `ProcessBoundaryFatals`' shape grammar over `DiagnosticSeverity::isFatalAtShutdown()`'s one-source mask; the boot seam installs it when the `http.error_handling.process_boundary` knob asks, the service registering under `http.errors.process_boundary` in the profile's own catalogue; redistributed into seven cohesive folds — the shell, the transmission lane, the record fold, the three arm bodies, the witness grammar — with the registrar observation seam the SapiTransmitter sink doctrine taught, the SAPI-honest metrics fold, and the double 2048 bounds retired because every reading lane owns its own) | #513 | 2026-10-21 | `22a2560724` |
 
 ## 4. Kernel & Platform
 
