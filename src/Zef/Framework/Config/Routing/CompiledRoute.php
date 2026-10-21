@@ -29,6 +29,7 @@ final readonly class CompiledRoute
 {
     /**
      * @param array{
+     *     host: ?non-empty-string,
      *     method: list<string>,
      *     handler: non-empty-string,
      *     name: ?non-empty-string,
@@ -57,6 +58,7 @@ final readonly class CompiledRoute
             $routePath,
             RouteConstraints::fromMap($entry['constraints'], $routePath),
             [
+                'host' => $entry['host'] === null ? null : RouteHost::canonical($entry['host']),
                 'method' => self::normalizedMethods($entry['method']),
                 'handler' => $entry['handler'],
                 'name' => $entry['name'],
@@ -72,6 +74,25 @@ final readonly class CompiledRoute
     public function path(): RoutePath
     {
         return $this->routePath;
+    }
+
+    /**
+     * The exact host this route answers, or null for a host-agnostic route.
+     */
+    public function host(): ?string
+    {
+        return $this->fields['host'];
+    }
+
+    /**
+     * Whether this route belongs to the supplied canonical request host.
+     *
+     * Host-agnostic routes are fallback candidates; the tree prefers an exact
+     * host candidate when one exists for the matched path.
+     */
+    public function matchesHost(?string $host): bool
+    {
+        return $this->fields['host'] === null || $this->fields['host'] === $host;
     }
 
     /**
