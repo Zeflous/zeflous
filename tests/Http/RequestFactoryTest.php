@@ -292,6 +292,10 @@ final class RequestFactoryTest extends TestCase
         yield 'out of range port' => ['example.com:65536'];
 
         yield 'empty host with port' => [':8080'];
+
+        yield 'unbracketed IPv6 literal' => ['::1'];
+
+        yield 'unbracketed mapped literal' => ['::ffff:10.0.0.1'];
     }
 
     public function testAnOverlongHostFailsClosed(): void
