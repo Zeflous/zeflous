@@ -76,6 +76,7 @@ deptrac:
       - Container
     Router:
       - Config
+      - Container
       - Exception
     # Router is an inbound facade; Config/Routing remains the engine owner.
     Health:
