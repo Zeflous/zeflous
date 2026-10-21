@@ -39,6 +39,7 @@ final readonly class DispatchOutcome
         private array $parameters,
         private mixed $result,
         private ?array $allowedMethods,
+        private ?array $acceptableMediaTypes,
     ) {
     }
 
@@ -47,12 +48,12 @@ final readonly class DispatchOutcome
      */
     public static function executed(CompiledRoute $compiledRoute, array $parameters, mixed $result): self
     {
-        return new self($compiledRoute, $parameters, $result, null);
+        return new self($compiledRoute, $parameters, $result, null, null);
     }
 
     public static function notFound(): self
     {
-        return new self(null, [], null, null);
+        return new self(null, [], null, null, null);
     }
 
     /**
@@ -60,7 +61,39 @@ final readonly class DispatchOutcome
      */
     public static function methodNotAllowed(array $allowedMethods): self
     {
-        return new self(null, [], null, $allowedMethods);
+        return new self(null, [], null, $allowedMethods, null);
+    }
+
+    /**
+     * Creates a 406 outcome without executing a handler.
+     *
+     * @param list<string> $acceptableMediaTypes
+     */
+    public static function notAcceptable(array $acceptableMediaTypes): self
+    {
+        return new self(null, [], null, null, $acceptableMediaTypes);
+    }
+
+    /**
+     * Whether content negotiation rejected every representation.
+     */
+    public function isNotAcceptable(): bool
+    {
+        return $this->acceptableMediaTypes !== null;
+    }
+
+    /**
+     * The media types the route supports.
+     *
+     * @return list<string>
+     */
+    public function acceptableMediaTypes(): array
+    {
+        if ($this->acceptableMediaTypes === null) {
+            throw new InvariantViolationException('The dispatch outcome does not hold acceptable media types.');
+        }
+
+        return $this->acceptableMediaTypes;
     }
 
     /**
