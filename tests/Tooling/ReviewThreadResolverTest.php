@@ -6,6 +6,7 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Tooling\ReviewThreadPageInfo;
 use Zef\Framework\Tooling\ReviewThreadResolver;
 use Zef\Framework\Tooling\ToolingException;
 
@@ -13,6 +14,7 @@ use Zef\Framework\Tooling\ToolingException;
  * @internal
  */
 #[CoversClass(ReviewThreadResolver::class)]
+#[CoversClass(ReviewThreadPageInfo::class)]
 final class ReviewThreadResolverTest extends TestCase
 {
     public function testResolvesOnlyFinishedConversations(): void
@@ -232,9 +234,58 @@ final class ReviewThreadResolverTest extends TestCase
     }
 
     /**
-     * @param list<array<string, mixed>> $nodes
+     * The connection caps at one hundred nodes a page: a pull request
+     * with more threads answers its later pages only behind the cursor,
+     * and the walk must follow -- a thread beyond the first page is
+     * exactly the silently-unresolved thread that keeps the PR blocked
+     * while the sweep reports success.
      */
+    public function testResolvesThreadsBeyondTheFirstPage(): void
+    {
+        $calls = [];
+
+        $graphql = static function (string $query, array $variables) use (&$calls): string {
+            $calls[] = $variables;
+
+            if (str_contains($query, 'reviewThreads')) {
+                if (($variables['cursor'] ?? null) === null) {
+                    return self::pagedThreadsPayload(
+                        [['id' => 'PRRT_page1', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/A.php']],
+                        true,
+                        'CURSOR_1',
+                    );
+                }
+
+                return self::pagedThreadsPayload(
+                    [['id' => 'PRRT_page2', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/B.php']],
+                    false,
+                    null,
+                );
+            }
+
+            $threadId = $variables['threadId'] ?? '';
+
+            return self::resolveSuccess(\is_string($threadId) ? $threadId : '');
+        };
+
+        $reviewThreadResolution = new ReviewThreadResolver($graphql)->resolve(131);
+
+        self::assertSame(2, $reviewThreadResolution->total);
+        self::assertSame(2, $reviewThreadResolution->resolved);
+        self::assertSame(0, $reviewThreadResolution->failed);
+        self::assertCount(4, $calls, 'two page queries and two mutations');
+        self::assertNull($calls[0]['cursor']);
+        self::assertSame('CURSOR_1', $calls[1]['cursor']);
+        self::assertSame('PRRT_page1', $calls[2]['threadId']);
+        self::assertSame('PRRT_page2', $calls[3]['threadId']);
+    }
+
     private static function threadsPayload(array $nodes): string
+    {
+        return self::pagedThreadsPayload($nodes, false, null);
+    }
+
+    private static function pagedThreadsPayload(array $nodes, bool $hasNextPage, ?string $endCursor): string
     {
         return (string) json_encode([
             'data' => [
@@ -242,6 +293,10 @@ final class ReviewThreadResolverTest extends TestCase
                     'pullRequest' => [
                         'reviewThreads' => [
                             'totalCount' => \count($nodes),
+                            'pageInfo' => [
+                                'hasNextPage' => $hasNextPage,
+                                'endCursor' => $endCursor,
+                            ],
                             'nodes' => $nodes,
                         ],
                     ],
