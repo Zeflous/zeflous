@@ -38,7 +38,16 @@ namespace Zef\Framework\Http;
  * decisions, three knobs, none taken on the host's behalf: a
  * deployment that wants telemetry out of the process writes all
  * three, and every intermediate posture is a state the deployment
- * chose and can name.
+ * chose and can name. The two drain postures are real lanes now,
+ * not dead knobs: the per-request cadence flushes inside the
+ * request boundary ({@see \Zef\Framework\Middleware\CorrelationMiddleware}),
+ * and the armed family carries its own exit drain
+ * ({@see \Zef\Framework\Middleware\TracingFactory}) -- the shutdown
+ * observer that delivers the queue a process leaves behind -- while
+ * the in-memory default's own retention window
+ * ({@see \Zef\Framework\Telemetry\InMemorySpanExporter}) keeps the
+ * per-request flush into the disarmed sink memory-safe under the
+ * persistent workers.
  *
  * The retry lane's three knobs ({@see self::$maxRetries}, {@see
  * self::$retryDelayMs}, {@see self::$retryDelayCapMs}) carry the

@@ -427,6 +427,54 @@ final class TelemetrySanitizerTest extends TestCase
         );
     }
 
+    public function testAValueWalkBeyondTheDepthBoundAnswersTheMarker(): void
+    {
+        // The logging sibling's own cap, mirrored: a deeply-nested or
+        // self-referential attribute array answers the truncation
+        // marker at the bound instead of exhausting the stack inside
+        // the request path.
+        $nested = ['leaf'];
+        for ($i = 0; $i < 64; $i++) {
+            $nested = ['level' => $nested];
+        }
+
+        $sanitized = TelemetrySanitizer::value($nested);
+
+        $walk = $sanitized;
+        $depth = 0;
+
+        while (\is_array($walk) && !\array_key_exists('_truncated', $walk)) {
+            $walk = $walk['level'] ?? null;
+            ++$depth;
+        }
+
+        self::assertLessThanOrEqual(5, $depth, 'the walk stopped at the bound');
+        self::assertSame(['_truncated' => true], $walk, 'the bound answers the marker');
+    }
+
+    public function testASelfReferentialArraySurvivesTheWalk(): void
+    {
+        $circular = [];
+        $circular['self'] = &$circular;
+
+        $sanitized = TelemetrySanitizer::value($circular);
+        unset($circular);
+
+        // The walk terminates (the bound answered) and the marker sits
+        // at the bottom of the sanitised copy -- the reference itself
+        // never rides the sanitised answer.
+        $walk = $sanitized;
+        $depth = 0;
+
+        while (\is_array($walk) && \array_key_exists('self', $walk)) {
+            $walk = $walk['self'];
+            ++$depth;
+        }
+
+        self::assertLessThanOrEqual(5, $depth, 'the self-reference walked no deeper than the bound');
+        self::assertSame(['_truncated' => true], $walk);
+    }
+
     public function testARefusedLeadingKeyDoesNotStopTheWalk(): void
     {
         self::assertSame(

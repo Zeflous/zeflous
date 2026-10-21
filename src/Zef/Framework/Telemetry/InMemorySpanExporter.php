@@ -12,12 +12,17 @@ use Override;
  * observation surface, in one class.
  *
  * As the default, it is what a family armed without a delivery lane
- * wired gets: the spans stay in the process, bounded by the
- * processor's queue discipline ({@see BatchSpanProcessor}), which is
- * what makes the in-memory default an honest posture rather than a
- * memory leak -- and it is the sink the suite reads its span records
- * back through, so the tests observe exactly what the exporter lane
- * would receive, not a parallel test-only channel.
+ * wired gets: the spans stay in the process, bounded twice -- by the
+ * processor's queue discipline ({@see BatchSpanProcessor}) on the way
+ * in, and by the sink's own retention window ({@see self::MAX_SPANS})
+ * on the way down -- which is what makes the in-memory default an
+ * honest posture under a per-request flush instead of a memory leak:
+ * the drain cadence can no longer grow the sink without bound in the
+ * persistent workers the kernel targets. The window keeps the most
+ * recent spans (a post-mortem reads the tail, not the head) and the
+ * suite reads its span records back through the same surface, so the
+ * tests observe exactly what the exporter lane would receive, not a
+ * parallel test-only channel.
  *
  * As the observation surface, `spans()` is read-only access and
  * `reset()` clears the record -- a debug console's two operations on
@@ -34,6 +39,9 @@ use Override;
  */
 final class InMemorySpanExporter implements SpanExporterInterface
 {
+    /** The sink's retention window: the most recent spans the observation surface keeps. */
+    private const int MAX_SPANS = 4096;
+
     /** @var list<SpanData> the delivered spans, in delivery order */
     private array $spans = [];
 
@@ -42,6 +50,10 @@ final class InMemorySpanExporter implements SpanExporterInterface
     {
         foreach ($spans as $span) {
             $this->spans[] = $span;
+        }
+
+        if (\count($this->spans) > self::MAX_SPANS) {
+            $this->spans = \array_slice($this->spans, -self::MAX_SPANS);
         }
     }
 

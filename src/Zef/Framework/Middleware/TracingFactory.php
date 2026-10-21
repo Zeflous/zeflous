@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Middleware;
 
+use Closure;
+use Throwable;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Http\ExportPolicy;
 use Zef\Framework\Http\ObservabilityFamilies;
@@ -60,8 +62,22 @@ final readonly class TracingFactory
      * Builds the tracer from the frozen repository's
      * `observability.tracing` subtree, over the export family's own
      * subtree for the delivery lane the tracer's processor carries.
+     *
+     * An armed export family also wires the lane's exit drain: the
+     * shutdown observer that flushes the queue the process leaves
+     * behind, so a deployment that leaves the per-request cadence off
+     * still delivers -- at the process exit under the classic SAPI, at
+     * the worker recycle under the persistent runtimes. The drain is
+     * best-effort by construction: a collector already gone must not
+     * fatal the dying process's own shutdown.
+     *
+     * @param null|Closure(callable(): void): void $shutdownRegistrar receives the exit
+     *                                                    drain's registration; null registers
+     *                                                    with the engine for real -- the same
+     *                                                    seam doctrine the process error
+     *                                                    boundary's shutdown arm keeps
      */
-    public static function fromConfig(Config $config): Tracer
+    public static function fromConfig(Config $config, ?Closure $shutdownRegistrar = null): Tracer
     {
         $tracingPolicy = TracingPolicy::fromMap(
             ObservabilityFamilies::subtree($config->get('observability'), 'tracing'),
@@ -70,7 +86,7 @@ final readonly class TracingFactory
             ObservabilityFamilies::subtree($config->get('observability'), 'export'),
         );
 
-        return new Tracer(
+        $tracer = new Tracer(
             new BatchSpanProcessor(
                 self::spanExporter($exportPolicy),
                 $tracingPolicy->maxQueue,
@@ -84,6 +100,31 @@ final readonly class TracingFactory
             new TelemetryClock(),
             $tracingPolicy->enabled,
         );
+
+        if ($exportPolicy->enabled) {
+            ($shutdownRegistrar ?? register_shutdown_function(...))(
+                self::exitDrain($tracer),
+            );
+        }
+
+        return $tracer;
+    }
+
+    /**
+     * The exit drain's observer: one best-effort flush -- a collector
+     * that is already gone is contained, never fatal, because the
+     * measurement is not worth the dying process's own exit.
+     */
+    private static function exitDrain(Tracer $tracer): Closure
+    {
+        return static function () use ($tracer): void {
+            try {
+                $tracer->flush();
+            } catch (Throwable) {
+                // The exit drain is best-effort: the process is leaving,
+                // and a lost measurement is never a lost exit.
+            }
+        };
     }
 
     /**

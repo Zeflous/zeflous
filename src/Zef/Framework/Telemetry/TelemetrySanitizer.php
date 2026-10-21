@@ -56,6 +56,9 @@ namespace Zef\Framework\Telemetry;
  */
 final class TelemetrySanitizer
 {
+    /** The attribute walk's depth bound -- the logging sibling's own cap, mirrored. */
+    private const int MAX_DEPTH = 5;
+
     /**
      * The key fragments a recording refuses outright: the
      * reference's own census, as the normalised comparison reads
@@ -198,15 +201,19 @@ final class TelemetrySanitizer
      * their string spellings), arrays walk under their entry
      * budget with sensitive entries marked, and anything else
      * answers the debug type -- a value the lanes cannot carry is
-     * named, never serialized.
+     * named, never serialized. The walk is depth-bounded the way
+     * the logging sibling's is ({@see \Zef\Framework\Logging\LogContextSanitizer}):
+     * a deeply-nested or self-referential attribute array answers
+     * the truncation marker at the bound instead of exhausting
+     * the stack inside the request path.
      */
-    public static function value(mixed $value): mixed
+    public static function value(mixed $value, int $depth = 0): mixed
     {
         return match (true) {
             \is_string($value) => self::string($value),
             \is_int($value), \is_bool($value), $value === null => $value,
             \is_float($value) => self::floatValue($value),
-            \is_array($value) => self::arrayValue($value),
+            \is_array($value) => self::arrayValue($value, $depth),
             default => get_debug_type($value),
         };
     }
@@ -332,15 +339,19 @@ final class TelemetrySanitizer
      *
      * @return array<array-key, mixed>
      */
-    private static function arrayValue(array $value): array
+    private static function arrayValue(array $value, int $depth): array
     {
+        if ($depth >= self::MAX_DEPTH) {
+            return ['_truncated' => true];
+        }
+
         $sanitized = [];
 
         foreach (\array_slice($value, 0, 32, true) as $key => $entry) {
             $name = (string) $key;
             $sanitized[$name] = self::isSensitiveKey($name)
                 ? '[REDACTED]'
-                : self::value($entry);
+                : self::value($entry, $depth + 1);
         }
 
         return $sanitized;
