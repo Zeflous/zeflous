@@ -65,7 +65,7 @@ final class LogContextSanitizer
                 'code' => $value->getCode(),
             ],
             \is_string($value) => self::redact(mb_substr($value, 0, 4096)),
-            \is_float($value) => is_finite($value) ? $value : (string) $value,
+            \is_float($value) => NonFiniteFloat::spelling($value),
             \is_int($value), \is_bool($value), $value === null => $value,
             \is_array($value) => self::sanitize($value, $depth + 1),
             default => '[' . get_debug_type($value) . ']',

@@ -20,6 +20,7 @@ use Zef\Framework\Logging\JsonLogFilePrivacy;
 use Zef\Framework\Logging\JsonLogFileSecurity;
 use Zef\Framework\Logging\JsonLogWriteException;
 use Zef\Framework\Logging\LogContextSanitizer;
+use Zef\Framework\Logging\NonFiniteFloat;
 use Zef\Test\Support\Http\UnopenableStreamWrapper;
 use Zef\Test\Support\Logging\JsonLineDoubleState;
 use Zef\Test\Support\Logging\JsonLineFunctionDoubles;
@@ -30,6 +31,7 @@ use Zef\Test\Support\Logging\JsonLineFunctionDoubles;
 #[CoversClass(JsonLineLogger::class)]
 #[CoversClass(JsonLineFormatter::class)]
 #[CoversClass(LogContextSanitizer::class)]
+#[CoversClass(NonFiniteFloat::class)]
 #[CoversClass(JsonLogDestination::class)]
 #[CoversClass(JsonLogDocumentRoot::class)]
 #[CoversClass(JsonLogFilePrivacy::class)]

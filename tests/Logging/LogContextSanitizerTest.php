@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
 use Zef\Framework\Logging\LogContextSanitizer;
+use Zef\Framework\Logging\NonFiniteFloat;
 
 /**
  * Direct battery for the structured-log sanitizer: depth bounds, entry
@@ -18,6 +19,7 @@ use Zef\Framework\Logging\LogContextSanitizer;
  * @internal
  */
 #[CoversClass(LogContextSanitizer::class)]
+#[CoversClass(NonFiniteFloat::class)]
 final class LogContextSanitizerTest extends TestCase
 {
     public function testDepthFiveSurvivesAndDepthSixIsTruncated(): void
