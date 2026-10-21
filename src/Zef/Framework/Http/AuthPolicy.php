@@ -62,6 +62,12 @@ final readonly class AuthPolicy
      *                                     ceiling (>= 1)
      * @param int          $replayWindow   the replay duplicate window,
      *                                     in seconds (>= 1)
+     * @param string       $replayStore   the seen-table's topology, one
+     *                                     of the closed {@see ReplayStores}
+     *                                     vocabulary -- `memory` keeps the
+     *                                     reference's per-process table,
+     *                                     `apcu` shares it across the
+     *                                     process tree
      *
      * @throws HttpException when a token violates its shape, a field
      *                       violates its bound, or a replay knob is
@@ -76,7 +82,9 @@ final readonly class AuthPolicy
         public bool $allowAnonymous = false,
         public int $replayCapacity = 1024,
         public int $replayWindow = 300,
+        public string $replayStore = ReplayStores::MEMORY,
     ) {
+        ReplayStores::read($this->replayStore);
         foreach ($this->tokens as $token) {
             AuthBounds::assertTokenShape($token);
         }
@@ -125,7 +133,7 @@ final readonly class AuthPolicy
      *
      * @return array{enabled: bool, tokens: list<string>, principal: string,
      *               scope: string, requiredScope: string, allowAnonymous: bool,
-     *               replayCapacity: int, replayWindow: int}
+     *               replayCapacity: int, replayWindow: int, replayStore: string}
      */
     private static function knobs(array $map): array
     {
@@ -147,6 +155,7 @@ final readonly class AuthPolicy
                 'security.auth replay_capacity',
             ),
             'replayWindow' => StrictIntegers::read($map['replay_window'] ?? 300, 'security.auth replay_window'),
+            'replayStore' => ReplayStores::read($map['replay_store'] ?? ReplayStores::MEMORY),
         ];
     }
 }

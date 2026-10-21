@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Http\AuthClock;
 use Zef\Framework\Http\HttpException;
+use Zef\Test\Support\Http\ApcuFunctionDoubles;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
@@ -89,6 +90,65 @@ final class AuthFactoryTest extends TestCase
         );
     }
 
+    public function testTheApcuReplayStoreSelectionSharesTheSeenTableAcrossProtectors(): void
+    {
+        ApcuFunctionDoubles::define();
+        // The audit's probabilistic-absence shape: two protectors the
+        // same process tree would build -- one per worker -- over the
+        // shared table the `replay_store` knob declared.
+        $config = new Config([
+            'security' => [
+                'auth' => [
+                    'tokens' => [self::TOKEN],
+                    'replay_store' => 'apcu',
+                    'replay_window' => 60,
+                ],
+            ],
+        ]);
+
+        $firstWorker = AuthFactory::fromConfig($config);
+        $secondWorker = AuthFactory::fromConfig($config);
+
+        $admitted = $firstWorker->process(
+            $this->request('POST', self::TOKEN, 'replay-shared-1'),
+            new FixedResponseHandler(new Response(200, [], 'answered')),
+        );
+        self::assertSame(200, $admitted->getStatusCode(), 'the first sight is admitted');
+
+        $refused = $secondWorker->process(
+            $this->request('POST', self::TOKEN, 'replay-shared-1'),
+            new FixedResponseHandler(new Response(200, [], 'answered')),
+        );
+        self::assertSame(
+            403,
+            $refused->getStatusCode(),
+            'the second worker answers the duplicate the shared table refused',
+        );
+    }
+
+    public function testTheFactoryHaltsOnAnUnknownReplayStore(): void
+    {
+        $config = new Config([
+            'security' => [
+                'auth' => [
+                    'tokens' => [self::TOKEN],
+                    'replay_store' => 'reddis',
+                ],
+            ],
+        ]);
+
+        try {
+            AuthFactory::fromConfig($config);
+            self::fail('An unknown replay store must halt the construction.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                "The security.auth replay_store knob must be one of the known replay stores "
+                . "(memory, apcu), 'reddis' given.",
+                $httpException->getMessage(),
+            );
+        }
+    }
+
     public function testTheFactoryHaltsWhenTheFamilyIsArmedWithoutTokens(): void
     {
         $config = new Config([
@@ -163,12 +223,16 @@ final class AuthFactoryTest extends TestCase
     /**
      * One request over the bearer channel.
      */
-    private function request(string $method, ?string $token = null): ServerRequest
+    private function request(string $method, ?string $token = null, ?string $replayId = null): ServerRequest
     {
         $request = new ServerRequest($method, new Uri('https://app.example.com/health'));
 
         if ($token !== null) {
             $request = $request->withHeader('Authorization', "Bearer {$token}");
+        }
+
+        if ($replayId !== null) {
+            $request = $request->withHeader('X-Replay-Id', $replayId);
         }
 
         self::assertInstanceOf(ServerRequest::class, $request);

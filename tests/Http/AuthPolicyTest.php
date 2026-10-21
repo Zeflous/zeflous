@@ -131,7 +131,7 @@ final class AuthPolicyTest extends TestCase
             self::assertSame(
                 "The security.auth configuration carries the unknown knob 'bogus'"
                 . ' (known knobs: enabled, tokens, principal, scope, required_scope,'
-                . ' allow_anonymous, replay_capacity, replay_window).',
+                . ' allow_anonymous, replay_capacity, replay_window, replay_store).',
                 $httpException->getMessage(),
             );
         }
@@ -244,7 +244,7 @@ final class AuthPolicyTest extends TestCase
             self::assertSame(
                 "The security.auth configuration carries the unknown knob 'principle'"
                 . ' (known knobs: enabled, tokens, principal, scope, required_scope,'
-                . ' allow_anonymous, replay_capacity, replay_window).',
+                . ' allow_anonymous, replay_capacity, replay_window, replay_store).',
                 $httpException->getMessage(),
             );
         }
