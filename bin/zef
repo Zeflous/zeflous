@@ -274,12 +274,14 @@ while (($line = fgets($handle)) !== false) {
     }
 
     ++$total;
-    $level = is_string($entry['level'] ?? null) ? $entry['level'] : 'unknown';
+    $rawLevel = is_string($entry['level'] ?? null) ? $entry['level'] : 'unknown';
+    $level = displayText($rawLevel);
     $counts[$level] = ($counts[$level] ?? 0) + 1;
     $context = is_array($entry['context'] ?? null) ? $entry['context'] : [];
-    $code = is_string($context['exception_code'] ?? null)
+    $rawCode = is_string($context['exception_code'] ?? null)
         ? $context['exception_code']
         : (is_string($context['exception_class'] ?? null) ? $context['exception_class'] : 'unknown');
+    $code = displayText($rawCode);
     $top[$code] = ($top[$code] ?? 0) + 1;
 }
 fclose($handle);
@@ -294,4 +296,17 @@ foreach ($counts as $level => $count) {
 fwrite(STDOUT, "\nTop error codes/classes:\n");
 foreach (array_slice($top, 0, 10, true) as $code => $count) {
     fwrite(STDOUT, sprintf("  %-40s %d\n", $code, $count));
+}
+
+/**
+ * Answers the text a log-supplied field may show in the operator's terminal:
+ * control bytes stripped (an escape sequence or a carriage return inside a
+ * stored level or code would otherwise ride the report straight into the
+ * display), and the unknown spelling back when nothing displayable remains.
+ */
+function displayText(string $value): string
+{
+    $stripped = preg_replace('/[\x00-\x1F\x7F]/', '', $value);
+
+    return \is_string($stripped) && $stripped !== '' ? $stripped : 'unknown';
 }
