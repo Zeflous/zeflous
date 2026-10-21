@@ -29,12 +29,10 @@ from mutable external state.
 - **Deliberate divergence:** the reference's adapter owns a separate mutable
   route collection and matcher. Zeflous already has a tested immutable radix
   engine under `Config/Routing` (see `docs/ci-notes/radix-engine.md`).
-  This first slice composes that engine instead of creating a second route
+  This slice composes that engine instead of creating a second route
   registry or moving the configuration grammar back into the Router namespace.
-- **Not claimed by this slice:** PSR-7 request adaptation, host-aware routing,
-  route-level middleware execution, observability hooks, compiled cache files,
-  CLI inspection and the broader advanced-routing roadmap. These remain future
-  slices and the roadmap status therefore stays **Partial**.
+- **Exact-host slice now implemented:** the Standard Route Schema accepts an optional exact DNS `host`; `RouteHost` canonicalises registration and request hosts; duplicate method claims include the host; and matching takes an optional host, preferring exact-host routes over host-agnostic fallbacks. Wildcards, host parameters, IP/port authority parsing and PSR-7 Host/URI integration are not claimed.
+- **Still not claimed:** route-level Accept negotiation, PSR-7 request/response adaptation, per-route middleware execution, observability hooks, compiled cache files, CLI inspection and the broader advanced-routing roadmap. The roadmap status therefore stays **Partial**.
 
 ## Failure and runtime contract
 
@@ -42,8 +40,7 @@ from mutable external state.
 - Unknown route names and invalid URL parameters retain the engine's
   `ConfigException` contract.
 - A path miss and a method mismatch remain distinct `MatchResult` outcomes.
-- The facade does not resolve or invoke handlers and does not execute
-  middleware; those are separate adapter/pipeline responsibilities.
+- The facade's `dispatcher(Container)` exposes the existing container-backed `RouteDispatcher` over the same memoized runtime. That dispatcher invokes handlers but deliberately does not execute route middleware; pipeline composition remains a separate adapter responsibility.
 - No production dependency is introduced. Runtime requirements remain PHP 8.4+.
 
 ## Verification
