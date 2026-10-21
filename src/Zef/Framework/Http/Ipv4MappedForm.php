@@ -26,7 +26,7 @@ final class Ipv4MappedForm
      * The address's packed binary form, with a mapped spelling folded to
      * the embedded IPv4 packing; false when the address packs nothing.
      */
-    public static function packed(string $address): string|false
+    public static function packed(string $address): false|string
     {
         $binary = inet_pton($address);
 
@@ -34,13 +34,25 @@ final class Ipv4MappedForm
             return false;
         }
 
-        if (\strlen($binary) === 16
-            && substr($binary, 0, 10) === str_repeat("\0", 10)
-            && substr($binary, 10, 2) === "\xff\xff"
-        ) {
-            return substr($binary, 12);
+        // Byte semantics throughout, exactly like the containment
+        // arithmetic's own comparison ({@see MaskedPrefix}): a packed
+        // form's bytes routinely compose multibyte or invalid UTF-8
+        // sequences, so the mapped-range test is one byte comparison --
+        // ten zero bytes then ff ff (RFC 4291 section 2.5.5.2) -- over a
+        // sixteen-byte packing, never a character-counted slice. A
+        // four-byte packing (a plain IPv4 address) has no sixteenth
+        // byte to offer the fold.
+        if (!isset($binary[15]) || substr_compare($binary, "\0\0\0\0\0\0\0\0\0\0\xff\xff", 0, 12) !== 0) {
+            return $binary;
         }
 
-        return $binary;
+        /** @var array{head: string, embedded: string}|false $folded */
+        $folded = unpack('a12head/a4embedded', $binary);
+
+        if ($folded === false) {
+            return $binary;
+        }
+
+        return $folded['embedded'];
     }
 }

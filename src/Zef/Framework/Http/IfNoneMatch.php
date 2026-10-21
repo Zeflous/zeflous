@@ -78,23 +78,31 @@ final class IfNoneMatch
         $current = '';
         $quoted = false;
 
-        $length = strlen($ifNoneMatch);
-        for ($offset = 0; $offset < $length; ++$offset) {
+        // Byte offsets, not character counts: a header may carry raw
+        // obs-text bytes that are not valid UTF-8, and a character-
+        // counted bound would stop the walk before the final byte.
+        $offset = 0;
+        while (isset($ifNoneMatch[$offset])) {
             $byte = $ifNoneMatch[$offset];
 
             if ($byte === '"') {
                 $quoted = !$quoted;
                 $current .= $byte;
+                ++$offset;
+
                 continue;
             }
 
             if ($byte === ',' && !$quoted) {
                 $candidates[] = $current;
                 $current = '';
+                ++$offset;
+
                 continue;
             }
 
             $current .= $byte;
+            ++$offset;
         }
 
         $candidates[] = $current;

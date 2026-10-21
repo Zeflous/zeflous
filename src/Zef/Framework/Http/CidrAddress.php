@@ -40,14 +40,27 @@ final class CidrAddress
         // Two ways the addresses cannot relate: one of them packs nothing,
         // or they belong to different address families. Both answer the
         // same refusal.
-        if ($ipBinary === false || $networkBinary === false || \strlen($ipBinary) !== \strlen($networkBinary)) {
+        if ($ipBinary === false || $networkBinary === false || self::widthOf($ipBinary) !== self::widthOf($networkBinary)) {
             return false;
         }
 
-        if ($prefix < 0 || $prefix > \strlen($ipBinary) * 8) {
+        if ($prefix < 0 || $prefix > self::widthOf($ipBinary)) {
             return false;
         }
 
         return MaskedPrefix::matches($ipBinary, $networkBinary, $prefix);
+    }
+
+    /**
+     * The canonical packing's width in bits: a sixteen-byte packing is
+     * the IPv6 family (128), a four-byte one IPv4 (32) -- read from the
+     * packing's own bytes, since inet_pton() answers exactly these two
+     * widths, never a character-counted length whose multibyte
+     * semantics a packed form's bytes routinely defeat (the same
+     * discipline the byte-prefix comparison itself carries).
+     */
+    private static function widthOf(string $binary): int
+    {
+        return isset($binary[15]) ? 128 : 32;
     }
 }
