@@ -60,12 +60,12 @@ final class RouteAcceptRanges
     {
         $quality = 1.0;
 
-        foreach ($parts as $parameter) {
-            if (!str_starts_with(mb_strtolower($parameter), 'q=')) {
+        foreach ($parts as $part) {
+            if (!str_starts_with(mb_strtolower($part), 'q=')) {
                 continue;
             }
 
-            $rawQuality = mb_substr($parameter, 2);
+            $rawQuality = mb_substr($part, 2);
             if (preg_match('/\A(?:0(?:\.\d{0,3})?|1(?:\.0{0,3})?)\z/D', $rawQuality) !== 1) {
                 return null;
             }

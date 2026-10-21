@@ -13,19 +13,32 @@ use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\PrefixConsumption;
 use Zef\Framework\Config\Routing\RadixNode;
 use Zef\Framework\Config\Routing\RadixTree;
+use Zef\Framework\Config\Routing\RouteAcceptMatch;
 use Zef\Framework\Config\Routing\RouteAcceptNegotiator;
+use Zef\Framework\Config\Routing\RouteAcceptRange;
+use Zef\Framework\Config\Routing\RouteAcceptRanges;
+use Zef\Framework\Config\Routing\RouteFields;
+use Zef\Framework\Config\Routing\RouteHostAmbiguities;
+use Zef\Framework\Config\Routing\RouteHostBinding;
+use Zef\Framework\Config\Routing\RouteHostClaims;
 use Zef\Framework\Config\Routing\RouteHostGrammar;
 use Zef\Framework\Config\Routing\RouteHostParameters;
+use Zef\Framework\Config\Routing\RouteHostPatternBucket;
 use Zef\Framework\Config\Routing\RouteHostPrecedence;
+use Zef\Framework\Config\Routing\RouteHostRendering;
+use Zef\Framework\Config\Routing\RouteHostRequest;
+use Zef\Framework\Config\Routing\RouteHostSelection;
 use Zef\Framework\Config\Routing\RouteMatcher;
 use Zef\Framework\Config\Routing\RouteMethodAnswer;
 use Zef\Framework\Config\Routing\RouteMethodClaims;
 use Zef\Framework\Config\Routing\RouteNodeInserter;
 use Zef\Framework\Config\Routing\RouteParameters;
 use Zef\Framework\Config\Routing\RoutePatternTokens;
+use Zef\Framework\Config\Routing\RouteProduces;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
 use Zef\Framework\Config\Routing\RouteVersion;
+use Zef\Framework\Config\Routing\RouteVersionSelection;
 use Zef\Framework\Config\Routing\SegmentCapture;
 use Zef\Framework\Config\Routing\SharedPrefixLength;
 use Zef\Framework\Config\Routing\StaticDescent;
@@ -58,6 +71,19 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(RouteHostPrecedence::class)]
 #[CoversClass(RouteVersion::class)]
 #[CoversClass(RouteAcceptNegotiator::class)]
+#[CoversClass(RouteAcceptMatch::class)]
+#[CoversClass(RouteAcceptRange::class)]
+#[CoversClass(RouteAcceptRanges::class)]
+#[CoversClass(RouteFields::class)]
+#[CoversClass(RouteHostAmbiguities::class)]
+#[CoversClass(RouteHostBinding::class)]
+#[CoversClass(RouteHostClaims::class)]
+#[CoversClass(RouteHostPatternBucket::class)]
+#[CoversClass(RouteHostRendering::class)]
+#[CoversClass(RouteHostRequest::class)]
+#[CoversClass(RouteHostSelection::class)]
+#[CoversClass(RouteProduces::class)]
+#[CoversClass(RouteVersionSelection::class)]
 final class RadixTreeTest extends TestCase
 {
     public function testARegistryCannotBeReadBeforeTheTreeIsBuilt(): void
@@ -354,6 +380,62 @@ final class RadixTreeTest extends TestCase
                 'handler' => 'Admin@dashboard',
             ],
         ]);
+    }
+
+    public function testRejectsAHostThatExceedsTheMaximumHostLength(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains('must be an exact DNS hostname without a port or wildcard');
+
+        RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => 'a.' . str_repeat('bbbb.', 49) . 'example.com',
+                'method' => ['GET'],
+                'handler' => 'Long@dashboard',
+            ],
+        ]);
+    }
+
+    public function testRejectsAHostThatExceedsTheMaximumLabelCount(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains('must be an exact DNS hostname without a port or wildcard');
+
+        RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => implode('.', array_fill(0, 128, 'a')),
+                'method' => ['GET'],
+                'handler' => 'Deep@dashboard',
+            ],
+        ]);
+    }
+
+    public function testRejectsAHostThatRepeatsItsOwnParameterLabel(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains('must be an exact DNS hostname without a port or wildcard');
+
+        RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.{tenant}.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+            ],
+        ]);
+    }
+
+    public function testAMalformedRequestVersionIsANotFoundMissNotAnError(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'Api@show', 'version' => 'v1'],
+        ]);
+
+        $matchResult = $radixTree->match('GET', '/api', null, null, '../v1');
+
+        self::assertFalse($matchResult->isFound());
     }
 
     public function testMatchesTheRootRoute(): void

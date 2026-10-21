@@ -25,20 +25,20 @@ final readonly class ServerRequestMetadata
     ) {
     }
 
-    public static function fromRequest(ServerRequestInterface $request): self
+    public static function fromRequest(ServerRequestInterface $serverRequest): self
     {
         return new self(
-            mb_strtoupper($request->getMethod()),
-            self::requestPath($request),
-            RequestAuthority::host($request),
-            $request->getHeaderLine('Accept'),
-            self::requestVersion($request),
+            mb_strtoupper($serverRequest->getMethod()),
+            self::requestPath($serverRequest),
+            RequestAuthority::host($serverRequest),
+            $serverRequest->getHeaderLine('Accept'),
+            self::requestVersion($serverRequest),
         );
     }
 
-    private static function requestPath(ServerRequestInterface $request): string
+    private static function requestPath(ServerRequestInterface $serverRequest): string
     {
-        $path = $request->getUri()->getPath();
+        $path = $serverRequest->getUri()->getPath();
 
         if ($path === '') {
             return '/';
@@ -47,10 +47,10 @@ final readonly class ServerRequestMetadata
         return str_starts_with($path, '/') ? $path : '/' . $path;
     }
 
-    private static function requestVersion(ServerRequestInterface $request): string
+    private static function requestVersion(ServerRequestInterface $serverRequest): string
     {
-        $acceptVersion = $request->getHeaderLine('Accept-Version');
+        $acceptVersion = $serverRequest->getHeaderLine('Accept-Version');
 
-        return $acceptVersion !== '' ? $acceptVersion : $request->getHeaderLine('X-API-Version');
+        return $acceptVersion !== '' ? $acceptVersion : $serverRequest->getHeaderLine('X-API-Version');
     }
 }

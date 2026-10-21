@@ -17,14 +17,14 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 final class LastModifiedMatch
 {
-    public static function satisfied(ServerRequestInterface $request, ResponseInterface $response): bool
+    public static function satisfied(ServerRequestInterface $serverRequest, ResponseInterface $response): bool
     {
-        if (!$request->hasHeader('If-Modified-Since')) {
+        if (!$serverRequest->hasHeader('If-Modified-Since')) {
             return false;
         }
 
         $lastModified = strtotime($response->getHeaderLine('Last-Modified'));
-        $ifModifiedSince = strtotime($request->getHeaderLine('If-Modified-Since'));
+        $ifModifiedSince = strtotime($serverRequest->getHeaderLine('If-Modified-Since'));
 
         return $lastModified !== false && $ifModifiedSince !== false && $lastModified <= $ifModifiedSince;
     }

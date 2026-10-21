@@ -29,10 +29,10 @@ final class RouteAcceptNegotiator
 
         $ranges = RouteAcceptRanges::parse($accept);
 
-        foreach ($produces as $mediaType) {
-            $segments = explode('/', $mediaType, 2);
+        foreach ($produces as $produce) {
+            $segments = explode('/', $produce, 2);
             if (\count($segments) !== 2) {
-                throw new ConfigException(\sprintf('The route field "produces" contains an invalid media type "%s".', $mediaType));
+                throw new ConfigException(\sprintf('The route field "produces" contains an invalid media type "%s".', $produce));
             }
 
             [$type, $subtype] = $segments;

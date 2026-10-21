@@ -15,7 +15,7 @@ use Zef\Framework\Router\Router;
  *
  * @internal
  */
-final class RouterRequestMatcher
+final readonly class RouterRequestMatcher
 {
     public function __construct(private Router $router)
     {
@@ -25,27 +25,27 @@ final class RouterRequestMatcher
      * Matches the request through the router, reusing GET metadata for a
      * HEAD request whose only route is the GET one.
      */
-    public function match(ServerRequestMetadata $metadata): MatchResult
+    public function match(ServerRequestMetadata $serverRequestMetadata): MatchResult
     {
         $match = $this->router->match(
-            $metadata->method,
-            $metadata->path,
-            $metadata->host,
-            $metadata->accept,
-            $metadata->version,
+            $serverRequestMetadata->method,
+            $serverRequestMetadata->path,
+            $serverRequestMetadata->host,
+            $serverRequestMetadata->accept,
+            $serverRequestMetadata->version,
         );
 
         if (
-            $metadata->method === 'HEAD'
+            $serverRequestMetadata->method === 'HEAD'
             && $match->isMethodNotAllowed()
             && \in_array('GET', $match->allowedMethods(), true)
         ) {
             return $this->router->match(
                 'GET',
-                $metadata->path,
-                $metadata->host,
-                $metadata->accept,
-                $metadata->version,
+                $serverRequestMetadata->path,
+                $serverRequestMetadata->host,
+                $serverRequestMetadata->accept,
+                $serverRequestMetadata->version,
             );
         }
 

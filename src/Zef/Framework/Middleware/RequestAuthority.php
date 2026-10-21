@@ -16,15 +16,15 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 final class RequestAuthority
 {
-    public static function host(ServerRequestInterface $request): ?string
+    public static function host(ServerRequestInterface $serverRequest): ?string
     {
-        if (!$request->hasHeader('Host')) {
-            $uriHost = $request->getUri()->getHost();
+        if (!$serverRequest->hasHeader('Host')) {
+            $uriHost = $serverRequest->getUri()->getHost();
 
             return $uriHost === '' ? null : $uriHost;
         }
 
-        $authority = mb_trim($request->getHeaderLine('Host'));
+        $authority = mb_trim($serverRequest->getHeaderLine('Host'));
         if (preg_match('/\A([^:]+)(?::([0-9]{1,5}))?\z/D', $authority, $matches) !== 1) {
             return null;
         }

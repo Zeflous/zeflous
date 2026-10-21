@@ -12,21 +12,42 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use UnexpectedValueException;
+use Zef\Framework\Config\Routing\DispatchOutcome;
+use Zef\Framework\Config\Routing\MatchResult;
+use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Http\Psr17Factory;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\ConditionalRequests;
+use Zef\Framework\Middleware\EntityTagMatch;
+use Zef\Framework\Middleware\LastModifiedMatch;
 use Zef\Framework\Middleware\MiddlewareException;
 use Zef\Framework\Middleware\MiddlewarePipeline;
+use Zef\Framework\Middleware\NotModifiedResponse;
+use Zef\Framework\Middleware\RequestAuthority;
 use Zef\Framework\Middleware\RouteDispatchHandler;
 use Zef\Framework\Middleware\RouterRequestHandler;
+use Zef\Framework\Middleware\RouterRequestMatcher;
+use Zef\Framework\Middleware\ServerRequestMetadata;
 use Zef\Framework\Router\Router;
 
 /**
  * @internal
  */
+#[CoversClass(ConditionalRequests::class)]
+#[CoversClass(DispatchOutcome::class)]
+#[CoversClass(EntityTagMatch::class)]
+#[CoversClass(LastModifiedMatch::class)]
+#[CoversClass(MatchResult::class)]
+#[CoversClass(NotModifiedResponse::class)]
+#[CoversClass(RequestAuthority::class)]
+#[CoversClass(RouteDispatcher::class)]
 #[CoversClass(RouterRequestHandler::class)]
+#[CoversClass(RouterRequestMatcher::class)]
+#[CoversClass(ServerRequestMetadata::class)]
 #[CoversClass(RouteDispatchHandler::class)]
 #[CoversClass(MiddlewarePipeline::class)]
 #[CoversClass(MiddlewareException::class)]
@@ -271,6 +292,73 @@ final class RouterRequestHandlerTest extends TestCase
         $this->expectExceptionMessageIsOrContains('Route middleware service "missing.middleware" is not registered.');
 
         $this->handler($router, new Container())->handle($this->request('GET', 'api.example.com', 'application/json'));
+    }
+
+    public function testRefusesAHandlerThatDoesNotReturnAResponse(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Chatty@show',
+            static fn (): callable => static fn (array $parameters): string => 'not a response',
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Chatty@show'],
+        ]);
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessageIsOrContains('The HTTP route handler "Chatty@show" must return a ResponseInterface.');
+
+        $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+    }
+
+    public function testAWildcardVaryHeaderIsPreservedVerbatim(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Vary@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'Vary' => '*'],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Vary@show', 'produces' => ['application/json']],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+
+        self::assertSame('*', $response->getHeaderLine('Vary'));
+    }
+
+    public function testAnExistingAcceptVaryTokenIsNotDuplicated(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Vary@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'Vary' => 'Accept-Encoding, Accept'],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Vary@show', 'produces' => ['application/json']],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+
+        self::assertSame('Accept-Encoding, Accept', $response->getHeaderLine('Vary'));
+    }
+
+    public function testANotFoundOutcomeRefusesToYieldAResult(): void
+    {
+        $outcome = DispatchOutcome::notFound();
+
+        self::assertFalse($outcome->isExecuted());
+        $this->expectException(InvariantViolationException::class);
+
+        $outcome->result();
     }
 
     private function containerWithProfileHandler(): Container

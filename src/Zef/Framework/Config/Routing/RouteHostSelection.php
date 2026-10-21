@@ -25,7 +25,7 @@ final class RouteHostSelection
     public static function select(array $routes, ?string $requestHost): array
     {
         $exactHostRoutes = [];
-        $hostPatternBucket = new RouteHostPatternBucket();
+        $routeHostPatternBucket = new RouteHostPatternBucket();
         $hostAgnosticRoutes = [];
 
         foreach ($routes as $route) {
@@ -47,13 +47,13 @@ final class RouteHostSelection
                 continue;
             }
 
-            $hostPatternBucket->offer($route, $routeHost);
+            $routeHostPatternBucket->offer($route, $routeHost);
         }
 
         if ($exactHostRoutes !== []) {
             return $exactHostRoutes;
         }
 
-        return $hostPatternBucket->routes() !== [] ? $hostPatternBucket->routes() : $hostAgnosticRoutes;
+        return $routeHostPatternBucket->routes() !== [] ? $routeHostPatternBucket->routes() : $hostAgnosticRoutes;
     }
 }

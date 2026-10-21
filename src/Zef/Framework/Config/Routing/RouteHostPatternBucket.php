@@ -22,19 +22,19 @@ final class RouteHostPatternBucket
      * Offers a matched pattern route; a more specific offer resets the
      * bucket, an equally specific one joins it.
      */
-    public function offer(CompiledRoute $route, string $routeHost): void
+    public function offer(CompiledRoute $compiledRoute, string $routeHost): void
     {
         $specificity = RouteHostPrecedence::specificity($routeHost);
 
         if ($specificity > $this->specificity) {
-            $this->routes = [$route];
+            $this->routes = [$compiledRoute];
             $this->specificity = $specificity;
 
             return;
         }
 
         if ($specificity === $this->specificity) {
-            $this->routes[] = $route;
+            $this->routes[] = $compiledRoute;
         }
     }
 

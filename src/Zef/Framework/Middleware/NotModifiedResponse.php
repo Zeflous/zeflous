@@ -14,7 +14,7 @@ use UnexpectedValueException;
  *
  * @internal
  */
-final class NotModifiedResponse
+final readonly class NotModifiedResponse
 {
     public function __construct(private StreamFactoryInterface $streamFactory)
     {

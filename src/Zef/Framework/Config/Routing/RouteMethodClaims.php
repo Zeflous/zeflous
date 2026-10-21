@@ -30,11 +30,11 @@ final class RouteMethodClaims
      */
     private array $claims = [];
 
-    private RouteHostClaims $hostClaims;
+    private readonly RouteHostClaims $routeHostClaims;
 
     public function __construct()
     {
-        $this->hostClaims = new RouteHostClaims();
+        $this->routeHostClaims = new RouteHostClaims();
     }
 
     /**
@@ -51,7 +51,7 @@ final class RouteMethodClaims
 
         foreach ($compiledRoute->methods() as $method) {
             if ($host !== null) {
-                $this->hostClaims->claim($hostClaimScope, $method, $host, $pattern);
+                $this->routeHostClaims->claim($hostClaimScope, $method, $host, $pattern);
             }
 
             $registeredBy = $this->claims[$canonical][$method] ?? null;

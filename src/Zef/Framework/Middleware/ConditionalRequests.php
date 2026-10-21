@@ -18,7 +18,7 @@ use Psr\Http\Message\StreamFactoryInterface;
  *
  * @internal
  */
-final class ConditionalRequests
+final readonly class ConditionalRequests
 {
     private NotModifiedResponse $notModifiedResponse;
 
@@ -30,24 +30,24 @@ final class ConditionalRequests
     /**
      * Applies conditional semantics to a successful representation.
      */
-    public function apply(ServerRequestInterface $request, ResponseInterface $response, string $method): ResponseInterface
+    public function apply(ServerRequestInterface $serverRequest, ResponseInterface $response, string $method): ResponseInterface
     {
         if (!\in_array($method, ['GET', 'HEAD'], true) || $response->getStatusCode() !== 200) {
             return $response;
         }
 
-        if ($request->hasHeader('If-None-Match')) {
-            return $this->ifNoneMatch($request, $response);
+        if ($serverRequest->hasHeader('If-None-Match')) {
+            return $this->ifNoneMatch($serverRequest, $response);
         }
 
-        return LastModifiedMatch::satisfied($request, $response)
+        return LastModifiedMatch::satisfied($serverRequest, $response)
             ? $this->notModifiedResponse->from($response)
             : $response;
     }
 
-    private function ifNoneMatch(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    private function ifNoneMatch(ServerRequestInterface $serverRequest, ResponseInterface $response): ResponseInterface
     {
-        $condition = mb_trim($request->getHeaderLine('If-None-Match'));
+        $condition = mb_trim($serverRequest->getHeaderLine('If-None-Match'));
         if ($condition === '*') {
             return $this->notModifiedResponse->from($response);
         }

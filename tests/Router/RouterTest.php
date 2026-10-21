@@ -8,14 +8,24 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Config\Routing\DispatchOutcome;
+use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDsl;
+use Zef\Framework\Config\Routing\RouteHostRendering;
+use Zef\Framework\Config\Routing\RouteUrlGenerator;
+use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Router\Router;
 
 /**
  * @internal
  */
+#[CoversClass(DispatchOutcome::class)]
+#[CoversClass(MatchResult::class)]
+#[CoversClass(RouteHostRendering::class)]
+#[CoversClass(RouteUrlGenerator::class)]
 #[CoversClass(Router::class)]
+#[CoversClass(RoutingRuntime::class)]
 final class RouterTest extends TestCase
 {
     public function testDefineCompilesDslAndMatchesParameters(): void

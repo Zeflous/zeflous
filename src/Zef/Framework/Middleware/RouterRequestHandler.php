@@ -32,7 +32,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
 {
     private RouteDispatcher $routeDispatcher;
 
-    private RouterRequestMatcher $requestMatcher;
+    private RouterRequestMatcher $routerRequestMatcher;
 
     private ConditionalRequests $conditionalRequests;
 
@@ -43,15 +43,15 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         private StreamFactoryInterface $streamFactory,
     ) {
         $this->routeDispatcher = $router->dispatcher($this->container);
-        $this->requestMatcher = new RouterRequestMatcher($router);
+        $this->routerRequestMatcher = new RouterRequestMatcher($router);
         $this->conditionalRequests = new ConditionalRequests($this->streamFactory);
     }
 
     #[Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $metadata = ServerRequestMetadata::fromRequest($request);
-        $match = $this->requestMatcher->match($metadata);
+        $serverRequestMetadata = ServerRequestMetadata::fromRequest($request);
+        $match = $this->routerRequestMatcher->match($serverRequestMetadata);
 
         $stack = [];
         if ($match->isFound()) {
@@ -77,9 +77,9 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         );
 
         $response = new MiddlewarePipeline($stack, $routeDispatchHandler)->handle($request);
-        $response = $this->conditionalRequests->apply($request, $response, $metadata->method);
+        $response = $this->conditionalRequests->apply($request, $response, $serverRequestMetadata->method);
 
-        if ($metadata->method !== 'HEAD' && $response->getStatusCode() !== 304) {
+        if ($serverRequestMetadata->method !== 'HEAD' && $response->getStatusCode() !== 304) {
             return $response;
         }
 
