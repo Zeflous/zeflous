@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-21T08:29:12Z",
+  "as_of": "2026-10-21T21:34:40Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 224,
+  "unreleased_count": 226,
   "versions": [
     {
       "version": "Unreleased",
@@ -2541,6 +2541,397 @@
                 "sha": "4599612bf486cdcd9f29dfbc5eb51c86811f0fc1",
                 "short_sha": "4599612",
                 "subject": "Merge branch 'main' into feat/container-performance-cli"
+              }
+            ]
+          },
+          {
+            "pr": 512,
+            "title": "feat(router): add host-aware routing and versioned PSR-15 dispatch",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-21T20:39:59Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/512",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "43521215b902c4edc412565c83c21b43293914de",
+                "short_sha": "4352121",
+                "subject": "feat(router): add public radix runtime facade"
+              },
+              {
+                "sha": "3bdccd1b35e7fed402b789789cdecddfe97e2807",
+                "short_sha": "3bdccd1",
+                "subject": "test(router): cover public facade contract"
+              },
+              {
+                "sha": "920a5a8a50c6cb37a06c08510d3e124c7eaa107b",
+                "short_sha": "920a5a8",
+                "subject": "docs(router): record facade boundary and reference"
+              },
+              {
+                "sha": "0e69fd1ff692c71671bb7ebe5384e4fd29b76563",
+                "short_sha": "0e69fd1",
+                "subject": "chore(architecture): declare router adapter layer"
+              },
+              {
+                "sha": "8a6b6822370e73537c874b7e6ad4c345b25345bc",
+                "short_sha": "8a6b682",
+                "subject": "docs(roadmap): mark router facade as partial"
+              },
+              {
+                "sha": "4f429a8709af13b06d61818d85094b2be6b6fc35",
+                "short_sha": "4f429a8",
+                "subject": "test(router): cover reverse-routing constraint refusal"
+              },
+              {
+                "sha": "1a57f3124fe94cabb95f24ca04e13f765a938518",
+                "short_sha": "1a57f31",
+                "subject": "docs(router): map roadmap contracts against current engine"
+              },
+              {
+                "sha": "e6615efb729090b7a2070ca46290182fd4e3cc31",
+                "short_sha": "e6615ef",
+                "subject": "docs(router): align audit with existing dispatcher boundary"
+              },
+              {
+                "sha": "e5403dac7262ac2401ea9b5da58914839a299c38",
+                "short_sha": "e5403da",
+                "subject": "feat(router): expose the container-backed dispatcher"
+              },
+              {
+                "sha": "081849c6afe8e10a4754e861d3add7bf7838514d",
+                "short_sha": "081849c",
+                "subject": "test(router): cover facade dispatcher integration"
+              },
+              {
+                "sha": "ab90973647e5e44018eb2c5a4fa4bee550419935",
+                "short_sha": "ab90973",
+                "subject": "chore(architecture): allow router dispatcher container dependency"
+              },
+              {
+                "sha": "72e8c883982e5dea19e5f15bf5029e98721e9e4f",
+                "short_sha": "72e8c88",
+                "subject": "docs(roadmap): record router dispatcher facade slice"
+              },
+              {
+                "sha": "799c964bac02ae7900d86e73345e5660245fa841",
+                "short_sha": "799c964",
+                "subject": "docs(router): record dispatcher bridge implementation"
+              },
+              {
+                "sha": "bc1938e29f700079c2c10f3fb61affa9f309f76a",
+                "short_sha": "bc1938e",
+                "subject": "feat(router): add exact host grammar for route matching"
+              },
+              {
+                "sha": "80e715b818b11074d3789b3c50988629ea936cff",
+                "short_sha": "80e715b",
+                "subject": "feat(router): extend route schema with optional host"
+              },
+              {
+                "sha": "f79e56e0c00cdc05c4fded3eba109f89acddfd94",
+                "short_sha": "f79e56e",
+                "subject": "feat(router): validate optional host field shape"
+              },
+              {
+                "sha": "3678f351f202711723ad65ddc4a9a2f335030bf5",
+                "short_sha": "3678f35",
+                "subject": "feat(router): compile and expose exact route hosts"
+              },
+              {
+                "sha": "c8c9e2feb534dd5f865f0b427033a2c323993100",
+                "short_sha": "c8c9e2f",
+                "subject": "feat(router): scope duplicate claims by route host"
+              },
+              {
+                "sha": "6b3f4cfd252df66bb5110678791fe9fd3fefb81b",
+                "short_sha": "6b3f4cf",
+                "subject": "feat(router): match routes within the requested host"
+              },
+              {
+                "sha": "701a4234c13a1392d52a982668f435fdab9b1530",
+                "short_sha": "701a423",
+                "subject": "feat(router): pass host through routing runtime"
+              },
+              {
+                "sha": "d3f3a853d2a8fea3e5a7cf3cdeb5272bd4e85e53",
+                "short_sha": "d3f3a85",
+                "subject": "feat(router): dispatch within the requested host"
+              },
+              {
+                "sha": "abdb4f328176a41bf1fa04fb412a7e9ab2a5674a",
+                "short_sha": "abdb4f3",
+                "subject": "feat(router): expose host-aware matching on facade"
+              },
+              {
+                "sha": "b98a0f00add1e27543ea6c76b77dc6c10a3acc90",
+                "short_sha": "b98a0f0",
+                "subject": "test(router): cover exact host routing and precedence"
+              },
+              {
+                "sha": "b108a068ea8df9eca8bdf4f1be93c91c295d6c5a",
+                "short_sha": "b108a06",
+                "subject": "test(config): accept optional route host in schema"
+              },
+              {
+                "sha": "324ddd2797a95db2c25a229967135897063255fd",
+                "short_sha": "324ddd2",
+                "subject": "test(router): verify facade host-aware matching"
+              },
+              {
+                "sha": "0588c29b07d90497087d908fc3e33952bcb72bf9",
+                "short_sha": "0588c29",
+                "subject": "docs(router): record exact-host routing slice and remaining gaps"
+              },
+              {
+                "sha": "81b5b7e07eed517ae225fe4c639e3bc1d0a83930",
+                "short_sha": "81b5b7e",
+                "subject": "docs(roadmap): record exact-host routing implementation"
+              },
+              {
+                "sha": "1ec2235fc76956f4e02307d1dc9d3bec10112083",
+                "short_sha": "1ec2235",
+                "subject": "test(router): reject malformed request hosts"
+              },
+              {
+                "sha": "89ef72d0ddff9f3796fa72c6496ed861e29dec34",
+                "short_sha": "89ef72d",
+                "subject": "docs(router): document exact-host matching contract"
+              },
+              {
+                "sha": "fd93b83fc376535990b98cd5e73b4f1f6b7d5f22",
+                "short_sha": "fd93b83",
+                "subject": "docs(roadmap): record optional route host schema field"
+              },
+              {
+                "sha": "69f2bd068039b8739ef53c66f2d14440b14cd161",
+                "short_sha": "69f2bd0",
+                "subject": "docs(router): clarify host-scoped route claims"
+              },
+              {
+                "sha": "cbe7da89efb86924d08e1748848bbacdf92a648c",
+                "short_sha": "cbe7da8",
+                "subject": "docs(router): document host-aware radix matching"
+              },
+              {
+                "sha": "377418e1bb1e7b48a8b710f0f8d1eb765a4f52b9",
+                "short_sha": "377418e",
+                "subject": "feat(router): capture tenant host parameters"
+              },
+              {
+                "sha": "fc14f6adc2f8efc88946f9fe93e7fa4141bb9dad",
+                "short_sha": "fc14f6a",
+                "subject": "fix(router): correct host label matching"
+              },
+              {
+                "sha": "a584076077dc79b4df42c46333ff0840ad163b06",
+                "short_sha": "a584076",
+                "subject": "feat(router): generate absolute tenant URLs"
+              },
+              {
+                "sha": "84a49527073ac46c5d214f32733a2aaf7cbdea92",
+                "short_sha": "84a4952",
+                "subject": "fix(router): harden host label rendering"
+              },
+              {
+                "sha": "c35e0596b099a862501043733164b1d17e594fde",
+                "short_sha": "c35e059",
+                "subject": "fix(router): anchor tenant host labels"
+              },
+              {
+                "sha": "82b051f624f096639c516d48296663bd8e71bc65",
+                "short_sha": "82b051f",
+                "subject": "fix(router): reject ambiguous tenant host patterns"
+              },
+              {
+                "sha": "f839793bb32eaf60c5a998547b3d229a78615467",
+                "short_sha": "f839793",
+                "subject": "fix(router): preserve duplicate host diagnostics"
+              },
+              {
+                "sha": "0ad527db598c4a6aaaf6207811d1ef24656f9225",
+                "short_sha": "0ad527d",
+                "subject": "docs(router): update host parameter roadmap evidence"
+              },
+              {
+                "sha": "92f2d6e4db8858e134b128f5045d63f83dd7488b",
+                "short_sha": "92f2d6e",
+                "subject": "feat(router): declare route representation types"
+              },
+              {
+                "sha": "2096f94030bd3883c64d435bfdb7f1f7ce57c8e2",
+                "short_sha": "2096f94",
+                "subject": "feat(router): negotiate Accept during route matching"
+              },
+              {
+                "sha": "16291e71f018708055ee8fd50dd59d005e8b6943",
+                "short_sha": "16291e7",
+                "subject": "feat(router): surface not-acceptable dispatch outcomes"
+              },
+              {
+                "sha": "f9afeda680f35964f827773b35476a4ab6b6652b",
+                "short_sha": "f9afeda",
+                "subject": "test(router): cover Accept negotiation and 406 outcomes"
+              },
+              {
+                "sha": "b49b2bffa4b86a0d5c14ae6765cd4e12493ebd0e",
+                "short_sha": "b49b2bf",
+                "subject": "docs(router): record content negotiation roadmap slice"
+              },
+              {
+                "sha": "ea0118b65b950c68fe894643be82b62e4b402b2d",
+                "short_sha": "ea0118b",
+                "subject": "feat(router): add PSR-15 request and route middleware adapter"
+              },
+              {
+                "sha": "d9a6d8dcf27738746cf53d51710e0eed48750c9c",
+                "short_sha": "d9a6d8d",
+                "subject": "test(router): cover PSR-15 dispatch and route middleware"
+              },
+              {
+                "sha": "62b4e631d5043b37ee80f9bbe4fb2122888da0b2",
+                "short_sha": "62b4e63",
+                "subject": "fix(router): reuse dispatcher and vary 406 responses"
+              },
+              {
+                "sha": "3858c8c834c73f64e58415e20c262a3206c5f38a",
+                "short_sha": "3858c8c",
+                "subject": "docs(router): record PSR-15 and route middleware integration"
+              },
+              {
+                "sha": "420acbb360c40d25f4f270f1e3a4ec78b22cdefb",
+                "short_sha": "420acbb",
+                "subject": "fix(router): prioritize specific parameterized hosts"
+              },
+              {
+                "sha": "f32ac7c847419ca21f972e46c4e41f4ce0303b8b",
+                "short_sha": "f32ac7c",
+                "subject": "docs(router): pin roadmap audit to current main base"
+              },
+              {
+                "sha": "8274b80a6ca84a955ea3eebf087609bcb7cff64e",
+                "short_sha": "8274b80",
+                "subject": "feat(router): declare versioned route variants"
+              },
+              {
+                "sha": "49e82cd7417dbe5d9e87652d1caac88f5d5cb7a2",
+                "short_sha": "49e82cd",
+                "subject": "feat(router): match routes by API version headers"
+              },
+              {
+                "sha": "485a7d5f55e6ac45f4277394a21b0bec4977db7a",
+                "short_sha": "485a7d5",
+                "subject": "test(router): cover version header route selection"
+              },
+              {
+                "sha": "69e58199494fef60172577d3cee665b05d85b6fc",
+                "short_sha": "69e5819",
+                "subject": "docs(roadmap): update router versioning and adapter evidence"
+              },
+              {
+                "sha": "9dfa9dee617db19ec5837ba47791b31c32399baf",
+                "short_sha": "9dfa9de",
+                "subject": "feat(http): support HEAD route fallback and body suppression"
+              },
+              {
+                "sha": "2465ffc00e23b712a0a97e24079ce170fbc065a2",
+                "short_sha": "2465ffc",
+                "subject": "docs(router): sync roadmap with HTTP adapter behavior"
+              },
+              {
+                "sha": "e90d0ef6571475675154d15b304e069c9f18c287",
+                "short_sha": "e90d0ef",
+                "subject": "feat(http): emit RFC 9457 problem responses"
+              },
+              {
+                "sha": "c5fadd58f39b21cd1d2d1dd402443b9e2d27f151",
+                "short_sha": "c5fadd5",
+                "subject": "docs(http): record problem details and HEAD behavior"
+              },
+              {
+                "sha": "7be6fda36e834d8c83f2377d6c7c46e8406a1872",
+                "short_sha": "7be6fda",
+                "subject": "docs(router): reconcile remaining roadmap gaps"
+              },
+              {
+                "sha": "578a977f854bc6d67c16d99ee184d5e7db3e8966",
+                "short_sha": "578a977",
+                "subject": "feat(http): support conditional GET and HEAD responses"
+              },
+              {
+                "sha": "984c63f397ddfc6c27ca80d6bec61b69c5a4d63f",
+                "short_sha": "984c63f",
+                "subject": "docs(http): document conditional request semantics"
+              },
+              {
+                "sha": "c9946770f1789f9be1c6dfeba7d270d5a8987cae",
+                "short_sha": "c994677",
+                "subject": "docs(router): update conditional request roadmap status"
+              },
+              {
+                "sha": "d15c2e9c0b7606735fdb5c92fb4242b7256e32c7",
+                "short_sha": "d15c2e9",
+                "subject": "fix(http): correct conditional response exception name"
+              },
+              {
+                "sha": "cd577c58afa90efc210f62b9507ff1c4ae643cae",
+                "short_sha": "cd577c5",
+                "subject": "test(http): cover If-Modified-Since handling"
+              },
+              {
+                "sha": "b13c67f9114d8c0a9bb9e97815c22ab1e932ccce",
+                "short_sha": "b13c67f",
+                "subject": "fix(router): import ConfigException into the URL generator"
+              },
+              {
+                "sha": "e47a208c960dda71d1cf50387a13cba76ff28186",
+                "short_sha": "e47a208",
+                "subject": "test(router): refresh schema key expectations for the new fields"
+              },
+              {
+                "sha": "4a121d54845a631418e0faf45ad7b271873fb1be",
+                "short_sha": "4a121d5",
+                "subject": "Merge branch 'main' into feat/router-runtime-facade"
+              },
+              {
+                "sha": "de20dac9df8e636d3b462ae3ea50ea792c8dd772",
+                "short_sha": "de20dac",
+                "subject": "fix(router): settle the staged router work on the static gates"
+              },
+              {
+                "sha": "6830fe49f2b093800e838307ec8cb984adce6504",
+                "short_sha": "6830fe4",
+                "subject": "refactor(router): redistribute the router folds under the archeology gate"
+              },
+              {
+                "sha": "a7b570a76722aad88aa8ae16fff30467c79846ab",
+                "short_sha": "a7b570a",
+                "subject": "test(router): attribute the redistributed folds and pin the host boundaries"
+              },
+              {
+                "sha": "e71d922aafbf3add6fa30ff51980321f2ffecac2",
+                "short_sha": "e71d922",
+                "subject": "test(router): kill the changed-set's escape batch and document the equivalents"
+              },
+              {
+                "sha": "60eca8bcb0f3ff2e8c228f0af3608c1ee6cafd36",
+                "short_sha": "60eca8b",
+                "subject": "docs(router): record the settling pass and refresh the router evidence"
+              },
+              {
+                "sha": "5ad6e1af2847a030f971ec4e6efcb91f9a63ca5c",
+                "short_sha": "5ad6e1a",
+                "subject": "fix(router): repay the line-length debt and refold the sonar returns"
+              },
+              {
+                "sha": "7e112ae96e72b47649b02cf27bb5345b58bb2c1b",
+                "short_sha": "7e112ae",
+                "subject": "fix(router): land the dispatch problem fold under the archeology gate"
+              },
+              {
+                "sha": "66b1808cd12d92f4c682d4c98cb0bcede0e65bea",
+                "short_sha": "66b1808",
+                "subject": "test(router): pin the split guard messages end to end"
               }
             ]
           },
@@ -6238,6 +6629,22 @@
                 "sha": "fbe1519a46eeb83825082d35478d513ec22a1a91",
                 "short_sha": "fbe1519",
                 "subject": "docs(roadmap): record the process error boundary and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 519,
+            "title": "docs(roadmap): record the router runtime facade and pin the lane",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-21T21:34:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/519",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "62fe3dec81a302703f97b7eb0490374bfbb83d12",
+                "short_sha": "62fe3de",
+                "subject": "docs(roadmap): record the router runtime facade and pin the lane"
               }
             ]
           }
@@ -12733,6 +13140,397 @@
           ]
         },
         {
+          "pr": 512,
+          "title": "feat(router): add host-aware routing and versioned PSR-15 dispatch",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-21T20:39:59Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/512",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "43521215b902c4edc412565c83c21b43293914de",
+              "short_sha": "4352121",
+              "subject": "feat(router): add public radix runtime facade"
+            },
+            {
+              "sha": "3bdccd1b35e7fed402b789789cdecddfe97e2807",
+              "short_sha": "3bdccd1",
+              "subject": "test(router): cover public facade contract"
+            },
+            {
+              "sha": "920a5a8a50c6cb37a06c08510d3e124c7eaa107b",
+              "short_sha": "920a5a8",
+              "subject": "docs(router): record facade boundary and reference"
+            },
+            {
+              "sha": "0e69fd1ff692c71671bb7ebe5384e4fd29b76563",
+              "short_sha": "0e69fd1",
+              "subject": "chore(architecture): declare router adapter layer"
+            },
+            {
+              "sha": "8a6b6822370e73537c874b7e6ad4c345b25345bc",
+              "short_sha": "8a6b682",
+              "subject": "docs(roadmap): mark router facade as partial"
+            },
+            {
+              "sha": "4f429a8709af13b06d61818d85094b2be6b6fc35",
+              "short_sha": "4f429a8",
+              "subject": "test(router): cover reverse-routing constraint refusal"
+            },
+            {
+              "sha": "1a57f3124fe94cabb95f24ca04e13f765a938518",
+              "short_sha": "1a57f31",
+              "subject": "docs(router): map roadmap contracts against current engine"
+            },
+            {
+              "sha": "e6615efb729090b7a2070ca46290182fd4e3cc31",
+              "short_sha": "e6615ef",
+              "subject": "docs(router): align audit with existing dispatcher boundary"
+            },
+            {
+              "sha": "e5403dac7262ac2401ea9b5da58914839a299c38",
+              "short_sha": "e5403da",
+              "subject": "feat(router): expose the container-backed dispatcher"
+            },
+            {
+              "sha": "081849c6afe8e10a4754e861d3add7bf7838514d",
+              "short_sha": "081849c",
+              "subject": "test(router): cover facade dispatcher integration"
+            },
+            {
+              "sha": "ab90973647e5e44018eb2c5a4fa4bee550419935",
+              "short_sha": "ab90973",
+              "subject": "chore(architecture): allow router dispatcher container dependency"
+            },
+            {
+              "sha": "72e8c883982e5dea19e5f15bf5029e98721e9e4f",
+              "short_sha": "72e8c88",
+              "subject": "docs(roadmap): record router dispatcher facade slice"
+            },
+            {
+              "sha": "799c964bac02ae7900d86e73345e5660245fa841",
+              "short_sha": "799c964",
+              "subject": "docs(router): record dispatcher bridge implementation"
+            },
+            {
+              "sha": "bc1938e29f700079c2c10f3fb61affa9f309f76a",
+              "short_sha": "bc1938e",
+              "subject": "feat(router): add exact host grammar for route matching"
+            },
+            {
+              "sha": "80e715b818b11074d3789b3c50988629ea936cff",
+              "short_sha": "80e715b",
+              "subject": "feat(router): extend route schema with optional host"
+            },
+            {
+              "sha": "f79e56e0c00cdc05c4fded3eba109f89acddfd94",
+              "short_sha": "f79e56e",
+              "subject": "feat(router): validate optional host field shape"
+            },
+            {
+              "sha": "3678f351f202711723ad65ddc4a9a2f335030bf5",
+              "short_sha": "3678f35",
+              "subject": "feat(router): compile and expose exact route hosts"
+            },
+            {
+              "sha": "c8c9e2feb534dd5f865f0b427033a2c323993100",
+              "short_sha": "c8c9e2f",
+              "subject": "feat(router): scope duplicate claims by route host"
+            },
+            {
+              "sha": "6b3f4cfd252df66bb5110678791fe9fd3fefb81b",
+              "short_sha": "6b3f4cf",
+              "subject": "feat(router): match routes within the requested host"
+            },
+            {
+              "sha": "701a4234c13a1392d52a982668f435fdab9b1530",
+              "short_sha": "701a423",
+              "subject": "feat(router): pass host through routing runtime"
+            },
+            {
+              "sha": "d3f3a853d2a8fea3e5a7cf3cdeb5272bd4e85e53",
+              "short_sha": "d3f3a85",
+              "subject": "feat(router): dispatch within the requested host"
+            },
+            {
+              "sha": "abdb4f328176a41bf1fa04fb412a7e9ab2a5674a",
+              "short_sha": "abdb4f3",
+              "subject": "feat(router): expose host-aware matching on facade"
+            },
+            {
+              "sha": "b98a0f00add1e27543ea6c76b77dc6c10a3acc90",
+              "short_sha": "b98a0f0",
+              "subject": "test(router): cover exact host routing and precedence"
+            },
+            {
+              "sha": "b108a068ea8df9eca8bdf4f1be93c91c295d6c5a",
+              "short_sha": "b108a06",
+              "subject": "test(config): accept optional route host in schema"
+            },
+            {
+              "sha": "324ddd2797a95db2c25a229967135897063255fd",
+              "short_sha": "324ddd2",
+              "subject": "test(router): verify facade host-aware matching"
+            },
+            {
+              "sha": "0588c29b07d90497087d908fc3e33952bcb72bf9",
+              "short_sha": "0588c29",
+              "subject": "docs(router): record exact-host routing slice and remaining gaps"
+            },
+            {
+              "sha": "81b5b7e07eed517ae225fe4c639e3bc1d0a83930",
+              "short_sha": "81b5b7e",
+              "subject": "docs(roadmap): record exact-host routing implementation"
+            },
+            {
+              "sha": "1ec2235fc76956f4e02307d1dc9d3bec10112083",
+              "short_sha": "1ec2235",
+              "subject": "test(router): reject malformed request hosts"
+            },
+            {
+              "sha": "89ef72d0ddff9f3796fa72c6496ed861e29dec34",
+              "short_sha": "89ef72d",
+              "subject": "docs(router): document exact-host matching contract"
+            },
+            {
+              "sha": "fd93b83fc376535990b98cd5e73b4f1f6b7d5f22",
+              "short_sha": "fd93b83",
+              "subject": "docs(roadmap): record optional route host schema field"
+            },
+            {
+              "sha": "69f2bd068039b8739ef53c66f2d14440b14cd161",
+              "short_sha": "69f2bd0",
+              "subject": "docs(router): clarify host-scoped route claims"
+            },
+            {
+              "sha": "cbe7da89efb86924d08e1748848bbacdf92a648c",
+              "short_sha": "cbe7da8",
+              "subject": "docs(router): document host-aware radix matching"
+            },
+            {
+              "sha": "377418e1bb1e7b48a8b710f0f8d1eb765a4f52b9",
+              "short_sha": "377418e",
+              "subject": "feat(router): capture tenant host parameters"
+            },
+            {
+              "sha": "fc14f6adc2f8efc88946f9fe93e7fa4141bb9dad",
+              "short_sha": "fc14f6a",
+              "subject": "fix(router): correct host label matching"
+            },
+            {
+              "sha": "a584076077dc79b4df42c46333ff0840ad163b06",
+              "short_sha": "a584076",
+              "subject": "feat(router): generate absolute tenant URLs"
+            },
+            {
+              "sha": "84a49527073ac46c5d214f32733a2aaf7cbdea92",
+              "short_sha": "84a4952",
+              "subject": "fix(router): harden host label rendering"
+            },
+            {
+              "sha": "c35e0596b099a862501043733164b1d17e594fde",
+              "short_sha": "c35e059",
+              "subject": "fix(router): anchor tenant host labels"
+            },
+            {
+              "sha": "82b051f624f096639c516d48296663bd8e71bc65",
+              "short_sha": "82b051f",
+              "subject": "fix(router): reject ambiguous tenant host patterns"
+            },
+            {
+              "sha": "f839793bb32eaf60c5a998547b3d229a78615467",
+              "short_sha": "f839793",
+              "subject": "fix(router): preserve duplicate host diagnostics"
+            },
+            {
+              "sha": "0ad527db598c4a6aaaf6207811d1ef24656f9225",
+              "short_sha": "0ad527d",
+              "subject": "docs(router): update host parameter roadmap evidence"
+            },
+            {
+              "sha": "92f2d6e4db8858e134b128f5045d63f83dd7488b",
+              "short_sha": "92f2d6e",
+              "subject": "feat(router): declare route representation types"
+            },
+            {
+              "sha": "2096f94030bd3883c64d435bfdb7f1f7ce57c8e2",
+              "short_sha": "2096f94",
+              "subject": "feat(router): negotiate Accept during route matching"
+            },
+            {
+              "sha": "16291e71f018708055ee8fd50dd59d005e8b6943",
+              "short_sha": "16291e7",
+              "subject": "feat(router): surface not-acceptable dispatch outcomes"
+            },
+            {
+              "sha": "f9afeda680f35964f827773b35476a4ab6b6652b",
+              "short_sha": "f9afeda",
+              "subject": "test(router): cover Accept negotiation and 406 outcomes"
+            },
+            {
+              "sha": "b49b2bffa4b86a0d5c14ae6765cd4e12493ebd0e",
+              "short_sha": "b49b2bf",
+              "subject": "docs(router): record content negotiation roadmap slice"
+            },
+            {
+              "sha": "ea0118b65b950c68fe894643be82b62e4b402b2d",
+              "short_sha": "ea0118b",
+              "subject": "feat(router): add PSR-15 request and route middleware adapter"
+            },
+            {
+              "sha": "d9a6d8dcf27738746cf53d51710e0eed48750c9c",
+              "short_sha": "d9a6d8d",
+              "subject": "test(router): cover PSR-15 dispatch and route middleware"
+            },
+            {
+              "sha": "62b4e631d5043b37ee80f9bbe4fb2122888da0b2",
+              "short_sha": "62b4e63",
+              "subject": "fix(router): reuse dispatcher and vary 406 responses"
+            },
+            {
+              "sha": "3858c8c834c73f64e58415e20c262a3206c5f38a",
+              "short_sha": "3858c8c",
+              "subject": "docs(router): record PSR-15 and route middleware integration"
+            },
+            {
+              "sha": "420acbb360c40d25f4f270f1e3a4ec78b22cdefb",
+              "short_sha": "420acbb",
+              "subject": "fix(router): prioritize specific parameterized hosts"
+            },
+            {
+              "sha": "f32ac7c847419ca21f972e46c4e41f4ce0303b8b",
+              "short_sha": "f32ac7c",
+              "subject": "docs(router): pin roadmap audit to current main base"
+            },
+            {
+              "sha": "8274b80a6ca84a955ea3eebf087609bcb7cff64e",
+              "short_sha": "8274b80",
+              "subject": "feat(router): declare versioned route variants"
+            },
+            {
+              "sha": "49e82cd7417dbe5d9e87652d1caac88f5d5cb7a2",
+              "short_sha": "49e82cd",
+              "subject": "feat(router): match routes by API version headers"
+            },
+            {
+              "sha": "485a7d5f55e6ac45f4277394a21b0bec4977db7a",
+              "short_sha": "485a7d5",
+              "subject": "test(router): cover version header route selection"
+            },
+            {
+              "sha": "69e58199494fef60172577d3cee665b05d85b6fc",
+              "short_sha": "69e5819",
+              "subject": "docs(roadmap): update router versioning and adapter evidence"
+            },
+            {
+              "sha": "9dfa9dee617db19ec5837ba47791b31c32399baf",
+              "short_sha": "9dfa9de",
+              "subject": "feat(http): support HEAD route fallback and body suppression"
+            },
+            {
+              "sha": "2465ffc00e23b712a0a97e24079ce170fbc065a2",
+              "short_sha": "2465ffc",
+              "subject": "docs(router): sync roadmap with HTTP adapter behavior"
+            },
+            {
+              "sha": "e90d0ef6571475675154d15b304e069c9f18c287",
+              "short_sha": "e90d0ef",
+              "subject": "feat(http): emit RFC 9457 problem responses"
+            },
+            {
+              "sha": "c5fadd58f39b21cd1d2d1dd402443b9e2d27f151",
+              "short_sha": "c5fadd5",
+              "subject": "docs(http): record problem details and HEAD behavior"
+            },
+            {
+              "sha": "7be6fda36e834d8c83f2377d6c7c46e8406a1872",
+              "short_sha": "7be6fda",
+              "subject": "docs(router): reconcile remaining roadmap gaps"
+            },
+            {
+              "sha": "578a977f854bc6d67c16d99ee184d5e7db3e8966",
+              "short_sha": "578a977",
+              "subject": "feat(http): support conditional GET and HEAD responses"
+            },
+            {
+              "sha": "984c63f397ddfc6c27ca80d6bec61b69c5a4d63f",
+              "short_sha": "984c63f",
+              "subject": "docs(http): document conditional request semantics"
+            },
+            {
+              "sha": "c9946770f1789f9be1c6dfeba7d270d5a8987cae",
+              "short_sha": "c994677",
+              "subject": "docs(router): update conditional request roadmap status"
+            },
+            {
+              "sha": "d15c2e9c0b7606735fdb5c92fb4242b7256e32c7",
+              "short_sha": "d15c2e9",
+              "subject": "fix(http): correct conditional response exception name"
+            },
+            {
+              "sha": "cd577c58afa90efc210f62b9507ff1c4ae643cae",
+              "short_sha": "cd577c5",
+              "subject": "test(http): cover If-Modified-Since handling"
+            },
+            {
+              "sha": "b13c67f9114d8c0a9bb9e97815c22ab1e932ccce",
+              "short_sha": "b13c67f",
+              "subject": "fix(router): import ConfigException into the URL generator"
+            },
+            {
+              "sha": "e47a208c960dda71d1cf50387a13cba76ff28186",
+              "short_sha": "e47a208",
+              "subject": "test(router): refresh schema key expectations for the new fields"
+            },
+            {
+              "sha": "4a121d54845a631418e0faf45ad7b271873fb1be",
+              "short_sha": "4a121d5",
+              "subject": "Merge branch 'main' into feat/router-runtime-facade"
+            },
+            {
+              "sha": "de20dac9df8e636d3b462ae3ea50ea792c8dd772",
+              "short_sha": "de20dac",
+              "subject": "fix(router): settle the staged router work on the static gates"
+            },
+            {
+              "sha": "6830fe49f2b093800e838307ec8cb984adce6504",
+              "short_sha": "6830fe4",
+              "subject": "refactor(router): redistribute the router folds under the archeology gate"
+            },
+            {
+              "sha": "a7b570a76722aad88aa8ae16fff30467c79846ab",
+              "short_sha": "a7b570a",
+              "subject": "test(router): attribute the redistributed folds and pin the host boundaries"
+            },
+            {
+              "sha": "e71d922aafbf3add6fa30ff51980321f2ffecac2",
+              "short_sha": "e71d922",
+              "subject": "test(router): kill the changed-set's escape batch and document the equivalents"
+            },
+            {
+              "sha": "60eca8bcb0f3ff2e8c228f0af3608c1ee6cafd36",
+              "short_sha": "60eca8b",
+              "subject": "docs(router): record the settling pass and refresh the router evidence"
+            },
+            {
+              "sha": "5ad6e1af2847a030f971ec4e6efcb91f9a63ca5c",
+              "short_sha": "5ad6e1a",
+              "subject": "fix(router): repay the line-length debt and refold the sonar returns"
+            },
+            {
+              "sha": "7e112ae96e72b47649b02cf27bb5345b58bb2c1b",
+              "short_sha": "7e112ae",
+              "subject": "fix(router): land the dispatch problem fold under the archeology gate"
+            },
+            {
+              "sha": "66b1808cd12d92f4c682d4c98cb0bcede0e65bea",
+              "short_sha": "66b1808",
+              "subject": "test(router): pin the split guard messages end to end"
+            }
+          ]
+        },
+        {
           "pr": 513,
           "title": "feat(errors): add the process error boundary",
           "author": "mbetixz",
@@ -12801,6 +13599,22 @@
               "sha": "fbe1519a46eeb83825082d35478d513ec22a1a91",
               "short_sha": "fbe1519",
               "subject": "docs(roadmap): record the process error boundary and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 519,
+          "title": "docs(roadmap): record the router runtime facade and pin the lane",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-21T21:34:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/519",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "62fe3dec81a302703f97b7eb0490374bfbb83d12",
+              "short_sha": "62fe3de",
+              "subject": "docs(roadmap): record the router runtime facade and pin the lane"
             }
           ]
         }
