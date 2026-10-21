@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-20T23:19:48Z",
+  "as_of": "2026-10-21T01:50:31Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 220,
+  "unreleased_count": 222,
   "versions": [
     {
       "version": "Unreleased",
@@ -3556,6 +3556,67 @@
                 "subject": "fix(tests): pin the document-audit gate test to a pull-request lane"
               }
             ]
+          },
+          {
+            "pr": 508,
+            "title": "fix(errors): harden the failure visibility, log bounds and CLI display",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-21T01:01:56Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/508",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5f2a7d54d13d797cee326aa08edc9119bb75daeb",
+                "short_sha": "5f2a7d5",
+                "subject": "fix(errors): name the double failure's cause on the SAPI log"
+              },
+              {
+                "sha": "f9cff3312b5bf3b29684ed281f2f1179e5dcbc8d",
+                "short_sha": "f9cff33",
+                "subject": "fix(logging): align the log context gate's credential vocabulary"
+              },
+              {
+                "sha": "329f141680599abecded49adbf47c339f34aaa37",
+                "short_sha": "329f141",
+                "subject": "fix(logging): keep non-finite float context values recordable"
+              },
+              {
+                "sha": "eca87485947d3a825faf5f2b60101500164b56ad",
+                "short_sha": "eca8748",
+                "subject": "fix(logging): bound the message the JSONL formatter accepts"
+              },
+              {
+                "sha": "cd8dccaffcabc20b2eea6fca5c6d1ee32cf67bab",
+                "short_sha": "cd8dcca",
+                "subject": "fix(cli): strip control bytes from the error report display"
+              },
+              {
+                "sha": "ee65450a025e581537aec515ecabe2e73cd8d1d5",
+                "short_sha": "ee65450",
+                "subject": "docs(errors): record the hardening battery's contracts"
+              },
+              {
+                "sha": "e4a471db3cb38bd072b4be4ab3c861f253af81ec",
+                "short_sha": "e4a471d",
+                "subject": "docs(roadmap): correct the error lane's not-yet-done reading"
+              },
+              {
+                "sha": "73f32709361dc267024cc4c8b807cea56d308d4b",
+                "short_sha": "73f3270",
+                "subject": "style(logging): let the tools agree over the float arm's native call"
+              },
+              {
+                "sha": "778c88b3fc0af454b7578527b2cf4e1072bdeb6d",
+                "short_sha": "778c88b",
+                "subject": "refactor(logging): settle the float spelling as its own leaf"
+              },
+              {
+                "sha": "d09e0f68e022a19cf26f57873ab08b5342cc0e34",
+                "short_sha": "d09e0f6",
+                "subject": "test(logging): pin the three-byte edge of the message bound"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -6089,6 +6150,22 @@
                 "sha": "1f4117c42d669638acef3f50fab5c4cf292a2562",
                 "short_sha": "1f4117c",
                 "subject": "docs(roadmap): record the container performance and analysis CLI lane"
+              }
+            ]
+          },
+          {
+            "pr": 509,
+            "title": "docs(roadmap): record the error hardening battery and pin the lane",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-21T01:50:31Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/509",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ba61141156bdb72ce907f962825c9039390483e3",
+                "short_sha": "ba61141",
+                "subject": "docs(roadmap): record the error hardening battery -- history row 508"
               }
             ]
           }
@@ -12503,6 +12580,83 @@
               "sha": "1f4117c42d669638acef3f50fab5c4cf292a2562",
               "short_sha": "1f4117c",
               "subject": "docs(roadmap): record the container performance and analysis CLI lane"
+            }
+          ]
+        },
+        {
+          "pr": 508,
+          "title": "fix(errors): harden the failure visibility, log bounds and CLI display",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-21T01:01:56Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/508",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5f2a7d54d13d797cee326aa08edc9119bb75daeb",
+              "short_sha": "5f2a7d5",
+              "subject": "fix(errors): name the double failure's cause on the SAPI log"
+            },
+            {
+              "sha": "f9cff3312b5bf3b29684ed281f2f1179e5dcbc8d",
+              "short_sha": "f9cff33",
+              "subject": "fix(logging): align the log context gate's credential vocabulary"
+            },
+            {
+              "sha": "329f141680599abecded49adbf47c339f34aaa37",
+              "short_sha": "329f141",
+              "subject": "fix(logging): keep non-finite float context values recordable"
+            },
+            {
+              "sha": "eca87485947d3a825faf5f2b60101500164b56ad",
+              "short_sha": "eca8748",
+              "subject": "fix(logging): bound the message the JSONL formatter accepts"
+            },
+            {
+              "sha": "cd8dccaffcabc20b2eea6fca5c6d1ee32cf67bab",
+              "short_sha": "cd8dcca",
+              "subject": "fix(cli): strip control bytes from the error report display"
+            },
+            {
+              "sha": "ee65450a025e581537aec515ecabe2e73cd8d1d5",
+              "short_sha": "ee65450",
+              "subject": "docs(errors): record the hardening battery's contracts"
+            },
+            {
+              "sha": "e4a471db3cb38bd072b4be4ab3c861f253af81ec",
+              "short_sha": "e4a471d",
+              "subject": "docs(roadmap): correct the error lane's not-yet-done reading"
+            },
+            {
+              "sha": "73f32709361dc267024cc4c8b807cea56d308d4b",
+              "short_sha": "73f3270",
+              "subject": "style(logging): let the tools agree over the float arm's native call"
+            },
+            {
+              "sha": "778c88b3fc0af454b7578527b2cf4e1072bdeb6d",
+              "short_sha": "778c88b",
+              "subject": "refactor(logging): settle the float spelling as its own leaf"
+            },
+            {
+              "sha": "d09e0f68e022a19cf26f57873ab08b5342cc0e34",
+              "short_sha": "d09e0f6",
+              "subject": "test(logging): pin the three-byte edge of the message bound"
+            }
+          ]
+        },
+        {
+          "pr": 509,
+          "title": "docs(roadmap): record the error hardening battery and pin the lane",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-21T01:50:31Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/509",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ba61141156bdb72ce907f962825c9039390483e3",
+              "short_sha": "ba61141",
+              "subject": "docs(roadmap): record the error hardening battery -- history row 508"
             }
           ]
         }
