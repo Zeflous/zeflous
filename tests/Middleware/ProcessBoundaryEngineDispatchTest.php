@@ -48,9 +48,11 @@ final class ProcessBoundaryEngineDispatchTest extends TestCase
     protected function tearDown(): void
     {
         foreach ([$this->logPath, $this->scriptPath] as $file) {
-            if (is_file($file)) {
-                unlink($file);
+            if (!is_file($file)) {
+                continue;
             }
+
+            unlink($file);
         }
     }
 
@@ -81,7 +83,7 @@ final class ProcessBoundaryEngineDispatchTest extends TestCase
         self::assertCount(
             1,
             $records,
-            'The engine\'s deprecation of the E_USER_ERROR spelling is the one diagnostic recorded.',
+            "The engine's deprecation of the E_USER_ERROR spelling is the one diagnostic recorded.",
         );
         self::assertSame('info', $records[0]['level']);
         self::assertSame('Native diagnostic', $records[0]['message']);
@@ -152,7 +154,7 @@ final class ProcessBoundaryEngineDispatchTest extends TestCase
      */
     private function runEngineScript(string $body): array
     {
-        $autoload = dirname(__DIR__, 2) . '/vendor/autoload.php';
+        $autoload = \dirname(__DIR__, 2) . '/vendor/autoload.php';
 
         $script = <<<PHP
             <?php
@@ -168,7 +170,7 @@ final class ProcessBoundaryEngineDispatchTest extends TestCase
 
         self::assertNotFalse(file_put_contents($this->scriptPath, $script));
 
-        $process = new Process([\PHP_BINARY, $this->scriptPath], dirname(__DIR__, 2));
+        $process = new Process([\PHP_BINARY, $this->scriptPath], \dirname(__DIR__, 2));
         $process->run();
 
         return [$process->getExitCode() ?? 255, $process->getOutput() . $process->getErrorOutput()];

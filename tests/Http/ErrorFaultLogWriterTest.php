@@ -39,9 +39,11 @@ final class ErrorFaultLogWriterTest extends TestCase
     {
         ini_set('error_log', (string) $this->previousErrorLog);
 
-        if (is_file($this->routedErrorLog)) {
-            unlink($this->routedErrorLog);
+        if (!is_file($this->routedErrorLog)) {
+            return;
         }
+
+        unlink($this->routedErrorLog);
     }
 
     public function testTheLoggerReceivesTheDefaultMessageSpelling(): void

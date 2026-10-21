@@ -9,6 +9,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionFunction;
 use RuntimeException;
 use Zef\Framework\Exception\NativeErrorException;
@@ -39,7 +40,7 @@ use Zef\Test\Support\Log\RecordingLogger;
 #[CoversClass(ProcessErrorBoundary::class)]
 final class ProcessErrorBoundaryTest extends TestCase
 {
-    private RecordingLogger $logger;
+    private RecordingLogger $recordingLogger;
 
     /** @var list<ResponseInterface> */
     private array $emitted = [];
@@ -47,25 +48,25 @@ final class ProcessErrorBoundaryTest extends TestCase
     /** @var list<string> */
     private array $sinkLines = [];
 
-    /** @var array<string, mixed>|null */
+    /** @var null|array<string, mixed> */
     private ?array $lastError = null;
 
     private string $routedErrorLog = '';
 
-    private string|false $previousErrorLog = false;
+    private false|string $previousErrorLog = false;
 
-    private int|false $previousReporting = false;
+    private false|int $previousReporting = false;
 
     #[Override]
     protected function setUp(): void
     {
-        $this->logger = new RecordingLogger();
+        $this->recordingLogger = new RecordingLogger();
         $this->emitted = [];
         $this->sinkLines = [];
         $this->lastError = null;
         $this->routedErrorLog = sys_get_temp_dir() . '/zef-process-boundary-' . uniqid() . '.log';
         $this->previousErrorLog = (string) ini_set('error_log', $this->routedErrorLog);
-        $this->previousReporting = error_reporting(E_ALL);
+        $this->previousReporting = error_reporting(\E_ALL);
     }
 
     #[Override]
@@ -74,9 +75,11 @@ final class ProcessErrorBoundaryTest extends TestCase
         error_reporting((int) $this->previousReporting);
         ini_set('error_log', (string) $this->previousErrorLog);
 
-        if (is_file($this->routedErrorLog)) {
-            unlink($this->routedErrorLog);
+        if (!is_file($this->routedErrorLog)) {
+            return;
         }
+
+        unlink($this->routedErrorLog);
     }
 
     public function testInstallRegistersTheArmsAndRestoreUnwindsThem(): void
@@ -84,11 +87,12 @@ final class ProcessErrorBoundaryTest extends TestCase
         $processErrorBoundary = $this->boundary();
 
         $processErrorBoundary->install();
+
         try {
             self::assertTrue($processErrorBoundary->installed());
             self::assertTrue(
                 $this->activeErrorHandlerIsBoundTo($processErrorBoundary),
-                'The installed boundary must own the engine\'s error handler.',
+                "The installed boundary must own the engine's error handler.",
             );
         } finally {
             $processErrorBoundary->restore();
@@ -97,7 +101,7 @@ final class ProcessErrorBoundaryTest extends TestCase
         self::assertFalse($processErrorBoundary->installed());
         self::assertFalse(
             $this->activeErrorHandlerIsBoundTo($processErrorBoundary),
-            'The restored boundary must no longer own the engine\'s error handler.',
+            "The restored boundary must no longer own the engine's error handler.",
         );
     }
 
@@ -107,6 +111,7 @@ final class ProcessErrorBoundaryTest extends TestCase
 
         $processErrorBoundary->install();
         $processErrorBoundary->install();
+
         try {
             self::assertTrue($processErrorBoundary->installed());
 
@@ -125,23 +130,24 @@ final class ProcessErrorBoundaryTest extends TestCase
     public function testARestoredBoundarysShutdownStaysSilentAndReArms(): void
     {
         $processErrorBoundary = $this->boundary();
-        $this->lastError = self::fatalError();
+        $this->lastError = $this->fatalError();
 
         $processErrorBoundary->install();
         $processErrorBoundary->restore();
 
-        $silentCalls = $this->logger->calls;
+        $silentCalls = $this->recordingLogger->calls;
         $processErrorBoundary->onShutdown();
         self::assertSame(
             $silentCalls,
-            $this->logger->calls,
+            $this->recordingLogger->calls,
             'A restored boundary must not record fatals.',
         );
 
         $processErrorBoundary->install();
+
         try {
             $processErrorBoundary->onShutdown();
-            self::assertCount(1, $this->logger->calls, 'A re-armed boundary must record fatals again.');
+            self::assertCount(1, $this->recordingLogger->calls, 'A re-armed boundary must record fatals again.');
         } finally {
             $processErrorBoundary->restore();
         }
@@ -149,10 +155,11 @@ final class ProcessErrorBoundaryTest extends TestCase
 
     public function testAMaskedSeverityIsHandedBackToTheEngine(): void
     {
-        $previousReporting = error_reporting(E_ALL & ~E_WARNING);
+        $previousReporting = error_reporting(\E_ALL & ~\E_WARNING);
+
         try {
             $owned = $this->boundary()->onNativeDiagnostic(
-                E_WARNING,
+                \E_WARNING,
                 'Undefined variable $budget',
                 '/var/app/src/budget.php',
                 42,
@@ -162,14 +169,14 @@ final class ProcessErrorBoundaryTest extends TestCase
         }
 
         self::assertFalse($owned);
-        self::assertSame([], $this->logger->calls);
+        self::assertSame([], $this->recordingLogger->calls);
     }
 
     public function testAUserErrorIsConvertedIntoTheTypedLane(): void
     {
         try {
             $this->boundary()->onNativeDiagnostic(
-                E_USER_ERROR,
+                \E_USER_ERROR,
                 'The budget import failed',
                 '/var/app/src/budget.php',
                 42,
@@ -189,7 +196,7 @@ final class ProcessErrorBoundaryTest extends TestCase
 
         self::assertSame(
             [],
-            $this->logger->calls,
+            $this->recordingLogger->calls,
             'A converted diagnostic records through the exception lane.',
         );
     }
@@ -198,7 +205,7 @@ final class ProcessErrorBoundaryTest extends TestCase
     {
         try {
             $this->boundary()->onNativeDiagnostic(
-                E_RECOVERABLE_ERROR,
+                \E_RECOVERABLE_ERROR,
                 'Argument #1 ($budget) must be of type int, string given',
                 '/var/app/src/budget.php',
                 42,
@@ -212,51 +219,51 @@ final class ProcessErrorBoundaryTest extends TestCase
     public function testAWarningIsRecordedOnceAndOwned(): void
     {
         $owned = $this->boundary()->onNativeDiagnostic(
-            E_WARNING,
+            \E_WARNING,
             'Undefined variable $budget password=secret123',
             '/var/app/src/budget.php',
             42,
         );
 
         self::assertTrue($owned);
-        self::assertCount(1, $this->logger->calls);
-        self::assertSame('warning', $this->logger->calls[0][0]);
-        self::assertSame('Native diagnostic', $this->logger->calls[0][1]);
-        self::assertSame('warning', $this->logger->calls[0][2]['diagnostic.severity']);
+        self::assertCount(1, $this->recordingLogger->calls);
+        self::assertSame('warning', $this->recordingLogger->calls[0][0]);
+        self::assertSame('Native diagnostic', $this->recordingLogger->calls[0][1]);
+        self::assertSame('warning', $this->recordingLogger->calls[0][2]['diagnostic.severity']);
         self::assertSame(
             'Undefined variable $budget password=[REDACTED]',
-            $this->logger->calls[0][2]['diagnostic.message'],
+            $this->recordingLogger->calls[0][2]['diagnostic.message'],
         );
-        self::assertSame('/var/app/src/budget.php', $this->logger->calls[0][2]['diagnostic.file']);
-        self::assertSame(42, $this->logger->calls[0][2]['diagnostic.line']);
-        self::assertSame('req-123', $this->logger->calls[0][2]['request_id']);
-        self::assertSame('GET', $this->logger->calls[0][2]['method']);
-        self::assertSame('/users', $this->logger->calls[0][2]['path']);
+        self::assertSame('/var/app/src/budget.php', $this->recordingLogger->calls[0][2]['diagnostic.file']);
+        self::assertSame(42, $this->recordingLogger->calls[0][2]['diagnostic.line']);
+        self::assertSame('req-123', $this->recordingLogger->calls[0][2]['request_id']);
+        self::assertSame('GET', $this->recordingLogger->calls[0][2]['method']);
+        self::assertSame('/users', $this->recordingLogger->calls[0][2]['path']);
     }
 
     public function testADeprecationIsRecordedAsInformational(): void
     {
         $owned = $this->boundary()->onNativeDiagnostic(
-            E_DEPRECATED,
+            \E_DEPRECATED,
             'The optional parameter $budget is declared implicitly nullable',
             '/var/app/src/budget.php',
             42,
         );
 
         self::assertTrue($owned);
-        self::assertCount(1, $this->logger->calls);
-        self::assertSame('info', $this->logger->calls[0][0]);
-        self::assertSame('info', $this->logger->calls[0][2]['diagnostic.severity']);
+        self::assertCount(1, $this->recordingLogger->calls);
+        self::assertSame('info', $this->recordingLogger->calls[0][0]);
+        self::assertSame('info', $this->recordingLogger->calls[0][2]['diagnostic.severity']);
     }
 
     public function testARequestSourceFailureIsContainedWhileTheDiagnosticIsStillOwned(): void
     {
         $owned = $this->boundary(requestSource: static function (): ServerRequest {
             throw new RuntimeException('The SAPI state is unreadable.');
-        })->onNativeDiagnostic(E_WARNING, 'A diagnostic.', '/var/app/src/budget.php', 42);
+        })->onNativeDiagnostic(\E_WARNING, 'A diagnostic.', '/var/app/src/budget.php', 42);
 
         self::assertTrue($owned);
-        self::assertSame([], $this->logger->calls);
+        self::assertSame([], $this->recordingLogger->calls);
         self::assertStringContainsString(
             'ZEF diagnostic record failed: RuntimeException',
             $this->routedErrorLogContents(),
@@ -267,38 +274,40 @@ final class ProcessErrorBoundaryTest extends TestCase
     {
         $processErrorBoundary = $this->boundary();
         $processErrorBoundary->install();
+
         try {
-            trigger_error('Undefined variable $budget', E_USER_WARNING);
+            trigger_error('Undefined variable $budget', \E_USER_WARNING);
         } finally {
             $processErrorBoundary->restore();
         }
 
-        self::assertCount(1, $this->logger->calls);
-        self::assertSame('Undefined variable $budget', $this->logger->calls[0][2]['diagnostic.message']);
+        self::assertCount(1, $this->recordingLogger->calls);
+        self::assertSame('Undefined variable $budget', $this->recordingLogger->calls[0][2]['diagnostic.message']);
     }
 
     public function testEngineSuppressedDiagnosticsNeverArrive(): void
     {
         $processErrorBoundary = $this->boundary();
         $processErrorBoundary->install();
+
         try {
-            @trigger_error('A suppressed diagnostic', E_USER_WARNING);
+            @trigger_error('A suppressed diagnostic', \E_USER_WARNING);
         } finally {
             $processErrorBoundary->restore();
         }
 
-        self::assertSame([], $this->logger->calls);
+        self::assertSame([], $this->recordingLogger->calls);
     }
 
     public function testAnUncaughtThrowableAnswersProblemDetails(): void
     {
         $this->boundary()->onUncaughtThrowable(new RuntimeException('The worker observed an impossible state.'));
 
-        self::assertCount(1, $this->logger->calls);
-        self::assertSame('critical', $this->logger->calls[0][0]);
-        self::assertSame('Request failed', $this->logger->calls[0][1]);
-        self::assertSame(RuntimeException::class, $this->logger->calls[0][2]['exception_class']);
-        self::assertSame('req-123', $this->logger->calls[0][2]['request_id']);
+        self::assertCount(1, $this->recordingLogger->calls);
+        self::assertSame('critical', $this->recordingLogger->calls[0][0]);
+        self::assertSame('Request failed', $this->recordingLogger->calls[0][1]);
+        self::assertSame(RuntimeException::class, $this->recordingLogger->calls[0][2]['exception_class']);
+        self::assertSame('req-123', $this->recordingLogger->calls[0][2]['request_id']);
 
         self::assertCount(1, $this->emitted);
         $response = $this->emitted[0];
@@ -322,8 +331,8 @@ final class ProcessErrorBoundaryTest extends TestCase
             new ValidationException('The email field must be a valid address.'),
         );
 
-        self::assertCount(1, $this->logger->calls);
-        self::assertSame('warning', $this->logger->calls[0][0]);
+        self::assertCount(1, $this->recordingLogger->calls);
+        self::assertSame('warning', $this->recordingLogger->calls[0][0]);
 
         self::assertCount(1, $this->emitted);
         self::assertSame(400, $this->emitted[0]->getStatusCode());
@@ -346,13 +355,14 @@ final class ProcessErrorBoundaryTest extends TestCase
     {
         $counterMeter = new CounterMeter();
 
-        $this->boundary(sapi: 'cli', meter: $counterMeter)
-            ->onUncaughtThrowable(new RuntimeException('The budget import failed.'));
+        $this->boundary(sapi: 'cli', counterMeter: $counterMeter)
+            ->onUncaughtThrowable(new RuntimeException('The budget import failed.'))
+        ;
 
         self::assertSame(['zef: RuntimeException: The budget import failed.'], $this->sinkLines);
         self::assertSame([], $this->emitted);
 
-        self::assertCount(1, $this->logger->calls, 'The CLI lane still records the fault.');
+        self::assertCount(1, $this->recordingLogger->calls, 'The CLI lane still records the fault.');
         self::assertSame(
             [],
             $counterMeter->snapshot(),
@@ -364,8 +374,9 @@ final class ProcessErrorBoundaryTest extends TestCase
     {
         $counterMeter = new CounterMeter();
 
-        $this->boundary(meter: $counterMeter)
-            ->onUncaughtThrowable(new RuntimeException('The worker observed an impossible state.'));
+        $this->boundary(counterMeter: $counterMeter)
+            ->onUncaughtThrowable(new RuntimeException('The worker observed an impossible state.'))
+        ;
 
         self::assertNotSame([], $counterMeter->snapshot());
     }
@@ -373,10 +384,11 @@ final class ProcessErrorBoundaryTest extends TestCase
     public function testHeadersAlreadySentNameTheSituationOnTheSapiLog(): void
     {
         $this->boundary(headersSent: true)
-            ->onUncaughtThrowable(new RuntimeException('The worker observed an impossible state.'));
+            ->onUncaughtThrowable(new RuntimeException('The worker observed an impossible state.'))
+        ;
 
         self::assertSame([], $this->emitted);
-        self::assertCount(1, $this->logger->calls);
+        self::assertCount(1, $this->recordingLogger->calls);
         self::assertStringContainsString(
             'ZEF process boundary could not answer req-123: headers already sent.',
             $this->routedErrorLogContents(),
@@ -403,38 +415,47 @@ final class ProcessErrorBoundaryTest extends TestCase
 
     public function testTheShutdownArmIgnoresNonFatalLastErrors(): void
     {
-        $this->lastError = ['type' => E_WARNING, 'message' => 'A warning.', 'file' => '/var/app/a.php', 'line' => 1];
+        $this->lastError = ['type' => \E_WARNING, 'message' => 'A warning.', 'file' => '/var/app/a.php', 'line' => 1];
 
-        $this->withAnArmedBoundary(fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown());
+        $this->withAnArmedBoundary(
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+        );
 
-        self::assertSame([], $this->logger->calls);
+        self::assertSame([], $this->recordingLogger->calls);
         self::assertSame([], $this->emitted);
     }
 
     public function testTheShutdownArmIgnoresAMalformedLastError(): void
     {
-        $this->lastError = ['type' => E_ERROR];
+        $this->lastError = ['type' => \E_ERROR];
 
-        $this->withAnArmedBoundary(fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown());
+        $this->withAnArmedBoundary(
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+        );
 
-        self::assertSame([], $this->logger->calls);
+        self::assertSame([], $this->recordingLogger->calls);
         self::assertSame([], $this->emitted);
     }
 
     public function testTheShutdownArmRecordsAndAnswersAFatal(): void
     {
-        $this->lastError = self::fatalError();
+        $this->lastError = $this->fatalError();
 
-        $this->withAnArmedBoundary(fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown());
+        $this->withAnArmedBoundary(
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+        );
 
-        self::assertCount(1, $this->logger->calls);
-        self::assertSame('critical', $this->logger->calls[0][0]);
-        self::assertSame('Uncaught fatal', $this->logger->calls[0][1]);
-        self::assertSame('critical', $this->logger->calls[0][2]['diagnostic.severity']);
-        self::assertSame('Call to undefined function missing()', $this->logger->calls[0][2]['diagnostic.message']);
-        self::assertSame('/var/app/src/boot.php', $this->logger->calls[0][2]['diagnostic.file']);
-        self::assertSame(42, $this->logger->calls[0][2]['diagnostic.line']);
-        self::assertSame('req-123', $this->logger->calls[0][2]['request_id']);
+        self::assertCount(1, $this->recordingLogger->calls);
+        self::assertSame('critical', $this->recordingLogger->calls[0][0]);
+        self::assertSame('Uncaught fatal', $this->recordingLogger->calls[0][1]);
+        self::assertSame('critical', $this->recordingLogger->calls[0][2]['diagnostic.severity']);
+        self::assertSame(
+            'Call to undefined function missing()',
+            $this->recordingLogger->calls[0][2]['diagnostic.message'],
+        );
+        self::assertSame('/var/app/src/boot.php', $this->recordingLogger->calls[0][2]['diagnostic.file']);
+        self::assertSame(42, $this->recordingLogger->calls[0][2]['diagnostic.line']);
+        self::assertSame('req-123', $this->recordingLogger->calls[0][2]['request_id']);
 
         self::assertCount(1, $this->emitted);
         $response = $this->emitted[0];
@@ -453,14 +474,14 @@ final class ProcessErrorBoundaryTest extends TestCase
 
     public function testAFatalInACliProcessAnswersTheSinkLine(): void
     {
-        $this->lastError = self::fatalError();
+        $this->lastError = $this->fatalError();
 
         $this->withAnArmedBoundary(
-            fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
             sapi: 'cli',
         );
 
-        self::assertCount(1, $this->logger->calls);
+        self::assertCount(1, $this->recordingLogger->calls);
         self::assertSame(
             ['zef: PHP fatal error: Call to undefined function missing() in /var/app/src/boot.php on line 42'],
             $this->sinkLines,
@@ -470,14 +491,14 @@ final class ProcessErrorBoundaryTest extends TestCase
 
     public function testAFatalWithHeadersAlreadySentIsNamedOnTheSapiLog(): void
     {
-        $this->lastError = self::fatalError();
+        $this->lastError = $this->fatalError();
 
         $this->withAnArmedBoundary(
-            fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
             headersSent: true,
         );
 
-        self::assertCount(1, $this->logger->calls);
+        self::assertCount(1, $this->recordingLogger->calls);
         self::assertSame([], $this->emitted);
         self::assertStringContainsString(
             'ZEF process boundary could not answer a fatal: headers already sent.',
@@ -487,10 +508,10 @@ final class ProcessErrorBoundaryTest extends TestCase
 
     public function testAShutdownFailureIsContained(): void
     {
-        $this->lastError = self::fatalError();
+        $this->lastError = $this->fatalError();
 
         $this->withAnArmedBoundary(
-            fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
             requestSource: static function (): ServerRequest {
                 throw new RuntimeException('The SAPI state is unreadable.');
             },
@@ -504,13 +525,13 @@ final class ProcessErrorBoundaryTest extends TestCase
 
     public function testTheSinkLineIsBoundedAndStripped(): void
     {
-        $this->lastError = self::fatalError(
+        $this->lastError = $this->fatalError(
             "Call to undefined function missing()\x1b[31m and control bytes\r\n injected",
             1,
         );
 
         $this->withAnArmedBoundary(
-            fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
             sapi: 'cli',
         );
 
@@ -523,10 +544,10 @@ final class ProcessErrorBoundaryTest extends TestCase
 
     public function testTheSinkLineBoundsItsHeadAtOneHundredTwentyCharacters(): void
     {
-        $this->lastError = self::fatalError(str_repeat('a', 200), 1);
+        $this->lastError = $this->fatalError(str_repeat('a', 200), 1);
 
         $this->withAnArmedBoundary(
-            fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
             sapi: 'cli',
         );
 
@@ -548,17 +569,22 @@ final class ProcessErrorBoundaryTest extends TestCase
 
     public function testTheDefaultSeamsRunTheRealBranchesUnderTheEngine(): void
     {
-        $processErrorBoundary = new ProcessErrorBoundary($this->logger);
+        $processErrorBoundary = new ProcessErrorBoundary($this->recordingLogger);
 
         $processErrorBoundary->install();
+
         try {
             $processErrorBoundary->onUncaughtThrowable(new RuntimeException('The budget import failed.'));
         } finally {
             $processErrorBoundary->restore();
         }
 
-        self::assertCount(1, $this->logger->calls);
-        self::assertSame('GET', $this->logger->calls[0][2]['method'], 'The default source reads the SAPI state.');
+        self::assertCount(1, $this->recordingLogger->calls);
+        self::assertSame(
+            'GET',
+            $this->recordingLogger->calls[0][2]['method'],
+            'The default source reads the SAPI state.',
+        );
         self::assertStringContainsString(
             'zef: RuntimeException: The budget import failed.',
             $this->routedErrorLogContents(),
@@ -566,33 +592,37 @@ final class ProcessErrorBoundaryTest extends TestCase
         );
 
         $processErrorBoundary->install();
+
         try {
             $processErrorBoundary->onShutdown();
         } finally {
             $processErrorBoundary->restore();
         }
 
-        $lastRecordedIndex = count($this->logger->calls) - 1;
+        $lastRecordedIndex = \count($this->recordingLogger->calls) - 1;
         self::assertSame(
             'Request failed',
-            $this->logger->calls[$lastRecordedIndex][1],
-            'The engine\'s own last error must not be a fatal the observer answers.',
+            $this->recordingLogger->calls[$lastRecordedIndex][1],
+            "The engine's own last error must not be a fatal the observer answers.",
         );
     }
 
     public function testTheDefaultEmitterShipsTheAnswerItWasHanded(): void
     {
-        $processErrorBoundary = new ProcessErrorBoundary($this->logger, sapi: 'fpm-fcgi');
+        $processErrorBoundary = new ProcessErrorBoundary($this->recordingLogger, sapi: 'fpm-fcgi');
 
         ob_start();
+
         try {
-            $processErrorBoundary->onUncaughtThrowable(new RuntimeException('The worker observed an impossible state.'));
+            $processErrorBoundary->onUncaughtThrowable(
+                new RuntimeException('The worker observed an impossible state.'),
+            );
         } finally {
             $output = (string) ob_get_clean();
         }
 
         self::assertStringContainsString('"status":500', $output);
-        self::assertCount(1, $this->logger->calls);
+        self::assertCount(1, $this->recordingLogger->calls);
     }
 
     /**
@@ -600,8 +630,9 @@ final class ProcessErrorBoundaryTest extends TestCase
      * afterwards -- the shutdown arm's direct-call battery must observe
      * the armed posture the engine's own registration would run under.
      *
-     * @param Closure(ProcessErrorBoundary): void          $observation   the armed observation
-     * @param null|Closure(): \Psr\Http\Message\ServerRequestInterface $requestSource the failing request source, when the observation needs one
+     * @param Closure(ProcessErrorBoundary): void    $observation   the armed observation
+     * @param null|Closure(): ServerRequestInterface $requestSource the failing request source,
+     *                                                              when the observation needs one
      */
     private function withAnArmedBoundary(
         Closure $observation,
@@ -612,6 +643,7 @@ final class ProcessErrorBoundaryTest extends TestCase
         $processErrorBoundary = $this->boundary(requestSource: $requestSource, headersSent: $headersSent, sapi: $sapi);
 
         $processErrorBoundary->install();
+
         try {
             $observation($processErrorBoundary);
         } finally {
@@ -625,20 +657,20 @@ final class ProcessErrorBoundaryTest extends TestCase
      * test's own state, and the request is the deterministic one the
      * arms' facts are asserted against.
      *
-     * @param null|Closure(): \Psr\Http\Message\ServerRequestInterface $requestSource the arms' request source
+     * @param null|Closure(): ServerRequestInterface $requestSource the arms' request source
      */
     private function boundary(
         ?Closure $requestSource = null,
         bool $headersSent = false,
         string $sapi = 'fpm-fcgi',
-        ?CounterMeter $meter = null,
+        ?CounterMeter $counterMeter = null,
         bool $debug = false,
     ): ProcessErrorBoundary {
         return new ProcessErrorBoundary(
-            $this->logger,
+            $this->recordingLogger,
             $debug,
-            $meter,
-            $requestSource ?? fn (): ServerRequest => new ServerRequest(
+            $counterMeter,
+            $requestSource ?? static fn (): ServerRequest => new ServerRequest(
                 'GET',
                 new Uri('https://app.example.test/users'),
                 [],
@@ -654,7 +686,7 @@ final class ProcessErrorBoundaryTest extends TestCase
             function (string $line): void {
                 $this->sinkLines[] = $line;
             },
-            fn (): bool => $headersSent,
+            static fn (): bool => $headersSent,
             $sapi,
             fn (): ?array => $this->lastError,
         );
@@ -676,7 +708,7 @@ final class ProcessErrorBoundaryTest extends TestCase
             return false;
         }
 
-        $boundThis = (new ReflectionFunction($active))->getClosureThis();
+        $boundThis = new ReflectionFunction($active)->getClosureThis();
 
         return $boundThis === $processErrorBoundary;
     }
@@ -684,9 +716,9 @@ final class ProcessErrorBoundaryTest extends TestCase
     /**
      * @return array<string, mixed> a well-formed fatal last error
      */
-    private static function fatalError(string $message = 'Call to undefined function missing()', int $line = 42): array
+    private function fatalError(string $message = 'Call to undefined function missing()', int $line = 42): array
     {
-        return ['type' => E_ERROR, 'message' => $message, 'file' => '/var/app/src/boot.php', 'line' => $line];
+        return ['type' => \E_ERROR, 'message' => $message, 'file' => '/var/app/src/boot.php', 'line' => $line];
     }
 
     /**

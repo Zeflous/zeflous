@@ -63,7 +63,7 @@ final class DiagnosticSeverityTest extends TestCase
     {
         $beyondTheFold = 1 << 15;
 
-        self::assertSame(0, $beyondTheFold & \E_ALL, 'The witness bit must sit outside the engine\'s own mask.');
+        self::assertSame(0, $beyondTheFold & \E_ALL, "The witness bit must sit outside the engine's own mask.");
         self::assertSame('warning', DiagnosticSeverity::for($beyondTheFold));
     }
 

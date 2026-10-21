@@ -28,6 +28,7 @@ use Zef\Framework\Middleware\ErrorMappingFactory;
 use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Middleware\MetricsFactory;
 use Zef\Framework\Middleware\MetricsMiddleware;
+use Zef\Framework\Middleware\ProcessErrorBoundary;
 use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
@@ -392,6 +393,92 @@ final class ApplicationBootstrapperTest extends TestCase
             ['scopes' => [], 'max_cross_scope_refs' => 0],
             FrameworkDefaults::profile()['namespaces'],
         );
+    }
+
+    public function testTheProcessBoundaryIsNotInstalledWhenTheKnobStaysSilent(): void
+    {
+        $kernel = new ApplicationBootstrapper()->boot(self::SHIPPED_CONFIGS);
+
+        $boundary = $kernel->container()->get(FrameworkDefaults::PROCESS_BOUNDARY_SERVICE);
+
+        self::assertInstanceOf(ProcessErrorBoundary::class, $boundary);
+        self::assertFalse(
+            $boundary->installed(),
+            'the knob the shipped profile carries is opt-in: an off spelling installs nothing',
+        );
+    }
+
+    public function testTheBootSeamInstallsTheProcessBoundaryWhenTheKnobAsksForIt(): void
+    {
+        $kernel = new ApplicationBootstrapper()->boot($this->temporaryConfigs([
+            'http.php' => '<?php return ["error_handling" => ["process_boundary" => true]];',
+        ]));
+
+        $boundary = $kernel->container()->get(FrameworkDefaults::PROCESS_BOUNDARY_SERVICE);
+        self::assertInstanceOf(ProcessErrorBoundary::class, $boundary);
+
+        try {
+            self::assertTrue(
+                $boundary->installed(),
+                'the one-call boot installs the process-level error face the knob asks for',
+            );
+        } finally {
+            $boundary->restore();
+        }
+    }
+
+    public function testTheProcessBoundaryKnobRefusesANonBooleanSpelling(): void
+    {
+        try {
+            new ApplicationBootstrapper()->boot($this->temporaryConfigs([
+                'http.php' => '<?php return ["error_handling" => ["process_boundary" => "yes"]];',
+            ]));
+            self::fail('A non-boolean process boundary knob must halt the boot.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'http.error_handling.process_boundary must be a boolean.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testABoundaryKnobAnsweredByAReboundNonBoundaryHaltsTheBoot(): void
+    {
+        try {
+            new ApplicationBootstrapper()->boot($this->temporaryConfigs([
+                'http.php' => '<?php return ["error_handling" => ["process_boundary" => true]];',
+                'services.php' => '<?php return ["http.errors.process_boundary" => ["value" => "not-a-boundary"]];',
+            ]));
+            self::fail('A knob asking for the boundary cannot be answered by something else.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The "http.errors.process_boundary" service must resolve to a'
+                . ' Zef\Framework\Middleware\ProcessErrorBoundary instance, "string" given.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * Lays a configuration directory down under the temporary root, one
+     * file per entry, and answers the directory's path.
+     *
+     * @param array<string, string> $files the configuration files to write,
+     *                                     keyed by basename
+     *
+     * @return non-empty-string the directory holding them
+     */
+    private function temporaryConfigs(array $files): string
+    {
+        $root = sys_get_temp_dir() . '/zef-appboot-' . uniqid('', false);
+        $this->temporaryRoot = $root;
+        mkdir($root, 0o777, true);
+
+        foreach ($files as $name => $content) {
+            file_put_contents($root . '/' . $name, $content);
+        }
+
+        return $root;
     }
 
     /**

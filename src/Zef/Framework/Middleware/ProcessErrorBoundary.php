@@ -87,11 +87,11 @@ use Zef\Framework\Telemetry\MeterInterface;
 final class ProcessErrorBoundary
 {
     /** The fatal family only the shutdown arm can observe. */
-    private const int FATAL_AT_SHUTDOWN = E_ERROR | E_PARSE | E_CORE_ERROR | E_CORE_WARNING
-        | E_COMPILE_ERROR | E_COMPILE_WARNING | E_USER_ERROR;
+    private const int FATAL_AT_SHUTDOWN = \E_ERROR | \E_PARSE | \E_CORE_ERROR | \E_CORE_WARNING
+        | \E_COMPILE_ERROR | \E_COMPILE_WARNING | \E_USER_ERROR;
 
     /** The severities the error arm converts into the typed exception lane. */
-    private const int CONVERTS_TO_EXCEPTION = E_USER_ERROR | E_RECOVERABLE_ERROR;
+    private const int CONVERTS_TO_EXCEPTION = \E_USER_ERROR | \E_RECOVERABLE_ERROR;
 
     /** The SAPI spellings that answer no HTTP client. */
     private const array CLI_SAPI_SPELLINGS = ['cli', 'phpdbg', 'embed'];
@@ -120,48 +120,44 @@ final class ProcessErrorBoundary
 
     private readonly string $sapi;
 
-    private readonly bool $debug;
-
-    private readonly ?LoggerInterface $logger;
-
     private readonly ErrorFaultRecorder $errorFaultRecorder;
 
     /**
-     * @param null|LoggerInterface                    $logger            the PSR-3 sink the
-     *                                                                 fault records and diagnostics
-     *                                                                 write through; null routes them to
-     *                                                                 the SAPI error log
-     * @param bool                                    $debug             the disclosure-approved
-     *                                                                 debug posture (the factory owns
-     *                                                                 the APP_ENV gating)
-     * @param null|MeterInterface                     $meter             the metrics boundary;
-     *                                                                 null leaves the counters alone
-     * @param null|Closure(): ServerRequestInterface  $requestSource     answers the request the
-     *                                                                 arms' facts synthesise from;
-     *                                                                 null reads the SAPI superglobals
-     * @param null|Closure(ResponseInterface): void   $responseEmitter   ships an answer to the
-     *                                                                 client; null emits through the
-     *                                                                 HTTP layer's own emitter
-     * @param null|Closure(string): void              $diagnosticSink    receives the bounded CLI
-     *                                                                 diagnostic line; null routes it
-     *                                                                 through the SAPI error log -- the
-     *                                                                 CLI operator's own channel, the
-     *                                                                 same destination the lane's other
-     *                                                                 fallbacks write to
-     * @param null|Closure(): bool                    $headersSentProbe  answers whether the SAPI
-     *                                                                 already shipped its headers; null
-     *                                                                 asks the engine
-     * @param null|string                             $sapi              the SAPI spelling the arms
-     *                                                                 branch on; null reads the running
-     *                                                                 process's own
-     * @param null|Closure(): ?array<string, mixed>            $lastErrorProvider answers the engine's
-     *                                                                 last error (the shutdown arm's
-     *                                                                 fatal witness); null asks the
-     *                                                                 engine's own `error_get_last()`
+     * @param null|LoggerInterface                   $logger            the PSR-3 sink the
+     *                                                                  fault records and diagnostics
+     *                                                                  write through; null routes them to
+     *                                                                  the SAPI error log
+     * @param bool                                   $debug             the disclosure-approved
+     *                                                                  debug posture (the factory owns
+     *                                                                  the APP_ENV gating)
+     * @param null|MeterInterface                    $meter             the metrics boundary;
+     *                                                                  null leaves the counters alone
+     * @param null|Closure(): ServerRequestInterface $requestSource     answers the request the
+     *                                                                  arms' facts synthesise from;
+     *                                                                  null reads the SAPI superglobals
+     * @param null|Closure(ResponseInterface): void  $responseEmitter   ships an answer to the
+     *                                                                  client; null emits through the
+     *                                                                  HTTP layer's own emitter
+     * @param null|Closure(string): void             $diagnosticSink    receives the bounded CLI
+     *                                                                  diagnostic line; null routes it
+     *                                                                  through the SAPI error log -- the
+     *                                                                  CLI operator's own channel, the
+     *                                                                  same destination the lane's other
+     *                                                                  fallbacks write to
+     * @param null|Closure(): bool                   $headersSentProbe  answers whether the SAPI
+     *                                                                  already shipped its headers; null
+     *                                                                  asks the engine
+     * @param null|string                            $sapi              the SAPI spelling the arms
+     *                                                                  branch on; null reads the running
+     *                                                                  process's own
+     * @param null|Closure(): ?array<string, mixed>  $lastErrorProvider answers the engine's
+     *                                                                  last error (the shutdown arm's
+     *                                                                  fatal witness); null asks the
+     *                                                                  engine's own `error_get_last()`
      */
     public function __construct(
-        ?LoggerInterface $logger = null,
-        bool $debug = false,
+        private readonly ?LoggerInterface $logger = null,
+        private readonly bool $debug = false,
         ?MeterInterface $meter = null,
         ?Closure $requestSource = null,
         ?Closure $responseEmitter = null,
@@ -170,20 +166,17 @@ final class ProcessErrorBoundary
         ?string $sapi = null,
         ?Closure $lastErrorProvider = null,
     ) {
-        $this->sapi = $sapi ?? PHP_SAPI;
-        $this->debug = $debug;
-        $this->logger = $logger;
-        $this->errorFaultRecorder = new ErrorFaultRecorder($logger, $this->answersHttp() ? $meter : null);
-        $this->requestSource = $requestSource ?? static fn (): ServerRequestInterface
-            => RequestFactory::fromGlobals();
+        $this->sapi = $sapi ?? \PHP_SAPI;
+        $this->errorFaultRecorder = new ErrorFaultRecorder($this->logger, $this->answersHttp() ? $meter : null);
+        $this->requestSource = $requestSource ?? static fn (): ServerRequestInterface => RequestFactory::fromGlobals();
         $this->responseEmitter = $responseEmitter ?? static function (ResponseInterface $response): void {
-            (new ResponseEmitter())->emit($response);
+            new ResponseEmitter()->emit($response);
         };
         $this->diagnosticSink = $diagnosticSink ?? static function (string $line): void {
             error_log($line);
         };
         $this->headersSentProbe = $headersSentProbe ?? static fn (): bool => headers_sent();
-        $this->lastErrorProvider = $lastErrorProvider ?? static fn (): ?array => error_get_last();
+        $this->lastErrorProvider = $lastErrorProvider ?? error_get_last(...);
     }
 
     /**
@@ -391,8 +384,8 @@ final class ProcessErrorBoundary
             } else {
                 error_log('ZEF process boundary could not answer a fatal: headers already sent.');
             }
-        } catch (Throwable $boundaryFailure) {
-            error_log('ZEF process boundary failure: ' . $boundaryFailure::class);
+        } catch (Throwable $throwable) {
+            error_log('ZEF process boundary failure: ' . $throwable::class);
         }
     }
 

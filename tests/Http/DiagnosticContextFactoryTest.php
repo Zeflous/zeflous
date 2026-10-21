@@ -85,7 +85,7 @@ final class DiagnosticContextFactoryTest extends TestCase
         );
         self::assertSame(str_repeat('a', 2048), $longFile['diagnostic.file']);
 
-        $longPath = new RawFactsServerRequest(
+        $rawFactsServerRequest = new RawFactsServerRequest(
             $serverRequest,
             'GET',
             new RawPathUri(str_repeat('a', 2049)),
@@ -97,7 +97,7 @@ final class DiagnosticContextFactoryTest extends TestCase
             '/var/app/src/budget.php',
             1,
             'req-123',
-            $longPath,
+            $rawFactsServerRequest,
         );
         self::assertSame(str_repeat('a', 2048), $boundedPath['path']);
     }

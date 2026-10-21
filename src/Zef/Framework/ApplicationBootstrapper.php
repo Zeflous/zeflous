@@ -19,6 +19,8 @@ use Zef\Framework\Container\ContainerInstalls;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Middleware\MiddlewarePipeline;
 use Zef\Framework\Middleware\PipelineFactory;
+use Zef\Framework\Middleware\ProcessErrorBoundary;
+use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 
 /**
  * Boots the whole framework from a directory of configuration files: the
@@ -61,6 +63,22 @@ use Zef\Framework\Middleware\PipelineFactory;
  *   present artifact with a matching digest installs without a single
  *   reflection, an absent one is dumped by the first boot that wires
  *   the seam, a proven-stale one is never run).
+ *
+ * The composition's last stage is the **process error boundary**
+ * ({@see ProcessErrorBoundary}, the `http.error_handling.process_boundary`
+ * knob's seam): the one-call boot installs the process-level error face
+ * the configuration asks for, so a diagnostic the engine raises inside
+ * the booted process -- before the pipeline runs, outside the request
+ * scope, or after nothing caught it -- flows through the same error
+ * system the request boundary feeds, from the first line of host glue
+ * onward. The knob defaults to an uninstalled boundary (the honest
+ * default: a host opts its process in), its grammar validated once at
+ * {@see ProcessErrorBoundaryFactory::wantsInstallation()}, and the
+ * boundary resolves through the profile's own service registration so
+ * a host's same-identifier rebind wins over the framework's default
+ * construction -- a rebind that does not answer the boundary's own
+ * class halts the boot, because a knob asking for the boundary cannot
+ * be answered by something else.
  *
  * Before any definition is installed, the frozen repository itself is
  * registered as the container's `framework.config` service ({@see
@@ -128,6 +146,8 @@ final readonly class ApplicationBootstrapper
             ->bootstrap($config, $container)
         ;
 
+        $this->installProcessBoundary($config, $container);
+
         return new Kernel($container, $config);
     }
 
@@ -139,6 +159,38 @@ final readonly class ApplicationBootstrapper
     public function pipeline(Kernel $kernel, RequestHandlerInterface $requestHandler): MiddlewarePipeline
     {
         return new PipelineFactory($kernel->container(), $kernel->config(), $requestHandler)->build();
+    }
+
+    /**
+     * The process boundary's boot seam: the composition's last stage,
+     * installing the process-level error face when the frozen
+     * configuration asks for it and halting the boot when the knob's
+     * service does not answer the boundary's own class.
+     *
+     * @param Config    $config    the frozen repository the knob reads from
+     * @param Container $container the installed container the boundary
+     *                             resolves through
+     */
+    private function installProcessBoundary(Config $config, Container $container): void
+    {
+        if (!ProcessErrorBoundaryFactory::wantsInstallation($config)) {
+            return;
+        }
+
+        $boundary = $container->get(FrameworkDefaults::PROCESS_BOUNDARY_SERVICE);
+
+        if (!$boundary instanceof ProcessErrorBoundary) {
+            throw new ConfigException(
+                \sprintf(
+                    'The "%s" service must resolve to a %s instance, "%s" given.',
+                    FrameworkDefaults::PROCESS_BOUNDARY_SERVICE,
+                    ProcessErrorBoundary::class,
+                    get_debug_type($boundary),
+                ),
+            );
+        }
+
+        $boundary->install();
     }
 
     /**

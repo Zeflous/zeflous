@@ -402,6 +402,12 @@
       <code><![CDATA[withMiddleware]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Middleware/ProcessErrorBoundary.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[restore]]></code>
+      <code><![CDATA[installed]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Telemetry/BatchSpanProcessor.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[shutdown]]></code>

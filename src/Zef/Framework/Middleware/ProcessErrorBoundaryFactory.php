@@ -40,9 +40,8 @@ final class ProcessErrorBoundaryFactory
     public static function fromConfig(
         Config $config,
         ?MeterInterface $meter = null,
-        string $sapi = PHP_SAPI,
-    ): ProcessErrorBoundary
-    {
+        string $sapi = \PHP_SAPI,
+    ): ProcessErrorBoundary {
         $debug = $config->get('http.error_handling.debug', false);
         if (!\is_bool($debug)) {
             throw new ConfigException('http.error_handling.debug must be a boolean.');

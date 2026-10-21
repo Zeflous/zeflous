@@ -33,11 +33,11 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
 
     private string $routedErrorLog = '';
 
-    private string|false $previousErrorLog = false;
+    private false|string $previousErrorLog = false;
 
-    private int|false $previousReporting = false;
+    private false|int $previousReporting = false;
 
-    private string|false $previousEnvironment = false;
+    private false|string $previousEnvironment = false;
 
     #[Override]
     protected function setUp(): void
@@ -45,7 +45,7 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
         $this->logPath = sys_get_temp_dir() . '/zef-process-boundary-factory-' . uniqid() . '.jsonl';
         $this->routedErrorLog = sys_get_temp_dir() . '/zef-process-boundary-factory-errorlog-' . uniqid() . '.log';
         $this->previousErrorLog = (string) ini_set('error_log', $this->routedErrorLog);
-        $this->previousReporting = error_reporting(E_ALL);
+        $this->previousReporting = error_reporting(\E_ALL);
         $this->previousEnvironment = getenv('APP_ENV');
         putenv('APP_ENV=local');
     }
@@ -63,9 +63,11 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
         ini_set('error_log', (string) $this->previousErrorLog);
 
         foreach ([$this->logPath, $this->routedErrorLog] as $file) {
-            if (is_file($file)) {
-                unlink($file);
+            if (!is_file($file)) {
+                continue;
             }
+
+            unlink($file);
         }
     }
 
@@ -135,7 +137,7 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
         ]));
 
         $owned = $processErrorBoundary->onNativeDiagnostic(
-            E_WARNING,
+            \E_WARNING,
             'Undefined variable $budget',
             '/var/app/src/budget.php',
             42,
@@ -158,7 +160,7 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
         $processErrorBoundary = ProcessErrorBoundaryFactory::fromConfig(new Config());
 
         $owned = $processErrorBoundary->onNativeDiagnostic(
-            E_WARNING,
+            \E_WARNING,
             'Undefined variable $budget',
             '/var/app/src/budget.php',
             42,
@@ -209,11 +211,12 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
      * Observes the answer the factory-built boundary ships for one
      * uncaught throwable, capturing the emission the HTTP branch runs.
      */
-    private function uncaughtAnswerOutput(Config $config, ?CounterMeter $meter = null): string
+    private function uncaughtAnswerOutput(Config $config, ?CounterMeter $counterMeter = null): string
     {
-        $processErrorBoundary = ProcessErrorBoundaryFactory::fromConfig($config, $meter, 'fpm-fcgi');
+        $processErrorBoundary = ProcessErrorBoundaryFactory::fromConfig($config, $counterMeter, 'fpm-fcgi');
 
         ob_start();
+
         try {
             $processErrorBoundary->onUncaughtThrowable(
                 new RuntimeException('The worker observed an impossible state.'),
