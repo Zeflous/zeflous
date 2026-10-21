@@ -40,6 +40,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
     #[Override]
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        $method = mb_strtoupper($request->getMethod());
         $match = $this->router->match(
             $request->getMethod(),
             self::requestPath($request),
@@ -49,6 +50,24 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
                 ? $request->getHeaderLine('Accept-Version')
                 : $request->getHeaderLine('X-API-Version'),
         );
+
+        // HEAD uses an explicit HEAD route when present; otherwise it may
+        // reuse GET metadata and handler semantics for the same resource.
+        if (
+            $method === 'HEAD'
+            && $match->isMethodNotAllowed()
+            && in_array('GET', $match->allowedMethods(), true)
+        ) {
+            $match = $this->router->match(
+                'GET',
+                self::requestPath($request),
+                self::requestHost($request),
+                $request->getHeaderLine('Accept'),
+                $request->getHeaderLine('Accept-Version') !== ''
+                    ? $request->getHeaderLine('Accept-Version')
+                    : $request->getHeaderLine('X-API-Version'),
+            );
+        }
 
         $stack = [];
         if ($match->isFound()) {
@@ -73,7 +92,17 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
             $this->streamFactory,
         );
 
-        return (new MiddlewarePipeline($stack, $terminal))->handle($request);
+        $response = (new MiddlewarePipeline($stack, $terminal))->handle($request);
+        if ($method !== 'HEAD') {
+            return $response;
+        }
+
+        $headResponse = $response->withBody($this->streamFactory->createStream(''));
+        if (!$headResponse instanceof ResponseInterface) {
+            throw new \\UnexpectedValueException('The HEAD response body operation did not return a ResponseInterface.');
+        }
+
+        return $headResponse;
     }
 
     private static function requestPath(ServerRequestInterface $request): string

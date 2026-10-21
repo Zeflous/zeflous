@@ -75,6 +75,49 @@ final class RouterRequestHandlerTest extends TestCase
         self::assertStringContainsString('application/json', $notAcceptable->getBody()->getContents());
     }
 
+    public function testHeadFallsBackToGetAndSuppressesResponseBody(): void
+    {
+        $container = new Container();
+        $calls = 0;
+        $container->set(
+            'Profile@show',
+            static function () use (&$calls): callable {
+                return static function (array $parameters) use (&$calls): ResponseInterface {
+                    ++$calls;
+
+                    return new Response(200, ['Content-Type' => 'text/plain', 'X-Resource' => 'profile'], 'body');
+                };
+            },
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $response = self::handler($router, $container)->handle(self::request('HEAD', 'api.example.com', 'text/plain'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('profile', $response->getHeaderLine('X-Resource'));
+        self::assertSame('', $response->getBody()->getContents());
+        self::assertSame(1, $calls);
+    }
+
+    public function testExplicitHeadRouteTakesPrecedenceOverGetFallback(): void
+    {
+        $container = new Container();
+        $container->set('Head@show', static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(204, ['X-Route' => 'head'], ''));
+        $container->set('Get@show', static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(200, ['X-Route' => 'get'], 'get body'));
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Get@show'],
+            ['path' => '/profile', 'method' => ['HEAD'], 'handler' => 'Head@show'],
+        ]);
+
+        $response = self::handler($router, $container)->handle(self::request('HEAD', 'api.example.com', 'text/plain'));
+
+        self::assertSame(204, $response->getStatusCode());
+        self::assertSame('head', $response->getHeaderLine('X-Route'));
+        self::assertSame('', $response->getBody()->getContents());
+    }
+
     public function testUsesAcceptVersionHeaderToSelectRouteVariant(): void
     {
         $container = new Container();
