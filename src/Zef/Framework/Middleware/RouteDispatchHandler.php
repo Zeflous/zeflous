@@ -37,9 +37,10 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
 
         if ($outcome->isNotAcceptable()) {
             return $this->withHeader(
-                $this->textResponse(
+                $this->problemResponse(
                     406,
-                    'Not Acceptable. Supported media types: ' . implode(', ', $outcome->acceptableMediaTypes()),
+                    'Not Acceptable',
+                    'Supported media types: ' . implode(', ', $outcome->acceptableMediaTypes()),
                 ),
                 'Vary',
                 'Accept',
@@ -47,12 +48,12 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
         }
 
         if ($outcome->isMethodNotAllowed()) {
-            $response = $this->textResponse(405, 'Method Not Allowed');
+            $response = $this->problemResponse(405, 'Method Not Allowed', 'The request method is not supported for this resource.');
             return $this->withHeader($response, 'Allow', implode(', ', $outcome->allowedMethods()));
         }
 
         if (!$outcome->isExecuted()) {
-            return $this->textResponse(404, 'Not Found');
+            return $this->problemResponse(404, 'Not Found', 'No route matches the requested resource.');
         }
 
         $response = $outcome->result();
@@ -68,10 +69,17 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
             : $this->varyOnAccept($response);
     }
 
-    private function textResponse(int $status, string $body): ResponseInterface
+    private function problemResponse(int $status, string $title, string $detail): ResponseInterface
     {
+        $body = json_encode([
+            'type' => 'about:blank',
+            'title' => $title,
+            'status' => $status,
+            'detail' => $detail,
+        ], JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+
         $response = $this->responseFactory->createResponse($status);
-        $response = $this->withHeader($response, 'Content-Type', 'text/plain; charset=utf-8');
+        $response = $this->withHeader($response, 'Content-Type', 'application/problem+json');
         $updated = $response->withBody($this->streamFactory->createStream($body));
 
         if (!$updated instanceof ResponseInterface) {

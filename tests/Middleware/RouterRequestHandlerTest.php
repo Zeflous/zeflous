@@ -64,14 +64,18 @@ final class RouterRequestHandlerTest extends TestCase
 
         $missing = $handler->handle(self::request('GET', 'api.example.com', 'application/json', '/missing'));
         self::assertSame(404, $missing->getStatusCode());
+        self::assertSame('application/problem+json', $missing->getHeaderLine('Content-Type'));
+        self::assertSame('Not Found', json_decode($missing->getBody()->getContents(), true, flags: JSON_THROW_ON_ERROR)['title']);
 
         $methodMismatch = $handler->handle(self::request('POST', 'api.example.com', 'application/json'));
         self::assertSame(405, $methodMismatch->getStatusCode());
         self::assertSame('GET', $methodMismatch->getHeaderLine('Allow'));
+        self::assertSame('application/problem+json', $methodMismatch->getHeaderLine('Content-Type'));
 
         $notAcceptable = $handler->handle(self::request('GET', 'api.example.com', 'text/html'));
         self::assertSame(406, $notAcceptable->getStatusCode());
         self::assertSame('Accept', $notAcceptable->getHeaderLine('Vary'));
+        self::assertSame('application/problem+json', $notAcceptable->getHeaderLine('Content-Type'));
         self::assertStringContainsString('application/json', $notAcceptable->getBody()->getContents());
     }
 
