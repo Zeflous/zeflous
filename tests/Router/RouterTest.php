@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Zef\Test\Router;
 
+use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Stringable;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\DispatchOutcome;
@@ -136,6 +138,104 @@ final class RouterTest extends TestCase
 
         $this->expectException(ConfigException::class);
         $router->absoluteUrl('tenant.dashboard', ['tenant' => 'acme'], 'javascript');
+    }
+
+    public function testAbsoluteUrlFoldsAnUpperCasedSchemeToLowerCase(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/users/{id}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+                'name' => 'tenant.users.show',
+            ],
+        ]);
+
+        self::assertSame(
+            'https://acme.example.com/users/42',
+            $router->absoluteUrl('tenant.users.show', ['tenant' => 'acme', 'id' => 42], 'HTTPS'),
+        );
+    }
+
+    public function testAbsoluteUrlRendersAStringableHostParameter(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/users/{id}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+                'name' => 'tenant.users.show',
+            ],
+        ]);
+
+        $tenant = new class implements Stringable {
+            #[Override]
+            public function __toString(): string
+            {
+                return 'acme';
+            }
+        };
+
+        self::assertSame(
+            'https://acme.example.com/users/42',
+            $router->absoluteUrl('tenant.users.show', ['tenant' => $tenant, 'id' => 42]),
+        );
+    }
+
+    public function testAbsoluteUrlRendersAnIntegerHostParameter(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/users/{id}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+                'name' => 'tenant.users.show',
+            ],
+        ]);
+
+        self::assertSame(
+            'https://42.example.com/users/7',
+            $router->absoluteUrl('tenant.users.show', ['tenant' => 42, 'id' => 7]),
+        );
+    }
+
+    public function testAbsoluteUrlRefusesAnArrayHostParameter(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/users/{id}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+                'name' => 'tenant.users.show',
+            ],
+        ]);
+
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains('must be a DNS label value');
+
+        $router->absoluteUrl('tenant.users.show', ['tenant' => ['nested'], 'id' => 42]);
+    }
+
+    public function testUrlGenerationExcludesHostParametersFromThePath(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/users/{id}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+                'name' => 'tenant.users.show',
+            ],
+        ]);
+
+        self::assertSame(
+            '/users/42',
+            $router->url('tenant.users.show', ['tenant' => 'acme', 'id' => 42]),
+        );
     }
 
     public function testDispatcherReturnsNotAcceptableWithoutExecutingHandler(): void

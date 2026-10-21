@@ -276,6 +276,35 @@
                 // spellings included). This ignore is scoped to that
                 // single method.
                 "Zef\\Framework\\AppEnvironment::isDevelopment",
+                // The router lane's grammar folds are the fifth through
+                // ninth, each ASCII by its own construction: the DNS
+                // label, parameter-name and version grammars admit only
+                // ASCII bytes (so the label/parameter/version lowerings
+                // agree between the folds on every string the grammar
+                // can hand them -- the RedactionCandidate measurement
+                // argument), and the hosts whose byte length diverges
+                // from their character length fail the ASCII label
+                // grammar with the identical invalid-host refusal under
+                // both folds. The scheme and Vary-token folds spell
+                // closed ASCII vocabularies (http/https, accept) that
+                // carry no k -- the only single-character lower-case
+                // landing in ASCII the Unicode map carries is the
+                // Kelvin sign's k -- so fold-divergent spellings miss
+                // under both folds. The PSR-7 method fold never sees a
+                // non-ASCII token: the ServerRequest constructor's
+                // HttpMethod grammar refuses one before the fold runs.
+                // The quality fold's prefix check can only be reached
+                // through an ASCII Q or q (no non-ASCII character
+                // lower-cases into q), and its cut lands after two
+                // single-byte ASCII characters, where mb_substr and
+                // substr agree.
+                "Zef\\Framework\\Config\\Routing\\RouteHostGrammar::canonical",
+                "Zef\\Framework\\Config\\Routing\\RouteHostRendering::render",
+                "Zef\\Framework\\Config\\Routing\\RouteVersion::canonical",
+                "Zef\\Framework\\Config\\Routing\\RouteUrlGenerator::generateAbsolute",
+                "Zef\\Framework\\Config\\Routing\\RouteAcceptRanges::quality",
+                "Zef\\Framework\\Middleware\\RouteDispatchHandler::varyOnAccept",
+                "Zef\\Framework\\Middleware\\ServerRequestMetadata::fromRequest",
                 // The AOT knob's toggle fold is value-equivalent under the
                 // MBString mutator by the same construction the class's own
                 // docblock argues: the vocabulary carries no letter whose
@@ -300,6 +329,17 @@
                 // mutator through its own entry above. This ignore is
                 // scoped to that single method.
                 "Zef\\Framework\\ContainerModeSpellings::verdict",
+                // The version selection's re-wraps are key-only
+                // refinements: every consumer of its results walks
+                // them with foreach (first-match-wins) and unions
+                // their methods de-duplicated, so the gap-keyed map
+                // the unwrap would leave behind answers the same
+                // matches and the same sorted method list -- the
+                // array_values call is the list contract's spelling,
+                // never an observable distinction (verified by
+                // running the engine battery under all four unwraps
+                // -- the complete battery passes).
+                "Zef\\Framework\\Config\\Routing\\RouteVersionSelection::select",
                 "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
                 "Zef\\Framework\\Http\\AuthCredential::fromBearerLine",
                 "Zef\\Framework\\Http\\BodyBudget::refuses",
@@ -502,6 +542,25 @@
         // to that single source line.
         "IncrementInteger": {
             "ignoreSourceCodeByRegex": [
+                // The Accept-negotiation sentinel and the range-specificity
+                // weights are value-equivalent under the integer mutators:
+                // the quality grammar admits only non-negative values, so
+                // max(0.0, q) answers q for every reachable quality and the
+                // -0/-2 sentinels keep the reset and tie arms identical; the
+                // surviving specificity literals either preserve the
+                // concrete > subtype-wildcard > wildcard order without
+                // creating a tie (the +1/+2 rewrites) or land the wildcard
+                // on the sentinel itself where the tie arm's max(0.0, q)
+                // answers the reset's q (the -1 rewrite) -- and the
+                // equal-specificity ties that WOULD differ are killed by
+                // the negotiation battery's application/*;q=0 series. The
+                // produce split's explode limit only reshuffles bytes the
+                // destructure never reads: the produces grammar admits
+                // exactly one slash, so limits of two and three split the
+                // same valid spellings into the same [type, subtype] pair.
+                ".*\\$bestSpecificity = -1;.*",
+                ".*\\? 0 : 1.*\\? 0 : 1.*",
+                ".*explode\\('/', \\$produce, 2\\).*",
                 "\\$matchStart = \\$match\\[0\\]\\[1\\];",
                 "\\[\\$body, \\$signature\\] = array_pad\\(\\$parts, 2, ''\\);",
                 "\\[\\$key, \\$value\\] = array_pad\\(explode\\('=', mb_trim\\(\\$pair\\), 2\\), 2, ''\\);",
@@ -552,6 +611,15 @@
         // scoped to that single source line.
         "DecrementInteger": {
             "ignoreSourceCodeByRegex": [
+                // The Accept-negotiation sentinel and the range-specificity
+                // weights carry the IncrementInteger entry's construction
+                // verbatim (non-negative qualities make the sentinel and
+                // tie arms identical; the surviving literal rewrites
+                // preserve the specificity order without creating a tie,
+                // and the equal-specificity ties that would differ are
+                // killed by the negotiation battery).
+                ".*\\$bestSpecificity = -1;.*",
+                ".*\\? 0 : 1.*\\? 0 : 1.*",
                 "\\$offset = \\$match\\[3\\]\\[1\\];",
                 // ZefException::defaultErrorCode()'s short-name slice start
                 // is the next integer the decrement can rewrite without any
@@ -689,7 +757,25 @@
                 "Zef\\Framework\\Container\\DefinitionCycles::visit",
                 "Zef\\Framework\\Middleware\\DebugToolbarInjector::updatedBody",
                 "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed",
-                "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
+                "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged",
+                // The router lane's early answers are owned by the
+                // next guard or the same computation: RadixTree::match()'s
+                // walk-empty and host-empty returns flow to the identical
+                // not-found verdict (host selection of an empty candidate
+                // list answers the empty agnostic bucket, and the version
+                // guard behind it answers empty the same way), the version
+                // selection's null-requestVersion return flows to a final
+                // filter that answers [] over the all-versioned candidates
+                // anyway, LastModifiedMatch::satisfied()'s absent-header
+                // false flows into a strtotime('') that answers false on
+                // the same arm, and the pattern bucket's reset return
+                // falls into an equality arm that appends the winner a
+                // second time -- unobservable behind every consumer's
+                // first-match-wins walk and de-duplicated method union.
+                "Zef\\Framework\\Config\\Routing\\RadixTree::match",
+                "Zef\\Framework\\Config\\Routing\\RouteVersionSelection::select",
+                "Zef\\Framework\\Config\\Routing\\RouteHostPatternBucket::offer",
+                "Zef\\Framework\\Middleware\\LastModifiedMatch::satisfied"
             ],
             "ignoreSourceCodeByRegex": [
                 "return \\$this->singletonMemo->instance\\(\\$id\\);"
@@ -810,7 +896,16 @@
         "CastInt": {
             "ignore": [
                 "Zef\\Framework\\Health\\HealthScrapeClock::__construct",
-                "Zef\\Framework\\Http\\ErrorRequestContext::__construct"
+                "Zef\\Framework\\Http\\ErrorRequestContext::__construct",
+                // The request authority's port bounds compare digit
+                // strings against integers, and PHP compares numeric
+                // strings numerically: the port grammar admits only
+                // digits, so the string and its (int) cast agree on
+                // every comparison the guard can ever evaluate
+                // (verified by running the adapter battery under
+                // both cast removals -- the complete battery passes,
+                // the 0/1/65535/65536 boundary series included).
+                "Zef\\Framework\\Middleware\\RequestAuthority::host"
             ]
         },
         // The Exception suffix strip in ZefException::defaultErrorCode()
@@ -853,7 +948,16 @@
             "ignoreSourceCodeByRegex": [
                 ".*explode\\(';', \\$part, 2\\)\\[0\\].*",
                 ".*preg_match\\('/\\^\\(\\?:0.*",
-                ".*preg_match\\('/\\^\\[A-Z\\]/D'.*"
+                ".*preg_match\\('/\\^\\[A-Z\\]/D'.*",
+                // Every router-lane pattern the flag mutator can
+                // reach anchors its end with \z (the absolute
+                // end) and carries no dollar metacharacter, so
+                // DOLLAR_ENDONLY constrains nothing either spelling
+                // can match -- the ZefException probe entry's
+                // construction, held by the host grammar, the
+                // authority grammar, the produces grammar, the
+                // version grammar and the quality grammar alike.
+                ".*\\\\z/D'.*",
             ]
         },
         // The divergence judgement's NaN guards in
@@ -870,6 +974,16 @@
         // replayed). This ignore is scoped to that single method.
         "LogicalOr": {
             "ignore": [
+                // The request version's null-or-empty arm is owned
+                // by the caller: RouteVersionSelection guards null and
+                // blank spellings before it consults the fold, so the
+                // arm is unreachable through the public flow, and the
+                // reachable spellings answer identically either way
+                // (a blank trim canonicalises to the empty refusal,
+                // whose catch answers the same null -- verified by
+                // running the version battery under the flip, the
+                // malformed-header miss included).
+                "Zef\\Framework\\Config\\Routing\\RouteVersion::request",
                 "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged"
             ],
             "ignoreSourceCodeByRegex": [
@@ -924,6 +1038,15 @@
         // bookkeeping stores alone.
         "TrueValue": {
             "ignoreSourceCodeByRegex": [
+                // The host grammar's duplicate-parameter witness is
+                // value-blind: the duplicate check reads isset() only,
+                // which answers the same question for true and false
+                // alike, so the stored flag's polarity is the
+                // analyser's documentation, never an observable
+                // distinction (verified by running the grammar battery
+                // under the flipped polarity -- the complete battery
+                // passes, the repeated-label refusal included).
+                ".*\\$seenParameters\\[\\$parameter] = true.*",
                 "\\$emittedTypes\\[\\$metricName( \\. '_sum')?\\] = true;"
             ]
         },
@@ -986,7 +1109,61 @@
         // the fold to it. This ignore is scoped to that single method.
         "UnwrapArrayValues": {
             "ignore": [
-                "Zef\\Framework\\ContainerModeSpellings::verdict"
+                "Zef\\Framework\\ContainerModeSpellings::verdict",
+                // The version selection's re-wraps are key-only
+                // refinements: every consumer of its results walks
+                // them with foreach (first-match-wins) and unions
+                // their methods de-duplicated, so the gap-keyed map
+                // the unwrap would leave behind answers the same
+                // matches and the same sorted method list -- the
+                // array_values call is the list contract's spelling,
+                // never an observable distinction (verified by
+                // running the engine battery under all four unwraps
+                // -- the complete battery passes).
+                "Zef\\Framework\\Config\\Routing\\RouteVersionSelection::select"
+            ]
+        },
+        // The version selection's no-versioned branch filter is the
+        // identity under its own precondition: the branch runs only
+        // when no route carries a version, so filtering for the
+        // unversioned keeps every candidate either way, and the
+        // unwrap answers the same list (verified by running the
+        // engine battery under the unwrap -- the complete battery
+        // passes, the unversioned-fallback series included).
+        "UnwrapArrayFilter": {
+            "ignore": [
+                "Zef\\Framework\\Config\\Routing\\RouteVersionSelection::select"
+            ]
+        },
+        // The absolute URL's host-value intersection feeds a render
+        // that replaces only the names the host pattern declares:
+        // the extra path parameters the unwrap would forward are
+        // ignored verbatim (host and path parameter names cannot
+        // collide -- the compile-time binding refuses it), so the
+        // rendered host is byte-identical either way (verified by
+        // running the reverse-routing battery under the unwrap --
+        // the complete battery passes, the tenant series included).
+        "UnwrapArrayIntersectKey": {
+            "ignore": [
+                "Zef\\Framework\\Config\\Routing\\RouteUrlGenerator::generateAbsolute"
+            ]
+        },
+        // The method-claim key's separator arithmetic cannot create
+        // a false duplicate: the host, version and path charsets all
+        // exclude the pipe byte, so dropping or appending the
+        // separator stays injective over the reachable keys -- two
+        // routes collide under the rewritten key exactly when they
+        // collide under the original (verified by running the claim
+        // battery under both rewrites -- the complete battery passes,
+        // the duplicate-pattern and ambiguity refusals included).
+        "Concat": {
+            "ignoreSourceCodeByRegex": [
+                ".*\\$canonical = \\(\\$host \\?\\? '\\*'\\).*"
+            ]
+        },
+        "ConcatOperandRemoval": {
+            "ignoreSourceCodeByRegex": [
+                ".*\\$canonical = \\(\\$host \\?\\? '\\*'\\).*"
             ]
         },
         // The unknown-key refusal's strval map is value-equivalent by

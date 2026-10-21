@@ -361,6 +361,231 @@ final class RouterRequestHandlerTest extends TestCase
         $outcome->result();
     }
 
+    public function testTheHostHeaderWinsOverTheUriHost(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $request = new ServerRequest('GET', new Uri('https://other.example.com/profile'), headers: ['Host' => 'api.example.com', 'Accept' => 'application/json']);
+        $response = $this->handler($router, $container)->handle($request);
+
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testAPortOfZeroRefusesTheHost(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com:0', 'application/json'));
+
+        self::assertSame(404, $response->getStatusCode());
+    }
+
+    public function testAPortOfOneKeepsTheHost(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com:1', 'application/json'));
+
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testTheMaximumPortKeepsTheHost(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com:65535', 'application/json'));
+
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testAnOutOfRangePortRefusesTheHost(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com:99999', 'application/json'));
+
+        self::assertSame(404, $response->getStatusCode());
+    }
+
+    public function testAConditionalMatchOnAPostRequestIsIgnored(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'ETag' => 'W/"profile-v1"'],
+                '{"name":"profile"}',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['POST'], 'handler' => 'Profile@show'],
+        ]);
+
+        $request = $this->request('POST', 'api.example.com', 'application/json', extraHeaders: ['If-None-Match' => '"profile-v1"']);
+        $response = $this->handler($router, $container)->handle($request);
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('{"name":"profile"}', $response->getBody()->getContents());
+    }
+
+    public function testAnUnparsableLastModifiedNeverYieldsNotModified(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'Last-Modified' => 'not-a-date'],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $request = $this->request('GET', 'api.example.com', 'application/json', extraHeaders: ['If-Modified-Since' => 'Wed, 21 Oct 2099 07:28:00 GMT']);
+        $response = $this->handler($router, $container)->handle($request);
+
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testAnUnparsableConditionalDateNeverYieldsNotModified(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'Last-Modified' => 'Thu, 01 Jan 1970 00:00:00 GMT'],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $request = $this->request('GET', 'api.example.com', 'application/json', extraHeaders: ['If-Modified-Since' => 'not-a-date']);
+        $response = $this->handler($router, $container)->handle($request);
+
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testANotAcceptableResponseCarriesTheSupportedMediaTypesDetail(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show', 'produces' => ['application/json']],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'text/html'));
+
+        self::assertSame(406, $response->getStatusCode());
+        $document = json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($document);
+        self::assertSame('about:blank', $document['type']);
+        self::assertSame('Not Acceptable', $document['title']);
+        self::assertSame('Supported media types: application/json', $document['detail']);
+    }
+
+    public function testAProblemResponseCarriesTheBlankProblemType(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json', '/missing'));
+
+        $document = json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($document);
+        self::assertSame('about:blank', $document['type']);
+        self::assertSame('Not Found', $document['title']);
+    }
+
+    public function testARedirectStatusKeepsItsBody(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Moved@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(303, ['Location' => '/elsewhere'], 'redirecting'),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Moved@show'],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+
+        self::assertSame(303, $response->getStatusCode());
+        self::assertSame('redirecting', $response->getBody()->getContents());
+    }
+
+    public function testAHandlerProvidedNotModifiedResponseIsBodyless(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Cached@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(304, ['ETag' => '"v1"'], 'leftover'),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Cached@show'],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+
+        self::assertSame(304, $response->getStatusCode());
+        self::assertSame('', $response->getBody()->getContents());
+    }
+
+    public function testAUriPathWithoutTheLeadingSlashStillMatches(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $uri = new Uri('https://api.example.com/')->withPath('profile');
+        $request = new ServerRequest('GET', $uri, headers: ['Host' => 'api.example.com', 'Accept' => 'application/json']);
+        $response = $this->handler($router, $container)->handle($request);
+
+        self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testAnExactAcceptVaryTokenAloneIsNotDuplicated(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Vary@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'Vary' => 'Accept'],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Vary@show', 'produces' => ['application/json']],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+
+        self::assertSame('Accept', $response->getHeaderLine('Vary'));
+    }
+
     private function containerWithProfileHandler(): Container
     {
         $container = new Container();
