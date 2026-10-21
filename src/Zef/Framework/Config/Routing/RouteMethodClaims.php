@@ -8,14 +8,15 @@ use Zef\Framework\Config\ConfigException;
 
 /**
  * The method claims of a route table: which registration first claimed
- * each method on each canonical pattern.
+ * each method on each canonical host + canonical path pattern.
  *
  * Several routes may share one parameter-blind pattern when their
  * method sets are disjoint (the REST convention -- `GET /photos` and
  * `POST /photos` are different resources), but a method claimed twice
  * on the same pattern would own the same tree position with the same
  * method: an ambiguity, not a merge, refused here with the method and
- * the first claimant in the message.
+ * the first claimant in the message. The parameterised-host side of the
+ * same ambiguity question lives in {@see RouteHostClaims}.
  *
  * @internal
  */
@@ -29,15 +30,30 @@ final class RouteMethodClaims
      */
     private array $claims = [];
 
+    private readonly RouteHostClaims $routeHostClaims;
+
+    public function __construct()
+    {
+        $this->routeHostClaims = new RouteHostClaims();
+    }
+
     /**
      * Claims the route's methods on its canonical pattern.
      */
     public function claim(CompiledRoute $compiledRoute): void
     {
         $pattern = $compiledRoute->path()->pattern();
-        $canonical = $compiledRoute->path()->canonical();
+        $host = $compiledRoute->host();
+        $path = $compiledRoute->path()->canonical();
+        $version = $compiledRoute->version();
+        $canonical = ($host ?? '*') . '|' . ($version ?? '*') . '|' . $path;
+        $hostClaimScope = $path . '|' . ($version ?? '*');
 
         foreach ($compiledRoute->methods() as $method) {
+            if ($host !== null) {
+                $this->routeHostClaims->claim($hostClaimScope, $method, $host, $pattern);
+            }
+
             $registeredBy = $this->claims[$canonical][$method] ?? null;
 
             if ($registeredBy !== null) {

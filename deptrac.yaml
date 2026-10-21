@@ -21,6 +21,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Config\\#'
+    - name: Router
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Router\\#'
     - name: Health
       collectors:
         - type: classNameRegex
@@ -70,6 +74,11 @@ deptrac:
       - Contracts
       - Exception
       - Container
+    Router:
+      - Config
+      - Container
+      - Exception
+    # Router is an inbound facade; Config/Routing remains the engine owner.
     Health:
       - Contracts
       - Exception
@@ -119,6 +128,7 @@ deptrac:
       - Exception
       - Container
       - Config
+      - Router
       - Http
       - Telemetry
       - Health

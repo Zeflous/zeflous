@@ -49,11 +49,29 @@ final readonly class RouteDispatcher
     /**
      * Dispatches one request: match, resolve, execute.
      */
-    public function dispatch(string $method, string $path): DispatchOutcome
-    {
-        $matchResult = $this->routingRuntime->match($method, $path);
+    public function dispatch(
+        string $method,
+        string $path,
+        ?string $host = null,
+        ?string $accept = null,
+        ?string $version = null,
+    ): DispatchOutcome {
+        return $this->dispatchMatch($this->routingRuntime->match($method, $path, $host, $accept, $version));
+    }
 
+    /**
+     * Executes a previously computed match so an HTTP adapter can compose route
+     * middleware without walking the radix tree twice.
+     *
+     * @internal
+     */
+    public function dispatchMatch(MatchResult $matchResult): DispatchOutcome
+    {
         if (!$matchResult->isFound()) {
+            if ($matchResult->isNotAcceptable()) {
+                return DispatchOutcome::notAcceptable($matchResult->acceptableMediaTypes());
+            }
+
             return $matchResult->isMethodNotAllowed()
                 ? DispatchOutcome::methodNotAllowed($matchResult->allowedMethods())
                 : DispatchOutcome::notFound();

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Config\Routing;
 
-use Zef\Framework\Config\ConfigException;
-
 /**
  * One route entry, validated and normalised for the radix tree engine.
  *
@@ -29,6 +27,9 @@ final readonly class CompiledRoute
 {
     /**
      * @param array{
+     *     host: ?non-empty-string,
+     *     version: ?non-empty-string,
+     *     produces: list<string>,
      *     method: list<string>,
      *     handler: non-empty-string,
      *     name: ?non-empty-string,
@@ -52,17 +53,12 @@ final readonly class CompiledRoute
     {
         $entry = RouteEntryShape::fields($route);
         $routePath = RoutePath::parse($entry['path']);
+        $host = RouteHostBinding::declared($entry['host'], $routePath);
 
         return new self(
             $routePath,
             RouteConstraints::fromMap($entry['constraints'], $routePath),
-            [
-                'method' => self::normalizedMethods($entry['method']),
-                'handler' => $entry['handler'],
-                'name' => $entry['name'],
-                'middleware' => $entry['middleware'],
-                'meta' => $entry['meta'],
-            ],
+            RouteFields::fromEntry($entry, $host),
         );
     }
 
@@ -72,6 +68,47 @@ final readonly class CompiledRoute
     public function path(): RoutePath
     {
         return $this->routePath;
+    }
+
+    /**
+     * The exact host this route answers, or null for a host-agnostic route.
+     */
+    public function host(): ?string
+    {
+        return $this->fields['host'];
+    }
+
+    /**
+     * Returns captured host parameters, or null when this route does not match.
+     * Host-agnostic routes match every host and capture no host parameters.
+     *
+     * @return null|array<string, string>
+     */
+    public function hostParameters(?string $host): ?array
+    {
+        if ($this->fields['host'] === null) {
+            return [];
+        }
+
+        return RouteHostParameters::parameters($this->fields['host'], RouteHostRequest::canonicalise($host));
+    }
+
+    /**
+     * The canonical API version this route answers, or null for unversioned routes.
+     */
+    public function version(): ?string
+    {
+        return $this->fields['version'];
+    }
+
+    /**
+     * The media types this route can produce, normalised to lower-case.
+     *
+     * @return list<string>
+     */
+    public function produces(): array
+    {
+        return $this->fields['produces'];
     }
 
     /**
@@ -155,34 +192,5 @@ final readonly class CompiledRoute
         }
 
         return true;
-    }
-
-    /**
-     * Upper-cases, de-duplicates and sorts a method list; `sort()`
-     * re-indexes the map into a list, so the returned methods are keyed 0..n.
-     *
-     * @param list<string> $methods
-     *
-     * @return list<string>
-     */
-    private static function normalizedMethods(array $methods): array
-    {
-        $upperCased = [];
-
-        foreach ($methods as $method) {
-            $upper = mb_strtoupper($method);
-
-            if (isset($upperCased[$upper])) {
-                throw new ConfigException(
-                    \sprintf('The route entry field "method" must not repeat the method "%s".', $upper),
-                );
-            }
-
-            $upperCased[$upper] = $upper;
-        }
-
-        sort($upperCased, \SORT_STRING);
-
-        return $upperCased;
     }
 }
