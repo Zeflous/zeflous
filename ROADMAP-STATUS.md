@@ -38,7 +38,7 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Core engine, advanced routing, performance, DX, ecosystem | 🟡 Partial | Public facade `src/Zef/Framework/Router/Router.php` composes `RouteDsl` and the memoised `Config/Routing/RoutingRuntime`, and exposes the existing container-backed `RouteDispatcher` through `dispatcher(Container)`; `tests/Router/RouterTest.php` covers facade matching and dispatcher integration. Host-aware routing, Accept negotiation, PSR-7 request adaptation, per-route middleware execution, observability and tooling remain open; see `docs/ci-notes/router-roadmap-audit.md`. |
+| Core engine, advanced routing, performance, DX, ecosystem | 🟡 Partial | Public facade `src/Zef/Framework/Router/Router.php` composes `RouteDsl`/`RoutingRuntime`, exposes `dispatcher(Container)`, and matches optional exact DNS hosts via `match(method, path, host)`; `RouteHost`, host-scoped claims and tests cover exact-host isolation and fallback precedence. Wildcards/host parameters, Accept negotiation, PSR-7 adaptation, per-route middleware execution, observability and tooling remain open; see `docs/ci-notes/router-roadmap-audit.md`. |
 
 ## Configuration System + DSL + Radix Tree
 
