@@ -60,11 +60,13 @@ use Zef\Test\Support\Container\Autowiring\FileLogger;
 use Zef\Test\Support\Container\Autowiring\GreeterFactory;
 use Zef\Test\Support\Container\Autowiring\InjectedDepHouse;
 use Zef\Test\Support\Container\Autowiring\InjectedHouse;
+use Zef\Test\Support\Container\Autowiring\InjectedDefaultedHouse;
 use Zef\Test\Support\Container\Autowiring\InstanceMethodFactory;
 use Zef\Test\Support\Container\Autowiring\InterfaceHouse;
 use Zef\Test\Support\Container\Autowiring\LoggerInterface;
 use Zef\Test\Support\Container\Autowiring\LoggerVariadicHouse;
 use Zef\Test\Support\Container\Autowiring\NamedWinsHouse;
+use Zef\Test\Support\Container\Autowiring\NullableDefaultedHouse;
 use Zef\Test\Support\Container\Autowiring\NullableHouse;
 use Zef\Test\Support\Container\Autowiring\OptionalUnionHouse;
 use Zef\Test\Support\Container\Autowiring\ParameterlessHouse;
@@ -241,6 +243,53 @@ final class AutowireCompilerPassTest extends TestCase
         } catch (AutowiringException $autowiringException) {
             self::assertStringContainsString(
                 "no binding for '" . LoggerInterface::class . "'",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testADefaultedNullableParameterReachesItsOwnDefaultWhenTheTypeIsUnbound(): void
+    {
+        // The refusal's way out said "or give the parameter a default
+        // value" -- the defaulted nullable took it, and the plan must
+        // keep the promise: the constructor's own null, not a refusal
+        // that vetoes the very default it advised.
+        $planned = $this->planned([
+            'app.house' => ['class' => NullableDefaultedHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([null], $this->firstInstance($planned)->arguments);
+    }
+
+    public function testADefaultedNullableParameterStillResolvesABoundType(): void
+    {
+        // The default is the fallback, never the override: a binding
+        // the declared set answers still wins the tier.
+        $planned = $this->planned([
+            'app.logger' => ['class' => FileLogger::class, 'arguments' => ['/tmp/app.log']],
+            LoggerInterface::class => ['alias' => 'app.logger'],
+            'app.house' => ['class' => NullableDefaultedHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame(
+            [['service' => LoggerInterface::class]],
+            $this->firstInstance($planned, 2)->arguments,
+        );
+    }
+
+    public function testADefaultedParameterWithAnExplicitInjectKeepsTheRefusal(): void
+    {
+        // Explicit wins over auto: an #[Inject] that names nothing is a
+        // declaration defect, and the constructor's default must not
+        // mask it.
+        try {
+            $this->planned([
+                'app.house' => ['class' => InjectedDefaultedHouse::class, 'autowire' => true],
+            ]);
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "no binding for 'app.missing'",
                 $autowiringException->getMessage(),
             );
         }

@@ -34,6 +34,17 @@ namespace Zef\Framework\Container\Autowiring;
  * 4. **the constructor's own default** -- baked verbatim, the honest
  *    value the class itself declared.
  *
+ * The defaulted nullable's own tier order: a class-typed parameter
+ * that declared a default keeps the binding tier while the type
+ * resolves (an alias, a declared service, a birthable class), but an
+ * unbound type name must not veto the constructor's own default --
+ * the same tier falls through to the default instead of the refusal
+ * whose way out the declaration already took. The attribute arms
+ * (`#[Inject]`, `#[Target]`) keep the refusal: an explicit binding
+ * that names nothing is a declaration defect, not a defaulted
+ * parameter's fallback (explicit wins over auto, the precedence this
+ * whole planner keeps).
+ *
  * The attribute and type arms resolve together through the
  * {@see AutowireReferences::resolve()} resolver the caller threads in
  * ({@see AutowireParameterSpec::carriesBinding()} is the routing
@@ -109,9 +120,31 @@ final readonly class AutowireParameterPlanner
         }
 
         if ($autowireParameterSpec->carriesBinding()) {
+            if ($this->unboundTypeWithADefault($autowireParameterSpec, $autowireReferences)) {
+                return AutowireFallback::stretch($ownerId, $autowireParameterSpec);
+            }
+
             return [['service' => $autowireReferences->resolve($ownerId, $autowireParameterSpec)]];
         }
 
         return AutowireFallback::stretch($ownerId, $autowireParameterSpec);
+    }
+
+    /**
+     * Whether the binding tier must yield to the constructor's own
+     * default: the parameter declared a default, its binding is the
+     * declared type alone (no attribute spelled an explicit intent),
+     * and that type names no binding the resolver could act on -- the
+     * tier-4 default the refusal's way out already promised.
+     */
+    private function unboundTypeWithADefault(
+        AutowireParameterSpec $autowireParameterSpec,
+        AutowireReferences $autowireReferences,
+    ): bool {
+        return $autowireParameterSpec->hasDefault
+            && $autowireParameterSpec->injectId === null
+            && $autowireParameterSpec->targetClass === null
+            && $autowireParameterSpec->className !== null
+            && !$autowireReferences->typeBindingResolvable($autowireParameterSpec);
     }
 }
