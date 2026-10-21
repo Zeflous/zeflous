@@ -11,6 +11,7 @@ use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RadixTree;
 use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Config\Routing\RouteDsl;
+use Zef\Framework\Config\Routing\RouteTreeCache;
 use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\Container\Container;
 
@@ -65,6 +66,17 @@ final readonly class Router
     public static function define(Closure $routes): self
     {
         return self::fromRoutes(RouteDsl::define($routes));
+    }
+
+    /**
+     * Builds a router over a compiled route tree cache -- the production
+     * boot path: the artifact is loaded, not compiled, and the returned
+     * router answers from the rehydrated immutable tree over the same
+     * memoised runtime surface.
+     */
+    public static function fromCache(RouteTreeCache $routeTreeCache): self
+    {
+        return new self(RoutingRuntime::fromTree($routeTreeCache->load()));
     }
 
     /**

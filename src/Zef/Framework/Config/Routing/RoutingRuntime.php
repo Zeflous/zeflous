@@ -78,6 +78,22 @@ final class RoutingRuntime
     }
 
     /**
+     * Builds the runtime over an already-compiled tree -- the compiled
+     * cache's boot path ({@see RouteTreeCache::load()}), where the
+     * engine's compilation was paid at build time and the boot skips it
+     * entirely. The tree is adopted as the instance's one memoised
+     * compilation: everything the runtime answers comes from it, exactly
+     * like a tree compiled lazily.
+     */
+    public static function fromTree(RadixTree $radixTree): self
+    {
+        $runtime = new self([]);
+        $runtime->radixTree = $radixTree;
+
+        return $runtime;
+    }
+
+    /**
      * The compiled radix tree -- built at most once per instance, on the
      * first call, and memoised afterwards.
      */

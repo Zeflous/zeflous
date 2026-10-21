@@ -128,6 +128,30 @@ final class RoutingRuntimeTest extends TestCase
         self::assertSame($matchResult->route(), $second->route());
     }
 
+    public function testFromTreeAdoptsTheGivenTreeAsItsOneCompilation(): void
+    {
+        $radixTree = RadixTree::compile($this->routes());
+        $routingRuntime = RoutingRuntime::fromTree($radixTree);
+
+        self::assertSame($radixTree, $routingRuntime->tree());
+        self::assertSame($radixTree, $routingRuntime->tree());
+    }
+
+    public function testFromTreeAnswersLikeTheConfiguredRuntime(): void
+    {
+        $fromTree = RoutingRuntime::fromTree(RadixTree::compile($this->routes()));
+        $fromConfig = RoutingRuntime::fromConfig(new Config(['routes' => $this->routes()]));
+
+        self::assertTrue($fromTree->match('GET', '/users/42')->isFound());
+        self::assertSame(
+            $fromConfig->match('GET', '/users/42')->route()->handler(),
+            $fromTree->match('GET', '/users/42')->route()->handler(),
+        );
+        self::assertSame($fromConfig->url('users.show', ['id' => '42']), $fromTree->url('users.show', ['id' => '42']));
+        self::assertFalse($fromTree->match('GET', '/users/abc')->isFound());
+        self::assertFalse($fromTree->match('GET', '/missing')->isFound());
+    }
+
     public function testMatchDelegatesMethodNotAllowedWithSortedMethods(): void
     {
         $routingRuntime = RoutingRuntime::fromConfig(new Config(['routes' => $this->routes()]));
