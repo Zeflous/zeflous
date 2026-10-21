@@ -501,6 +501,27 @@ final class ProcessErrorBoundaryTest extends TestCase
         );
     }
 
+    /**
+     * The recorded witness is consumed: a stale engine entry (a startup
+     * core warning no handler ever routed) records once, and the
+     * recycle's next shutdown stays silent instead of re-recording the
+     * same fatal at every worker turn.
+     */
+    public function testTheShutdownArmConsumesTheEngineWitnessItRecords(): void
+    {
+        $this->lastError = $this->fatalError();
+
+        @trigger_error('A seeded stale witness.', \E_USER_WARNING);
+        self::assertNotNull(error_get_last(), 'the engine witness is seeded');
+
+        $this->withAnArmedBoundary(
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+        );
+
+        self::assertCount(1, $this->recordingLogger->calls, 'the fatal records exactly once');
+        self::assertNull(error_get_last(), 'the recorded witness is consumed, never re-recorded');
+    }
+
     public function testTheShutdownArmIgnoresAMalformedLastError(): void
     {
         $this->lastError = ['type' => \E_ERROR];
