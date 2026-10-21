@@ -59,6 +59,41 @@ final class LogContextSanitizerTest extends TestCase
     }
 
     /**
+     * The message-level authorization arm redacts any scheme an `=`/`:`
+     * separator introduces -- custom schemes (Mutual, AWS SigV4 material)
+     * carry the same secrets Bearer and Basic do, and the vocabulary arm
+     * never sees their scheme words.
+     */
+    public function testAnyAuthorizationSchemeIsRedactedAtTheMessageLevel(): void
+    {
+        self::assertSame(
+            'authorization: [REDACTED]',
+            LogContextSanitizer::redact('authorization: Mutual 9f86d081884c7d65'),
+        );
+        self::assertSame(
+            'Authorization: [REDACTED]',
+            LogContextSanitizer::redact('Authorization: AWS4-HMAC-SHA256 Credential=AKIA/20261022'),
+        );
+        self::assertSame(
+            'Authorization=[REDACTED]',
+            LogContextSanitizer::redact('Authorization=Digest username="u"'),
+        );
+    }
+
+    /**
+     * Prose keeps its diagnostics: a sentence carrying the authorization
+     * word without an `=`/`:` separator and without a Bearer/Basic scheme
+     * is not a credential-bearing shape.
+     */
+    public function testAuthorizationProseKeepsItsDiagnostics(): void
+    {
+        self::assertSame(
+            'the authorization boundary refused the peer',
+            LogContextSanitizer::redact('the authorization boundary refused the peer'),
+        );
+    }
+
+    /**
      * The key-name gate's credential vocabulary is the replay sanitizer's
      * own: `passwd` and `csrf` spellings are redacted by key here exactly
      * as the replay payload gate redacts them, so a host context that

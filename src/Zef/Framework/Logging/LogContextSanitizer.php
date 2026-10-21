@@ -9,12 +9,25 @@ use Throwable;
 /** Sanitizes structured log fields before they cross the logging boundary. */
 final class LogContextSanitizer
 {
+    /**
+     * Redacts credential-bearing shapes from a free-form string: any
+     * authorization scheme an `=`/`:` separator introduces (prose never
+     * carries the separator, so a sentence keeps its diagnostics), the
+     * two schemes a bare whitespace may introduce, and the vocabulary
+     * pairs (`password=`, `token=` ...) whose values are secrets
+     * themselves.
+     */
     public static function redact(string $value): string
     {
         $authorizationRedacted = preg_replace(
-            '/\b(authorization)\b(\s*[=:]\s*|\s+)(?:Bearer|Basic)\s+[^\r\n]*/i',
+            '/\b(authorization)\b(\s*[=:]\s*)[!#$%&\'*+.^_`|~0-9A-Za-z-]+\s+[^\r\n]*/i',
             '$1$2[REDACTED]',
             $value,
+        );
+        $authorizationRedacted = preg_replace(
+            '/\b(authorization)\b(\s+)(?:Bearer|Basic)\s+[^\r\n]*/i',
+            '$1$2[REDACTED]',
+            \is_string($authorizationRedacted) ? $authorizationRedacted : $value,
         );
         $redacted = preg_replace(
             '/\b(password|passwd|token|secret|api[_-]?key)\b(\s*[=:]\s*|\s+)(["\']?)[^\s"\']{4,}/i',
