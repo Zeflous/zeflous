@@ -62,7 +62,7 @@ Do not copy the reference repository's Router collaborators wholesale. Reuse the
 ## Implementation sequence
 
 1. **Audit baseline:** map existing behavior and gaps without overstating completeness.
-2. **Public integration seam:** expose the existing dispatcher through the Router facade, with tests for execution and 404/405 outcomes.
+2. **Public integration seam — implemented in this branch:** `Router::dispatcher(Container)` returns the existing `RouteDispatcher` over the same memoized runtime. `tests/Router/RouterTest.php` adds an execution-path contract test; execution of the test suite is pending because the local clone is unavailable.
 3. **Host-aware core:** define host grammar, exact/wildcard precedence, conflict signatures, host parameter handling and exhaustive tests.
 4. **Negotiation and HTTP adapter:** define route MIME contracts and 406 semantics, then integrate request/response mapping.
 5. **Middleware lifecycle:** compose route middleware around the existing dispatcher with fail-closed resolution and explicit ordering.
