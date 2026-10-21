@@ -62,6 +62,14 @@ final class ProcessErrorBoundary
 
     private readonly ProcessShutdownFatals $processShutdownFatals;
 
+    private readonly ProcessBoundaryRecords $processBoundaryRecords;
+
+    /** The exact error-handler instance this boundary pushes -- the restore probe's own reference. */
+    private readonly Closure $errorHandler;
+
+    /** The exact exception-handler instance this boundary pushes -- the restore probe's own reference. */
+    private readonly Closure $exceptionHandler;
+
     /**
      * @param null|LoggerInterface                   $logger            the PSR-3 sink the
      *                                                                  fault records and diagnostics
@@ -106,6 +114,9 @@ final class ProcessErrorBoundary
         $processBoundaryRecords = new ProcessBoundaryRecords($logger, $requestSource);
         $processBoundaryTransmission = $transmission ?? new ProcessBoundaryTransmission();
         $this->shutdownRegistrar = $shutdownRegistrar ?? register_shutdown_function(...);
+        $this->errorHandler = $this->onNativeDiagnostic(...);
+        $this->exceptionHandler = $this->onUncaughtThrowable(...);
+        $this->processBoundaryRecords = $processBoundaryRecords;
 
         $this->processNativeDiagnostics = new ProcessNativeDiagnostics($processBoundaryRecords);
         $this->processUncaughtThrowables = new ProcessUncaughtThrowables(
@@ -128,7 +139,11 @@ final class ProcessErrorBoundary
      * exception handler, and the shutdown observer. Idempotent -- a
      * boundary already installed observes the second call and does
      * nothing -- and the shutdown callback is registered once per
-     * instance, so install/restore cycles never stack observers.
+     * instance, so install/restore cycles never stack observers. Each
+     * installation opens a fresh facts window
+     * ({@see ProcessBoundaryRecords::freshRequest()}): an
+     * install/restore cycle per request observes the request it serves,
+     * never the one the process started with.
      */
     public function install(): void
     {
@@ -136,10 +151,11 @@ final class ProcessErrorBoundary
             return;
         }
 
-        set_error_handler($this->onNativeDiagnostic(...));
-        set_exception_handler($this->onUncaughtThrowable(...));
+        set_error_handler($this->errorHandler);
+        set_exception_handler($this->exceptionHandler);
         $this->registerShutdownObserver();
         $this->installed = true;
+        $this->processBoundaryRecords->freshRequest();
     }
 
     /**
@@ -148,6 +164,15 @@ final class ProcessErrorBoundary
      * the shutdown observer is disarmed -- it stays registered, because
      * PHP cannot unregister it, but a restored boundary's arm observes and
      * stays silent.
+     *
+     * The documented contract is enforced, not trusted: the handlers are
+     * popped only when the boundary still owns the top of both engine
+     * stacks. A foreign handler installed after this boundary's own sits
+     * between them, and popping past it would remove the foreigner's --
+     * the probe ({@see self::ownsTheEngineHandlers()}) refuses the
+     * restoration loudly instead, leaving both stacks exactly as they are
+     * and the boundary installed, for the caller that still owes the
+     * engine its own unwinding.
      */
     public function restore(): void
     {
@@ -155,9 +180,41 @@ final class ProcessErrorBoundary
             return;
         }
 
+        if (!$this->ownsTheEngineHandlers()) {
+            error_log(
+                'ZEF process boundary restore refused: a handler installed after the boundary still owns '
+                . 'the engine stack -- unwind the handlers installed after it before restoring the boundary.',
+            );
+
+            return;
+        }
+
         restore_error_handler();
         restore_exception_handler();
         $this->installed = false;
+    }
+
+    /**
+     * Whether the boundary still owns the top of both engine stacks: the
+     * probe pushes a throwaway handler of its own, reads the previous top
+     * the engine answers (the exact instance this boundary pushed, or a
+     * foreigner's), and pops the throwaway back off -- the one honest way
+     * to observe the stack's top, because PHP keeps no read-only window
+     * onto it.
+     */
+    private function ownsTheEngineHandlers(): bool
+    {
+        $errorProbe = static fn (): bool => true;
+        $currentError = set_error_handler($errorProbe);
+        restore_error_handler();
+
+        $exceptionProbe = static function (): void {
+        };
+
+        $currentException = set_exception_handler($exceptionProbe);
+        restore_exception_handler();
+
+        return $currentError === $this->errorHandler && $currentException === $this->exceptionHandler;
     }
 
     /**
