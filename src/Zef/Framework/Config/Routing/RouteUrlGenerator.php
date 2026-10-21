@@ -35,9 +35,40 @@ final readonly class RouteUrlGenerator
     public function generate(string $name, array $params): string
     {
         $route = $this->radixTree->route($name);
-
-        $rendered = RouteUrlSegments::render($route, $params);
+        $hostParameters = RouteHost::parameterNames($route->host() ?? '');
+        $pathParameters = array_diff_key($params, array_fill_keys($hostParameters, true));
+        $rendered = RouteUrlSegments::render($route, $pathParameters);
 
         return '/' . implode('/', $rendered);
+    }
+
+    /**
+     * Generates an absolute URL for a route with a declared host pattern.
+     *
+     * Host parameters must be valid DNS labels; the scheme is restricted to
+     * HTTP(S), and path parameters retain the ordinary reverse-routing checks.
+     *
+     * @param array<string, mixed> $params route host and path parameters
+     */
+    public function generateAbsolute(string $name, array $params, string $scheme = 'https'): string
+    {
+        if (!in_array(strtolower($scheme), ['http', 'https'], true)) {
+            throw new ConfigException('The absolute route URL scheme must be "http" or "https".');
+        }
+
+        $route = $this->radixTree->route($name);
+        $hostPattern = $route->host();
+
+        if ($hostPattern === null) {
+            throw new ConfigException(sprintf('The route "%s" has no host pattern for absolute URL generation.', $name));
+        }
+
+        $hostParameters = RouteHost::parameterNames($hostPattern);
+        $hostValues = array_intersect_key($params, array_fill_keys($hostParameters, true));
+        $host = RouteHost::render($hostPattern, $hostValues);
+        $pathValues = array_diff_key($params, array_fill_keys($hostParameters, true));
+        $path = '/' . implode('/', RouteUrlSegments::render($route, $pathValues));
+
+        return strtolower($scheme) . '://' . $host . $path;
     }
 }

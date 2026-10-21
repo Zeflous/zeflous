@@ -104,6 +104,16 @@ final readonly class Router
     }
 
     /**
+     * Generates an absolute URL for a named route that declares a host pattern.
+     *
+     * @param array<string, mixed> $parameters
+     */
+    public function absoluteUrl(string $name, array $parameters, string $scheme = 'https'): string
+    {
+        return $this->runtime->absoluteUrl($name, $parameters, $scheme);
+    }
+
+    /**
      * Exposes the one memoised immutable tree for diagnostics and integration.
      */
     public function tree(): RadixTree

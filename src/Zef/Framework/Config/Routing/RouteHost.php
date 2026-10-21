@@ -106,6 +106,35 @@ final class RouteHost
     }
 
     /**
+     * Renders a host pattern with validated DNS-label parameter values.
+     *
+     * @param array<string, mixed> $parameters
+     */
+    public static function render(string $pattern, array $parameters): string
+    {
+        foreach (self::parameterNames($pattern) as $name) {
+            if (!array_key_exists($name, $parameters)) {
+                throw new ConfigException(sprintf('The host parameter "%s" is required.', $name));
+            }
+
+            $value = $parameters[$name];
+            if (!is_scalar($value) && !$value instanceof \\Stringable) {
+                throw new ConfigException(sprintf('The host parameter "%s" must be a DNS label value.', $name));
+            }
+
+            $label = (string) $value;
+            if (!preg_match('/\\A[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\z/D', $label)) {
+                throw new ConfigException(sprintf('The host parameter "%s" must be a valid DNS label.', $name));
+            }
+
+            $pattern = str_replace('{' . $name . '}', strtolower($label), $pattern);
+            unset($parameters[$name]);
+        }
+
+        return $pattern;
+    }
+
+    /**
      * @return list<string>
      */
     public static function parameterNames(string $pattern): array

@@ -80,6 +80,51 @@ final class RouterTest extends TestCase
         self::assertFalse($router->match('GET', '/dashboard', 'api.example.com')->isFound());
     }
 
+    public function testAbsoluteUrlGenerationRendersTenantHostParameters(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/users/{id}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+                'name' => 'tenant.users.show',
+            ],
+        ]);
+
+        self::assertSame(
+            'https://acme.example.com/users/42',
+            $router->absoluteUrl('tenant.users.show', ['tenant' => 'Acme', 'id' => 42]),
+        );
+        self::assertSame(
+            '/users/42',
+            $router->url('tenant.users.show', ['id' => 42]),
+        );
+    }
+
+    public function testAbsoluteUrlRejectsUnsafeHostParameterAndScheme(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+                'name' => 'tenant.dashboard',
+            ],
+        ]);
+
+        try {
+            $router->absoluteUrl('tenant.dashboard', ['tenant' => 'acme.evil']);
+            self::fail('A host parameter must not inject another hostname.');
+        } catch (ConfigException $exception) {
+            self::assertStringContainsString('valid DNS label', $exception->getMessage());
+        }
+
+        $this->expectException(ConfigException::class);
+        $router->absoluteUrl('tenant.dashboard', ['tenant' => 'acme'], 'javascript');
+    }
+
     public function testDispatcherUsesTheFacadeRuntimeAndContainerHandler(): void
     {
         $container = new Container();

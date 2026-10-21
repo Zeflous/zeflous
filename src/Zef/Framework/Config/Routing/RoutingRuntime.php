@@ -110,6 +110,16 @@ final class RoutingRuntime
     }
 
     /**
+     * Generates an absolute URL for a named route with a declared host pattern.
+     *
+     * @param array<string, mixed> $parameters
+     */
+    public function absoluteUrl(string $name, array $parameters, string $scheme = 'https'): string
+    {
+        return new RouteUrlGenerator($this->tree())->generateAbsolute($name, $parameters, $scheme);
+    }
+
+    /**
      * Generates the URL of a named route over the same compiled tree,
      * failing closed on any violation the generator itself rejects.
      *
