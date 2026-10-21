@@ -154,6 +154,52 @@ final class ETagMiddlewareTest extends TestCase
         self::assertSame('"handler-etag"', $response->getHeaderLine('ETag'));
     }
 
+    /**
+     * RFC 9110 §13.1.2: the condition is judged against the entity-tag
+     * of the selected representation -- the validator the response
+     * carries, not the hash the middleware would compute.
+     */
+    public function testADeclaredValidatorAnswersItsOwnRevalidation(): void
+    {
+        $response = $this->processed(
+            'payload',
+            'GET',
+            200,
+            ['If-None-Match' => '"handler-etag"'],
+            ['ETag' => '"handler-etag"'],
+        );
+
+        self::assertSame(304, $response->getStatusCode(), 'the declared validator is the one the condition is judged against');
+        self::assertSame('"handler-etag"', $response->getHeaderLine('ETag'));
+    }
+
+    public function testADeclaredValidatorIsJudgedNotTheComputedOne(): void
+    {
+        $response = $this->processed(
+            'payload',
+            'GET',
+            200,
+            ['If-None-Match' => $this->etagOf('payload')],
+            ['ETag' => '"handler-etag"'],
+        );
+
+        self::assertSame(200, $response->getStatusCode(), 'a body-hash candidate does not revalidate a handler-managed validator');
+        self::assertSame('"handler-etag"', $response->getHeaderLine('ETag'));
+    }
+
+    public function testTheStarFormMatchesWhenADeclaredValidatorExists(): void
+    {
+        $response = $this->processed(
+            '',
+            'GET',
+            200,
+            ['If-None-Match' => '*'],
+            ['ETag' => '"handler-etag"'],
+        );
+
+        self::assertSame(304, $response->getStatusCode(), 'a current representation exists when the handler declared its validator');
+    }
+
     #[DataProvider('provideIfNoneMatchGrammarVariantsCases')]
     public function testIfNoneMatchGrammarVariants(string $ifNoneMatch, int $expectedStatus): void
     {

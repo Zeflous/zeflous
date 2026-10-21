@@ -14,8 +14,11 @@ use Psr\Http\Server\RequestHandlerInterface;
  * Conditional GET middleware (RFC 9110 §13) -- the HTTP layer's first
  * PSR-15 middleware.
  *
- * For successful GET/HEAD responses with a non-empty body it computes a
- * strong SHA-256 ETag and evaluates the request's preconditions:
+ * For successful GET/HEAD responses it evaluates the request's
+ * preconditions against the response's declared validator -- the
+ * entity-tag of the selected representation, RFC 9110 §13.1.2 -- when
+ * the handler set one, otherwise against the strong SHA-256 ETag
+ * computed from a non-empty body:
  *
  * - `If-None-Match` (ETag comparison, `*` and weak `W/` forms supported)
  * - `If-Modified-Since` (any response carrying `Last-Modified`, body-less
@@ -80,10 +83,12 @@ final class ETagMiddleware implements MiddlewareInterface
         string $body,
     ): ResponseInterface {
         $etag = StrongEtag::of($body);
+        $declared = $response->getHeaderLine('ETag');
+        $validator = $declared !== '' ? $declared : $etag;
         $lastModified = $response->getHeaderLine('Last-Modified');
 
-        if (RequestPreconditions::matches($serverRequest, $etag, $lastModified)) {
-            return NotModifiedResponse::from($response, $etag);
+        if (RequestPreconditions::matches($serverRequest, $validator, $lastModified)) {
+            return NotModifiedResponse::from($response, $validator);
         }
 
         if ($etag === '' || $response->hasHeader('ETag')) {
