@@ -57,6 +57,12 @@ final class RequestFactory
     /**
      * Builds the request from the SAPI superglobals.
      *
+     * The upload bag is anchored to the engine's own upload claim on
+     * this seam ({@see UploadOrigin}): an error-OK entry whose temporary
+     * file the engine never wrote is downgraded before normalisation.
+     * The explicitly-sourced {@see fromServer()} twin keeps the
+     * source-agnostic contract the persistent-worker runtimes need.
+     *
      * @param null|RequestBodyPolicy $requestBodyPolicy the ingress policy for the
      *                                                  request body; null answers the
      *                                                  default two-mebibyte limit
@@ -78,7 +84,7 @@ final class RequestFactory
             $_GET,
             $_COOKIE,
             $_POST !== [] ? $_POST : null,
-            $_FILES,
+            UploadOrigin::anchor($_FILES),
             $requestBodyPolicy,
         );
     }

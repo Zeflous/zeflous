@@ -58,6 +58,7 @@ use Zef\Framework\Http\UploadNode;
 #[CoversClass(ServerProtocol::class)]
 #[CoversClass(ServerPath::class)]
 #[CoversClass(ServerUploads::class)]
+#[CoversClass(UploadOrigin::class)]
 #[CoversClass(ServerUri::class)]
 #[CoversClass(ServerValues::class)]
 #[CoversClass(UploadCoercion::class)]
@@ -657,6 +658,75 @@ final class RequestFactoryTest extends TestCase
         yield 'connect portless authority' => ['CONNECT', 'example.com'];
 
         yield 'authority on a plain method' => ['GET', 'example.com:443'];
+    }
+
+    public function testTheGlobalsBagDowngradesFilesTheEngineDisowns(): void
+    {
+        $server = $_SERVER;
+        $get = $_GET;
+        $cookie = $_COOKIE;
+        $post = $_POST;
+        $files = $_FILES;
+
+        $_SERVER = ['REQUEST_METHOD' => 'POST', 'HTTP_HOST' => 'zef.io'];
+        $_GET = [];
+        $_COOKIE = [];
+        $_POST = [];
+        $_FILES = [
+            'avatar' => [
+                'name' => 'avatar.png',
+                'type' => 'image/png',
+                'tmp_name' => __FILE__,
+                'error' => \UPLOAD_ERR_OK,
+                'size' => 2048,
+            ],
+            'photos' => [
+                'name' => ['a.png', 'b.png'],
+                'type' => ['image/png', 'image/png'],
+                'tmp_name' => [__FILE__, ''],
+                'error' => [\UPLOAD_ERR_OK, \UPLOAD_ERR_NO_FILE],
+                'size' => [10, 20],
+            ],
+        ];
+
+        try {
+            $request = RequestFactory::fromGlobals();
+
+            $uploads = $request->getUploadedFiles();
+            self::assertSame(\UPLOAD_ERR_NO_FILE, $uploads['avatar']->getError(), 'a path the engine disowns is no payload');
+            self::assertSame(\UPLOAD_ERR_NO_FILE, $uploads['photos'][0]->getError(), 'the nested disowned leaf is downgraded');
+            self::assertSame(\UPLOAD_ERR_NO_FILE, $uploads['photos'][1]->getError(), 'the leaf that was already honest is untouched');
+
+            $this->assertThrows(
+                'Uploaded file is not available (error 4).',
+                static function () use ($uploads): void {
+                    $uploads['avatar']->getStream();
+                },
+            );
+        } finally {
+            $_SERVER = $server;
+            $_GET = $get;
+            $_COOKIE = $cookie;
+            $_POST = $post;
+            $_FILES = $files;
+        }
+    }
+
+    public function testTheExplicitSourceKeepsTheEngineDisownedFileTheCallerNamed(): void
+    {
+        $request = RequestFactory::fromServer([], null, null, null, [
+            'avatar' => [
+                'name' => 'avatar.png',
+                'type' => 'image/png',
+                'tmp_name' => __FILE__,
+                'error' => \UPLOAD_ERR_OK,
+                'size' => 2048,
+            ],
+        ]);
+
+        $uploads = $request->getUploadedFiles();
+        self::assertSame(\UPLOAD_ERR_OK, $uploads['avatar']->getError(), 'the explicitly-sourced lane owns its own trust');
+        self::assertSame('<?php', $uploads['avatar']->getStream()->read(5));
     }
 
     /**
