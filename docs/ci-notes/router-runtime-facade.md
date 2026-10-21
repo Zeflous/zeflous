@@ -31,7 +31,7 @@ from mutable external state.
   engine under `Config/Routing` (see `docs/ci-notes/radix-engine.md`).
   This slice composes that engine instead of creating a second route
   registry or moving the configuration grammar back into the Router namespace.
-- **Exact-host slice now implemented:** the Standard Route Schema accepts an optional exact DNS `host`; `RouteHost` canonicalises registration and request hosts; duplicate method claims include the host; and matching takes an optional host, preferring exact-host routes over host-agnostic fallbacks. Wildcards, host parameters, IP/port authority parsing and PSR-7 Host/URI integration are not claimed.
+- **Host-aware slices now implemented:** the Standard Route Schema accepts exact DNS hosts and whole-label host parameters such as `{tenant}.example.com`; host labels are canonicalised, host parameters are merged with path parameters, exact hosts outrank parameterised hosts and fallbacks, and ambiguous equal-specificity patterns are rejected. `Router::absoluteUrl()` safely generates absolute URLs from named host routes. `*` wildcard syntax, IP/port authority parsing and PSR-7 Host/URI integration are not claimed.
 - **Still not claimed:** route-level Accept negotiation, PSR-7 request/response adaptation, per-route middleware execution, observability hooks, compiled cache files, CLI inspection and the broader advanced-routing roadmap. The roadmap status therefore stays **Partial**.
 
 ## Failure and runtime contract

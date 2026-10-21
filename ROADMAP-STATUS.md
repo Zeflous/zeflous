@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-21 · `feat/router-runtime-facade` (PR branch; not yet merged; dispatcher bridge added)
+**Last updated:** 2026-10-21 · `feat/router-runtime-facade` (PR branch; not yet merged; exact and parameterised host routing added)
 
 ---
 
@@ -38,7 +38,7 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Core engine, advanced routing, performance, DX, ecosystem | 🟡 Partial | Public facade `src/Zef/Framework/Router/Router.php` composes `RouteDsl`/`RoutingRuntime`, exposes `dispatcher(Container)`, and matches optional exact DNS hosts via `match(method, path, host)`; `RouteHost`, host-scoped claims and tests cover exact-host isolation and fallback precedence. Wildcards/host parameters, Accept negotiation, PSR-7 adaptation, per-route middleware execution, observability and tooling remain open; see `docs/ci-notes/router-roadmap-audit.md`. |
+| Core engine, advanced routing, performance, DX, ecosystem | 🟡 Partial | Public facade `src/Zef/Framework/Router/Router.php` composes `RouteDsl`/`RoutingRuntime`, exposes `dispatcher(Container)`, matches optional hosts and generates absolute URLs. `RouteHost` supports exact DNS names and whole-label `{tenant}` parameters; host captures merge with path captures, exact > parameterised > fallback precedence is explicit, equal-specificity overlapping patterns and host/path parameter collisions are rejected, and tests cover host isolation, precedence and absolute URL generation. `*` wildcard syntax, Accept negotiation, PSR-7 adaptation, per-route middleware execution, observability and tooling remain open; see `docs/ci-notes/router-roadmap-audit.md`. |
 
 ## Configuration System + DSL + Radix Tree
 
