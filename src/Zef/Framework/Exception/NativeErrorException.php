@@ -30,11 +30,12 @@ use Override;
 final class NativeErrorException extends ZefException implements CarriesHttpStatus
 {
     /**
-     * The one construction site: the engine's diagnostic, bounded before it
-     * crosses into the typed lane.
+     * The one construction site: the engine's diagnostic, crossing into
+     * the typed lane unbounded -- every lane that reads it (the fault
+     * record's context, the disclosure fold's message) owns its own
+     * bound, so the conversion adds no second one.
      *
-     * @param string $message  the engine's diagnostic text, already
-     *                         bounded by the caller
+     * @param string $message  the engine's diagnostic text
      * @param string $severity the PSR-3 level the diagnostic mapped to
      * @param string $file     the file the diagnostic names
      * @param int    $line     the line the diagnostic names

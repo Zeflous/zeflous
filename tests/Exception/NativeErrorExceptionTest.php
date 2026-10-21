@@ -28,6 +28,7 @@ final class NativeErrorExceptionTest extends TestCase
         );
 
         self::assertSame('Uncaught division by zero', $nativeErrorException->getMessage());
+        self::assertSame(0, $nativeErrorException->getCode());
         self::assertSame('NATIVE_ERROR', $nativeErrorException->getErrorCode());
         self::assertSame('/var/app/src/worker.php', $nativeErrorException->getDetails()['file']);
         self::assertSame(42, $nativeErrorException->getDetails()['line']);

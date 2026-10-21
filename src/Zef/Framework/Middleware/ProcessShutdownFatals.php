@@ -95,22 +95,19 @@ final readonly class ProcessShutdownFatals
 
     /**
      * The message the fatal's answer carries -- the witnessed facts
-     * composed and bounded before they cross into the envelope lane.
+     * composed, the bounds owned by the lanes that read it (the
+     * disclosure fold's own message bound, the sink line's head bound).
      *
      * @param ProcessBoundaryFatals $processBoundaryFatals the witnessed fatal's facts
      *
-     * @return string the composed, bounded message
+     * @return string the composed message
      */
     private function composed(ProcessBoundaryFatals $processBoundaryFatals): string
     {
-        return mb_substr(
-            $processBoundaryFatals->message
-                . ' in '
-                . $processBoundaryFatals->file
-                . ' on line '
-                . $processBoundaryFatals->line,
-            0,
-            2048,
-        );
+        return $processBoundaryFatals->message
+            . ' in '
+            . $processBoundaryFatals->file
+            . ' on line '
+            . $processBoundaryFatals->line;
     }
 }

@@ -494,6 +494,11 @@ final class ProcessErrorBoundaryTest extends TestCase
 
         self::assertSame([], $this->recordingLogger->calls);
         self::assertSame([], $this->emitted);
+        self::assertSame(
+            '',
+            $this->routedErrorLogContents(),
+            'A refused witness is silence, not a containment failure.',
+        );
     }
 
     public function testTheShutdownArmIgnoresAMalformedLastError(): void

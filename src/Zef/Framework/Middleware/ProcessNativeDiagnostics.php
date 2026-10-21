@@ -52,7 +52,7 @@ final readonly class ProcessNativeDiagnostics
 
         if (($severity & self::CONVERTS_TO_EXCEPTION) !== 0) {
             throw NativeErrorException::diagnostic(
-                mb_substr($message . ' in ' . $file . ' on line ' . $line, 0, 2048),
+                $message . ' in ' . $file . ' on line ' . $line,
                 DiagnosticSeverity::for($severity),
                 $file,
                 $line,

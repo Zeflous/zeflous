@@ -85,6 +85,16 @@ final class DiagnosticContextFactoryTest extends TestCase
         );
         self::assertSame(str_repeat('a', 2048), $longFile['diagnostic.file']);
 
+        $multibyteFile = DiagnosticContextFactory::create(
+            'notice',
+            'A diagnostic.',
+            str_repeat("\u{00E9}", 2048),
+            1,
+            'req-123',
+            $serverRequest,
+        );
+        self::assertSame(str_repeat("\u{00E9}", 2048), $multibyteFile['diagnostic.file']);
+
         $rawFactsServerRequest = new RawFactsServerRequest(
             $serverRequest,
             'GET',
@@ -100,6 +110,22 @@ final class DiagnosticContextFactoryTest extends TestCase
             $rawFactsServerRequest,
         );
         self::assertSame(str_repeat('a', 2048), $boundedPath['path']);
+
+        $multibytePathServerRequest = new RawFactsServerRequest(
+            $serverRequest,
+            'GET',
+            new RawPathUri(str_repeat("\u{00E9}", 2048)),
+            [],
+        );
+        $boundedMultibytePath = DiagnosticContextFactory::create(
+            'notice',
+            'A diagnostic.',
+            '/var/app/src/budget.php',
+            1,
+            'req-123',
+            $multibytePathServerRequest,
+        );
+        self::assertSame(str_repeat("\u{00E9}", 2048), $boundedMultibytePath['path']);
     }
 
     public function testTheLineFactTravelsUnbounded(): void
