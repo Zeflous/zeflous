@@ -6,6 +6,7 @@ namespace Zef\Test\Logging;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use LogicException;
 use RuntimeException;
 use stdClass;
 use Zef\Framework\Logging\LogContextSanitizer;
@@ -44,9 +45,80 @@ final class LogContextSanitizerTest extends TestCase
 
         $sanitized = LogContextSanitizer::sanitize($context);
 
-        self::assertCount(100, $sanitized);
+        // The tail beyond the budget still drops (never a silent growth),
+        // but the drop is named: the truncation marker the depth bound
+        // already spells rides the fold, so a reader sees the shrink.
+        self::assertCount(101, $sanitized);
         self::assertSame('v99', $sanitized['k99']);
         self::assertArrayNotHasKey('k100', $sanitized);
+        self::assertTrue($sanitized['_truncated'], 'the dropped tail is marked, never silent');
+    }
+
+    public function testABudgetedFoldCarriesNoMarkerWhenNothingDropped(): void
+    {
+        $context = [];
+        for ($i = 0; $i < 100; ++$i) {
+            $context['k' . $i] = 'v' . $i;
+        }
+
+        self::assertCount(100, LogContextSanitizer::sanitize($context));
+        self::assertArrayNotHasKey('_truncated', LogContextSanitizer::sanitize($context));
+    }
+
+    public function testTheWrappedChainRidesTheRecord(): void
+    {
+        // The previous link is the root cause a wrapped diagnostic
+        // exists to name: the fold keeps it, nested the way the wrap
+        // itself nests, each link the same three facts.
+        $root = new RuntimeException('the root cause');
+        $wrapped = new LogicException('the wrapper', 0, $root);
+
+        $sanitized = LogContextSanitizer::sanitize(['failure' => $wrapped]);
+
+        $fold = $sanitized['failure'];
+        self::assertSame(LogicException::class, $fold['class']);
+        self::assertSame('the wrapper', $fold['message']);
+        self::assertSame(RuntimeException::class, $fold['previous']['class']);
+        self::assertSame('the root cause', $fold['previous']['message']);
+        self::assertArrayNotHasKey('previous', $fold['previous'], 'the chain ends where the wrap ends');
+    }
+
+    public function testABareSchemeCredentialWithoutTheAuthorizationWordIsRedacted(): void
+    {
+        self::assertSame(
+            'Bearer [REDACTED]',
+            LogContextSanitizer::redact('Bearer eyJhbGciOiJIUzI1NiJ9.e30.abc123'),
+            'the scheme word alone carries the credential',
+        );
+        self::assertSame(
+            'Basic [REDACTED]',
+            LogContextSanitizer::redact('Basic dXNlcm5hbWU6cGFzc3dvcmQ='),
+        );
+        self::assertSame(
+            'Basic usage keeps its prose',
+            LogContextSanitizer::redact('Basic usage keeps its prose'),
+            'a scheme word followed by prose is not a credential',
+        );
+    }
+
+    public function testASessionIdRidingAQuerySurvivesNothing(): void
+    {
+        self::assertSame(
+            'https://app.example.test/dashboard?PHPSESSID=[REDACTED]',
+            LogContextSanitizer::redact('https://app.example.test/dashboard?PHPSESSID=abc123def456'),
+        );
+        self::assertSame(
+            'https://app.example.test/dashboard?session_id=[REDACTED]',
+            LogContextSanitizer::redact('https://app.example.test/dashboard?session_id=abc123def456'),
+        );
+    }
+
+    public function testASessionIdContextKeyIsRedacted(): void
+    {
+        self::assertSame(
+            ['session_id' => '[REDACTED]', 'honest' => 'value'],
+            LogContextSanitizer::sanitize(['session_id' => 'abc123def456', 'honest' => 'value']),
+        );
     }
 
     public function testSensitiveKeysAreRedactedRegardlessOfCase(): void
