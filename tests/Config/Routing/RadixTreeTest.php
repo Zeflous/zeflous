@@ -131,6 +131,7 @@ final class RadixTreeTest extends TestCase
             $radixTree->match('GET', '/dashboard', 'api.example.com')->route()->handler(),
         );
         self::assertFalse($radixTree->match('GET', '/dashboard', 'other.example.com')->isFound());
+        self::assertFalse($radixTree->match('GET', '/dashboard', '*.example.com')->isFound());
         self::assertFalse($radixTree->match('GET', '/dashboard')->isFound());
     }
 
