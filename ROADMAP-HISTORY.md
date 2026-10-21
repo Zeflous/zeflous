@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-21 · `main` @ `80b3745d5d`
+**Last updated:** 2026-10-21 · `main` @ `ac481f40d4`
 
 **How to read this file**
 
@@ -25,7 +25,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Container | 15 |
 | HTTP Layer | 25 |
 | Middleware Pipeline | 1 |
-| Error Handling | 3 |
+| Error Handling | 4 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 13 |
 | CI / Supply chain | 38 (incl. auto-merge + Sonar lanes) |
@@ -33,7 +33,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 21 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **155** |
+| **Total merged PRs** | **156** |
 
 ---
 
@@ -100,6 +100,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | fix(sonar): green Quality Gate — testable tooling, >90% coverage (touches `src/Zef/Framework/Exception/*`) | #2 | 2026-10-07 | `fbb1c2cdc9` |
 | feat(errors): add the typed HTTP exception family and retire the message sniffing (`CarriesHttpStatus` marker, eight family classes with payload-carrying refusals, `PayloadTooLargeException`, three-tier `ErrorStatusMap`, disclosure of typed messages through redaction, middleware split into `ErrorFaultRecorder` + `ErrorEnvelope`) | #434 | 2026-10-18 | `354de39dcb` |
 | feat(errors): harden enterprise error handling (RFC 9457 JSON/HTML boundary, validated trace/error identifiers, CSP-safe debug toolbar, hardened JSONL logging, fail-closed replay capture, guarded CLI, and regression coverage; strict CI lanes green) | #444 | 2026-10-20 | `6a883cf8b2` |
+| fix(errors): harden the failure visibility, log bounds and CLI display (the follow-up audit battery over #444's merged state: the envelope's double-failure fallback now names the construction failure's class on the SAPI log; the log context gate carries the replay sanitizer's full credential vocabulary — `passwd` and `csrf` spellings included; non-finite float context values answer their diagnostic spelling through a `NonFiniteFloat` leaf so one NAN can no longer silence the whole record; the PSR-3 message clamps at a 2048-byte `mb_strcut` bound whose three-byte edge is pinned; the CLI report strips control bytes from its display; the record writers' character-offset walk audited and retired as a documented contract) | #508 | 2026-10-21 | `ac481f40d4` |
 
 ## 4. Kernel & Platform
 
