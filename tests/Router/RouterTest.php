@@ -8,7 +8,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Config\Routing\DispatchOutcome;
 use Zef\Framework\Config\Routing\RouteDsl;
+use Zef\Framework\Container\Container;
 use Zef\Framework\Router\Router;
 
 #[CoversClass(Router::class)]
@@ -61,6 +63,24 @@ final class RouterTest extends TestCase
 
         self::assertSame('/users/42', $router->url('users.show', ['id' => 42]));
         self::assertSame($router->tree(), $router->tree());
+    }
+
+    public function testDispatcherUsesTheFacadeRuntimeAndContainerHandler(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Health@check',
+            static fn (): callable => static fn (array $parameters): string => 'healthy',
+        );
+
+        $router = self::routerWithHealthRoute();
+        $dispatcher = $router->dispatcher($container);
+        $outcome = $dispatcher->dispatch('GET', '/health');
+
+        self::assertInstanceOf(DispatchOutcome::class, $outcome);
+        self::assertTrue($outcome->isExecuted());
+        self::assertSame('healthy', $outcome->result());
+        self::assertSame('Health@check', $outcome->route()->handler());
     }
 
     public function testMatchPreservesMethodNotAllowedAndNotFoundOutcomes(): void
