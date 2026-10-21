@@ -94,6 +94,30 @@ final class TracerTest extends TestCase
         );
     }
 
+    /**
+     * W3C trace-context level 2: every participant propagates the
+     * parent's tracestate unchanged and honours the upstream sampling
+     * decision -- a child minted under an opted-out parent stays
+     * opted-out.
+     */
+    public function testAChildSpanCarriesTheParentsTracestateAndSamplingFlag(): void
+    {
+        $spanContext = new SpanContext(self::PARENT_TRACE_ID, self::PARENT_SPAN_ID, false, 'tenant@system=abc');
+        $child = $this->tracer()->startSpan('child', [], $spanContext);
+
+        self::assertSame('tenant@system=abc', $child->getContext()->traceState);
+        self::assertFalse($child->getContext()->sampled, 'the upstream head-sampling decision survives the hop');
+    }
+
+    public function testASampledParentStillYieldsASampledChild(): void
+    {
+        $spanContext = new SpanContext(self::PARENT_TRACE_ID, self::PARENT_SPAN_ID, true, 'vendor=xyz');
+        $child = $this->tracer()->startSpan('child', [], $spanContext);
+
+        self::assertTrue($child->getContext()->sampled);
+        self::assertSame('vendor=xyz', $child->getContext()->traceState);
+    }
+
     public function testTheSpanThreadsTheTracersClock(): void
     {
         $span = $this->tracer()->startSpan('request', ['http.method' => 'GET']);

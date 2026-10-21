@@ -16,10 +16,13 @@ use Override;
  * bytes (16 hex characters), and a span opened under a parent
  * context inherits the parent's trace id -- the parent's own span id
  * stays in the parent, and the child's {@see SpanData} carries the
- * parent context whole. A child span is always minted sampled: the
- * reference had no sampler, and the sampling decision the
- * trace-context's flag carries is the propagation lane's question (a
- * later family in this campaign), not the minting's.
+ * parent context whole. The parent's sampling flag and tracestate
+ * companion travel into the child whole: W3C trace-context level 2
+ * requires every participant to propagate both unchanged, and the
+ * sampling decision the trace-context's flag carries is the
+ * propagation lane's question, not the minting's. A root span (no
+ * parent context) is minted sampled -- the reference carried no
+ * sampler.
  *
  * The arm ({@see self::$enabled}) is the family's fail-closed
  * posture: a disabled tracer answers the void span ({@see
@@ -71,7 +74,7 @@ final readonly class Tracer implements TracerInterface
 
         $traceId = $spanContext->traceId ?? bin2hex(random_bytes(16));
         $spanId = bin2hex(random_bytes(8));
-        $context = new SpanContext($traceId, $spanId, true);
+        $context = new SpanContext($traceId, $spanId, $spanContext?->sampled ?? true, $spanContext?->traceState);
 
         return new Span(
             $name,
