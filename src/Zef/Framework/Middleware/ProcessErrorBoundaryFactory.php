@@ -6,6 +6,7 @@ namespace Zef\Framework\Middleware;
 
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Container\Container;
 use Zef\Framework\Logging\JsonLineLogger;
 use Zef\Framework\Telemetry\MeterInterface;
 
@@ -37,6 +38,16 @@ use Zef\Framework\Telemetry\MeterInterface;
  */
 final class ProcessErrorBoundaryFactory
 {
+    /**
+     * The container service identifier the boundary registers under at
+     * boot ({@see \Zef\Framework\FrameworkDefaults::PROCESS_BOUNDARY_SERVICE}
+     * aliases this spelling) -- the `http.errors` precedent's own family,
+     * so the error lane's services stay one catalogue. The identifier
+     * lives here, with the family that owns it, so the registration seam
+     * never circles a dependency back to the profile that registers it.
+     */
+    public const string SERVICE_ID = 'http.errors.process_boundary';
+
     public static function fromConfig(
         Config $config,
         ?MeterInterface $meter = null,
@@ -65,7 +76,7 @@ final class ProcessErrorBoundaryFactory
             $logPath === '' ? null : new JsonLineLogger($logPath),
             $debug && $debugAllowed,
             $metricsEnabled ? $meter : null,
-            sapi: $sapi,
+            transmission: new ProcessBoundaryTransmission(sapi: $sapi),
         );
     }
 
@@ -76,10 +87,43 @@ final class ProcessErrorBoundaryFactory
     public static function wantsInstallation(Config $config): bool
     {
         $processBoundary = $config->get('http.error_handling.process_boundary', false);
+
         if (!\is_bool($processBoundary)) {
             throw new ConfigException('http.error_handling.process_boundary must be a boolean.');
         }
 
         return $processBoundary;
+    }
+
+    /**
+     * The boot seam's own resolver: answers the boundary the frozen
+     * configuration asks the one-call boot to install, through the
+     * profile's own service registration (a host's same-identifier
+     * rebind wins over the framework's default construction) -- or null
+     * when the knob stays silent, so the seam's caller spells one
+     * conditional and nothing else.
+     *
+     * A knob asking for the boundary cannot be answered by something
+     * else: a service that resolves to a non-boundary halts the boot with
+     * the identifier, the expected class and the given type named.
+     */
+    public static function resolveForInstallation(Config $config, Container $container): ?ProcessErrorBoundary
+    {
+        if (!self::wantsInstallation($config)) {
+            return null;
+        }
+
+        $boundary = $container->get(self::SERVICE_ID);
+
+        if (!$boundary instanceof ProcessErrorBoundary) {
+            throw new ConfigException(\sprintf(
+                'The "%s" service must resolve to a %s instance, "%s" given.',
+                self::SERVICE_ID,
+                ProcessErrorBoundary::class,
+                get_debug_type($boundary),
+            ));
+        }
+
+        return $boundary;
     }
 }

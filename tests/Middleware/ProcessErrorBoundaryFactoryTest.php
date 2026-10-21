@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Container\Container;
+use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Middleware\ProcessErrorBoundary;
 use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 use Zef\Framework\Telemetry\CounterMeter;
@@ -205,6 +207,64 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
             'observability' => ['metrics' => ['enabled' => false]],
         ]), $disabledMeter);
         self::assertSame([], $disabledMeter->snapshot());
+    }
+
+    public function testTheResolverAnswersNullWhenTheKnobStaysSilent(): void
+    {
+        self::assertNull(
+            ProcessErrorBoundaryFactory::resolveForInstallation(
+                new Config(['http' => ['error_handling' => ['process_boundary' => false]]]),
+                new Container(),
+            ),
+        );
+        self::assertNull(
+            ProcessErrorBoundaryFactory::resolveForInstallation(new Config(), new Container()),
+        );
+    }
+
+    public function testTheResolverAnswersTheRegisteredBoundary(): void
+    {
+        $container = new Container();
+        $container->set(
+            FrameworkDefaults::PROCESS_BOUNDARY_SERVICE,
+            static fn (): ProcessErrorBoundary => new ProcessErrorBoundary(),
+        );
+
+        $resolved = ProcessErrorBoundaryFactory::resolveForInstallation(
+            new Config(['http' => ['error_handling' => ['process_boundary' => true]]]),
+            $container,
+        );
+
+        self::assertInstanceOf(ProcessErrorBoundary::class, $resolved);
+    }
+
+    public function testTheResolverHaltsWhenTheServiceIsNotABoundary(): void
+    {
+        $container = new Container();
+        $container->set(
+            FrameworkDefaults::PROCESS_BOUNDARY_SERVICE,
+            static fn (): string => 'not-a-boundary',
+        );
+
+        $this->assertConfigException(
+            'The "' . FrameworkDefaults::PROCESS_BOUNDARY_SERVICE . '" service must resolve to a'
+            . ' Zef\Framework\Middleware\ProcessErrorBoundary instance, "string" given.',
+            static fn (): ?ProcessErrorBoundary => ProcessErrorBoundaryFactory::resolveForInstallation(
+                new Config(['http' => ['error_handling' => ['process_boundary' => true]]]),
+                $container,
+            ),
+        );
+    }
+
+    public function testTheResolverRefusesANonBooleanKnob(): void
+    {
+        $this->assertConfigException(
+            'http.error_handling.process_boundary must be a boolean.',
+            static fn (): ?ProcessErrorBoundary => ProcessErrorBoundaryFactory::resolveForInstallation(
+                new Config(['http' => ['error_handling' => ['process_boundary' => 'yes']]]),
+                new Container(),
+            ),
+        );
     }
 
     /**

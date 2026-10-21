@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Zef\Framework;
 
-use FilesystemIterator;
 use Psr\Http\Server\RequestHandlerInterface;
 use Zef\Framework\Config\Cache\ConfigCache;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigBootstrapper;
-use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Config\Loader\DirectoryInventory;
 use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Merge\LayeredConfigBuilder;
 use Zef\Framework\Container\Aot\ContainerAotCache;
@@ -19,7 +18,6 @@ use Zef\Framework\Container\ContainerInstalls;
 use Zef\Framework\Container\DefinitionCompiler;
 use Zef\Framework\Middleware\MiddlewarePipeline;
 use Zef\Framework\Middleware\PipelineFactory;
-use Zef\Framework\Middleware\ProcessErrorBoundary;
 use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 
 /**
@@ -65,20 +63,19 @@ use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
  *   the seam, a proven-stale one is never run).
  *
  * The composition's last stage is the **process error boundary**
- * ({@see ProcessErrorBoundary}, the `http.error_handling.process_boundary`
+ * ({@see Middleware\ProcessErrorBoundary}, the `http.error_handling.process_boundary`
  * knob's seam): the one-call boot installs the process-level error face
  * the configuration asks for, so a diagnostic the engine raises inside
  * the booted process -- before the pipeline runs, outside the request
  * scope, or after nothing caught it -- flows through the same error
  * system the request boundary feeds, from the first line of host glue
  * onward. The knob defaults to an uninstalled boundary (the honest
- * default: a host opts its process in), its grammar validated once at
- * {@see ProcessErrorBoundaryFactory::wantsInstallation()}, and the
- * boundary resolves through the profile's own service registration so
- * a host's same-identifier rebind wins over the framework's default
- * construction -- a rebind that does not answer the boundary's own
- * class halts the boot, because a knob asking for the boundary cannot
- * be answered by something else.
+ * default: a host opts its process in), and the resolution is the
+ * factory family's own seam ({@see ProcessErrorBoundaryFactory::
+ * resolveForInstallation()} -- the knob's grammar validated once, the
+ * profile's own service registration resolved, a rebind that does not
+ * answer the boundary's own class halting the boot, because a knob
+ * asking for the boundary cannot be answered by something else).
  *
  * Before any definition is installed, the frozen repository itself is
  * registered as the container's `framework.config` service ({@see
@@ -119,7 +116,7 @@ final readonly class ApplicationBootstrapper
             ->withDefaults(FrameworkDefaults::profile())
         ;
 
-        $configFiles = $this->configFiles($configDirectory);
+        $configFiles = DirectoryInventory::names($configDirectory);
 
         if ($configFiles !== []) {
             $builder = $builder->withAppDirectory($configDirectory, $configFiles);
@@ -146,7 +143,7 @@ final readonly class ApplicationBootstrapper
             ->bootstrap($config, $container)
         ;
 
-        $this->installProcessBoundary($config, $container);
+        ProcessErrorBoundaryFactory::resolveForInstallation($config, $container)?->install();
 
         return new Kernel($container, $config);
     }
@@ -159,72 +156,5 @@ final readonly class ApplicationBootstrapper
     public function pipeline(Kernel $kernel, RequestHandlerInterface $requestHandler): MiddlewarePipeline
     {
         return new PipelineFactory($kernel->container(), $kernel->config(), $requestHandler)->build();
-    }
-
-    /**
-     * The process boundary's boot seam: the composition's last stage,
-     * installing the process-level error face when the frozen
-     * configuration asks for it and halting the boot when the knob's
-     * service does not answer the boundary's own class.
-     *
-     * @param Config    $config    the frozen repository the knob reads from
-     * @param Container $container the installed container the boundary
-     *                             resolves through
-     */
-    private function installProcessBoundary(Config $config, Container $container): void
-    {
-        if (!ProcessErrorBoundaryFactory::wantsInstallation($config)) {
-            return;
-        }
-
-        $boundary = $container->get(FrameworkDefaults::PROCESS_BOUNDARY_SERVICE);
-
-        if (!$boundary instanceof ProcessErrorBoundary) {
-            throw new ConfigException(
-                \sprintf(
-                    'The "%s" service must resolve to a %s instance, "%s" given.',
-                    FrameworkDefaults::PROCESS_BOUNDARY_SERVICE,
-                    ProcessErrorBoundary::class,
-                    get_debug_type($boundary),
-                ),
-            );
-        }
-
-        $boundary->install();
-    }
-
-    /**
-     * The configuration directory's own inventory: every direct child's
-     * basename, handed to the file loader as the executable allowlist. The
-     * narrow filter -- extension, hidden entries -- stays where it already
-     * lives, in the configuration layer's own directory adapter, so the
-     * orchestrator never second-guesses it; the allowlist is the directory's
-     * declared inventory, and a child the adapter skips is never executed.
-     *
-     * The directory must be a directory; anything else is a configuration
-     * failure naming the path, never a silent defaults-only boot.
-     *
-     * @param non-empty-string $directory
-     *
-     * @return list<non-empty-string>
-     */
-    private function configFiles(string $directory): array
-    {
-        if (!is_dir($directory)) {
-            throw new ConfigException(
-                \sprintf('The application configuration directory "%s" is not a directory.', $directory),
-            );
-        }
-
-        $configFiles = [];
-        foreach (new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS) as $file) {
-            $name = basename((string) $file);
-
-            \assert($name !== '');
-
-            $configFiles[] = $name;
-        }
-
-        return $configFiles;
     }
 }

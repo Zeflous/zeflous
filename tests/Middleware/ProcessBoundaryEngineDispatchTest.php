@@ -8,6 +8,8 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
+use Zef\Framework\Middleware\ProcessBoundaryFatals;
+use Zef\Framework\Middleware\ProcessBoundaryTransmission;
 use Zef\Framework\Middleware\ProcessErrorBoundary;
 
 /**
@@ -31,6 +33,8 @@ use Zef\Framework\Middleware\ProcessErrorBoundary;
  * @internal
  */
 #[CoversClass(ProcessErrorBoundary::class)]
+#[CoversClass(ProcessBoundaryFatals::class)]
+#[CoversClass(ProcessBoundaryTransmission::class)]
 final class ProcessBoundaryEngineDispatchTest extends TestCase
 {
     private string $logPath = '';

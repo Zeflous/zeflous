@@ -67,4 +67,19 @@ final class DiagnosticSeverity
 
         return 'warning';
     }
+
+    /**
+     * Whether the severity belongs to the fatal family -- the severities
+     * the engine aborts on, which only the shutdown moment can witness
+     * (the error handler never sees them, because the engine never
+     * returns from them). This is the map's own fatal arm answering the
+     * one verdict the process boundary's shutdown observer exists for,
+     * so the fatal family's spelling lives in this vocabulary alone.
+     *
+     * @param int $severity the engine's severity bits
+     */
+    public static function isFatalAtShutdown(int $severity): bool
+    {
+        return ($severity & self::FATAL) !== 0;
+    }
 }

@@ -16,6 +16,8 @@ use Zef\Framework\Exception\NativeErrorException;
 use Zef\Framework\Exception\ValidationException;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\ProcessBoundaryFatals;
+use Zef\Framework\Middleware\ProcessBoundaryTransmission;
 use Zef\Framework\Middleware\ProcessErrorBoundary;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Test\Support\Log\RecordingLogger;
@@ -38,6 +40,8 @@ use Zef\Test\Support\Log\RecordingLogger;
  * @internal
  */
 #[CoversClass(ProcessErrorBoundary::class)]
+#[CoversClass(ProcessBoundaryTransmission::class)]
+#[CoversClass(ProcessBoundaryFatals::class)]
 final class ProcessErrorBoundaryTest extends TestCase
 {
     private RecordingLogger $recordingLogger;
@@ -609,7 +613,10 @@ final class ProcessErrorBoundaryTest extends TestCase
 
     public function testTheDefaultEmitterShipsTheAnswerItWasHanded(): void
     {
-        $processErrorBoundary = new ProcessErrorBoundary($this->recordingLogger, sapi: 'fpm-fcgi');
+        $processErrorBoundary = new ProcessErrorBoundary(
+            $this->recordingLogger,
+            transmission: new ProcessBoundaryTransmission(sapi: 'fpm-fcgi'),
+        );
 
         ob_start();
 
@@ -680,14 +687,16 @@ final class ProcessErrorBoundaryTest extends TestCase
                 null,
                 ['X-Request-ID' => 'req-123'],
             ),
-            function (ResponseInterface $response): void {
-                $this->emitted[] = $response;
-            },
-            function (string $line): void {
-                $this->sinkLines[] = $line;
-            },
-            static fn (): bool => $headersSent,
-            $sapi,
+            new ProcessBoundaryTransmission(
+                function (ResponseInterface $response): void {
+                    $this->emitted[] = $response;
+                },
+                function (string $line): void {
+                    $this->sinkLines[] = $line;
+                },
+                static fn (): bool => $headersSent,
+                $sapi,
+            ),
             fn (): ?array => $this->lastError,
         );
     }

@@ -147,9 +147,12 @@ final readonly class FrameworkDefaults
      * boot: the composition lane's process-level error face, installed by
      * the one-call boot orchestrator when the `http.error_handling.
      * process_boundary` knob asks for it -- the `http.errors` precedent's
-     * own family, so the error lane's services stay one catalogue.
+     * own family, so the error lane's services stay one catalogue. The
+     * spelling is the boundary family's own
+     * (`ProcessErrorBoundaryFactory::SERVICE_ID`); this alias is the
+     * registration seam's single hand-off.
      */
-    public const string PROCESS_BOUNDARY_SERVICE = 'http.errors.process_boundary';
+    public const string PROCESS_BOUNDARY_SERVICE = ProcessErrorBoundaryFactory::SERVICE_ID;
 
     /** The config-driven factories' shared construction entry, as the
      * service registrations spell it. */
