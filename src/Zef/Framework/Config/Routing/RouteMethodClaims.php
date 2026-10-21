@@ -30,14 +30,42 @@ final class RouteMethodClaims
     private array $claims = [];
 
     /**
+     * @var array<string, array<string, list<array{host: non-empty-string, pattern: non-empty-string}>>>
+     */
+    private array $parameterHostClaims = [];
+
+    /**
      * Claims the route's methods on its canonical pattern.
      */
     public function claim(CompiledRoute $compiledRoute): void
     {
         $pattern = $compiledRoute->path()->pattern();
-        $canonical = ($compiledRoute->host() ?? '*') . '|' . $compiledRoute->path()->canonical();
+        $host = $compiledRoute->host();
+        $path = $compiledRoute->path()->canonical();
+        $canonical = ($host ?? '*') . '|' . $path;
 
         foreach ($compiledRoute->methods() as $method) {
+            if ($host !== null) {
+                foreach ($this->parameterHostClaims[$path][$method] ?? [] as $claim) {
+                    if (
+                        RouteHost::overlaps($host, $claim['host'])
+                        && RouteHost::specificity($host) === RouteHost::specificity($claim['host'])
+                    ) {
+                        throw new ConfigException(
+                            sprintf(
+                                'The route host pattern "%s" overlaps "%s" at equal specificity for method "%s" and path "%s".',
+                                $host,
+                                $claim['host'],
+                                $method,
+                                $pattern,
+                            ),
+                        );
+                    }
+                }
+
+                $this->parameterHostClaims[$path][$method][] = ['host' => $host, 'pattern' => $pattern];
+            }
+
             $registeredBy = $this->claims[$canonical][$method] ?? null;
 
             if ($registeredBy !== null) {

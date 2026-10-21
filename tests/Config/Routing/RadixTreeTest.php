@@ -177,6 +177,27 @@ final class RadixTreeTest extends TestCase
         self::assertSame('Fallback@dashboard', $radixTree->match('GET', '/dashboard', 'outside.test')->route()->handler());
     }
 
+    public function testRejectsOverlappingHostPatternsAtEqualSpecificity(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessage('overlaps');
+
+        RadixTree::compile([
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+            ],
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.{region}.com',
+                'method' => ['GET'],
+                'handler' => 'Region@dashboard',
+            ],
+        ]);
+    }
+
     public function testRejectsHostParameterNameCollisionsWithPathParameters(): void
     {
         $this->expectException(ConfigException::class);

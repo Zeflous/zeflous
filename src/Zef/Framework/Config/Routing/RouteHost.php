@@ -30,10 +30,17 @@ final class RouteHost
 
         $labels = explode('.', $host);
         $canonical = [];
+        $seenParameters = [];
 
         foreach ($labels as $label) {
             if (preg_match('/\A\{([a-zA-Z][a-zA-Z0-9_]{0,63})\}\z/D', $label, $matches)) {
-                $canonical[] = '{' . strtolower($matches[1]) . '}';
+                $parameter = strtolower($matches[1]);
+                if (isset($seenParameters[$parameter])) {
+                    throw self::invalid($host);
+                }
+
+                $seenParameters[$parameter] = true;
+                $canonical[] = '{' . $parameter . '}';
                 continue;
             }
 
@@ -132,6 +139,42 @@ final class RouteHost
         }
 
         return $pattern;
+    }
+
+    /**
+     * Whether two host patterns can match at least one identical DNS hostname.
+     */
+    public static function overlaps(string $left, string $right): bool
+    {
+        $leftLabels = explode('.', $left);
+        $rightLabels = explode('.', $right);
+
+        if (count($leftLabels) !== count($rightLabels)) {
+            return false;
+        }
+
+        foreach ($leftLabels as $index => $leftLabel) {
+            $rightLabel = $rightLabels[$index];
+            $leftParameter = str_starts_with($leftLabel, '{');
+            $rightParameter = str_starts_with($rightLabel, '{');
+
+            if (!$leftParameter && !$rightParameter && $leftLabel !== $rightLabel) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Number of literal labels; a larger number is more specific.
+     */
+    public static function specificity(string $pattern): int
+    {
+        return count(array_filter(
+            explode('.', $pattern),
+            static fn (string $label): bool => !str_starts_with($label, '{'),
+        ));
     }
 
     /**
