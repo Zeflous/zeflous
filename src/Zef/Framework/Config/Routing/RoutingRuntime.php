@@ -95,8 +95,13 @@ final class RoutingRuntime
      * (`CompiledRoute::answersMethod()`), so unicode request methods round-trip
      * unchanged.
      */
-    public function match(string $method, string $path, ?string $host = null, ?string $accept = null, ?string $version = null): MatchResult
-    {
+    public function match(
+        string $method,
+        string $path,
+        ?string $host = null,
+        ?string $accept = null,
+        ?string $version = null,
+    ): MatchResult {
         return $this->tree()->match($method, $path, $host, $accept, $version);
     }
 

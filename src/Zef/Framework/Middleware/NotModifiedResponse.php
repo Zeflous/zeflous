@@ -24,7 +24,9 @@ final readonly class NotModifiedResponse
     {
         $message = $response->withStatus(304)->withBody($this->streamFactory->createStream(''));
         if (!$message instanceof ResponseInterface) {
-            throw new UnexpectedValueException('The conditional response operation did not return a ResponseInterface.');
+            throw new UnexpectedValueException(
+                'The conditional response operation did not return a ResponseInterface.',
+            );
         }
 
         return $message;

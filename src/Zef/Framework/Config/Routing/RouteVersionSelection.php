@@ -28,14 +28,7 @@ final class RouteVersionSelection
             static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() !== null,
         ));
 
-        if ($versionedRoutes === []) {
-            return array_values(array_filter(
-                $routes,
-                static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() === null,
-            ));
-        }
-
-        if ($version === null || mb_trim($version) === '') {
+        if ($versionedRoutes === [] || $version === null || mb_trim($version) === '') {
             return array_values(array_filter(
                 $routes,
                 static fn (CompiledRoute $compiledRoute): bool => $compiledRoute->version() === null,

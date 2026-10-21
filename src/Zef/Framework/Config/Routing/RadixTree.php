@@ -94,22 +94,18 @@ final readonly class RadixTree
      * highest-precedence host bucket, {@see RouteVersionSelection} narrows by
      * API version, and {@see RouteMethodAnswer} judges the method.
      */
-    public function match(string $method, string $path, ?string $host = null, ?string $accept = null, ?string $version = null): MatchResult
-    {
+    public function match(
+        string $method,
+        string $path,
+        ?string $host = null,
+        ?string $accept = null,
+        ?string $version = null,
+    ): MatchResult {
         $captured = [];
         $routes = new RouteMatcher()->walk($this->radixNode, $path, 0, $captured);
 
-        if ($routes === []) {
-            return MatchResult::notFound();
-        }
-
         $requestHost = RouteHostRequest::canonicalise($host);
         $routes = RouteHostSelection::select($routes, $requestHost);
-
-        if ($routes === []) {
-            return MatchResult::notFound();
-        }
-
         $routes = RouteVersionSelection::select($routes, $version);
 
         if ($routes === []) {

@@ -62,7 +62,10 @@ final readonly class RouteUrlGenerator
         $hostPattern = $route->host();
 
         if ($hostPattern === null) {
-            throw new ConfigException(\sprintf('The route "%s" has no host pattern for absolute URL generation.', $name));
+            throw new ConfigException(\sprintf(
+                'The route "%s" has no host pattern for absolute URL generation.',
+                $name,
+            ));
         }
 
         $hostParameters = RouteHostParameters::parameterNames($hostPattern);

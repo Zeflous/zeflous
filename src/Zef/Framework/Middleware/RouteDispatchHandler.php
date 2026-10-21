@@ -12,6 +12,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use UnexpectedValueException;
 use Zef\Framework\Config\Routing\CompiledRoute;
+use Zef\Framework\Config\Routing\DispatchOutcome;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
 
@@ -35,8 +36,26 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
     {
         $dispatchOutcome = $this->routeDispatcher->dispatchMatch($this->matchResult);
 
-        if ($dispatchOutcome->isNotAcceptable()) {
-            return $this->withHeader(
+        return $this->problemFor($dispatchOutcome)
+            ?? $this->representation($dispatchOutcome->result(), $dispatchOutcome->route());
+    }
+
+    /**
+     * The failure response a non-executed dispatch outcome earns, or null when
+     * the outcome executed and the handler's own representation is the answer.
+     *
+     * Not acceptable advertises what the route does produce (with a Vary hop),
+     * method not allowed advertises the methods it does answer (with an Allow
+     * hop), and any other non-executed outcome is a plain not-found problem.
+     */
+    private function problemFor(DispatchOutcome $dispatchOutcome): ?ResponseInterface
+    {
+        if ($dispatchOutcome->isExecuted()) {
+            return null;
+        }
+
+        return match (true) {
+            $dispatchOutcome->isNotAcceptable() => $this->withHeader(
                 $this->problemResponse(
                     406,
                     'Not Acceptable',
@@ -44,20 +63,18 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
                 ),
                 'Vary',
                 'Accept',
-            );
-        }
-
-        if ($dispatchOutcome->isMethodNotAllowed()) {
-            $response = $this->problemResponse(405, 'Method Not Allowed', 'The request method is not supported for this resource.');
-
-            return $this->withHeader($response, 'Allow', implode(', ', $dispatchOutcome->allowedMethods()));
-        }
-
-        if (!$dispatchOutcome->isExecuted()) {
-            return $this->problemResponse(404, 'Not Found', 'No route matches the requested resource.');
-        }
-
-        return $this->representation($dispatchOutcome->result(), $dispatchOutcome->route());
+            ),
+            $dispatchOutcome->isMethodNotAllowed() => $this->withHeader(
+                $this->problemResponse(
+                    405,
+                    'Method Not Allowed',
+                    'The request method is not supported for this resource.',
+                ),
+                'Allow',
+                implode(', ', $dispatchOutcome->allowedMethods()),
+            ),
+            default => $this->problemResponse(404, 'Not Found', 'No route matches the requested resource.'),
+        };
     }
 
     /**

@@ -65,7 +65,9 @@ final class RouterRequestHandlerTest extends TestCase
                 'produces' => ['application/json'],
             ],
         ]);
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com:8080', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com:8080', 'application/json'))
+        ;
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('profile', $response->getBody()->getContents());
@@ -120,7 +122,12 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $request = $this->request('GET', 'api.example.com', 'application/json', extraHeaders: ['If-None-Match' => '"other", "profile-v1"']);
+        $request = $this->request(
+            'GET',
+            'api.example.com',
+            'application/json',
+            extraHeaders: ['If-None-Match' => '"other", "profile-v1"'],
+        );
         $response = $this->handler($router, $container)->handle($request);
 
         self::assertSame(304, $response->getStatusCode());
@@ -147,7 +154,12 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $request = $this->request('GET', 'api.example.com', 'text/plain', extraHeaders: ['If-Modified-Since' => 'Wed, 21 Oct 2015 07:28:00 GMT']);
+        $request = $this->request(
+            'GET',
+            'api.example.com',
+            'text/plain',
+            extraHeaders: ['If-Modified-Since' => 'Wed, 21 Oct 2015 07:28:00 GMT'],
+        );
         $response = $this->handler($router, $container)->handle($request);
 
         self::assertSame(304, $response->getStatusCode());
@@ -174,7 +186,15 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $request = $this->request('GET', 'api.example.com', 'text/plain', extraHeaders: ['If-None-Match' => '"different"', 'If-Modified-Since' => 'Wed, 21 Oct 2030 07:28:00 GMT']);
+        $request = $this->request(
+            'GET',
+            'api.example.com',
+            'text/plain',
+            extraHeaders: [
+                'If-None-Match' => '"different"',
+                'If-Modified-Since' => 'Wed, 21 Oct 2030 07:28:00 GMT',
+            ],
+        );
         $response = $this->handler($router, $container)->handle($request);
 
         self::assertSame(200, $response->getStatusCode());
@@ -199,7 +219,9 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('HEAD', 'api.example.com', 'text/plain'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('HEAD', 'api.example.com', 'text/plain'))
+        ;
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('profile', $response->getHeaderLine('X-Resource'));
@@ -210,15 +232,31 @@ final class RouterRequestHandlerTest extends TestCase
     public function testExplicitHeadRouteTakesPrecedenceOverGetFallback(): void
     {
         $container = new Container();
-        $container->set('Head@show', static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(204, ['X-Route' => 'head'], ''));
-        $container->set('Get@show', static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(200, ['X-Route' => 'get'], 'get body'));
+        $container->set(
+            'Head@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                204,
+                ['X-Route' => 'head'],
+                '',
+            ),
+        );
+        $container->set(
+            'Get@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['X-Route' => 'get'],
+                'get body',
+            ),
+        );
 
         $router = Router::fromRoutes([
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Get@show'],
             ['path' => '/profile', 'method' => ['HEAD'], 'handler' => 'Head@show'],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('HEAD', 'api.example.com', 'text/plain'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('HEAD', 'api.example.com', 'text/plain'))
+        ;
 
         self::assertSame(204, $response->getStatusCode());
         self::assertSame('head', $response->getHeaderLine('X-Route'));
@@ -230,11 +268,19 @@ final class RouterRequestHandlerTest extends TestCase
         $container = new Container();
         $container->set(
             'ProfileV1@show',
-            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(200, ['Content-Type' => 'text/plain'], 'v1'),
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'text/plain'],
+                'v1',
+            ),
         );
         $container->set(
             'ProfileV2@show',
-            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(200, ['Content-Type' => 'text/plain'], 'v2'),
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'text/plain'],
+                'v2',
+            ),
         );
         $router = Router::fromRoutes([
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'ProfileV1@show', 'version' => 'v1'],
@@ -253,8 +299,10 @@ final class RouterRequestHandlerTest extends TestCase
         $container = $this->containerWithProfileHandler();
         $container->set('route.audit', static fn (): MiddlewareInterface => new class implements MiddlewareInterface {
             #[Override]
-            public function process(ServerRequestInterface $serverRequest, RequestHandlerInterface $requestHandler): ResponseInterface
-            {
+            public function process(
+                ServerRequestInterface $serverRequest,
+                RequestHandlerInterface $requestHandler,
+            ): ResponseInterface {
                 $response = $requestHandler->handle($serverRequest)->withHeader('X-Route-Middleware', 'ran');
                 if (!$response instanceof ResponseInterface) {
                     throw new UnexpectedValueException('Middleware must return a response.');
@@ -272,7 +320,9 @@ final class RouterRequestHandlerTest extends TestCase
             ],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
 
         self::assertSame('ran', $response->getHeaderLine('X-Route-Middleware'));
     }
@@ -306,7 +356,9 @@ final class RouterRequestHandlerTest extends TestCase
         ]);
 
         $this->expectException(UnexpectedValueException::class);
-        $this->expectExceptionMessageIsOrContains('The HTTP route handler "Chatty@show" must return a ResponseInterface.');
+        $this->expectExceptionMessageIsOrContains(
+            'The HTTP route handler "Chatty@show" must return a ResponseInterface.',
+        );
 
         $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
     }
@@ -326,7 +378,9 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Vary@show', 'produces' => ['application/json']],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
 
         self::assertSame('*', $response->getHeaderLine('Vary'));
     }
@@ -346,7 +400,9 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Vary@show', 'produces' => ['application/json']],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
 
         self::assertSame('Accept-Encoding, Accept', $response->getHeaderLine('Vary'));
     }
@@ -368,8 +424,12 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $request = new ServerRequest('GET', new Uri('https://other.example.com/profile'), headers: ['Host' => 'api.example.com', 'Accept' => 'application/json']);
-        $response = $this->handler($router, $container)->handle($request);
+        $serverRequest = new ServerRequest(
+            'GET',
+            new Uri('https://other.example.com/profile'),
+            headers: ['Host' => 'api.example.com', 'Accept' => 'application/json'],
+        );
+        $response = $this->handler($router, $container)->handle($serverRequest);
 
         self::assertSame(200, $response->getStatusCode());
     }
@@ -381,7 +441,9 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com:0', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com:0', 'application/json'))
+        ;
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -393,7 +455,9 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com:1', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com:1', 'application/json'))
+        ;
 
         self::assertSame(200, $response->getStatusCode());
     }
@@ -405,7 +469,9 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com:65535', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com:65535', 'application/json'))
+        ;
 
         self::assertSame(200, $response->getStatusCode());
     }
@@ -417,7 +483,9 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com:99999', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com:99999', 'application/json'))
+        ;
 
         self::assertSame(404, $response->getStatusCode());
     }
@@ -437,7 +505,12 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['POST'], 'handler' => 'Profile@show'],
         ]);
 
-        $request = $this->request('POST', 'api.example.com', 'application/json', extraHeaders: ['If-None-Match' => '"profile-v1"']);
+        $request = $this->request(
+            'POST',
+            'api.example.com',
+            'application/json',
+            extraHeaders: ['If-None-Match' => '"profile-v1"'],
+        );
         $response = $this->handler($router, $container)->handle($request);
 
         self::assertSame(200, $response->getStatusCode());
@@ -459,7 +532,12 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $request = $this->request('GET', 'api.example.com', 'application/json', extraHeaders: ['If-Modified-Since' => 'Wed, 21 Oct 2099 07:28:00 GMT']);
+        $request = $this->request(
+            'GET',
+            'api.example.com',
+            'application/json',
+            extraHeaders: ['If-Modified-Since' => 'Wed, 21 Oct 2099 07:28:00 GMT'],
+        );
         $response = $this->handler($router, $container)->handle($request);
 
         self::assertSame(200, $response->getStatusCode());
@@ -480,7 +558,12 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $request = $this->request('GET', 'api.example.com', 'application/json', extraHeaders: ['If-Modified-Since' => 'not-a-date']);
+        $request = $this->request(
+            'GET',
+            'api.example.com',
+            'application/json',
+            extraHeaders: ['If-Modified-Since' => 'not-a-date'],
+        );
         $response = $this->handler($router, $container)->handle($request);
 
         self::assertSame(200, $response->getStatusCode());
@@ -490,7 +573,13 @@ final class RouterRequestHandlerTest extends TestCase
     {
         $container = self::containerWithProfileHandler();
         $router = Router::fromRoutes([
-            ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show', 'produces' => ['application/json']],
+            [
+                'path' => '/profile',
+                'host' => 'api.example.com',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
         ]);
 
         $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'text/html'));
@@ -510,7 +599,9 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json', '/missing'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json', '/missing'))
+        ;
 
         $document = json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
         self::assertIsArray($document);
@@ -523,13 +614,19 @@ final class RouterRequestHandlerTest extends TestCase
         $container = new Container();
         $container->set(
             'Moved@show',
-            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(303, ['Location' => '/elsewhere'], 'redirecting'),
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                303,
+                ['Location' => '/elsewhere'],
+                'redirecting',
+            ),
         );
         $router = Router::fromRoutes([
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Moved@show'],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
 
         self::assertSame(303, $response->getStatusCode());
         self::assertSame('redirecting', $response->getBody()->getContents());
@@ -540,13 +637,19 @@ final class RouterRequestHandlerTest extends TestCase
         $container = new Container();
         $container->set(
             'Cached@show',
-            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(304, ['ETag' => '"v1"'], 'leftover'),
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                304,
+                ['ETag' => '"v1"'],
+                'leftover',
+            ),
         );
         $router = Router::fromRoutes([
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Cached@show'],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
 
         self::assertSame(304, $response->getStatusCode());
         self::assertSame('', $response->getBody()->getContents());
@@ -560,8 +663,12 @@ final class RouterRequestHandlerTest extends TestCase
         ]);
 
         $uri = new Uri('https://api.example.com/')->withPath('profile');
-        $request = new ServerRequest('GET', $uri, headers: ['Host' => 'api.example.com', 'Accept' => 'application/json']);
-        $response = $this->handler($router, $container)->handle($request);
+        $serverRequest = new ServerRequest(
+            'GET',
+            $uri,
+            headers: ['Host' => 'api.example.com', 'Accept' => 'application/json'],
+        );
+        $response = $this->handler($router, $container)->handle($serverRequest);
 
         self::assertSame(200, $response->getStatusCode());
     }
@@ -581,7 +688,9 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Vary@show', 'produces' => ['application/json']],
         ]);
 
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'application/json'));
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
 
         self::assertSame('Accept', $response->getHeaderLine('Vary'));
     }

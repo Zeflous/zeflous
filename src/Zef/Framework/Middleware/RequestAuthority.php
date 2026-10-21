@@ -25,11 +25,10 @@ final class RequestAuthority
         }
 
         $authority = mb_trim($serverRequest->getHeaderLine('Host'));
-        if (preg_match('/\A([^:]+)(?::([0-9]{1,5}))?\z/D', $authority, $matches) !== 1) {
-            return null;
-        }
-
-        if (isset($matches[2]) && ((int) $matches[2] < 1 || (int) $matches[2] > 65535)) {
+        if (
+            preg_match('/\A([^:]+)(?::(\d{1,5}))?\z/D', $authority, $matches) !== 1
+            || (isset($matches[2]) && ((int) $matches[2] < 1 || (int) $matches[2] > 65535))
+        ) {
             return null;
         }
 

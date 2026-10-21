@@ -49,8 +49,13 @@ final readonly class RouteDispatcher
     /**
      * Dispatches one request: match, resolve, execute.
      */
-    public function dispatch(string $method, string $path, ?string $host = null, ?string $accept = null, ?string $version = null): DispatchOutcome
-    {
+    public function dispatch(
+        string $method,
+        string $path,
+        ?string $host = null,
+        ?string $accept = null,
+        ?string $version = null,
+    ): DispatchOutcome {
         return $this->dispatchMatch($this->routingRuntime->match($method, $path, $host, $accept, $version));
     }
 

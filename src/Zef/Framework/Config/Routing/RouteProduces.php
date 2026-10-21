@@ -27,11 +27,17 @@ final class RouteProduces
         foreach ($produces as $produce) {
             $produce = mb_strtolower(mb_trim($produce));
             if (preg_match('/\A[a-z0-9!#$&^_.+-]+\/[a-z0-9!#$&^_.+-]+\z/D', $produce) !== 1) {
-                throw new ConfigException(\sprintf('The route field "produces" contains an invalid media type "%s".', $produce));
+                throw new ConfigException(\sprintf(
+                    'The route field "produces" contains an invalid media type "%s".',
+                    $produce,
+                ));
             }
 
             if (isset($normalized[$produce])) {
-                throw new ConfigException(\sprintf('The route field "produces" must not repeat media type "%s".', $produce));
+                throw new ConfigException(\sprintf(
+                    'The route field "produces" must not repeat media type "%s".',
+                    $produce,
+                ));
             }
 
             $normalized[$produce] = $produce;

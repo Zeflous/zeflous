@@ -241,7 +241,10 @@ final class RouterTest extends TestCase
     public function testDispatcherReturnsNotAcceptableWithoutExecutingHandler(): void
     {
         $container = new Container();
-        $container->set('Profile@show', static fn (): callable => static fn (array $parameters): string => 'should-not-run');
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): string => 'should-not-run',
+        );
 
         $router = Router::fromRoutes([
             [

@@ -30,8 +30,11 @@ final readonly class ConditionalRequests
     /**
      * Applies conditional semantics to a successful representation.
      */
-    public function apply(ServerRequestInterface $serverRequest, ResponseInterface $response, string $method): ResponseInterface
-    {
+    public function apply(
+        ServerRequestInterface $serverRequest,
+        ResponseInterface $response,
+        string $method,
+    ): ResponseInterface {
         if (!\in_array($method, ['GET', 'HEAD'], true) || $response->getStatusCode() !== 200) {
             return $response;
         }

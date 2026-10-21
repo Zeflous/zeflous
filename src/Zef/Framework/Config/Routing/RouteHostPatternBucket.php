@@ -33,9 +33,11 @@ final class RouteHostPatternBucket
             return;
         }
 
-        if ($specificity === $this->specificity) {
-            $this->routes[] = $compiledRoute;
+        if ($specificity !== $this->specificity) {
+            return;
         }
+
+        $this->routes[] = $compiledRoute;
     }
 
     /**

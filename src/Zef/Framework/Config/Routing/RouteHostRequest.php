@@ -25,11 +25,7 @@ final class RouteHostRequest
         }
 
         try {
-            if (str_contains($host, '{')) {
-                return null;
-            }
-
-            return RouteHostGrammar::canonical($host);
+            return str_contains($host, '{') ? null : RouteHostGrammar::canonical($host);
         } catch (ConfigException) {
             return null;
         }

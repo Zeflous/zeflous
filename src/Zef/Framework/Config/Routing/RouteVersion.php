@@ -21,7 +21,8 @@ final class RouteVersion
         $canonical = mb_strtolower($version);
         if ($canonical === '' || preg_match('/\A[a-zA-Z0-9][a-zA-Z0-9._-]{0,31}\z/D', $canonical) !== 1) {
             throw new ConfigException(\sprintf(
-                'The route version "%s" must start with an alphanumeric character and contain at most 32 letters, digits, dots, underscores or hyphens.',
+                'The route version "%s" must start with an alphanumeric character and contain '
+                . 'at most 32 letters, digits, dots, underscores or hyphens.',
                 $version,
             ));
         }

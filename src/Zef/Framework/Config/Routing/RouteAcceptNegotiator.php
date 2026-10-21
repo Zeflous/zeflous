@@ -32,7 +32,10 @@ final class RouteAcceptNegotiator
         foreach ($produces as $produce) {
             $segments = explode('/', $produce, 2);
             if (\count($segments) !== 2) {
-                throw new ConfigException(\sprintf('The route field "produces" contains an invalid media type "%s".', $produce));
+                throw new ConfigException(\sprintf(
+                    'The route field "produces" contains an invalid media type "%s".',
+                    $produce,
+                ));
             }
 
             [$type, $subtype] = $segments;

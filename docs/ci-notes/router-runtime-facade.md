@@ -111,3 +111,28 @@ five local mutation batches over `Config/Routing`, `Config/Schema`,
 `Router`, `Middleware` and `Http` (5436 mutants, MSI 100 each) all pass
 locally; the full-tree CI Infection lane remains the authoritative
 verdict for the untouched trees.
+
+## Verification (CI round one settling)
+
+The first ready CI round failed `CI Static` on the phpcs exit code 3: the
+seventy-five line-length warnings the local pass had read as "warning-only,
+the normal state" are fatal to the lane -- `main` carries zero phpcs
+findings, so any warning is a regression. The same round failed SonarCloud
+on seven new issues: six `php:S1142` methods that had grown a fourth
+return, and one `php:S6353` character class.
+
+The line-length debt is repaid by wrapping (signatures, throws, route
+tables and request builders in the tests). The return-count findings are
+refolded rather than suppressed: `RouteHostParameters::parameters()` hands
+its label loop to a `labelledParameters()` fold; `RouteHostRequest` folds
+the brace guard into a ternary; `RouteVersionSelection` merges its two
+identical unversioned-fallback guards; `RequestAuthority` merges the
+malformed-authority and port-range guards (and writes `\d` for the port
+class); `RadixTree::match()` becomes a flat walk -> host -> version ->
+method pipeline whose every narrowing stage answers an empty selection
+with the same not-found result; and `RouteDispatchHandler` moves the
+406/405/404 arms into a `problemFor()` fold so the handler itself reads
+as problem-or-representation. `RouteHostPatternBucket::offer()` takes the
+Slevomat early exit the CI log had shown all along. Every refold is
+behaviour-preserving, and the scoped mutation run over the eight touched
+files (127 mutants, 126 killed, 1 documented ignore) keeps MSI 100/100.

@@ -57,12 +57,18 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         if ($match->isFound()) {
             foreach ($match->route()->middleware() as $serviceId) {
                 if (!$this->container->has($serviceId)) {
-                    throw new MiddlewareException(\sprintf('Route middleware service "%s" is not registered.', $serviceId));
+                    throw new MiddlewareException(\sprintf(
+                        'Route middleware service "%s" is not registered.',
+                        $serviceId,
+                    ));
                 }
 
                 $middleware = $this->container->get($serviceId);
                 if (!$middleware instanceof MiddlewareInterface) {
-                    throw new MiddlewareException(\sprintf('Route middleware service "%s" does not implement MiddlewareInterface.', $serviceId));
+                    throw new MiddlewareException(\sprintf(
+                        'Route middleware service "%s" does not implement MiddlewareInterface.',
+                        $serviceId,
+                    ));
                 }
 
                 $stack[] = $middleware;
