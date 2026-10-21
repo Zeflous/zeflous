@@ -224,7 +224,8 @@ final class CsrfMiddlewareTest extends TestCase
         self::assertMatchesRegularExpression(
             '/^ZEF-XSRF-TOKEN=[A-Za-z0-9_-]+\.[a-f0-9]{64}; Path=\/; SameSite=None; Secure$/D',
             $response->getHeaderLine('Set-Cookie'),
-            'HttpOnly off, SameSite None -- and Secure travels with None whatever the scheme, because no browser keeps a None cookie without it',
+            'HttpOnly off, SameSite None -- and Secure travels with None whatever the scheme, '
+            . 'because no browser keeps a None cookie without it',
         );
     }
 

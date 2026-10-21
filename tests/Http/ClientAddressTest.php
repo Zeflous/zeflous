@@ -55,7 +55,8 @@ final class ClientAddressTest extends TestCase
         self::assertSame(
             '198.51.100.7',
             ClientAddress::resolve($request, ['10.0.0.1']),
-            'the walk starts at the appended end and skips the trusted hop; the invalid leftmost entry is never consulted',
+            'the walk starts at the appended end and skips the trusted hop; the invalid leftmost '
+            . 'entry is never consulted',
         );
     }
 

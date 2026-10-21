@@ -54,9 +54,12 @@ final class ApcuCounterStoreTest extends TestCase
 
         $apcuCounterStore = new ApcuCounterStore();
 
-        $this->assertThrows('The APCu accounting refused the increment.', static function () use ($apcuCounterStore): void {
-            $apcuCounterStore->increment('zef:ratelimit:count:abc', 60);
-        });
+        $this->assertThrows(
+            'The APCu accounting refused the increment.',
+            static function () use ($apcuCounterStore): void {
+                $apcuCounterStore->increment('zef:ratelimit:count:abc', 60);
+            },
+        );
     }
 
     /**
@@ -71,9 +74,12 @@ final class ApcuCounterStoreTest extends TestCase
 
         $apcuCounterStore = new ApcuCounterStore();
 
-        $this->assertThrows('The APCu accounting refused the increment.', static function () use ($apcuCounterStore): void {
-            $apcuCounterStore->increment('zef:ratelimit:count:abc', 60);
-        });
+        $this->assertThrows(
+            'The APCu accounting refused the increment.',
+            static function () use ($apcuCounterStore): void {
+                $apcuCounterStore->increment('zef:ratelimit:count:abc', 60);
+            },
+        );
     }
 
     public function testASuccessfulEpochClaimAnswersTheClaimedEpochWithoutReadingBack(): void
@@ -105,9 +111,12 @@ final class ApcuCounterStoreTest extends TestCase
 
         $apcuCounterStore = new ApcuCounterStore();
 
-        $this->assertThrows('The APCu accounting refused the reset epoch.', static function () use ($apcuCounterStore): void {
-            $apcuCounterStore->claimResetEpoch('zef:ratelimit:reset:abc', 160, 60);
-        });
+        $this->assertThrows(
+            'The APCu accounting refused the reset epoch.',
+            static function () use ($apcuCounterStore): void {
+                $apcuCounterStore->claimResetEpoch('zef:ratelimit:reset:abc', 160, 60);
+            },
+        );
     }
 
     /**
@@ -121,9 +130,12 @@ final class ApcuCounterStoreTest extends TestCase
 
         $apcuCounterStore = new ApcuCounterStore();
 
-        $this->assertThrows('The APCu accounting refused the reset epoch.', static function () use ($apcuCounterStore): void {
-            $apcuCounterStore->claimResetEpoch('zef:ratelimit:reset:abc', 160, 60);
-        });
+        $this->assertThrows(
+            'The APCu accounting refused the reset epoch.',
+            static function () use ($apcuCounterStore): void {
+                $apcuCounterStore->claimResetEpoch('zef:ratelimit:reset:abc', 160, 60);
+            },
+        );
     }
 
     /**

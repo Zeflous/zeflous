@@ -169,7 +169,11 @@ final class ETagMiddlewareTest extends TestCase
             ['ETag' => '"handler-etag"'],
         );
 
-        self::assertSame(304, $response->getStatusCode(), 'the declared validator is the one the condition is judged against');
+        self::assertSame(
+            304,
+            $response->getStatusCode(),
+            'the declared validator is the one the condition is judged against',
+        );
         self::assertSame('"handler-etag"', $response->getHeaderLine('ETag'));
     }
 
@@ -183,7 +187,11 @@ final class ETagMiddlewareTest extends TestCase
             ['ETag' => '"handler-etag"'],
         );
 
-        self::assertSame(200, $response->getStatusCode(), 'a body-hash candidate does not revalidate a handler-managed validator');
+        self::assertSame(
+            200,
+            $response->getStatusCode(),
+            'a body-hash candidate does not revalidate a handler-managed validator',
+        );
         self::assertSame('"handler-etag"', $response->getHeaderLine('ETag'));
     }
 
@@ -197,7 +205,11 @@ final class ETagMiddlewareTest extends TestCase
             ['ETag' => '"handler-etag"'],
         );
 
-        self::assertSame(304, $response->getStatusCode(), 'a current representation exists when the handler declared its validator');
+        self::assertSame(
+            304,
+            $response->getStatusCode(),
+            'a current representation exists when the handler declared its validator',
+        );
     }
 
     #[DataProvider('provideIfNoneMatchGrammarVariantsCases')]
