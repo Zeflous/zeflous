@@ -89,10 +89,35 @@ final readonly class RadixTree
     /**
      * Matches a request method and path against the tree.
      */
-    public function match(string $method, string $path): MatchResult
+    public function match(string $method, string $path, ?string $host = null): MatchResult
     {
         $captured = [];
         $routes = new RouteMatcher()->walk($this->radixNode, $path, 0, $captured);
+
+        if ($routes === []) {
+            return MatchResult::notFound();
+        }
+
+        $requestHost = RouteHost::request($host);
+        $exactHostRoutes = [];
+        $hostAgnosticRoutes = [];
+
+        foreach ($routes as $route) {
+            if ($route->host() !== null && $route->matchesHost($requestHost)) {
+                $exactHostRoutes[] = $route;
+
+                continue;
+            }
+
+            if ($route->host() === null) {
+                $hostAgnosticRoutes[] = $route;
+            }
+        }
+
+        // An exact host route owns this path before a host-agnostic fallback,
+        // including when its method differs (which must answer 405, not fall
+        // through to a different host-agnostic handler).
+        $routes = $exactHostRoutes !== [] ? $exactHostRoutes : $hostAgnosticRoutes;
 
         if ($routes === []) {
             return MatchResult::notFound();
