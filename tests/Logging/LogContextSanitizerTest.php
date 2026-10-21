@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
 use Zef\Framework\Logging\LogContextSanitizer;
+use Zef\Framework\Logging\NonFiniteFloat;
 
 /**
  * Direct battery for the structured-log sanitizer: depth bounds, entry
@@ -18,6 +19,7 @@ use Zef\Framework\Logging\LogContextSanitizer;
  * @internal
  */
 #[CoversClass(LogContextSanitizer::class)]
+#[CoversClass(NonFiniteFloat::class)]
 final class LogContextSanitizerTest extends TestCase
 {
     public function testDepthFiveSurvivesAndDepthSixIsTruncated(): void
@@ -54,6 +56,46 @@ final class LogContextSanitizerTest extends TestCase
         );
 
         self::assertSame(['PASSWORD' => '[REDACTED]', 'filter' => 'active'], $sanitized);
+    }
+
+    /**
+     * The key-name gate's credential vocabulary is the replay sanitizer's
+     * own: `passwd` and `csrf` spellings are redacted by key here exactly
+     * as the replay payload gate redacts them, so a host context that
+     * arrives under either spelling never reaches the record as its value.
+     */
+    public function testThePasswdAndCsrfSpellingsJoinTheVocabulary(): void
+    {
+        $sanitized = LogContextSanitizer::sanitize(
+            ['passwd' => 'hunter2', 'X-Csrf-Token' => 'abc123', 'filter' => 'active'],
+        );
+
+        self::assertSame(
+            ['passwd' => '[REDACTED]', 'X-Csrf-Token' => '[REDACTED]', 'filter' => 'active'],
+            $sanitized,
+        );
+    }
+
+    /**
+     * Non-finite floats answer their string spelling -- the telemetry
+     * sanitizer's own doctrine -- because the record's JSON encoding
+     * refuses them as values: a bare NAN context entry must degrade to
+     * its diagnostic spelling, never take the whole record down with it.
+     */
+    public function testNonFiniteFloatsAnswerTheirStringSpelling(): void
+    {
+        $sanitized = LogContextSanitizer::sanitize([
+            'budget' => \NAN,
+            'cap' => \INF,
+            'floor' => -\INF,
+            'ratio' => 1.5,
+            'count' => 3,
+        ]);
+
+        self::assertSame(
+            ['budget' => 'NAN', 'cap' => 'INF', 'floor' => '-INF', 'ratio' => 1.5, 'count' => 3],
+            $sanitized,
+        );
     }
 
     public function testThrowablesFoldToClassMessageAndCode(): void

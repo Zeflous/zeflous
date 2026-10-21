@@ -1003,6 +1003,44 @@ final class ErrorMappingMiddlewareTest extends TestCase
     }
 
     /**
+     * The double failure is observable at both of its seams: the client
+     * still receives the plain-text 500 with the correlation id, and the
+     * SAPI log names the construction failure's own class -- prefixed, so
+     * no later grep can mistake it for the application's failure -- the
+     * same visibility doctrine the mapping failure's line carries. The
+     * trigger is the JSON arm's honest refusal of an unencodable
+     * diagnostic value (a non-finite float the sanitizer passes through
+     * as a scalar), reached in dev mode where the details member is
+     * added.
+     */
+    public function testADoubleFailureAnswersTheFallbackAndNamesItsCauseOnTheSapiLog(): void
+    {
+        $response = $this->middleware(null, true)->process(
+            $this->requestWithClaim(),
+            new ThrowingHandler(
+                new ExplanatoryException('nan details', 0, null, 'NAN_DETAILS', ['budget' => \NAN]),
+            ),
+        );
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame('text/plain', $response->getHeaderLine('Content-Type'));
+        self::assertSame('Internal Server Error', (string) $response->getBody());
+        self::assertSame(self::CLAIMED_ID, $response->getHeaderLine('X-Request-ID'));
+
+        $routedLog = $this->routedErrorLogContents();
+        self::assertSame(
+            2,
+            mb_substr_count($routedLog, "\n"),
+            'Exactly two lines reach the SAPI log: the fault record and the construction failure.',
+        );
+        self::assertStringEndsWith(
+            'ZEF error response construction failed: JsonException' . "\n",
+            $routedLog,
+            'The SAPI log line must name the class whose construction failed, prefixed as the double failure it is.',
+        );
+    }
+
+    /**
      * The fault tag carries the short class name through the multibyte
      * namespace: the separator search and the tail read are both
      * character-based, so the two-byte e-acute ahead of the separator

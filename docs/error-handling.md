@@ -39,7 +39,7 @@ Set `APP_ENV=local` in the development process. Do not enable debug output in pr
 
 ## JSONL logger and CLI
 
-`Zef\\Framework\\Logging\\JsonLineLogger` implements the vendored PSR-3 contract without runtime dependencies. It writes one JSON record per line, locks each write, restricts file permissions to owner-only, rejects document-root destinations and symlinks, bounds context, and redacts common credential fields and values. The default error context excludes raw exception objects, user IDs, IP addresses, user-agent strings, query strings and request bodies. Credential redaction is heuristic, so do not place secrets in exception messages.
+`Zef\\Framework\\Logging\\JsonLineLogger` implements the vendored PSR-3 contract without runtime dependencies. It writes one JSON record per line, locks each write, restricts file permissions to owner-only, rejects document-root destinations and symlinks, bounds the message (2048 bytes) and context, and redacts common credential fields and values (the key vocabulary the replay sanitizer shares). Non-finite float context values answer their diagnostic string spelling (`NAN`, `INF`, `-INF`) so one unencodable value cannot silence the record. The default error context excludes raw exception objects, user IDs, IP addresses, user-agent strings, query strings and request bodies. Credential redaction is heuristic, so do not place secrets in exception messages.
 
 The local inspector reads JSONL logs:
 
@@ -49,7 +49,7 @@ bin/zef errors:report /var/log/zef/errors.jsonl --request-id=req-123
 bin/zef errors:clear /var/log/zef/errors.jsonl --confirm
 ```
 
-The clear command truncates the specified local log file; it does not clear a distributed queue. It requires `--confirm` and refuses symlink destinations. Keep log retention, rotation, permissions, and backup policy under the deployment's operational controls.
+The clear command truncates the specified local log file; it does not clear a distributed queue. It requires `--confirm` and refuses symlink destinations. The report strips control bytes from the fields it displays, so a stored escape sequence cannot ride the report into the operator's terminal. Keep log retention, rotation, permissions, and backup policy under the deployment's operational controls.
 
 ## Debug toolbar and local request replay
 
@@ -87,6 +87,7 @@ The replay target is deliberately limited to `localhost`, `127.0.0.1`, or `::1`;
 ## Operational boundaries
 
 - The request-scoped context adopts a valid W3C trace ID from `CorrelationMiddleware`; the same trace ID is used in Problem Details and structured logs. When no span is active, the request ID is the fallback.
+- When the error response construction itself fails, the plain-text 500 fallback answers the client and the construction failure's class is written to the SAPI error log (`ZEF error response construction failed: ...`), so a degraded response is always diagnosable.
 - The optional file logger requires an existing directory, rejects unresolved or public document roots, restricts log files to owner-only permissions (`0600`), and never creates directories implicitly.
 - Query strings, request bodies, and authorization/cookie headers are not included in the default error log context.
 - Query counts remain zero unless the database adapter calls `ErrorRequestContext::recordQueryFor($request)` for each executed query. Unsupported or unsafe body formats are intentionally omitted from replay snapshots.

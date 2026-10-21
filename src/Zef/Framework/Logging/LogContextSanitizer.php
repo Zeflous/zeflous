@@ -41,7 +41,7 @@ final class LogContextSanitizer
 
         foreach (array_keys($entries) as $key) {
             $name = \is_string($key) ? $key : (string) $key;
-            if (preg_match('/password|secret|token|authorization|cookie|api[_-]?key/i', $name) === 1) {
+            if (preg_match('/password|passwd|secret|token|authorization|cookie|csrf|api[_-]?key/i', $name) === 1) {
                 $safe[$name] = '[REDACTED]';
 
                 continue;
@@ -65,7 +65,8 @@ final class LogContextSanitizer
                 'code' => $value->getCode(),
             ],
             \is_string($value) => self::redact(mb_substr($value, 0, 4096)),
-            \is_int($value), \is_float($value), \is_bool($value), $value === null => $value,
+            \is_float($value) => NonFiniteFloat::spelling($value),
+            \is_int($value), \is_bool($value), $value === null => $value,
             \is_array($value) => self::sanitize($value, $depth + 1),
             default => '[' . get_debug_type($value) . ']',
         };

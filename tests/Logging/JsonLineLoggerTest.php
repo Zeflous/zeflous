@@ -20,6 +20,7 @@ use Zef\Framework\Logging\JsonLogFilePrivacy;
 use Zef\Framework\Logging\JsonLogFileSecurity;
 use Zef\Framework\Logging\JsonLogWriteException;
 use Zef\Framework\Logging\LogContextSanitizer;
+use Zef\Framework\Logging\NonFiniteFloat;
 use Zef\Test\Support\Http\UnopenableStreamWrapper;
 use Zef\Test\Support\Logging\JsonLineDoubleState;
 use Zef\Test\Support\Logging\JsonLineFunctionDoubles;
@@ -30,6 +31,7 @@ use Zef\Test\Support\Logging\JsonLineFunctionDoubles;
 #[CoversClass(JsonLineLogger::class)]
 #[CoversClass(JsonLineFormatter::class)]
 #[CoversClass(LogContextSanitizer::class)]
+#[CoversClass(NonFiniteFloat::class)]
 #[CoversClass(JsonLogDestination::class)]
 #[CoversClass(JsonLogDocumentRoot::class)]
 #[CoversClass(JsonLogFilePrivacy::class)]
@@ -82,6 +84,104 @@ final class JsonLineLoggerTest extends TestCase
         self::assertSame(RuntimeException::class, $exception['class']);
         self::assertStringNotContainsString('secret123', $lines[0]);
         self::assertStringNotContainsString('hunter2', $lines[0]);
+    }
+
+    /**
+     * A non-finite float context entry keeps the record alive: the value
+     * degrades to its diagnostic string spelling at the sanitizer's gate,
+     * so the JSON encoding never refuses the record -- the whole point of
+     * writing the failure down is lost if the diagnostic that arrives with
+     * it can silence the record.
+     */
+    public function testANonFiniteFloatContextValueKeepsTheRecordAlive(): void
+    {
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $jsonLineLogger = new JsonLineLogger($this->path);
+
+        $jsonLineLogger->error('Request failed', ['budget' => \NAN, 'cap' => \INF]);
+
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(1, $lines);
+
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame('error', $record['level']);
+        $context = $record['context'] ?? null;
+        self::assertIsArray($context);
+        self::assertSame('NAN', $context['budget']);
+        self::assertSame('INF', $context['cap']);
+    }
+
+    /**
+     * The message is bounded to 2048 bytes, both edges pinned: a message
+     * at the bound travels whole, one past it clamps to the bound, and a
+     * multibyte message clamps without splitting a valid character -- the
+     * cut is byte-wise (mb_strcut, not mb_substr) so invalid bytes survive
+     * to the encoder's own substitution, keeping the flag combination's
+     * pinned contract intact while a runaway host message can no longer
+     * turn one line into the file's whole budget.
+     */
+    public function testTheMessageIsBoundedToTwoThousandFortyEightBytes(): void
+    {
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $jsonLineLogger = new JsonLineLogger($this->path);
+
+        $jsonLineLogger->error(str_repeat('a', 2048) . 'b');
+
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(1, $lines);
+
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame(str_repeat('a', 2048), $record['message']);
+    }
+
+    /**
+     * The multibyte edge of the byte bound: a message of two-byte
+     * characters clamps at 1024 characters (2048 bytes) rather than
+     * splitting the 1025th, and never at a character count that would
+     * double the line's budget.
+     */
+    public function testAMultibyteMessageClampsOnTheByteBoundWithoutSplittingACharacter(): void
+    {
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $jsonLineLogger = new JsonLineLogger($this->path);
+
+        $jsonLineLogger->error(str_repeat("\u{00e9}", 1025));
+
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(1, $lines);
+
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame(str_repeat("\u{00e9}", 1024), $record['message']);
+    }
+
+    /**
+     * The three-byte edge of the same bound: 2048 bytes lands two bytes
+     * into the 683rd character, and the cut must stop before it -- a
+     * byte-blind cut would leave a broken tail the encoder's substitution
+     * would surface as a replacement character, not the whole characters
+     * the record actually keeps. This is the edge that separates
+     * mb_strcut from a plain byte substr.
+     */
+    public function testAThreeByteMessageStopsBeforeTheCharacterTheBoundLandsInside(): void
+    {
+        $this->path = sys_get_temp_dir() . '/zef-json-log-' . bin2hex(random_bytes(8)) . '.jsonl';
+        $jsonLineLogger = new JsonLineLogger($this->path);
+
+        $jsonLineLogger->error(str_repeat("\u{4e2d}", 700));
+
+        $lines = file($this->path, \FILE_IGNORE_NEW_LINES);
+        self::assertIsArray($lines);
+        self::assertCount(1, $lines);
+
+        $record = json_decode($lines[0], true, 512, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame(str_repeat("\u{4e2d}", 682), $record['message']);
     }
 
     public function testSanitizesNestedAndUnsupportedContextValues(): void

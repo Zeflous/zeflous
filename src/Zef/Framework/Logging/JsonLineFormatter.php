@@ -14,6 +14,9 @@ final class JsonLineFormatter
         'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug',
     ];
 
+    /** The message's byte bound -- the writer's own line budget (2048). */
+    private const int MESSAGE_BOUND = 2048;
+
     /**
      * @param array<string, mixed> $context
      */
@@ -26,7 +29,7 @@ final class JsonLineFormatter
         return json_encode([
             'timestamp' => gmdate('Y-m-d\TH:i:s\Z'),
             'level' => $level,
-            'message' => LogContextSanitizer::redact((string) $message),
+            'message' => LogContextSanitizer::redact(mb_strcut((string) $message, 0, self::MESSAGE_BOUND)),
             'context' => LogContextSanitizer::sanitize($context),
         ], \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE) . "\n";
     }
