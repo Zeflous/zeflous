@@ -54,8 +54,10 @@ use Zef\Test\Support\Container\Autowiring\BirthChainAlpha;
 use Zef\Test\Support\Container\Autowiring\BirthChainBeta;
 use Zef\Test\Support\Container\Autowiring\BuiltinStaticFactory;
 use Zef\Test\Support\Container\Autowiring\ChainRoot;
+use Zef\Test\Support\Container\Autowiring\Status;
 use Zef\Test\Support\Container\Autowiring\DependentHouse;
 use Zef\Test\Support\Container\Autowiring\DoubleDepHouse;
+use Zef\Test\Support\Container\Autowiring\EnumDefaultedHouse;
 use Zef\Test\Support\Container\Autowiring\FileLogger;
 use Zef\Test\Support\Container\Autowiring\GreeterFactory;
 use Zef\Test\Support\Container\Autowiring\InjectedDepHouse;
@@ -293,6 +295,18 @@ final class AutowireCompilerPassTest extends TestCase
                 $autowiringException->getMessage(),
             );
         }
+    }
+
+    public function testAnEnumCaseDefaultIsBakedIntoThePlan(): void
+    {
+        // An enum type names no birthable binding, so the constructor's
+        // own case owns the plan -- verbatim, the singleton the AOT lane
+        // then spells as its constant expression.
+        $planned = $this->planned([
+            'app.house' => ['class' => EnumDefaultedHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([Status::ACTIVE], $this->firstInstance($planned)->arguments);
     }
 
     public function testAnOptionalUnionParameterBakesItsOwnDefault(): void

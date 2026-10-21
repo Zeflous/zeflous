@@ -43,6 +43,15 @@ final readonly class AotOutcome
         . 'the artifact is neither probed nor dumped in development';
 
     /**
+     * The note a degraded dump leaves behind: the plan carried a value
+     * the artifact boundary cannot render, so the full lane answered
+     * this boot and laid no artifact down.
+     */
+    private const string UNRENDERABLE_NOTE
+        = 'the plan carries a value the artifact boundary cannot render -- '
+        . 'the full lane answered this boot and laid no artifact down';
+
+    /**
      * @param list<string> $unreferenced the unreferenced identifiers, in
      *                                   declaration order
      */
@@ -104,6 +113,19 @@ final readonly class AotOutcome
     private static function fullCompiled(string $note, array $unreferenced, int $definitions): self
     {
         return new self(AotLane::FullCompile, $note, $unreferenced, $definitions);
+    }
+
+    /**
+     * The degraded dump's boot answer: the render refusal the compile
+     * lane answered by skipping the artifact write -- the note the
+     * re-registered {@see ContainerRegistrations} outcome carries for
+     * a plan the boundary cannot carry.
+     *
+     * @param list<string> $unreferenced the full pipeline's own report
+     */
+    public static function artifactUnrenderable(array $unreferenced, int $definitions): self
+    {
+        return self::fullCompiled(self::UNRENDERABLE_NOTE, $unreferenced, $definitions);
     }
 
     /**

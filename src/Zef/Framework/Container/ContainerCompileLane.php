@@ -77,8 +77,15 @@ final readonly class ContainerCompileLane
         // development boot never lays an artifact down -- the churn a
         // next development boot would only distrust again, and the
         // fingerprint stays unpaid on the lane that will not dump.
+        // A plan the artifact boundary cannot render degrades: the
+        // full lane already answered this boot, so the honest answer
+        // is no artifact for the next boot and the outcome note that
+        // names the degradation ({@see AotUnrenderableException}) --
+        // never a crashed boot for a plan the boundary cannot carry.
         if ($containerKnobs->mayDump() && $containerAotCache instanceof ContainerAotCache) {
-            $containerAotCache->dumpPlan($containerCompilePlan, $containerKnobs->fingerprint());
+            if (!$containerAotCache->dumpPlanOrDegrade($containerCompilePlan, $containerKnobs->fingerprint())) {
+                ContainerRegistrations::degradedOutcome($container, $containerCompilePlan);
+            }
         }
 
         return $container;

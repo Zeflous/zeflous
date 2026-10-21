@@ -76,12 +76,14 @@ final readonly class AotRefusals
      * A value the artifact boundary cannot carry: the dumped file is plain
      * PHP data, so an object, closure or resource anywhere in a rendered
      * position is refused at dump time -- with the path and the way out.
+     * The render-refusal subtype carries the verdict the compile lane
+     * degrades on ({@see AotUnrenderableException}).
      *
      * @param string $path the dotted position of the value
      */
-    public static function notExportable(string $serviceId, string $path, mixed $value): AotException
+    public static function notExportable(string $serviceId, string $path, mixed $value): AotUnrenderableException
     {
-        return new AotException(
+        return new AotUnrenderableException(
             "Service '{$serviceId}' carries a value the AOT artifact cannot export at "
             . "'{$path}' (" . get_debug_type($value) . ') -- move the computation behind '
             . 'the factory shape, or boot without the AOT lane.',

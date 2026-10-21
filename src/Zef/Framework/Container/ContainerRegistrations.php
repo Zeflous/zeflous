@@ -147,6 +147,29 @@ final readonly class ContainerRegistrations
     }
 
     /**
+     * The degraded dump's re-registered boot answer: the render
+     * refusal the compile lane answered by skipping the artifact
+     * write -- the same-identifier rebind the container's own
+     * last-wins registration discipline keeps, so the outcome a host
+     * reads from the reserved service names the degradation instead of
+     * the dump that never happened.
+     *
+     * @param ContainerCompilePlan $containerCompilePlan the plan the lane
+     *                                                  compiled (the report and
+     *                                                  the count ride along)
+     */
+    public static function degradedOutcome(Container $container, ContainerCompilePlan $containerCompilePlan): void
+    {
+        $container->set(
+            ContainerServices::AOT_SERVICE,
+            static fn (): AotOutcome => AotOutcome::artifactUnrenderable(
+                $containerCompilePlan->unreferenced,
+                \count($containerCompilePlan->definitions),
+            ),
+        );
+    }
+
+    /**
      * The artifact lane's boot answer: the loaded artifact's own
      * outcome, the unreferenced report and the carried entry count
      * riding along -- the lane's own registration to call, never a

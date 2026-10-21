@@ -168,6 +168,39 @@ final readonly class ContainerAotCache
     }
 
     /**
+     * Dumps the plan, or answers the degradation when the plan carries
+     * a value the artifact boundary cannot render -- the compile lane's
+     * degrade-to-full-compile decision: the boot already answered
+     * through the full lane, so the honest answer is no artifact for
+     * the next boot, never a crashed boot for a plan the boundary
+     * cannot carry. Environmental failures (an unwritable cache, a
+     * missing directory) still refuse: they are the operator's to fix,
+     * not the plan's to route around.
+     *
+     * @param non-empty-string $digest the source configuration's fingerprint
+     *
+     * @return bool whether the artifact was laid down
+     */
+    public function dumpPlanOrDegrade(ContainerCompilePlan $containerCompilePlan, string $digest): bool
+    {
+        try {
+            $entries = AotEntries::all($containerCompilePlan->definitions);
+        } catch (AotUnrenderableException) {
+            return false;
+        }
+
+        $this->dump(
+            $digest,
+            $entries,
+            $containerCompilePlan->tagIndex->toArray(),
+            AotLazies::all($containerCompilePlan->definitions),
+            $containerCompilePlan->unreferenced,
+        );
+
+        return true;
+    }
+
+    /**
      * Loads and validates the artifact.
      *
      * A plain `require`, deliberately not `require_once`: the artifact

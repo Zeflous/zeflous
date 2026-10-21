@@ -22,8 +22,10 @@ use Zef\Framework\Container\MethodCallInvocations;
 use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\Aot\CallsHouse;
+use Zef\Test\Support\Container\Aot\EnumHouse;
 use Zef\Test\Support\Container\Aot\House;
 use Zef\Test\Support\Container\Aot\Roof;
+use Zef\Test\Support\Container\Aot\Tone;
 use Zef\Test\Support\Container\Aot\Window;
 
 /**
@@ -72,6 +74,49 @@ final class AotClosuresTest extends TestCase
         self::assertStringContainsString(', 4, ', $code);
         self::assertStringContainsString("'style' => 'georgian'", $code);
         self::assertStringContainsString("'paint' => 'white'", $code);
+    }
+
+    public function testAnEnumCaseArgumentRendersAsTheConstantExpression(): void
+    {
+        // An enum case is the one object shape that folds as code: the
+        // rendered constant expression answers the identical singleton
+        // the full lane's baked plan holds.
+        $instanceDefinition = new InstanceDefinition('app.tone', EnumHouse::class, [Tone::CALM]);
+
+        $code = AotClosures::instance($instanceDefinition);
+
+        self::assertStringContainsString(
+            'new Zef\\Test\\Support\\Container\\Aot\\EnumHouse(\\Zef\\Test\\Support\\Container\\Aot\\Tone::CALM)',
+            $code,
+        );
+
+        $closure = eval('return ' . $code . ';');
+        self::assertInstanceOf(Closure::class, $closure);
+
+        $house = $closure($this->container);
+        self::assertInstanceOf(EnumHouse::class, $house);
+        self::assertSame(Tone::CALM, $house->tone, 'the rendered case is the singleton itself');
+    }
+
+    public function testAnEnumCaseInsideAnArrayArgumentStillFolds(): void
+    {
+        $instanceDefinition = new InstanceDefinition(
+            'app.tone',
+            EnumHouse::class,
+            [Tone::CALM, ['first' => Tone::CALM, 'plain' => 'data']],
+        );
+
+        $code = AotClosures::instance($instanceDefinition);
+
+        self::assertStringContainsString("'first' => \\Zef\\Test\\Support\\Container\\Aot\\Tone::CALM", $code);
+        self::assertStringContainsString("'plain' => 'data'", $code);
+
+        $closure = eval('return ' . $code . ';');
+        self::assertInstanceOf(Closure::class, $closure);
+
+        $house = $closure($this->container);
+        self::assertInstanceOf(EnumHouse::class, $house);
+        self::assertSame(Tone::CALM, $house->notes['first']);
     }
 
     public function testTheRenderedInstanceClosureBuildsTheSameInstance(): void
