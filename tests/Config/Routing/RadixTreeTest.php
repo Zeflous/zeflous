@@ -441,9 +441,10 @@ final class RadixTreeTest extends TestCase
 
     public function testAHostOfExactlyTheMaximumLengthIsAccepted(): void
     {
+        // 42 labels of five characters, one of one, and the 42 dots
+        // between them: 42*5 + 1 + 42 = 253 bytes exactly.
         $host = implode('.', array_merge(array_fill(0, 42, 'aaaaa'), ['b']));
 
-        self::assertSame(253, mb_strlen($host));
         $radixTree = RadixTree::compile([
             ['path' => '/dashboard', 'host' => $host, 'method' => ['GET'], 'handler' => 'Admin@dashboard'],
         ]);

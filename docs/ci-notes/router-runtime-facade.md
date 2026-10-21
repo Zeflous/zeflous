@@ -61,3 +61,53 @@ preserving representation metadata. `If-None-Match` takes precedence over
 `If-Modified-Since`. The adapter does not generate ETags or Last-Modified
 values; application handlers or middleware remain responsible for those headers.
 The HTTP adapter tests were added, but CI validation remains pending.
+
+## Maintenance pass: the gate-settling redistribution
+
+The staged slice arrived with its quality gates unset: PHPStan carried 25
+errors, Psalm 7 (plus two stale `PossiblyUnusedMethod` baseline entries the
+new PSR-15 dispatch faces shrank away), three PHPUnit failures, and the
+archeology gate refused six overloaded files (difficulty 24-38 against the
+pinned 20 ceiling). The settling pass kept every behaviour and redistributed
+the folds until each file answers one question at a size the gate accepts
+(0 error-level findings):
+
+- `RouteHost` became the host-grammar family: `RouteHostGrammar`
+  (canonicalisation), `RouteHostRequest` (untrusted input),
+  `RouteHostParameters` (capture and names), `RouteHostRendering` (reverse
+  routing) and `RouteHostPrecedence` (claim semantics), with
+  `RouteHostBinding`, `RouteHostClaims`, `RouteHostAmbiguities`,
+  `RouteHostSelection` and `RouteHostPatternBucket` carrying the compile-time
+  binding and match-time precedence.
+- `RouterRequestHandler` became the composing shell over
+  `ServerRequestMetadata`, `RouterRequestMatcher` (the HEAD-over-GET
+  fallback), `RequestAuthority`, `ConditionalRequests`, `EntityTagMatch`,
+  `LastModifiedMatch` and `NotModifiedResponse`.
+- The Accept lane became `RouteProduces` (compile-time validation),
+  `RouteAcceptRanges` + `RouteAcceptRange` (parsing) and `RouteAcceptMatch`
+  (the per-media-type verdict -- whose no-match and q=0 cases agree on the
+  quality answer, so the return reads the quality alone).
+- `RadixTree::match()` narrows to walk -> host bucket -> version -> method
+  through `RouteHostSelection` and `RouteVersionSelection`, and
+  `CompiledRoute` assembles its fields through `RouteHostBinding` and
+  `RouteFields`.
+
+The changed-set mutation run opened at 103 escapes and closed at 584
+mutants, 554 killed, 30 documented ignores, 0 escaped. The killer battery
+pins the boundary and witness semantics the slice left open (the 253-byte
+and 127-label host ceilings, the label-count mismatch in both directions,
+the port boundary series, the Kelvin-sign and U+0130 case-fold witnesses,
+the specificity tie series, the claim-scope separation on equally specific
+hosts, and the version and conditional arms), and the thirty ignores follow
+the established scoped-proof pattern -- every one argues its equivalence
+from the grammar that bounds its reachable inputs, in the same voice the
+ neighbouring entries already use.
+
+## Verification (settling pass)
+
+`composer ci:static`, `coverage:gate` (98.70%), the archeology gate (0
+error-level findings), the changed-set mutation run (MSI 100/100) and the
+five local mutation batches over `Config/Routing`, `Config/Schema`,
+`Router`, `Middleware` and `Http` (5436 mutants, MSI 100 each) all pass
+locally; the full-tree CI Infection lane remains the authoritative
+verdict for the untouched trees.
