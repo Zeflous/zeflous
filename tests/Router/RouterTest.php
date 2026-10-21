@@ -101,6 +101,22 @@ final class RouterTest extends TestCase
         $router->url('missing');
     }
 
+    public function testReverseRoutingRejectsValuesThatViolateTheRouteConstraint(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/users/{id}',
+                'method' => ['GET'],
+                'handler' => 'Users@show',
+                'name' => 'users.show',
+                'constraints' => ['id' => '[0-9]+'],
+            ],
+        ]);
+
+        $this->expectException(ConfigException::class);
+        $router->url('users.show', ['id' => 'not-a-number']);
+    }
+
     private static function routerWithHealthRoute(): Router
     {
         return Router::fromRoutes([
