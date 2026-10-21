@@ -135,6 +135,63 @@ final class RadixTreeTest extends TestCase
         self::assertFalse($radixTree->match('GET', '/dashboard')->isFound());
     }
 
+    public function testCapturesWholeLabelHostParametersAndMergesThemWithPathParameters(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/users/{id}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+            ],
+        ]);
+
+        $match = $radixTree->match('GET', '/users/42', 'ACME.example.com');
+
+        self::assertTrue($match->isFound());
+        self::assertSame(['id' => '42', 'tenant' => 'acme'], $match->parameters());
+        self::assertFalse($radixTree->match('GET', '/users/42', 'example.com')->isFound());
+        self::assertFalse($radixTree->match('GET', '/users/42', 'a.b.example.com')->isFound());
+    }
+
+    public function testExactHostTakesPrecedenceOverParameterizedHostAndFallback(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/dashboard', 'method' => ['GET'], 'handler' => 'Fallback@dashboard'],
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+            ],
+            [
+                'path' => '/dashboard',
+                'host' => 'admin.example.com',
+                'method' => ['GET'],
+                'handler' => 'Admin@dashboard',
+            ],
+        ]);
+
+        self::assertSame('Admin@dashboard', $radixTree->match('GET', '/dashboard', 'admin.example.com')->route()->handler());
+        self::assertSame('Tenant@dashboard', $radixTree->match('GET', '/dashboard', 'acme.example.com')->route()->handler());
+        self::assertSame('Fallback@dashboard', $radixTree->match('GET', '/dashboard', 'outside.test')->route()->handler());
+    }
+
+    public function testRejectsHostParameterNameCollisionsWithPathParameters(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessage('must not repeat parameter name');
+
+        RadixTree::compile([
+            [
+                'path' => '/users/{tenant}',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'TenantUsers@show',
+            ],
+        ]);
+    }
+
     public function testExactHostRouteTakesPrecedenceOverHostAgnosticFallback(): void
     {
         $radixTree = RadixTree::compile([

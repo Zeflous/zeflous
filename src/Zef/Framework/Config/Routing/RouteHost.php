@@ -7,33 +7,48 @@ namespace Zef\Framework\Config\Routing;
 use Zef\Framework\Config\ConfigException;
 
 /**
- * Canonicalises an exact DNS host for route registration and request matching.
+ * Parses route host patterns and canonicalises untrusted request host values.
  *
- * Wildcard hosts are deliberately not accepted by this first host-aware slice:
- * wildcard precedence and host-parameter capture need a separate grammar and
- * are tracked as a follow-up roadmap item.
+ * Route patterns support exact DNS labels and whole-label parameters such as
+ * "{tenant}.example.com". Ports, IP literals, partial-label parameters and
+ * wildcard spellings are rejected so matching has one deterministic grammar.
  *
  * @internal
  */
 final class RouteHost
 {
     /**
-     * Validates and lower-cases an exact hostname.
+     * Validates and canonicalises a DNS host pattern.
      *
      * @return non-empty-string
      */
     public static function canonical(string $host): string
     {
-        if ($host === '' || strlen($host) > 253 || !preg_match(
-            '/\A[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*\z/D',
-            $host,
-        )) {
-            throw new ConfigException(
-                sprintf('The route host "%s" must be an exact DNS hostname without a port or wildcard.', $host),
-            );
+        if ($host === '' || strlen($host) > 253) {
+            throw self::invalid($host);
         }
 
-        return strtolower($host);
+        $labels = explode('.', $host);
+        $canonical = [];
+
+        foreach ($labels as $label) {
+            if (preg_match('/\A\{([a-zA-Z][a-zA-Z0-9_]{0,63})\}\z/D', $label, $matches)) {
+                $canonical[] = '{' . strtolower($matches[1]) . '}';
+                continue;
+            }
+
+            if (!preg_match('/\A[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\z/D', $label)) {
+                throw self::invalid($host);
+            }
+
+            $canonical[] = strtolower($label);
+        }
+
+        if (count($canonical) > 127) {
+            throw self::invalid($host);
+        }
+
+        return implode('.', $canonical);
     }
 
     /**
@@ -46,9 +61,64 @@ final class RouteHost
         }
 
         try {
+            if (str_contains($host, '{')) {
+                return null;
+            }
+
             return self::canonical($host);
         } catch (ConfigException) {
             return null;
         }
+    }
+
+    /**
+     * Matches a canonical route pattern to a request host.
+     *
+     * @return null|array<string, string> null means mismatch; an empty map is an exact match
+     */
+    public static function parameters(string $pattern, ?string $requestHost): ?array
+    {
+        if ($requestHost === null) {
+            return null;
+        }
+
+        $patternLabels = explode('.', $pattern);
+        $hostLabels = explode($requestHost, '.');
+
+        if (count($patternLabels) !== count($hostLabels)) {
+            return null;
+        }
+
+        $parameters = [];
+
+        foreach ($patternLabels as $index => $patternLabel) {
+            if (preg_match('/\A\{([a-z][a-z0-9_]{0,63})\}\z/D', $patternLabel, $matches)) {
+                $parameters[$matches[1]] = $hostLabels[$index];
+                continue;
+            }
+
+            if ($patternLabel !== $hostLabels[$index]) {
+                return null;
+            }
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function parameterNames(string $pattern): array
+    {
+        preg_match_all('/\{([a-z][a-z0-9_]{0,63})\}/', $pattern, $matches);
+
+        return $matches[1];
+    }
+
+    private static function invalid(string $host): ConfigException
+    {
+        return new ConfigException(
+            sprintf('The route host "%s" must be a DNS hostname pattern using whole-label parameters only, without a port or wildcard.', $host),
+        );
     }
 }

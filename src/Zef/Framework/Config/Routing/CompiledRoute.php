@@ -53,12 +53,22 @@ final readonly class CompiledRoute
     {
         $entry = RouteEntryShape::fields($route);
         $routePath = RoutePath::parse($entry['path']);
+        $host = $entry['host'] === null ? null : RouteHost::canonical($entry['host']);
+        $collisions = $host === null
+            ? []
+            : array_intersect($routePath->parameterNames(), RouteHost::parameterNames($host));
+
+        if ($collisions !== []) {
+            throw new ConfigException(
+                sprintf('The route host and path must not repeat parameter name(s): %s.', implode(', ', $collisions)),
+            );
+        }
 
         return new self(
             $routePath,
             RouteConstraints::fromMap($entry['constraints'], $routePath),
             [
-                'host' => $entry['host'] === null ? null : RouteHost::canonical($entry['host']),
+                'host' => $host,
                 'method' => self::normalizedMethods($entry['method']),
                 'handler' => $entry['handler'],
                 'name' => $entry['name'],
@@ -85,14 +95,18 @@ final readonly class CompiledRoute
     }
 
     /**
-     * Whether this route belongs to the supplied canonical request host.
+     * Returns captured host parameters, or null when this route does not match.
+     * Host-agnostic routes match every host and capture no host parameters.
      *
-     * Host-agnostic routes are fallback candidates; the tree prefers an exact
-     * host candidate when one exists for the matched path.
+     * @return null|array<string, string>
      */
-    public function matchesHost(?string $host): bool
+    public function hostParameters(?string $host): ?array
     {
-        return $this->fields['host'] === null || $this->fields['host'] === $host;
+        if ($this->fields['host'] === null) {
+            return [];
+        }
+
+        return RouteHost::parameters($this->fields['host'], RouteHost::request($host));
     }
 
     /**

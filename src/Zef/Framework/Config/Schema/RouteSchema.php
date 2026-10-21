@@ -17,8 +17,8 @@ use Zef\Framework\Config\ConfigException;
  *
  * - `path` (required, non-empty string) -- the URL pattern, e.g.
  *   `/users/{id}`.
- * - `host` (optional, non-empty string) -- an exact DNS hostname without a port
- *   or wildcard, e.g. `api.example.com`.
+ * - `host` (optional, non-empty string) -- a DNS hostname pattern with optional
+ *   whole-label parameters, e.g. `api.example.com` or `{tenant}.example.com`.
  * - `method` (required, non-empty list of non-empty strings) -- the HTTP
  *   methods the route answers, e.g. `['GET', 'POST']`.
  * - `handler` (required, non-empty string) -- the controller/action
@@ -33,7 +33,8 @@ use Zef\Framework\Config\ConfigException;
  *
  * The schema validates *shape*, not HTTP semantics: a lower-case method or a
  * path without a leading slash still passes, because those are policy
- * decisions the engine layer owns. Validation is fail-closed (KDD-5): an
+ * decisions the engine layer owns. Host-pattern semantics are validated by
+ * the routing compiler. Validation is fail-closed (KDD-5): an
  * invalid route is reported with its full path context, never silently
  * dropped, and a key outside the eight fields is a violation so a typo
  * cannot produce a route that half-exists.

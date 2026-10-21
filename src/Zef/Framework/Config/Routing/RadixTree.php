@@ -102,29 +102,38 @@ final readonly class RadixTree
 
         $requestHost = RouteHost::request($host);
         $exactHostRoutes = [];
+        $hostPatternRoutes = [];
         $hostAgnosticRoutes = [];
 
         foreach ($routes as $route) {
-            if ($route->host() !== null && $route->matchesHost($requestHost)) {
-                $exactHostRoutes[] = $route;
-
+            if ($route->host() === null) {
+                $hostAgnosticRoutes[] = $route;
                 continue;
             }
 
-            if ($route->host() === null) {
-                $hostAgnosticRoutes[] = $route;
+            $hostParameters = $route->hostParameters($requestHost);
+            if ($hostParameters === null) {
+                continue;
+            }
+
+            if ($hostParameters === []) {
+                $exactHostRoutes[] = $route;
+            } else {
+                $hostPatternRoutes[] = $route;
             }
         }
 
-        // An exact host route owns this path before a host-agnostic fallback,
-        // including when its method differs (which must answer 405, not fall
-        // through to a different host-agnostic handler).
-        $routes = $exactHostRoutes !== [] ? $exactHostRoutes : $hostAgnosticRoutes;
+        // Exact hosts outrank parameterised host patterns, which outrank the
+        // host-agnostic fallback. A method mismatch at the selected host
+        // specificity remains 405 rather than falling through.
+        $routes = $exactHostRoutes !== []
+            ? $exactHostRoutes
+            : ($hostPatternRoutes !== [] ? $hostPatternRoutes : $hostAgnosticRoutes);
 
         if ($routes === []) {
             return MatchResult::notFound();
         }
 
-        return RouteMethodAnswer::resolve($method, $routes, $captured);
+        return RouteMethodAnswer::resolve($method, $routes, $captured, $requestHost);
     }
 }
