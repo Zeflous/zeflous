@@ -20,11 +20,15 @@
     <!-- The health probe's crash containment truncates the failure's class
          name at 128 characters; the bound is only observable from a fixture
          whose fully qualified name crosses it, and a class declaration line
-         cannot be split. The aggregator suite's own `use` line spells the
-         same name and carries a bare inline `phpcs:ignore` (phpcs 4 ignores
-         the trailing-message form) for the same reason. -->
+         cannot be split. The one such fixture lives at the tests/Support
+         root and its declaration line is the only line exempted, so every
+         other support file (the CI gate engine included) stays under the
+         same line-length rule the src tree obeys. The aggregator suite's
+         own `use` line spells the same name and carries a bare inline
+         `phpcs:ignore` (phpcs 4 ignores the trailing-message form) for the
+         same reason. -->
     <rule ref="Generic.Files.LineLength">
-        <exclude-pattern>*/tests/Support/</exclude-pattern>
+        <exclude-pattern>*/tests/Support/AAAAAAAAAAAAAAAA*</exclude-pattern>
     </rule>
 
     <!-- The lazy lane's return-shape fixture: `none()` deliberately

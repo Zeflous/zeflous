@@ -11,6 +11,10 @@
 >
     <projectFiles>
         <directory name="src" />
+        <!-- The CI gate engine lives under tests/Support/Tooling (developer
+             tooling, never shipped); Psalm keeps auditing it at level 1
+             against the same frozen baseline, at its new home. -->
+        <directory name="tests/Support/Tooling" />
         <ignoreFiles>
             <directory name="vendor" />
         </ignoreFiles>
