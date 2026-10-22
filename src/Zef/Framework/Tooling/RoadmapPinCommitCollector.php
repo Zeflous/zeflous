@@ -131,13 +131,19 @@ final readonly class RoadmapPinCommitCollector
 
         if ($mergeExit !== 0) {
             throw new ToolingException(\sprintf(
-                'Roadmap pin freshness FAILED: git could not list the merge commits after the pinned `%s` (log exited %d).',
+                'Roadmap pin freshness FAILED: git could not list the merge commits after the pinned `%s`'
+                    . ' (log exited %d).',
                 $pinnedSha,
                 $mergeExit,
             ));
         }
 
-        return new RoadmapPinState($pinnedSha, true, $this->subjects($logOutput), $this->subjects($mergeOutput));
+        return new RoadmapPinState(
+            $pinnedSha,
+            true,
+            RoadmapCommitSubjects::of($logOutput),
+            RoadmapCommitSubjects::of($mergeOutput),
+        );
     }
 
     /**
@@ -154,13 +160,7 @@ final readonly class RoadmapPinCommitCollector
             return false;
         }
 
-        $ref = getenv('GITHUB_REF');
-
-        if ($ref === 'refs/heads/main') {
-            return true;
-        }
-
-        if (\is_string($ref) && str_starts_with($ref, 'refs/heads/gh-readonly-queue/main/')) {
+        if ($this->isAMainRef(getenv('GITHUB_REF'))) {
             return true;
         }
 
@@ -173,31 +173,28 @@ final readonly class RoadmapPinCommitCollector
     }
 
     /**
+     * Whether a CI ref names a lane that validates `main`: the push lane's
+     * own ref, or the merge queue's group-head branch for `main` -- the
+     * branch the queue validates the combined head on, whose tip is the
+     * commit the queue is about to make `main`'s tip. The base segment must
+     * be exactly `main/`: a ref whose segment merely starts with it is a
+     * different base, and a lane validating any other base is not this
+     * rule's to judge.
+     */
+    private function isAMainRef(false|string $ref): bool
+    {
+        if ($ref === 'refs/heads/main') {
+            return true;
+        }
+
+        return \is_string($ref) && str_starts_with($ref, 'refs/heads/gh-readonly-queue/main/');
+    }
+
+    /**
      * @return array{0: int, 1: string}
      */
     private function git(string $command): array
     {
         return ($this->processRunner)($command);
-    }
-
-    /**
-     * The commit subjects of a `git log` payload, without its blank separator
-     * lines.
-     *
-     * @return list<string>
-     */
-    private function subjects(string $logOutput): array
-    {
-        $subjects = [];
-
-        foreach (explode("\n", $logOutput) as $line) {
-            if (mb_trim($line) === '') {
-                continue;
-            }
-
-            $subjects[] = $line;
-        }
-
-        return $subjects;
     }
 }

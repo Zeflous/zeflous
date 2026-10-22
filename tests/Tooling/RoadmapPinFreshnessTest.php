@@ -157,9 +157,11 @@ final class RoadmapPinFreshnessTest extends TestCase
         ];
 
         foreach ($accepted as $subject) {
+            $roadmapPinState = new RoadmapPinState('058ab8c', true, [$subject]);
+
             self::assertSame(
                 [],
-                RoadmapPinFreshness::failures('ROADMAP-STATUS.md', new RoadmapPinState('058ab8c', true, [$subject]), []),
+                RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, []),
                 $subject,
             );
         }
@@ -245,7 +247,10 @@ final class RoadmapPinFreshnessTest extends TestCase
 
         self::assertCount(1, $failures);
         self::assertStringContainsString('is stale: 1 commit(s) landed on main', $failures[0]);
-        self::assertStringContainsString('not changelog, roadmap bookkeeping, or a recorded pull-request merge', $failures[0]);
+        self::assertStringContainsString(
+            'not changelog, roadmap bookkeeping, or a recorded pull-request merge',
+            $failures[0],
+        );
     }
 
     public function testASuffixSpelledCommitThatIsNotAMergeDoesNotQualify(): void
