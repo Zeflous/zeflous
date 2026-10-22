@@ -26,14 +26,21 @@ namespace Zef\Framework\Tooling;
  * bookkeeping patterns name exactly those: changelog regenerations,
  * roadmap-document commits (every `docs(roadmap):` subject -- pin refreshes,
  * history records, status-meter updates alike), and the update machinery's
- * `main`-into-branch merges of every branch kind. An update merge is safe to
- * accept whatever the branch:
- * it reflects main's own commits back into a branch, and any real content
- * still reaches main through a pull-request merge commit of its own, which
- * the patterns refuse. So the steady state after a refresh stays green,
- * while any other landed change (a feature, a fix, a documentation change)
- * leaves the pin stale until it is refreshed. That is the rule the document
- * states for itself: the pin names the main commit that was checked.
+ * `main`-into-branch merges of every branch kind. The update machinery has
+ * been observed spelling that merge four ways -- `Merge branch 'main' into
+ * <branch>` from its own git invocation, `Merge remote-tracking branch
+ * 'origin/main' into <branch>` from the web UI's update button, the shorthand
+ * `Merge origin/main into <branch>`, and the descriptive `chore: merge main
+ * (<what was merged>) into <branch>` -- and a spelling the patterns refuse
+ * turned the main lane red on 2026-10-22 for exactly that reason, so all
+ * four observed spellings are named. An update merge is safe to accept
+ * whatever the branch and whatever the spelling: it reflects main's own
+ * commits back into a branch, and any real content still reaches main
+ * through a pull-request merge commit of its own, which the patterns refuse.
+ * So the steady state after a refresh stays green, while any other landed
+ * change (a feature, a fix, a documentation change) leaves the pin stale
+ * until it is refreshed. That is the rule the document states for itself:
+ * the pin names the main commit that was checked.
  *
  * The verdict is a pure function over its inputs; a lane that is not
  * validating `main` hands over a null state and is not judged here.
@@ -46,12 +53,19 @@ final class RoadmapPinFreshness
      * shapes, with and without the pull-request suffix), the roadmap lanes'
      * document commits (every `docs(roadmap):` subject: pin refreshes,
      * history records, status-meter updates alike), and the branch-update
-     * machinery's `main`-into-branch merges of every branch kind.
+     * machinery's `main`-into-branch merges of every branch kind in all four
+     * of its observed spellings (its own git invocation, the web UI's update
+     * button, its shorthand, and its descriptive `chore: merge main (...)`
+     * custom subject -- the parenthetical names what was merged, so a bare
+     * `chore: merge main into ...` without one stays refused).
      */
     private const array BOOKKEEPING = [
         '/^chore\(changelog(?:-official)?\): regenerate (?:API|official) changelog(?: \(#\d+\))?$/',
         '/^docs\(roadmap\): /',
         "/^Merge branch 'main' into /",
+        "/^Merge remote-tracking branch 'origin\\/main' into /",
+        '/^Merge origin\/main into /',
+        '/^chore: merge main \([^)]+\) into /',
     ];
 
     /**

@@ -81,6 +81,27 @@ final class RoadmapPinFreshnessTest extends TestCase
         self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState));
     }
 
+    public function testTheAutomationUpdateMergeSpellingsKeepAStalePinGreen(): void
+    {
+        // The 2026-10-22 incident: the machinery that merges `main` into the
+        // branches it refreshes also spells its merges with the web UI's
+        // update button, a shorthand, and a descriptive custom subject. A
+        // pin that only has such merges above it is still fresh -- they
+        // reflect main's own commits back into branches, and the real content
+        // those branches carried reached main through pull-request merge
+        // commits the patterns refuse. Measured from the real subjects of
+        // that day's history.
+        $roadmapPinState = new RoadmapPinState('5eb0ccb', true, [
+            "Merge remote-tracking branch 'origin/main' into fix/edge-case-audit",
+            'chore: merge main (the audit remediation batch #518) into the router cache pin',
+            "Merge remote-tracking branch 'origin/main' into feat/router-host-wildcard",
+            'chore: merge main (changelog bookkeeping #520/#521) into the router cache lane',
+            'Merge origin/main into fix/changelog-api-workflows',
+        ]);
+
+        self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState));
+    }
+
     public function testALandedChangeAfterThePinIsReportedWithItsCountAndFirstSubject(): void
     {
         $roadmapPinState = new RoadmapPinState('058ab8c', true, [
@@ -109,6 +130,10 @@ final class RoadmapPinFreshnessTest extends TestCase
         // vocabulary (pin, record, point, refresh, keep) observed in this
         // repository's own history, and the update merges arrive for every
         // branch kind, each one observed in this repository's own history.
+        // The update machinery's own merge spelling (its git invocation) plus
+        // the three further spellings observed on 2026-10-22 -- the web UI's
+        // update button, the shorthand, and the descriptive custom subject --
+        // each measured from this repository's own history.
         $accepted = [
             'chore(changelog): regenerate API changelog',
             'chore(changelog): regenerate API changelog (#408)',
@@ -124,6 +149,11 @@ final class RoadmapPinFreshnessTest extends TestCase
             "Merge branch 'main' into feat/tooling-roadmap-pin-freshness",
             "Merge branch 'main' into test/covers-orphan-classes",
             "Merge branch 'main' into fix/composer-psr-classmap-excludes",
+            "Merge remote-tracking branch 'origin/main' into feat/router-host-wildcard",
+            "Merge remote-tracking branch 'origin/main' into fix/edge-case-audit",
+            'Merge origin/main into fix/changelog-api-workflows',
+            'chore: merge main (the audit remediation batch #518) into the router cache pin',
+            'chore: merge main (changelog bookkeeping #520/#521) into the router cache lane',
         ];
 
         foreach ($accepted as $subject) {
@@ -141,7 +171,10 @@ final class RoadmapPinFreshnessTest extends TestCase
         // mutated pattern must not swallow a real change. The roadmap
         // anchor's boundary is the scope-and-colon head itself: anything
         // that is not exactly `docs(roadmap): ` followed by a subject is a
-        // landed change.
+        // landed change. The update-merge spellings keep their boundaries
+        // the same way: a merge whose source is not `main`, a custom
+        // subject without its parenthetical, or a prefix that is not
+        // `chore:` is a landed change.
         $refused = [
             'chore(changelog): regenerate API changelogs',
             'chore(changelog): regenerate the API changelog',
@@ -156,6 +189,13 @@ final class RoadmapPinFreshnessTest extends TestCase
             'Merge pull request #417 from Zeflous/feat/tooling-roadmap-pin-freshness',
             'feat(container): the tags & autoconfiguration family, one tag one source (#404)',
             'chore(license): add the MIT license text (#409)',
+            "Merge remote-tracking branch 'origin/dev' into feat/router-host-wildcard",
+            "Merge branch 'origin/main' into feat/router-host-wildcard",
+            'Merge origin/dev into fix/changelog-api-workflows',
+            'chore: merge main into the router cache lane',
+            'chore: merge main (the audit remediation batch #518) from the router cache pin',
+            'chore: merge dev (the audit remediation batch #518) into the router cache pin',
+            'fix: merge main (hotfix) into production',
         ];
 
         foreach ($refused as $subject) {
