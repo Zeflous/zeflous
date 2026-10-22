@@ -281,6 +281,16 @@ path is intentionally protected against the 2026-10-19 re-render storm:
   overridden by a green PR-head result when its merge-group result is red or
   missing.
 
+A fresh read of the live [`main` ruleset](https://github.com/Zeflous/zeflous/rules/24654862)
+on 2026-10-22 confirmed ruleset `24654862` is active, has the `merge_queue`
+rule (`ALLGREEN`), requires exactly `CI Strict`, `PR Validator`,
+`PhpCodeArcheology SARIF`, and `SonarCloud analysis`, and reports
+`bypass_actors: []` with `current_user_can_bypass: never`. Thus the observed
+red `DeepSource: PHP` checks are advisory, not evidence that a required gate
+was bypassed. The required set and bypass posture were already correctly
+configured; the PR hardens the workflow-side failure paths and documents the
+distinction rather than changing repository settings.
+
 The existing `CI Strict` merge-group ownership, bounded polling, and terminal
 failure behavior are preserved. These changes are configuration/doc changes;
 they do not alter PHP runtime code, lower thresholds, or add SonarCloud
