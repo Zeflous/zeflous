@@ -142,8 +142,8 @@ final class RouteDeprecationTest extends TestCase
     {
         $this->assertRefused(
             ['date' => '2024-06-30T23:59:60Z'],
-            'The route "/legacy" declares a deprecation "date" of "2024-06-30T23:59:60Z" that is neither a calendar date'
-            . " (2024-06-30, read as that day's midnight UTC) nor a full date-time with an explicit"
+            'The route "/legacy" declares a deprecation "date" of "2024-06-30T23:59:60Z" that is neither a calendar'
+            . " date (2024-06-30, read as that day's midnight UTC) nor a full date-time with an explicit"
             . ' zone designator (2024-06-30T12:00:00Z or 2024-06-30T14:00:00+02:00).',
         );
     }

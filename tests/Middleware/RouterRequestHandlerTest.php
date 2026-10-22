@@ -1001,7 +1001,10 @@ final class RouterRequestHandlerTest extends TestCase
             'Profile@show',
             static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
                 200,
-                ['Content-Type' => 'application/json', 'Link' => '<https://example.com/deprecations/profile>; rel="deprecation"'],
+                [
+                    'Content-Type' => 'application/json',
+                    'Link' => '<https://example.com/deprecations/profile>; rel="deprecation"',
+                ],
                 'profile',
             ),
         );

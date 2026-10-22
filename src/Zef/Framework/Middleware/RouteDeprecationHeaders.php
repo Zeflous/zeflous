@@ -42,7 +42,8 @@ final class RouteDeprecationHeaders
      * its executed response; an undeclared (null) deprecation returns the
      * response untouched.
      *
-     * @param null|array{date: int, sunset: null|int, link: null|non-empty-string} $deprecation the route's canonicalised declaration
+     * @param null|array{date: int, sunset: null|int, link: null|non-empty-string} $deprecation
+     *                                                                                          the route's canonicalised declaration
      */
     public function apply(ResponseInterface $response, ?array $deprecation): ResponseInterface
     {
@@ -69,7 +70,8 @@ final class RouteDeprecationHeaders
      * default posture.
      *
      * @param non-empty-string $name  the header's name
-     * @param string           $value the header's value, non-empty where this is called (a date spelling or an `@`-prefixed instant)
+     * @param string           $value the header's value, non-empty where this is called
+     *                                (a date spelling or an `@`-prefixed instant)
      */
     private function fill(ResponseInterface $response, string $name, string $value): ResponseInterface
     {
