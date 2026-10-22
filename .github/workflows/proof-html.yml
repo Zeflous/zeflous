@@ -34,6 +34,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: anishathalye/proof-html@47a787591515a207d6fc8ef13e016ac42cb877c8 # v1.1.0
         with:
