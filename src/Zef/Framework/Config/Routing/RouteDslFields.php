@@ -122,15 +122,7 @@ final class RouteDslFields
      */
     public function deprecated(string $date, ?string $sunset, ?string $link, RoutePath $routePath): void
     {
-        $declaration = ['date' => $this->nonBlank($date, 'date', $routePath)];
-
-        if ($sunset !== null) {
-            $declaration['sunset'] = $this->nonBlank($sunset, 'sunset', $routePath);
-        }
-
-        if ($link !== null) {
-            $declaration['link'] = $this->nonBlank($link, 'link', $routePath);
-        }
+        $declaration = RouteDslDeprecation::declared($date, $sunset, $link, $routePath);
 
         if ($this->deprecation !== null) {
             throw new ConfigException(
@@ -177,27 +169,5 @@ final class RouteDslFields
     public function declaredDeprecation(): ?array
     {
         return $this->deprecation;
-    }
-
-    /**
-     * One deprecation member's non-blank value: a member that is empty or
-     * all whitespace is a defect on the declaration line, not a default
-     * to silently repair.
-     *
-     * @return non-empty-string
-     */
-    private function nonBlank(string $value, string $member, RoutePath $routePath): string
-    {
-        $trimmed = mb_trim($value);
-
-        if ($trimmed === '') {
-            throw new ConfigException(\sprintf(
-                'The route "%s" must not declare a blank deprecation "%s".',
-                $routePath->pattern(),
-                $member,
-            ));
-        }
-
-        return $trimmed;
     }
 }

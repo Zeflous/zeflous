@@ -86,7 +86,7 @@ final class RouteEntryShape
             'middleware' => RouteEntryCollections::stringList($route, 'middleware', false),
             'constraints' => RouteEntryCollections::stringMap($route),
             'meta' => RouteEntryMeta::fromRoute($route),
-            'deprecation' => self::optionalDeprecation($route),
+            'deprecation' => RouteEntryDeprecation::fromRoute($route),
         ];
     }
 
@@ -122,68 +122,5 @@ final class RouteEntryShape
         }
 
         return RouteEntryCollections::nonEmptyString($route[$field], $field);
-    }
-
-    /**
-     * An optional field holding one deprecation declaration -- a map whose
-     * members are the vocabulary {@see RouteDeprecation} owns (`date`
-     * required, `sunset` and `link` optional) and whose values are
-     * non-empty strings -- or null when absent. The grammar those members
-     * carry is the declaration's own semantics, judged by
-     * {@see RouteDeprecation} at field-assembly time; this is the
-     * shape-only half.
-     *
-     * @param array<array-key, mixed> $route
-     *
-     * @return null|array{date: non-empty-string, sunset?: non-empty-string, link?: non-empty-string}
-     */
-    private static function optionalDeprecation(array $route): ?array
-    {
-        if (!\array_key_exists('deprecation', $route)) {
-            return null;
-        }
-
-        $value = $route['deprecation'];
-
-        if (!\is_array($value) || $value === [] || array_is_list($value)) {
-            throw new ConfigException(
-                'The route entry field "deprecation" must be a non-empty map of declaration members.',
-            );
-        }
-
-        foreach (array_keys($value) as $member) {
-            if (!\is_string($member) || !isset(RouteDeprecation::members()[$member])) {
-                throw new ConfigException(\sprintf(
-                    'The route entry field "deprecation" carries the unknown member "%s".',
-                    \is_string($member) ? $member : get_debug_type($member),
-                ));
-            }
-        }
-
-        if (!\array_key_exists('date', $value)) {
-            throw new ConfigException(
-                'The route entry field "deprecation" must declare the "date" member.',
-            );
-        }
-
-        $declaration = [
-            'date' => RouteEntryCollections::nonEmptyString($value['date'], 'deprecation.date'),
-        ];
-
-        if (\array_key_exists('sunset', $value)) {
-            $declaration['sunset'] = RouteEntryCollections::nonEmptyString(
-                $value['sunset'],
-                'deprecation.sunset',
-            );
-        }
-
-        if (\array_key_exists('link', $value)) {
-            $declaration['link'] = RouteEntryCollections::nonEmptyString(
-                $value['link'],
-                'deprecation.link',
-            );
-        }
-
-        return $declaration;
     }
 }

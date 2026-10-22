@@ -52,14 +52,11 @@ use Zef\Framework\Exception\ZefException;
  */
 final readonly class RouteDispatchHandler implements RequestHandlerInterface
 {
-    private RouteDeprecationHeaders $routeDeprecationHeaders;
-
     public function __construct(
         private RouteDispatcher $routeDispatcher,
         private MatchResult $matchResult,
         private ServerRequestMetadata $serverRequestMetadata,
     ) {
-        $this->routeDeprecationHeaders = new RouteDeprecationHeaders();
     }
 
     #[Override]
@@ -113,7 +110,7 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
             ));
         }
 
-        $response = $this->routeDeprecationHeaders->apply($result, $compiledRoute->deprecation());
+        $response = RouteDeprecationHeaders::apply($result, $compiledRoute->deprecation());
 
         return $compiledRoute->produces() === []
             ? $response

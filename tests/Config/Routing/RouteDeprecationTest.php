@@ -152,8 +152,7 @@ final class RouteDeprecationTest extends TestCase
     {
         $this->assertRefused(
             ['date' => '2024-06-30', 'sunset' => '2024-01-01'],
-            'The route "/legacy" declares a sunset at or before its deprecation date.'
-            . ' A resource that retires when it is deprecated is a retirement, not a deprecation.',
+            'The route "/legacy" declares a sunset at or before its deprecation date.',
         );
     }
 
@@ -161,8 +160,7 @@ final class RouteDeprecationTest extends TestCase
     {
         $this->assertRefused(
             ['date' => '2024-06-30T12:00:00Z', 'sunset' => '2024-06-30T12:00:00Z'],
-            'The route "/legacy" declares a sunset at or before its deprecation date.'
-            . ' A resource that retires when it is deprecated is a retirement, not a deprecation.',
+            'The route "/legacy" declares a sunset at or before its deprecation date.',
         );
     }
 

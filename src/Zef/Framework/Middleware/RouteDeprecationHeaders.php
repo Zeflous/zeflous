@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Middleware;
 
-use DateTimeImmutable;
-use DateTimeZone;
 use Psr\Http\Message\ResponseInterface;
 use UnexpectedValueException;
+use Zef\Framework\Http\HttpDate;
 
 /**
  * Renders one matched route's deprecation declaration onto its response:
@@ -24,8 +23,7 @@ use UnexpectedValueException;
  * keeps them, exactly like a handler's own `Vary` tokens survive the
  * route-level `Vary: Accept` fold. `Link` is a list-valued field, so the
  * deprecation link is added beside whatever links the response already
- * carries, skipping the addition only when the same target with the same
- * relation is already there.
+ * carries ({@see DeprecationLinkHeader} owns that fold's semantics).
  *
  * Called from the terminal dispatch ({@see RouteDispatchHandler}) on the
  * executed representation, so the headers ride every response the route
@@ -48,20 +46,20 @@ final class RouteDeprecationHeaders
      *     link: null|non-empty-string,
      * } $deprecation the route's canonicalised declaration
      */
-    public function apply(ResponseInterface $response, ?array $deprecation): ResponseInterface
+    public static function apply(ResponseInterface $response, ?array $deprecation): ResponseInterface
     {
         if ($deprecation === null) {
             return $response;
         }
 
-        $response = $this->fill($response, 'Deprecation', '@' . $deprecation['date']);
+        $response = self::fill($response, 'Deprecation', '@' . $deprecation['date']);
 
         if ($deprecation['sunset'] !== null) {
-            $response = $this->fill($response, 'Sunset', $this->httpDate($deprecation['sunset']));
+            $response = self::fill($response, 'Sunset', HttpDate::render($deprecation['sunset']));
         }
 
         if ($deprecation['link'] !== null) {
-            return $this->addLink($response, $deprecation['link']);
+            return DeprecationLinkHeader::append($response, $deprecation['link']);
         }
 
         return $response;
@@ -76,62 +74,12 @@ final class RouteDeprecationHeaders
      * @param string           $value the header's value, non-empty where this is called
      *                                (a date spelling or an `@`-prefixed instant)
      */
-    private function fill(ResponseInterface $response, string $name, string $value): ResponseInterface
+    private static function fill(ResponseInterface $response, string $name, string $value): ResponseInterface
     {
         if ($response->getHeaderLine($name) !== '') {
             return $response;
         }
 
-        return $this->withHeader($response, $name, $value);
-    }
-
-    /**
-     * Adds the deprecation link beside the links the response already
-     * carries, unless the same target with the `deprecation` relation is
-     * already there -- a list-valued field is appended, never replaced.
-     *
-     * @param non-empty-string $link the deprecation documentation URI-reference
-     */
-    private function addLink(ResponseInterface $response, string $link): ResponseInterface
-    {
-        $value = '<' . $link . '>; rel="deprecation"';
-
-        foreach ($response->getHeader('Link') as $existing) {
-            if (mb_strtolower($existing) === mb_strtolower($value)) {
-                return $response;
-            }
-        }
-
-        $message = $response->withAddedHeader('Link', $value);
-        if (!$message instanceof ResponseInterface) {
-            throw new UnexpectedValueException('The response header operation did not return a ResponseInterface.');
-        }
-
-        return $message;
-    }
-
-    /**
-     * The HTTP-date spelling of a sunset instant, in the GMT frame RFC
-     * 8594's examples use.
-     *
-     * @param int $instant the sunset instant, never null where this is called
-     */
-    private function httpDate(int $instant): string
-    {
-        $date = new DateTimeImmutable('@' . $instant)->setTimezone(new DateTimeZone('GMT'));
-
-        return $date->format('D, d M Y H:i:s') . ' GMT';
-    }
-
-    /**
-     * The single-response header operation with the narrow-return guard
-     * the dispatch lane's other folds apply.
-     *
-     * @param non-empty-string $name  the header's name
-     * @param string           $value the header's value, non-empty where this is called
-     */
-    private function withHeader(ResponseInterface $response, string $name, string $value): ResponseInterface
-    {
         $message = $response->withHeader($name, $value);
         if (!$message instanceof ResponseInterface) {
             throw new UnexpectedValueException('The response header operation did not return a ResponseInterface.');

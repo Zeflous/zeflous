@@ -56,4 +56,15 @@ final class HttpDate
 
         return null;
     }
+
+    /**
+     * Renders a UTC instant in the HTTP-date spelling the grammar above
+     * parses -- the IMF-fixdate form RFC 8594's `Sunset` examples use.
+     */
+    public static function render(int $instant): string
+    {
+        $date = new DateTimeImmutable('@' . $instant)->setTimezone(new DateTimeZone('GMT'));
+
+        return $date->format('D, d M Y H:i:s') . ' GMT';
+    }
 }

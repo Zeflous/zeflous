@@ -477,8 +477,7 @@ final class CompiledRouteTest extends TestCase
                 'handler' => 'H@a',
                 'deprecation' => ['date' => '2024-06-30', 'sunset' => '2024-01-01'],
             ],
-            'The route "/a" declares a sunset at or before its deprecation date.'
-                . ' A resource that retires when it is deprecated is a retirement, not a deprecation.',
+            'The route "/a" declares a sunset at or before its deprecation date.',
         );
     }
 
