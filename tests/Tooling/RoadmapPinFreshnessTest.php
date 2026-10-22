@@ -298,14 +298,14 @@ final class RoadmapPinFreshnessTest extends TestCase
             'fix(tooling): widen the bookkeeping spellings (#0)',
         ];
 
-        foreach ($mergeSubjects as $subject) {
+        foreach ($mergeSubjects as $mergeSubject) {
             $failures = RoadmapPinFreshness::failures(
                 'ROADMAP-STATUS.md',
-                new RoadmapPinState('1d27b6c', true, [$subject], [$subject]),
+                new RoadmapPinState('1d27b6c', true, [$mergeSubject], [$mergeSubject]),
                 [532],
             );
 
-            self::assertCount(1, $failures, $subject);
+            self::assertCount(1, $failures, $mergeSubject);
         }
     }
 

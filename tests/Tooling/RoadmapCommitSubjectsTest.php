@@ -42,7 +42,7 @@ final class RoadmapCommitSubjectsTest extends TestCase
         // Only the SEPARATOR lines are folded; a subject line keeps its own
         // characters verbatim (the walk's patterns judge the exact spelling).
         self::assertSame(
-            ['Merge branch \'main\' into feat/queue lane'],
+            ["Merge branch 'main' into feat/queue lane"],
             RoadmapCommitSubjects::of("Merge branch 'main' into feat/queue lane\n"),
         );
     }
