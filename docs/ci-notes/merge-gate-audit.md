@@ -257,3 +257,43 @@ REST documentation alone would otherwise "fix" a working filter.
 - [x] No PHP source changed; no SonarCloud `ruleKey` exclusions added; no gate weakened — two gates are tightened (4: pending→timed_out verdict; 5: fail-open→fail-closed) and one checkpoint restored (6).
 - [ ] Post-merge: re-audit on `main` per CONTRIBUTING rule 12 — confirm the aggregator concludes `timed_out` (not `in_progress`) on a stuck-lane drill, and the Sonar guard fails a deliberately un-credentialed same-repo run.
 - [ ] Post-merge (sweep guard, finding 7): with the queue active, an armed entry must survive a `main` movement — no dequeue, no merge commit pushed onto its head branch — and merge from its next green group head; with the queue off, a behind armed entry must still receive its sync.
+
+## Follow-up remediation — 2026-10-22
+
+The follow-up change hardens the three remaining workflow findings without
+rewriting the existing merge-group aggregator, whose queue-owned single-write
+path is intentionally protected against the 2026-10-19 re-render storm:
+
+- **SonarCloud coverage bridge (F-01):** the required `SonarCloud analysis`
+  check no longer sets `sonar.coverage.exclusions=**/*` when coverage data is
+  missing. It now fails closed if the matching `CI Coverage` run does not
+  complete successfully, the artifact is absent/expired or cannot be
+  downloaded/unpacked, or the Clover report is invalid.
+- **Ruleset lint sampling (F-02):** the weekly lint paginates the closed-PR
+  collection, filters merged PRs, and sorts by `merged_at` descending before
+  selecting the latest ten. The API's `updated` ordering and first-page limit
+  can no longer silently select an older sample.
+- **Explicit job budgets (F-03):** `Auto Assign` has a five-minute timeout and
+  `Proof HTML` has a ten-minute timeout, bounding runner consumption.
+- **Required versus advisory checks:** `CONTRIBUTING.md` now states that the
+  active ruleset defines the merge-blocking contexts. A red advisory check is
+  not evidence that a required gate was bypassed; a required check must not be
+  overridden by a green PR-head result when its merge-group result is red or
+  missing.
+
+A fresh read of the live [`main` ruleset](https://github.com/Zeflous/zeflous/rules/24654862)
+on 2026-10-22 confirmed ruleset `24654862` is active, has the `merge_queue`
+rule (`ALLGREEN`), requires exactly `CI Strict`, `PR Validator`,
+`PhpCodeArcheology SARIF`, and `SonarCloud analysis`, and reports
+`bypass_actors: []` with `current_user_can_bypass: never`. Thus the observed
+red `DeepSource: PHP` checks are advisory, not evidence that a required gate
+was bypassed. The required set and bypass posture were already correctly
+configured; the PR hardens the workflow-side failure paths and documents the
+distinction rather than changing repository settings.
+
+The existing `CI Strict` merge-group ownership, bounded polling, and terminal
+failure behavior are preserved. These changes are configuration/doc changes;
+they do not alter PHP runtime code, lower thresholds, or add SonarCloud
+`ruleKey` exclusions. Local `composer ci:strict` and live merge-group
+verification remain required before the PR is ready to merge.
+

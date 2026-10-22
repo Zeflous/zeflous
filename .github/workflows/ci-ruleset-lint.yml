@@ -118,9 +118,18 @@ jobs:
           fi
 
           # --- 2. The last N merged pull-request heads. -------------------
-          heads=$(gh api "repos/${GITHUB_REPOSITORY}/pulls?state=closed&sort=updated&direction=desc&per_page=100" \
-            | jq -r '[.[] | select(.merged_at != null)][0:'"${HEADS_TO_LINT}"']
-                    | .[] | [.number, .head.sha] | @tsv')
+          # Paginate the full closed-PR collection before sorting by merged_at.
+          # GitHub's "updated" sort is not merge chronology, and a first-page
+          # slice can omit the latest merges when older PRs receive updates.
+          # --paginate emits one JSON array per page; jq -s combines the pages.
+          heads=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/pulls?state=closed&sort=updated&direction=desc&per_page=100" \
+            | jq -sr --argjson limit "${HEADS_TO_LINT}" '
+                add
+                | map(select(.merged_at != null))
+                | sort_by(.merged_at)
+                | reverse
+                | .[:$limit]
+                | .[] | [.number, .head.sha] | @tsv')
           if [ -z "${heads}" ]; then
             echo "::notice::No merged pull requests to lint yet -- nothing contradicts the required set."
             exit 0

@@ -387,6 +387,17 @@ Validator`, `PhpCodeArcheology SARIF` and `SonarCloud analysis` are
 decoration; the blocking server-side verdict travels with `SonarCloud
 analysis`, which waits on the same gate.
 
+**Merge-blocking semantics:** the active `main` ruleset is the source of truth
+for which status-check contexts are required. A red advisory signal (for
+example, an external analyzer that is not in that required set) is not itself
+a merge-gate bypass; do not promote an integration to required unless it
+reports reliably on the merge-group SHA. Conversely, a required check that is
+red, cancelled, timed out, or missing on the merge-group result must not be
+overridden by a green pull-request-head result. `CI Strict` is fail-closed:
+all four strict lanes must succeed, and an unresolved lane ends in a visible
+failure rather than a permanently pending or silently green verdict. Never use
+a workflow fallback or exclusion to turn missing required-gate evidence green.
+
 | Check | What it enforces |
 | --- | --- |
 | `CI Strict` | Aggregator: green only when `CI Static`, `CI Coverage`, `CI Infection` and `CI Bench` are all green. It is event-driven (`workflow_run`) and fails (never skips) if any lane did not succeed. Merge-group heads are excluded from the event-driven path — the `merge_group` polling run owns a group head's verdict (the re-render storm fix). |

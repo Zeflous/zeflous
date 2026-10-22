@@ -28,6 +28,12 @@ quality-gate verdict.
   makes the scanner wait for the server-side computation; a red gate fails the
   job. The default "Sonar way" gate applies (new-code reliability, security,
   maintainability, coverage, duplications).
+- **Coverage bridge is fail-closed**: the required `SonarCloud analysis` check
+  waits for a successful `CI Coverage` run and consumes its unexpired
+  `coverage-reports` artifact. If the lane fails or times out, the artifact is
+  missing/expired/unreadable, or the Clover report is invalid, the SonarCloud
+  job fails visibly. It must never apply a global coverage exclusion or report a
+  green quality gate without coverage evidence.
 - **Pull-request decoration**: once the GitHub ALM binding is configured
   (section 3, step 4), SonarCloud posts inline comments and a quality summary
   on every pull request it analyses.
