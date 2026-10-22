@@ -58,9 +58,12 @@ final class RouteDeprecation
      * Canonicalises a shape-checked deprecation declaration into the
      * compiled field the dispatch lane renders from.
      *
-     * @param array{date: non-empty-string, sunset?: non-empty-string, link?: non-empty-string} $declaration
-     *                                                                                                       the shape-checked declaration
-     * @param RoutePath                                                                         $routePath   the route the declaration belongs to, for the failure message
+     * @param array{
+     *     date: non-empty-string,
+     *     sunset?: non-empty-string,
+     *     link?: non-empty-string,
+     * } $declaration the shape-checked declaration
+     * @param RoutePath $routePath the route the declaration belongs to, for the failure message
      *
      * @return array{date: int, sunset: null|int, link: null|non-empty-string}
      *
