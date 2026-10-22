@@ -248,6 +248,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): record the wildcard host grammar and pin the lane [#529](https://github.com/Zeflous/zeflous/pull/529) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the merge-gate hardening and the bookkeeping widening, and pin the lane [#534](https://github.com/Zeflous/zeflous/pull/534) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the router error integration and pin the lane [#536](https://github.com/Zeflous/zeflous/pull/536) ([mbetixz](https://github.com/mbetixz))
+- docs(contributing): require error-system and configuration-system integration [#537](https://github.com/Zeflous/zeflous/pull/537) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): heal the status pin over the contributing integration rule [#541](https://github.com/Zeflous/zeflous/pull/541) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
