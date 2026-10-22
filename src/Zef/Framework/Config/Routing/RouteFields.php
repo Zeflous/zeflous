@@ -29,8 +29,11 @@ final class RouteFields
      *     middleware: list<string>,
      *     constraints: array<string, non-empty-string>,
      *     meta: array<array-key, mixed>,
+     *     deprecation: null|array{date: non-empty-string, sunset?: non-empty-string, link?: non-empty-string},
      * } $entry the shape-checked route entry
-     * @param null|non-empty-string $host the canonicalised declared host
+     * @param null|non-empty-string $host      the canonicalised declared host
+     * @param RoutePath             $routePath the entry's already-parsed path, for the
+     *                                         declaration-line failure messages
      *
      * @return array{
      *     host: ?non-empty-string,
@@ -41,9 +44,10 @@ final class RouteFields
      *     name: ?non-empty-string,
      *     middleware: list<string>,
      *     meta: array<array-key, mixed>,
+     *     deprecation: null|array{date: int, sunset: null|int, link: null|non-empty-string},
      * }
      */
-    public static function fromEntry(array $entry, ?string $host): array
+    public static function fromEntry(array $entry, ?string $host, RoutePath $routePath): array
     {
         return [
             'host' => $host,
@@ -54,6 +58,9 @@ final class RouteFields
             'name' => $entry['name'],
             'middleware' => $entry['middleware'],
             'meta' => $entry['meta'],
+            'deprecation' => $entry['deprecation'] === null
+                ? null
+                : RouteDeprecation::canonical($entry['deprecation'], $routePath),
         ];
     }
 

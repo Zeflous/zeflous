@@ -6,8 +6,15 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): heal the status pin over the contributing integration rule [\#541](https://github.com/Zeflous/zeflous/pull/541) ([mbetixz](https://github.com/mbetixz))
+- docs\(contributing\): require error-system and configuration-system integration [\#537](https://github.com/Zeflous/zeflous/pull/537) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): record the router error integration and pin the lane [\#536](https://github.com/Zeflous/zeflous/pull/536) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): record the merge-gate hardening and the bookkeeping widening, and pin the lane [\#534](https://github.com/Zeflous/zeflous/pull/534) ([mbetixz](https://github.com/mbetixz))
+- feat\(router\): translate dispatch refusals into the typed error family [\#533](https://github.com/Zeflous/zeflous/pull/533) ([mbetixz](https://github.com/mbetixz))
+- fix\(tooling\): accept every observed update-merge spelling as bookkeeping [\#532](https://github.com/Zeflous/zeflous/pull/532) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the wildcard host grammar and pin the lane [\#529](https://github.com/Zeflous/zeflous/pull/529) ([mbetixz](https://github.com/mbetixz))
 - feat\(router\): match whole-label wildcard host patterns [\#528](https://github.com/Zeflous/zeflous/pull/528) ([mbetixz](https://github.com/mbetixz))
+- ci\(merge-gate\): fail closed on missing required evidence [\#525](https://github.com/Zeflous/zeflous/pull/525) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the edge-case audit remediation batch and pin the lane [\#524](https://github.com/Zeflous/zeflous/pull/524) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the compiled route tree cache and pin the lane [\#523](https://github.com/Zeflous/zeflous/pull/523) ([mbetixz](https://github.com/mbetixz))
 - feat\(router\): add the compiled route tree cache [\#522](https://github.com/Zeflous/zeflous/pull/522) ([mbetixz](https://github.com/mbetixz))

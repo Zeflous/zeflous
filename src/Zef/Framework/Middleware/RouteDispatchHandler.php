@@ -110,9 +110,11 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
             ));
         }
 
+        $response = RouteDeprecationHeaders::apply($result, $compiledRoute->deprecation());
+
         return $compiledRoute->produces() === []
-            ? $result
-            : $this->varyOnAccept($result);
+            ? $response
+            : $this->varyOnAccept($response);
     }
 
     private function withHeader(ResponseInterface $response, string $name, string $value): ResponseInterface

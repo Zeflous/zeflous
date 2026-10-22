@@ -39,6 +39,7 @@ final class RouteEntryShape
         'middleware' => true,
         'constraints' => true,
         'meta' => true,
+        'deprecation' => true,
     ];
 
     /**
@@ -55,6 +56,7 @@ final class RouteEntryShape
      *     middleware: list<string>,
      *     constraints: array<string, non-empty-string>,
      *     meta: array<array-key, mixed>,
+     *     deprecation: null|array{date: non-empty-string, sunset?: non-empty-string, link?: non-empty-string},
      * }
      */
     public static function fields(mixed $route): array
@@ -84,6 +86,7 @@ final class RouteEntryShape
             'middleware' => RouteEntryCollections::stringList($route, 'middleware', false),
             'constraints' => RouteEntryCollections::stringMap($route),
             'meta' => RouteEntryMeta::fromRoute($route),
+            'deprecation' => RouteEntryDeprecation::fromRoute($route),
         ];
     }
 
