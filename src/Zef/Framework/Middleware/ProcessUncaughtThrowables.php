@@ -108,6 +108,8 @@ final readonly class ProcessUncaughtThrowables
             error_log(
                 'ZEF process boundary could not answer ' . $correlationId . ': headers already sent.',
             );
+
+            return;
         }
     }
 }
