@@ -79,6 +79,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(errors): add the process error boundary [#513](https://github.com/Zeflous/zeflous/pull/513) ([mbetixz](https://github.com/mbetixz))
 - feat(router): add the compiled route tree cache [#522](https://github.com/Zeflous/zeflous/pull/522) ([mbetixz](https://github.com/mbetixz))
 - feat(router): match whole-label wildcard host patterns [#528](https://github.com/Zeflous/zeflous/pull/528) ([mbetixz](https://github.com/mbetixz))
+- feat(router): translate dispatch refusals into the typed error family [#533](https://github.com/Zeflous/zeflous/pull/533) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -120,6 +121,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(tests): pin the document-audit gate test to a pull-request lane [#500](https://github.com/Zeflous/zeflous/pull/500) ([mbetixz](https://github.com/mbetixz))
 - fix(errors): harden the failure visibility, log bounds and CLI display [#508](https://github.com/Zeflous/zeflous/pull/508) ([mbetixz](https://github.com/mbetixz))
 - fix: land the edge-case audit remediation batch [#518](https://github.com/Zeflous/zeflous/pull/518) ([mbetixz](https://github.com/mbetixz))
+- fix(tooling): accept every observed update-merge spelling as bookkeeping [#532](https://github.com/Zeflous/zeflous/pull/532) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
@@ -162,6 +164,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - chore(ci): remove unreferenced mutation:ci composer script [#236](https://github.com/Zeflous/zeflous/pull/236) ([mbetixz](https://github.com/mbetixz))
 - chore(license): add the MIT license text [#409](https://github.com/Zeflous/zeflous/pull/409) ([mbetixz](https://github.com/mbetixz))
 - chore(repo): remove the demo template page [#412](https://github.com/Zeflous/zeflous/pull/412) ([mbetixz](https://github.com/mbetixz))
+- ci(merge-gate): fail closed on missing required evidence [#525](https://github.com/Zeflous/zeflous/pull/525) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 
@@ -243,6 +246,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): record the compiled route tree cache and pin the lane [#523](https://github.com/Zeflous/zeflous/pull/523) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the edge-case audit remediation batch and pin the lane [#524](https://github.com/Zeflous/zeflous/pull/524) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the wildcard host grammar and pin the lane [#529](https://github.com/Zeflous/zeflous/pull/529) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the merge-gate hardening and the bookkeeping widening, and pin the lane [#534](https://github.com/Zeflous/zeflous/pull/534) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the router error integration and pin the lane [#536](https://github.com/Zeflous/zeflous/pull/536) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
