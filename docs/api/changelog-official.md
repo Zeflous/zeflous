@@ -6,7 +6,11 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): record the edge-case audit remediation batch and pin the lane [\#524](https://github.com/Zeflous/zeflous/pull/524) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): record the compiled route tree cache and pin the lane [\#523](https://github.com/Zeflous/zeflous/pull/523) ([mbetixz](https://github.com/mbetixz))
+- feat\(router\): add the compiled route tree cache [\#522](https://github.com/Zeflous/zeflous/pull/522) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the router runtime facade and pin the lane [\#519](https://github.com/Zeflous/zeflous/pull/519) ([mbetixz](https://github.com/mbetixz))
+- fix: land the edge-case audit remediation batch [\#518](https://github.com/Zeflous/zeflous/pull/518) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the process error boundary and pin the lane [\#514](https://github.com/Zeflous/zeflous/pull/514) ([mbetixz](https://github.com/mbetixz))
 - feat\(errors\): add the process error boundary [\#513](https://github.com/Zeflous/zeflous/pull/513) ([mbetixz](https://github.com/mbetixz))
 - feat\(router\): add host-aware routing and versioned PSR-15 dispatch [\#512](https://github.com/Zeflous/zeflous/pull/512) ([mbetixz](https://github.com/mbetixz))
