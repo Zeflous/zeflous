@@ -80,6 +80,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(router): add the compiled route tree cache [#522](https://github.com/Zeflous/zeflous/pull/522) ([mbetixz](https://github.com/mbetixz))
 - feat(router): match whole-label wildcard host patterns [#528](https://github.com/Zeflous/zeflous/pull/528) ([mbetixz](https://github.com/mbetixz))
 - feat(router): translate dispatch refusals into the typed error family [#533](https://github.com/Zeflous/zeflous/pull/533) ([mbetixz](https://github.com/mbetixz))
+- feat(router): answer deprecated routes with the standard lifecycle headers [#540](https://github.com/Zeflous/zeflous/pull/540) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
