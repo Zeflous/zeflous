@@ -273,6 +273,47 @@ The gate fails the build if either assertion is violated, so a runtime
 dependency can never be introduced silently. This is the enforcement arm of
 [rule 1](#1-zero-composer--zero-vendor-at-production-runtime).
 
+### 17. Error-system and configuration-system integration is mandatory
+
+A component is not complete until it is wired into both foundation systems,
+and the wiring ships in the same pull request as the component itself — it
+is never a follow-up task, a backlog entry, or an optional extra:
+
+- **Error system.** Every failure path a component can reach MUST be
+  expressed through the typed error family under
+  [`src/Zef/Framework/Exception/`](src/Zef/Framework/Exception/): raise a
+  typed `ZefException` that carries its HTTP status (`CarriesHttpStatus`)
+  and its refusal payload, and let the error boundary
+  ([`ErrorMappingMiddleware`](src/Zef/Framework/Middleware/ErrorMappingMiddleware.php)
+  or [`ProcessErrorBoundary`](src/Zef/Framework/Middleware/ProcessErrorBoundary.php))
+  render the RFC 9457 problem-details response. A component MUST NOT
+  hand-build its own error response inline: doing so bypasses content
+  negotiation, error codes, trace IDs, cache headers and the 4xx log
+  discipline, and hands clients a second error shape to program against.
+  When the family lacks the status, error code or payload the component
+  needs, extend it in the same pull request —
+  [`ProblemDetailsMetadata`](src/Zef/Framework/Http/ProblemDetailsMetadata.php)
+  owns the status-to-code fold. The router's dispatch translation (the
+  refusals of #533, raised by
+  [`RouteDispatchHandler`](src/Zef/Framework/Middleware/RouteDispatchHandler.php))
+  is the reference implementation, recorded in
+  [`docs/ci-notes/router-error-integration.md`](docs/ci-notes/router-error-integration.md).
+- **Configuration system.** Every setting a component reads MUST flow
+  through the Configuration System — the immutable
+  [`Config`](src/Zef/Framework/Config/Config.php) behind
+  [`ConfigInterface`](src/Zef/Framework/Contracts/ConfigInterface.php), with
+  its `with*` mutations, schema validation, environment layering and
+  compiled cache. A component MUST NOT grow its own ad-hoc configuration
+  parsing (reading raw arrays, files or environment variables outside the
+  system): that duplicates the system's semantics and drifts away from its
+  validation, merging and cache.
+
+Both integrations ship with tests in the same pull request that assert the
+integrated behaviour end to end: the throw site and its payload on one
+side, the boundary-rendered response (status, error code, headers,
+negotiation) on the other, and the configuration path from declaration to
+read.
+
 ## Pull requests
 
 1. Branch from the latest `main`.
@@ -518,6 +559,7 @@ for review. A pull request that cannot tick a box is not ready to merge.
 - [ ] No third-party runtime dependency leaked into `src/`; new formats use an in-repo shim.
 - [ ] **Roadmap order:** Configuration System work precedes Container work.
 - [ ] **Config design:** immutable (`with*`), zero-dependency, with schema validation / env layering / compiled cache where applicable.
+- [ ] **Foundation integration:** failure paths raise the typed error family and render through the error boundary; settings flow through the Configuration System (rule 17).
 - [ ] **Quality gates:** coverage ≥ 90 %, Infection MSI 100, PHPStan max + ratchet, Psalm L1, Deptrac, `composer audit` strict — all green.
 - [ ] Edge cases and corner cases are handled and covered by tests.
 - [ ] Logic follows the Enterprise Coding Standard and is comprehensive and cohesive.
