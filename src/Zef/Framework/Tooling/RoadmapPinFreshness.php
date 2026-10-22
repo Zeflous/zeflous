@@ -171,11 +171,13 @@ final class RoadmapPinFreshness
                 continue;
             }
 
-            if (RoadmapRecordedMerge::isAccepted(
+            $isRecordedLanding = RoadmapRecordedMerge::isAccepted(
                 $subject,
                 $roadmapPinState->mergeSubjects,
                 $recordedPullRequests,
-            )) {
+            );
+
+            if ($isRecordedLanding) {
                 continue;
             }
 
