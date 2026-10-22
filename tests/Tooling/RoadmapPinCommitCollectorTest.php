@@ -38,6 +38,19 @@ final class RoadmapPinCommitCollectorTest extends TestCase
         self::assertNull($this->collector([])->state(null));
     }
 
+    public function testAPullRequestBaseRefOutranksTheMergeQueueRef(): void
+    {
+        // Defence in depth: the pull-request check comes FIRST, so a lane
+        // that carries a non-empty base ref is a pull-request lane whatever
+        // its GITHUB_REF says -- the queue recognition can never capture a
+        // pull-request lane, and vice versa.
+        $ref = 'refs/heads/gh-readonly-queue/main/pr-541-0a1b2c3d4e';
+        putenv('GITHUB_BASE_REF=main');
+        putenv('GITHUB_REF=' . $ref);
+
+        self::assertNull($this->collector([])->state(self::STATUS));
+    }
+
     public function testAMainLaneUnderAnEmptyBaseRefIsRecognised(): void
     {
         // The GitHub runner exports GITHUB_BASE_REF as an EMPTY STRING on the
@@ -105,6 +118,78 @@ final class RoadmapPinCommitCollectorTest extends TestCase
         self::assertNull(
             $this->collector(['rev-parse --abbrev-ref' => [128, "fatal: not a git repository\n"]])->state(self::STATUS),
         );
+    }
+
+    public function testAMergeQueueLaneIsRecognised(): void
+    {
+        // The merge queue validates the group head -- the commit the queue is
+        // about to make main's tip -- so the pin rule judges there too. This
+        // is the lane that closes the 2026-10-22 incident class: an
+        // unrecorded substantive merge now fails the GROUP's checks instead of
+        // reddening main after it lands. The group-head branch name carries
+        // the queued pull request's number and head sha.
+        putenv('GITHUB_BASE_REF=');
+        putenv('GITHUB_REF=refs/heads/gh-readonly-queue/main/pr-541-0a1b2c3d4e');
+
+        $state = $this->collector([
+            'merge-base --is-ancestor' => [0, ''],
+            'log --format=%s --merges' => [0, "fix(tooling): widen the bookkeeping spellings (#532)\n"],
+            'log --format=%s' => [0, "fix(tooling): widen the bookkeeping spellings (#532)\n"],
+        ])->state(self::STATUS);
+
+        self::assertNotNull($state);
+        self::assertSame('058ab8c', $state->pinnedSha);
+        self::assertTrue($state->pinIsAncestor);
+        self::assertSame(['fix(tooling): widen the bookkeeping spellings (#532)'], $state->subjects);
+        self::assertSame(['fix(tooling): widen the bookkeeping spellings (#532)'], $state->mergeSubjects);
+    }
+
+    public function testAMergeQueueLaneForAnotherBaseIsNotJudged(): void
+    {
+        // The queue prefix alone is not the recognition: the group must be
+        // queued against MAIN. A queue lane for any other base branch is a
+        // lane validating that base, not main.
+        $ref = 'refs/heads/gh-readonly-queue/develop/pr-1-0a1b2c3d';
+        putenv('GITHUB_BASE_REF=');
+        putenv('GITHUB_REF=' . $ref);
+
+        $checkedOut = "gh-readonly-queue/develop/pr-1-0a1b2c3d\n";
+
+        self::assertNull(
+            $this->collector(['rev-parse --abbrev-ref' => [0, $checkedOut]])->state(self::STATUS),
+        );
+    }
+
+    public function testAQueueRefThatOnlyAlmostNamesMainIsNotJudged(): void
+    {
+        // The base segment must be exactly `main/`: a ref whose segment
+        // merely starts with it (`mainly/`) is a different base, and treating
+        // it as main would judge lanes whose lineage the rule cannot see.
+        $ref = 'refs/heads/gh-readonly-queue/mainly/pr-1-0a1b2c3d';
+        putenv('GITHUB_BASE_REF=');
+        putenv('GITHUB_REF=' . $ref);
+
+        $checkedOut = "gh-readonly-queue/mainly/pr-1-0a1b2c3d\n";
+
+        self::assertNull(
+            $this->collector(['rev-parse --abbrev-ref' => [0, $checkedOut]])->state(self::STATUS),
+        );
+    }
+
+    public function testAFailingMergeLogFailsClosed(): void
+    {
+        putenv('GITHUB_REF=refs/heads/main');
+
+        $this->expectExceptionObject(new ToolingException(
+            'Roadmap pin freshness FAILED: git could not list the merge commits after'
+                . ' the pinned `058ab8c` (log exited 128).',
+        ));
+
+        $this->collector([
+            'merge-base --is-ancestor' => [0, ''],
+            'log --format=%s --merges' => [128, "fatal: bad object\n"],
+            'log --format=%s' => [0, "docs(roadmap): record the lane\n"],
+        ])->state(self::STATUS);
     }
 
     public function testAPinThatIsNotAnAncestorStopsBeforeTheLog(): void

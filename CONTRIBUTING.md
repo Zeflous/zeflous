@@ -244,6 +244,16 @@ both unreliable.
 
 An implementation is **not** complete until both documents reflect it.
 
+The `Last updated` pin is enforced **at the merge queue**, not only after the
+merge: the queue validates the combined group head with this same rule, and a
+merge commit the queue lands on `main` is accepted only when its trailing
+`(#<number>)` names a pull request that already carries a `ROADMAP-HISTORY.md`
+row in the tree being validated. A substantive pull request therefore carries
+its own record — the history row and the pin refresh ride **in the pull request
+itself** (or in a dance stacked on its branch) — and the queue refuses to merge
+one without it: the failure surfaces on the pull request's own queue entry,
+where it can be acted on, never as a red `main`.
+
 ### 14. Mandatory quality gates
 
 Every change **MUST** pass the full strict pipeline. The gates are:
@@ -529,14 +539,16 @@ implementation completes — see
 
 The `Last updated` pin of `ROADMAP-STATUS.md` is enforced, not merely asked
 for: on every lane that validates `main` (the scheduled main-validation
-watchdog and the post-push runs), the roadmap document gate requires the
+watchdog, the post-push runs, and the merge queue's group heads — the commit
+the queue is about to make `main`'s tip), the roadmap document gate requires the
 pinned commit to be an ancestor of the validated commit, and every commit
-between the pin and it to be changelog or roadmap bookkeeping (changelog
-regenerations, `docs(roadmap):` document commits, and the branch-update
-machinery's `main`-into-branch merges). Any other change
-that lands on `main` leaves the pin stale and the gate red until a pull
-request refreshes the pin — which is why each implementation campaign ends
-with its pin pull request.
+between the pin and it to be changelog bookkeeping, roadmap bookkeeping, or
+the recorded landing of a pull request (a merge commit whose trailing
+`(#<number>)` carries a `ROADMAP-HISTORY.md` row in the tree under
+validation — see rule 13). Any other change that lands on `main` leaves the
+pin stale and the gate red — which is why each implementation campaign ends
+with its pin pull request, and why the queue turns that ordering around: the
+record rides in the pull request, before the merge.
 
 Update both whenever a roadmap area gains code — see the "How to update this
 file" section at the bottom of each document.

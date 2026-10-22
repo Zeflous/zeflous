@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-22T18:16:05Z",
+  "as_of": "2026-10-22T20:06:53Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 240,
+  "unreleased_count": 242,
   "versions": [
     {
       "version": "Unreleased",
@@ -4475,6 +4475,107 @@
                 "subject": "fix(tooling): accept every observed update-merge spelling as bookkeeping"
               }
             ]
+          },
+          {
+            "pr": 542,
+            "title": "fix(tooling): judge the roadmap pin on the merge queue and accept recorded landings",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-22T20:06:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/542",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c0c9828d5984b18c371386a986642bff90d1ed9f",
+                "short_sha": "c0c9828",
+                "subject": "fix(tooling): judge the roadmap pin on the merge queue and accept recorded landings"
+              },
+              {
+                "sha": "3df80173f1da4134471cbd504f8342bac51d1ecc",
+                "short_sha": "3df8017",
+                "subject": "fix(ci): accept any completed coverage run in the Sonar bridge"
+              },
+              {
+                "sha": "27437586689b82b295b19c1ca949d42c90abbdb1",
+                "short_sha": "2743758",
+                "subject": "docs(roadmap): record the queue-freshness mechanism and pin the lane"
+              },
+              {
+                "sha": "00768ec8ead96506830d30e3c02c25f4cf1cd46a",
+                "short_sha": "00768ec",
+                "subject": "Merge branch 'main' into fix/roadmap-queue-freshness"
+              },
+              {
+                "sha": "85ec320d477489cea6ca832b31925e777610046f",
+                "short_sha": "85ec320",
+                "subject": "fix(tooling): keep the queue judgment under the difficulty ceiling and the return budget"
+              },
+              {
+                "sha": "a11e45efd3563e4547ed464edf09e3cf5d46ea46",
+                "short_sha": "a11e45e",
+                "subject": "docs(roadmap): point the queue-freshness pin at the review-round code commit"
+              },
+              {
+                "sha": "b3b5d60bc2429afcd36c5a7a8f9b3a2059f9a479",
+                "short_sha": "b3b5d60",
+                "subject": "fix(tooling): reflow the recorded-landing guard for the control-structure spacing standard"
+              },
+              {
+                "sha": "cbc1ccdb0903784edd892fb44f9f0b2f272b9652",
+                "short_sha": "cbc1ccd",
+                "subject": "docs(roadmap): point the queue-freshness pin at the spacing reflow"
+              },
+              {
+                "sha": "33baa9e17c30980da715ee1007d8b654f63a957d",
+                "short_sha": "33baa9e",
+                "subject": "docs(roadmap): give the pin its full seven-character spelling"
+              },
+              {
+                "sha": "51cbc4a479988fa366b2201e0cada1e0d4da3b83",
+                "short_sha": "51cbc4a",
+                "subject": "test(tooling): match the rector vocabulary of the recorded-merge anchors"
+              },
+              {
+                "sha": "f2c87281ea2a276d039cbf6d92a61002944d1c4e",
+                "short_sha": "f2c8728",
+                "subject": "docs(roadmap): point the queue-freshness pin at the rector vocabulary round"
+              },
+              {
+                "sha": "9666ce00674d240c23d47e8f721fe3dbb15d761c",
+                "short_sha": "9666ce0",
+                "subject": "fix(tooling): cast the recorded-number probe to the ledger's integer keys"
+              },
+              {
+                "sha": "ca5acafb01630ab48560e905ee21ff7f4c7355e0",
+                "short_sha": "ca5acaf",
+                "subject": "docs(roadmap): point the queue-freshness pin at the psalm integer-key round"
+              },
+              {
+                "sha": "7096f779acdcd819f1eedda9d5554c4dfcb1504e",
+                "short_sha": "7096f77",
+                "subject": "test(tooling): keep judging past a recorded landing and scope the ledger-cast equivalence"
+              },
+              {
+                "sha": "ce61f8e0025cac29403eb620ea0913ee1fdc02a1",
+                "short_sha": "ce61f8e",
+                "subject": "docs(roadmap): point the queue-freshness pin at the mutation close-out"
+              },
+              {
+                "sha": "b511578f53f4cca4851e9b06b0d56327948209e5",
+                "short_sha": "b511578",
+                "subject": "Merge branch 'main' into fix/roadmap-queue-freshness"
+              },
+              {
+                "sha": "08f30df324963b3099b7fbdd670c96a88c971734",
+                "short_sha": "08f30df",
+                "subject": "docs(roadmap): heal the status pin over the router deprecation landing"
+              },
+              {
+                "sha": "2780e43bd31261d5be153d22b9900d556c833998",
+                "short_sha": "2780e43",
+                "subject": "Merge branch 'main' into fix/roadmap-queue-freshness"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -7269,6 +7370,22 @@
                 "sha": "5764a9ce1bb63aa24b6d30f134ec0e452d4df3a3",
                 "short_sha": "5764a9c",
                 "subject": "docs(roadmap): heal the status pin over the contributing integration rule"
+              }
+            ]
+          },
+          {
+            "pr": 544,
+            "title": "docs(roadmap): record the router deprecation lifecycle and pin the lane\n",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-22T19:18:08Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/544",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f038c6e0e61bfb76fa56d117e58d97b80f46ed5a",
+                "short_sha": "f038c6e",
+                "subject": "docs(roadmap): record the router deprecation lifecycle and pin the lane"
               }
             ]
           }
@@ -14863,6 +14980,123 @@
               "sha": "5764a9ce1bb63aa24b6d30f134ec0e452d4df3a3",
               "short_sha": "5764a9c",
               "subject": "docs(roadmap): heal the status pin over the contributing integration rule"
+            }
+          ]
+        },
+        {
+          "pr": 542,
+          "title": "fix(tooling): judge the roadmap pin on the merge queue and accept recorded landings",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-22T20:06:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/542",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c0c9828d5984b18c371386a986642bff90d1ed9f",
+              "short_sha": "c0c9828",
+              "subject": "fix(tooling): judge the roadmap pin on the merge queue and accept recorded landings"
+            },
+            {
+              "sha": "3df80173f1da4134471cbd504f8342bac51d1ecc",
+              "short_sha": "3df8017",
+              "subject": "fix(ci): accept any completed coverage run in the Sonar bridge"
+            },
+            {
+              "sha": "27437586689b82b295b19c1ca949d42c90abbdb1",
+              "short_sha": "2743758",
+              "subject": "docs(roadmap): record the queue-freshness mechanism and pin the lane"
+            },
+            {
+              "sha": "00768ec8ead96506830d30e3c02c25f4cf1cd46a",
+              "short_sha": "00768ec",
+              "subject": "Merge branch 'main' into fix/roadmap-queue-freshness"
+            },
+            {
+              "sha": "85ec320d477489cea6ca832b31925e777610046f",
+              "short_sha": "85ec320",
+              "subject": "fix(tooling): keep the queue judgment under the difficulty ceiling and the return budget"
+            },
+            {
+              "sha": "a11e45efd3563e4547ed464edf09e3cf5d46ea46",
+              "short_sha": "a11e45e",
+              "subject": "docs(roadmap): point the queue-freshness pin at the review-round code commit"
+            },
+            {
+              "sha": "b3b5d60bc2429afcd36c5a7a8f9b3a2059f9a479",
+              "short_sha": "b3b5d60",
+              "subject": "fix(tooling): reflow the recorded-landing guard for the control-structure spacing standard"
+            },
+            {
+              "sha": "cbc1ccdb0903784edd892fb44f9f0b2f272b9652",
+              "short_sha": "cbc1ccd",
+              "subject": "docs(roadmap): point the queue-freshness pin at the spacing reflow"
+            },
+            {
+              "sha": "33baa9e17c30980da715ee1007d8b654f63a957d",
+              "short_sha": "33baa9e",
+              "subject": "docs(roadmap): give the pin its full seven-character spelling"
+            },
+            {
+              "sha": "51cbc4a479988fa366b2201e0cada1e0d4da3b83",
+              "short_sha": "51cbc4a",
+              "subject": "test(tooling): match the rector vocabulary of the recorded-merge anchors"
+            },
+            {
+              "sha": "f2c87281ea2a276d039cbf6d92a61002944d1c4e",
+              "short_sha": "f2c8728",
+              "subject": "docs(roadmap): point the queue-freshness pin at the rector vocabulary round"
+            },
+            {
+              "sha": "9666ce00674d240c23d47e8f721fe3dbb15d761c",
+              "short_sha": "9666ce0",
+              "subject": "fix(tooling): cast the recorded-number probe to the ledger's integer keys"
+            },
+            {
+              "sha": "ca5acafb01630ab48560e905ee21ff7f4c7355e0",
+              "short_sha": "ca5acaf",
+              "subject": "docs(roadmap): point the queue-freshness pin at the psalm integer-key round"
+            },
+            {
+              "sha": "7096f779acdcd819f1eedda9d5554c4dfcb1504e",
+              "short_sha": "7096f77",
+              "subject": "test(tooling): keep judging past a recorded landing and scope the ledger-cast equivalence"
+            },
+            {
+              "sha": "ce61f8e0025cac29403eb620ea0913ee1fdc02a1",
+              "short_sha": "ce61f8e",
+              "subject": "docs(roadmap): point the queue-freshness pin at the mutation close-out"
+            },
+            {
+              "sha": "b511578f53f4cca4851e9b06b0d56327948209e5",
+              "short_sha": "b511578",
+              "subject": "Merge branch 'main' into fix/roadmap-queue-freshness"
+            },
+            {
+              "sha": "08f30df324963b3099b7fbdd670c96a88c971734",
+              "short_sha": "08f30df",
+              "subject": "docs(roadmap): heal the status pin over the router deprecation landing"
+            },
+            {
+              "sha": "2780e43bd31261d5be153d22b9900d556c833998",
+              "short_sha": "2780e43",
+              "subject": "Merge branch 'main' into fix/roadmap-queue-freshness"
+            }
+          ]
+        },
+        {
+          "pr": 544,
+          "title": "docs(roadmap): record the router deprecation lifecycle and pin the lane\n",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-22T19:18:08Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/544",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f038c6e0e61bfb76fa56d117e58d97b80f46ed5a",
+              "short_sha": "f038c6e",
+              "subject": "docs(roadmap): record the router deprecation lifecycle and pin the lane"
             }
           ]
         }

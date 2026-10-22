@@ -147,6 +147,63 @@ final class RoadmapDocGateTest extends TestCase
         self::assertTrue($gateResult->passed);
     }
 
+    public function testARecordedLandingKeepsTheGateGreenOnMain(): void
+    {
+        // The queue-era contract end to end: the history document carries the
+        // pull request's row, the walk's only non-pattern subject is the merge
+        // machinery's landing commit stamped "(#532)", and the gate accepts
+        // the landing as accounted for -- the pin the pull request itself
+        // refreshed stays fresh across its own landing.
+        $history = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| fix(tooling): widen the bookkeeping spellings | #532 | 2026-10-22 | `d873d71` |\n";
+        $landing = 'fix(tooling): accept every observed update-merge spelling as bookkeeping (#532)';
+
+        $gateResult = new RoadmapDocGate()->evaluate(
+            new RoadmapDocReport(['ROADMAP-HISTORY.md' => $history]),
+            new RoadmapPinState('1d27b6c', true, [$landing], [$landing]),
+        );
+
+        self::assertTrue($gateResult->passed);
+        self::assertSame(
+            'Roadmap document gate PASSED: 1 document(s) audited (pin freshness verified on main).',
+            $gateResult->message,
+        );
+    }
+
+    public function testAnUnrecordedLandingFailsTheGateOnMain(): void
+    {
+        // The same landing with no row for its number in the history document
+        // under validation: an unaccounted substantive change, refused.
+        $history = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| fix(tooling): an older lane | #525 | 2026-10-22 | `f40faec` |\n";
+        $landing = 'docs(contributing): require error-system and configuration-system integration (#537)';
+
+        $gateResult = new RoadmapDocGate()->evaluate(
+            new RoadmapDocReport(['ROADMAP-HISTORY.md' => $history]),
+            new RoadmapPinState('6f8fecf', true, [$landing], [$landing]),
+        );
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('1 commit(s) landed on main', $gateResult->message);
+    }
+
+    public function testTheLedgerIsReadFromTheHistoryDocumentAlone(): void
+    {
+        // A row carried by any OTHER document is not the ledger: the
+        // acceptance reads `ROADMAP-HISTORY.md` only, so the same landing
+        // under a row misplaced into a status-like document stays refused.
+        $misplaced = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| fix(tooling): widen the bookkeeping spellings | #532 | 2026-10-22 | `d873d71` |\n";
+        $landing = 'fix(tooling): accept every observed update-merge spelling as bookkeeping (#532)';
+
+        $gateResult = new RoadmapDocGate()->evaluate(
+            new RoadmapDocReport(['ROADMAP-STATUS.md' => $misplaced]),
+            new RoadmapPinState('1d27b6c', true, [$landing], [$landing]),
+        );
+
+        self::assertFalse($gateResult->passed);
+    }
+
     public function testAuditsEveryDocumentInTheReport(): void
     {
         $roadmapDocReport = new RoadmapDocReport([

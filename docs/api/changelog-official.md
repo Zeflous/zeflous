@@ -6,6 +6,9 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): record the router deprecation lifecycle and pin the lane
+ [\#544](https://github.com/Zeflous/zeflous/pull/544) ([mbetixz](https://github.com/mbetixz))
+- fix\(tooling\): judge the roadmap pin on the merge queue and accept recorded landings [\#542](https://github.com/Zeflous/zeflous/pull/542) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): heal the status pin over the contributing integration rule [\#541](https://github.com/Zeflous/zeflous/pull/541) ([mbetixz](https://github.com/mbetixz))
 - feat\(router\): answer deprecated routes with the standard lifecycle headers [\#540](https://github.com/Zeflous/zeflous/pull/540) ([mbetixz](https://github.com/mbetixz))
 - docs\(contributing\): require error-system and configuration-system integration [\#537](https://github.com/Zeflous/zeflous/pull/537) ([mbetixz](https://github.com/mbetixz))
