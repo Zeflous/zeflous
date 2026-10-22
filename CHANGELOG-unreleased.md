@@ -123,6 +123,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(errors): harden the failure visibility, log bounds and CLI display [#508](https://github.com/Zeflous/zeflous/pull/508) ([mbetixz](https://github.com/mbetixz))
 - fix: land the edge-case audit remediation batch [#518](https://github.com/Zeflous/zeflous/pull/518) ([mbetixz](https://github.com/mbetixz))
 - fix(tooling): accept every observed update-merge spelling as bookkeeping [#532](https://github.com/Zeflous/zeflous/pull/532) ([mbetixz](https://github.com/mbetixz))
+- fix(tooling): judge the roadmap pin on the merge queue and accept recorded landings [#542](https://github.com/Zeflous/zeflous/pull/542) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
