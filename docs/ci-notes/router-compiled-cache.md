@@ -83,6 +83,34 @@ stable integration seams from the Router facade") applied to the cache.
 The engine's only other touch is `RadixNode::staticChildren()`, a pure
 read accessor for the export walk.
 
+## Maintenance pass: the gate-settling redistribution
+
+The first cut landed the whole cache as one 533-line `RouteTreeCache`
+class; the architecture gate (`PhpCodeArcheology`, difficulty threshold
+20) refused it at difficulty 42.27 / cyclomatic 36 — the operand
+repetition of fourteen corruption messages sharing one `$file` vocabulary
+is exactly what Halstead difficulty measures. The settle follows the
+repo's established fold discipline (the #512 redistribution): the class
+became the boot pipeline's public facade over four single-question folds,
+with the public API byte-identical and every message unchanged —
+
+- `RouteTreeCacheExport` (difficulty 4) — the dump side: the artifact's
+  content and the node export, and the signature computation (the fold
+  writes the signature into the artifact, so the revision identity is
+  its vocabulary; the facade's `signatureOf()` delegates here, which
+  also keeps the dependency one-directional — the first cut's
+  facade↔export cycle was the gate's second refusal);
+- `RouteTreeCacheArtifact` (difficulty 13) — the file-level read: is the
+  artifact the cache's format, and what does it carry;
+- `RouteTreeCacheNodeFields` (difficulty 14) — the node-format
+  narrowing: is this exported value one of the cache's compiled nodes;
+- `RouteTreeCacheHydration` (difficulty 12) — the replay: the registry
+  re-run and the recursive graph rebuild through `RadixNode`'s own
+  builder mutators.
+
+Each fold carries its own `$file` for its own messages, so the operand
+repetition that sank the monolith never accumulates in one class again.
+
 ## Measurements
 
 `RouteTreeCacheBench` (15/300 numbered-section routes, the

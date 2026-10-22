@@ -13,12 +13,20 @@ use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RadixNode;
 use Zef\Framework\Config\Routing\RadixTree;
 use Zef\Framework\Config\Routing\RouteTreeCache;
+use Zef\Framework\Config\Routing\RouteTreeCacheArtifact;
+use Zef\Framework\Config\Routing\RouteTreeCacheExport;
+use Zef\Framework\Config\Routing\RouteTreeCacheHydration;
+use Zef\Framework\Config\Routing\RouteTreeCacheNodeFields;
 use Zef\Framework\Config\Routing\RouteUrlGenerator;
 
 /**
  * @internal
  */
 #[CoversClass(RouteTreeCache::class)]
+#[CoversClass(RouteTreeCacheArtifact::class)]
+#[CoversClass(RouteTreeCacheExport::class)]
+#[CoversClass(RouteTreeCacheHydration::class)]
+#[CoversClass(RouteTreeCacheNodeFields::class)]
 #[CoversClass(RadixNode::class)]
 final class RouteTreeCacheTest extends TestCase
 {
