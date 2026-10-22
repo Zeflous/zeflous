@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-22T03:08:48Z",
+  "as_of": "2026-10-22T05:35:49Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 230,
+  "unreleased_count": 232,
   "versions": [
     {
       "version": "Unreleased",
@@ -3024,6 +3024,32 @@
                 "sha": "d6c6f495ddb74ee46c12317e2e93045137fad5b3",
                 "short_sha": "d6c6f49",
                 "subject": "style(bench): spell the build directory permissions as 0o755"
+              }
+            ]
+          },
+          {
+            "pr": 528,
+            "title": "feat(router): match whole-label wildcard host patterns",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-22T04:47:55Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/528",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1f78d5b44f2aa1b51dab418f00dad047384b646e",
+                "short_sha": "1f78d5b",
+                "subject": "feat(router): match whole-label wildcard host patterns"
+              },
+              {
+                "sha": "9bed2b83454afa64009e269874f736803dc8dd0f",
+                "short_sha": "9bed2b8",
+                "subject": "fix(router): fold the request-host guards under the return budget"
+              },
+              {
+                "sha": "7063cfbc13d6c2c5286515b56ea0de5e3c57d53c",
+                "short_sha": "7063cfb",
+                "subject": "Merge remote-tracking branch 'origin/main' into feat/router-host-wildcard"
               }
             ]
           }
@@ -6979,6 +7005,22 @@
                 "sha": "1e437aca0073fd9cfb03938bbd1b0b09c9eabec4",
                 "short_sha": "1e437ac",
                 "subject": "docs(roadmap): record the edge-case audit remediation batch and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 529,
+            "title": "docs(roadmap): record the wildcard host grammar and pin the lane",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-22T05:35:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/529",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ac21fcec04289fc263b9848289f6020ab779aa92",
+                "short_sha": "ac21fce",
+                "subject": "docs(roadmap): record the wildcard host grammar and pin the lane"
               }
             ]
           }
@@ -14283,6 +14325,48 @@
               "sha": "1e437aca0073fd9cfb03938bbd1b0b09c9eabec4",
               "short_sha": "1e437ac",
               "subject": "docs(roadmap): record the edge-case audit remediation batch and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 528,
+          "title": "feat(router): match whole-label wildcard host patterns",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-22T04:47:55Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/528",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1f78d5b44f2aa1b51dab418f00dad047384b646e",
+              "short_sha": "1f78d5b",
+              "subject": "feat(router): match whole-label wildcard host patterns"
+            },
+            {
+              "sha": "9bed2b83454afa64009e269874f736803dc8dd0f",
+              "short_sha": "9bed2b8",
+              "subject": "fix(router): fold the request-host guards under the return budget"
+            },
+            {
+              "sha": "7063cfbc13d6c2c5286515b56ea0de5e3c57d53c",
+              "short_sha": "7063cfb",
+              "subject": "Merge remote-tracking branch 'origin/main' into feat/router-host-wildcard"
+            }
+          ]
+        },
+        {
+          "pr": 529,
+          "title": "docs(roadmap): record the wildcard host grammar and pin the lane",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-22T05:35:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/529",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ac21fcec04289fc263b9848289f6020ab779aa92",
+              "short_sha": "ac21fce",
+              "subject": "docs(roadmap): record the wildcard host grammar and pin the lane"
             }
           ]
         }
