@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Config\Routing;
 
+use DateTimeImmutable;
 use Override;
 use ParseError;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -188,6 +189,51 @@ final class RouteTreeCacheTest extends TestCase
         self::assertSame(['auth.middleware', 'audit.middleware'], $secure->middleware());
         self::assertSame(['tier' => 'gold', 'tags' => ['a', 'b']], $secure->meta());
         self::assertSame('application/json', $routeTreeCache->load()->route('report')->produces()[0]);
+    }
+
+    public function testADeprecationDeclarationRoundTripsThroughTheCache(): void
+    {
+        // The cache carries the raw route table and recompiles it through
+        // the same fail-closed net on load, so a deprecation declaration
+        // survives the round trip with its canonicalised members intact
+        // -- the artifact never needs to know the field exists.
+        $routes = [
+            [
+                'path' => '/legacy',
+                'method' => ['GET'],
+                'handler' => 'Legacy@show',
+                'deprecation' => [
+                    'date' => '2023-06-30T23:59:59Z',
+                    'sunset' => '2024-06-30T00:00:00Z',
+                    'link' => 'https://example.com/deprecations/legacy',
+                ],
+            ],
+        ];
+
+        $routeTreeCache = new RouteTreeCache($this->file);
+        $routeTreeCache->dump($routes);
+
+        $deprecation = $routeTreeCache->load()->match('GET', '/legacy')->route()->deprecation();
+        self::assertNotNull($deprecation);
+
+        self::assertSame(1688169599, $deprecation['date']);
+        self::assertSame(
+            new DateTimeImmutable('2024-06-30T00:00:00+00:00')->getTimestamp(),
+            $deprecation['sunset'],
+        );
+        self::assertSame('https://example.com/deprecations/legacy', $deprecation['link']);
+    }
+
+    public function testAnUndeprecatedRouteRoundTripsToANullDeprecation(): void
+    {
+        $routes = [
+            ['path' => '/health', 'method' => ['GET'], 'handler' => 'Health@check'],
+        ];
+
+        $routeTreeCache = new RouteTreeCache($this->file);
+        $routeTreeCache->dump($routes);
+
+        self::assertNull($routeTreeCache->load()->match('GET', '/health')->route()->deprecation());
     }
 
     public function testTheEmptyTableRoundTrips(): void

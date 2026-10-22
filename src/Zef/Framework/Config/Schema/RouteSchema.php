@@ -13,7 +13,7 @@ use Zef\Framework\Config\ConfigException;
  * "bahasa induk" every DSL output compiles down to before the Radix Tree
  * engine consumes it).
  *
- * The ten fields and their rules:
+ * The eleven fields and their rules:
  *
  * - `path` (required, non-empty string) -- the URL pattern, e.g.
  *   `/users/{id}`.
@@ -35,13 +35,19 @@ use Zef\Framework\Config\ConfigException;
  *   parameter rules, e.g. `['id' => '[0-9]+']`.
  * - `meta` (optional, non-empty map) -- free-form metadata (API version,
  *   tenant, locale); the values are intentionally untyped, the shape is not.
+ * - `deprecation` (optional, non-empty map) -- the route's deprecation
+ *   declaration (RFC 9745 `Deprecation` date, RFC 8594 `Sunset` date, the
+ *   deprecation documentation link) every response from the route answers
+ *   with; the members' grammar is the routing compiler's judgement
+ *   ({@see \Zef\Framework\Config\Routing\RouteDeprecation}), exactly like
+ *   host-pattern semantics are.
  *
  * The schema validates *shape*, not HTTP semantics: a lower-case method or a
  * path without a leading slash still passes, because those are policy
  * decisions the engine layer owns. Host-pattern semantics are validated by
  * the routing compiler. Validation is fail-closed (KDD-5): an
  * invalid route is reported with its full path context, never silently
- * dropped, and a key outside the ten fields is a violation so a typo
+ * dropped, and a key outside the eleven fields is a violation so a typo
  * cannot produce a route that half-exists.
  *
  * The class is a thin definition over the generic {@see ConfigSchema}
@@ -68,6 +74,7 @@ final readonly class RouteSchema
         'middleware' => ['required' => false, 'kind' => 'strings'],
         'constraints' => ['required' => false, 'kind' => 'string-map'],
         'meta' => ['required' => false, 'kind' => 'values'],
+        'deprecation' => ['required' => false, 'kind' => 'values'],
     ];
 
     private ConfigSchema $configSchema;

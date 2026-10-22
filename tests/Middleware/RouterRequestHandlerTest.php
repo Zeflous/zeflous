@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Middleware;
 
+use DateTimeImmutable;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -21,11 +22,13 @@ use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Exception\MethodNotAllowedException;
 use Zef\Framework\Exception\NotAcceptableException;
 use Zef\Framework\Exception\NotFoundException;
+use Zef\Framework\Http\HttpDate;
 use Zef\Framework\Http\Psr17Factory;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\ConditionalRequests;
+use Zef\Framework\Middleware\DeprecationLinkHeader;
 use Zef\Framework\Middleware\EntityTagMatch;
 use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Middleware\LastModifiedMatch;
@@ -33,6 +36,7 @@ use Zef\Framework\Middleware\MiddlewareException;
 use Zef\Framework\Middleware\MiddlewarePipeline;
 use Zef\Framework\Middleware\NotModifiedResponse;
 use Zef\Framework\Middleware\RequestAuthority;
+use Zef\Framework\Middleware\RouteDeprecationHeaders;
 use Zef\Framework\Middleware\RouteDispatchHandler;
 use Zef\Framework\Middleware\RouterRequestHandler;
 use Zef\Framework\Middleware\RouterRequestMatcher;
@@ -44,12 +48,15 @@ use Zef\Test\Support\Log\RecordingLogger;
  * @internal
  */
 #[CoversClass(ConditionalRequests::class)]
+#[CoversClass(DeprecationLinkHeader::class)]
 #[CoversClass(DispatchOutcome::class)]
 #[CoversClass(EntityTagMatch::class)]
 #[CoversClass(LastModifiedMatch::class)]
+#[CoversClass(HttpDate::class)]
 #[CoversClass(MatchResult::class)]
 #[CoversClass(NotModifiedResponse::class)]
 #[CoversClass(RequestAuthority::class)]
+#[CoversClass(RouteDeprecationHeaders::class)]
 #[CoversClass(RouteDispatcher::class)]
 #[CoversClass(RouterRequestHandler::class)]
 #[CoversClass(RouterRequestMatcher::class)]
@@ -844,6 +851,297 @@ final class RouterRequestHandlerTest extends TestCase
         ;
 
         self::assertSame('Accept', $response->getHeaderLine('Vary'));
+    }
+
+    public function testADeprecatedRouteAnswersTheRfc9745Posture(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => [
+                    'date' => '2023-06-30T23:59:59Z',
+                    'sunset' => '2024-06-30T00:00:00Z',
+                    'link' => 'https://example.com/deprecations/profile',
+                ],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('@1688169599', $response->getHeaderLine('Deprecation'));
+        self::assertSame('Sun, 30 Jun 2024 00:00:00 GMT', $response->getHeaderLine('Sunset'));
+        self::assertSame(
+            '<https://example.com/deprecations/profile>; rel="deprecation"',
+            $response->getHeaderLine('Link'),
+        );
+    }
+
+    public function testADateOnlyDeprecationAnswersNoSunsetAndNoLink(): void
+    {
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => ['date' => '2024-06-30'],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame(
+            '@' . new DateTimeImmutable('2024-06-30T00:00:00+00:00')->getTimestamp(),
+            $response->getHeaderLine('Deprecation'),
+        );
+        self::assertSame('', $response->getHeaderLine('Sunset'));
+        self::assertSame('', $response->getHeaderLine('Link'));
+    }
+
+    public function testTheHandlersOwnDeprecationAnswerWinsOverTheDeclaration(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'Deprecation' => '@1700000000'],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => ['date' => '2023-06-30T23:59:59Z'],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame('@1700000000', $response->getHeaderLine('Deprecation'));
+        self::assertSame('', $response->getHeaderLine('Sunset'));
+    }
+
+    public function testTheHandlersOwnSunsetAnswerWinsOverTheDeclaration(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'Sunset' => 'Wed, 01 Jan 2025 00:00:00 GMT'],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => [
+                    'date' => '2023-06-30T23:59:59Z',
+                    'sunset' => '2024-06-30T00:00:00Z',
+                ],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame('@1688169599', $response->getHeaderLine('Deprecation'));
+        self::assertSame('Wed, 01 Jan 2025 00:00:00 GMT', $response->getHeaderLine('Sunset'));
+    }
+
+    public function testADeclaredLinkIsAddedBesideTheHandlersOwnLinks(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'Link' => '</profile>; rel="self"'],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => [
+                    'date' => '2023-06-30T23:59:59Z',
+                    'link' => 'https://example.com/deprecations/profile',
+                ],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame(
+            ['</profile>; rel="self"', '<https://example.com/deprecations/profile>; rel="deprecation"'],
+            $response->getHeader('Link'),
+        );
+    }
+
+    public function testTheSameDeprecationLinkIsNotDuplicated(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                [
+                    'Content-Type' => 'application/json',
+                    'Link' => '<https://example.com/deprecations/profile>; rel="deprecation"',
+                ],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => [
+                    'date' => '2023-06-30T23:59:59Z',
+                    'link' => 'https://example.com/deprecations/profile',
+                ],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame(
+            ['<https://example.com/deprecations/profile>; rel="deprecation"'],
+            $response->getHeader('Link'),
+        );
+    }
+
+    public function testTheSameDeprecationLinkIsNotDuplicatedAcrossUnicodeCase(): void
+    {
+        // The de-duplication folds both sides with the Unicode case map:
+        // the link's non-ASCII uppercase (E-acute) folds to its lowercase
+        // spelling, so the handler's own answer and the declaration's
+        // build of the same target match case-insensitively, and no
+        // second Link is appended. An ASCII-only fold would leave the
+        // accent uppercase on one side and answer a second header.
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                [
+                    'Content-Type' => 'application/json',
+                    'Link' => '</DÉPRECATIONS/legacy>; rel="deprecation"',
+                ],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => [
+                    'date' => '2023-06-30T23:59:59Z',
+                    'link' => '/DÉPRECATIONS/legacy',
+                ],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame(
+            ['</DÉPRECATIONS/legacy>; rel="deprecation"'],
+            $response->getHeader('Link'),
+        );
+    }
+
+    public function testADeprecatedRouteAnswersItsHeadersOnANotModifiedResponse(): void
+    {
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'ETag' => 'W/"profile-v1"'],
+                '{"name":"profile"}',
+            ),
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => [
+                    'date' => '2023-06-30T23:59:59Z',
+                    'sunset' => '2024-06-30T00:00:00Z',
+                    'link' => 'https://example.com/deprecations/profile',
+                ],
+            ],
+        ]);
+
+        $request = $this->request(
+            'GET',
+            'api.example.com',
+            'application/json',
+            extraHeaders: ['If-None-Match' => 'W/"profile-v1"'],
+        );
+        $response = $this->handler($router, $container)->handle($request);
+
+        self::assertSame(304, $response->getStatusCode());
+        self::assertSame('@1688169599', $response->getHeaderLine('Deprecation'));
+        self::assertSame('Sun, 30 Jun 2024 00:00:00 GMT', $response->getHeaderLine('Sunset'));
+        self::assertSame(
+            '<https://example.com/deprecations/profile>; rel="deprecation"',
+            $response->getHeaderLine('Link'),
+        );
+        self::assertSame('', $response->getBody()->getContents());
+    }
+
+    public function testARefusalFromADeprecatedRouteAnswersNoDeprecationHeaders(): void
+    {
+        // The deprecation posture belongs to the route's representation,
+        // not to its refusals: the boundary renders the typed refusal
+        // family's own RFC 9457 posture, and the error boundary is not
+        // the route's lifecycle billboard.
+        $container = self::containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => ['date' => '2023-06-30T23:59:59Z'],
+            ],
+        ]);
+
+        try {
+            $this->handler($router, $container)
+                ->handle($this->request('POST', 'api.example.com', 'application/json'))
+            ;
+            self::fail('A method refusal must raise the typed family.');
+        } catch (MethodNotAllowedException $methodNotAllowedException) {
+            self::assertSame(['GET'], $methodNotAllowedException->allowedMethods);
+        }
     }
 
     private function containerWithProfileHandler(): Container

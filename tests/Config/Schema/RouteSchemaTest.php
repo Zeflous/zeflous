@@ -386,6 +386,46 @@ final class RouteSchemaTest extends TestCase
         self::assertSame([], $this->render($violations));
     }
 
+    public function testAcceptsADeprecationDeclaration(): void
+    {
+        $violations = $this->schema()->validate([
+            'path' => '/legacy',
+            'method' => ['GET'],
+            'handler' => 'App\Controller\LegacyController@show',
+            'deprecation' => [
+                'date' => '2024-06-30',
+                'sunset' => '2025-06-30T12:00:00Z',
+                'link' => 'https://example.com/deprecations/legacy',
+            ],
+        ]);
+
+        self::assertSame([], $this->render($violations));
+    }
+
+    public function testReportsADeprecationThatIsAString(): void
+    {
+        $violations = $this->schema()->validate([
+            'path' => '/legacy',
+            'method' => ['GET'],
+            'handler' => 'App\Controller\LegacyController@show',
+            'deprecation' => '2024-06-30',
+        ]);
+
+        self::assertSame(['deprecation: expected a non-empty map, got string'], $this->render($violations));
+    }
+
+    public function testReportsAnEmptyDeprecationMap(): void
+    {
+        $violations = $this->schema()->validate([
+            'path' => '/legacy',
+            'method' => ['GET'],
+            'handler' => 'App\Controller\LegacyController@show',
+            'deprecation' => [],
+        ]);
+
+        self::assertSame(['deprecation: expected a non-empty map, got an empty array'], $this->render($violations));
+    }
+
     public function testReportsAnUnexpectedKeySoATypoCannotVanish(): void
     {
         $violations = $this->schema()->validate([
@@ -398,7 +438,7 @@ final class RouteSchemaTest extends TestCase
         self::assertSame(
             [
                 'metod: expected one of path, host, version, produces, method, handler, name, middleware, '
-                    . 'constraints, meta, '
+                    . 'constraints, meta, deprecation, '
                     . 'got an unexpected key',
             ],
             $this->render($violations),
@@ -419,7 +459,7 @@ final class RouteSchemaTest extends TestCase
                 'Configuration failed schema validation: '
                     . 'method: expected a non-empty list of non-empty strings, got missing; '
                     . 'metod: expected one of path, host, version, produces, method, handler, name, middleware, '
-                    . 'constraints, meta, '
+                    . 'constraints, meta, deprecation, '
                     . 'got an unexpected key.',
                 $configException->getMessage(),
             );

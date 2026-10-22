@@ -27,6 +27,24 @@ final class HttpDateTest extends TestCase
         self::assertSame(self::RFC_1123_TIMESTAMP, $date->getTimestamp());
     }
 
+    public function testRendersAnInstantInTheParsedGrammarSpelling(): void
+    {
+        // The render side answers the spelling the parse side accepts: the
+        // IMF-fixdate form with the GMT designator, so a rendered instant
+        // round-trips through parse back to the same instant.
+        self::assertSame(self::RFC_1123, HttpDate::render(self::RFC_1123_TIMESTAMP));
+    }
+
+    public function testARenderedInstantParsesBackToItself(): void
+    {
+        $rendered = HttpDate::render(1688169599);
+
+        $date = HttpDate::parse($rendered);
+
+        self::assertNotNull($date);
+        self::assertSame(1688169599, $date->getTimestamp());
+    }
+
     /**
      * Engine-verified deviation from the reference: the abbreviation
      * specifier already accepts full day names, so the reference's `l, ...`

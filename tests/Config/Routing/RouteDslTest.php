@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\PendingRoute;
 use Zef\Framework\Config\Routing\RouteDsl;
+use Zef\Framework\Config\Routing\RouteDslDeprecation;
 use Zef\Framework\Config\Routing\RouteDslFields;
 use Zef\Framework\Config\Routing\RouteDslMethods;
 use Zef\Framework\Config\Routing\RouteDslMiddleware;
@@ -21,6 +22,7 @@ use Zef\Framework\Config\Routing\RoutePrefix;
  * @internal
  */
 #[CoversClass(RouteDsl::class)]
+#[CoversClass(RouteDslDeprecation::class)]
 #[CoversClass(RouteDslMethods::class)]
 #[CoversClass(RouteDslScope::class)]
 #[CoversClass(RouteDslSnapshot::class)]
@@ -374,6 +376,132 @@ final class RouteDslTest extends TestCase
             ],
             $routes[0],
         );
+    }
+
+    public function testADeprecationDeclarationFreezesOnlyItsDeclaredMembers(): void
+    {
+        $routes = RouteDsl::define(static function (RouteDsl $routeDsl): void {
+            $routeDsl->get('/legacy', 'Legacy@show')
+                ->deprecated('2024-06-30')
+            ;
+        });
+
+        self::assertSame(
+            [
+                'path' => '/legacy',
+                'method' => ['GET'],
+                'handler' => 'Legacy@show',
+                'deprecation' => ['date' => '2024-06-30'],
+            ],
+            $routes[0],
+        );
+    }
+
+    public function testAFullDeprecationDeclarationFreezesEveryMember(): void
+    {
+        $routes = RouteDsl::define(static function (RouteDsl $routeDsl): void {
+            $routeDsl->get('/legacy', 'Legacy@show')
+                ->deprecated(
+                    date: '2024-06-30T12:00:00Z',
+                    sunset: '2025-06-30',
+                    link: 'https://example.com/deprecations/legacy',
+                )
+            ;
+        });
+
+        self::assertSame(
+            [
+                'path' => '/legacy',
+                'method' => ['GET'],
+                'handler' => 'Legacy@show',
+                'deprecation' => [
+                    'date' => '2024-06-30T12:00:00Z',
+                    'sunset' => '2025-06-30',
+                    'link' => 'https://example.com/deprecations/legacy',
+                ],
+            ],
+            $routes[0],
+        );
+    }
+
+    public function testASecondDeprecationDeclarationIsAnOverwriteInDisguise(): void
+    {
+        try {
+            RouteDsl::define(static function (RouteDsl $routeDsl): void {
+                $routeDsl->get('/legacy', 'Legacy@show')
+                    ->deprecated('2024-06-30')
+                    ->deprecated('2025-06-30')
+                ;
+            });
+            self::fail('A second deprecation declaration must be refused.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The route "/legacy" already declares its deprecation.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testABlankDeprecationDateIsRefusedOnTheDeclarationLine(): void
+    {
+        try {
+            RouteDsl::define(static function (RouteDsl $routeDsl): void {
+                $routeDsl->get('/legacy', 'Legacy@show')
+                    ->deprecated(" \t")
+                ;
+            });
+            self::fail('A blank deprecation date must be refused.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The route "/legacy" must not declare a blank deprecation "date".',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testABlankDeprecationSunsetIsRefusedOnTheDeclarationLine(): void
+    {
+        try {
+            RouteDsl::define(static function (RouteDsl $routeDsl): void {
+                $routeDsl->get('/legacy', 'Legacy@show')
+                    ->deprecated('2024-06-30', sunset: ' ')
+                ;
+            });
+            self::fail('A blank deprecation sunset must be refused.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The route "/legacy" must not declare a blank deprecation "sunset".',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testABlankDeprecationLinkIsRefusedOnTheDeclarationLine(): void
+    {
+        try {
+            RouteDsl::define(static function (RouteDsl $routeDsl): void {
+                $routeDsl->get('/legacy', 'Legacy@show')
+                    ->deprecated('2024-06-30', link: "\n")
+                ;
+            });
+            self::fail('A blank deprecation link must be refused.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The route "/legacy" must not declare a blank deprecation "link".',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testADeprecationValueIsTrimmedOnTheDeclarationLine(): void
+    {
+        $routes = RouteDsl::define(static function (RouteDsl $routeDsl): void {
+            $routeDsl->get('/legacy', 'Legacy@show')
+                ->deprecated(' 2024-06-30 ')
+            ;
+        });
+
+        self::assertSame(['date' => '2024-06-30'], $routes[0]['deprecation']);
     }
 
     public function testToArrayIsIdempotent(): void

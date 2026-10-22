@@ -35,6 +35,7 @@ final readonly class CompiledRoute
      *     name: ?non-empty-string,
      *     middleware: list<string>,
      *     meta: array<array-key, mixed>,
+     *     deprecation: null|array{date: int, sunset: null|int, link: null|non-empty-string},
      * } $fields
      */
     private function __construct(
@@ -58,7 +59,7 @@ final readonly class CompiledRoute
         return new self(
             $routePath,
             RouteConstraints::fromMap($entry['constraints'], $routePath),
-            RouteFields::fromEntry($entry, $host),
+            RouteFields::fromEntry($entry, $host, $routePath),
         );
     }
 
@@ -163,6 +164,20 @@ final readonly class CompiledRoute
     public function meta(): array
     {
         return $this->fields['meta'];
+    }
+
+    /**
+     * The route's canonicalised deprecation declaration, or null when the
+     * route is not deprecated: the RFC 9745 deprecation instant, the RFC
+     * 8594 sunset instant, and the deprecation documentation link the
+     * dispatch lane answers with
+     * ({@see \Zef\Framework\Middleware\RouteDeprecationHeaders}).
+     *
+     * @return null|array{date: int, sunset: null|int, link: null|non-empty-string}
+     */
+    public function deprecation(): ?array
+    {
+        return $this->fields['deprecation'];
     }
 
     /**

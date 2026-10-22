@@ -98,6 +98,25 @@ final readonly class PendingRoute
     }
 
     /**
+     * Declares the route's deprecation -- the RFC 9745 `Deprecation` date,
+     * the RFC 8594 `Sunset` date and the deprecation documentation link
+     * every response from the route answers with; a second declaration is
+     * an overwrite in disguise. The members' grammar is the compile-time
+     * judgement of {@see RouteDeprecation}, exactly like a `where`
+     * pattern's compilation.
+     *
+     * @param non-empty-string      $date   the deprecation date (calendar or full ISO-8601 form)
+     * @param null|non-empty-string $sunset the sunset date, strictly after the deprecation date
+     * @param null|non-empty-string $link   the deprecation documentation URI-reference
+     */
+    public function deprecated(string $date, ?string $sunset = null, ?string $link = null): self
+    {
+        $this->routeDslFields->deprecated($date, $sunset, $link, $this->routePath);
+
+        return $this;
+    }
+
+    /**
      * Freezes the declaration into a Standard Route Schema entry: the
      * three required fields always, the optional fields only when they
      * were declared, in the schema's own documentation order.
@@ -134,6 +153,12 @@ final readonly class PendingRoute
 
         if ($meta !== null) {
             $entry['meta'] = $meta;
+        }
+
+        $deprecation = $this->routeDslFields->declaredDeprecation();
+
+        if ($deprecation !== null) {
+            $entry['deprecation'] = $deprecation;
         }
 
         return $entry;

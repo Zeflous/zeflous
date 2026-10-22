@@ -31,6 +31,9 @@ final class RouteDslFields
     /** @var null|array<array-key, mixed> */
     private ?array $meta = null;
 
+    /** @var null|array{date: non-empty-string, sunset?: non-empty-string, link?: non-empty-string} */
+    private ?array $deprecation = null;
+
     /**
      * Declares the reverse-routing name; a second name is an ambiguous
      * declaration, not a rename.
@@ -104,6 +107,33 @@ final class RouteDslFields
     }
 
     /**
+     * Declares the route's deprecation -- the RFC 9745 `Deprecation` date,
+     * the RFC 8594 `Sunset` date and the deprecation documentation link
+     * every response from the route answers with; a second declaration is
+     * an overwrite in disguise. The members' grammar (the date forms, the
+     * sunset-after-deprecation ordering, the link's renderable bytes) is
+     * judged by {@see RouteDeprecation} at compile time, exactly like a
+     * `where` pattern's own compilation is the engine's judgement: the
+     * declaration line owns presence, not semantics.
+     *
+     * @param non-empty-string      $date   the deprecation date (calendar or full ISO-8601 form)
+     * @param null|non-empty-string $sunset the sunset date, strictly after the deprecation date
+     * @param null|non-empty-string $link   the deprecation documentation URI-reference
+     */
+    public function deprecated(string $date, ?string $sunset, ?string $link, RoutePath $routePath): void
+    {
+        $declaration = RouteDslDeprecation::declared($date, $sunset, $link, $routePath);
+
+        if ($this->deprecation !== null) {
+            throw new ConfigException(
+                \sprintf('The route "%s" already declares its deprecation.', $routePath->pattern()),
+            );
+        }
+
+        $this->deprecation = $declaration;
+    }
+
+    /**
      * The declared name, or null when the route is unnamed.
      */
     public function declaredName(): ?string
@@ -129,5 +159,15 @@ final class RouteDslFields
     public function declaredMeta(): ?array
     {
         return $this->meta;
+    }
+
+    /**
+     * The declared deprecation map, or null when none was declared.
+     *
+     * @return null|array{date: non-empty-string, sunset?: non-empty-string, link?: non-empty-string}
+     */
+    public function declaredDeprecation(): ?array
+    {
+        return $this->deprecation;
     }
 }
