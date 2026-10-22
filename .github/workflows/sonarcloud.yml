@@ -300,24 +300,19 @@ jobs:
       # duplicated dependency download (the site of the transient
       # `codeload.github.com` HTTP/2 429 rate-limit failure, run 37721082020).
       - name: Wait for the CI Coverage lane and fetch its coverage artifact (bridge)
-        # Runs on EVERY event (push to main, pull requests, merge groups,
-        # manual dispatch): the CI Coverage lane publishes the report for this
-        # commit, so the quality gate's coverage-on-new-code condition is
-        # computed on real PHPUnit data without installing a single dependency
-        # in this job.
+        # Runs on EVERY credentialed event. The required SonarCloud check must
+        # never certify a scan without the coverage evidence its quality gate
+        # expects: a missing/failed lane, missing artifact, failed download, or
+        # invalid Clover report is a hard failure, never a global exclusion.
         if: steps.sonar_guard.outputs.available == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -uo pipefail
-          # Resolve the commit whose run published the artifact. On a
-          # `pull_request` event GITHUB_SHA is the ephemeral merge commit of
-          # refs/pull/N/merge -- workflow runs are reported by the PR HEAD sha,
-          # so read it from the event payload (the authoritative source). Manual
-          # dispatches look up the head of this ref through the API. On a
-          # `merge_group` event GITHUB_SHA is already the merge group's head
-          # sha, which is exactly where the CI Coverage lane's run (and its
-          # artifact) is reported, so no resolution is needed.
+
+          # Resolve the commit whose CI Coverage run publishes the artifact.
+          # pull_request workflows are reported on the PR HEAD; merge_group
+          # already uses the combined queue head. Manual runs resolve the ref.
           sha="${GITHUB_SHA}"
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
             pr_head=$(jq -r '.pull_request.head.sha // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null || true)
@@ -332,12 +327,12 @@ jobs:
           fi
           echo "Bridging coverage for reported head sha ${sha:0:8} (event: ${GITHUB_EVENT_NAME})."
 
-          # Bound the wait by the CI Coverage lane's own timeout (20 minutes in
-          # .github/workflows/ci-coverage.yml); beyond it the lane has failed on
-          # its own terms and this gate must not hold the check open.
+          # CI Coverage has a 20-minute timeout. Wait only within that bound;
+          # failure to observe a successful completed run is missing evidence.
           deadline=$(( $(date +%s) + 20 * 60 ))
           run_id=""
-          findings="[]"
+          status="missing"
+          conclusion=""
           while [ "$(date +%s)" -lt "${deadline}" ]; do
             run_id=$(curl -fsSL \
               -H "Authorization: Bearer ${GH_TOKEN}" \
@@ -345,54 +340,70 @@ jobs:
               "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci-coverage.yml/runs?head_sha=${sha}&per_page=1" \
               | jq -r '.workflow_runs[0].id // empty' 2>/dev/null) || run_id=""
             if [ -n "${run_id}" ]; then
-              status=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" \
-                | jq -r '.status // "unknown"' 2>/dev/null) || status="unknown"
+              run_json=$(curl -fsSL \
+                -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" 2>/dev/null) || run_json=""
+              status=$(printf '%s' "${run_json}" | jq -r '.status // "unknown"' 2>/dev/null) || status="unknown"
+              conclusion=$(printf '%s' "${run_json}" | jq -r '.conclusion // empty' 2>/dev/null) || conclusion=""
               if [ "${status}" = "completed" ]; then break; fi
               echo "CI Coverage run ${run_id} for ${sha:0:8}: ${status}; polling again in 20s..."
             fi
             sleep 20
           done
 
-          if [ -n "${run_id}" ]; then
-            findings=$(curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts" \
-              | jq -c '[.artifacts[] | select(.name == "coverage-reports" and .expired == false)]' 2>/dev/null) || findings="[]"
+          if [ -z "${run_id}" ] || [ "${status}" != "completed" ]; then
+            echo "::error::CI Coverage did not complete successfully within 20 minutes for ${sha:0:8}; refusing to run SonarCloud without coverage evidence."
+            exit 1
+          fi
+          if [ "${conclusion}" != "success" ]; then
+            echo "::error::CI Coverage run ${run_id} concluded '${conclusion:-unknown}' for ${sha:0:8}; refusing to run SonarCloud without successful coverage evidence."
+            exit 1
           fi
 
-          verdict="fallback"
-          args="-Dsonar.coverage.exclusions=**/*"
-          ready=false
-          if [ "${findings}" != "[]" ] && [ -n "${findings}" ]; then
-            rm -rf build && mkdir -p build
-            if curl -fsSL -H "Authorization: Bearer ${GH_TOKEN}" -o build/coverage-reports.zip \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/$(printf '%s' "${findings}" | jq -r '.[0].id')/zip"; then
-              unzip -o -q build/coverage-reports.zip -d build
-            fi
-            if [ -s build/clover.xml ] && grep -q '<coverage' build/clover.xml 2>/dev/null; then
-              ready=true
-              args="-Dsonar.php.coverage.reportPaths=build/clover.xml"
-              [ -s build/junit.xml ] && args="${args} -Dsonar.php.tests.reportPaths=build/junit.xml"
-              verdict="bridged"
-            fi
+          findings=$(curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts" \
+            | jq -c '[.artifacts[] | select(.name == "coverage-reports" and .expired == false)]' 2>/dev/null) || findings="[]"
+          if [ "${findings}" = "[]" ] || [ -z "${findings}" ]; then
+            echo "::error::CI Coverage run ${run_id} succeeded but has no unexpired coverage-reports artifact; refusing to bypass SonarCloud coverage."
+            exit 1
           fi
 
-          if [ "${ready}" != "true" ]; then
-            echo "::notice::No coverage-reports artifact was available for ${sha:0:8} within 20 minutes -- coverage excluded for this run."
+          artifact_id=$(printf '%s' "${findings}" | jq -r '.[0].id // empty')
+          if [ -z "${artifact_id}" ]; then
+            echo "::error::Could not resolve the coverage-reports artifact ID for run ${run_id}."
+            exit 1
           fi
 
+          rm -rf build && mkdir -p build
+          if ! curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -o build/coverage-reports.zip \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip"; then
+            echo "::error::Could not download coverage-reports artifact ${artifact_id}; refusing to bypass SonarCloud coverage."
+            exit 1
+          fi
+          if ! unzip -o -q build/coverage-reports.zip -d build; then
+            echo "::error::coverage-reports artifact ${artifact_id} is not a readable ZIP archive."
+            exit 1
+          fi
+          if [ ! -s build/clover.xml ] || ! grep -q '<coverage' build/clover.xml 2>/dev/null; then
+            echo "::error::coverage-reports artifact ${artifact_id} has no valid build/clover.xml report."
+            exit 1
+          fi
+
+          args="-Dsonar.php.coverage.reportPaths=build/clover.xml"
+          [ ! -s build/junit.xml ] || args="${args} -Dsonar.php.tests.reportPaths=build/junit.xml"
           {
             echo "### Coverage bridge"
             echo ""
-            echo "- verdict: **${verdict}**"
-            if [ "${verdict}" = "bridged" ]; then
-              echo "- Consumed the CI Coverage lane's \`coverage-reports\` artifact (run ${run_id}); the quality gate's coverage-on-new-code condition is enforced on real data and this job installed no dependencies."
-            else
-              echo "- No coverage data was available for this commit, so \`sonar.coverage.exclusions=**/*\` applies to THIS run only and the coverage-on-new-code condition is skipped. Every other condition (bugs, vulnerabilities, code smells, duplications, security hotspots) remains fully enforced, and the fallback is announced here and via \`::notice::\` -- never silent."
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          echo "COVERAGE_ARGS=${args}" >> "$GITHUB_ENV"
+            echo "- verdict: **bridged**"
+            echo "- Consumed the successful CI Coverage run ${run_id}'s `coverage-reports` artifact; the SonarCloud coverage-on-new-code condition is evaluated against real Clover data."
+          } >> "${GITHUB_STEP_SUMMARY}"
+          echo "COVERAGE_ARGS=${args}" >> "${GITHUB_ENV}"
 
       - name: Resolve the queue-path SonarCloud branch (per entry)
         # A group of N queued entries runs N of these scans CONCURRENTLY, one
