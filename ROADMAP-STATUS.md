@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-22 · `main` @ `a423547`
+**Last updated:** 2026-10-22 · `main` @ `f40faec`
 
 ---
 
@@ -103,13 +103,13 @@ see how far the code has moved against the roadmap.
 | Item | Status | Evidence |
 |------|--------|----------|
 | Strict local pipeline | ✅ Implemented | `composer ci:strict` → `ci:static` + `ci:coverage` + `ci:infection` + `ci:bench` (`composer.json`). |
-| CI lane (split workflows) | ✅ Implemented | Heavy lanes split into their own workflows: `.github/workflows/ci-static.yml`, `ci-coverage.yml`, `ci-infection.yml`, `ci-bench.yml` — each with its own status check, so one lane can be retried/re-run alone. `.github/workflows/ci-strict.yml` is the aggregator that keeps the required `CI Strict` check (it polls the four lane checks and fails unless all are green); its event-driven path excludes merge-group heads (`branches-ignore: 'gh-readonly-queue/**'` — the `merge_group` polling run owns a group head's verdict; #463, the 2026-10-19 re-render storm fix, `docs/ci-notes/merge-queue-render-storm.md`). |
+| CI lane (split workflows) | ✅ Implemented | Heavy lanes split into their own workflows: `.github/workflows/ci-static.yml`, `ci-coverage.yml`, `ci-infection.yml`, `ci-bench.yml` — each with its own status check, so one lane can be retried/re-run alone. `.github/workflows/ci-strict.yml` is the aggregator that keeps the required `CI Strict` check (it polls the four lane checks and fails unless all are green); its event-driven path excludes merge-group heads (`branches-ignore: 'gh-readonly-queue/**'` — the `merge_group` polling run owns a group head's verdict; #463, the 2026-10-19 re-render storm fix, `docs/ci-notes/merge-queue-render-storm.md`). #525 hardens the evidence lanes' own footing: the SonarCloud coverage bridge fails closed on a missing, expired or unreadable coverage artifact (least-privilege `actions: read`, the matching CI Coverage run required to conclude, two minutes of artifact-visibility retry), the ruleset lint samples the latest ten merged pull requests by `merged_at`, and Auto Assign / Proof HTML carry runtime bounds. |
 | PR title gate | ✅ Implemented | `.github/workflows/pr-validator.yml` (job `PR Validator`), taxonomy in `scripts/changelog/conventional.py`. |
 | Architecture gate | ✅ Implemented | `php-codearch-config.yaml`, `scripts/ci/archeology-gate.php`, `.github/workflows/archeology.yml` (job `PhpCodeArcheology SARIF`). |
 | Static analysis | ✅ Implemented | PHPStan max + ratchet, Psalm level 1 + baseline, Progpilot (PHAR, SHA-256 pinned). |
 | Supply chain | ✅ Implemented | `composer audit` strict gate, SBOM workflows, dependency review. |
 | Zero-dependency gate | ✅ Implemented | `composer zero-deps` (part of `composer ci:static`) → `src/Zef/Framework/Tooling/ZeroDependencyGate.php` asserts `composer.json` `require === {php: ^8.4}` and `composer.lock` `packages === []`. |
-| Roadmap document gate | ✅ Implemented | `composer roadmap:gate` (part of `composer ci:static`) → `src/Zef/Framework/Tooling/RoadmapDocGate.php` audits the structural integrity of the roadmap documents, and `src/Zef/Framework/Tooling/RoadmapPinFreshness.php` — fed by `RoadmapPinCommitCollector.php`, on the lanes that validate `main` — enforces the pin-freshness invariant: the `Last updated` commit must be an ancestor of the validated commit and may only be followed by changelog or roadmap bookkeeping (changelog regenerations, `docs(roadmap):` document commits, and the branch-update machinery's `main`-into-branch merges). |
+| Roadmap document gate | ✅ Implemented | `composer roadmap:gate` (part of `composer ci:static`) → `src/Zef/Framework/Tooling/RoadmapDocGate.php` audits the structural integrity of the roadmap documents, and `src/Zef/Framework/Tooling/RoadmapPinFreshness.php` — fed by `RoadmapPinCommitCollector.php`, on the lanes that validate `main` — enforces the pin-freshness invariant: the `Last updated` commit must be an ancestor of the validated commit and may only be followed by changelog or roadmap bookkeeping (changelog regenerations, `docs(roadmap):` document commits, and the branch-update machinery's `main`-into-branch merges, in all four of its observed spellings per #532 — its git invocation, the web UI's update button, the shorthand, and the descriptive `chore: merge main (...)` custom subject). |
 
 ---
 
