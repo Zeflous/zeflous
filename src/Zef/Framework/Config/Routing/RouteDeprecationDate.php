@@ -76,9 +76,10 @@ final class RouteDeprecationDate
             return null;
         }
 
-        $errors = DateTimeImmutable::getLastErrors();
+        $warnings = DateTimeImmutable::getLastErrors();
+        $warningCount = $warnings === false ? 0 : $warnings['warning_count'];
 
-        if ($errors !== false && $errors['warning_count'] !== 0) {
+        if ($warningCount !== 0) {
             return null;
         }
 
