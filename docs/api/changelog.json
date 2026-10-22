@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-22T05:35:49Z",
+  "as_of": "2026-10-22T13:36:38Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 232,
+  "unreleased_count": 237,
   "versions": [
     {
       "version": "Unreleased",
@@ -3052,6 +3052,22 @@
                 "subject": "Merge remote-tracking branch 'origin/main' into feat/router-host-wildcard"
               }
             ]
+          },
+          {
+            "pr": 533,
+            "title": "feat(router): translate dispatch refusals into the typed error family",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-22T12:39:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/533",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3fea2b1d7ee224377bff8d30cfd9f7bdeabdc2e2",
+                "short_sha": "3fea2b1",
+                "subject": "feat(router): translate dispatch refusals into the typed error family"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -4387,6 +4403,22 @@
                 "subject": "fix(infection): disarm the duplicate keys and pay the last three escapes"
               }
             ]
+          },
+          {
+            "pr": 532,
+            "title": "fix(tooling): accept every observed update-merge spelling as bookkeeping",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-22T11:41:58Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/532",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1d27b6cfa9f1eda98f1c2074b6b8dec4403655da",
+                "short_sha": "1d27b6c",
+                "subject": "fix(tooling): accept every observed update-merge spelling as bookkeeping"
+              }
+            ]
           }
         ],
         "Maintenance": [
@@ -5281,6 +5313,102 @@
                 "sha": "ff6a0658db2d4437453917040a0a3319c0cf74cd",
                 "short_sha": "ff6a065",
                 "subject": "chore(repo): remove the demo template page"
+              }
+            ]
+          },
+          {
+            "pr": 525,
+            "title": "ci(merge-gate): fail closed on missing required evidence",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-22T11:42:16Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/525",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "807820d8938650d9e156a729880f607235cddeb3",
+                "short_sha": "807820d",
+                "subject": "ci(sonarcloud): fail closed when coverage evidence is missing"
+              },
+              {
+                "sha": "27c9ce4e28454667bfa0dc45ff79bda2d9b002b2",
+                "short_sha": "27c9ce4",
+                "subject": "fix(ci): lint the latest merged pull requests accurately"
+              },
+              {
+                "sha": "e87428d1881daa859de27dbf4cadeb5ee7d4a4cd",
+                "short_sha": "e87428d",
+                "subject": "ci(auto-assign): bound assignment job runtime"
+              },
+              {
+                "sha": "c0d5f81b7302b46e8bbbeaa27ac1acb5135c5925",
+                "short_sha": "c0d5f81",
+                "subject": "ci(proof-html): bound link checker runtime"
+              },
+              {
+                "sha": "e7c00b5c51a5dffbcb81ddd387a5f561c6914a9e",
+                "short_sha": "e7c00b5",
+                "subject": "docs(ci): clarify required and advisory gate semantics"
+              },
+              {
+                "sha": "c5acfde56ab0acff314d4ca6efdf2dc260f722f7",
+                "short_sha": "c5acfde",
+                "subject": "docs(sonarcloud): document fail-closed coverage bridge"
+              },
+              {
+                "sha": "14d315eff183a6f232dae46137f4b9cb3c6cfdba",
+                "short_sha": "14d315e",
+                "subject": "docs(ci): record merge-gate remediation findings"
+              },
+              {
+                "sha": "767077235ab2a0ee297868c3f1ddd5bdba1d4be6",
+                "short_sha": "7670772",
+                "subject": "fix(ci): retry coverage artifact visibility before failing"
+              },
+              {
+                "sha": "b90e8463a1c70859584b558efa6e530272543e43",
+                "short_sha": "b90e846",
+                "subject": "fix(ci): grant least-privilege coverage artifact read"
+              },
+              {
+                "sha": "c3535a39ea253d07218189300fdb7ef5b86e9663",
+                "short_sha": "c3535a3",
+                "subject": "docs(ci): record active ruleset enforcement evidence"
+              },
+              {
+                "sha": "8eeac235360c77719a511e942c0d07b5c9bbc361",
+                "short_sha": "8eeac23",
+                "subject": "fix(middleware): express failed transmission explicitly"
+              },
+              {
+                "sha": "be1b2a5419082c9daf8c0878669f8789c336d67d",
+                "short_sha": "be1b2a5",
+                "subject": "fix(middleware): preserve early-exit coding standard"
+              },
+              {
+                "sha": "56929d08d2fb4f44d2f0ed96d49b4e076fdadcac",
+                "short_sha": "56929d0",
+                "subject": "fix(middleware): keep successful transmission as early exit"
+              },
+              {
+                "sha": "84e40b53b5cd94b8ed13a001aca7055e3015fa62",
+                "short_sha": "84e40b5",
+                "subject": "fix(ci): avoid shell substitution in coverage summary"
+              },
+              {
+                "sha": "76f55ed905bf32a77c9e0f2e9d22ced817c363e5",
+                "short_sha": "76f55ed",
+                "subject": "test(middleware): isolate successful transmission regression"
+              },
+              {
+                "sha": "96fd724aa1667963266ea6187157537c55478de9",
+                "short_sha": "96fd724",
+                "subject": "style(test): use guard clause for log cleanup"
+              },
+              {
+                "sha": "326767eeaed59d3b603bec71db587842be2f31f9",
+                "short_sha": "326767e",
+                "subject": "style(test): name the boundary variable after its class"
               }
             ]
           }
@@ -7021,6 +7149,38 @@
                 "sha": "ac21fcec04289fc263b9848289f6020ab779aa92",
                 "short_sha": "ac21fce",
                 "subject": "docs(roadmap): record the wildcard host grammar and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 534,
+            "title": "docs(roadmap): record the merge-gate hardening and the bookkeeping widening, and pin the lane",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-22T12:44:00Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/534",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d16826d9b03152ce0ad5f96a8d1fc2f5aef7c3c6",
+                "short_sha": "d16826d",
+                "subject": "docs(roadmap): record the merge-gate hardening and the bookkeeping widening, and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 536,
+            "title": "docs(roadmap): record the router error integration and pin the lane",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-22T13:36:38Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/536",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "30c24cc43ce09216039fa87aa927a3fb3b6c5a66",
+                "short_sha": "30c24cc",
+                "subject": "docs(roadmap): record the router error integration and pin the lane"
               }
             ]
           }
@@ -14329,6 +14489,102 @@
           ]
         },
         {
+          "pr": 525,
+          "title": "ci(merge-gate): fail closed on missing required evidence",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-22T11:42:16Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/525",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "807820d8938650d9e156a729880f607235cddeb3",
+              "short_sha": "807820d",
+              "subject": "ci(sonarcloud): fail closed when coverage evidence is missing"
+            },
+            {
+              "sha": "27c9ce4e28454667bfa0dc45ff79bda2d9b002b2",
+              "short_sha": "27c9ce4",
+              "subject": "fix(ci): lint the latest merged pull requests accurately"
+            },
+            {
+              "sha": "e87428d1881daa859de27dbf4cadeb5ee7d4a4cd",
+              "short_sha": "e87428d",
+              "subject": "ci(auto-assign): bound assignment job runtime"
+            },
+            {
+              "sha": "c0d5f81b7302b46e8bbbeaa27ac1acb5135c5925",
+              "short_sha": "c0d5f81",
+              "subject": "ci(proof-html): bound link checker runtime"
+            },
+            {
+              "sha": "e7c00b5c51a5dffbcb81ddd387a5f561c6914a9e",
+              "short_sha": "e7c00b5",
+              "subject": "docs(ci): clarify required and advisory gate semantics"
+            },
+            {
+              "sha": "c5acfde56ab0acff314d4ca6efdf2dc260f722f7",
+              "short_sha": "c5acfde",
+              "subject": "docs(sonarcloud): document fail-closed coverage bridge"
+            },
+            {
+              "sha": "14d315eff183a6f232dae46137f4b9cb3c6cfdba",
+              "short_sha": "14d315e",
+              "subject": "docs(ci): record merge-gate remediation findings"
+            },
+            {
+              "sha": "767077235ab2a0ee297868c3f1ddd5bdba1d4be6",
+              "short_sha": "7670772",
+              "subject": "fix(ci): retry coverage artifact visibility before failing"
+            },
+            {
+              "sha": "b90e8463a1c70859584b558efa6e530272543e43",
+              "short_sha": "b90e846",
+              "subject": "fix(ci): grant least-privilege coverage artifact read"
+            },
+            {
+              "sha": "c3535a39ea253d07218189300fdb7ef5b86e9663",
+              "short_sha": "c3535a3",
+              "subject": "docs(ci): record active ruleset enforcement evidence"
+            },
+            {
+              "sha": "8eeac235360c77719a511e942c0d07b5c9bbc361",
+              "short_sha": "8eeac23",
+              "subject": "fix(middleware): express failed transmission explicitly"
+            },
+            {
+              "sha": "be1b2a5419082c9daf8c0878669f8789c336d67d",
+              "short_sha": "be1b2a5",
+              "subject": "fix(middleware): preserve early-exit coding standard"
+            },
+            {
+              "sha": "56929d08d2fb4f44d2f0ed96d49b4e076fdadcac",
+              "short_sha": "56929d0",
+              "subject": "fix(middleware): keep successful transmission as early exit"
+            },
+            {
+              "sha": "84e40b53b5cd94b8ed13a001aca7055e3015fa62",
+              "short_sha": "84e40b5",
+              "subject": "fix(ci): avoid shell substitution in coverage summary"
+            },
+            {
+              "sha": "76f55ed905bf32a77c9e0f2e9d22ced817c363e5",
+              "short_sha": "76f55ed",
+              "subject": "test(middleware): isolate successful transmission regression"
+            },
+            {
+              "sha": "96fd724aa1667963266ea6187157537c55478de9",
+              "short_sha": "96fd724",
+              "subject": "style(test): use guard clause for log cleanup"
+            },
+            {
+              "sha": "326767eeaed59d3b603bec71db587842be2f31f9",
+              "short_sha": "326767e",
+              "subject": "style(test): name the boundary variable after its class"
+            }
+          ]
+        },
+        {
           "pr": 528,
           "title": "feat(router): match whole-label wildcard host patterns",
           "author": "mbetixz",
@@ -14367,6 +14623,70 @@
               "sha": "ac21fcec04289fc263b9848289f6020ab779aa92",
               "short_sha": "ac21fce",
               "subject": "docs(roadmap): record the wildcard host grammar and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 532,
+          "title": "fix(tooling): accept every observed update-merge spelling as bookkeeping",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-22T11:41:58Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/532",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1d27b6cfa9f1eda98f1c2074b6b8dec4403655da",
+              "short_sha": "1d27b6c",
+              "subject": "fix(tooling): accept every observed update-merge spelling as bookkeeping"
+            }
+          ]
+        },
+        {
+          "pr": 533,
+          "title": "feat(router): translate dispatch refusals into the typed error family",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-22T12:39:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/533",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3fea2b1d7ee224377bff8d30cfd9f7bdeabdc2e2",
+              "short_sha": "3fea2b1",
+              "subject": "feat(router): translate dispatch refusals into the typed error family"
+            }
+          ]
+        },
+        {
+          "pr": 534,
+          "title": "docs(roadmap): record the merge-gate hardening and the bookkeeping widening, and pin the lane",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-22T12:44:00Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/534",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d16826d9b03152ce0ad5f96a8d1fc2f5aef7c3c6",
+              "short_sha": "d16826d",
+              "subject": "docs(roadmap): record the merge-gate hardening and the bookkeeping widening, and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 536,
+          "title": "docs(roadmap): record the router error integration and pin the lane",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-22T13:36:38Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/536",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "30c24cc43ce09216039fa87aa927a3fb3b6c5a66",
+              "short_sha": "30c24cc",
+              "subject": "docs(roadmap): record the router error integration and pin the lane"
             }
           ]
         }
