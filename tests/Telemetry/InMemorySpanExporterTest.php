@@ -77,6 +77,26 @@ final class InMemorySpanExporterTest extends TestCase
     /**
      * One completed-span record with the given name.
      */
+    public function testTheRetentionWindowKeepsTheMostRecentSpans(): void
+    {
+        // The drain cadence can no longer grow the sink without bound:
+        // beyond the window the oldest deliveries drop and the tail --
+        // the post-mortem's own half -- stays.
+        $inMemorySpanExporter = new InMemorySpanExporter();
+
+        $records = [];
+        for ($i = 0; $i < 5000; ++$i) {
+            $records[] = $this->record('span-' . $i);
+        }
+
+        $inMemorySpanExporter->export($records);
+
+        $spans = $inMemorySpanExporter->spans();
+        self::assertCount(4096, $spans, 'the window kept its bound');
+        self::assertSame('span-904', $spans[0]->name, 'the oldest delivery beyond the window dropped');
+        self::assertSame('span-4999', $spans[4095]->name, 'the most recent delivery stayed');
+    }
+
     private function record(string $name): SpanData
     {
         $spanContext = new SpanContext('4bf92f3577b34da6a3ce929d0e0e4736', '00f067aa0ba902b7');

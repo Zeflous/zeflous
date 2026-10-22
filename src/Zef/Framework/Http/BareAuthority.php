@@ -28,11 +28,18 @@ final class BareAuthority
      *
      * @return array{0: string, 1: null|int} the host and the port
      *
-     * @throws HttpException when the port literal is malformed
+     * @throws HttpException when the literal is not a bare reg-name
+     *                       shape (an unbracketed IPv6 literal carries
+     *                       more than one colon) or the port literal is
+     *                       malformed
      */
     public static function split(string $authority): array
     {
         $parts = explode(':', $authority);
+
+        if (\count($parts) > 2) {
+            throw new HttpException(self::MALFORMED_HOST);
+        }
 
         if (\count($parts) !== 2) {
             return [$authority, null];

@@ -225,6 +225,9 @@ final class ResponseTest extends TestCase
         $this->assertThrows("Invalid header name 'X-Foo:'.", static function (): void {
             new Response(200, ['X-Foo:' => 'v']);
         });
+        $this->assertThrows("Invalid header name 'X-Evil\n'.", static function (): void {
+            new Response()->withHeader("X-Evil\n", 'v');
+        });
     }
 
     public function testRejectsHeaderValuesWithForbiddenControlCharacters(): void

@@ -137,6 +137,9 @@ final class RequestTest extends TestCase
         $this->assertThrows("Invalid HTTP method 'GET;'.", static function (): void {
             new Request('GET', new Uri('/'))->withMethod('GET;');
         });
+        $this->assertThrows("Invalid HTTP method 'GET\n'.", static function (): void {
+            new Request("GET\n", new Uri('/'));
+        });
     }
 
     public function testBootstrapsTheHostHeaderFromTheUri(): void
@@ -259,6 +262,9 @@ final class RequestTest extends TestCase
         });
         $this->assertThrows('Invalid HTTP protocol version.', static function (): void {
             new Request('GET', new Uri('/'))->withProtocolVersion('v2');
+        });
+        $this->assertThrows('Invalid HTTP protocol version.', static function (): void {
+            new Request('GET', new Uri('/'))->withProtocolVersion("1.1\n");
         });
     }
 

@@ -68,6 +68,7 @@ final class ReviewThreadPayloadTest extends TestCase
 
         self::assertSame(1, $reviewThreadReport->count());
         self::assertSame(['PRRT_ok'], $reviewThreadReport->resolvableIds());
+        self::assertSame(3, $reviewThreadReport->unusable, 'every dropped node is counted, never silently vanished');
     }
 
     public function testNonArrayNodeIsSkipped(): void
@@ -79,6 +80,7 @@ final class ReviewThreadPayloadTest extends TestCase
 
         self::assertSame(1, $reviewThreadReport->count());
         self::assertSame(['PRRT_ok'], $reviewThreadReport->resolvableIds());
+        self::assertSame(1, $reviewThreadReport->unusable, 'a scalar node counts as unusable');
     }
 
     public function testInvalidJsonIsRejected(): void

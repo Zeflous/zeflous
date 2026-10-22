@@ -57,6 +57,27 @@ final class IfNoneMatchTest extends TestCase
         self::assertTrue(IfNoneMatch::matches(',  , "a" ,', '"a"'));
     }
 
+    /**
+     * RFC 9110 §8.8.3: a comma is a legal byte inside a quoted opaque
+     * validator, so it is part of the validator, never a separator -- a
+     * single non-matching candidate must not fragment into a match.
+     */
+    public function testACommaInsideAQuotedValidatorIsPartOfTheValidator(): void
+    {
+        self::assertFalse(IfNoneMatch::matches('"x,abc"', '"abc"'));
+    }
+
+    public function testAQuotedValidatorCarryingACommaMatchesItself(): void
+    {
+        self::assertTrue(IfNoneMatch::matches('"a,b", "c"', '"a,b"'));
+        self::assertTrue(IfNoneMatch::matches('W/"a,b"', '"a,b"'));
+    }
+
+    public function testListMembersAroundACommaBearingValidatorStillMatch(): void
+    {
+        self::assertTrue(IfNoneMatch::matches('"x,a", "b"', '"b"'));
+    }
+
     public function testTheWeaknessStripRemovesExactlyTheTwoMarkerCharacters(): void
     {
         self::assertTrue(IfNoneMatch::matches('W/abc', 'abc'));

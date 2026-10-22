@@ -6,12 +6,15 @@ namespace Zef\Framework\Middleware;
 
 use Zef\Framework\Config\Config;
 use Zef\Framework\Http\AllowScopePolicy;
+use Zef\Framework\Http\ApcuReplayProtector;
 use Zef\Framework\Http\AuthBoundary;
 use Zef\Framework\Http\AuthBounds;
 use Zef\Framework\Http\AuthClock;
 use Zef\Framework\Http\AuthMiddleware;
 use Zef\Framework\Http\AuthPolicy;
 use Zef\Framework\Http\BoundedReplayProtector;
+use Zef\Framework\Http\ReplayProtectorInterface;
+use Zef\Framework\Http\ReplayStores;
 use Zef\Framework\Http\SecurityFamilies;
 use Zef\Framework\Http\StaticCredentialProvider;
 
@@ -88,11 +91,29 @@ final readonly class AuthFactory
                     $authPolicy->allowAnonymous,
                 ),
                 new AllowScopePolicy($authPolicy->requiredScope, $authPolicy->allowAnonymous),
-                new BoundedReplayProtector(
-                    $authPolicy->replayCapacity,
-                    AuthClock::millisecondsFromSeconds($authPolicy->replayWindow),
-                ),
+                self::replayProtector($authPolicy),
             ),
+        );
+    }
+
+    /**
+     * The seen-table the `security.auth.replay_store` knob selected: the
+     * per-process spelling the reference shipped, or the shared APCu
+     * spelling a process tree declares -- the topology statement the
+     * closed vocabulary keeps exact ({@see ReplayStores}), the same
+     * selection the rate-limit family's own store knob makes.
+     */
+    private static function replayProtector(AuthPolicy $authPolicy): ReplayProtectorInterface
+    {
+        if ($authPolicy->replayStore === ReplayStores::APCU) {
+            return new ApcuReplayProtector(
+                AuthClock::millisecondsFromSeconds($authPolicy->replayWindow),
+            );
+        }
+
+        return new BoundedReplayProtector(
+            $authPolicy->replayCapacity,
+            AuthClock::millisecondsFromSeconds($authPolicy->replayWindow),
         );
     }
 }

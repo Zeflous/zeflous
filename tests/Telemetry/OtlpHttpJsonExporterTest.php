@@ -266,6 +266,28 @@ final class OtlpHttpJsonExporterTest extends TestCase
         }
     }
 
+    /**
+     * The OTLP/HTTP retry spec puts the collector's throttle answer on
+     * the transient side with the 5xx family: a 429 is a "come back
+     * later", never a permanent drop of the batch.
+     */
+    public function testAThrottledCollectorIsTheTransientRejectionToo(): void
+    {
+        $this->otlpMockServer = new OtlpMockServer(status: 429);
+        $endpoint = $this->otlpMockServer->start();
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter($endpoint, ['service.name' => 'svc'], 500);
+
+        try {
+            $otlpHttpJsonExporter->export([$this->record('throttled')]);
+            self::fail('A 429 answer must be the transient rejection.');
+        } catch (OtlpExporterException $otlpExporterException) {
+            self::assertSame(
+                'OTLP exporter transient rejection.',
+                $otlpExporterException->getMessage(),
+            );
+        }
+    }
+
     public function testASlowCollectorTimesTheExchangeOut(): void
     {
         $this->otlpMockServer = new OtlpMockServer(delayMs: 400);

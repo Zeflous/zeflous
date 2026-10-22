@@ -3,7 +3,6 @@
   <file src="src/Contracts/Psr/Http/Message/MessageInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getProtocolVersion]]></code>
-      <code><![CDATA[withAddedHeader]]></code>
       <code><![CDATA[withProtocolVersion]]></code>
     </PossiblyUnusedMethod>
   </file>
@@ -138,6 +137,11 @@
     <MixedAssignment>
       <code><![CDATA[$entry]]></code>
       <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Container/Aot/AotExportability.php">
+    <MixedAssignment>
+      <code><![CDATA[$entry]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Container/Aot/AotLiterals.php">
@@ -357,6 +361,18 @@
       <code><![CDATA[TimeoutHealthCheck]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Config/Cache/ConfigCache.php">
+    <MixedAssignment>
+      <code><![CDATA[$payload]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Http/UploadOrigin.php">
+    <MixedAssignment>
+      <code><![CDATA[$downgraded[$key]]]></code>
+      <code><![CDATA[$leafError]]></code>
+      <code><![CDATA[$spec['error']]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Http/CorsMiddleware.php">
     <UnusedClass>
       <code><![CDATA[CorsMiddleware]]></code>
@@ -467,11 +483,6 @@
       <code><![CDATA[$decoded]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Telemetry/SpanContext.php">
-    <PossiblyUnusedProperty>
-      <code><![CDATA[$traceState]]></code>
-    </PossiblyUnusedProperty>
-  </file>
   <file src="src/Zef/Framework/Telemetry/SpanData.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[durationSeconds]]></code>
@@ -493,11 +504,11 @@
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Telemetry/TelemetrySanitizer.php">
+  <file src="src/Zef/Framework/Telemetry/TelemetryValues.php">
     <MixedAssignment>
       <code><![CDATA[$entry]]></code>
       <code><![CDATA[$sanitized[$key]]]></code>
-      <code><![CDATA[$sanitized[$name]]]></code>
+      <code><![CDATA[$walked[$name]]]></code>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>

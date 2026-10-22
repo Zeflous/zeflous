@@ -12,9 +12,10 @@ use stdClass;
 use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\Aot\AotArguments;
 use Zef\Framework\Container\Aot\AotClosures;
-use Zef\Framework\Container\Aot\AotException;
+use Zef\Framework\Container\Aot\AotExportability;
 use Zef\Framework\Container\Aot\AotLiterals;
 use Zef\Framework\Container\Aot\AotRefusals;
+use Zef\Framework\Container\Aot\AotUnrenderableException;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\MethodCall;
@@ -22,8 +23,10 @@ use Zef\Framework\Container\MethodCallInvocations;
 use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\Aot\CallsHouse;
+use Zef\Test\Support\Container\Aot\EnumHouse;
 use Zef\Test\Support\Container\Aot\House;
 use Zef\Test\Support\Container\Aot\Roof;
+use Zef\Test\Support\Container\Aot\Tone;
 use Zef\Test\Support\Container\Aot\Window;
 
 /**
@@ -74,6 +77,49 @@ final class AotClosuresTest extends TestCase
         self::assertStringContainsString("'paint' => 'white'", $code);
     }
 
+    public function testAnEnumCaseArgumentRendersAsTheConstantExpression(): void
+    {
+        // An enum case is the one object shape that folds as code: the
+        // rendered constant expression answers the identical singleton
+        // the full lane's baked plan holds.
+        $instanceDefinition = new InstanceDefinition('app.tone', EnumHouse::class, [Tone::CALM]);
+
+        $code = AotClosures::instance($instanceDefinition);
+
+        self::assertStringContainsString(
+            'new Zef\Test\Support\Container\Aot\EnumHouse(\\' . Tone::class . '::CALM)',
+            $code,
+        );
+
+        $closure = eval('return ' . $code . ';');
+        self::assertInstanceOf(Closure::class, $closure);
+
+        $house = $closure($this->container);
+        self::assertInstanceOf(EnumHouse::class, $house);
+        self::assertSame(Tone::CALM, $house->tone, 'the rendered case is the singleton itself');
+    }
+
+    public function testAnEnumCaseInsideAnArrayArgumentStillFolds(): void
+    {
+        $instanceDefinition = new InstanceDefinition(
+            'app.tone',
+            EnumHouse::class,
+            [Tone::CALM, ['first' => Tone::CALM, 'plain' => 'data']],
+        );
+
+        $code = AotClosures::instance($instanceDefinition);
+
+        self::assertStringContainsString("'first' => \\" . Tone::class . '::CALM', $code);
+        self::assertStringContainsString("'plain' => 'data'", $code);
+
+        $closure = eval('return ' . $code . ';');
+        self::assertInstanceOf(Closure::class, $closure);
+
+        $house = $closure($this->container);
+        self::assertInstanceOf(EnumHouse::class, $house);
+        self::assertSame(Tone::CALM, $house->notes['first']);
+    }
+
     public function testTheRenderedInstanceClosureBuildsTheSameInstance(): void
     {
         $instanceDefinition = new InstanceDefinition(
@@ -109,11 +155,11 @@ final class AotClosuresTest extends TestCase
                 ],
             ));
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.calls' carries a value the AOT artifact cannot export at 'calls.addRoof.0' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }
@@ -209,11 +255,11 @@ final class AotClosuresTest extends TestCase
         try {
             AotClosures::value(new ValueDefinition('app.object', new stdClass()));
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.object' carries a value the AOT artifact cannot export at 'value' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }
@@ -227,11 +273,11 @@ final class AotClosuresTest extends TestCase
                 [['service' => 'app.window'], new stdClass()],
             ));
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.house' carries a value the AOT artifact cannot export at 'arguments.1' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }
@@ -295,13 +341,13 @@ final class AotClosuresTest extends TestCase
     public function testAssertExportableRefusesAnObjectAtItsDottedPath(): void
     {
         try {
-            AotLiterals::assertExportable(['a' => [new stdClass()]], 's', 'p');
+            AotExportability::assertExportable(['a' => [new stdClass()]], 's', 'p');
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 's' carries a value the AOT artifact cannot export at 'p.a.0' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }

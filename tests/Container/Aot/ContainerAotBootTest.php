@@ -49,10 +49,14 @@ use Zef\Framework\ContainerKnobs;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Test\Support\Container\Aot\BrokenHouse;
 use Zef\Test\Support\Container\Aot\CallsHouse;
+use Zef\Test\Support\Container\Aot\EnumHouse;
 use Zef\Test\Support\Container\Aot\FactoryProduct;
 use Zef\Test\Support\Container\Aot\FactorySource;
 use Zef\Test\Support\Container\Aot\House;
+use Zef\Test\Support\Container\Aot\PlainSink;
 use Zef\Test\Support\Container\Aot\Roof;
+use Zef\Test\Support\Container\Aot\Tone;
+use Zef\Test\Support\Container\Aot\UnrenderableHouse;
 use Zef\Test\Support\Container\Aot\WarmCounter;
 use Zef\Test\Support\Container\Aot\Window;
 use Zef\Test\Support\Container\Injector\BillingService;
@@ -163,6 +167,61 @@ final class ContainerAotBootTest extends TestCase
                 $definitionException->getMessage(),
             );
         }
+    }
+
+    public function testAPlanTheBoundaryCannotRenderDegradesTheDumpWithoutCrashingTheBoot(): void
+    {
+        // The audit's crash shape: a constructor default the full lane
+        // answers happily but the artifact boundary cannot spell. The
+        // boot must survive through the full lane, name the degradation
+        // in its own outcome, and lay no artifact down.
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $config = $this->config(['enabled' => true]);
+        $config['services']['app.unrenderable'] = ['class' => UnrenderableHouse::class, 'autowire' => true];
+
+        $container = $containerBootstrapper->bootstrap(new Config($config), new Container());
+
+        $outcome = $container->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $outcome);
+        self::assertSame(AotLane::FullCompile, $outcome->lane);
+        self::assertSame(
+            'the plan carries a value the artifact boundary cannot render -- '
+            . 'the full lane answered this boot and laid no artifact down',
+            $outcome->note,
+        );
+        self::assertFalse($containerAotCache->exists());
+
+        $house = $container->get('app.unrenderable');
+        self::assertInstanceOf(UnrenderableHouse::class, $house);
+        self::assertInstanceOf(PlainSink::class, $house->sink, 'the full lane answered the defaulted construction');
+    }
+
+    public function testAnEnumDefaultedServiceSurvivesTheArtifactRoundTrip(): void
+    {
+        // The one object shape the boundary CAN spell: the enum case
+        // renders as its constant expression, and the artifact lane
+        // answers the same singleton the full lane baked.
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $config = $this->config(['enabled' => true]);
+        $config['services']['app.tone'] = ['class' => EnumHouse::class, 'autowire' => true];
+
+        $first = $containerBootstrapper->bootstrap(new Config($config), new Container());
+        $firstHouse = $first->get('app.tone');
+        self::assertInstanceOf(EnumHouse::class, $firstHouse);
+        self::assertSame(Tone::CALM, $firstHouse->tone);
+
+        $second = $containerBootstrapper->bootstrap(new Config($config), new Container());
+        $secondHouse = $second->get('app.tone');
+        self::assertInstanceOf(EnumHouse::class, $secondHouse);
+        self::assertSame(
+            Tone::CALM,
+            $secondHouse->tone,
+            'the artifact lane answers the enum singleton the full lane baked',
+        );
     }
 
     public function testTheFirstBootDumpsAndTheSecondLoads(): void

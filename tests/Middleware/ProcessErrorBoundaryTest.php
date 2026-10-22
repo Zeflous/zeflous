@@ -17,6 +17,7 @@ use Zef\Framework\Exception\NativeErrorException;
 use Zef\Framework\Exception\ValidationException;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\DiagnosticRepeats;
 use Zef\Framework\Middleware\ProcessBoundaryFatals;
 use Zef\Framework\Middleware\ProcessBoundaryRecords;
 use Zef\Framework\Middleware\ProcessBoundaryTransmission;
@@ -24,6 +25,7 @@ use Zef\Framework\Middleware\ProcessErrorBoundary;
 use Zef\Framework\Middleware\ProcessNativeDiagnostics;
 use Zef\Framework\Middleware\ProcessShutdownFatals;
 use Zef\Framework\Middleware\ProcessUncaughtThrowables;
+use Zef\Framework\Middleware\RequestFactsMemo;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Test\Support\Log\RecordingLogger;
 
@@ -46,6 +48,8 @@ use Zef\Test\Support\Log\RecordingLogger;
  */
 #[CoversClass(ProcessErrorBoundary::class)]
 #[CoversClass(ProcessBoundaryTransmission::class)]
+#[CoversClass(DiagnosticRepeats::class)]
+#[CoversClass(RequestFactsMemo::class)]
 #[CoversClass(ProcessBoundaryFatals::class)]
 #[CoversClass(ProcessBoundaryRecords::class)]
 #[CoversClass(ProcessNativeDiagnostics::class)]
@@ -501,6 +505,27 @@ final class ProcessErrorBoundaryTest extends TestCase
         );
     }
 
+    /**
+     * The recorded witness is consumed: a stale engine entry (a startup
+     * core warning no handler ever routed) records once, and the
+     * recycle's next shutdown stays silent instead of re-recording the
+     * same fatal at every worker turn.
+     */
+    public function testTheShutdownArmConsumesTheEngineWitnessItRecords(): void
+    {
+        $this->lastError = $this->fatalError();
+
+        @trigger_error('A seeded stale witness.', \E_USER_WARNING);
+        self::assertNotNull(error_get_last(), 'the engine witness is seeded');
+
+        $this->withAnArmedBoundary(
+            static fn (ProcessErrorBoundary $processErrorBoundary) => $processErrorBoundary->onShutdown(),
+        );
+
+        self::assertCount(1, $this->recordingLogger->calls, 'the fatal records exactly once');
+        self::assertNull(error_get_last(), 'the recorded witness is consumed, never re-recorded');
+    }
+
     public function testTheShutdownArmIgnoresAMalformedLastError(): void
     {
         $this->lastError = ['type' => \E_ERROR];
@@ -783,6 +808,278 @@ final class ProcessErrorBoundaryTest extends TestCase
     }
 
     /**
+     * Builds the boundary under observation: the recorder, the emitter,
+     * the sink, the probe and the fatal witness all record into this
+     * test's own state, and the request is the deterministic one the
+     * arms' facts are asserted against.
+     */
+    public function testTheFactsWindowKeepsOneCorrelationForEveryRecordOfTheWindow(): void
+    {
+        // The audit's fragmentation shape: a request that claims no
+        // X-Request-ID used to mint a fresh random correlation id per
+        // record -- the two diagnostics of one request carried two
+        // unrelated ids. The memo keeps the window on one id.
+        $processErrorBoundary = $this->boundary(
+            requestSource: static fn (): ServerRequest => new ServerRequest(
+                'GET',
+                new Uri('https://app.example.test/users'),
+            ),
+        );
+
+        $processErrorBoundary->onNativeDiagnostic(\E_WARNING, 'First diagnostic.', '/var/app/a.php', 1);
+        $processErrorBoundary->onNativeDiagnostic(\E_NOTICE, 'Second diagnostic.', '/var/app/b.php', 2);
+
+        self::assertCount(2, $this->recordingLogger->calls);
+        self::assertNotSame('', $this->recordingLogger->calls[0][2]['request_id']);
+        self::assertSame(
+            $this->recordingLogger->calls[0][2]['request_id'],
+            $this->recordingLogger->calls[1][2]['request_id'],
+            'both records of the window ride the same correlation id',
+        );
+    }
+
+    public function testEachInstallationOpensAFreshFactsWindow(): void
+    {
+        $processErrorBoundary = $this->boundary(
+            requestSource: static fn (): ServerRequest => new ServerRequest(
+                'GET',
+                new Uri('https://app.example.test/users'),
+            ),
+        );
+
+        $processErrorBoundary->onNativeDiagnostic(\E_WARNING, 'First window.', '/var/app/a.php', 1);
+
+        $processErrorBoundary->install();
+        $processErrorBoundary->onNativeDiagnostic(\E_WARNING, 'Second window.', '/var/app/b.php', 2);
+        $processErrorBoundary->restore();
+
+        self::assertCount(2, $this->recordingLogger->calls);
+        self::assertNotSame(
+            $this->recordingLogger->calls[0][2]['request_id'],
+            $this->recordingLogger->calls[1][2]['request_id'],
+            'the installation opened a fresh window with a fresh correlation id',
+        );
+    }
+
+    public function testRepeatedDiagnosticsOfOneSignatureFoldIntoTheCadence(): void
+    {
+        // The audit's amplification shape: the vendor deprecation loop
+        // raising the identical diagnostic thousands of times. The
+        // first occurrence records verbatim, every hundredth
+        // suppressed repeat lands its summary naming the count, and
+        // the rest are a counted silence.
+        $processErrorBoundary = $this->boundary();
+
+        for ($i = 0; $i < 202; ++$i) {
+            $processErrorBoundary->onNativeDiagnostic(
+                \E_DEPRECATED,
+                'The reference implementation is deprecated.',
+                '/var/app/vendor/loop.php',
+                7,
+            );
+        }
+
+        self::assertCount(3, $this->recordingLogger->calls, 'the first occurrence and two cadence summaries');
+        self::assertSame(
+            'The reference implementation is deprecated.',
+            $this->recordingLogger->calls[0][2]['diagnostic.message'],
+            'the first occurrence records verbatim',
+        );
+        self::assertSame(
+            'The reference implementation is deprecated. [repeated 100 more times]',
+            $this->recordingLogger->calls[1][2]['diagnostic.message'],
+        );
+        self::assertSame(
+            'The reference implementation is deprecated. [repeated 200 more times]',
+            $this->recordingLogger->calls[2][2]['diagnostic.message'],
+        );
+    }
+
+    public function testDistinctDiagnosticsEachRecordVerbatim(): void
+    {
+        $processErrorBoundary = $this->boundary();
+
+        $processErrorBoundary->onNativeDiagnostic(\E_WARNING, 'First shape.', '/var/app/a.php', 1);
+        $processErrorBoundary->onNativeDiagnostic(\E_WARNING, 'Second shape.', '/var/app/a.php', 1);
+        $processErrorBoundary->onNativeDiagnostic(\E_WARNING, 'First shape.', '/var/app/b.php', 1);
+
+        self::assertCount(3, $this->recordingLogger->calls, 'distinct signatures never fold');
+    }
+
+    /**
+     * The suppressed repeat is a counted silence, never a record: only
+     * the first occurrence and the cadence's summaries write, and the
+     * SAPI log the record fold's own failures would ride stays empty
+     * for the whole storm.
+     */
+    public function testASuppressedRepeatWritesNoRecordAndNamesNoFailure(): void
+    {
+        $processErrorBoundary = $this->boundary();
+
+        for ($i = 0; $i < 202; ++$i) {
+            $processErrorBoundary->onNativeDiagnostic(
+                \E_DEPRECATED,
+                'The reference implementation is deprecated.',
+                '/var/app/vendor/loop.php',
+                7,
+            );
+        }
+
+        self::assertCount(3, $this->recordingLogger->calls, 'the first occurrence and two cadence summaries');
+        self::assertSame(
+            '',
+            $this->routedErrorLogContents(),
+            'a suppressed repeat is silence itself, not a record failure',
+        );
+    }
+
+    /**
+     * The installation's fresh window re-arms the repeat ledger too: a
+     * restore/install cycle around the same signature answers the
+     * first occurrence verbatim again -- a fresh request's repeats
+     * start from zero, never from the previous window's ledger.
+     */
+    public function testAFreshInstallationOpensAFreshRepeatLedger(): void
+    {
+        $processErrorBoundary = $this->boundary();
+        $processErrorBoundary->install();
+
+        try {
+            $processErrorBoundary->onNativeDiagnostic(\E_DEPRECATED, 'The loop raised.', '/var/app/a.php', 7);
+            $processErrorBoundary->onNativeDiagnostic(\E_DEPRECATED, 'The loop raised.', '/var/app/a.php', 7);
+        } finally {
+            $processErrorBoundary->restore();
+        }
+
+        $processErrorBoundary->install();
+
+        try {
+            $processErrorBoundary->onNativeDiagnostic(\E_DEPRECATED, 'The loop raised.', '/var/app/a.php', 7);
+        } finally {
+            $processErrorBoundary->restore();
+        }
+
+        self::assertCount(
+            2,
+            $this->recordingLogger->calls,
+            'the fresh window recorded the same signature verbatim again',
+        );
+    }
+
+    /**
+     * A restore of a boundary that never installed is a silent no-op:
+     * there is nothing to unwind, so the engine stack is untouched and
+     * the SAPI log names no refusal.
+     */
+    public function testARestoreOfANeverInstalledBoundaryIsASilentNoOp(): void
+    {
+        $processErrorBoundary = $this->boundary();
+
+        $processErrorBoundary->restore();
+
+        self::assertFalse($processErrorBoundary->installed());
+        self::assertSame(
+            '',
+            $this->routedErrorLogContents(),
+            'a restore with nothing installed owes no refusal',
+        );
+    }
+
+    /**
+     * The refusal the enforced contract spells in full: the exact
+     * message a caller that still owes the engine its own unwinding
+     * reads, every clause of it, behind the engine's own timestamp
+     * prefix.
+     */
+    public function testTheRefusalNamesTheUnwindingContractInFull(): void
+    {
+        $processErrorBoundary = $this->boundary();
+        $processErrorBoundary->install();
+
+        $foreign = static fn (): bool => true;
+        set_error_handler($foreign);
+
+        try {
+            $processErrorBoundary->restore();
+
+            self::assertTrue($processErrorBoundary->installed());
+            self::assertMatchesRegularExpression(
+                '/^\[\d{2}-\w{3}-\d{4} \d{2}:\d{2}:\d{2} UTC\] ZEF process boundary restore refused: '
+                    . 'a handler installed after the boundary still owns the engine stack -- unwind the '
+                    . 'handlers installed after it before restoring the boundary\.\n$/',
+                $this->routedErrorLogContents(),
+            );
+        } finally {
+            // The caller that owes the engine its own unwinding pays it,
+            // and the boundary then restores cleanly.
+            restore_error_handler();
+            $processErrorBoundary->restore();
+        }
+
+        self::assertFalse($processErrorBoundary->installed(), 'the honest unwind restored the boundary');
+    }
+
+    /**
+     * The conversion consumes the engine's last-error witness: the
+     * diagnostic was owned and answered as the typed lane's exception,
+     * so the stale entry a re-witnessed shutdown would misread as a
+     * fresh fatal is cleared before the throw lands.
+     */
+    public function testTheConvertedDiagnosticConsumesTheEngineWitness(): void
+    {
+        @trigger_error('a stale witness', \E_USER_WARNING);
+        self::assertIsArray(error_get_last(), 'the stale witness the conversion must consume is in place');
+
+        try {
+            $this->boundary()->onNativeDiagnostic(\E_USER_ERROR, 'The engine aborts.', '/var/app/src/abort.php', 99);
+            self::fail('The conversion severity must answer the typed exception.');
+        } catch (NativeErrorException $nativeErrorException) {
+            self::assertStringContainsString('The engine aborts.', $nativeErrorException->getMessage());
+        }
+
+        self::assertNull(
+            error_get_last(),
+            'the converted diagnostic left no witness behind for a later shutdown to re-witness',
+        );
+    }
+
+    public function testARestoreRefusesWhenAForeignHandlerOwnsTheStack(): void
+    {
+        // The documented contract, enforced: a foreign handler
+        // installed after the boundary sits between the boundary's own
+        // and the engine, and the restore must not pop past it.
+        $processErrorBoundary = $this->boundary();
+        $processErrorBoundary->install();
+
+        $foreign = static fn (): bool => true;
+        set_error_handler($foreign);
+
+        $processErrorBoundary->restore();
+
+        self::assertTrue(
+            $processErrorBoundary->installed(),
+            'the refused restoration left the boundary installed',
+        );
+        self::assertStringContainsString(
+            'ZEF process boundary restore refused',
+            $this->routedErrorLogContents(),
+        );
+
+        // The foreign handler is still the engine's top -- the refusal
+        // removed nothing.
+        $probe = set_error_handler(static fn (): bool => true);
+        restore_error_handler();
+        self::assertSame($foreign, $probe, 'the foreign handler still owns the stack top');
+
+        // The caller that owes the engine its own unwinding pays it,
+        // and the boundary then restores cleanly.
+        restore_error_handler();
+        $processErrorBoundary->restore();
+
+        self::assertFalse($processErrorBoundary->installed(), 'the honest unwind restored the boundary');
+    }
+
+    /**
      * Runs the given observation against an armed boundary, restoring it
      * afterwards -- the shutdown arm's direct-call battery must observe
      * the armed posture the engine's own registration would run under.
@@ -809,14 +1106,8 @@ final class ProcessErrorBoundaryTest extends TestCase
     }
 
     /**
-     * Builds the boundary under observation: the recorder, the emitter,
-     * the sink, the probe and the fatal witness all record into this
-     * test's own state, and the request is the deterministic one the
-     * arms' facts are asserted against.
-     *
      * @param null|Closure(): ServerRequestInterface $requestSource     the arms' request source
-     * @param null|Closure(callable(): void): void   $shutdownRegistrar the shutdown-observer
-     *                                                                  registration observation
+     * @param null|Closure(callable(): void): void   $shutdownRegistrar the shutdown-observer registration observation
      */
     private function boundary(
         ?Closure $requestSource = null,

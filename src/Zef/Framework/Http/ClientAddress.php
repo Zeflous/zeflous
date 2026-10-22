@@ -12,11 +12,14 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * `REMOTE_ADDR` (the direct peer) is the client unless it is itself a
  * trusted proxy; only then is `X-Forwarded-For` consulted, and only its
- * first syntactically valid candidate is honoured -- every other client
- * of an untrusted proxy keeps its peer address, so a spoofed forwarded
- * header never crosses the ingress ({@see TrustedProxyMatcher}, the
- * layer's existing CIDR-capable matcher; the reference carried a private
- * duplicate of that arithmetic, which this port composes instead).
+ * nearest candidate the trusted chain vouches for -- the walk starts at
+ * the appended end of the list (the position the nearest trusted proxy
+ * wrote) and skips every further trusted hop, because under the standard
+ * appending proxy every entry left of that end is client-supplied, so a
+ * spoofed forwarded header never crosses the ingress ({@see
+ * TrustedProxyMatcher}, the layer's existing CIDR-capable matcher; the
+ * reference carried a private duplicate of that arithmetic, which this
+ * port composes instead).
  *
  * The answer is always a validated address: an absent, corrupt or
  * unparseable peer resolves to the `0.0.0.0` sentinel -- one well-known
@@ -54,10 +57,16 @@ final class ClientAddress
         $forwarded = $serverRequest->getHeaderLine('X-Forwarded-For');
 
         if ($forwarded !== '') {
-            foreach (self::candidates($forwarded) as $candidate) {
-                if (filter_var($candidate, \FILTER_VALIDATE_IP) !== false) {
-                    return $candidate;
+            foreach (array_reverse(self::candidates($forwarded)) as $candidate) {
+                if (filter_var($candidate, \FILTER_VALIDATE_IP) === false) {
+                    continue;
                 }
+
+                if (TrustedProxyMatcher::matches($candidate, $trustedProxies)) {
+                    continue;
+                }
+
+                return $candidate;
             }
         }
 

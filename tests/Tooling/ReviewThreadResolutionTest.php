@@ -25,10 +25,10 @@ final class ReviewThreadResolutionTest extends TestCase
 
     public function testMessageSummarisesTheRun(): void
     {
-        $reviewThreadResolution = new ReviewThreadResolution(5, 3, 1);
+        $reviewThreadResolution = new ReviewThreadResolution(5, 3, 1, 2);
 
         self::assertSame(
-            'Review threads: 5 total, 3 finished conversation(s) resolved, 1 failed.',
+            'Review threads: 5 total, 3 finished conversation(s) resolved, 1 failed, 2 unusable.',
             $reviewThreadResolution->message(),
         );
     }
@@ -38,7 +38,7 @@ final class ReviewThreadResolutionTest extends TestCase
         $reviewThreadResolution = new ReviewThreadResolution(0, 0, 0);
 
         self::assertSame(
-            'Review threads: 0 total, 0 finished conversation(s) resolved, 0 failed.',
+            'Review threads: 0 total, 0 finished conversation(s) resolved, 0 failed, 0 unusable.',
             $reviewThreadResolution->message(),
         );
     }

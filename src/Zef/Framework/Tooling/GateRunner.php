@@ -46,7 +46,7 @@ final readonly class GateRunner
             'audit' => new DependencyAuditGate($this->readAuditAllowlist())
                 ->evaluate(DependencyAudit::fromComposerAuditJson($this->auditPayload())),
             'lint' => new LintGate(fn (string $file): bool => $this->lintFile($file))
-                ->evaluate(LintReport::collectPhpFiles($this->root, ['src', 'tests', 'benchmarks'])),
+                ->evaluate(LintReport::collectPhpFiles($this->root, ['src', 'tests', 'benchmarks', 'scripts', 'bin'])),
             'workflow-concurrency' => new WorkflowConcurrencyGate()
                 ->evaluate(new WorkflowConcurrencyReport(
                     new WorkflowFileCollector($this->root)->collect(),

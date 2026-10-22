@@ -87,8 +87,9 @@ final class WorkflowConcurrencyGateTest extends TestCase
 
         self::assertFalse($gateResult->passed);
         self::assertSame(
-            'Workflow concurrency gate FAILED: ci-strict.yml must key its concurrency group '
-            . 'on the commit sha, not the branch (found: none).',
+            'Workflow concurrency gate FAILED: ci-strict.yml declares no concurrency group at all '
+            . '-- every workflow that triggers itself must key one (a reusable workflow_call file '
+            . 'is exempt: its caller owns the group).',
             $gateResult->message,
         );
     }
@@ -120,6 +121,38 @@ final class WorkflowConcurrencyGateTest extends TestCase
         self::assertTrue($gateResult->passed);
     }
 
+    /**
+     * Every group of a cancelling workflow is audited on its own: two
+     * branch-keyed groups on one non-aggregator file answer two
+     * failures -- the walk continues past the group whose
+     * aggregator-only rule does not apply, so the second group's
+     * cancellation danger is never left unaudited behind the first.
+     */
+    public function testEveryGroupOfACancellingWorkflowIsAuditedOnItsOwn(): void
+    {
+        $contents = "concurrency:\n"
+            . '  group: ' . self::LANE_BRANCH_GROUP . "\n"
+            . "  cancel-in-progress: true\n"
+            . "jobs:\n"
+            . "  other:\n"
+            . "    concurrency:\n"
+            . '      group: refs/heads/${{ github.ref }}-nightly' . "\n"
+            . "      cancel-in-progress: true\n";
+
+        $failures = WorkflowConcurrencyPolicy::failures('ci-coverage.yml', $contents);
+
+        self::assertCount(2, $failures);
+        self::assertStringContainsString(
+            'ci-coverage.yml cancels in progress but its concurrency group is not keyed on the commit sha '
+            . '(found: ' . self::LANE_BRANCH_GROUP . ').',
+            $failures[0],
+        );
+        self::assertStringContainsString(
+            '(found: refs/heads/${{ github.ref }}-nightly).',
+            $failures[1],
+        );
+    }
+
     public function testFailsWhenACancellingWorkflowKeysItsGroupOnTheMutatingRef(): void
     {
         $gateResult = $this->gate([
@@ -142,8 +175,9 @@ final class WorkflowConcurrencyGateTest extends TestCase
 
         self::assertFalse($gateResult->passed);
         self::assertSame(
-            'Workflow concurrency gate FAILED: ci-coverage.yml cancels in progress but its concurrency group '
-            . 'is not keyed on the commit sha (found: none).',
+            'Workflow concurrency gate FAILED: ci-coverage.yml declares no concurrency group at all '
+            . '-- every workflow that triggers itself must key one (a reusable workflow_call file '
+            . 'is exempt: its caller owns the group).',
             $gateResult->message,
         );
     }
@@ -182,6 +216,52 @@ final class WorkflowConcurrencyGateTest extends TestCase
         $gateResult = $this->gate([
             'ci-coverage.yml' => "concurrency:\n  group: " . self::LANE_BRANCH_GROUP
                 . "\n  cancel-in-progress: \${{ github.event_name == 'push' }}\n",
+        ]);
+
+        self::assertTrue($gateResult->passed);
+    }
+
+    public function testAJobLevelGroupIsAuditedLikeTheWorkflowLevelOne(): void
+    {
+        // The first-only read left every group after the first
+        // invisible; a cancelling file whose second (job-level) group
+        // is branch-keyed is the violation the first group's clean
+        // sha key must not hide.
+        $gateResult = $this->gate([
+            'release.yml' => "name: Release\n"
+                . "concurrency:\n  group: release-\${{ github.sha }}\n"
+                . "jobs:\n  publish:\n"
+                . "    concurrency:\n"
+                . "      group: publish-\${{ github.ref }}\n"
+                . "      cancel-in-progress: true\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString(
+            'cancels in progress but its concurrency group is not keyed on the commit sha (found: publish-',
+            $gateResult->message,
+        );
+    }
+
+    public function testATriggeringWorkflowWithoutAnyConcurrencyGroupFails(): void
+    {
+        $gateResult = $this->gate([
+            'nightly.yml' => "name: Nightly\non:\n  schedule:\n    - cron: '0 3 * * *'\njobs:\n  x:\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString(
+            'nightly.yml declares no concurrency group at all',
+            $gateResult->message,
+        );
+    }
+
+    public function testAReusableWorkflowCallFileStaysExempt(): void
+    {
+        // A called workflow's concurrency is its caller's: the file
+        // that only answers calls has no group of its own to key.
+        $gateResult = $this->gate([
+            'sbom-generate.yml' => "name: SBOM\non:\n  workflow_call:\njobs:\n  generate:\n",
         ]);
 
         self::assertTrue($gateResult->passed);

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Middleware;
 
+use Closure;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
@@ -70,7 +71,7 @@ final class TracingFactoryTest extends TestCase
             ],
         ]);
 
-        $tracer = TracingFactory::fromConfig($config);
+        $tracer = TracingFactory::fromConfig($config, $this->noRegistrar());
         $tracer->startSpan('request')->end();
         $tracer->flush();
 
@@ -123,7 +124,7 @@ final class TracingFactoryTest extends TestCase
             ],
         ]);
 
-        $tracer = TracingFactory::fromConfig($config);
+        $tracer = TracingFactory::fromConfig($config, $this->noRegistrar());
         $tracer->startSpan('request')->end();
         $tracer->flush();
 
@@ -159,7 +160,7 @@ final class TracingFactoryTest extends TestCase
             ],
         ]);
 
-        $tracer = TracingFactory::fromConfig($config);
+        $tracer = TracingFactory::fromConfig($config, $this->noRegistrar());
         $tracer->startSpan('request')->end();
         $tracer->flush();
 
@@ -170,6 +171,66 @@ final class TracingFactoryTest extends TestCase
         );
 
         $otlpMockServer->stop();
+    }
+
+    public function testAnArmedFamilyWiresTheExitDrainTheShutdownObserverDelivers(): void
+    {
+        // The audit's dead-lane shape: a deployment that arms the
+        // family but leaves the per-request cadence off still
+        // delivers -- the registered exit drain flushes the queue
+        // the process leaves behind.
+        $otlpMockServer = new OtlpMockServer();
+        $endpoint = $otlpMockServer->start();
+
+        $observers = [];
+        $config = new Config([
+            'observability' => [
+                'tracing' => ['enabled' => true],
+                'export' => [
+                    'enabled' => true,
+                    'endpoint' => $endpoint,
+                    'service_name' => 'factory-test',
+                ],
+            ],
+        ]);
+
+        $tracer = TracingFactory::fromConfig(
+            $config,
+            static function (callable $observer) use (&$observers): void {
+                $observers[] = $observer;
+            },
+        );
+
+        $tracer->startSpan('request')->end();
+
+        self::assertCount(1, $observers, 'the armed family registered its exit drain');
+        self::assertSame(0, $otlpMockServer->requests(), 'nothing crossed the wire before the exit');
+
+        ($observers[0])();
+
+        self::assertCount(1, $otlpMockServer->receivedBodies(), 'the exit drain delivered the queued batch');
+
+        $otlpMockServer->stop();
+    }
+
+    public function testADisarmedFamilyWiresNoExitDrain(): void
+    {
+        $observers = [];
+        $config = new Config([
+            'observability' => [
+                'tracing' => ['enabled' => true],
+                'export' => ['enabled' => false],
+            ],
+        ]);
+
+        TracingFactory::fromConfig(
+            $config,
+            static function (callable $observer) use (&$observers): void {
+                $observers[] = $observer;
+            },
+        );
+
+        self::assertSame([], $observers, 'the in-memory default keeps the drain in-process');
     }
 
     public function testTheFactoryBuildsTheFailClosedArmFromTheAbsentFamily(): void
@@ -249,5 +310,18 @@ final class TracingFactoryTest extends TestCase
                 $httpException->getMessage(),
             );
         }
+    }
+
+    /**
+     * The registrar double that keeps the suite's engine stacks clean:
+     * no real shutdown observer lands at the PHPUnit exit.
+     */
+    /**
+     * @return Closure(callable(): void): void
+     */
+    private function noRegistrar(): Closure
+    {
+        return static function (): void {
+        };
     }
 }

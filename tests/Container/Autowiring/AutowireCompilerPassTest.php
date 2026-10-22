@@ -56,8 +56,10 @@ use Zef\Test\Support\Container\Autowiring\BuiltinStaticFactory;
 use Zef\Test\Support\Container\Autowiring\ChainRoot;
 use Zef\Test\Support\Container\Autowiring\DependentHouse;
 use Zef\Test\Support\Container\Autowiring\DoubleDepHouse;
+use Zef\Test\Support\Container\Autowiring\EnumDefaultedHouse;
 use Zef\Test\Support\Container\Autowiring\FileLogger;
 use Zef\Test\Support\Container\Autowiring\GreeterFactory;
+use Zef\Test\Support\Container\Autowiring\InjectedDefaultedHouse;
 use Zef\Test\Support\Container\Autowiring\InjectedDepHouse;
 use Zef\Test\Support\Container\Autowiring\InjectedHouse;
 use Zef\Test\Support\Container\Autowiring\InstanceMethodFactory;
@@ -65,11 +67,13 @@ use Zef\Test\Support\Container\Autowiring\InterfaceHouse;
 use Zef\Test\Support\Container\Autowiring\LoggerInterface;
 use Zef\Test\Support\Container\Autowiring\LoggerVariadicHouse;
 use Zef\Test\Support\Container\Autowiring\NamedWinsHouse;
+use Zef\Test\Support\Container\Autowiring\NullableDefaultedHouse;
 use Zef\Test\Support\Container\Autowiring\NullableHouse;
 use Zef\Test\Support\Container\Autowiring\OptionalUnionHouse;
 use Zef\Test\Support\Container\Autowiring\ParameterlessHouse;
 use Zef\Test\Support\Container\Autowiring\SimpleDep;
 use Zef\Test\Support\Container\Autowiring\SimpleDepVariadicHouse;
+use Zef\Test\Support\Container\Autowiring\Status;
 use Zef\Test\Support\Container\Autowiring\TargetedHouse;
 use Zef\Test\Support\Container\Autowiring\TypedHouse;
 use Zef\Test\Support\Container\Autowiring\TypedVariadicHouse;
@@ -244,6 +248,65 @@ final class AutowireCompilerPassTest extends TestCase
                 $autowiringException->getMessage(),
             );
         }
+    }
+
+    public function testADefaultedNullableParameterReachesItsOwnDefaultWhenTheTypeIsUnbound(): void
+    {
+        // The refusal's way out said "or give the parameter a default
+        // value" -- the defaulted nullable took it, and the plan must
+        // keep the promise: the constructor's own null, not a refusal
+        // that vetoes the very default it advised.
+        $planned = $this->planned([
+            'app.house' => ['class' => NullableDefaultedHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([null], $this->firstInstance($planned)->arguments);
+    }
+
+    public function testADefaultedNullableParameterStillResolvesABoundType(): void
+    {
+        // The default is the fallback, never the override: a binding
+        // the declared set answers still wins the tier.
+        $planned = $this->planned([
+            'app.logger' => ['class' => FileLogger::class, 'arguments' => ['/tmp/app.log']],
+            LoggerInterface::class => ['alias' => 'app.logger'],
+            'app.house' => ['class' => NullableDefaultedHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame(
+            [['service' => LoggerInterface::class]],
+            $this->firstInstance($planned, 2)->arguments,
+        );
+    }
+
+    public function testADefaultedParameterWithAnExplicitInjectKeepsTheRefusal(): void
+    {
+        // Explicit wins over auto: an #[Inject] that names nothing is a
+        // declaration defect, and the constructor's default must not
+        // mask it.
+        try {
+            $this->planned([
+                'app.house' => ['class' => InjectedDefaultedHouse::class, 'autowire' => true],
+            ]);
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertStringContainsString(
+                "no binding for 'app.missing'",
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnEnumCaseDefaultIsBakedIntoThePlan(): void
+    {
+        // An enum type names no birthable binding, so the constructor's
+        // own case owns the plan -- verbatim, the singleton the AOT lane
+        // then spells as its constant expression.
+        $planned = $this->planned([
+            'app.house' => ['class' => EnumDefaultedHouse::class, 'autowire' => true],
+        ]);
+
+        self::assertSame([Status::ACTIVE], $this->firstInstance($planned)->arguments);
     }
 
     public function testAnOptionalUnionParameterBakesItsOwnDefault(): void

@@ -588,13 +588,16 @@ final class JsonLineLoggerTest extends TestCase
     }
 
     /**
-     * The record writer's loop bound counts characters and its slices
-     * read character offsets: a one-byte-per-call budget walks a
-     * two-character line whose second character is the two-byte e-acute
-     * in exactly two calls, and the second call's payload is the plain
-     * ASCII tail -- never the e-acute's second byte stitched ahead of it.
+     * The record writer's loop bound counts bytes and its remainders
+     * read byte offsets: a one-byte-per-call budget walks a
+     * two-character line whose second character is the two-byte
+     * e-acute in three calls, and the destination ends the walk whole
+     * -- the second call ships the e-acute's second byte (the exact
+     * byte-tail the first call's accepted byte left behind), never the
+     * plain ASCII tail a character-offset walk would jump to while
+     * the stream still misses half of the e-acute.
      */
-    public function testTheRecordLoopSlicesOnCharacterOffsetsUnderAByteBudget(): void
+    public function testTheRecordLoopSlicesOnByteOffsetsUnderAByteBudget(): void
     {
         JsonLineFunctionDoubles::define();
         JsonLineDoubleState::$fwriteChunk = 1;
@@ -607,17 +610,19 @@ final class JsonLineLoggerTest extends TestCase
             static fn (array $call): string => $call[0],
             JsonLineDoubleState::$fwriteCalls,
         );
-        self::assertSame(['éa', 'a'], $payloads, 'The cursor advances on character offsets under the byte budget.');
+        self::assertSame(['éa', "\xA9a", 'a'], $payloads, 'The cursor advances on byte offsets under the byte budget.');
+        rewind($stream);
+        self::assertSame('éa', stream_get_contents($stream), 'the byte walk leaves the multibyte line whole');
     }
 
     /**
-     * The character bound is the exit, not the byte count: a line of two
-     * characters whose second is two bytes wide completes in two
-     * one-budget calls -- a byte-based bound would demand a third call
-     * whose slice is the empty string past the end, and the empty write's
-     * refusal would fail an append that the contract completes.
+     * The byte bound is the exit: a line of two characters whose second
+     * is two bytes wide completes in three one-budget calls -- the walk
+     * ships every byte the stream accepted a remainder for, and the
+     * character-count exit this loop once kept would have left the
+     * e-acute's second byte unwritten while claiming success.
      */
-    public function testTheRecordLoopExitsOnTheCharacterBoundNotTheByteCount(): void
+    public function testTheRecordLoopExitsOnTheByteBoundNotTheCharacterCount(): void
     {
         JsonLineFunctionDoubles::define();
         JsonLineDoubleState::$fwriteChunk = 1;
@@ -630,7 +635,9 @@ final class JsonLineLoggerTest extends TestCase
             static fn (array $call): string => $call[0],
             JsonLineDoubleState::$fwriteCalls,
         );
-        self::assertSame(['aé', 'é'], $payloads, 'Two characters complete in two calls whatever their byte widths.');
+        self::assertSame(['aé', "\xC3\xA9", "\xA9"], $payloads, 'Every byte the stream accepted earned its remainder.');
+        rewind($stream);
+        self::assertSame('aé', stream_get_contents($stream), 'the walk ends with the line whole, never torn');
     }
 
     /**

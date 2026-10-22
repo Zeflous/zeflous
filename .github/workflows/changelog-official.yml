@@ -105,6 +105,11 @@ jobs:
       - name: Generate the official changelog snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The generator reads its token from the environment, never from
+          # the command line: a --token flag would ride the process list
+          # for the whole generation (CWE-522), readable by any co-tenant
+          # of the runner.
+          CHANGELOG_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # F-4 (single source of truth): the automation-title pattern lives in
           # ONE place. It MUST stay in sync with `CHANGELOG_PR_PREFIXES` in
           # `scripts/changelog/generate.py` -- both describe the same two
@@ -119,7 +124,6 @@ jobs:
           github_changelog_generator \
             --user "${GITHUB_REPOSITORY%%/*}" \
             --project "${GITHUB_REPOSITORY##*/}" \
-            --token "$GITHUB_TOKEN" \
             --output docs/api/changelog-official.md \
             --unreleased-only \
             --no-issues \

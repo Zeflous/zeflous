@@ -36,7 +36,7 @@ abstract class ZefException extends RuntimeException
     ) {
         parent::__construct($message, $code, $previous);
 
-        $resolvedErrorCode = $errorCode !== '' ? $errorCode : $this->defaultErrorCode(static::class);
+        $resolvedErrorCode = $errorCode !== '' ? $errorCode : ExceptionErrorCode::for(static::class);
         if (preg_match('/^[A-Z][A-Z0-9_]{0,63}$/D', $resolvedErrorCode) !== 1) {
             throw new InvalidArgumentException(
                 'The error code must be 1-64 uppercase letters, digits, or underscores and start with a letter.',
@@ -65,22 +65,5 @@ abstract class ZefException extends RuntimeException
     public function getTraceId(): ?string
     {
         return $this->traceId;
-    }
-
-    private function defaultErrorCode(string $class): string
-    {
-        $separator = mb_strrpos($class, '\\');
-        $shortName = $separator === false ? $class : mb_substr($class, $separator + 1);
-        $shortName = (string) preg_replace('/Exception$/', '', $shortName);
-
-        $snake = preg_replace('/(?<!^)[A-Z]/', '_$0', $shortName);
-        $normalized = mb_strtoupper((string) preg_replace('/[^A-Z0-9_]/', '_', (string) $snake));
-        $normalized = mb_trim((string) preg_replace('/_+/', '_', $normalized), '_');
-
-        if ($normalized === '' || preg_match('/^[A-Z]/D', $normalized) !== 1) {
-            $normalized = 'FRAMEWORK_ERROR';
-        }
-
-        return mb_rtrim(mb_substr($normalized, 0, 64), '_');
     }
 }

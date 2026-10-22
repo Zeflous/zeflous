@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Exception\ZefException;
 use Zef\Test\Support\Exception\ExplanatoryException;
+use Zef\Test\Support\Exception\ExtendableException;
 use Zef\Test\Support\Exception\Ü9ProbeException;
 use Zef\Test\Support\Excëption\UnicodeNamespaceException;
 
@@ -69,6 +70,39 @@ final class ZefExceptionTest extends TestCase
     {
         self::assertSame('U_N', new UnicodeNamespaceException()->getErrorCode());
         self::assertSame('FRAMEWORK_ERROR', new Ü9ProbeException()->getErrorCode());
+    }
+
+    public function testAnAnonymousExceptionAnswersTheStableDigestCode(): void
+    {
+        // The anonymous name's tail (basename, line, counter) is the
+        // identity; the absolute path the full name embeds is deployment
+        // layout. The digest answers a stable token that never carries
+        // the path and never truncates into a sibling's code.
+        $first = new class extends ExtendableException {
+        };
+        $second = new class extends ExtendableException {
+        };
+
+        self::assertMatchesRegularExpression(
+            '/^ANONYMOUS_[0-9A-F]{8}$/',
+            $first->getErrorCode(),
+        );
+        self::assertMatchesRegularExpression(
+            '/^ANONYMOUS_[0-9A-F]{8}$/',
+            $second->getErrorCode(),
+        );
+        self::assertNotSame(
+            $first->getErrorCode(),
+            $second->getErrorCode(),
+            'two declarations answer two codes',
+        );
+
+        // One declaration evaluated twice is one identity: the code is
+        // deterministic for the class it names.
+        $birth = static fn (): ExtendableException => new class extends ExtendableException {
+        };
+
+        self::assertSame($birth()->getErrorCode(), $birth()->getErrorCode());
     }
 
     public function testTheDefaultErrorCodeTruncatesAtSixtyFourCharacters(): void

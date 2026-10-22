@@ -18,11 +18,17 @@ final class RoadmapTableCells
     /**
      * The trimmed cells of a table row.
      *
+     * The trim mask carries the carriage return: a Windows contributor
+     * without `.gitattributes` commits CRLF line endings, and a trailing
+     * `\r` would otherwise survive the row's edges -- an extra empty cell
+     * that silently un-separates every separator row (the count rules
+     * judge nothing, the commit rules false-fail the separator as data).
+     *
      * @return list<string>
      */
     public static function cells(string $line): array
     {
-        return array_map(mb_trim(...), explode('|', mb_trim($line, "| \t")));
+        return array_map(mb_trim(...), explode('|', mb_trim($line, "| \t\r")));
     }
 
     /**

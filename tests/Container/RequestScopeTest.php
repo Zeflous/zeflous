@@ -15,9 +15,12 @@ use Zef\Framework\Container\RequestInstances;
 use Zef\Framework\Container\RequestScope;
 use Zef\Framework\Container\RequestScopeException;
 use Zef\Framework\Container\RequestScopeRefusals;
+use Zef\Framework\Container\ResolutionFrames;
 use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ServiceResolutions;
 use Zef\Framework\Container\ServiceStore;
+use Zef\Test\Support\Container\CaptiveHolder;
+use Zef\Test\Support\Container\NestedHolder;
 use Zef\Test\Support\Container\ScopedBranch;
 
 /**
@@ -27,6 +30,7 @@ use Zef\Test\Support\Container\ScopedBranch;
 #[CoversClass(RequestInstances::class)]
 #[CoversClass(RequestScope::class)]
 #[CoversClass(RequestScopeRefusals::class)]
+#[CoversClass(ResolutionFrames::class)]
 #[CoversClass(ServiceResolutions::class)]
 #[CoversClass(ServiceStore::class)]
 final class RequestScopeTest extends TestCase
@@ -329,6 +333,164 @@ final class RequestScopeTest extends TestCase
             self::assertStringContainsString(
                 "Service 'app.thing' is request-scoped and cannot be resolved outside a request scope",
                 $containerException->getMessage(),
+            );
+        }
+    }
+
+    public function testASingletonResolvingARequestScopedIdIsTheCaptiveRefusal(): void
+    {
+        // The runtime capture the boot graph refuses for declared
+        // definitions, answered here for the programmatic path: the
+        // singleton's forever memo must never hold an instance born in
+        // a request scope.
+        $container = new Container();
+        $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
+        // The captor factory resolves the request-scoped leaf while its
+        // own singleton frame is open.
+        $container->set(
+            'app.captor',
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
+
+                return new CaptiveHolder($leaf);
+            },
+        );
+
+        $scope = $container->createRequestScope();
+
+        try {
+            $scope->get('app.captor');
+            self::fail('Expected a RequestScopeException to be thrown.');
+        } catch (RequestScopeException $requestScopeException) {
+            self::assertSame(
+                "Service 'app.captor' (singleton) is resolving and would capture the request-scoped service 'app.leaf' "
+                . 'beyond the scope it was born in -- the runtime capture the boot graph refuses: '
+                . "give 'app.leaf' a singleton or transient lifetime, or make 'app.captor' request-scoped.",
+                $requestScopeException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheCaptiveGuardFiresAtTheRootToo(): void
+    {
+        // Outside any scope the request lane would refuse the
+        // outside-scope refusal -- but the capture shape is the deeper
+        // defect, so the captor message owns the boot-time resolution
+        // as well.
+        $container = new Container();
+        $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
+        $container->set(
+            'app.captor',
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
+
+                return new CaptiveHolder($leaf);
+            },
+        );
+
+        try {
+            $container->get('app.captor');
+            self::fail('Expected a RequestScopeException to be thrown.');
+        } catch (RequestScopeException $requestScopeException) {
+            self::assertSame(
+                "Service 'app.captor' (singleton) is resolving and would capture the request-scoped service 'app.leaf' "
+                . 'beyond the scope it was born in -- the runtime capture the boot graph refuses: '
+                . "give 'app.leaf' a singleton or transient lifetime, or make 'app.captor' request-scoped.",
+                $requestScopeException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheCaptorFrameClosesAfterARefusal(): void
+    {
+        // The frame ledger must not leak a captor: after the refused
+        // resolution, a plain request-scoped resolution inside a scope
+        // works again, and the failed captor itself never memoises.
+        $container = new Container();
+        $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
+        $container->set(
+            'app.captor',
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
+
+                return new CaptiveHolder($leaf);
+            },
+        );
+
+        $scope = $container->createRequestScope();
+
+        try {
+            $scope->get('app.captor');
+            self::fail('Expected a RequestScopeException to be thrown.');
+        } catch (RequestScopeException) {
+            // the refusal itself
+        }
+
+        self::assertInstanceOf(stdClass::class, $scope->get('app.leaf'), 'the ledger kept no stale captor');
+        self::assertSame($scope->get('app.leaf'), $scope->get('app.leaf'));
+    }
+
+    public function testATransientMayStillResolveARequestScopedId(): void
+    {
+        // The narrower capture is a fact of construction, not a broken
+        // promise -- the same doctrine the boot graph keeps.
+        $container = new Container();
+        $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
+        $container->set(
+            'app.branch',
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
+
+                return new CaptiveHolder($leaf);
+            },
+            ServiceLifetime::TRANSIENT,
+        );
+
+        $scope = $container->createRequestScope();
+
+        $branch = $scope->get('app.branch');
+        self::assertInstanceOf(CaptiveHolder::class, $branch);
+        self::assertSame($scope->get('app.leaf'), $branch->leaf);
+    }
+
+    public function testNestedSingletonsNameTheInnermostCaptor(): void
+    {
+        $container = new Container();
+        $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
+        $container->set(
+            'app.inner',
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
+
+                return new CaptiveHolder($leaf);
+            },
+        );
+        $container->set(
+            'app.outer',
+            static function (Container $container): NestedHolder {
+                $inner = $container->get('app.inner');
+                Assert::assertInstanceOf(stdClass::class, $inner);
+
+                return new NestedHolder($inner);
+            },
+        );
+
+        $scope = $container->createRequestScope();
+
+        try {
+            $scope->get('app.outer');
+            self::fail('Expected a RequestScopeException to be thrown.');
+        } catch (RequestScopeException $requestScopeException) {
+            self::assertSame(
+                "Service 'app.inner' (singleton) is resolving and would capture the request-scoped service 'app.leaf' "
+                . 'beyond the scope it was born in -- the runtime capture the boot graph refuses: '
+                . "give 'app.leaf' a singleton or transient lifetime, or make 'app.inner' request-scoped.",
+                $requestScopeException->getMessage(),
             );
         }
     }

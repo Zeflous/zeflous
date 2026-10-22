@@ -54,6 +54,12 @@ final readonly class ProcessShutdownFatals
     /**
      * Observes one shutdown: the witnessed fatal is recorded and
      * answered; every other shutdown stays silent.
+     *
+     * The recorded witness is consumed (`error_clear_last()`): a stale
+     * engine entry -- a startup core warning no handler ever routed,
+     * a fatal the native arm converted and the typed lane already
+     * answered -- would otherwise re-record as a fresh critical fatal
+     * at every later worker recycle.
      */
     public function observe(): void
     {
@@ -74,6 +80,7 @@ final readonly class ProcessShutdownFatals
             $composed = $this->composed($fatal);
 
             $this->processBoundaryRecords->fatal($fatal, $facts);
+            error_clear_last();
 
             if (!$this->processBoundaryTransmission->answersHttp()) {
                 $this->processBoundaryTransmission->sink('PHP fatal error', $composed);

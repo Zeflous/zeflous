@@ -20,8 +20,10 @@ use Psr\Http\Message\ServerRequestInterface;
  * header, otherwise the URI host. The chosen authority is parsed by the
  * layer's {@see HostAuthority} grammar and judged by the same
  * {@see TrustedHosts} allow-list -- a spoofed forwarded value from an
- * untrusted peer never reaches the comparison, and the first value of a
- * comma-separated forwarded list is the only value that can claim trust.
+ * untrusted peer never reaches the comparison, and of a comma-separated
+ * forwarded list only the last value can claim trust: under the standard
+ * appending proxy that is the position the trusted proxy wrote, every
+ * entry before it is client-supplied.
  *
  * Attribution: legacy `zef-framework` `Adapters/Http/RequestFactory`
  * (`assertTrustedRequestHost()`, move-verbatim behaviour folded onto the
@@ -86,7 +88,7 @@ final class TrustedRequestHost
         $remote = ServerValues::text($serverRequest->getServerParams(), 'REMOTE_ADDR', '');
 
         if (TrustedProxyMatcher::matches($remote, $trustedProxies) && $serverRequest->hasHeader('X-Forwarded-Host')) {
-            return self::firstForwardedValue($serverRequest->getHeaderLine('X-Forwarded-Host'));
+            return self::lastForwardedValue($serverRequest->getHeaderLine('X-Forwarded-Host'));
         }
 
         if ($serverRequest->hasHeader('Host')) {
@@ -97,16 +99,18 @@ final class TrustedRequestHost
     }
 
     /**
-     * Answers the first value of a comma-separated forwarded list: the
-     * leftmost value is the one the trusted proxy vouches for, every
-     * later entry is client-appended and claims nothing.
+     * Answers the last value of a comma-separated forwarded list: the
+     * appended end is the position the trusted proxy vouches for, every
+     * earlier entry is client-supplied and claims nothing.
      *
      * @param string $value the raw forwarded header value
      *
-     * @return string the first, whitespace-trimmed value
+     * @return string the last, whitespace-trimmed value
      */
-    private static function firstForwardedValue(string $value): string
+    private static function lastForwardedValue(string $value): string
     {
-        return mb_trim(explode(',', $value)[0]);
+        $candidates = explode(',', $value);
+
+        return mb_trim($candidates[\count($candidates) - 1]);
     }
 }

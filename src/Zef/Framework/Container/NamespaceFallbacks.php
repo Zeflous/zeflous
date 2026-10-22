@@ -65,6 +65,7 @@ final class NamespaceFallbacks
     public function __construct(
         CycleGuard $cycleGuard,
         Interceptions $interceptions,
+        private readonly ResolutionFrames $resolutionFrames = new ResolutionFrames(),
     ) {
         $this->singletonMemo = new SingletonMemo();
         $this->fallbackConstructions = new FallbackConstructions($cycleGuard, $interceptions);
@@ -120,7 +121,10 @@ final class NamespaceFallbacks
 
         return $this->singletonMemo->answer(
             $id,
-            fn (): mixed => $this->fallbackConstructions->run($id, $entry['factory'], $container),
+            fn (): mixed => $this->resolutionFrames->withinSingleton(
+                $id,
+                fn (): mixed => $this->fallbackConstructions->run($id, $entry['factory'], $container),
+            ),
         );
     }
 

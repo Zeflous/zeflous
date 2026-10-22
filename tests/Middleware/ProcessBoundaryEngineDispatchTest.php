@@ -107,6 +107,45 @@ final class ProcessBoundaryEngineDispatchTest extends TestCase
         );
     }
 
+    /**
+     * The conversion arm must consume the engine's last-error witness:
+     * a converted-and-handled E_USER_ERROR would otherwise still sit in
+     * error_get_last(), and the shutdown arm of a later worker recycle
+     * would re-record it as a fresh critical fatal -- double counting in
+     * logs and metrics, with a second 500 ship attempt attached.
+     */
+    public function testAConvertedUserErrorIsNotReWitnessedAtTheNextShutdown(): void
+    {
+        [$exitCode, $output] = $this->runEngineScript(<<<'PHP'
+            error_reporting(E_ALL);
+            $boundary = new Zef\Framework\Middleware\ProcessErrorBoundary(
+                new Zef\Framework\Logging\JsonLineLogger($logPath),
+            );
+            $boundary->install();
+            try {
+                trigger_error('The budget import failed', E_USER_ERROR);
+                exit(3);
+            } catch (Zef\Framework\Exception\NativeErrorException $nativeErrorException) {
+                fwrite(STDOUT, 'CAUGHT ' . $nativeErrorException->getMessage() . "\n");
+            }
+            $boundary->onShutdown();
+            exit(0);
+            PHP);
+
+        self::assertSame(0, $exitCode, "The conversion must unwind and the recycled shutdown stay silent.\n" . $output);
+        self::assertStringContainsString(
+            'CAUGHT The budget import failed in ' . $this->scriptPath,
+            $output,
+        );
+
+        $records = $this->jsonlRecords();
+        self::assertCount(
+            1,
+            $records,
+            'The deprecation notice is the one record: the converted user error is never re-witnessed as a fatal.',
+        );
+    }
+
     public function testAMaskedUserErrorIsAnsweredByTheShutdownArm(): void
     {
         [$exitCode, $output] = $this->runEngineScript(<<<'PHP'
