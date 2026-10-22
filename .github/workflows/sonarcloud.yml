@@ -330,35 +330,47 @@ jobs:
 
           # CI Coverage has a 20-minute timeout. Wait only within that bound;
           # failure to observe a successful completed run is missing evidence.
+          #
+          # v2 (2026-10-23): one head sha can carry SEVERAL CI Coverage runs --
+          # every queue merge produces BOTH a merge_group run (the queue's own
+          # validation of the group head) and a push run (main advancing to the
+          # very same commit). The bridge used to lock onto the NEWEST run
+          # (per_page=1) and ignore an already-successful completed one, so a
+          # GitHub status lag (job done 15:07:35Z while the run stayed "queued"
+          # in the API until 15:50:40Z) failed the REQUIRED SonarCloud check on
+          # a green main for 8dce4624 on 2026-10-22. The bridge now accepts ANY
+          # completed successful run for the sha -- the newest successful one
+          # wins -- because the sha pins the content: an artifact produced for
+          # this head sha is valid coverage evidence no matter which event
+          # produced it. It still fails closed when no run for the sha completes
+          # successfully within the bound.
           deadline=$(( $(date +%s) + 20 * 60 ))
           run_id=""
-          status="missing"
-          conclusion=""
           while [ "$(date +%s)" -lt "${deadline}" ]; do
-            run_id=$(curl -fsSL \
+            runs_json=$(curl -fsSL \
               -H "Authorization: Bearer ${GH_TOKEN}" \
               -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci-coverage.yml/runs?head_sha=${sha}&per_page=1" \
-              | jq -r '.workflow_runs[0].id // empty' 2>/dev/null) || run_id=""
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci-coverage.yml/runs?head_sha=${sha}&per_page=20" \
+              2>/dev/null) || runs_json=""
+            # The newest COMPLETED SUCCESSFUL run for the sha, if any.
+            run_id=$(printf '%s' "${runs_json}" \
+              | jq -r '[.workflow_runs[]? | select(.status == "completed" and .conclusion == "success")][0].id // empty' 2>/dev/null) || run_id=""
             if [ -n "${run_id}" ]; then
-              run_json=$(curl -fsSL \
-                -H "Authorization: Bearer ${GH_TOKEN}" \
-                -H "Accept: application/vnd.github+json" \
-                "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}" 2>/dev/null) || run_json=""
-              status=$(printf '%s' "${run_json}" | jq -r '.status // "unknown"' 2>/dev/null) || status="unknown"
-              conclusion=$(printf '%s' "${run_json}" | jq -r '.conclusion // empty' 2>/dev/null) || conclusion=""
-              if [ "${status}" = "completed" ]; then break; fi
-              echo "CI Coverage run ${run_id} for ${sha:0:8}: ${status}; polling again in 20s..."
+              echo "CI Coverage run ${run_id} completed successfully for ${sha:0:8}; bridging its artifact."
+              break
+            fi
+            newest=$(printf '%s' "${runs_json}" \
+              | jq -r '.workflow_runs[0]? | "run \(.id) is \(.status)"' 2>/dev/null) || newest=""
+            if [ -n "${newest}" ]; then
+              echo "CI Coverage ${newest} for ${sha:0:8}; polling again in 20s..."
+            else
+              echo "No CI Coverage run visible yet for ${sha:0:8}; polling again in 20s..."
             fi
             sleep 20
           done
 
-          if [ -z "${run_id}" ] || [ "${status}" != "completed" ]; then
-            echo "::error::CI Coverage did not complete successfully within 20 minutes for ${sha:0:8}; refusing to run SonarCloud without coverage evidence."
-            exit 1
-          fi
-          if [ "${conclusion}" != "success" ]; then
-            echo "::error::CI Coverage run ${run_id} concluded '${conclusion:-unknown}' for ${sha:0:8}; refusing to run SonarCloud without successful coverage evidence."
+          if [ -z "${run_id}" ]; then
+            echo "::error::No CI Coverage run for ${sha:0:8} completed successfully within 20 minutes; refusing to run SonarCloud without coverage evidence."
             exit 1
           fi
 

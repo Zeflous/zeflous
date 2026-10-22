@@ -37,6 +37,30 @@ namespace Zef\Framework\Tooling;
  * whatever the branch and whatever the spelling: it reflects main's own
  * commits back into a branch, and any real content still reaches main
  * through a pull-request merge commit of its own, which the patterns refuse.
+ *
+ * A merge commit that lands a pull request on `main` is accepted when -- and
+ * only when -- the ledger already records that pull request: the merge
+ * machinery stamps every landing commit with the pull request's title and a
+ * trailing "(#<number>)", and a `ROADMAP-HISTORY.md` row carrying that number
+ * in the tree under validation is the record that the landing is accounted
+ * for. {@see RoadmapRecordedMerge} owns that acceptance -- the subject must
+ * belong to a MERGE commit of the walk, and the number must carry a history
+ * row in the validated tree. This is the acceptance that makes the rule
+ * enforceable at the merge queue ({@see RoadmapPinCommitCollector} judges
+ * the group head): a substantive pull request merges through the queue only
+ * when its history row and its pin refresh ride in the pull request itself,
+ * so the walk from the refreshed pin sees nothing but bookkeeping and the
+ * recorded landing. Before this acceptance existed, the queue let an
+ * unrecorded substantive merge land and the main lane went red after it --
+ * the 2026-10-22 incident class, healed only reactively by a pin pull
+ * request that chased the merge; with the queue judging and the recorded
+ * landing accepted, the failure surfaces on the pull request's own queue
+ * entry, where it can be acted on, and `main` never reddens in the first
+ * place. The acceptance is fail closed on every axis: a subject not spelled
+ * with the trailing number, a number with no history row, a plain
+ * (non-merge) commit spelled with the suffix, or a ledger-less walk -- each
+ * refuses.
+ *
  * So the steady state after a refresh stays green, while any other landed
  * change (a feature, a fix, a documentation change) leaves the pin stale
  * until it is refreshed. That is the rule the document states for itself:
@@ -84,9 +108,11 @@ final class RoadmapPinFreshness
      * Every pin-freshness violation for one status document, in a stable
      * order.
      *
+     * @param list<int> $recordedPullRequests numbers that carry a history row in the validated tree
+     *
      * @return list<string>
      */
-    public static function failures(string $name, ?RoadmapPinState $roadmapPinState): array
+    public static function failures(string $name, ?RoadmapPinState $roadmapPinState, array $recordedPullRequests): array
     {
         if (!$roadmapPinState instanceof RoadmapPinState) {
             return [];
@@ -98,7 +124,7 @@ final class RoadmapPinFreshness
             return [self::unusableMessage($name, $pinnedSha)];
         }
 
-        return self::landedCommits($name, $pinnedSha, $roadmapPinState->subjects);
+        return self::landedCommits($name, $pinnedSha, $roadmapPinState, $recordedPullRequests);
     }
 
     /**
@@ -125,18 +151,33 @@ final class RoadmapPinFreshness
 
     /**
      * The violation of a usable pin: commits that landed on main after it and
-     * are not changelog or roadmap bookkeeping.
+     * are not changelog bookkeeping, roadmap bookkeeping, or the recorded
+     * landing of a pull request the ledger already carries.
      *
-     * @param list<string> $subjects
+     * @param list<int> $recordedPullRequests numbers that carry a history row in the validated tree
      *
      * @return list<string>
      */
-    private static function landedCommits(string $name, string $pinnedSha, array $subjects): array
-    {
+    private static function landedCommits(
+        string $name,
+        string $pinnedSha,
+        RoadmapPinState $roadmapPinState,
+        array $recordedPullRequests,
+    ): array {
         $landed = [];
 
-        foreach ($subjects as $subject) {
+        foreach ($roadmapPinState->subjects as $subject) {
             if (self::isBookkeeping($subject)) {
+                continue;
+            }
+
+            $isRecordedLanding = RoadmapRecordedMerge::isAccepted(
+                $subject,
+                $roadmapPinState->mergeSubjects,
+                $recordedPullRequests,
+            );
+
+            if ($isRecordedLanding) {
                 continue;
             }
 
@@ -149,8 +190,8 @@ final class RoadmapPinFreshness
 
         return [\sprintf(
             '%s "Last updated" pin `%s` is stale: %d commit(s) landed on main after it'
-                . ' that are not changelog or roadmap bookkeeping, starting with "%s".'
-                . ' Refresh the pin (CONTRIBUTING.md, rule 13).',
+                . ' that are not changelog, roadmap bookkeeping, or a recorded pull-request merge,'
+                . ' starting with "%s". Refresh the pin (CONTRIBUTING.md, rule 13).',
             $name,
             $pinnedSha,
             \count($landed),

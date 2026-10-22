@@ -948,7 +948,20 @@
                 // (verified by running the adapter battery under
                 // both cast removals -- the complete battery passes,
                 // the 0/1/65535/65536 boundary series included).
-                "Zef\\Framework\\Middleware\\RequestAuthority::host"
+                "Zef\\Framework\\Middleware\\RequestAuthority::host",
+                // The ledger probe in RoadmapRecordedMerge::isAccepted()
+                // asks isset() on a map flipped from list<int>, whose keys
+                // are integers, and PHP canonicalises a canonical decimal
+                // numeric string to that very integer key -- so
+                // isset($map['532']) and isset($map[532]) address one key
+                // for every probe the trailing "(#<number>)" pattern can
+                // produce (decimal digits alone, no sign, no whitespace,
+                // always canonical; verified against the engine, the
+                // complete suite passes under the manually applied
+                // mutation). The cast exists for Psalm's
+                // InvalidArrayOffset, which refuses a string offset on an
+                // integer-keyed map, not for runtime semantics.
+                "Zef\\Framework\\Tooling\\RoadmapRecordedMerge::isAccepted"
             ]
         },
         // The Exception suffix strip in ZefException::defaultErrorCode()

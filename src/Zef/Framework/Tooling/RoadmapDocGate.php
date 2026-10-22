@@ -26,7 +26,10 @@ namespace Zef\Framework\Tooling;
  * delegated to {@see RoadmapPinFreshness} and arrives as a
  * {@see RoadmapPinState} the runner gathers -- null when the lane is not
  * validating `main`, in which case the gate says so in its pass message
- * instead of silently skipping. The split is not cosmetic: the repository's
+ * instead of silently skipping -- together with the ledger of pull-request
+ * numbers the `ROADMAP-HISTORY.md` document under validation records, which
+ * the freshness rule needs to accept the merge machinery's recorded landing
+ * commits. The split is not cosmetic: the repository's
  * own architecture gate (`php-codearch-config.yaml`,
  * `tooComplex.difficulty: 20`) scores a single class holding every rule above
  * the difficulty ceiling, so each file carries one focused review surface and
@@ -45,7 +48,11 @@ final readonly class RoadmapDocGate
             $failures = [...$failures, ...$this->failures($name, $contents)];
         }
 
-        $failures = [...$failures, ...RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState)];
+        $failures = [...$failures, ...RoadmapPinFreshness::failures(
+            'ROADMAP-STATUS.md',
+            $roadmapPinState,
+            RoadmapHistoryRows::pullRequests(explode("\n", $roadmapDocReport->documents['ROADMAP-HISTORY.md'] ?? '')),
+        )];
 
         if ($failures !== []) {
             return GateResult::failed(\sprintf(

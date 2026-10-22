@@ -16,22 +16,38 @@ use Closure;
  * therefore decides -- from the CI environment first (a pull-request lane is
  * recognised by a non-empty `GITHUB_BASE_REF`, a main lane by `GITHUB_REF`),
  * from the checked-out branch second -- whether it is on `main`. When it is
- * not, it
- * returns null and the gate says so in its pass message instead of silently
- * skipping; the main-validation watchdog guarantees the rule does run on
- * `main`, which is the only place its verdict means anything.
+ * not, it returns null and the gate says so in its pass message instead of
+ * silently skipping; the main-validation watchdog guarantees the rule does
+ * run on `main`, which is the only place its verdict means anything.
  *
- * When it is on `main`, it fails closed: a git answer it cannot interpret
- * (`merge-base --is-ancestor` exits 0 for an ancestor, 1 for a plain refusal,
- * and anything else is an error it cannot convert into a verdict) throws
- * rather than pass, because an unreadable answer about the pin must never be
- * convertible into a pass.
+ * A main lane is not only the push lane. The merge queue validates the
+ * combined group head it is about to make `main`'s tip -- the branch
+ * `refs/heads/gh-readonly-queue/main/pr-<N>-<sha>` -- and that head is
+ * exactly the commit the freshness walk would judge one lane too late: the
+ * 2026-10-22 incident class was born precisely there, a substantive pull
+ * request whose record did not ride along sailing through the queue and
+ * reddening `main` after the landing, forcing a healing pull request to
+ * catch up. The queue lane is therefore recognised as a main lane too, so
+ * the walk's verdict lands where it can still REFUSE the merge -- on the
+ * group's own checks -- instead of after the damage. The queue walks with
+ * the same rule the push lane walks ({@see RoadmapPinFreshness}): a
+ * substantive pull request merges through the queue only when its record
+ * (the `ROADMAP-HISTORY.md` row) and its pin refresh ride along, because the
+ * merge commit the queue lands on `main` carries the trailing
+ * "(#<number>)" that the recorded-merge acceptance checks against the
+ * ledger.
+ *
+ * When it is on a main lane, it fails closed: a git answer it cannot
+ * interpret (`merge-base --is-ancestor` exits 0 for an ancestor, 1 for a
+ * plain refusal, and anything else is an error it cannot convert into a
+ * verdict) throws rather than pass, because an unreadable answer about the
+ * pin must never be convertible into a pass.
  *
  * CI environment note: the GitHub runner exports `GITHUB_BASE_REF` as an
- * EMPTY STRING on the push and workflow_dispatch events (the variable is
- * present but carries no base branch), so a pull-request lane is recognised
- * only by a NON-EMPTY `GITHUB_BASE_REF` -- a mere presence check mistakes
- * every main lane for a pull-request lane and the rule never judges.
+ * EMPTY STRING on the push, workflow_dispatch and merge_group events (the
+ * variable is present but carries no base branch), so a pull-request lane is
+ * recognised only by a NON-EMPTY `GITHUB_BASE_REF` -- a mere presence check
+ * mistakes every main lane for a pull-request lane and the rule never judges.
  */
 final readonly class RoadmapPinCommitCollector
 {
@@ -107,12 +123,34 @@ final readonly class RoadmapPinCommitCollector
             ));
         }
 
-        return new RoadmapPinState($pinnedSha, true, $this->subjects($logOutput));
+        [$mergeExit, $mergeOutput] = $this->git(\sprintf(
+            'git -C %s log --format=%%s --merges %s..HEAD',
+            escapeshellarg($this->root),
+            escapeshellarg($pinnedSha),
+        ));
+
+        if ($mergeExit !== 0) {
+            throw new ToolingException(\sprintf(
+                'Roadmap pin freshness FAILED: git could not list the merge commits after the pinned `%s`'
+                    . ' (log exited %d).',
+                $pinnedSha,
+                $mergeExit,
+            ));
+        }
+
+        return new RoadmapPinState(
+            $pinnedSha,
+            true,
+            RoadmapCommitSubjects::of($logOutput),
+            RoadmapCommitSubjects::of($mergeOutput),
+        );
     }
 
     /**
-     * Whether this lane is validating `main`: the CI main lanes are recognised
-     * from the event environment, a local checkout from its branch name.
+     * Whether this lane is validating `main`: the CI main lanes -- the push
+     * lane and the merge queue's group-head lane, whose head is the commit
+     * the queue is about to make `main`'s tip -- are recognised from the event
+     * environment, a local checkout from its branch name.
      */
     private function onMain(): bool
     {
@@ -122,7 +160,7 @@ final readonly class RoadmapPinCommitCollector
             return false;
         }
 
-        if (getenv('GITHUB_REF') === 'refs/heads/main') {
+        if ($this->isAMainRef(getenv('GITHUB_REF'))) {
             return true;
         }
 
@@ -135,31 +173,28 @@ final readonly class RoadmapPinCommitCollector
     }
 
     /**
+     * Whether a CI ref names a lane that validates `main`: the push lane's
+     * own ref, or the merge queue's group-head branch for `main` -- the
+     * branch the queue validates the combined head on, whose tip is the
+     * commit the queue is about to make `main`'s tip. The base segment must
+     * be exactly `main/`: a ref whose segment merely starts with it is a
+     * different base, and a lane validating any other base is not this
+     * rule's to judge.
+     */
+    private function isAMainRef(false|string $ref): bool
+    {
+        if ($ref === 'refs/heads/main') {
+            return true;
+        }
+
+        return \is_string($ref) && str_starts_with($ref, 'refs/heads/gh-readonly-queue/main/');
+    }
+
+    /**
      * @return array{0: int, 1: string}
      */
     private function git(string $command): array
     {
         return ($this->processRunner)($command);
-    }
-
-    /**
-     * The commit subjects of a `git log` payload, without its blank separator
-     * lines.
-     *
-     * @return list<string>
-     */
-    private function subjects(string $logOutput): array
-    {
-        $subjects = [];
-
-        foreach (explode("\n", $logOutput) as $line) {
-            if (mb_trim($line) === '') {
-                continue;
-            }
-
-            $subjects[] = $line;
-        }
-
-        return $subjects;
     }
 }
