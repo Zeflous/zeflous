@@ -38,6 +38,8 @@ final class ProblemDetailsMetadataTest extends TestCase
 
         yield 'method-not-allowed answers 405' => [405, 'method-not-allowed', 'Method Not Allowed'];
 
+        yield 'not-acceptable answers 406' => [406, 'not-acceptable', 'Not Acceptable'];
+
         yield 'conflict answers 409' => [409, 'conflict', 'Conflict'];
 
         yield 'content-too-large answers 413' => [413, 'content-too-large', 'Content Too Large'];

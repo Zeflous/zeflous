@@ -26,10 +26,11 @@ use Override;
  * malformed signal -- both are refused rather than silently repaired.
  *
  * @api the typed family's published refusal vocabulary: hosts catch these
- *      across their own code, and the router lane's throw site (the E3
- *      dispatch translation that also consumes the method/path payload)
- *      is still ahead -- the analyser cannot see either consumer from
- *      the framework tree alone.
+ *      across their own code, and the router lane's throw site -- the
+ *      dispatch translation in
+ *      {@see \Zef\Framework\Middleware\RouteDispatchHandler} that
+ *      consumes the method/path payload -- raises it for every matched
+ *      path that does not answer the request method.
  */
 final class MethodNotAllowedException extends ZefException implements CarriesHttpStatus
 {

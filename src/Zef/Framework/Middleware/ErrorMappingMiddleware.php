@@ -58,8 +58,10 @@ use Zef\Framework\Telemetry\MeterInterface;
  * `Middleware/GlobalErrorHandler` over `Middleware/ErrorResponseFactory`,
  * with the runner's ingress 413/400 mapping folded in); the legacy's
  * `MethodNotAllowedException` arm (405 + `Allow`) is carried by the typed
- * family's own status now -- the router lane's dispatch translation owns
- * the `Allow` header when it lands.
+ * family's own status now -- the router lane's dispatch translation
+ * ({@see RouteDispatchHandler}) throws the refusal, and the `Allow`
+ * header renders from its payload in
+ * {@see \Zef\Framework\Http\ProblemDetailsResponseHeaders}.
  *
  * Deviations from the reference, both restructured for observability: the
  * legacy stamped the correlation id inside each arm of a duplicated

@@ -5,19 +5,48 @@ declare(strict_types=1);
 namespace Zef\Framework\Middleware;
 
 use Override;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use UnexpectedValueException;
 use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Config\Routing\DispatchOutcome;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
+use Zef\Framework\Exception\MethodNotAllowedException;
+use Zef\Framework\Exception\NotAcceptableException;
+use Zef\Framework\Exception\NotFoundException;
+use Zef\Framework\Exception\ZefException;
 
 /**
- * Terminal PSR-15 handler for one precomputed routing match.
+ * Terminal PSR-15 handler for one precomputed routing match -- the
+ * dispatch translation the error system's consumers were waiting for.
+ *
+ * A found match executes and its representation is answered as before.
+ * A non-executed dispatch outcome is no longer rendered here: it is
+ * translated into the typed refusal family and thrown, so the
+ * request-scoped error boundary ({@see ErrorMappingMiddleware}) owns the
+ * answer the way it owns every other failure a handler lets escape --
+ * the disclosure policy, the Accept negotiation with the HTML fallback,
+ * the RFC 9457 type URIs, the machine-readable error codes, the trace
+ * and correlation ids, the `no-store`/`nosniff` headers, the 4xx warning
+ * log level and the fault metrics all render through the one posture
+ * every other typed refusal already answers. The router joins the
+ * contract its own docblocks promised: one 404/405/406 shape whether
+ * the miss happened at the pattern, behind it, or in the negotiation.
+ *
+ * Each refusal carries exactly what its outcome can know: not acceptable
+ * advertises the media types the route does produce
+ * ({@see NotAcceptableException}), method not allowed advertises the
+ * methods the path does answer with the request's own method and path
+ * in the message ({@see MethodNotAllowedException} -- the `Allow`
+ * header renders from its payload in
+ * {@see \Zef\Framework\Http\ProblemDetailsResponseHeaders}), and any
+ * other non-executed outcome is the plain not-found refusal
+ * ({@see NotFoundException}). The request's method and path travel on
+ * the {@see ServerRequestMetadata} the routing adapter already
+ * extracted, so the refusal reports what the client asked, not what the
+ * matcher happened to re-derive.
  *
  * @internal
  */
@@ -26,8 +55,7 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
     public function __construct(
         private RouteDispatcher $routeDispatcher,
         private MatchResult $matchResult,
-        private ResponseFactoryInterface $responseFactory,
-        private StreamFactoryInterface $streamFactory,
+        private ServerRequestMetadata $serverRequestMetadata,
     ) {
     }
 
@@ -40,40 +68,30 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
             return $this->representation($dispatchOutcome->result(), $dispatchOutcome->route());
         }
 
-        return $this->problemFor($dispatchOutcome);
+        throw $this->refusalFor($dispatchOutcome);
     }
 
     /**
-     * The failure response a non-executed dispatch outcome earns: not
-     * acceptable advertises what the route does produce (with a Vary hop),
-     * method not allowed advertises the methods it does answer (with an Allow
-     * hop), and any other non-executed outcome is a plain not-found problem.
+     * The typed refusal a non-executed dispatch outcome translates to:
+     * not acceptable names the producible media types, method not
+     * allowed names the answered methods, and any other non-executed
+     * outcome is a plain not-found refusal.
      */
-    private function problemFor(DispatchOutcome $dispatchOutcome): ResponseInterface
+    private function refusalFor(DispatchOutcome $dispatchOutcome): ZefException
     {
         if ($dispatchOutcome->isNotAcceptable()) {
-            return $this->withHeader(
-                $this->problemResponse(
-                    406,
-                    'Not Acceptable',
-                    'Supported media types: ' . implode(', ', $dispatchOutcome->acceptableMediaTypes()),
-                ),
-                'Vary',
-                'Accept',
-            );
+            return new NotAcceptableException($dispatchOutcome->acceptableMediaTypes());
         }
 
         if ($dispatchOutcome->isMethodNotAllowed()) {
-            $response = $this->problemResponse(
-                405,
-                'Method Not Allowed',
-                'The request method is not supported for this resource.',
+            return new MethodNotAllowedException(
+                $this->serverRequestMetadata->method,
+                $this->serverRequestMetadata->path,
+                $dispatchOutcome->allowedMethods(),
             );
-
-            return $this->withHeader($response, 'Allow', implode(', ', $dispatchOutcome->allowedMethods()));
         }
 
-        return $this->problemResponse(404, 'Not Found', 'No route matches the requested resource.');
+        return new NotFoundException('No route matches the requested resource.');
     }
 
     /**
@@ -95,27 +113,6 @@ final readonly class RouteDispatchHandler implements RequestHandlerInterface
         return $compiledRoute->produces() === []
             ? $result
             : $this->varyOnAccept($result);
-    }
-
-    private function problemResponse(int $status, string $title, string $detail): ResponseInterface
-    {
-        $body = json_encode([
-            'type' => 'about:blank',
-            'title' => $title,
-            'status' => $status,
-            'detail' => $detail,
-        ], \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
-
-        $response = $this->responseFactory->createResponse($status);
-        $response = $this->withHeader($response, 'Content-Type', 'application/problem+json');
-
-        $message = $response->withBody($this->streamFactory->createStream($body));
-
-        if (!$message instanceof ResponseInterface) {
-            throw new UnexpectedValueException('The response body operation did not return a ResponseInterface.');
-        }
-
-        return $message;
     }
 
     private function withHeader(ResponseInterface $response, string $name, string $value): ResponseInterface

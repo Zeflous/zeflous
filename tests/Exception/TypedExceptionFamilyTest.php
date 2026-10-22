@@ -15,6 +15,7 @@ use Zef\Framework\Exception\InternalException;
 use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Exception\MethodNotAllowedException;
 use Zef\Framework\Exception\NativeErrorException;
+use Zef\Framework\Exception\NotAcceptableException;
 use Zef\Framework\Exception\NotFoundException;
 use Zef\Framework\Exception\RateLimitException;
 use Zef\Framework\Exception\ValidationException;
@@ -33,6 +34,7 @@ use Zef\Framework\Exception\ZefException;
 #[CoversClass(AuthorizationException::class)]
 #[CoversClass(NotFoundException::class)]
 #[CoversClass(MethodNotAllowedException::class)]
+#[CoversClass(NotAcceptableException::class)]
 #[CoversClass(ConflictException::class)]
 #[CoversClass(RateLimitException::class)]
 #[CoversClass(InternalException::class)]
@@ -60,6 +62,8 @@ final class TypedExceptionFamilyTest extends TestCase
         yield 'not found answers 404' => [new NotFoundException('User with ID 123 not found.'), 404];
 
         yield 'method not allowed answers 405' => [new MethodNotAllowedException('GET', '/users', ['POST']), 405];
+
+        yield 'not acceptable answers 406' => [new NotAcceptableException(['application/json']), 406];
 
         yield 'conflict answers 409' => [new ConflictException('Email already registered.'), 409];
 
@@ -141,6 +145,64 @@ final class TypedExceptionFamilyTest extends TestCase
      * @return iterable<non-empty-string, array{mixed, non-empty-string}>
      */
     public static function provideMethodNotAllowedRefusesAMalformedAllowedMethodCases(): iterable
+    {
+        yield 'a null entry' => [null, 'null'];
+
+        yield 'an integer entry' => [42, 'int'];
+
+        yield 'an empty string entry' => ['', 'string'];
+    }
+
+    public function testNotAcceptableCarriesTheProducibleMediaTypes(): void
+    {
+        $notAcceptableException = new NotAcceptableException(['application/json', 'text/html']);
+
+        self::assertSame(406, $notAcceptableException->httpStatus());
+        self::assertSame(['application/json', 'text/html'], $notAcceptableException->acceptableMediaTypes);
+        self::assertSame('Supported media types: application/json, text/html', $notAcceptableException->getMessage());
+        self::assertSame('N_A', $notAcceptableException->getErrorCode());
+    }
+
+    public function testNotAcceptableReindexesAnAssociativeList(): void
+    {
+        $notAcceptableException = new NotAcceptableException(
+            ['first' => 'application/json', 'second' => 'text/html'],
+        );
+
+        self::assertSame(['application/json', 'text/html'], $notAcceptableException->acceptableMediaTypes);
+    }
+
+    public function testNotAcceptableRefusesAnEmptyMediaTypesList(): void
+    {
+        try {
+            new NotAcceptableException([]);
+            self::fail('An empty acceptable-media-types list must be refused.');
+        } catch (InvariantViolationException $invariantViolationException) {
+            self::assertSame(
+                'A not-acceptable refusal must name at least one acceptable media type.',
+                $invariantViolationException->getMessage(),
+            );
+        }
+    }
+
+    #[DataProvider('provideNotAcceptableRefusesAMalformedMediaTypeCases')]
+    public function testNotAcceptableRefusesAMalformedMediaType(mixed $entry, string $debugType): void
+    {
+        try {
+            new NotAcceptableException(['application/json', $entry]);
+            self::fail('A malformed acceptable-media-type entry must be refused.');
+        } catch (InvariantViolationException $invariantViolationException) {
+            self::assertSame(
+                'An acceptable media type must be a non-empty string, ' . $debugType . ' given.',
+                $invariantViolationException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * @return iterable<non-empty-string, array{mixed, non-empty-string}>
+     */
+    public static function provideNotAcceptableRefusesAMalformedMediaTypeCases(): iterable
     {
         yield 'a null entry' => [null, 'null'];
 
