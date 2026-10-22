@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Config\Routing;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
@@ -333,6 +334,151 @@ final class CompiledRouteTest extends TestCase
         $this->assertRejected(
             ['path' => '/a', 'method' => ['GET'], 'handler' => 'H@a', 'meta' => []],
             'The route entry field "meta" must not be empty.',
+        );
+    }
+
+    public function testCompilesADeprecationDeclaration(): void
+    {
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/legacy',
+            'method' => ['GET'],
+            'handler' => 'Legacy@show',
+            'deprecation' => [
+                'date' => '2023-06-30T23:59:59Z',
+                'sunset' => '2024-06-30',
+                'link' => 'https://example.com/deprecations/legacy',
+            ],
+        ]);
+
+        $deprecation = $compiledRoute->deprecation();
+        self::assertNotNull($deprecation);
+
+        self::assertSame(1688169599, $deprecation['date']);
+        self::assertSame(
+            new DateTimeImmutable('2024-06-30T00:00:00+00:00')->getTimestamp(),
+            $deprecation['sunset'],
+        );
+        self::assertSame('https://example.com/deprecations/legacy', $deprecation['link']);
+    }
+
+    public function testCompilesADateOnlyDeprecationDeclaration(): void
+    {
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/legacy',
+            'method' => ['GET'],
+            'handler' => 'Legacy@show',
+            'deprecation' => ['date' => '2024-06-30'],
+        ]);
+
+        $deprecation = $compiledRoute->deprecation();
+        self::assertNotNull($deprecation);
+
+        self::assertSame(
+            new DateTimeImmutable('2024-06-30T00:00:00+00:00')->getTimestamp(),
+            $deprecation['date'],
+        );
+        self::assertNull($deprecation['sunset']);
+        self::assertNull($deprecation['link']);
+    }
+
+    public function testAnEntryWithoutADeprecationCompilesToNull(): void
+    {
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/health',
+            'method' => ['GET'],
+            'handler' => 'HealthController@check',
+        ]);
+
+        self::assertNull($compiledRoute->deprecation());
+    }
+
+    public function testRejectsADeprecationThatIsNotAMap(): void
+    {
+        $this->assertRejected(
+            ['path' => '/a', 'method' => ['GET'], 'handler' => 'H@a', 'deprecation' => '2024-06-30'],
+            'The route entry field "deprecation" must be a non-empty map of declaration members.',
+        );
+    }
+
+    public function testRejectsAnEmptyDeprecationMap(): void
+    {
+        $this->assertRejected(
+            ['path' => '/a', 'method' => ['GET'], 'handler' => 'H@a', 'deprecation' => []],
+            'The route entry field "deprecation" must be a non-empty map of declaration members.',
+        );
+    }
+
+    public function testRejectsADeprecationDeclaredAsAList(): void
+    {
+        $this->assertRejected(
+            ['path' => '/a', 'method' => ['GET'], 'handler' => 'H@a', 'deprecation' => ['2024-06-30']],
+            'The route entry field "deprecation" must be a non-empty map of declaration members.',
+        );
+    }
+
+    public function testRejectsADeprecationWithAnUnknownMember(): void
+    {
+        $this->assertRejected(
+            [
+                'path' => '/a',
+                'method' => ['GET'],
+                'handler' => 'H@a',
+                'deprecation' => ['date' => '2024-06-30', 'reason' => 'superseded'],
+            ],
+            'The route entry field "deprecation" carries the unknown member "reason".',
+        );
+    }
+
+    public function testRejectsADeprecationWithoutTheDateMember(): void
+    {
+        $this->assertRejected(
+            [
+                'path' => '/a',
+                'method' => ['GET'],
+                'handler' => 'H@a',
+                'deprecation' => ['sunset' => '2025-06-30'],
+            ],
+            'The route entry field "deprecation" must declare the "date" member.',
+        );
+    }
+
+    public function testRejectsADeprecationMemberThatIsNotAString(): void
+    {
+        $this->assertRejected(
+            ['path' => '/a', 'method' => ['GET'], 'handler' => 'H@a', 'deprecation' => ['date' => 42]],
+            'The route entry field "deprecation.date" must be a string, got int.',
+        );
+    }
+
+    public function testRejectsADeprecationMemberThatIsEmpty(): void
+    {
+        $this->assertRejected(
+            ['path' => '/a', 'method' => ['GET'], 'handler' => 'H@a', 'deprecation' => ['date' => '']],
+            'The route entry field "deprecation.date" must not be empty.',
+        );
+    }
+
+    public function testRejectsADeprecationDateOutsideTheDeclarationGrammar(): void
+    {
+        $this->assertRejected(
+            ['path' => '/a', 'method' => ['GET'], 'handler' => 'H@a', 'deprecation' => ['date' => '2024/06/30']],
+            'The route "/a" declares a deprecation "date" of "2024/06/30" that is neither a calendar date'
+                . " (2024-06-30, read as that day's midnight UTC) nor a full date-time with an explicit"
+                . ' zone designator (2024-06-30T12:00:00Z or 2024-06-30T14:00:00+02:00).',
+        );
+    }
+
+    public function testRejectsASunsetAtOrBeforeTheDeprecationDate(): void
+    {
+        $this->assertRejected(
+            [
+                'path' => '/a',
+                'method' => ['GET'],
+                'handler' => 'H@a',
+                'deprecation' => ['date' => '2024-06-30', 'sunset' => '2024-01-01'],
+            ],
+            'The route "/a" declares a sunset at or before its deprecation date.'
+                . ' A resource that retires when it is deprecated is a retirement, not a deprecation.',
         );
     }
 
