@@ -58,9 +58,11 @@ final class ProcessUncaughtThrowablesTransmissionTest extends TestCase
     {
         ini_set('error_log', (string) $this->previousErrorLog);
 
-        if (is_file($this->errorLogPath)) {
-            unlink($this->errorLogPath);
+        if (!is_file($this->errorLogPath)) {
+            return;
         }
+
+        unlink($this->errorLogPath);
     }
 
     public function testSuccessfulHttpTransmissionDoesNotLogARefusal(): void
