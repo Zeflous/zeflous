@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-22 · `main` @ `d873d7184`
+**Last updated:** 2026-10-22 · `main` @ `6f8fecfa3`
 
 **How to read this file**
 
@@ -25,7 +25,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Container | 15 |
 | HTTP Layer | 25 |
 | Middleware Pipeline | 1 |
-| Error Handling | 5 |
+| Error Handling | 6 |
 | Kernel & Platform | 1 |
 | Quality Gates & Tooling | 15 |
 | CI / Supply chain | 39 (incl. auto-merge + Sonar lanes) |
@@ -33,7 +33,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 24 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **163** |
+| **Total merged PRs** | **164** |
 
 ---
 
@@ -102,6 +102,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | feat(errors): harden enterprise error handling (RFC 9457 JSON/HTML boundary, validated trace/error identifiers, CSP-safe debug toolbar, hardened JSONL logging, fail-closed replay capture, guarded CLI, and regression coverage; strict CI lanes green) | #444 | 2026-10-20 | `6a883cf8b2` |
 | fix(errors): harden the failure visibility, log bounds and CLI display (the follow-up audit battery over #444's merged state: the envelope's double-failure fallback now names the construction failure's class on the SAPI log; the log context gate carries the replay sanitizer's full credential vocabulary — `passwd` and `csrf` spellings included; non-finite float context values answer their diagnostic spelling through a `NonFiniteFloat` leaf so one NAN can no longer silence the whole record; the PSR-3 message clamps at a 2048-byte `mb_strcut` bound whose three-byte edge is pinned; the CLI report strips control bytes from its display; the record writers' character-offset walk audited and retired as a documented contract) | #508 | 2026-10-21 | `ac481f40d4` |
 | feat(errors): add the process error boundary (the error system's integration lane — the composition's second error face, installed around the PHP process itself rather than around a request: the native diagnostic arm owning the engine's suppression contract and converting the abort severities into the typed `NativeErrorException` lane, the uncaught throwable arm answering RFC 9457 while a client listens or a bounded control-byte-stripped CLI sink line when the SAPI answers no client, the shutdown arm witnessing the fatal family only `error_get_last()` can see through `ProcessBoundaryFatals`' shape grammar over `DiagnosticSeverity::isFatalAtShutdown()`'s one-source mask; the boot seam installs it when the `http.error_handling.process_boundary` knob asks, the service registering under `http.errors.process_boundary` in the profile's own catalogue; redistributed into seven cohesive folds — the shell, the transmission lane, the record fold, the three arm bodies, the witness grammar — with the registrar observation seam the SapiTransmitter sink doctrine taught, the SAPI-honest metrics fold, and the double 2048 bounds retired because every reading lane owns its own) | #513 | 2026-10-21 | `22a2560724` |
+| feat(router): translate dispatch refusals into the typed error family (the error campaign's E3 slice, closing the routing loop the error system was waiting for -- the tracked "405 throw site (waiting on the Router lane)": the PSR-15 terminal handler `RouteDispatchHandler` now translates a non-executed `DispatchOutcome` into the typed refusal family and throws -- `NotFoundException` ("No route matches the requested resource.") and `MethodNotAllowedException` ("Method 'POST' is not allowed for /profile.") with the inline renderer's byte-identical wordings, and the new 406 `NotAcceptableException` naming the validated acceptable media types ("Supported media types: ...") -- so every router refusal renders through the full error posture the system ships instead of the self-contained inline renderer: the disclosure policy, RFC 9457 problem+json with `https://zef.io/errors/*` type URIs, the `Allow` header on 405 and `Vary` on 406, the 4xx=warning log policy with `exception_class`, fault metrics and replay capture; `ProblemDetailsMetadata` learns the 406 arm (`https://zef.io/errors/not-acceptable`), `ErrorMappingMiddleware` renders the typed refusals unchanged through `ThirdPartyExceptionMapper`/`ErrorStatusMap` so one posture answers whether the refusal came from the router or behind a matched route; the last src callers of the PSR-17 response/stream factories leave the terminal handler (the day-old `@api` `RouterRequestHandler` constructor honestly drops its response factory at 0.1.0-dev), the psalm baseline shrinks by the dead `NotFoundException` `UnusedClass` entry while `ResponseFactoryInterface::createResponse` joins the documented contract-surface category, HEAD-on-miss raises the same typed refusal as GET (bodiless HEAD error answers compose the opt-in `HeadMiddleware` outermost), and the boundary tests' no-logger SAPI records route off real STDERR so Infection's mutation lanes cannot die on the first stderr byte; KDD-EI1..EI7 in `docs/ci-notes/router-error-integration.md`; 4,576 tests / 10,247 assertions, coverage 98.61 percent, scoped infection on the four touched src files 119 mutants MSI 100/100, archeology 0 error-level findings, match 7.16 us through the loaded large tree) | #533 | 2026-10-22 | `6f8fecfa3` |
 
 ## 4. Kernel & Platform
 
@@ -294,7 +295,7 @@ These roadmap areas are **not yet complete** (see `ROADMAP-STATUS.md` for the li
 - **Event Source System** — not started.
 - **Module Integration System** — not started beyond the `ServiceProviderInterface` contract.
 - **Adapters Layer** (view engine, database) — not started.
-- **Error Handling** — phases 1, 2 and 4 plus phase 3's logging, tracing and metrics slices are live (#2, #434, #444, and the lane's hardening follow-up): the typed family with the three-tier status map, RFC 9457 problem+json with the escaped HTML fallback, the outermost error boundary wired into the default stack, the debug/production disclosure modes over the double APP_ENV gate, the observability severity policy with the W3C span error record and `zef.http.errors.total`, the CSP-safe toolbar, the owner-only JSONL logger, the guarded `bin/zef` inspector and the fail-closed local replay. Remaining open: the optional error-analytics dashboard (phase 3.3, low priority), the metrics `route` dimension and the 405 throw site (both waiting on the Router lane), and the toolbar's query counting (waiting on the database adapters).
+- **Error Handling** — phases 1, 2 and 4 plus phase 3's logging, tracing and metrics slices are live (#2, #434, #444, and the lane's hardening follow-up): the typed family with the three-tier status map, RFC 9457 problem+json with the escaped HTML fallback, the outermost error boundary wired into the default stack, the debug/production disclosure modes over the double APP_ENV gate, the observability severity policy with the W3C span error record and `zef.http.errors.total`, the CSP-safe toolbar, the owner-only JSONL logger, the guarded `bin/zef` inspector and the fail-closed local replay. Remaining open: the optional error-analytics dashboard (phase 3.3, low priority), the metrics `route` dimension (waiting on the Router lane), and the toolbar's query counting (waiting on the database adapters).
 
 ---
 
