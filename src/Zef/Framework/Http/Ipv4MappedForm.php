@@ -38,27 +38,25 @@ final class Ipv4MappedForm
             return false;
         }
 
-        // Byte semantics throughout, exactly like the containment
-        // arithmetic's own comparison ({@see MaskedPrefix}): a packed
-        // form's bytes routinely compose multibyte or invalid UTF-8
-        // sequences, so the mapped-range test is one byte comparison --
-        // ten zero bytes then ff ff (RFC 4291 section 2.5.5.2) -- over a
-        // sixteen-byte packing, never a character-counted slice. A
-        // four-byte packing (a plain IPv4 address) has no sixteenth
-        // byte to offer the fold.
-        //
-        // @infection-ignore-all inet_pton answers only four-byte or
-        // sixteen-byte packings -- never fifteen -- so the sixteenth-byte
-        // presence probe agrees with a fifteenth-byte probe on every
-        // packing the engine can produce; a width-divergent packing
-        // never exists.
-        if (!isset($binary[15])) {
-            return $binary;
-        }
+        /**
+         * Byte semantics throughout, exactly like the containment
+         * arithmetic's own comparison ({@see MaskedPrefix}): a packed
+         * form's bytes routinely compose multibyte or invalid UTF-8
+         * sequences, so the mapped-range test is one byte comparison --
+         * ten zero bytes then ff ff (RFC 4291 section 2.5.5.2) -- over a
+         * sixteen-byte packing, never a character-counted slice. A
+         * four-byte packing (a plain IPv4 address) has no sixteenth
+         * byte to offer the fold.
+         *
+         * @infection-ignore-all inet_pton answers only four-byte or
+         * sixteen-byte packings -- never fifteen -- so the sixteenth-byte
+         * presence probe agrees with a fifteenth-byte probe on every
+         * packing the engine can produce; a width-divergent packing
+         * never exists.
+         */
+        $sixteenBytePacking = isset($binary[15]);
 
-        // The twelve-byte mapped-range prefix itself stays mutable: the
-        // battery pins the one-byte-short refusal against it.
-        if (substr_compare($binary, "\0\0\0\0\0\0\0\0\0\0\xff\xff", 0, 12) !== 0) {
+        if (!$sixteenBytePacking || substr_compare($binary, "\0\0\0\0\0\0\0\0\0\0\xff\xff", 0, 12) !== 0) {
             return $binary;
         }
 

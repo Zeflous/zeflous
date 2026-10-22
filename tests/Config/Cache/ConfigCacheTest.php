@@ -341,9 +341,11 @@ final class ConfigCacheTest extends TestCase
             unlink($occupied . '/sentinel');
         }
 
-        if (is_dir($occupied)) {
-            rmdir($occupied);
+        if (!is_dir($occupied)) {
+            return;
         }
+
+        rmdir($occupied);
     }
 
     /**
