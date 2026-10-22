@@ -69,7 +69,7 @@ final class ProcessUncaughtThrowablesTransmissionTest extends TestCase
     {
         /** @var list<ResponseInterface> $responses */
         $responses = [];
-        $boundary = new ProcessErrorBoundary(
+        $processErrorBoundary = new ProcessErrorBoundary(
             logger: new RecordingLogger(),
             requestSource: static fn (): ServerRequestInterface => new ServerRequest(
                 'GET',
@@ -87,7 +87,7 @@ final class ProcessUncaughtThrowablesTransmissionTest extends TestCase
             },
         );
 
-        $boundary->onUncaughtThrowable(new RuntimeException('The worker observed an impossible state.'));
+        $processErrorBoundary->onUncaughtThrowable(new RuntimeException('The worker observed an impossible state.'));
 
         self::assertCount(1, $responses, 'The HTTP response must be shipped exactly once.');
         self::assertSame(
