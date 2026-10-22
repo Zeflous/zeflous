@@ -361,13 +361,23 @@ jobs:
             exit 1
           fi
 
-          findings=$(curl -fsSL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts" \
-            | jq -c '[.artifacts[] | select(.name == "coverage-reports" and .expired == false)]' 2>/dev/null) || findings="[]"
+          # Artifact listing can briefly lag the run's completed state. Retry
+          # for at most two minutes (inside this job's 30-minute budget), then
+          # fail visibly rather than excluding coverage.
+          artifact_deadline=$(( $(date +%s) + 2 * 60 ))
+          findings="[]"
+          while [ "$(date +%s)" -lt "${artifact_deadline}" ]; do
+            findings=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts" \
+              | jq -c '[.artifacts[] | select(.name == "coverage-reports" and .expired == false)]' 2>/dev/null) || findings="[]"
+            if [ "${findings}" != "[]" ] && [ -n "${findings}" ]; then break; fi
+            echo "coverage-reports artifact for run ${run_id} is not visible yet; retrying in 10s..."
+            sleep 10
+          done
           if [ "${findings}" = "[]" ] || [ -z "${findings}" ]; then
-            echo "::error::CI Coverage run ${run_id} succeeded but has no unexpired coverage-reports artifact; refusing to bypass SonarCloud coverage."
+            echo "::error::CI Coverage run ${run_id} succeeded but no unexpired coverage-reports artifact appeared within two minutes; refusing to bypass SonarCloud coverage."
             exit 1
           fi
 
