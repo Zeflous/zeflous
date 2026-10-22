@@ -309,6 +309,30 @@ final class RoadmapPinFreshnessTest extends TestCase
         }
     }
 
+    public function testASubjectAfterARecordedLandingIsStillJudged(): void
+    {
+        // A recorded landing is not the end of the walk: a subject that
+        // lands after it is still judged, and a loop that stopped at the
+        // recorded landing would hide every later landed change.
+        $roadmapPinState = new RoadmapPinState(
+            '1d27b6c',
+            true,
+            [
+                'fix(tooling): accept every observed update-merge spelling as bookkeeping (#532)',
+                'feat(router): an unrecorded change past a recorded landing',
+            ],
+            ['fix(tooling): accept every observed update-merge spelling as bookkeeping (#532)'],
+        );
+
+        $failures = RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, [532]);
+
+        self::assertCount(1, $failures);
+        self::assertStringContainsString(
+            'starting with "feat(router): an unrecorded change past a recorded landing"',
+            $failures[0],
+        );
+    }
+
     public function testALedgerlessWalkRefusesEveryMergeShapedSubject(): void
     {
         // Fail closed on the ledger axis: a walk whose history document
