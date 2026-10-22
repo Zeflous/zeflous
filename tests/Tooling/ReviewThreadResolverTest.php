@@ -281,6 +281,59 @@ final class ReviewThreadResolverTest extends TestCase
     }
 
     /**
+     * Unusable nodes ride the failure total across every page of the
+     * walk: a thread the sweep cannot account for still counts as
+     * unresolved for the required check, so one unusable node on each
+     * of two pages answers two -- never the last page's count alone,
+     * never a negative or padded total.
+     */
+    public function testUnusableNodesOnEveryPageRideTheFailureTotal(): void
+    {
+        $graphql = static function (string $query, array $variables): string {
+            if (str_contains($query, 'reviewThreads')) {
+                if (($variables['cursor'] ?? null) === null) {
+                    return self::pagedThreadsPayload(
+                        [['isResolved' => false, 'isOutdated' => true, 'path' => 'src/A.php']],
+                        true,
+                        'CURSOR_1',
+                    );
+                }
+
+                return self::pagedThreadsPayload(
+                    [['isResolved' => false, 'isOutdated' => true, 'path' => 'src/B.php']],
+                    false,
+                    null,
+                );
+            }
+
+            return self::resolveSuccess('');
+        };
+
+        $reviewThreadResolution = new ReviewThreadResolver($graphql)->resolve(131);
+
+        self::assertSame(0, $reviewThreadResolution->total, 'an id-less node is not a thread the sweep can act on');
+        self::assertSame(0, $reviewThreadResolution->resolved);
+        self::assertSame(0, $reviewThreadResolution->failed);
+        self::assertSame(
+            2,
+            $reviewThreadResolution->unusable,
+            'one id-less node per page rides the failure total as two unaccounted threads',
+        );
+    }
+
+    public function testASinglePageWithoutUnusableNodesAnswersZero(): void
+    {
+        $graphql = static fn (string $query, array $variables): string => self::threadsPayload([
+            ['id' => 'PRRT_live', 'isResolved' => false, 'isOutdated' => false, 'path' => 'src/A.php'],
+        ]);
+
+        $reviewThreadResolution = new ReviewThreadResolver($graphql)->resolve(131);
+
+        self::assertSame(0, $reviewThreadResolution->unusable);
+        self::assertSame(0, $reviewThreadResolution->failed);
+    }
+
+    /**
      * @param list<array<string, mixed>> $nodes
      */
     private static function threadsPayload(array $nodes): string

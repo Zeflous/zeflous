@@ -55,6 +55,11 @@ final class ExceptionErrorCode
             $normalized = self::FRAMEWORK_ERROR;
         }
 
+        // @infection-ignore-all The fold's alphabet is ASCII by its own
+        // grammar -- the census above refused every byte outside
+        // [A-Z0-9_] -- so the ceiling slice and the trailing trim agree
+        // between the byte and the character spelling on every string
+        // the fold can hand them; a fold-divergent slice never exists.
         return mb_rtrim(mb_substr($normalized, 0, self::CODE_LENGTH), '_');
     }
 

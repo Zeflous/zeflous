@@ -222,6 +222,34 @@ final class AuthPolicyTest extends TestCase
         self::assertSame(600, $authPolicy->replayWindow);
     }
 
+    /**
+     * The replay-store knob is read, not defaulted over: an `apcu`
+     * overlay reaches the policy as `apcu`, and the closed vocabulary
+     * behind the reading is enforced at the hand construction too --
+     * a topology the operator never declared is exactly the silent lie
+     * the census refuses.
+     */
+    public function testTheReplayStoreKnobReadsThroughTheClosedVocabulary(): void
+    {
+        self::assertSame('apcu', AuthPolicy::fromMap(['replay_store' => 'apcu'])->replayStore);
+        self::assertSame('memory', AuthPolicy::fromMap(['replay_store' => 'MEMORY'])->replayStore);
+        self::assertSame('memory', AuthPolicy::fromMap([])->replayStore);
+    }
+
+    public function testAnUnknownReplayStoreHaltsTheHandConstruction(): void
+    {
+        try {
+            new AuthPolicy(replayStore: 'redis');
+            self::fail('The closed replay-store vocabulary must halt the reading.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                'The security.auth replay_store knob must be one of the known replay stores '
+                    . "(memory, apcu), 'redis' given.",
+                $httpException->getMessage(),
+            );
+        }
+    }
+
     public function testANonMapSubtreeHalts(): void
     {
         try {

@@ -124,4 +124,55 @@ final class ApcuReplayProtectorTest extends TestCase
 
         new ApcuReplayProtector(0);
     }
+
+    /**
+     * The window's round-up boundary series, pinned at every edge the
+     * padding can cross: 999 ms and 1 000 ms both round up to one
+     * second (the second is the ceiling of 1 999 and the exact 1 999),
+     * 1 001 ms and 1 002 ms both answer two seconds. A padding one
+     * short or a divisor one off moves an edge, and the series sees it.
+     */
+    public function testTheWindowRoundsUpAtEveryEdgeThePaddingCanCross(): void
+    {
+        $edges = [
+            999 => 1,
+            1_000 => 1,
+            1_001 => 2,
+            1_002 => 2,
+        ];
+
+        foreach ($edges as $windowMs => $expectedTtl) {
+            ApcuFunctionDoubles::define();
+            new ApcuReplayProtector($windowMs)->check('replay-' . $windowMs, 1_000);
+
+            self::assertSame(
+                $expectedTtl,
+                ApcuDoubleState::$addCalls[0][2],
+                \sprintf('a %d ms window claims the table for %d second(s)', $windowMs, $expectedTtl),
+            );
+        }
+    }
+
+    public function testTheDefaultWindowClaimsTheSharedTableForThreeHundredSeconds(): void
+    {
+        new ApcuReplayProtector()->check('replay-default', 1_000);
+
+        self::assertSame(
+            [['zef.replay.replay-default', 1_000, 300]],
+            ApcuDoubleState::$addCalls,
+            'the default five-minute window is the 300-second TTL the default ctor hands the store',
+        );
+    }
+
+    public function testAOneMillisecondWindowIsAdmittedAndClaimsForOneSecond(): void
+    {
+        $decision = new ApcuReplayProtector(1)->check('replay-one', 1_000);
+
+        self::assertSame(ReplayDecision::ACCEPT, $decision);
+        self::assertSame(
+            1,
+            ApcuDoubleState::$addCalls[0][2],
+            'the smallest admitted window still claims a whole second',
+        );
+    }
 }

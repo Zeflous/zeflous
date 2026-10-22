@@ -74,4 +74,45 @@ final class ExceptionErrorCodeTest extends TestCase
 
         self::assertMatchesRegularExpression('/^ANONYMOUS_[0-9A-F]{8}$/', ExceptionErrorCode::for($bare));
     }
+
+    /**
+     * The short-name cut is the multibyte one: a namespace whose bytes
+     * and characters disagree moves the byte cut a character early,
+     * onto the capital before the separator, and the fold would read
+     * that capital into the skeleton. The pinned answer keeps the cut
+     * after the separator exactly.
+     */
+    public function testTheShortNameCutStaysAfterTheSeparatorInCharacters(): void
+    {
+        self::assertSame('Z', ExceptionErrorCode::for('BéáR\ZooException'));
+    }
+
+    /**
+     * The letter-start census is anchored to the first character: a
+     * fold that starts with a digit but carries a letter later still
+     * answers the fallback, because a code the census accepts starts
+     * with a letter -- never merely contains one.
+     */
+    public function testAFoldStartingWithADigitAnswersTheFallbackEvenWithALaterLetter(): void
+    {
+        self::assertSame('FRAMEWORK_ERROR', ExceptionErrorCode::for('1A'));
+    }
+
+    /**
+     * The anonymous digest is pinned to its exact identity: the parent
+     * before the marker, the separator, and the tail after the LAST
+     * slash -- multibyte included, so every offset, operand and
+     * rearrangement of the fold answers a different digest and the
+     * battery sees it.
+     */
+    public function testTheAnonymousDigestIsPinnedToItsExactIdentity(): void
+    {
+        $name = 'Zef\Framework\Exception\ZefException@anonymous/päth/File.php$57abc';
+
+        $expected = 'ANONYMOUS_' . mb_strtoupper(
+            hash('crc32b', 'Zef\Framework\Exception\ZefException|File.php$57abc'),
+        );
+
+        self::assertSame($expected, ExceptionErrorCode::for($name));
+    }
 }

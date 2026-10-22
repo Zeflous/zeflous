@@ -65,6 +65,13 @@ final class CidrAddress
      */
     private static function widthOf(string $binary): int
     {
-        return isset($binary[15]) ? 128 : 32;
+        // @infection-ignore-all inet_pton answers only four-byte or
+        // sixteen-byte packings -- never fifteen -- so the sixteenth-byte
+        // presence probe agrees with a fifteenth-byte probe on every
+        // packing the engine can produce; a width-divergent packing
+        // never exists.
+        $sixteenBytePacking = isset($binary[15]);
+
+        return $sixteenBytePacking ? 128 : 32;
     }
 }

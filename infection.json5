@@ -391,7 +391,24 @@
                 "Zef\\Framework\\Telemetry\\TelemetrySanitizer::string",
                 "Zef\\Framework\\Telemetry\\TraceContextPropagator::extract",
                 "Zef\\Framework\\Health\\HealthProbe::judged",
-                "Zef\\Framework\\Health\\ProbeName::sanitized"
+                "Zef\\Framework\\Health\\ProbeName::sanitized",
+                // The replay-store vocabulary fold is the same argument
+                // the AOT toggle's own entry spells: memory and apcu
+                // carry no k, and the only single-character lower-case
+                // landing in ASCII the Unicode map carries is the
+                // Kelvin sign's k, so every fold-divergent spelling
+                // misses under both folds and answers the same
+                // refusal. The anonymous digest's four folds are
+                // equivalent by their own construction: the strstr and
+                // strrchr needles are pure ASCII in a self-synchronising
+                // UTF-8 stream, the tail's cut always skips the
+                // single-byte slash the strrchr arm answered, and the
+                // toupper folds an eight-byte ASCII hex digest. The
+                // digest's identity concat and the parent arms stay
+                // under their mutators: the digest battery pins them.
+                // Both ignores are scoped to those single methods.
+                "Zef\\Framework\\Http\\ReplayStores::read",
+                "Zef\\Framework\\Exception\\ExceptionErrorCode::anonymous"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",
@@ -775,7 +792,21 @@
                 "Zef\\Framework\\Config\\Routing\\RadixTree::match",
                 "Zef\\Framework\\Config\\Routing\\RouteVersionSelection::select",
                 "Zef\\Framework\\Config\\Routing\\RouteHostPatternBucket::offer",
-                "Zef\\Framework\\Middleware\\LastModifiedMatch::satisfied"
+                "Zef\\Framework\\Middleware\\LastModifiedMatch::satisfied",
+                // The proxy matcher's exact-string arm is subsumed by its
+                // own packed-form arm: matches() validates the address
+                // under judgement before the walk ever consults an
+                // entry, so a string-equal entry always packs to the
+                // identical non-false binary the second arm compares,
+                // and removing the fast path's return true answers true
+                // through the packed equality one line later (verified
+                // by construction: entry === ip implies
+                // packed(entry) === packed(ip), and a validated ip
+                // never packs false). The packed arm's own return and
+                // the CIDR delegation stay under the mutator: their
+                // removals are killed by the mapped-spelling and
+                // CIDR batteries. Scoped to that single method.
+                "Zef\\Framework\\Http\\TrustedProxyMatcher::entryMatches"
             ],
             "ignoreSourceCodeByRegex": [
                 "return \\$this->singletonMemo->instance\\(\\$id\\);"
@@ -1181,6 +1212,61 @@
         "UnwrapArrayMap": {
             "ignore": [
                 "Zef\\Framework\\ContainerModeRefusals::unknownKeys"
+            ]
+        },
+        // The JSONL record writer's unpack guard is armour for a
+        // shape the loop's own bound already excludes: the while
+        // condition's isset() keeps every offset strictly inside the
+        // line, and unpack('a*', ..., offset) answers the array with
+        // the string tail at key 1 for every in-range offset -- so both
+        // LogicalAnd rearrangements of the guard answer the same truth
+        // on every input the loop can reach, and the false branch's
+        // empty remainder never runs (verified by construction: no
+        // short-circuit spelling can make is_array($unpacked) false
+        // while isset($unpacked[1]) reads a real key). Scoped to that
+        // single method.
+        "LogicalAnd": {
+            "ignore": [
+                "Zef\\Framework\\Logging\\JsonLineRecordWriter::write"
+            ]
+        },
+        // The replay window's default literal: the knob's only
+        // observable face is the TTL the round-up hands the store, and
+        // the round-up of 299 999 ms lands on the same 300 seconds the
+        // default itself rounds to (intdiv(300 998, 1000) = 300), so
+        // the decremented default is value-equivalent through every
+        // verdict the protector can answer. The incremented default
+        // stays under the mutator: its TTL lands on 301, and the
+        // default-ctor TTL test kills it. Scoped to that single
+        // method.
+        "DecrementInteger": {
+            "ignore": [
+                "Zef\\Framework\\Http\\ApcuReplayProtector::__construct"
+            ]
+        },
+        // The staging name's pid cast: the concat of an int operand
+        // stringifies with the identical bytes the explicit cast
+        // spells, so removing the cast answers the same staging path
+        // for every pid the engine can hand the writer. The name's own
+        // composition stays fully under its mutators: the battery pins
+        // the basename, the pid digits, the entropy width and the
+        // .staging suffix against every rearrangement. Scoped to that
+        // single method.
+        "CastString": {
+            "ignore": [
+                "Zef\\Framework\\Config\\Cache\\ConfigCache::stagingName"
+            ]
+        },
+        // The workflow collector's absent-directory early return
+        // carries the freshly initialised empty map -- the walk has
+        // collected nothing yet -- and the mutator's slice of an empty
+        // list is the same empty list, so both spellings answer the
+        // same empty collection for every root without a workflow
+        // directory. The iteration itself stays under its mutators.
+        // Scoped to that single method.
+        "ArrayOneItem": {
+            "ignore": [
+                "Zef\\Framework\\Tooling\\WorkflowFileCollector::collect"
             ]
         }
     },

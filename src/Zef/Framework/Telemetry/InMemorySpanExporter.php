@@ -52,6 +52,12 @@ final class InMemorySpanExporter implements SpanExporterInterface
             $this->spans[] = $span;
         }
 
+        // @infection-ignore-all The trim is the identity for every list
+        // the sink can hold: spans are appended as a zero-indexed list,
+        // so slicing the most recent MAX_SPANS out of a list at or below
+        // the bound answers the same values under the same keys the
+        // early return keeps -- the guard and its return are pure
+        // armour, value-equivalent in both their mutated spellings.
         if (\count($this->spans) <= self::MAX_SPANS) {
             return;
         }

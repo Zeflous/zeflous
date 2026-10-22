@@ -75,8 +75,12 @@ final readonly class ApcuReplayProtector implements ReplayProtectorInterface
 
         // The window rounded up to whole seconds -- APCu's own clock:
         // the duplicate window stays at least as long as configured,
-        // never silently shortened.
-        $ttl = max(1, intdiv($this->windowMs + 999, 1000));
+        // never silently shortened. The constructor's window bound
+        // (windowMs >= 1) already proves the round-up answers at least
+        // one second for every admitted window -- windowMs + 999 >= 1000
+        // -- so no separate floor can ever engage, and the armour a
+        // dead max() carried is retired here rather than ignored.
+        $ttl = intdiv($this->windowMs + 999, 1000);
 
         return $this->sightVerdict($key, $nowMs, $ttl);
     }

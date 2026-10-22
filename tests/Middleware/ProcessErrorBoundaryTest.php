@@ -906,6 +906,143 @@ final class ProcessErrorBoundaryTest extends TestCase
         self::assertCount(3, $this->recordingLogger->calls, 'distinct signatures never fold');
     }
 
+    /**
+     * The suppressed repeat is a counted silence, never a record: only
+     * the first occurrence and the cadence's summaries write, and the
+     * SAPI log the record fold's own failures would ride stays empty
+     * for the whole storm.
+     */
+    public function testASuppressedRepeatWritesNoRecordAndNamesNoFailure(): void
+    {
+        $processErrorBoundary = $this->boundary();
+
+        for ($i = 0; $i < 202; ++$i) {
+            $processErrorBoundary->onNativeDiagnostic(
+                \E_DEPRECATED,
+                'The reference implementation is deprecated.',
+                '/var/app/vendor/loop.php',
+                7,
+            );
+        }
+
+        self::assertCount(3, $this->recordingLogger->calls, 'the first occurrence and two cadence summaries');
+        self::assertSame(
+            '',
+            $this->routedErrorLogContents(),
+            'a suppressed repeat is silence itself, not a record failure',
+        );
+    }
+
+    /**
+     * The installation's fresh window re-arms the repeat ledger too: a
+     * restore/install cycle around the same signature answers the
+     * first occurrence verbatim again -- a fresh request's repeats
+     * start from zero, never from the previous window's ledger.
+     */
+    public function testAFreshInstallationOpensAFreshRepeatLedger(): void
+    {
+        $processErrorBoundary = $this->boundary();
+        $processErrorBoundary->install();
+
+        try {
+            $processErrorBoundary->onNativeDiagnostic(\E_DEPRECATED, 'The loop raised.', '/var/app/a.php', 7);
+            $processErrorBoundary->onNativeDiagnostic(\E_DEPRECATED, 'The loop raised.', '/var/app/a.php', 7);
+        } finally {
+            $processErrorBoundary->restore();
+        }
+
+        $processErrorBoundary->install();
+
+        try {
+            $processErrorBoundary->onNativeDiagnostic(\E_DEPRECATED, 'The loop raised.', '/var/app/a.php', 7);
+        } finally {
+            $processErrorBoundary->restore();
+        }
+
+        self::assertCount(
+            2,
+            $this->recordingLogger->calls,
+            'the fresh window recorded the same signature verbatim again',
+        );
+    }
+
+    /**
+     * A restore of a boundary that never installed is a silent no-op:
+     * there is nothing to unwind, so the engine stack is untouched and
+     * the SAPI log names no refusal.
+     */
+    public function testARestoreOfANeverInstalledBoundaryIsASilentNoOp(): void
+    {
+        $processErrorBoundary = $this->boundary();
+
+        $processErrorBoundary->restore();
+
+        self::assertFalse($processErrorBoundary->installed());
+        self::assertSame(
+            '',
+            $this->routedErrorLogContents(),
+            'a restore with nothing installed owes no refusal',
+        );
+    }
+
+    /**
+     * The refusal the enforced contract spells in full: the exact
+     * message a caller that still owes the engine its own unwinding
+     * reads, every clause of it, behind the engine's own timestamp
+     * prefix.
+     */
+    public function testTheRefusalNamesTheUnwindingContractInFull(): void
+    {
+        $processErrorBoundary = $this->boundary();
+        $processErrorBoundary->install();
+
+        $foreign = static fn (): bool => true;
+        set_error_handler($foreign);
+
+        try {
+            $processErrorBoundary->restore();
+
+            self::assertTrue($processErrorBoundary->installed());
+            self::assertMatchesRegularExpression(
+                '/^\[\d{2}-\w{3}-\d{4} \d{2}:\d{2}:\d{2} UTC\] ZEF process boundary restore refused: '
+                    . 'a handler installed after the boundary still owns the engine stack -- unwind the '
+                    . 'handlers installed after it before restoring the boundary\.\n$/',
+                $this->routedErrorLogContents(),
+            );
+        } finally {
+            // The caller that owes the engine its own unwinding pays it,
+            // and the boundary then restores cleanly.
+            restore_error_handler();
+            $processErrorBoundary->restore();
+        }
+
+        self::assertFalse($processErrorBoundary->installed(), 'the honest unwind restored the boundary');
+    }
+
+    /**
+     * The conversion consumes the engine's last-error witness: the
+     * diagnostic was owned and answered as the typed lane's exception,
+     * so the stale entry a re-witnessed shutdown would misread as a
+     * fresh fatal is cleared before the throw lands.
+     */
+    public function testTheConvertedDiagnosticConsumesTheEngineWitness(): void
+    {
+        @trigger_error('a stale witness', \E_USER_WARNING);
+        self::assertIsArray(error_get_last(), 'the stale witness the conversion must consume is in place');
+
+        try {
+            $this->boundary()->onNativeDiagnostic(\E_USER_ERROR, 'The engine aborts.', '/var/app/src/abort.php', 99);
+            self::fail('The conversion severity must answer the typed exception.');
+        } catch (NativeErrorException $nativeErrorException) {
+            self::assertStringContainsString('The engine aborts.', $nativeErrorException->getMessage());
+        }
+
+        self::assertNull(
+            error_get_last(),
+            'the converted diagnostic left no witness behind for a later shutdown to re-witness',
+        );
+    }
+
     public function testARestoreRefusesWhenAForeignHandlerOwnsTheStack(): void
     {
         // The documented contract, enforced: a foreign handler

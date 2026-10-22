@@ -454,6 +454,22 @@ final class TelemetrySanitizerTest extends TestCase
         self::assertSame(['_truncated' => true], $walk, 'the bound answers the marker');
     }
 
+    /**
+     * The walk's own level zero is the outermost map: a nesting that
+     * would be inside the bound under a walk that started one level
+     * deep answers the marker here, so the exact boundary position is
+     * pinned -- the fifth nesting is the bound, the value it would
+     * carry never walks.
+     */
+    public function testTheOutermostMapIsTheWalksOwnLevelZero(): void
+    {
+        self::assertSame(
+            ['a' => ['b' => ['c' => ['d' => ['e' => ['_truncated' => true]]]]]],
+            TelemetryValues::value(['a' => ['b' => ['c' => ['d' => ['e' => ['f' => 1]]]]]]),
+            'six levels of nesting: the sixth answers the marker, the fifth still walks',
+        );
+    }
+
     public function testASelfReferentialArraySurvivesTheWalk(): void
     {
         $circular = [];

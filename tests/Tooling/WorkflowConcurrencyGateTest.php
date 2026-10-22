@@ -121,6 +121,38 @@ final class WorkflowConcurrencyGateTest extends TestCase
         self::assertTrue($gateResult->passed);
     }
 
+    /**
+     * Every group of a cancelling workflow is audited on its own: two
+     * branch-keyed groups on one non-aggregator file answer two
+     * failures -- the walk continues past the group whose
+     * aggregator-only rule does not apply, so the second group's
+     * cancellation danger is never left unaudited behind the first.
+     */
+    public function testEveryGroupOfACancellingWorkflowIsAuditedOnItsOwn(): void
+    {
+        $contents = "concurrency:\n"
+            . '  group: ' . self::LANE_BRANCH_GROUP . "\n"
+            . "  cancel-in-progress: true\n"
+            . "jobs:\n"
+            . "  other:\n"
+            . "    concurrency:\n"
+            . '      group: refs/heads/${{ github.ref }}-nightly' . "\n"
+            . "      cancel-in-progress: true\n";
+
+        $failures = WorkflowConcurrencyPolicy::failures('ci-coverage.yml', $contents);
+
+        self::assertCount(2, $failures);
+        self::assertStringContainsString(
+            'ci-coverage.yml cancels in progress but its concurrency group is not keyed on the commit sha '
+            . '(found: ' . self::LANE_BRANCH_GROUP . ').',
+            $failures[0],
+        );
+        self::assertStringContainsString(
+            '(found: refs/heads/${{ github.ref }}-nightly).',
+            $failures[1],
+        );
+    }
+
     public function testFailsWhenACancellingWorkflowKeysItsGroupOnTheMutatingRef(): void
     {
         $gateResult = $this->gate([

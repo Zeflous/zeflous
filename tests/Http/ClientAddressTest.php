@@ -60,6 +60,28 @@ final class ClientAddressTest extends TestCase
         );
     }
 
+    /**
+     * The walk skips an invalid candidate, it does not stop at one: an
+     * appended-end entry the grammar refuses is exactly the shape a
+     * misbehaving proxy writes, and the honest answer for it is the
+     * next candidate the chain vouches for -- never the fallback to
+     * the proxy's own address, which would throttle every client
+     * behind that proxy as one bucket.
+     */
+    public function testAnInvalidAppendedEndCandidateIsSkippedNotStoppable(): void
+    {
+        $request = $this->request(
+            ['REMOTE_ADDR' => '10.0.0.1'],
+            ['X-Forwarded-For' => '198.51.100.7, not-an-ip'],
+        );
+
+        self::assertSame(
+            '198.51.100.7',
+            ClientAddress::resolve($request, ['10.0.0.1']),
+            'the walk continues past the invalid appended entry to the next candidate',
+        );
+    }
+
     public function testAClientSuppliedLeftmostCandidateIsIgnoredBehindAnAppendingProxy(): void
     {
         $request = $this->request(

@@ -31,6 +31,10 @@ final class Ipv4MappedForm
         $binary = inet_pton($address);
 
         if ($binary === false) {
+            // @infection-ignore-all The early false's removal is
+            // value-equivalent: a false packing has no fifteenth byte
+            // either, so the width refusal below answers the same false
+            // back for every input the engine can hand the fold.
             return false;
         }
 
@@ -42,7 +46,19 @@ final class Ipv4MappedForm
         // sixteen-byte packing, never a character-counted slice. A
         // four-byte packing (a plain IPv4 address) has no sixteenth
         // byte to offer the fold.
-        if (!isset($binary[15]) || substr_compare($binary, "\0\0\0\0\0\0\0\0\0\0\xff\xff", 0, 12) !== 0) {
+        //
+        // @infection-ignore-all inet_pton answers only four-byte or
+        // sixteen-byte packings -- never fifteen -- so the sixteenth-byte
+        // presence probe agrees with a fifteenth-byte probe on every
+        // packing the engine can produce; a width-divergent packing
+        // never exists.
+        if (!isset($binary[15])) {
+            return $binary;
+        }
+
+        // The twelve-byte mapped-range prefix itself stays mutable: the
+        // battery pins the one-byte-short refusal against it.
+        if (substr_compare($binary, "\0\0\0\0\0\0\0\0\0\0\xff\xff", 0, 12) !== 0) {
             return $binary;
         }
 
@@ -59,6 +75,11 @@ final class Ipv4MappedForm
     {
         $folded = unpack('a12head/a4embedded', $binary);
 
+        // @infection-ignore-all The guard is armor for a sixteen-byte
+        // packing the width arm above already admitted: unpack answers
+        // the array with both named keys as strings for every in-range
+        // offset, so every rearrangement of the guard's arms answers
+        // the same truth for every input the fold can reach here.
         if (\is_array($folded) && isset($folded['embedded']) && \is_string($folded['embedded'])) {
             return $folded['embedded'];
         }

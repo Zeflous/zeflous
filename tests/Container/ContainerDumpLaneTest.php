@@ -92,6 +92,31 @@ final class ContainerDumpLaneTest extends TestCase
     }
 
     /**
+     * A renderable plan names no degradation: the artifact landed, so
+     * the outcome note the degraded boot answers stays absent -- a
+     * note on a boot that dumped would report an unrenderable plan the
+     * boundary just rendered.
+     */
+    public function testARenderablePlanNamesNoDegradedOutcome(): void
+    {
+        $container = new Container();
+        $containerDumpLane = new ContainerDumpLane();
+
+        $containerDumpLane->layDown(
+            $container,
+            $this->plan(),
+            $this->knobs('production'),
+            new ContainerAotCache($this->file),
+        );
+
+        self::assertFileExists($this->file);
+        self::assertFalse(
+            $container->has(ContainerServices::AOT_SERVICE),
+            'a boot whose artifact landed carries no degraded outcome note',
+        );
+    }
+
+    /**
      * A plan the boundary cannot render degrades: no artifact for the
      * next boot, and the outcome note that names the degradation --
      * never a crashed boot.

@@ -45,6 +45,24 @@ final class LogThrowableFoldTest extends TestCase
     }
 
     /**
+     * Every link of the chain carries the same three facts the wrapper
+     * carries -- its own code included: a root cause that names an
+     * error code a record cannot read is a causeless failure.
+     */
+    public function testEveryChainLinkCarriesItsOwnCode(): void
+    {
+        $runtimeException = new RuntimeException('the root cause', 42);
+        $logicException = new LogicException('the wrapper', 7, $runtimeException);
+
+        $fold = LogThrowableFold::fold($logicException);
+
+        self::assertSame(7, $fold['code']);
+        $previous = $fold['previous'];
+        self::assertIsArray($previous);
+        self::assertSame(42, $previous['code']);
+    }
+
+    /**
      * A pathological wrap chain stops at the budget's marker, never at
      * the stack.
      */

@@ -8,6 +8,7 @@ use Override;
 use ParseError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Zef\Framework\Config\Cache\ConfigCache;
 use Zef\Framework\Config\ConfigException;
 
@@ -258,6 +259,91 @@ final class ConfigCacheTest extends TestCase
         self::assertSame(['previous' => 'whole'], $configCache->load(), 'the previous artifact survived whole');
 
         unlink($file);
+    }
+
+    public function testLoadThrowsWhenTheCacheRaisesDuringItsOwnLoad(): void
+    {
+        // A hand edit that calls something: the file parses, and raises
+        // while it is being required. The broader Throwable arm -- not
+        // the ParseError arm -- owns the fail-closed contract for it,
+        // with the raised cause chained as the exception's previous.
+        file_put_contents($this->file, "<?php throw new \\RuntimeException('a hand edit that calls something');");
+
+        $configCache = new ConfigCache($this->file);
+
+        try {
+            $configCache->load();
+            self::fail('A configuration cache that raises during its own load must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The configuration cache "' . $this->file . '" is corrupted: it raised during its own load.',
+                $configException->getMessage(),
+            );
+            self::assertInstanceOf(RuntimeException::class, $configException->getPrevious());
+        }
+    }
+
+    /**
+     * The staging sibling's own name, observed through the engine's
+     * diagnostic for the failing rename: the artifact's basename, the
+     * writing process's own id, a thirteen-hex-character entropy, and
+     * the `.staging` suffix -- a sibling no concurrent writer can
+     * collide with. The rename onto the occupied directory fails, the
+     * diagnostic carries the whole staging path, and the failed dump
+     * still cleans its own sibling.
+     */
+    public function testTheStagingSiblingCarriesTheBasenameThePidAndTheEntropy(): void
+    {
+        $occupied = $this->directory . '/occupied';
+        mkdir($occupied);
+        file_put_contents($occupied . '/sentinel', 'x');
+
+        $diagnostics = [];
+        set_error_handler(static function (int $severity, string $message) use (&$diagnostics): bool {
+            $diagnostics[] = $message;
+
+            return true;
+        });
+
+        try {
+            $configCache = new ConfigCache($occupied);
+
+            try {
+                $configCache->dump(['key' => 'value']);
+                self::fail('A dump onto an occupied directory target must raise a ConfigException.');
+            } catch (ConfigException $configException) {
+                self::assertSame(
+                    \sprintf('The configuration cache "%s" could not be finalised.', $occupied),
+                    $configException->getMessage(),
+                );
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        $renames = array_values(array_filter(
+            $diagnostics,
+            static fn (string $message): bool => str_starts_with($message, 'rename('),
+        ));
+        self::assertCount(1, $renames, 'exactly one rename diagnostic carries the staging path');
+        self::assertMatchesRegularExpression(
+            '/^rename\(' . preg_quote($occupied, '/') . '\.' . preg_quote((string) getmypid(), '/')
+                . '-[0-9a-f]{13}\.staging,/',
+            $renames[0],
+            'the staging sibling is the basename, the pid, the entropy and the suffix',
+        );
+
+        $staging = glob($occupied . '.*.staging');
+        self::assertIsArray($staging);
+        self::assertSame([], $staging, 'the failed rename cleaned its own staging sibling');
+
+        if (is_file($occupied . '/sentinel')) {
+            unlink($occupied . '/sentinel');
+        }
+
+        if (is_dir($occupied)) {
+            rmdir($occupied);
+        }
     }
 
     /**
