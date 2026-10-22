@@ -43,7 +43,7 @@ final readonly class RouteTreeCacheBench
         $directory = __DIR__ . '/../build';
 
         if (!is_dir($directory)) {
-            mkdir($directory);
+            mkdir($directory, 0755);
         }
 
         $this->smallFile = $directory . '/route-tree-cache-small.bench.php';
