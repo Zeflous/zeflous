@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-22T16:47:32Z",
+  "as_of": "2026-10-22T18:16:05Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 239,
+  "unreleased_count": 240,
   "versions": [
     {
       "version": "Unreleased",
@@ -3066,6 +3066,62 @@
                 "sha": "3fea2b1d7ee224377bff8d30cfd9f7bdeabdc2e2",
                 "short_sha": "3fea2b1",
                 "subject": "feat(router): translate dispatch refusals into the typed error family"
+              }
+            ]
+          },
+          {
+            "pr": 540,
+            "title": "feat(router): answer deprecated routes with the standard lifecycle headers",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-22T18:16:05Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/540",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "00b6035608a72869914ddf1ab32128893ccdb0fc",
+                "short_sha": "00b6035",
+                "subject": "feat(router): answer deprecated routes with the standard lifecycle headers"
+              },
+              {
+                "sha": "018913508fc9d07b01f3339a508c61a2d381610f",
+                "short_sha": "0189135",
+                "subject": "test(router): pin the deprecation declaration and dispatch posture"
+              },
+              {
+                "sha": "9bf7d9b35f510b4176356a638bd8042c76476d50",
+                "short_sha": "9bf7d9b",
+                "subject": "style(router): repay the deprecation lane's line-length debt"
+              },
+              {
+                "sha": "ac4ca83bcb6cfac9b8f8c62483d3f5883e59f685",
+                "short_sha": "ac4ca83",
+                "subject": "style(router): settle the deprecation docblocks under the aligner"
+              },
+              {
+                "sha": "238d0f4bc0701762d4929f0906effc985c9654e4",
+                "short_sha": "238d0f4",
+                "subject": "fix(router): settle the deprecation fold under the mutation lane"
+              },
+              {
+                "sha": "ca8f4a106b75ba2d1b4c880595180df775962273",
+                "short_sha": "ca8f4a1",
+                "subject": "chore: merge main (the contributing integration rule #537) into the deprecation lane"
+              },
+              {
+                "sha": "7f5dabd55d41bd06b2d67b77d98b1ffc352e345e",
+                "short_sha": "7f5dabd",
+                "subject": "refactor(router): settle the deprecation folds under the architecture gate"
+              },
+              {
+                "sha": "7252e3b58e985438c7f3fad45ebbbf2cc29bb9b6",
+                "short_sha": "7252e3b",
+                "subject": "test(router): pin the folded deprecation classes' coverage posture"
+              },
+              {
+                "sha": "168f5049987b5e9bcc566d7e44b7f019ddd64505",
+                "short_sha": "168f504",
+                "subject": "fix(router): settle the folded warning check under the mutation lane"
               }
             ]
           }
@@ -14735,6 +14791,62 @@
               "sha": "c0772c24f37e44fc8bd642fe214c05c0a3819afd",
               "short_sha": "c0772c2",
               "subject": "docs(contributing): require error-system and configuration-system integration"
+            }
+          ]
+        },
+        {
+          "pr": 540,
+          "title": "feat(router): answer deprecated routes with the standard lifecycle headers",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-22T18:16:05Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/540",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "00b6035608a72869914ddf1ab32128893ccdb0fc",
+              "short_sha": "00b6035",
+              "subject": "feat(router): answer deprecated routes with the standard lifecycle headers"
+            },
+            {
+              "sha": "018913508fc9d07b01f3339a508c61a2d381610f",
+              "short_sha": "0189135",
+              "subject": "test(router): pin the deprecation declaration and dispatch posture"
+            },
+            {
+              "sha": "9bf7d9b35f510b4176356a638bd8042c76476d50",
+              "short_sha": "9bf7d9b",
+              "subject": "style(router): repay the deprecation lane's line-length debt"
+            },
+            {
+              "sha": "ac4ca83bcb6cfac9b8f8c62483d3f5883e59f685",
+              "short_sha": "ac4ca83",
+              "subject": "style(router): settle the deprecation docblocks under the aligner"
+            },
+            {
+              "sha": "238d0f4bc0701762d4929f0906effc985c9654e4",
+              "short_sha": "238d0f4",
+              "subject": "fix(router): settle the deprecation fold under the mutation lane"
+            },
+            {
+              "sha": "ca8f4a106b75ba2d1b4c880595180df775962273",
+              "short_sha": "ca8f4a1",
+              "subject": "chore: merge main (the contributing integration rule #537) into the deprecation lane"
+            },
+            {
+              "sha": "7f5dabd55d41bd06b2d67b77d98b1ffc352e345e",
+              "short_sha": "7f5dabd",
+              "subject": "refactor(router): settle the deprecation folds under the architecture gate"
+            },
+            {
+              "sha": "7252e3b58e985438c7f3fad45ebbbf2cc29bb9b6",
+              "short_sha": "7252e3b",
+              "subject": "test(router): pin the folded deprecation classes' coverage posture"
+            },
+            {
+              "sha": "168f5049987b5e9bcc566d7e44b7f019ddd64505",
+              "short_sha": "168f504",
+              "subject": "fix(router): settle the folded warning check under the mutation lane"
             }
           ]
         },
