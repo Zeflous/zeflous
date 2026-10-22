@@ -77,6 +77,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(container): add the performance mode and the CLI analysis lane [#499](https://github.com/Zeflous/zeflous/pull/499) ([mbetixz](https://github.com/mbetixz))
 - feat(router): add host-aware routing and versioned PSR-15 dispatch [#512](https://github.com/Zeflous/zeflous/pull/512) ([mbetixz](https://github.com/mbetixz))
 - feat(errors): add the process error boundary [#513](https://github.com/Zeflous/zeflous/pull/513) ([mbetixz](https://github.com/mbetixz))
+- feat(router): add the compiled route tree cache [#522](https://github.com/Zeflous/zeflous/pull/522) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -117,6 +118,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(tooling): resurrect the roadmap pin-freshness verdict on the main lanes [#496](https://github.com/Zeflous/zeflous/pull/496) ([mbetixz](https://github.com/mbetixz))
 - fix(tests): pin the document-audit gate test to a pull-request lane [#500](https://github.com/Zeflous/zeflous/pull/500) ([mbetixz](https://github.com/mbetixz))
 - fix(errors): harden the failure visibility, log bounds and CLI display [#508](https://github.com/Zeflous/zeflous/pull/508) ([mbetixz](https://github.com/mbetixz))
+- fix: land the edge-case audit remediation batch [#518](https://github.com/Zeflous/zeflous/pull/518) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
@@ -237,6 +239,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): record the error hardening battery and pin the lane [#509](https://github.com/Zeflous/zeflous/pull/509) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the process error boundary and pin the lane [#514](https://github.com/Zeflous/zeflous/pull/514) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the router runtime facade and pin the lane [#519](https://github.com/Zeflous/zeflous/pull/519) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the compiled route tree cache and pin the lane [#523](https://github.com/Zeflous/zeflous/pull/523) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the edge-case audit remediation batch and pin the lane [#524](https://github.com/Zeflous/zeflous/pull/524) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

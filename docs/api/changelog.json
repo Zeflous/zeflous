@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-21T21:34:40Z",
+  "as_of": "2026-10-22T03:08:48Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 226,
+  "unreleased_count": 230,
   "versions": [
     {
       "version": "Unreleased",
@@ -2990,6 +2990,42 @@
                 "subject": "fix(errors): kill the full-tree escape batch and drop double bounds"
               }
             ]
+          },
+          {
+            "pr": 522,
+            "title": "feat(router): add the compiled route tree cache",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-22T01:18:30Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/522",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "43c6137bae3c2f75d298bc189d2a161c8c2665ab",
+                "short_sha": "43c6137",
+                "subject": "feat(router): add the compiled route tree cache"
+              },
+              {
+                "sha": "db09b429ac404364e2b02ba9f6a91beb4c2e9cda",
+                "short_sha": "db09b42",
+                "subject": "refactor(router): settle the route tree cache under the architecture gate"
+              },
+              {
+                "sha": "0ada60f48676a386cce8df2ff7eba68bedad9e92",
+                "short_sha": "0ada60f",
+                "subject": "chore: merge main (changelog bookkeeping #520/#521) into the router cache lane"
+              },
+              {
+                "sha": "289b7172db1523255fa7cf9558ffeeb498a24f3f",
+                "short_sha": "289b717",
+                "subject": "fix(bench): grant the cache bench's build directory explicit 0755 permissions"
+              },
+              {
+                "sha": "d6c6f495ddb74ee46c12317e2e93045137fad5b3",
+                "short_sha": "d6c6f49",
+                "subject": "style(bench): spell the build directory permissions as 0o755"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -4062,6 +4098,267 @@
                 "sha": "d09e0f68e022a19cf26f57873ab08b5342cc0e34",
                 "short_sha": "d09e0f6",
                 "subject": "test(logging): pin the three-byte edge of the message bound"
+              }
+            ]
+          },
+          {
+            "pr": 518,
+            "title": "fix: land the edge-case audit remediation batch",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-22T01:31:23Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/518",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "8557383225ee64835613403c42a986903d34bcb0",
+                "short_sha": "8557383",
+                "subject": "fix(http): walk the forwarded chain from the trusted end"
+              },
+              {
+                "sha": "18afea31f2719495be4778e9fb096035ea1af94a",
+                "short_sha": "18afea3",
+                "subject": "fix(http): judge the forwarded host from the appended end"
+              },
+              {
+                "sha": "ec02644ef917c4e70fc72e91f27171e8c9895a89",
+                "short_sha": "ec02644",
+                "subject": "fix(http): fold the IPv4-mapped spelling before the trust verdicts"
+              },
+              {
+                "sha": "ded2d3fa502fb8d3a50ed7c5c5613a59ec160d50",
+                "short_sha": "ded2d3f",
+                "subject": "fix(http): anchor the token grammars with the true end"
+              },
+              {
+                "sha": "e4e86d0b459878cac07320a7a4389ab2bc33a168",
+                "short_sha": "e4e86d0",
+                "subject": "fix(http): drop the framing header the bodyless statuses must not carry"
+              },
+              {
+                "sha": "eb0654cf2e8664b48a59dcd5cf0183f3c6c22175",
+                "short_sha": "eb0654c",
+                "subject": "fix(http): split conditional validators on the quoting boundaries"
+              },
+              {
+                "sha": "e9ea2a36ee776a289537e94e369cc15b208cb87e",
+                "short_sha": "e9ea2a3",
+                "subject": "fix(http): judge preconditions against the declared validator"
+              },
+              {
+                "sha": "82f82c130e30c39a9279e974764236ee97e9bb67",
+                "short_sha": "82f82c1",
+                "subject": "fix(http): fail the APCu accounting closed when the extension refuses"
+              },
+              {
+                "sha": "bd8dfdfc681e7d0a5297a8db7d240f47d0b2ab5b",
+                "short_sha": "bd8dfdf",
+                "subject": "fix(http): issue the token cookie without costing the handler's own"
+              },
+              {
+                "sha": "46dc5abcee5f4352b519a1adc9a5d09228701c18",
+                "short_sha": "46dc5ab",
+                "subject": "fix(container): let a variadic constructor accept its positional tail"
+              },
+              {
+                "sha": "062d33de64dc6e1c3c7156b4d6ca742d61735ed8",
+                "short_sha": "062d33d",
+                "subject": "fix(telemetry): carry the parent tracestate and sampling bit"
+              },
+              {
+                "sha": "24f78720d77ee4dd38cfe9a15b468b4dd11c0482",
+                "short_sha": "24f7872",
+                "subject": "fix(telemetry): read the collector's throttle as a transient answer"
+              },
+              {
+                "sha": "71996d2ecd2a0082fb2a3a137d6f85a567bfcab3",
+                "short_sha": "71996d2",
+                "subject": "fix(logging): redact any authorization scheme the separator introduces"
+              },
+              {
+                "sha": "d7cbd53fd23062426722406ecef7d5ec71902612",
+                "short_sha": "d7cbd53",
+                "subject": "fix(tooling): resolve review threads across every page"
+              },
+              {
+                "sha": "b9785b1e9ca34884dd44ce71b48ccff6bcb6c794",
+                "short_sha": "b9785b1",
+                "subject": "fix(tooling): drop the carriage return from the roadmap row edges"
+              },
+              {
+                "sha": "d0979fdbc0e56163a114ee7e49ea4c8753f5026d",
+                "short_sha": "d0979fd",
+                "subject": "fix(middleware): consume the last-error witness the boundary owns"
+              },
+              {
+                "sha": "fc355dec5373e16f7855d42c3590a97891251150",
+                "short_sha": "fc355de",
+                "subject": "chore(ci): harden the queue title transport and the paginated lookups"
+              },
+              {
+                "sha": "de2fde5d96deef7645e4d92249e58cc4a91c3644",
+                "short_sha": "de2fde5",
+                "subject": "style(tests): wrap the new assertions to the house line width"
+              },
+              {
+                "sha": "e3ad9cff4447e3123df87a0f3610e0c38c9414e7",
+                "short_sha": "e3ad9cf",
+                "subject": "fix(http): state the binary folds in byte primitives"
+              },
+              {
+                "sha": "be2b0187565925e5433f3f1206509f5c53a77c76",
+                "short_sha": "be2b018",
+                "subject": "style: answer the analysers and the fixer round"
+              },
+              {
+                "sha": "2faed7d4bb6e7bb4a8164603f33a12ac5e6a4e4e",
+                "short_sha": "2faed7d",
+                "subject": "fix(http): reject the authority form the target parser would rewrite"
+              },
+              {
+                "sha": "183b13a3804c9e827560cfb7906ba5749b65fe2b",
+                "short_sha": "183b13a",
+                "subject": "fix(http): refuse the unbracketed IPv6 host literal"
+              },
+              {
+                "sha": "e1ae1fa6efcc6c7fd371d1ead57bb65d220a157f",
+                "short_sha": "e1ae1fa",
+                "subject": "fix(http): anchor the globals upload bag to the engine claim"
+              },
+              {
+                "sha": "a8726dffef384a30d2ee2837d0e1b0fe31601e66",
+                "short_sha": "a8726df",
+                "subject": "fix(http): answer the credentialless 401 with the bare challenge"
+              },
+              {
+                "sha": "3ba938c4ebe9108a562642c05a40169d35c3aa68",
+                "short_sha": "3ba938c",
+                "subject": "fix(container): guard the runtime captive dependency capture"
+              },
+              {
+                "sha": "99ce462f9b307e0d028adb2519083fd108d60354",
+                "short_sha": "99ce462",
+                "subject": "fix(container): let the defaulted nullable reach its own fallback"
+              },
+              {
+                "sha": "6ccd81b9574129bf8c9fd03d95d9778848cdf8d8",
+                "short_sha": "6ccd81b",
+                "subject": "fix(container): fold the enum defaults and degrade the unrenderable dump"
+              },
+              {
+                "sha": "b04c02d4ceaf7c848627e97c63320c212b313b6b",
+                "short_sha": "b04c02d",
+                "subject": "fix(telemetry): bound the sink and drain the lane at the exit"
+              },
+              {
+                "sha": "d59aa5ed1145dc59aaa8024526fd0a410d7d1453",
+                "short_sha": "d59aa5e",
+                "subject": "fix(middleware): memoise the window and own the restore the boundary pops"
+              },
+              {
+                "sha": "560211ed304615ee83786caa57f721acb009fe16",
+                "short_sha": "560211e",
+                "subject": "fix(logging): mark the dropped tail and carry the wrapped chain"
+              },
+              {
+                "sha": "0f8377852aa0e6c1b68750099789cf8da30c8c7d",
+                "short_sha": "0f83778",
+                "subject": "fix(config): stage the dump atomically and own the walk failure"
+              },
+              {
+                "sha": "63f1a30a8355e7911456906f4ce4bdb71f1638ba",
+                "short_sha": "63f1a30",
+                "subject": "fix(logging): walk the record remainder on byte offsets"
+              },
+              {
+                "sha": "f3264db90a1f1d9f5decdb1f7bdc91fde073ced9",
+                "short_sha": "f3264db",
+                "subject": "fix(exception): digest the anonymous class identity into its code"
+              },
+              {
+                "sha": "2a01cf66bf402c11caa2c39291a31fff9bf2b157",
+                "short_sha": "2a01cf6",
+                "subject": "fix(tooling): account the unusable review nodes the sweep cannot resolve"
+              },
+              {
+                "sha": "f268a73a6c63c2721b9a059d77b20d1e07e3019e",
+                "short_sha": "f268a73",
+                "subject": "fix(tooling): audit every concurrency group and iterate the workflow root"
+              },
+              {
+                "sha": "c22c2b1ee2f8f2a7b3194c3847f5d73dd6cc407a",
+                "short_sha": "c22c2b1",
+                "subject": "fix(tooling): lint the scripts and bin trees the gates depend on"
+              },
+              {
+                "sha": "0a1ecd05d64bbae8d4c12a2edf300e0242af9a99",
+                "short_sha": "0a1ecd0",
+                "subject": "fix(ci): keep the tokens off the command line and bound the exchange"
+              },
+              {
+                "sha": "96d41f0f03016c99d82cc26c6d864b76c52cb9c5",
+                "short_sha": "96d41f0",
+                "subject": "fix(ci): answer the fork pull request bootstrap with the policy"
+              },
+              {
+                "sha": "d1b210f8fd49858a66c7972eb69074b73c7dbe16",
+                "short_sha": "d1b210f",
+                "subject": "fix(http): share the replay seen table across the process tree"
+              },
+              {
+                "sha": "8cf049783bdeee42b460316283316daa5ebdf070",
+                "short_sha": "8cf0497",
+                "subject": "style: answer the analysers and the fixer round"
+              },
+              {
+                "sha": "d7d80a0c216afefa06ce060a3abe62c75f978114",
+                "short_sha": "d7d80a0",
+                "subject": "style: answer the coding standard the static lane enforces"
+              },
+              {
+                "sha": "1f9b6dca66f33ca80667886154197c4980804d34",
+                "short_sha": "1f9b6dc",
+                "subject": "refactor: keep every unit under the archeology difficulty bound"
+              },
+              {
+                "sha": "4a3af6bae61d0d8b6d86f5d0709044645900242b",
+                "short_sha": "4a3af6b",
+                "subject": "refactor: answer the code-scanning smells the quality gate carries"
+              },
+              {
+                "sha": "e3d341cd56d5d07ec75170eb74c6634eef17ef2b",
+                "short_sha": "e3d341c",
+                "subject": "test: give every unit the batch added its own covered battery"
+              },
+              {
+                "sha": "84b6c2cd5ca77f3362f2fa8bbaab74590ca13892",
+                "short_sha": "84b6c2c",
+                "subject": "style: turn the dump battery's teardown guard to the early exit"
+              },
+              {
+                "sha": "a6fdc2a74b01d3a2c11458d6ceaf271193416f6d",
+                "short_sha": "a6fdc2a",
+                "subject": "refactor: answer the ratchet the dry lane rumbles under the batch"
+              },
+              {
+                "sha": "a511de7691bef1fa620d5ee84e846324a4908676",
+                "short_sha": "a511de7",
+                "subject": "Merge remote-tracking branch 'origin/main' into fix/edge-case-audit"
+              },
+              {
+                "sha": "37c8f047bb07a0e25c03e995224c9854e4346ffb",
+                "short_sha": "37c8f04",
+                "subject": "test: kill the audit batch's infection escapes and document the equivalents"
+              },
+              {
+                "sha": "35fab5bee0c6887eb8eb19c8c4ef5b7fb0d46d04",
+                "short_sha": "35fab5b",
+                "subject": "style: answer the early exit and the return census the gates carry"
+              },
+              {
+                "sha": "559c0409f54b2c6f31b038a2d740a66b6fb139ba",
+                "short_sha": "559c040",
+                "subject": "fix(infection): disarm the duplicate keys and pay the last three escapes"
               }
             ]
           }
@@ -6645,6 +6942,43 @@
                 "sha": "62fe3dec81a302703f97b7eb0490374bfbb83d12",
                 "short_sha": "62fe3de",
                 "subject": "docs(roadmap): record the router runtime facade and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 523,
+            "title": "docs(roadmap): record the compiled route tree cache and pin the lane",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-22T02:21:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/523",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a5314adbe73a052a7076c8d29f3d55d77a85827b",
+                "short_sha": "a5314ad",
+                "subject": "docs(roadmap): record the compiled route tree cache and pin the lane"
+              },
+              {
+                "sha": "a196d7e3985330d9c2c271ce7955c326d47b8917",
+                "short_sha": "a196d7e",
+                "subject": "chore: merge main (the audit remediation batch #518) into the router cache pin"
+              }
+            ]
+          },
+          {
+            "pr": 524,
+            "title": "docs(roadmap): record the edge-case audit remediation batch and pin the lane",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-22T03:08:48Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/524",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1e437aca0073fd9cfb03938bbd1b0b09c9eabec4",
+                "short_sha": "1e437ac",
+                "subject": "docs(roadmap): record the edge-case audit remediation batch and pin the lane"
               }
             ]
           }
@@ -13603,6 +13937,267 @@
           ]
         },
         {
+          "pr": 518,
+          "title": "fix: land the edge-case audit remediation batch",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-22T01:31:23Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/518",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "8557383225ee64835613403c42a986903d34bcb0",
+              "short_sha": "8557383",
+              "subject": "fix(http): walk the forwarded chain from the trusted end"
+            },
+            {
+              "sha": "18afea31f2719495be4778e9fb096035ea1af94a",
+              "short_sha": "18afea3",
+              "subject": "fix(http): judge the forwarded host from the appended end"
+            },
+            {
+              "sha": "ec02644ef917c4e70fc72e91f27171e8c9895a89",
+              "short_sha": "ec02644",
+              "subject": "fix(http): fold the IPv4-mapped spelling before the trust verdicts"
+            },
+            {
+              "sha": "ded2d3fa502fb8d3a50ed7c5c5613a59ec160d50",
+              "short_sha": "ded2d3f",
+              "subject": "fix(http): anchor the token grammars with the true end"
+            },
+            {
+              "sha": "e4e86d0b459878cac07320a7a4389ab2bc33a168",
+              "short_sha": "e4e86d0",
+              "subject": "fix(http): drop the framing header the bodyless statuses must not carry"
+            },
+            {
+              "sha": "eb0654cf2e8664b48a59dcd5cf0183f3c6c22175",
+              "short_sha": "eb0654c",
+              "subject": "fix(http): split conditional validators on the quoting boundaries"
+            },
+            {
+              "sha": "e9ea2a36ee776a289537e94e369cc15b208cb87e",
+              "short_sha": "e9ea2a3",
+              "subject": "fix(http): judge preconditions against the declared validator"
+            },
+            {
+              "sha": "82f82c130e30c39a9279e974764236ee97e9bb67",
+              "short_sha": "82f82c1",
+              "subject": "fix(http): fail the APCu accounting closed when the extension refuses"
+            },
+            {
+              "sha": "bd8dfdfc681e7d0a5297a8db7d240f47d0b2ab5b",
+              "short_sha": "bd8dfdf",
+              "subject": "fix(http): issue the token cookie without costing the handler's own"
+            },
+            {
+              "sha": "46dc5abcee5f4352b519a1adc9a5d09228701c18",
+              "short_sha": "46dc5ab",
+              "subject": "fix(container): let a variadic constructor accept its positional tail"
+            },
+            {
+              "sha": "062d33de64dc6e1c3c7156b4d6ca742d61735ed8",
+              "short_sha": "062d33d",
+              "subject": "fix(telemetry): carry the parent tracestate and sampling bit"
+            },
+            {
+              "sha": "24f78720d77ee4dd38cfe9a15b468b4dd11c0482",
+              "short_sha": "24f7872",
+              "subject": "fix(telemetry): read the collector's throttle as a transient answer"
+            },
+            {
+              "sha": "71996d2ecd2a0082fb2a3a137d6f85a567bfcab3",
+              "short_sha": "71996d2",
+              "subject": "fix(logging): redact any authorization scheme the separator introduces"
+            },
+            {
+              "sha": "d7cbd53fd23062426722406ecef7d5ec71902612",
+              "short_sha": "d7cbd53",
+              "subject": "fix(tooling): resolve review threads across every page"
+            },
+            {
+              "sha": "b9785b1e9ca34884dd44ce71b48ccff6bcb6c794",
+              "short_sha": "b9785b1",
+              "subject": "fix(tooling): drop the carriage return from the roadmap row edges"
+            },
+            {
+              "sha": "d0979fdbc0e56163a114ee7e49ea4c8753f5026d",
+              "short_sha": "d0979fd",
+              "subject": "fix(middleware): consume the last-error witness the boundary owns"
+            },
+            {
+              "sha": "fc355dec5373e16f7855d42c3590a97891251150",
+              "short_sha": "fc355de",
+              "subject": "chore(ci): harden the queue title transport and the paginated lookups"
+            },
+            {
+              "sha": "de2fde5d96deef7645e4d92249e58cc4a91c3644",
+              "short_sha": "de2fde5",
+              "subject": "style(tests): wrap the new assertions to the house line width"
+            },
+            {
+              "sha": "e3ad9cff4447e3123df87a0f3610e0c38c9414e7",
+              "short_sha": "e3ad9cf",
+              "subject": "fix(http): state the binary folds in byte primitives"
+            },
+            {
+              "sha": "be2b0187565925e5433f3f1206509f5c53a77c76",
+              "short_sha": "be2b018",
+              "subject": "style: answer the analysers and the fixer round"
+            },
+            {
+              "sha": "2faed7d4bb6e7bb4a8164603f33a12ac5e6a4e4e",
+              "short_sha": "2faed7d",
+              "subject": "fix(http): reject the authority form the target parser would rewrite"
+            },
+            {
+              "sha": "183b13a3804c9e827560cfb7906ba5749b65fe2b",
+              "short_sha": "183b13a",
+              "subject": "fix(http): refuse the unbracketed IPv6 host literal"
+            },
+            {
+              "sha": "e1ae1fa6efcc6c7fd371d1ead57bb65d220a157f",
+              "short_sha": "e1ae1fa",
+              "subject": "fix(http): anchor the globals upload bag to the engine claim"
+            },
+            {
+              "sha": "a8726dffef384a30d2ee2837d0e1b0fe31601e66",
+              "short_sha": "a8726df",
+              "subject": "fix(http): answer the credentialless 401 with the bare challenge"
+            },
+            {
+              "sha": "3ba938c4ebe9108a562642c05a40169d35c3aa68",
+              "short_sha": "3ba938c",
+              "subject": "fix(container): guard the runtime captive dependency capture"
+            },
+            {
+              "sha": "99ce462f9b307e0d028adb2519083fd108d60354",
+              "short_sha": "99ce462",
+              "subject": "fix(container): let the defaulted nullable reach its own fallback"
+            },
+            {
+              "sha": "6ccd81b9574129bf8c9fd03d95d9778848cdf8d8",
+              "short_sha": "6ccd81b",
+              "subject": "fix(container): fold the enum defaults and degrade the unrenderable dump"
+            },
+            {
+              "sha": "b04c02d4ceaf7c848627e97c63320c212b313b6b",
+              "short_sha": "b04c02d",
+              "subject": "fix(telemetry): bound the sink and drain the lane at the exit"
+            },
+            {
+              "sha": "d59aa5ed1145dc59aaa8024526fd0a410d7d1453",
+              "short_sha": "d59aa5e",
+              "subject": "fix(middleware): memoise the window and own the restore the boundary pops"
+            },
+            {
+              "sha": "560211ed304615ee83786caa57f721acb009fe16",
+              "short_sha": "560211e",
+              "subject": "fix(logging): mark the dropped tail and carry the wrapped chain"
+            },
+            {
+              "sha": "0f8377852aa0e6c1b68750099789cf8da30c8c7d",
+              "short_sha": "0f83778",
+              "subject": "fix(config): stage the dump atomically and own the walk failure"
+            },
+            {
+              "sha": "63f1a30a8355e7911456906f4ce4bdb71f1638ba",
+              "short_sha": "63f1a30",
+              "subject": "fix(logging): walk the record remainder on byte offsets"
+            },
+            {
+              "sha": "f3264db90a1f1d9f5decdb1f7bdc91fde073ced9",
+              "short_sha": "f3264db",
+              "subject": "fix(exception): digest the anonymous class identity into its code"
+            },
+            {
+              "sha": "2a01cf66bf402c11caa2c39291a31fff9bf2b157",
+              "short_sha": "2a01cf6",
+              "subject": "fix(tooling): account the unusable review nodes the sweep cannot resolve"
+            },
+            {
+              "sha": "f268a73a6c63c2721b9a059d77b20d1e07e3019e",
+              "short_sha": "f268a73",
+              "subject": "fix(tooling): audit every concurrency group and iterate the workflow root"
+            },
+            {
+              "sha": "c22c2b1ee2f8f2a7b3194c3847f5d73dd6cc407a",
+              "short_sha": "c22c2b1",
+              "subject": "fix(tooling): lint the scripts and bin trees the gates depend on"
+            },
+            {
+              "sha": "0a1ecd05d64bbae8d4c12a2edf300e0242af9a99",
+              "short_sha": "0a1ecd0",
+              "subject": "fix(ci): keep the tokens off the command line and bound the exchange"
+            },
+            {
+              "sha": "96d41f0f03016c99d82cc26c6d864b76c52cb9c5",
+              "short_sha": "96d41f0",
+              "subject": "fix(ci): answer the fork pull request bootstrap with the policy"
+            },
+            {
+              "sha": "d1b210f8fd49858a66c7972eb69074b73c7dbe16",
+              "short_sha": "d1b210f",
+              "subject": "fix(http): share the replay seen table across the process tree"
+            },
+            {
+              "sha": "8cf049783bdeee42b460316283316daa5ebdf070",
+              "short_sha": "8cf0497",
+              "subject": "style: answer the analysers and the fixer round"
+            },
+            {
+              "sha": "d7d80a0c216afefa06ce060a3abe62c75f978114",
+              "short_sha": "d7d80a0",
+              "subject": "style: answer the coding standard the static lane enforces"
+            },
+            {
+              "sha": "1f9b6dca66f33ca80667886154197c4980804d34",
+              "short_sha": "1f9b6dc",
+              "subject": "refactor: keep every unit under the archeology difficulty bound"
+            },
+            {
+              "sha": "4a3af6bae61d0d8b6d86f5d0709044645900242b",
+              "short_sha": "4a3af6b",
+              "subject": "refactor: answer the code-scanning smells the quality gate carries"
+            },
+            {
+              "sha": "e3d341cd56d5d07ec75170eb74c6634eef17ef2b",
+              "short_sha": "e3d341c",
+              "subject": "test: give every unit the batch added its own covered battery"
+            },
+            {
+              "sha": "84b6c2cd5ca77f3362f2fa8bbaab74590ca13892",
+              "short_sha": "84b6c2c",
+              "subject": "style: turn the dump battery's teardown guard to the early exit"
+            },
+            {
+              "sha": "a6fdc2a74b01d3a2c11458d6ceaf271193416f6d",
+              "short_sha": "a6fdc2a",
+              "subject": "refactor: answer the ratchet the dry lane rumbles under the batch"
+            },
+            {
+              "sha": "a511de7691bef1fa620d5ee84e846324a4908676",
+              "short_sha": "a511de7",
+              "subject": "Merge remote-tracking branch 'origin/main' into fix/edge-case-audit"
+            },
+            {
+              "sha": "37c8f047bb07a0e25c03e995224c9854e4346ffb",
+              "short_sha": "37c8f04",
+              "subject": "test: kill the audit batch's infection escapes and document the equivalents"
+            },
+            {
+              "sha": "35fab5bee0c6887eb8eb19c8c4ef5b7fb0d46d04",
+              "short_sha": "35fab5b",
+              "subject": "style: answer the early exit and the return census the gates carry"
+            },
+            {
+              "sha": "559c0409f54b2c6f31b038a2d740a66b6fb139ba",
+              "short_sha": "559c040",
+              "subject": "fix(infection): disarm the duplicate keys and pay the last three escapes"
+            }
+          ]
+        },
+        {
           "pr": 519,
           "title": "docs(roadmap): record the router runtime facade and pin the lane",
           "author": "mbetixz",
@@ -13615,6 +14210,79 @@
               "sha": "62fe3dec81a302703f97b7eb0490374bfbb83d12",
               "short_sha": "62fe3de",
               "subject": "docs(roadmap): record the router runtime facade and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 522,
+          "title": "feat(router): add the compiled route tree cache",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-22T01:18:30Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/522",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "43c6137bae3c2f75d298bc189d2a161c8c2665ab",
+              "short_sha": "43c6137",
+              "subject": "feat(router): add the compiled route tree cache"
+            },
+            {
+              "sha": "db09b429ac404364e2b02ba9f6a91beb4c2e9cda",
+              "short_sha": "db09b42",
+              "subject": "refactor(router): settle the route tree cache under the architecture gate"
+            },
+            {
+              "sha": "0ada60f48676a386cce8df2ff7eba68bedad9e92",
+              "short_sha": "0ada60f",
+              "subject": "chore: merge main (changelog bookkeeping #520/#521) into the router cache lane"
+            },
+            {
+              "sha": "289b7172db1523255fa7cf9558ffeeb498a24f3f",
+              "short_sha": "289b717",
+              "subject": "fix(bench): grant the cache bench's build directory explicit 0755 permissions"
+            },
+            {
+              "sha": "d6c6f495ddb74ee46c12317e2e93045137fad5b3",
+              "short_sha": "d6c6f49",
+              "subject": "style(bench): spell the build directory permissions as 0o755"
+            }
+          ]
+        },
+        {
+          "pr": 523,
+          "title": "docs(roadmap): record the compiled route tree cache and pin the lane",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-22T02:21:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/523",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a5314adbe73a052a7076c8d29f3d55d77a85827b",
+              "short_sha": "a5314ad",
+              "subject": "docs(roadmap): record the compiled route tree cache and pin the lane"
+            },
+            {
+              "sha": "a196d7e3985330d9c2c271ce7955c326d47b8917",
+              "short_sha": "a196d7e",
+              "subject": "chore: merge main (the audit remediation batch #518) into the router cache pin"
+            }
+          ]
+        },
+        {
+          "pr": 524,
+          "title": "docs(roadmap): record the edge-case audit remediation batch and pin the lane",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-22T03:08:48Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/524",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1e437aca0073fd9cfb03938bbd1b0b09c9eabec4",
+              "short_sha": "1e437ac",
+              "subject": "docs(roadmap): record the edge-case audit remediation batch and pin the lane"
             }
           ]
         }
