@@ -28,7 +28,7 @@ alert numbers, e.g. #755/#756, #753/#754, …).
 
 ## Root cause 2 — function-level findings carry class-FQN pseudo-paths
 
-Function/method-level results use the class FQN — `Zef\Framework\Tooling\GateRunner`, backslashes,
+Function/method-level results use the class FQN — `Zef\Test\Support\Tooling\GateRunner`, backslashes,
 no `.php` — as the `artifactLocation.uri`. Such an alert points at a "file" that does not exist in
 the repository: it cannot be opened, and its location anchors nowhere. (Class- and file-level
 results carry real paths; only the function-level ones were broken.)

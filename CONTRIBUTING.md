@@ -85,6 +85,13 @@ bare PHP 8.4 install with no `vendor/` directory present.
   PHP-CS-Fixer, …) are allowed, but they **MUST NOT** leak into the runtime
   `src/` tree. `src/` may depend only on PHP itself and the repository's own
   code.
+- Dev-only **code** follows the same boundary: the in-repo CI gate engine and
+  other test-support classes (unit-tested, but consumed only by
+  `scripts/ci/*`, `bin/zef` analysis commands and the test suite) live under
+  `tests/Support/Tooling/` — never under `src/`. The production autoload
+  mapping, the generated API documentation and the framework's own
+  coverage/mutation posture describe the runtime tree; none of them may
+  carry test-only code.
 - Enforced by the [anti-regression zero-dependency gate](#16-anti-regression-zero-dependency-gate).
 
 ### 2. Roadmap order — Configuration System first, then Container
@@ -556,6 +563,7 @@ for review. A pull request that cannot tick a box is not ready to merge.
 - [ ] PR title is a valid Conventional-Commit header (`<type>(<scope>): <subject>`).
 - [ ] **Zero-dependency:** `composer.json` `require` is still `{ "php": "^8.4" }`.
 - [ ] **Zero-dependency:** `composer.lock` production `packages` is still `[]`.
+- [ ] **Dev-code boundary:** CI/test-support classes live under `tests/Support/Tooling/`, not `src/` (rule 1).
 - [ ] No third-party runtime dependency leaked into `src/`; new formats use an in-repo shim.
 - [ ] **Roadmap order:** Configuration System work precedes Container work.
 - [ ] **Config design:** immutable (`with*`), zero-dependency, with schema validation / env layering / compiled cache where applicable.
