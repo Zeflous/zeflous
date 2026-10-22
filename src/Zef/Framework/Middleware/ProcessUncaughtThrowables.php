@@ -104,12 +104,10 @@ final readonly class ProcessUncaughtThrowables
             return;
         }
 
-        if ($this->processBoundaryTransmission->ship($response)) {
-            return;
+        if (!$this->processBoundaryTransmission->ship($response)) {
+            error_log(
+                'ZEF process boundary could not answer ' . $correlationId . ': headers already sent.',
+            );
         }
-
-        error_log(
-            'ZEF process boundary could not answer ' . $correlationId . ': headers already sent.',
-        );
     }
 }
