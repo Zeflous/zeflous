@@ -62,6 +62,14 @@ final class ProcessErrorBoundary
 
     private readonly ProcessShutdownFatals $processShutdownFatals;
 
+    private readonly ProcessBoundaryRecords $processBoundaryRecords;
+
+    /** @var Closure(int, string, string, int): bool the exact error-handler instance this boundary pushes -- the restore probe's own reference */
+    private readonly Closure $errorHandler;
+
+    /** @var Closure(Throwable): void the exact exception-handler instance this boundary pushes -- the restore probe's own reference */
+    private readonly Closure $exceptionHandler;
+
     /**
      * @param null|LoggerInterface                   $logger            the PSR-3 sink the
      *                                                                  fault records and diagnostics
@@ -106,6 +114,9 @@ final class ProcessErrorBoundary
         $processBoundaryRecords = new ProcessBoundaryRecords($logger, $requestSource);
         $processBoundaryTransmission = $transmission ?? new ProcessBoundaryTransmission();
         $this->shutdownRegistrar = $shutdownRegistrar ?? register_shutdown_function(...);
+        $this->errorHandler = $this->onNativeDiagnostic(...);
+        $this->exceptionHandler = $this->onUncaughtThrowable(...);
+        $this->processBoundaryRecords = $processBoundaryRecords;
 
         $this->processNativeDiagnostics = new ProcessNativeDiagnostics($processBoundaryRecords);
         $this->processUncaughtThrowables = new ProcessUncaughtThrowables(
@@ -128,7 +139,11 @@ final class ProcessErrorBoundary
      * exception handler, and the shutdown observer. Idempotent -- a
      * boundary already installed observes the second call and does
      * nothing -- and the shutdown callback is registered once per
-     * instance, so install/restore cycles never stack observers.
+     * instance, so install/restore cycles never stack observers. Each
+     * installation opens a fresh facts window
+     * ({@see ProcessBoundaryRecords::freshRequest()}): an
+     * install/restore cycle per request observes the request it serves,
+     * never the one the process started with.
      */
     public function install(): void
     {
@@ -136,10 +151,10 @@ final class ProcessErrorBoundary
             return;
         }
 
-        set_error_handler($this->onNativeDiagnostic(...));
-        set_exception_handler($this->onUncaughtThrowable(...));
+        $this->pushEngineHandlers();
         $this->registerShutdownObserver();
         $this->installed = true;
+        $this->processBoundaryRecords->freshRequest();
     }
 
     /**
@@ -148,10 +163,27 @@ final class ProcessErrorBoundary
      * the shutdown observer is disarmed -- it stays registered, because
      * PHP cannot unregister it, but a restored boundary's arm observes and
      * stays silent.
+     *
+     * The documented contract is enforced, not trusted: the handlers are
+     * popped only when the boundary still owns the top of both engine
+     * stacks. A foreign handler installed after this boundary's own sits
+     * between them, and popping past it would remove the foreigner's --
+     * the probe ({@see EngineHandlerStacks::toppedBy()}) refuses the
+     * restoration loudly instead, leaving both stacks exactly as they are
+     * and the boundary installed, for the caller that still owes the
+     * engine its own unwinding.
      */
     public function restore(): void
     {
         if (!$this->installed) {
+            return;
+        }
+
+        if (!EngineHandlerStacks::toppedBy($this->errorHandler, $this->exceptionHandler)) {
+            $refusal = 'ZEF process boundary restore refused: a handler installed after the boundary still owns '
+                . 'the engine stack -- unwind the handlers installed after it before restoring the boundary.';
+            error_log($refusal);
+
             return;
         }
 
@@ -198,11 +230,24 @@ final class ProcessErrorBoundary
      */
     public function onShutdown(): void
     {
-        if (!$this->installed) {
+        $armed = $this->installed;
+
+        if (!$armed) {
             return;
         }
 
         $this->processShutdownFatals->observe();
+    }
+
+    /**
+     * Pushes the two handler closures onto the engine's stacks -- the
+     * installation half of the pair {@see EngineHandlerStacks} probes
+     * and the engine's own restores unwind.
+     */
+    private function pushEngineHandlers(): void
+    {
+        set_error_handler($this->errorHandler);
+        set_exception_handler($this->exceptionHandler);
     }
 
     /**
@@ -216,7 +261,8 @@ final class ProcessErrorBoundary
             return;
         }
 
-        ($this->shutdownRegistrar)($this->onShutdown(...));
+        $observer = $this->onShutdown(...);
+        ($this->shutdownRegistrar)($observer);
         $this->shutdownRegistered = true;
     }
 }

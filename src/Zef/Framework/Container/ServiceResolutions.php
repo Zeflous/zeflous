@@ -43,6 +43,7 @@ final readonly class ServiceResolutions
         private CycleGuard $cycleGuard,
         private Interceptions $interceptions = new Interceptions(),
         private LazyDeferrals $lazyDeferrals = new LazyDeferrals(),
+        private ResolutionFrames $resolutionFrames = new ResolutionFrames(),
     ) {
     }
 
@@ -72,12 +73,12 @@ final readonly class ServiceResolutions
         }
 
         return match ($this->factoryRegistrations->lifetime($id)) {
-            ServiceLifetime::REQUEST => $this->requestInstances->instance($id, $container),
-            ServiceLifetime::TRANSIENT => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
-            default => $this->singletonMemo->answer(
-                $id,
-                fn (): mixed => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
+            ServiceLifetime::REQUEST => $this->requestInstances->instance(
+                $this->resolutionFrames->assertedNotCaptured($id),
+                $container,
             ),
+            ServiceLifetime::TRANSIENT => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
+            default => $this->singletonLane($id, $container),
         };
     }
 
@@ -100,6 +101,23 @@ final readonly class ServiceResolutions
                 $id,
                 $this->factoryRegistrations->factory($id),
                 $container,
+            ),
+        );
+    }
+
+    /**
+     * The singleton lane: the frame ledger opens its wider-lifetime
+     * frame around the guarded call, so the memo records exactly what
+     * the factory resolved -- and the request lane's captive guard can
+     * name the captor while it does.
+     */
+    private function singletonLane(string $id, Container $container): mixed
+    {
+        return $this->singletonMemo->answer(
+            $id,
+            fn (): mixed => $this->resolutionFrames->withinSingleton(
+                $id,
+                fn (): mixed => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
             ),
         );
     }

@@ -267,6 +267,32 @@ jobs:
               return;
             }
 
+            // --- Fork pull requests: this context cannot write the check. ----
+            // GitHub downgrades the in-workflow GITHUB_TOKEN to read-only for
+            // a `pull_request` event whose head is from a fork, so every
+            // check-run write from this bootstrap context would 403 -- the
+            // bare permission error the 2026-10-22 audit found leaving fork
+            // pull requests unmergeable with all lanes green and no signal
+            // but an opaque API failure. The explicit policy: a fork head
+            // cannot produce the required `CI Strict` context from its own
+            // bootstrap run; fail loudly with the policy named, so the
+            // contributor and the maintainer both see the two ways out (the
+            // maintainer re-pushes the branch into the base repository -- the
+            // lanes then bootstrap the context themselves -- or verifies the
+            // lanes manually). Never `pull_request_target`: it would hand the
+            // fork's code a secret-bearing token (the escalation the
+            // auto-merge lane's own audit already neutralised).
+            const fromAForkPullRequest =
+              pr && pr.head && pr.head.repo && pr.head.repo.full_name
+              && pr.head.repo.full_name !== `${owner}/${repo}`;
+            if (fromAForkPullRequest) {
+              core.setFailed(
+                "This pull request's head lives in a fork, and GitHub withholds the check-run write permission from that context: the required `CI Strict` check cannot be created here. "
+                + "A maintainer can push the branch into the base repository (the lanes bootstrap the check themselves) or verify the lanes manually.",
+              );
+              return;
+            }
+
             // --- Read the four lane check-runs for that commit. -------------
             // GitHub reports the lane check-runs against the head sha, so this
             // is the authoritative source. We take the LATEST check-run per

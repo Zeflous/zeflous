@@ -63,4 +63,15 @@ final class AutowireReuse
 
         return $answered;
     }
+
+    /**
+     * Whether an identifier would resolve at all: the reuse verdict or
+     * the birth verdict -- the consultative probe the defaulted
+     * nullable's yield rule reads ({@see AutowireBindingTiers}), so an
+     * unbound type name must not veto the constructor's own default.
+     */
+    public function resolvable(string $id): bool
+    {
+        return $this->known($id) || ConstructorSpecs::birthable($id);
+    }
 }

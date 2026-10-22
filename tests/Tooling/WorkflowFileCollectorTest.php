@@ -70,6 +70,30 @@ final class WorkflowFileCollectorTest extends TestCase
         }
     }
 
+    public function testAGlobMetacharacterRootStillCollects(): void
+    {
+        // A checkout root like `/build/ci[2]/repo` made the glob
+        // patterns match nothing and the audit report its own absence
+        // as a pass; the directory iteration reads the same tree the
+        // filesystem answers, metacharacters and all.
+        $metacharRoot = (string) tempnam(sys_get_temp_dir(), 'zef-wf-ci[2]-');
+        unlink($metacharRoot);
+        mkdir($metacharRoot . '/.github/workflows', 0o777, true);
+        file_put_contents($metacharRoot . '/.github/workflows/a.yml', "name: A\n");
+
+        try {
+            $workflows = new WorkflowFileCollector($metacharRoot)->collect();
+
+            self::assertSame(['a.yml'], array_keys($workflows));
+            self::assertSame("name: A\n", $workflows['a.yml']);
+        } finally {
+            unlink($metacharRoot . '/.github/workflows/a.yml');
+            rmdir($metacharRoot . '/.github/workflows');
+            rmdir($metacharRoot . '/.github');
+            rmdir($metacharRoot);
+        }
+    }
+
     public function testReturnsEmptyWhenTheWorkflowDirectoryIsMissing(): void
     {
         $workflows = new WorkflowFileCollector('/nonexistent-root')->collect();

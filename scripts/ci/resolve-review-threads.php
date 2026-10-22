@@ -41,47 +41,70 @@ if (!\is_string($token) || $token === '') {
 /**
  * Runs a GraphQL query/mutation through curl and returns the raw JSON body.
  *
- * The token is passed to curl through an environment variable (`-H` reads it
- * from the shell), never on the command line, so it cannot leak into the
- * process list or a log.
+ * The token never rides the command line (the process list would read it for
+ * the request's lifetime): curl reads it from a 0600 config file the call
+ * owns and unlinks in `finally`, while the payload crosses stdin. The config
+ * also carries the exchange's own timeouts, so a hung connection refuses
+ * instead of stalling the sweep.
  *
  * @param array<string, mixed> $variables
  */
 $graphql = static function (string $query, array $variables) use ($token): string {
     $payload = json_encode(['query' => $query, 'variables' => $variables], \JSON_THROW_ON_ERROR);
 
+    $config = tempnam(sys_get_temp_dir(), 'zef-graphql-');
+
+    if ($config === false) {
+        throw new ToolingException('Could not stage the GitHub GraphQL config file.');
+    }
+
+    $config .= '.curl';
+    file_put_contents(
+        $config,
+        "header = \"Authorization: Bearer {$token}\"\n"
+        . "header = \"Content-Type: application/json\"\n"
+        . "header = \"Accept: application/vnd.github+json\"\n"
+        . "max-time = 30\n"
+        . "connect-timeout = 10\n",
+    );
+    chmod($config, 0o600);
+
     $command = \sprintf(
-        'curl -fsSL -X POST -H %s -H %s -H %s --data-binary @- %s',
-        escapeshellarg('Authorization: Bearer ' . $token),
-        escapeshellarg('Content-Type: application/json'),
-        escapeshellarg('Accept: application/vnd.github+json'),
+        'curl -fsSL --config %s -X POST --data-binary @- %s',
+        escapeshellarg($config),
         escapeshellarg('https://api.github.com/graphql'),
     );
 
-    $process = proc_open(
-        $command,
-        [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
-        $pipes,
-    );
+    try {
+        $process = proc_open(
+            $command,
+            [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes,
+        );
 
-    if (!\is_resource($process)) {
-        throw new ToolingException('Could not start curl for the GitHub GraphQL API.');
+        if (!\is_resource($process)) {
+            throw new ToolingException('Could not start curl for the GitHub GraphQL API.');
+        }
+
+        fwrite($pipes[0], $payload);
+        fclose($pipes[0]);
+
+        $stdout = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+
+        $exitCode = proc_close($process);
+
+        if ($exitCode !== 0 || !\is_string($stdout) || $stdout === '') {
+            throw new ToolingException('The GitHub GraphQL API call failed (curl exit ' . $exitCode . ').');
+        }
+
+        return $stdout;
+    } finally {
+        if (is_file($config)) {
+            unlink($config);
+        }
     }
-
-    fwrite($pipes[0], $payload);
-    fclose($pipes[0]);
-
-    $stdout = stream_get_contents($pipes[1]);
-    fclose($pipes[1]);
-    fclose($pipes[2]);
-
-    $exitCode = proc_close($process);
-
-    if ($exitCode !== 0 || !\is_string($stdout) || $stdout === '') {
-        throw new ToolingException('The GitHub GraphQL API call failed (curl exit ' . $exitCode . ').');
-    }
-
-    return $stdout;
 };
 
 try {

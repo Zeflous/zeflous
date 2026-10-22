@@ -33,4 +33,8 @@ final class ApcuDoubleState
     public static int|string|null $incAnswer = null;
 
     public static int|string|null $fetchAnswer = null;
+
+    public static bool $incSuccess = true;
+
+    public static bool $addSuccess = true;
 }

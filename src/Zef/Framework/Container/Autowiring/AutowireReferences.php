@@ -91,6 +91,20 @@ final readonly class AutowireReferences
     }
 
     /**
+     * Whether the parameter's declared-type binding would resolve at
+     * all: the reuse verdict or the birth verdict, consulted without
+     * side effects. The defaulted nullable's consultation ({@see
+     * AutowireParameterPlanner}): an unbound type name must not veto
+     * the constructor's own default. The attribute arms stay outside
+     * -- an explicit `#[Inject]` or `#[Target]` that names nothing is
+     * the refusal it is.
+     */
+    public function typeBindingResolvable(AutowireParameterSpec $autowireParameterSpec): bool
+    {
+        return $this->autowireReuse->resolvable($autowireParameterSpec->identifier());
+    }
+
+    /**
      * Resolves the parameter's binding to the identifier the plan
      * references: the `#[Target]` class when the attribute named one
      * (it must be instantiable -- a binding that cannot produce an

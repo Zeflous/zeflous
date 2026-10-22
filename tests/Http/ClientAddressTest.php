@@ -12,8 +12,8 @@ use Zef\Framework\Http\Uri;
 
 /**
  * The client-address resolution, on its own terms: the peer-first order,
- * the trusted-proxy boundary, the first-valid forwarded candidate, and
- * the sentinel -- the seam the rate-limit family throttles by.
+ * the trusted-proxy boundary, the nearest untrusted forwarded candidate,
+ * and the sentinel -- the seam the rate-limit family throttles by.
  *
  * @internal
  */
@@ -45,7 +45,7 @@ final class ClientAddressTest extends TestCase
         self::assertSame('203.0.113.9', ClientAddress::resolve($request));
     }
 
-    public function testATrustedProxyHandsTheFirstValidForwardedCandidate(): void
+    public function testATrustedProxyHandsTheNearestUntrustedForwardedCandidate(): void
     {
         $request = $this->request(
             ['REMOTE_ADDR' => '10.0.0.1'],
@@ -55,7 +55,71 @@ final class ClientAddressTest extends TestCase
         self::assertSame(
             '198.51.100.7',
             ClientAddress::resolve($request, ['10.0.0.1']),
-            'the first syntactically valid candidate wins; the rest are not consulted',
+            'the walk starts at the appended end and skips the trusted hop; the invalid leftmost '
+            . 'entry is never consulted',
+        );
+    }
+
+    /**
+     * The walk skips an invalid candidate, it does not stop at one: an
+     * appended-end entry the grammar refuses is exactly the shape a
+     * misbehaving proxy writes, and the honest answer for it is the
+     * next candidate the chain vouches for -- never the fallback to
+     * the proxy's own address, which would throttle every client
+     * behind that proxy as one bucket.
+     */
+    public function testAnInvalidAppendedEndCandidateIsSkippedNotStoppable(): void
+    {
+        $request = $this->request(
+            ['REMOTE_ADDR' => '10.0.0.1'],
+            ['X-Forwarded-For' => '198.51.100.7, not-an-ip'],
+        );
+
+        self::assertSame(
+            '198.51.100.7',
+            ClientAddress::resolve($request, ['10.0.0.1']),
+            'the walk continues past the invalid appended entry to the next candidate',
+        );
+    }
+
+    public function testAClientSuppliedLeftmostCandidateIsIgnoredBehindAnAppendingProxy(): void
+    {
+        $request = $this->request(
+            ['REMOTE_ADDR' => '10.0.0.1'],
+            ['X-Forwarded-For' => '9.9.9.9, 198.51.100.7'],
+        );
+
+        self::assertSame(
+            '198.51.100.7',
+            ClientAddress::resolve($request, ['10.0.0.1']),
+            'a spoofed leftmost entry never becomes the throttled identity',
+        );
+    }
+
+    public function testAChainOfTrustedProxiesStripsEveryTrustedHop(): void
+    {
+        $request = $this->request(
+            ['REMOTE_ADDR' => '10.0.0.2'],
+            ['X-Forwarded-For' => '198.51.100.7, 10.0.0.1'],
+        );
+
+        self::assertSame(
+            '198.51.100.7',
+            ClientAddress::resolve($request, ['10.0.0.1', '10.0.0.2']),
+        );
+    }
+
+    public function testAnAllTrustedForwardedChainAnswersThePeersOwnAddress(): void
+    {
+        $request = $this->request(
+            ['REMOTE_ADDR' => '10.0.0.2'],
+            ['X-Forwarded-For' => '10.0.0.1'],
+        );
+
+        self::assertSame(
+            '10.0.0.2',
+            ClientAddress::resolve($request, ['10.0.0.1', '10.0.0.2']),
+            'an exhausted trusted walk falls back to the sanitised peer, never to a leftmost claim',
         );
     }
 

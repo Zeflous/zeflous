@@ -17,19 +17,22 @@ use Override;
  * extension present or not -- no process isolation needed, no ignore
  * entry. The double-verified branches: a counter increment with its
  * initialisation TTL, a successful epoch claim, an existing epoch read
- * back, and the corrupt-entry fallbacks.
+ * back, and the refusal arms -- a corrupt answer, a disabled extension,
+ * a claim nothing reads back.
  *
- * Fail-closed shape: `apcu_inc` answers `false` only in failure states the
- * TTL-initialisation path rules out (a corrupt non-integer entry), and the
- * corrupt cases answer the safe value -- a counter reset to one, an epoch
- * re-claimed -- never a fabricated success. The store is selected only
- * through the `security.rate_limit.store` knob, and an accounting call
- * the runner cannot even make (the extension absent) surfaces through
- * the middleware's catch-all as the fail-closed 503, never an
- * unaccounted admission: an operator who declares `apcu` has stated
- * they want shared accounting, and silently substituting the
- * per-process limiter would multiply their limit by the worker count
- * while the knob says otherwise.
+ * Fail-closed shape: an `apcu_inc` that answers anything but a
+ * successful integer count -- the extension disabled at runtime (a
+ * CLI worker without `apc.enable_cli`), the shared memory exhausted, a
+ * corrupt entry under the accounting key -- is an accounting outage,
+ * and so is an epoch claim that cannot read a real claim back. Both
+ * arms throw the layer's exception, which the rate-limit middleware's
+ * catch-all converts into the fail-closed 503: an accounting call that
+ * cannot even be made never becomes an unaccounted admission or a
+ * fabricated reset, whatever refused it. The store is selected only
+ * through the `security.rate_limit.store` knob, and an operator who
+ * declares `apcu` has stated they want shared accounting -- silently
+ * substituting the per-process limiter would multiply their limit by
+ * the worker count while the knob says otherwise.
  *
  * Attribution: legacy `zef-main` `Framework/Security/ApcuRateLimiter.php`
  * (the store boundary; the atomic primitives replace the reference's
@@ -42,7 +45,11 @@ final class ApcuCounterStore implements ApcuCounterStoreInterface
     {
         $count = apcu_inc($key, 1, $success, $ttl);
 
-        return \is_int($count) ? $count : 1;
+        if ($success !== true || !\is_int($count)) {
+            throw new HttpException('The APCu accounting refused the increment.');
+        }
+
+        return $count;
     }
 
     #[Override]
@@ -52,16 +59,12 @@ final class ApcuCounterStore implements ApcuCounterStoreInterface
             return $epoch;
         }
 
-        return $this->fetchedEpoch(apcu_fetch($key), $epoch);
-    }
+        $fetched = apcu_fetch($key);
 
-    /**
-     * The epoch an existing claim carries: the int the claimant wrote,
-     * or the freshly computed epoch when the stored entry is corrupt
-     * (anything but an int) -- the safe value, never a fabricated one.
-     */
-    private function fetchedEpoch(mixed $fetched, int $epoch): int
-    {
-        return \is_int($fetched) ? $fetched : $epoch;
+        if (!\is_int($fetched)) {
+            throw new HttpException('The APCu accounting refused the reset epoch.');
+        }
+
+        return $fetched;
     }
 }

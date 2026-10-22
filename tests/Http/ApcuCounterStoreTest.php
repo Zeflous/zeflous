@@ -8,6 +8,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\ApcuCounterStore;
+use Zef\Framework\Http\HttpException;
 use Zef\Test\Support\Http\ApcuDoubleState;
 use Zef\Test\Support\Http\ApcuFunctionDoubles;
 
@@ -47,13 +48,38 @@ final class ApcuCounterStoreTest extends TestCase
         );
     }
 
-    public function testACorruptIncrementAnswerFailsClosedToOne(): void
+    public function testACorruptIncrementAnswerFailsClosed(): void
     {
         ApcuDoubleState::$incAnswer = 'not-a-count';
 
         $apcuCounterStore = new ApcuCounterStore();
 
-        self::assertSame(1, $apcuCounterStore->increment('zef:ratelimit:count:abc', 60));
+        $this->assertThrows(
+            'The APCu accounting refused the increment.',
+            static function () use ($apcuCounterStore): void {
+                $apcuCounterStore->increment('zef:ratelimit:count:abc', 60);
+            },
+        );
+    }
+
+    /**
+     * The extension present but disabled at runtime (a CLI worker
+     * without `apc.enable_cli`) answers a failed step: the accounting
+     * outage surfaces as the fail-closed refusal, never a fabricated
+     * count of one.
+     */
+    public function testADisabledExtensionFailsTheIncrementClosed(): void
+    {
+        ApcuDoubleState::$incSuccess = false;
+
+        $apcuCounterStore = new ApcuCounterStore();
+
+        $this->assertThrows(
+            'The APCu accounting refused the increment.',
+            static function () use ($apcuCounterStore): void {
+                $apcuCounterStore->increment('zef:ratelimit:count:abc', 60);
+            },
+        );
     }
 
     public function testASuccessfulEpochClaimAnswersTheClaimedEpochWithoutReadingBack(): void
@@ -79,12 +105,49 @@ final class ApcuCounterStoreTest extends TestCase
         self::assertSame(140, $apcuCounterStore->claimResetEpoch('zef:ratelimit:reset:abc', 160, 60));
     }
 
-    public function testACorruptExistingEpochFailsClosedToTheClaimedEpoch(): void
+    public function testACorruptExistingEpochFailsClosed(): void
     {
         ApcuDoubleState::$entries = ['zef:ratelimit:reset:abc' => 'not-an-epoch'];
 
         $apcuCounterStore = new ApcuCounterStore();
 
-        self::assertSame(160, $apcuCounterStore->claimResetEpoch('zef:ratelimit:reset:abc', 160, 60));
+        $this->assertThrows(
+            'The APCu accounting refused the reset epoch.',
+            static function () use ($apcuCounterStore): void {
+                $apcuCounterStore->claimResetEpoch('zef:ratelimit:reset:abc', 160, 60);
+            },
+        );
+    }
+
+    /**
+     * A refused claim with nothing to read back -- the disabled-runtime
+     * shape -- is the same accounting outage: the freshly computed
+     * epoch is never fabricated into a claim.
+     */
+    public function testADisabledExtensionFailsTheClaimClosed(): void
+    {
+        ApcuDoubleState::$addSuccess = false;
+
+        $apcuCounterStore = new ApcuCounterStore();
+
+        $this->assertThrows(
+            'The APCu accounting refused the reset epoch.',
+            static function () use ($apcuCounterStore): void {
+                $apcuCounterStore->claimResetEpoch('zef:ratelimit:reset:abc', 160, 60);
+            },
+        );
+    }
+
+    /**
+     * @param callable(): void $operation
+     */
+    private function assertThrows(string $message, callable $operation): void
+    {
+        try {
+            $operation();
+            self::fail('HttpException expected.');
+        } catch (HttpException $httpException) {
+            self::assertSame($message, $httpException->getMessage());
+        }
     }
 }

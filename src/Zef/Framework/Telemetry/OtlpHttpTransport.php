@@ -23,7 +23,11 @@ use InvalidArgumentException;
  * answers zero): a 2xx is a delivery, a 4xx is the permanent
  * rejection the plain {@see InvalidArgumentException} carries (no
  * retry addresses it), anything else is the transient failure the
- * lane's own {@see OtlpExporterException} carries.
+ * lane's own {@see OtlpExporterException} carries. The one 4xx the
+ * OTLP/HTTP retry spec itself puts on the transient side is the
+ * collector's throttle answer -- a 429 with a `Retry-After` hint is
+ * a "come back later" the lane's own backoff addresses, not a
+ * payload it should drop on the floor.
  *
  * The transport's failure diagnostics are captured through a
  * scoped error handler so the refused connection's own reason
@@ -121,7 +125,7 @@ final readonly class OtlpHttpTransport
         }
 
         match (true) {
-            $status >= 500 => throw new OtlpExporterException('OTLP exporter transient rejection.'),
+            $status >= 500 || $status === 429 => throw new OtlpExporterException('OTLP exporter transient rejection.'),
             $status >= 400 => throw new InvalidArgumentException('OTLP exporter permanent rejection.'),
             default => null,
         };

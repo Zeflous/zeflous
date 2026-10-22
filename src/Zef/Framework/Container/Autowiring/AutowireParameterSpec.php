@@ -100,6 +100,21 @@ final readonly class AutowireParameterSpec
     }
 
     /**
+     * Whether the parameter's only binding intent is its declared type:
+     * a default was declared, no attribute spelled an intent, and the
+     * type names a class -- the shape whose unbound type name must not
+     * veto the constructor's own default (the binding tier's yield
+     * rule, {@see AutowireBindingTiers}).
+     */
+    public function bindingIsTheBareDeclaredType(): bool
+    {
+        return $this->hasDefault
+            && $this->injectId === null
+            && $this->targetClass === null
+            && $this->className !== null;
+    }
+
+    /**
      * Whether the value arm carries this parameter: the `#[Value]`
      * attribute named its parameter address (the class-typed and union
      * guards make the value and binding arms mutually exclusive by

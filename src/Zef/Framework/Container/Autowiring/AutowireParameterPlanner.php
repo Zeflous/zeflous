@@ -34,11 +34,18 @@ namespace Zef\Framework\Container\Autowiring;
  * 4. **the constructor's own default** -- baked verbatim, the honest
  *    value the class itself declared.
  *
+ * The dispatch itself is this unit's whole vocabulary: the declared
+ * stretch answers tier 1, the variadic shape routes to
+ * {@see AutowireVariadicCollection}, and every other parameter walks
+ * the non-variadic ladder ({@see AutowireBindingTiers} keeps the
+ * value, binding and fallback tiers together with the defaulted
+ * nullable's own yield rule).
+ *
  * The attribute and type arms resolve together through the
  * {@see AutowireReferences::resolve()} resolver the caller threads in
  * ({@see AutowireParameterSpec::carriesBinding()} is the routing
  * predicate -- the arms' has/birth/refuse verdicts are the resolver's,
- * keeping this class pure tiers). Under both tiers,
+ * keeping every tier unit pure). Under both tiers,
  * an unplanned parameter that names no binding is the honest refusal
  * (through {@see AutowireRefusals}): an interface without a binding, a
  * required scalar without a default, an unsupported union -- each with
@@ -70,48 +77,10 @@ final readonly class AutowireParameterPlanner
             return $declaredStretch;
         }
 
-        return $this->unplanned($ownerId, $autowireParameterSpec, $autowireReferences);
-    }
-
-    /**
-     * The unspelled parameter's tiers: the variadic's collection, then
-     * the value address, the binding arms and the fallback (the
-     * non-variadic half kept its own unit so the tier sequence stays
-     * three returns apiece -- the S1142 line).
-     *
-     * @return list<mixed>
-     */
-    private function unplanned(
-        string $ownerId,
-        AutowireParameterSpec $autowireParameterSpec,
-        AutowireReferences $autowireReferences,
-    ): array {
         if ($autowireParameterSpec->isVariadic) {
             return AutowireVariadicCollection::stretch($ownerId, $autowireParameterSpec, $autowireReferences);
         }
 
-        return $this->unvariadic($ownerId, $autowireParameterSpec, $autowireReferences);
-    }
-
-    /**
-     * The non-variadic tiers: the `#[Value]` address, the parameter's
-     * own binding, the fallback.
-     *
-     * @return list<mixed>
-     */
-    private function unvariadic(
-        string $ownerId,
-        AutowireParameterSpec $autowireParameterSpec,
-        AutowireReferences $autowireReferences,
-    ): array {
-        if ($autowireParameterSpec->carriesValue()) {
-            return [['service' => $autowireReferences->valueService($ownerId, $autowireParameterSpec)]];
-        }
-
-        if ($autowireParameterSpec->carriesBinding()) {
-            return [['service' => $autowireReferences->resolve($ownerId, $autowireParameterSpec)]];
-        }
-
-        return AutowireFallback::stretch($ownerId, $autowireParameterSpec);
+        return AutowireBindingTiers::stretch($ownerId, $autowireParameterSpec, $autowireReferences);
     }
 }

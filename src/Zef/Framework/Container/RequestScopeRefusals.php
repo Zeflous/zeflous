@@ -53,4 +53,20 @@ final readonly class RequestScopeRefusals
             . "service '{$id}' cannot be resolved through it.",
         );
     }
+
+    /**
+     * A request-scoped id resolved beneath a singleton resolution
+     * frame: the singleton's memo would hold the instance beyond the
+     * scope it was born in -- the runtime capture the boot graph
+     * refuses ({@see LifetimeCaptures}), answered here for the
+     * programmatic registrations that graph never walks.
+     */
+    public static function capturedByAWiderFrame(string $id, string $captor): RequestScopeException
+    {
+        return new RequestScopeException(
+            "Service '{$captor}' (singleton) is resolving and would capture the request-scoped service '{$id}' "
+            . 'beyond the scope it was born in -- the runtime capture the boot graph refuses: '
+            . "give '{$id}' a singleton or transient lifetime, or make '{$captor}' request-scoped.",
+        );
+    }
 }

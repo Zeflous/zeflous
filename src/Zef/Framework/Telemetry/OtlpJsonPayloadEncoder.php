@@ -22,7 +22,7 @@ namespace Zef\Framework\Telemetry;
  * `doubleValue` (the NaN and infinities the JSON grammar refuses
  * never reach the encoder -- the recording surface's own value
  * sanitisation answers their string spellings before the payload
- * exists, {@see TelemetrySanitizer::value()}), an array an
+ * exists, {@see TelemetryValues::value()}), an array an
  * `arrayValue` of its encoded elements, and everything else a
  * `stringValue` -- a scalar the encoder sanitises through the
  * hygiene unit's clamp ({@see TelemetrySanitizer::string()}) or,

@@ -14,8 +14,14 @@ namespace Zef\Framework\Tooling;
  * being treated as "no threads" -- a silent empty result would let the lane
  * believe a blocked pull request has nothing to resolve.
  *
- * Unusable nodes are skipped rather than aborting the parse, so one
- * malformed thread can never hide the others.
+ * Unusable nodes are counted rather than aborted, so one malformed
+ * thread can never hide the others -- and it can never silently
+ * vanish either: GitHub legitimately answers null entries for
+ * deleted or permission-restricted threads, and a thread the sweep
+ * cannot account for still counts as unresolved for the required
+ * check, so every unusable node surfaces in the report's own count
+ * ({@see ReviewThreadReport::$unusable}) and rides the resolution's
+ * failure total ({@see ReviewThreadResolution}).
  */
 final readonly class ReviewThreadPayload
 {
@@ -34,17 +40,20 @@ final readonly class ReviewThreadPayload
         }
 
         $threads = [];
+        $unusable = 0;
 
         foreach (new ReviewThreadNodes($decoded)->toList() as $node) {
             $thread = ReviewThreadFactory::fromNode($node);
 
             if (!$thread instanceof ReviewThread) {
+                ++$unusable;
+
                 continue;
             }
 
             $threads[] = $thread;
         }
 
-        return new ReviewThreadReport($threads);
+        return new ReviewThreadReport($threads, $unusable);
     }
 }

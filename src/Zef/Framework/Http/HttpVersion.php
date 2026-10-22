@@ -11,7 +11,7 @@ namespace Zef\Framework\Http;
  */
 final class HttpVersion
 {
-    private const string VERSION_PATTERN = '/^\d(?:\.\d)?$/';
+    private const string VERSION_PATTERN = '/^\d(?:\.\d)?\z/';
 
     /**
      * @throws HttpException when the version is not a valid HTTP

@@ -499,7 +499,11 @@ jobs:
               head_sha="$before_sha"
               for attempt in $(seq 1 12); do
                 head_sha=$(gh pr view "$pr" --json headRefOid --jq '.headRefOid' 2>/dev/null) || head_sha="$before_sha"
-                runs_json=$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs?branch=${branch}&per_page=50" 2>/dev/null) || runs_json='{"workflow_runs":[]}'
+                # -f under --method GET percent-encodes the branch into the
+                # query string: a branch name carrying '&' or '#' would
+                # otherwise truncate the filter and silently match nothing,
+                # leaving the bot's runs action_required on every sweep.
+                runs_json=$(gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/runs" -f branch="${branch}" -f per_page=50 2>/dev/null) || runs_json='{"workflow_runs":[]}'
                 ids=$(printf '%s' "$runs_json" \
                   | jq -r --arg head "$head_sha" --arg before "$before_sha" --arg start "$update_started" \
                         '.workflow_runs[]

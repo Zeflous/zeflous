@@ -50,4 +50,19 @@ final class ReviewThreadReportTest extends TestCase
         self::assertSame(0, $reviewThreadReport->count());
         self::assertSame([], $reviewThreadReport->resolvableIds());
     }
+
+    /**
+     * The unusable count's default is an honest zero: a report built
+     * without an explicit count carried no node the sweep could not
+     * account for, and a negative or padded default would name
+     * unaccounted threads that were never there.
+     */
+    public function testAReportWithoutAnExplicitUnusableCountCarriesZero(): void
+    {
+        self::assertSame(0, new ReviewThreadReport([])->unusable);
+        self::assertSame(
+            0,
+            new ReviewThreadReport([new ReviewThread('PRRT_live', false, false, 'src/A.php')])->unusable,
+        );
+    }
 }

@@ -18,10 +18,13 @@ use Zef\Framework\Http\DiagnosticSeverity;
  * the engine's own contract, respected. The severities PHP aborts on
  * (E_USER_ERROR, E_RECOVERABLE_ERROR) are *converted* -- thrown as
  * {@see NativeErrorException} so a surrounding pipeline can map,
- * record and answer them through the typed lane. Every other severity
- * is recorded once through the diagnostic record fold and owned: one
- * diagnostic, one record, one destination, and the engine's duplicate
- * SAPI write never happens.
+ * record and answer them through the typed lane, and the conversion
+ * consumes the engine's last-error witness: the converted diagnostic
+ * was owned and answered, and a witness left behind would be
+ * re-witnessed as a fresh critical fatal by the shutdown arm of every
+ * later worker recycle. Every other severity is recorded once through
+ * the diagnostic record fold and owned: one diagnostic, one record,
+ * one destination, and the engine's duplicate SAPI write never happens.
  */
 final readonly class ProcessNativeDiagnostics
 {
@@ -51,6 +54,8 @@ final readonly class ProcessNativeDiagnostics
         }
 
         if (($severity & self::CONVERTS_TO_EXCEPTION) !== 0) {
+            error_clear_last();
+
             throw NativeErrorException::diagnostic(
                 $message . ' in ' . $file . ' on line ' . $line,
                 DiagnosticSeverity::for($severity),

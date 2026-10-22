@@ -8,6 +8,7 @@ use Override;
 use ParseError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Zef\Framework\Config\Cache\ConfigCache;
 use Zef\Framework\Config\ConfigException;
 
@@ -201,10 +202,13 @@ final class ConfigCacheTest extends TestCase
     public function testDumpThrowsWhenTheWriteFails(): void
     {
         // The cache target is the test directory itself: dirname() resolves to
-        // the (existing) parent, so the pre-check passes and the write itself
-        // fails. The custom error handler swallows the engine's diagnostic for
-        // the failing stream open; the branch under test is the failure
-        // handling, not the diagnostic.
+        // the (existing) parent, so the pre-check passes. The atomic staging
+        // write into the writable parent succeeds and the finalising rename
+        // onto the directory target fails -- the unwritable-target shape now
+        // lands on the finalisation arm, and the staging sibling never
+        // survives its own failed rename. The custom error handler swallows
+        // the engine's diagnostic for the failing rename; the branch under
+        // test is the failure handling, not the diagnostic.
         set_error_handler(static fn (): bool => true);
 
         try {
@@ -213,12 +217,140 @@ final class ConfigCacheTest extends TestCase
             self::fail('A failed configuration cache write must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(
-                \sprintf('The configuration cache "%s" could not be written.', $this->directory),
+                \sprintf('The configuration cache "%s" could not be finalised.', $this->directory),
                 $configException->getMessage(),
+            );
+            $staging = glob(\dirname($this->directory) . '/' . basename($this->directory) . '.*.staging');
+            self::assertIsArray($staging);
+            self::assertSame(
+                [],
+                $staging,
+                'the failed rename cleaned its own staging sibling',
             );
         } finally {
             restore_error_handler();
         }
+    }
+
+    public function testADumpThatRaisesMidWriteLeavesNoTornArtifact(): void
+    {
+        // The atomic contract: an artifact the previous dump wrote survives
+        // a failed re-dump whole -- the staging sibling took the failure,
+        // the reader-facing name never saw a partial byte.
+        $file = $this->directory . '/cache-' . uniqid('', false) . '.php';
+        $configCache = new ConfigCache($file);
+        $configCache->dump(['previous' => 'whole']);
+
+        set_error_handler(static fn (): bool => true);
+
+        try {
+            $unfinalisable = new ConfigCache($this->directory . '/subdirectory-that-does-not-exist/x.php');
+
+            try {
+                $unfinalisable->dump(['next' => 'torn']);
+                self::fail('A dump into a missing directory must raise a ConfigException.');
+            } catch (ConfigException $configException) {
+                self::assertStringContainsString('does not exist.', $configException->getMessage());
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertSame(['previous' => 'whole'], $configCache->load(), 'the previous artifact survived whole');
+
+        unlink($file);
+    }
+
+    public function testLoadThrowsWhenTheCacheRaisesDuringItsOwnLoad(): void
+    {
+        // A hand edit that calls something: the file parses, and raises
+        // while it is being required. The broader Throwable arm -- not
+        // the ParseError arm -- owns the fail-closed contract for it,
+        // with the raised cause chained as the exception's previous.
+        file_put_contents($this->file, "<?php throw new \\RuntimeException('a hand edit that calls something');");
+
+        $configCache = new ConfigCache($this->file);
+
+        try {
+            $configCache->load();
+            self::fail('A configuration cache that raises during its own load must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The configuration cache "' . $this->file . '" is corrupted: it raised during its own load.',
+                $configException->getMessage(),
+            );
+            self::assertSame(
+                0,
+                $configException->getCode(),
+                'the broader Throwable arm spells the same zero code the ParseError arm spells',
+            );
+            self::assertInstanceOf(RuntimeException::class, $configException->getPrevious());
+        }
+    }
+
+    /**
+     * The staging sibling's own name, observed through the engine's
+     * diagnostic for the failing rename: the artifact's basename, the
+     * writing process's own id, a thirteen-hex-character entropy, and
+     * the `.staging` suffix -- a sibling no concurrent writer can
+     * collide with. The rename onto the occupied directory fails, the
+     * diagnostic carries the whole staging path, and the failed dump
+     * still cleans its own sibling.
+     */
+    public function testTheStagingSiblingCarriesTheBasenameThePidAndTheEntropy(): void
+    {
+        $occupied = $this->directory . '/occupied';
+        mkdir($occupied);
+        file_put_contents($occupied . '/sentinel', 'x');
+
+        $diagnostics = [];
+        set_error_handler(static function (int $severity, string $message) use (&$diagnostics): bool {
+            $diagnostics[] = $message;
+
+            return true;
+        });
+
+        try {
+            $configCache = new ConfigCache($occupied);
+
+            try {
+                $configCache->dump(['key' => 'value']);
+                self::fail('A dump onto an occupied directory target must raise a ConfigException.');
+            } catch (ConfigException $configException) {
+                self::assertSame(
+                    \sprintf('The configuration cache "%s" could not be finalised.', $occupied),
+                    $configException->getMessage(),
+                );
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        $renames = array_values(array_filter(
+            $diagnostics,
+            static fn (string $message): bool => str_starts_with($message, 'rename('),
+        ));
+        self::assertCount(1, $renames, 'exactly one rename diagnostic carries the staging path');
+        self::assertMatchesRegularExpression(
+            '/^rename\(' . preg_quote($occupied, '/') . '\.' . preg_quote((string) getmypid(), '/')
+                . '-[0-9a-f]{13}\.staging,/',
+            $renames[0],
+            'the staging sibling is the basename, the pid, the entropy and the suffix',
+        );
+
+        $staging = glob($occupied . '.*.staging');
+        self::assertIsArray($staging);
+        self::assertSame([], $staging, 'the failed rename cleaned its own staging sibling');
+
+        if (is_file($occupied . '/sentinel')) {
+            unlink($occupied . '/sentinel');
+        }
+
+        if (!is_dir($occupied)) {
+            return;
+        }
+
+        rmdir($occupied);
     }
 
     /**

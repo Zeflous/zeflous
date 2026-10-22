@@ -11,11 +11,15 @@ namespace Zef\Framework\Http;
  * The value is always the freshly issued token -- no request input is
  * embedded -- and the attribute order is the reference implementation's
  * own ({@see CsrfMiddleware} carries the port's provenance): `Path=/`,
- * `SameSite` from the vocabulary, `Secure` only over https when the
- * knob asks (a local http bootstrap still receives its token), and
- * `HttpOnly` when the knob asks. The policy's SameSite `None` word
- * already required the Secure knob at validation ({@see CsrfPolicy}),
- * so no posture can reach this line with an unsatisfiable request.
+ * `SameSite` from the vocabulary, `Secure` over https when the knob
+ * asks (a local http bootstrap still receives its token), and
+ * `HttpOnly` when the knob asks. The one exception the browser
+ * contract forces: `SameSite` `None` carries `Secure` whatever the
+ * scheme -- no current browser accepts a `None` cookie without it, so
+ * emitting one and hoping is issuing a cookie that will be dropped.
+ * The policy's SameSite `None` word already required the Secure knob
+ * at validation ({@see CsrfPolicy}), so no posture can reach this line
+ * with an unsatisfiable request.
  */
 final class CsrfSetCookie
 {
@@ -30,7 +34,7 @@ final class CsrfSetCookie
             'SameSite=' . $csrfPolicy->sameSite,
         ];
 
-        if ($csrfPolicy->cookieSecure && $scheme === 'https') {
+        if ($csrfPolicy->cookieSecure && ($scheme === 'https' || $csrfPolicy->sameSite === CsrfSameSite::NONE)) {
             $attributes[] = 'Secure';
         }
 

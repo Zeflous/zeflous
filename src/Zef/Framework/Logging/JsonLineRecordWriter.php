@@ -4,7 +4,22 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Logging;
 
-/** Writes one complete JSONL record, rolling the file back when a write cannot finish. */
+/**
+ * Writes one complete JSONL record, rolling the file back when a write
+ * cannot finish.
+ *
+ * The loop is byte-wise, the only unit `fwrite()` itself answers: the
+ * cursor advances by the BYTES the stream actually accepted, and the
+ * remainder the next call ships is the byte-tail from that exact offset
+ * (`unpack()`'s own offset, the byte-presence idiom the boundary
+ * already documents -- deliberately not `substr()` arithmetic, which
+ * the coding standard's multibyte-safe fixer would silently turn into
+ * character arithmetic). A short write on a multibyte line therefore
+ * resumes at the line's NEXT BYTE, never at its next character: the
+ * character-offset walk this loop once kept skipped the trailing half
+ * of a partially-written multibyte sequence and exited "successfully"
+ * on a torn record.
+ */
 final class JsonLineRecordWriter
 {
     /**
@@ -13,9 +28,17 @@ final class JsonLineRecordWriter
     public static function write($stream, string $line, int $startOffset): void
     {
         $offset = 0;
-        $length = mb_strlen($line);
-        while ($offset < $length) {
-            $written = fwrite($stream, mb_substr($line, $offset));
+
+        while (isset($line[$offset])) {
+            $unpacked = unpack('a*', $line, $offset);
+            $remainder = '';
+
+            if (\is_array($unpacked) && isset($unpacked[1]) && \is_string($unpacked[1])) {
+                $remainder = $unpacked[1];
+            }
+
+            $written = fwrite($stream, $remainder);
+
             if ($written === false || $written === 0) {
                 if (!ftruncate($stream, max(0, $startOffset))) {
                     throw new JsonLogWriteException('Unable to roll back an incomplete JSON log record.');

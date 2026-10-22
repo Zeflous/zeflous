@@ -135,14 +135,17 @@ final readonly class CsrfMiddleware implements MiddlewareInterface
 
     /**
      * The issuance decoration: the fresh token as the family's cookie
-     * ({@see CsrfSetCookie}), replace-not-append.
+     * ({@see CsrfSetCookie}), appended beside whatever `Set-Cookie`
+     * values the handler already set -- RFC 6265 responses routinely
+     * carry several, and a token issuance must never cost the handler
+     * its session or login cookie.
      */
     private function withFreshCookie(
         ResponseInterface $response,
         string $token,
         ServerRequestInterface $request,
     ): ResponseInterface {
-        $message = $response->withHeader(
+        $message = $response->withAddedHeader(
             'Set-Cookie',
             CsrfSetCookie::headerValue($this->csrfPolicy, $token, $request->getUri()->getScheme()),
         );

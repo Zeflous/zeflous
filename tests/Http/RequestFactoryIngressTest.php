@@ -152,31 +152,16 @@ final class RequestFactoryIngressTest extends TestCase
     }
 
     /**
-     * The first value of a comma-separated forwarded list is the only
-     * value that can claim trust -- later entries are client-appended.
+     * Only the appended end of a comma-separated forwarded list can claim
+     * trust -- under the standard appending proxy it is the position the
+     * trusted proxy wrote; every earlier entry is client-supplied and
+     * claims nothing.
      */
-    public function testOnlyTheFirstForwardedValueIsJudged(): void
+    public function testAClientSuppliedEarlyForwardedValueCannotClaimTrust(): void
     {
         $request = $this->trustedRequest(['REMOTE_ADDR' => '10.0.0.2'], [
             'host' => [self::ALLOWED_HOST],
             'x-forwarded-host' => [self::ALLOWED_HOST . ', evil.example.com'],
-        ]);
-
-        $guarded = RequestFactory::validateIngress(
-            $request,
-            self::TRUSTED_HOSTS,
-            self::TRUSTED_PROXIES,
-            new RequestBodyPolicy(64),
-        );
-
-        self::assertSame($request, $guarded);
-    }
-
-    public function testTheFirstForwardedValueIsTheOneRejected(): void
-    {
-        $request = $this->trustedRequest(['REMOTE_ADDR' => '10.0.0.2'], [
-            'host' => [self::ALLOWED_HOST],
-            'x-forwarded-host' => ['evil.example.com, ' . self::ALLOWED_HOST],
         ]);
 
         $this->assertThrows(
@@ -190,6 +175,23 @@ final class RequestFactoryIngressTest extends TestCase
                 );
             },
         );
+    }
+
+    public function testTheProxyAppendedForwardedValueIsTheJudgedAuthority(): void
+    {
+        $request = $this->trustedRequest(['REMOTE_ADDR' => '10.0.0.2'], [
+            'host' => [self::ALLOWED_HOST],
+            'x-forwarded-host' => ['evil.example.com, ' . self::ALLOWED_HOST],
+        ]);
+
+        $guarded = RequestFactory::validateIngress(
+            $request,
+            self::TRUSTED_HOSTS,
+            self::TRUSTED_PROXIES,
+            new RequestBodyPolicy(64),
+        );
+
+        self::assertSame($request, $guarded);
     }
 
     /**

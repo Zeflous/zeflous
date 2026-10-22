@@ -39,6 +39,8 @@ final class ApcuFunctionDoubles
         ApcuDoubleState::$entries = [];
         ApcuDoubleState::$incAnswer = null;
         ApcuDoubleState::$fetchAnswer = null;
+        ApcuDoubleState::$incSuccess = true;
+        ApcuDoubleState::$addSuccess = true;
 
         require_once __DIR__ . '/apcu_function_doubles.php';
     }

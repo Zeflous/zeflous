@@ -35,6 +35,7 @@ use Zef\Framework\Http\UploadCoercion;
 use Zef\Framework\Http\UploadedFile;
 use Zef\Framework\Http\UploadLeaf;
 use Zef\Framework\Http\UploadNode;
+use Zef\Framework\Http\UploadOrigin;
 
 /**
  * @internal
@@ -58,6 +59,7 @@ use Zef\Framework\Http\UploadNode;
 #[CoversClass(ServerProtocol::class)]
 #[CoversClass(ServerPath::class)]
 #[CoversClass(ServerUploads::class)]
+#[CoversClass(UploadOrigin::class)]
 #[CoversClass(ServerUri::class)]
 #[CoversClass(ServerValues::class)]
 #[CoversClass(UploadCoercion::class)]
@@ -292,6 +294,10 @@ final class RequestFactoryTest extends TestCase
         yield 'out of range port' => ['example.com:65536'];
 
         yield 'empty host with port' => [':8080'];
+
+        yield 'unbracketed IPv6 literal' => ['::1'];
+
+        yield 'unbracketed mapped literal' => ['::ffff:10.0.0.1'];
     }
 
     public function testAnOverlongHostFailsClosed(): void
@@ -621,6 +627,121 @@ final class RequestFactoryTest extends TestCase
                 RequestFactory::fromServer(['REQUEST_URI' => "/users\r\nX-Injected: 1"]);
             },
         );
+    }
+
+    /**
+     * @dataProvider provideAnAuthorityFormTargetFailsClosedCases
+     */
+    #[DataProvider('provideAnAuthorityFormTargetFailsClosedCases')]
+    public function testAnAuthorityFormTargetFailsClosed(string $method, string $target): void
+    {
+        $this->assertThrows(
+            'Malformed request target.',
+            static function () use ($method, $target): void {
+                RequestFactory::fromServer([
+                    'REQUEST_METHOD' => $method,
+                    'REQUEST_URI' => $target,
+                    'HTTP_HOST' => 'example.com',
+                ]);
+            },
+        );
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function provideAnAuthorityFormTargetFailsClosedCases(): iterable
+    {
+        yield 'connect reg-name authority' => ['CONNECT', 'example.com:443'];
+
+        yield 'connect bracketed authority' => ['CONNECT', '[::1]:443'];
+
+        yield 'connect portless authority' => ['CONNECT', 'example.com'];
+
+        yield 'authority on a plain method' => ['GET', 'example.com:443'];
+    }
+
+    public function testTheGlobalsBagDowngradesFilesTheEngineDisowns(): void
+    {
+        $server = $_SERVER;
+        $get = $_GET;
+        $cookie = $_COOKIE;
+        $post = $_POST;
+        $files = $_FILES;
+
+        $_SERVER = ['REQUEST_METHOD' => 'POST', 'HTTP_HOST' => 'zef.io'];
+        $_GET = [];
+        $_COOKIE = [];
+        $_POST = [];
+        $_FILES = [
+            'avatar' => [
+                'name' => 'avatar.png',
+                'type' => 'image/png',
+                'tmp_name' => __FILE__,
+                'error' => \UPLOAD_ERR_OK,
+                'size' => 2048,
+            ],
+            'photos' => [
+                'name' => ['a.png', 'b.png'],
+                'type' => ['image/png', 'image/png'],
+                'tmp_name' => [__FILE__, ''],
+                'error' => [\UPLOAD_ERR_OK, \UPLOAD_ERR_NO_FILE],
+                'size' => [10, 20],
+            ],
+        ];
+
+        try {
+            $request = RequestFactory::fromGlobals();
+
+            $uploads = $request->getUploadedFiles();
+            $avatar = $uploads['avatar'];
+            self::assertInstanceOf(UploadedFile::class, $avatar);
+            $photos = $uploads['photos'];
+            self::assertIsArray($photos);
+            $firstPhoto = $photos[0];
+            self::assertInstanceOf(UploadedFile::class, $firstPhoto);
+            $secondPhoto = $photos[1];
+            self::assertInstanceOf(UploadedFile::class, $secondPhoto);
+            self::assertSame(\UPLOAD_ERR_NO_FILE, $avatar->getError(), 'a path the engine disowns is no payload');
+            self::assertSame(\UPLOAD_ERR_NO_FILE, $firstPhoto->getError(), 'the nested disowned leaf is downgraded');
+            self::assertSame(
+                \UPLOAD_ERR_NO_FILE,
+                $secondPhoto->getError(),
+                'the leaf that was already honest is untouched',
+            );
+
+            $this->assertThrows(
+                'Uploaded file is not available (error 4).',
+                static function () use ($avatar): void {
+                    $avatar->getStream();
+                },
+            );
+        } finally {
+            $_SERVER = $server;
+            $_GET = $get;
+            $_COOKIE = $cookie;
+            $_POST = $post;
+            $_FILES = $files;
+        }
+    }
+
+    public function testTheExplicitSourceKeepsTheEngineDisownedFileTheCallerNamed(): void
+    {
+        $request = RequestFactory::fromServer([], null, null, null, [
+            'avatar' => [
+                'name' => 'avatar.png',
+                'type' => 'image/png',
+                'tmp_name' => __FILE__,
+                'error' => \UPLOAD_ERR_OK,
+                'size' => 2048,
+            ],
+        ]);
+
+        $uploads = $request->getUploadedFiles();
+        $avatar = $uploads['avatar'];
+        self::assertInstanceOf(UploadedFile::class, $avatar);
+        self::assertSame(\UPLOAD_ERR_OK, $avatar->getError(), 'the explicitly-sourced lane owns its own trust');
+        self::assertSame('<?php', $avatar->getStream()->read(5));
     }
 
     /**

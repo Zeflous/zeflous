@@ -12,6 +12,7 @@ use Zef\Framework\Container\Autowiring\ConstructorSpecs;
 use Zef\Framework\Container\Autowiring\PositionalFit;
 use Zef\Framework\Container\Autowiring\ReflectionMetadataExtractor;
 use Zef\Framework\Container\InstanceDefinition;
+use Zef\Test\Support\Container\Autowiring\VariadicHouse;
 use Zef\Test\Support\Container\Greeter;
 
 /**
@@ -33,6 +34,24 @@ final class PositionalFitTest extends TestCase
         );
 
         self::assertSame(['Hello'], $instanceDefinition->arguments);
+    }
+
+    /**
+     * A trailing variadic parameter accepts an unbounded positional
+     * tail -- `newInstanceArgs(['a', 'b'])` over `__construct(...$notes)`
+     * is valid PHP, so the arity verdict must not count the variadic
+     * as one slot.
+     */
+    public function testAVariadicTailAcceptsThePlansFullDeclaredList(): void
+    {
+        $instanceDefinition = new InstanceDefinition(self::ID, VariadicHouse::class, ['a', 'b']);
+
+        PositionalFit::assert(
+            $instanceDefinition,
+            ConstructorSpecs::of(VariadicHouse::class, new ReflectionMetadataExtractor()),
+        );
+
+        self::assertSame(['a', 'b'], $instanceDefinition->arguments);
     }
 
     public function testAPlanStoppingBeforeATrailingRequiredParameterIsRefused(): void

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Logging;
 
+use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -44,9 +45,83 @@ final class LogContextSanitizerTest extends TestCase
 
         $sanitized = LogContextSanitizer::sanitize($context);
 
-        self::assertCount(100, $sanitized);
+        // The tail beyond the budget still drops (never a silent growth),
+        // but the drop is named: the truncation marker the depth bound
+        // already spells rides the fold, so a reader sees the shrink.
+        self::assertCount(101, $sanitized);
         self::assertSame('v99', $sanitized['k99']);
         self::assertArrayNotHasKey('k100', $sanitized);
+        self::assertTrue($sanitized['_truncated'], 'the dropped tail is marked, never silent');
+    }
+
+    public function testABudgetedFoldCarriesNoMarkerWhenNothingDropped(): void
+    {
+        $context = [];
+        for ($i = 0; $i < 100; ++$i) {
+            $context['k' . $i] = 'v' . $i;
+        }
+
+        self::assertCount(100, LogContextSanitizer::sanitize($context));
+        self::assertArrayNotHasKey('_truncated', LogContextSanitizer::sanitize($context));
+    }
+
+    public function testTheWrappedChainRidesTheRecord(): void
+    {
+        // The previous link is the root cause a wrapped diagnostic
+        // exists to name: the fold keeps it, nested the way the wrap
+        // itself nests, each link the same three facts.
+        $runtimeException = new RuntimeException('the root cause');
+        $logicException = new LogicException('the wrapper', 0, $runtimeException);
+
+        $sanitized = LogContextSanitizer::sanitize(['failure' => $logicException]);
+
+        $fold = $sanitized['failure'];
+        self::assertIsArray($fold);
+        self::assertSame(LogicException::class, $fold['class']);
+        self::assertSame('the wrapper', $fold['message']);
+        $previous = $fold['previous'];
+        self::assertIsArray($previous);
+        self::assertSame(RuntimeException::class, $previous['class']);
+        self::assertSame('the root cause', $previous['message']);
+        self::assertArrayNotHasKey('previous', $previous, 'the chain ends where the wrap ends');
+    }
+
+    public function testABareSchemeCredentialWithoutTheAuthorizationWordIsRedacted(): void
+    {
+        self::assertSame(
+            'Bearer [REDACTED]',
+            LogContextSanitizer::redact('Bearer eyJhbGciOiJIUzI1NiJ9.e30.abc123'),
+            'the scheme word alone carries the credential',
+        );
+        self::assertSame(
+            'Basic [REDACTED]',
+            LogContextSanitizer::redact('Basic dXNlcm5hbWU6cGFzc3dvcmQ='),
+        );
+        self::assertSame(
+            'Basic usage keeps its prose',
+            LogContextSanitizer::redact('Basic usage keeps its prose'),
+            'a scheme word followed by prose is not a credential',
+        );
+    }
+
+    public function testASessionIdRidingAQuerySurvivesNothing(): void
+    {
+        self::assertSame(
+            'https://app.example.test/dashboard?PHPSESSID=[REDACTED]',
+            LogContextSanitizer::redact('https://app.example.test/dashboard?PHPSESSID=abc123def456'),
+        );
+        self::assertSame(
+            'https://app.example.test/dashboard?session_id=[REDACTED]',
+            LogContextSanitizer::redact('https://app.example.test/dashboard?session_id=abc123def456'),
+        );
+    }
+
+    public function testASessionIdContextKeyIsRedacted(): void
+    {
+        self::assertSame(
+            ['session_id' => '[REDACTED]', 'honest' => 'value'],
+            LogContextSanitizer::sanitize(['session_id' => 'abc123def456', 'honest' => 'value']),
+        );
     }
 
     public function testSensitiveKeysAreRedactedRegardlessOfCase(): void
@@ -56,6 +131,41 @@ final class LogContextSanitizerTest extends TestCase
         );
 
         self::assertSame(['PASSWORD' => '[REDACTED]', 'filter' => 'active'], $sanitized);
+    }
+
+    /**
+     * The message-level authorization arm redacts any scheme an `=`/`:`
+     * separator introduces -- custom schemes (Mutual, AWS SigV4 material)
+     * carry the same secrets Bearer and Basic do, and the vocabulary arm
+     * never sees their scheme words.
+     */
+    public function testAnyAuthorizationSchemeIsRedactedAtTheMessageLevel(): void
+    {
+        self::assertSame(
+            'authorization: [REDACTED]',
+            LogContextSanitizer::redact('authorization: Mutual 9f86d081884c7d65'),
+        );
+        self::assertSame(
+            'Authorization: [REDACTED]',
+            LogContextSanitizer::redact('Authorization: AWS4-HMAC-SHA256 Credential=AKIA/20261022'),
+        );
+        self::assertSame(
+            'Authorization=[REDACTED]',
+            LogContextSanitizer::redact('Authorization=Digest username="u"'),
+        );
+    }
+
+    /**
+     * Prose keeps its diagnostics: a sentence carrying the authorization
+     * word without an `=`/`:` separator and without a Bearer/Basic scheme
+     * is not a credential-bearing shape.
+     */
+    public function testAuthorizationProseKeepsItsDiagnostics(): void
+    {
+        self::assertSame(
+            'the authorization boundary refused the peer',
+            LogContextSanitizer::redact('the authorization boundary refused the peer'),
+        );
     }
 
     /**

@@ -28,23 +28,31 @@ use Zef\Framework\Container\Aot\AotLifetimes;
 use Zef\Framework\Container\Aot\AotLiterals;
 use Zef\Framework\Container\Aot\AotMembers;
 use Zef\Framework\Container\Aot\AotRefusals;
+use Zef\Framework\Container\Aot\AotUnrenderableException;
 use Zef\Framework\Container\Aot\ContainerAotCache;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Container\ContainerCompilePlan;
 use Zef\Framework\Container\FactoryDefinition;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\MethodCall;
+use Zef\Framework\Container\NamespaceRadixTree;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\ServiceLifetime;
+use Zef\Framework\Container\ServiceTagIndex;
 use Zef\Framework\Container\ServiceTags;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\Aot\CallsHouse;
+use Zef\Test\Support\Container\Aot\EnumHouse;
 use Zef\Test\Support\Container\Aot\FactoryProduct;
 use Zef\Test\Support\Container\Aot\FactorySource;
 use Zef\Test\Support\Container\Aot\House;
 use Zef\Test\Support\Container\Aot\LooseDefinition;
+use Zef\Test\Support\Container\Aot\PlainSink;
 use Zef\Test\Support\Container\Aot\Roof;
 use Zef\Test\Support\Container\Aot\StampingFactory;
 use Zef\Test\Support\Container\Aot\StampingProduct;
+use Zef\Test\Support\Container\Aot\Tone;
+use Zef\Test\Support\Container\Aot\UnrenderableHouse;
 use Zef\Test\Support\Container\Aot\Window;
 
 /**
@@ -271,14 +279,46 @@ final class ContainerAotCacheTest extends TestCase
             AotEntries::all([
                 new FactoryDefinition('app.built', FactorySource::class . '::make', [new stdClass()]),
             ]);
-            self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+            self::fail('Expected an AotUnrenderableException to be thrown.');
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.built' carries a value the AOT artifact cannot export at 'arguments.0' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
+    }
+
+    public function testAnUnrenderablePlanDegradesInsteadOfCrashingTheDump(): void
+    {
+        // The compile lane's degrade decision: a plan the boundary
+        // cannot render answers false and leaves no artifact behind --
+        // never the crashed boot the raw dump refusal was.
+        $containerAotCache = new ContainerAotCache($this->file);
+        $containerCompilePlan = new ContainerCompilePlan(
+            [new InstanceDefinition('app.unrenderable', UnrenderableHouse::class, [new PlainSink()])],
+            ServiceTagIndex::fromDefinitions([]),
+            [],
+            new NamespaceRadixTree(['ids' => [], 'children' => []], [], 0, 0, 0),
+        );
+
+        self::assertFalse($containerAotCache->dumpPlanOrDegrade($containerCompilePlan, 'digest'));
+        self::assertFileDoesNotExist($this->file);
+    }
+
+    public function testARenderablePlanStillDumpsThroughTheDegradeSeam(): void
+    {
+        $containerAotCache = new ContainerAotCache($this->file);
+        $containerCompilePlan = new ContainerCompilePlan(
+            [new InstanceDefinition('app.tone', EnumHouse::class, [Tone::CALM])],
+            ServiceTagIndex::fromDefinitions([]),
+            [],
+            new NamespaceRadixTree(['ids' => [], 'children' => []], [], 0, 0, 0),
+        );
+
+        self::assertTrue($containerAotCache->dumpPlanOrDegrade($containerCompilePlan, 'digest'));
+        self::assertFileExists($this->file);
+        self::assertStringContainsString('Tone::CALM', (string) file_get_contents($this->file));
     }
 
     public function testAFactoryCarryingAnObjectInsideACallsArgumentsRefusesTheDump(): void
@@ -293,11 +333,11 @@ final class ContainerAotCacheTest extends TestCase
                 ),
             ]);
             self::fail('Expected an AotException to be thrown.');
-        } catch (AotException $aotException) {
+        } catch (AotUnrenderableException $aotUnrenderableException) {
             self::assertSame(
                 "Service 'app.built' carries a value the AOT artifact cannot export at 'calls.stamp.0' (stdClass) -- "
                 . 'move the computation behind the factory shape, or boot without the AOT lane.',
-                $aotException->getMessage(),
+                $aotUnrenderableException->getMessage(),
             );
         }
     }

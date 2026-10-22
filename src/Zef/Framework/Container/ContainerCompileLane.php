@@ -25,6 +25,7 @@ final readonly class ContainerCompileLane
     public function __construct(
         private ContainerCompilePipeline $containerCompilePipeline = new ContainerCompilePipeline(),
         private ContainerInstalls $containerInstalls = new ContainerInstalls(),
+        private ContainerDumpLane $containerDumpLane = new ContainerDumpLane(),
     ) {
     }
 
@@ -73,13 +74,10 @@ final readonly class ContainerCompileLane
             SingletonWarmer::warm(ContainerSingletons::planned($containerCompilePlan->definitions), $container);
         }
 
-        // The dump is production's alone ({@see ContainerMode}): a
-        // development boot never lays an artifact down -- the churn a
-        // next development boot would only distrust again, and the
-        // fingerprint stays unpaid on the lane that will not dump.
-        if ($containerKnobs->mayDump() && $containerAotCache instanceof ContainerAotCache) {
-            $containerAotCache->dumpPlan($containerCompilePlan, $containerKnobs->fingerprint());
-        }
+        // The dump is the lane's own tail step ({@see
+        // ContainerDumpLane}): production's alone, degrading -- never
+        // crashing -- on a plan the boundary cannot render.
+        $this->containerDumpLane->layDown($container, $containerCompilePlan, $containerKnobs, $containerAotCache);
 
         return $container;
     }

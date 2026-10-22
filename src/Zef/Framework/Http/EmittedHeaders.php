@@ -27,9 +27,10 @@ use Psr\Http\Message\ResponseInterface;
 final class EmittedHeaders
 {
     /**
-     * Transmits the status code and the validated header fields, with a
-     * lying Content-Length reconciled away before any framing reaches
-     * the seam.
+     * Transmits the status code and the validated header fields, with
+     * the framing the status may not carry dropped outright and a lying
+     * Content-Length reconciled away before any framing reaches the
+     * seam.
      */
     public static function transmit(ResponseInterface $response, SapiTransmitter $sapiTransmitter): void
     {
@@ -38,7 +39,7 @@ final class EmittedHeaders
             $sapiTransmitter->status($status);
         }
 
-        $message = ContentLength::reconcile($response, $response->getBody());
+        $message = StatusFraming::honest($response, $status);
 
         $headerRows = self::rows($message);
         array_walk($headerRows, static function (mixed $values, int|string $name) use ($sapiTransmitter): void {

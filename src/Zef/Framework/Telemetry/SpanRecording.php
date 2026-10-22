@@ -77,7 +77,7 @@ final class SpanRecording
             return;
         }
 
-        $this->attributes[$key] = TelemetrySanitizer::value($value);
+        $this->attributes[$key] = TelemetryValues::value($value);
     }
 
     /**
@@ -110,7 +110,7 @@ final class SpanRecording
         $this->events[] = [
             'name' => $name,
             'time_unix_nano' => $this->spanTimeline->wallNow(),
-            'attributes' => TelemetrySanitizer::attributes($attributes),
+            'attributes' => TelemetryValues::attributes($attributes),
         ];
     }
 

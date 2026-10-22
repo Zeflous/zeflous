@@ -18,7 +18,7 @@ namespace Zef\Framework\Http;
  */
 final class HeaderGrammar
 {
-    private const string NAME_PATTERN = '/^[!#$%&\'*+.^_`|~0-9A-Za-z-]+$/';
+    private const string NAME_PATTERN = '/^[!#$%&\'*+.^_`|~0-9A-Za-z-]+\z/';
 
     private const string VALUE_FORBIDDEN_PATTERN = '/[^\t\x20-\x7E\x80-\xFF]/';
 

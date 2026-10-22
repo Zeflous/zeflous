@@ -222,13 +222,14 @@ final class CsrfMiddlewareTest extends TestCase
         $response = $csrfMiddleware->process($this->httpRequest('GET'), $this->fixedResponseHandler);
 
         self::assertMatchesRegularExpression(
-            '/^ZEF-XSRF-TOKEN=[A-Za-z0-9_-]+\.[a-f0-9]{64}; Path=\/; SameSite=None$/D',
+            '/^ZEF-XSRF-TOKEN=[A-Za-z0-9_-]+\.[a-f0-9]{64}; Path=\/; SameSite=None; Secure$/D',
             $response->getHeaderLine('Set-Cookie'),
-            'HttpOnly off, SameSite None, and Secure gated off by the http scheme the knob leaves to',
+            'HttpOnly off, SameSite None -- and Secure travels with None whatever the scheme, '
+            . 'because no browser keeps a None cookie without it',
         );
     }
 
-    public function testTheIssuanceReplacesTheHandlersOwnCookie(): void
+    public function testTheIssuanceAppendsBesideTheHandlersOwnCookie(): void
     {
         $fixedResponseHandler = new FixedResponseHandler(
             $this->withASessionCookie(new Response(200, [], 'answered')),
@@ -237,10 +238,11 @@ final class CsrfMiddlewareTest extends TestCase
         $response = $this->middleware()->process($this->request('GET'), $fixedResponseHandler);
 
         self::assertMatchesRegularExpression(
-            '/^ZEF-XSRF-TOKEN=/D',
+            '/^session=abc123; Path=\/, ZEF-XSRF-TOKEN=/D',
             $response->getHeaderLine('Set-Cookie'),
-            'replace-not-append: the token boundary wins over handler-set values',
+            'append-not-replace: the token cookie rides beside handler-set values',
         );
+        self::assertCount(2, $response->getHeader('Set-Cookie'), 'both cookies survive the issuance decoration');
     }
 
     public function testADisarmedPolicyIsAPassThrough(): void

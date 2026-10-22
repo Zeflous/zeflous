@@ -60,7 +60,8 @@ final readonly class ServiceStore
         $this->factoryRegistrations = new FactoryRegistrations();
         $this->requestInstances = new RequestInstances($this);
         $this->interceptions = new Interceptions();
-        $this->namespaceFallbacks = new NamespaceFallbacks($cycleGuard, $this->interceptions);
+        $resolutionFrames = new ResolutionFrames();
+        $this->namespaceFallbacks = new NamespaceFallbacks($cycleGuard, $this->interceptions, $resolutionFrames);
         $this->serviceResolutions = new ServiceResolutions(
             $this->singletonMemo,
             $this->factoryRegistrations,
@@ -68,6 +69,7 @@ final readonly class ServiceStore
             $cycleGuard,
             $this->interceptions,
             new LazyDeferrals(),
+            $resolutionFrames,
         );
     }
 

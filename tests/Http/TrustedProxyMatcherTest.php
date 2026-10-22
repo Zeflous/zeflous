@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\CidrAddress;
+use Zef\Framework\Http\Ipv4MappedForm;
 use Zef\Framework\Http\MaskedPrefix;
 use Zef\Framework\Http\TrustedProxyMatcher;
 
@@ -16,6 +17,7 @@ use Zef\Framework\Http\TrustedProxyMatcher;
  */
 #[CoversClass(TrustedProxyMatcher::class)]
 #[CoversClass(CidrAddress::class)]
+#[CoversClass(Ipv4MappedForm::class)]
 #[CoversClass(MaskedPrefix::class)]
 final class TrustedProxyMatcherTest extends TestCase
 {
@@ -228,6 +230,50 @@ final class TrustedProxyMatcherTest extends TestCase
     {
         self::assertTrue(TrustedProxyMatcher::matches('194.128.0.0', ['194.128.0.0/16']));
         self::assertFalse(TrustedProxyMatcher::matches('194.129.0.0', ['194.128.0.0/16']));
+    }
+
+    /**
+     * An exact entry claims its address whatever the hexadecimal case of
+     * its spelling: two spellings of one host answer one packing.
+     */
+    public function testAnExactEntryClaimsItsAddressWhateverTheHexadecimalCase(): void
+    {
+        self::assertTrue(TrustedProxyMatcher::matches('fe80::1', ['FE80::1']));
+        self::assertFalse(TrustedProxyMatcher::matches('fe80::2', ['FE80::1']));
+    }
+
+    /**
+     * The IPv4-mapped spelling of a dual-stack peer is the same host as
+     * its embedded IPv4 address: an exact entry claims both spellings,
+     * in either direction.
+     */
+    public function testAMappedIpv4SpellingOfAnExactEntryClaimsThePlainAddressAndViceVersa(): void
+    {
+        self::assertTrue(TrustedProxyMatcher::matches('::ffff:10.0.0.1', ['10.0.0.1']));
+        self::assertTrue(TrustedProxyMatcher::matches('10.0.0.1', ['::ffff:10.0.0.1']));
+    }
+
+    /**
+     * A dual-stack peer arrives as `::ffff:10.1.2.3`; the IPv4 CIDR
+     * entry it should match must claim it, and the one it should not
+     * must refuse it.
+     */
+    public function testAMappedIpv4PeerFallsInsideAnIpv4CidrEntry(): void
+    {
+        self::assertTrue(TrustedProxyMatcher::matches('::ffff:10.1.2.3', ['10.0.0.0/8']));
+        self::assertFalse(TrustedProxyMatcher::matches('::ffff:203.0.113.9', ['10.0.0.0/8']));
+    }
+
+    /**
+     * The direct containment folds the mapped spelling on both sides of
+     * the judgement -- peer, network, or both.
+     */
+    public function testADirectContainmentFoldsTheMappedSpellingOnBothSides(): void
+    {
+        self::assertTrue(CidrAddress::contains('::ffff:10.0.0.1', '::ffff:10.0.0.0', 8));
+        self::assertTrue(CidrAddress::contains('::ffff:10.1.2.3', '10.0.0.0', 8));
+        self::assertTrue(CidrAddress::contains('10.1.2.3', '::ffff:10.0.0.0', 8));
+        self::assertFalse(CidrAddress::contains('::ffff:203.0.113.9', '10.0.0.0', 8));
     }
 
     #[DataProvider('provideAMalformedEntryDoesNotClaimAnythingCases')]
