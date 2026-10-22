@@ -10,7 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Config\Routing\RouteConstraints;
+use Zef\Framework\Config\Routing\RouteDeprecation;
 use Zef\Framework\Config\Routing\RouteEntryCollections;
+use Zef\Framework\Config\Routing\RouteEntryDeprecation;
 use Zef\Framework\Config\Routing\RouteEntryMeta;
 use Zef\Framework\Config\Routing\RouteEntryShape;
 
@@ -18,6 +20,8 @@ use Zef\Framework\Config\Routing\RouteEntryShape;
  * @internal
  */
 #[CoversClass(CompiledRoute::class)]
+#[CoversClass(RouteDeprecation::class)]
+#[CoversClass(RouteEntryDeprecation::class)]
 #[CoversClass(RouteEntryShape::class)]
 #[CoversClass(RouteEntryCollections::class)]
 #[CoversClass(RouteEntryMeta::class)]

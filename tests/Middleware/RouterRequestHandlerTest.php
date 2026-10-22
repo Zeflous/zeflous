@@ -22,11 +22,13 @@ use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Exception\MethodNotAllowedException;
 use Zef\Framework\Exception\NotAcceptableException;
 use Zef\Framework\Exception\NotFoundException;
+use Zef\Framework\Http\HttpDate;
 use Zef\Framework\Http\Psr17Factory;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\ConditionalRequests;
+use Zef\Framework\Middleware\DeprecationLinkHeader;
 use Zef\Framework\Middleware\EntityTagMatch;
 use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Middleware\LastModifiedMatch;
@@ -46,9 +48,11 @@ use Zef\Test\Support\Log\RecordingLogger;
  * @internal
  */
 #[CoversClass(ConditionalRequests::class)]
+#[CoversClass(DeprecationLinkHeader::class)]
 #[CoversClass(DispatchOutcome::class)]
 #[CoversClass(EntityTagMatch::class)]
 #[CoversClass(LastModifiedMatch::class)]
+#[CoversClass(HttpDate::class)]
 #[CoversClass(MatchResult::class)]
 #[CoversClass(NotModifiedResponse::class)]
 #[CoversClass(RequestAuthority::class)]

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\PendingRoute;
 use Zef\Framework\Config\Routing\RouteDsl;
+use Zef\Framework\Config\Routing\RouteDslDeprecation;
 use Zef\Framework\Config\Routing\RouteDslFields;
 use Zef\Framework\Config\Routing\RouteDslMethods;
 use Zef\Framework\Config\Routing\RouteDslMiddleware;
@@ -21,6 +22,7 @@ use Zef\Framework\Config\Routing\RoutePrefix;
  * @internal
  */
 #[CoversClass(RouteDsl::class)]
+#[CoversClass(RouteDslDeprecation::class)]
 #[CoversClass(RouteDslMethods::class)]
 #[CoversClass(RouteDslScope::class)]
 #[CoversClass(RouteDslSnapshot::class)]

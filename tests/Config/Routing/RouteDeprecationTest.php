@@ -9,12 +9,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\RouteDeprecation;
+use Zef\Framework\Config\Routing\RouteDeprecationDate;
+use Zef\Framework\Config\Routing\RouteDeprecationLink;
+use Zef\Framework\Config\Routing\RouteDeprecationSunset;
 use Zef\Framework\Config\Routing\RoutePath;
 
 /**
  * @internal
  */
 #[CoversClass(RouteDeprecation::class)]
+#[CoversClass(RouteDeprecationDate::class)]
+#[CoversClass(RouteDeprecationLink::class)]
+#[CoversClass(RouteDeprecationSunset::class)]
 final class RouteDeprecationTest extends TestCase
 {
     public function testACalendarDateReadsAsThatDaysMidnightUtc(): void
