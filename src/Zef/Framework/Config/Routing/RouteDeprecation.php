@@ -131,20 +131,18 @@ final class RouteDeprecation
             $errors = DateTimeImmutable::getLastErrors();
             $warningCount = $errors === false ? 0 : $errors['warning_count'];
 
-            if ($warningCount !== 0) {
-                continue;
-            }
+            if ($warningCount === 0) {
+                // The calendar-date grammar names a day, not an instant: the
+                // engine fills the unspecified time components with the
+                // process's current wall-clock, so the day is pinned to its
+                // midnight before the instant is answered -- the declaration
+                // stays deterministic whatever hour it compiled at.
+                if ($format === 'Y-m-d') {
+                    $date = $date->setTime(0, 0, 0);
+                }
 
-            // The calendar-date grammar names a day, not an instant: the
-            // engine fills the unspecified time components with the
-            // process's current wall-clock, so the day is pinned to its
-            // midnight before the instant is answered -- the declaration
-            // stays deterministic whatever hour it compiled at.
-            if ($format === 'Y-m-d') {
-                $date = $date->setTime(0, 0, 0);
+                return $date->getTimestamp();
             }
-
-            return $date->getTimestamp();
         }
 
         throw new ConfigException(\sprintf(

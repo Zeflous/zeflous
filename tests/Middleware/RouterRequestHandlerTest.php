@@ -1030,6 +1030,48 @@ final class RouterRequestHandlerTest extends TestCase
         );
     }
 
+    public function testTheSameDeprecationLinkIsNotDuplicatedAcrossUnicodeCase(): void
+    {
+        // The de-duplication folds both sides with the Unicode case map:
+        // the link's non-ASCII uppercase (E-acute) folds to its lowercase
+        // spelling, so the handler's own answer and the declaration's
+        // build of the same target match case-insensitively, and no
+        // second Link is appended. An ASCII-only fold would leave the
+        // accent uppercase on one side and answer a second header.
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                [
+                    'Content-Type' => 'application/json',
+                    'Link' => '</DÉPRECATIONS/legacy>; rel="deprecation"',
+                ],
+                'profile',
+            ),
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'deprecation' => [
+                    'date' => '2023-06-30T23:59:59Z',
+                    'link' => '/DÉPRECATIONS/legacy',
+                ],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame(
+            ['</DÉPRECATIONS/legacy>; rel="deprecation"'],
+            $response->getHeader('Link'),
+        );
+    }
+
     public function testADeprecatedRouteAnswersItsHeadersOnANotModifiedResponse(): void
     {
         $container = new Container();
