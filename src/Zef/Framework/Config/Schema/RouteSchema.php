@@ -18,7 +18,8 @@ use Zef\Framework\Config\ConfigException;
  * - `path` (required, non-empty string) -- the URL pattern, e.g.
  *   `/users/{id}`.
  * - `host` (optional, non-empty string) -- a DNS hostname pattern with optional
- *   whole-label parameters, e.g. `api.example.com` or `{tenant}.example.com`.
+ *   whole-label parameters or anonymous wildcards, e.g. `api.example.com`,
+ *   `{tenant}.example.com` or `*.example.com`.
  * - `version` (optional, non-empty string) -- the API version selected by the
  *   `Accept-Version` or `X-API-Version` request header.
  * - `produces` (optional, non-empty list of media types) -- representations

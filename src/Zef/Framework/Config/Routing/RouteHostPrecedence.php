@@ -8,9 +8,11 @@ namespace Zef\Framework\Config\Routing;
  * Host-claim precedence semantics: how two host patterns relate as claims
  * over the same DNS namespace, and how specific a pattern's claims are.
  *
- * Exact hosts outrank parameterised host patterns, which outrank the
- * host-agnostic fallback; equal-specificity overlapping patterns are an
- * ambiguity the claim registry refuses rather than resolves.
+ * Exact hosts outrank parameterised and wildcard host patterns -- a literal
+ * label claims one hostname, a "*" or "{...}" label claims every hostname
+ * with a label in that position -- which outrank the host-agnostic fallback;
+ * equal-specificity overlapping patterns are an ambiguity the claim
+ * registry refuses rather than resolves.
  *
  * @internal
  */
@@ -30,10 +32,10 @@ final class RouteHostPrecedence
 
         foreach ($leftLabels as $index => $leftLabel) {
             $rightLabel = $rightLabels[$index];
-            $leftParameter = str_starts_with($leftLabel, '{');
-            $rightParameter = str_starts_with($rightLabel, '{');
+            $leftWildcard = RouteHostLabelKinds::isWildcard($leftLabel);
+            $rightWildcard = RouteHostLabelKinds::isWildcard($rightLabel);
 
-            if (!$leftParameter && !$rightParameter && $leftLabel !== $rightLabel) {
+            if (!$leftWildcard && !$rightWildcard && $leftLabel !== $rightLabel) {
                 return false;
             }
         }
@@ -42,13 +44,14 @@ final class RouteHostPrecedence
     }
 
     /**
-     * Number of literal labels; a larger number is more specific.
+     * Number of literal labels; a larger number is more specific. A "*"
+     * label counts as non-literal, exactly like a named "{...}" label.
      */
     public static function specificity(string $pattern): int
     {
         return \count(array_filter(
             explode('.', $pattern),
-            static fn (string $label): bool => !str_starts_with($label, '{'),
+            static fn (string $label): bool => !RouteHostLabelKinds::isWildcard($label),
         ));
     }
 }

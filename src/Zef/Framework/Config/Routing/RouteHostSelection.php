@@ -5,18 +5,24 @@ declare(strict_types=1);
 namespace Zef\Framework\Config\Routing;
 
 /**
- * Host precedence among the routes a path walk settled: exact hosts
- * outrank parameterised host patterns ({@see RouteHostPatternBucket}),
- * which outrank the host-agnostic fallback. A method mismatch at the
- * selected host specificity remains 405 rather than falling through, so
- * selection never mixes buckets.
+ * Host precedence among the routes a path walk settled: the matching host
+ * claims compete in one specificity-ordered bucket
+ * ({@see RouteHostPatternBucket}), and the host-agnostic routes remain the
+ * fallback when no claim matched. An exact host is simply the most specific
+ * claim possible -- every label literal, a specificity equal to the label
+ * count, which no co-matching pattern can reach (a pattern with the same
+ * label count spends at least one label on a wildcard) -- so "exact hosts
+ * outrank patterns" needs no separate bucket: the ordering is the
+ * specificity. A method mismatch at the selected specificity remains 405
+ * rather than falling through, so selection never mixes claims of different
+ * specificity.
  *
  * @internal
  */
 final class RouteHostSelection
 {
     /**
-     * Selects the routes of the highest-precedence host bucket.
+     * Selects the routes of the highest-precedence host claim.
      *
      * @param list<CompiledRoute> $routes the settled candidates
      *
@@ -24,7 +30,6 @@ final class RouteHostSelection
      */
     public static function select(array $routes, ?string $requestHost): array
     {
-        $exactHostRoutes = [];
         $routeHostPatternBucket = new RouteHostPatternBucket();
         $hostAgnosticRoutes = [];
 
@@ -36,24 +41,17 @@ final class RouteHostSelection
                 continue;
             }
 
-            $hostParameters = $route->hostParameters($requestHost);
-            if ($hostParameters === null) {
-                continue;
-            }
-
-            if ($hostParameters === []) {
-                $exactHostRoutes[] = $route;
-
+            if ($route->hostParameters($requestHost) === null) {
                 continue;
             }
 
             $routeHostPatternBucket->offer($route, $routeHost);
         }
 
-        if ($exactHostRoutes !== []) {
-            return $exactHostRoutes;
+        if ($routeHostPatternBucket->routes() !== []) {
+            return $routeHostPatternBucket->routes();
         }
 
-        return $routeHostPatternBucket->routes() !== [] ? $routeHostPatternBucket->routes() : $hostAgnosticRoutes;
+        return $hostAgnosticRoutes;
     }
 }
