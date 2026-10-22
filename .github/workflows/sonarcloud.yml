@@ -141,6 +141,7 @@ on:
 # Least privilege: the analysis reads the repository; the SonarSource action
 # queries pull-request metadata.
 permissions:
+  actions: read       # Read the CI Coverage workflow run and its artifact.
   contents: read
   pull-requests: read
 
