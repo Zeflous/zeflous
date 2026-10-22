@@ -71,6 +71,6 @@ final class RoadmapRecordedMerge
 
         $recordedNumbers = array_flip($recordedPullRequests);
 
-        return isset($recordedNumbers[$matches[1]]);
+        return isset($recordedNumbers[(int) $matches[1]]);
     }
 }
