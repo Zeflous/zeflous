@@ -6,9 +6,9 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\CoverageGate;
-use Zef\Framework\Tooling\CoverageReport;
-use Zef\Framework\Tooling\ToolingException;
+use Zef\Test\Support\Tooling\CoverageGate;
+use Zef\Test\Support\Tooling\CoverageReport;
+use Zef\Test\Support\Tooling\ToolingException;
 
 /**
  * @internal

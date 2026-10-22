@@ -7,7 +7,7 @@ declare(strict_types=1);
  * pull request so the branch ruleset's `required_review_thread_resolution` rule
  * stops blocking the merge.
  *
- * All decision logic lives in `Zef\Framework\Tooling\ReviewThreadResolver`
+ * All decision logic lives in `Zef\Test\Support\Tooling\ReviewThreadResolver`
  * (unit-tested, fully covered); this file only wires the real GraphQL transport
  * and maps the result to an exit code, so it stays a few lines long.
  *
@@ -19,8 +19,8 @@ declare(strict_types=1);
  *   2  the pull-request number argument is missing or not a positive integer
  */
 
-use Zef\Framework\Tooling\ReviewThreadResolver;
-use Zef\Framework\Tooling\ToolingException;
+use Zef\Test\Support\Tooling\ReviewThreadResolver;
+use Zef\Test\Support\Tooling\ToolingException;
 
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
 

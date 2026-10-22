@@ -6,8 +6,8 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\LintGate;
-use Zef\Framework\Tooling\LintReport;
+use Zef\Test\Support\Tooling\LintGate;
+use Zef\Test\Support\Tooling\LintReport;
 
 /**
  * @internal

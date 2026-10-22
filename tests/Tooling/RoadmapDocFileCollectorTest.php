@@ -7,7 +7,7 @@ namespace Zef\Test\Tooling;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RoadmapDocFileCollector;
+use Zef\Test\Support\Tooling\RoadmapDocFileCollector;
 
 /**
  * @internal

@@ -6,8 +6,8 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\ReviewThreadPageInfo;
-use Zef\Framework\Tooling\ToolingException;
+use Zef\Test\Support\Tooling\ReviewThreadPageInfo;
+use Zef\Test\Support\Tooling\ToolingException;
 
 /**
  * The pagination answer's own battery: the continuation pair a

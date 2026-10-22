@@ -6,15 +6,15 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RepeatedWordRun;
-use Zef\Framework\Tooling\RoadmapContradictionRules;
-use Zef\Framework\Tooling\RoadmapCountRules;
-use Zef\Framework\Tooling\RoadmapHistoryRows;
-use Zef\Framework\Tooling\RoadmapPhraseRules;
-use Zef\Framework\Tooling\RoadmapSectionLookup;
-use Zef\Framework\Tooling\RoadmapSectionRows;
-use Zef\Framework\Tooling\RoadmapSummaryTable;
-use Zef\Framework\Tooling\RoadmapTableCells;
+use Zef\Test\Support\Tooling\RepeatedWordRun;
+use Zef\Test\Support\Tooling\RoadmapContradictionRules;
+use Zef\Test\Support\Tooling\RoadmapCountRules;
+use Zef\Test\Support\Tooling\RoadmapHistoryRows;
+use Zef\Test\Support\Tooling\RoadmapPhraseRules;
+use Zef\Test\Support\Tooling\RoadmapSectionLookup;
+use Zef\Test\Support\Tooling\RoadmapSectionRows;
+use Zef\Test\Support\Tooling\RoadmapSummaryTable;
+use Zef\Test\Support\Tooling\RoadmapTableCells;
 
 /**
  * The boundary cases of the roadmap-gate helpers, written to pin every branch

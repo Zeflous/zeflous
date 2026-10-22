@@ -6,10 +6,10 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RoadmapHistoryRows;
-use Zef\Framework\Tooling\RoadmapNewestRow;
-use Zef\Framework\Tooling\RoadmapPointerRules;
-use Zef\Framework\Tooling\RoadmapTableCells;
+use Zef\Test\Support\Tooling\RoadmapHistoryRows;
+use Zef\Test\Support\Tooling\RoadmapNewestRow;
+use Zef\Test\Support\Tooling\RoadmapPointerRules;
+use Zef\Test\Support\Tooling\RoadmapTableCells;
 
 /**
  * @internal

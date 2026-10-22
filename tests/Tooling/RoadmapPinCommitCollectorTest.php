@@ -8,9 +8,9 @@ use LogicException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RoadmapPinCommitCollector;
-use Zef\Framework\Tooling\RoadmapPinState;
-use Zef\Framework\Tooling\ToolingException;
+use Zef\Test\Support\Tooling\RoadmapPinCommitCollector;
+use Zef\Test\Support\Tooling\RoadmapPinState;
+use Zef\Test\Support\Tooling\ToolingException;
 
 /**
  * @internal

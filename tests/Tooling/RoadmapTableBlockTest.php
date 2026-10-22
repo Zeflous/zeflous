@@ -6,7 +6,7 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RoadmapTableBlock;
+use Zef\Test\Support\Tooling\RoadmapTableBlock;
 
 /**
  * @internal

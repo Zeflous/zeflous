@@ -6,9 +6,9 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RepeatedWordRun;
-use Zef\Framework\Tooling\RoadmapPhraseRules;
-use Zef\Framework\Tooling\RoadmapTableCells;
+use Zef\Test\Support\Tooling\RepeatedWordRun;
+use Zef\Test\Support\Tooling\RoadmapPhraseRules;
+use Zef\Test\Support\Tooling\RoadmapTableCells;
 
 /**
  * @internal

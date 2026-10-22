@@ -6,9 +6,9 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\ReviewThreadNodes;
-use Zef\Framework\Tooling\ReviewThreadPayload;
-use Zef\Framework\Tooling\ToolingException;
+use Zef\Test\Support\Tooling\ReviewThreadNodes;
+use Zef\Test\Support\Tooling\ReviewThreadPayload;
+use Zef\Test\Support\Tooling\ToolingException;
 
 /**
  * @internal

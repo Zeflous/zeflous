@@ -13,7 +13,8 @@ use RecursiveIteratorIterator;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Process\Process;
-use Zef\Framework\Tooling\GateRunner;
+use Zef\Framework\Kernel;
+use Zef\Test\Support\Tooling\GateRunner;
 
 /**
  * Exercises the SARIF post-processor end to end as a real subprocess, the
@@ -119,15 +120,34 @@ final class ArcheologyGateTest extends TestCase
 
         self::assertSame(1, $exitCode, $output);
         self::assertCount(1, $results);
-        self::assertSame('src/Zef/Framework/Tooling/GateRunner.php', $this->uriOf($results[0]));
+        self::assertSame('tests/Support/Tooling/GateRunner.php', $this->uriOf($results[0]));
         self::assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $this->lineHashOf($results[0]));
+    }
+
+    public function testProductionLayoutClassFqnUrisStillResolveToTheSrcTree(): void
+    {
+        $sarifPath = $this->writeSarif([
+            $this->buildResult('error', 'PCA/class/GodClass', [
+                'uri' => Kernel::class,
+                'startLine' => 33,
+                'endLine' => 33,
+            ], 'God class detected.'),
+        ]);
+
+        [$exitCode, $output] = $this->runGate($sarifPath, \dirname(__DIR__, 2));
+
+        $results = $this->readResults($sarifPath);
+
+        self::assertSame(1, $exitCode, $output);
+        self::assertCount(1, $results);
+        self::assertSame('src/Zef/Framework/Kernel.php', $this->uriOf($results[0]));
     }
 
     public function testUnresolvableClassFqnUrisAreLeftUntouched(): void
     {
         $sarifPath = $this->writeSarif([
             $this->buildResult('error', 'PCA/class/GodClass', [
-                'uri' => 'Zef\Framework\Tooling\NoSuchClass',
+                'uri' => 'Zef\Test\Support\Tooling\NoSuchClass',
                 'startLine' => 7,
                 'endLine' => 7,
             ], 'God class detected.'),
@@ -139,14 +159,14 @@ final class ArcheologyGateTest extends TestCase
 
         self::assertSame(1, $exitCode, $output);
         self::assertCount(1, $results);
-        self::assertSame('Zef\Framework\Tooling\NoSuchClass', $this->uriOf($results[0]));
+        self::assertSame('Zef\Test\Support\Tooling\NoSuchClass', $this->uriOf($results[0]));
     }
 
     public function testIdenticalResultsAreCollapsedIntoOneFinding(): void
     {
         $godClass = fn (): array => $this->buildErrorResult(
             'PCA/class/GodClass',
-            'src/Zef/Framework/Tooling/GateRunner.php',
+            'tests/Support/Tooling/GateRunner.php',
             33,
             'God class detected.',
         );
@@ -164,7 +184,7 @@ final class ArcheologyGateTest extends TestCase
     {
         $sarifPath = $this->writeSarif([
             $this->buildResult('warning', 'PCA/class/LCOM', [
-                'uri' => 'src/Zef/Framework/Tooling/GateResult.php',
+                'uri' => 'tests/Support/Tooling/GateResult.php',
                 'startLine' => 10,
                 'endLine' => 10,
             ], 'LCOM is more than 30% above average LCOM.'),
