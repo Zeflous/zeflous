@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-22T18:16:05Z",
+  "as_of": "2026-10-22T19:18:08Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 240,
+  "unreleased_count": 241,
   "versions": [
     {
       "version": "Unreleased",
@@ -7269,6 +7269,22 @@
                 "sha": "5764a9ce1bb63aa24b6d30f134ec0e452d4df3a3",
                 "short_sha": "5764a9c",
                 "subject": "docs(roadmap): heal the status pin over the contributing integration rule"
+              }
+            ]
+          },
+          {
+            "pr": 544,
+            "title": "docs(roadmap): record the router deprecation lifecycle and pin the lane\n",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-22T19:18:08Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/544",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f038c6e0e61bfb76fa56d117e58d97b80f46ed5a",
+                "short_sha": "f038c6e",
+                "subject": "docs(roadmap): record the router deprecation lifecycle and pin the lane"
               }
             ]
           }
@@ -14863,6 +14879,22 @@
               "sha": "5764a9ce1bb63aa24b6d30f134ec0e452d4df3a3",
               "short_sha": "5764a9c",
               "subject": "docs(roadmap): heal the status pin over the contributing integration rule"
+            }
+          ]
+        },
+        {
+          "pr": 544,
+          "title": "docs(roadmap): record the router deprecation lifecycle and pin the lane\n",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-22T19:18:08Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/544",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f038c6e0e61bfb76fa56d117e58d97b80f46ed5a",
+              "short_sha": "f038c6e",
+              "subject": "docs(roadmap): record the router deprecation lifecycle and pin the lane"
             }
           ]
         }
