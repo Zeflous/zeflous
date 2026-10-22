@@ -14,6 +14,7 @@ use Zef\Framework\Config\Routing\DispatchOutcome;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDsl;
 use Zef\Framework\Config\Routing\RouteHostRendering;
+use Zef\Framework\Config\Routing\RouteTreeCache;
 use Zef\Framework\Config\Routing\RouteUrlGenerator;
 use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\Container\Container;
@@ -330,6 +331,51 @@ final class RouterTest extends TestCase
 
         $this->expectException(ConfigException::class);
         $router->url('users.show', ['id' => 'not-a-number']);
+    }
+
+    public function testFromCacheAnswersFromTheLoadedTree(): void
+    {
+        $routes = [
+            [
+                'path' => '/users/{id}',
+                'method' => ['GET'],
+                'handler' => 'Users@show',
+                'name' => 'users.show',
+                'constraints' => ['id' => '[0-9]+'],
+            ],
+        ];
+
+        $file = sys_get_temp_dir() . '/zef-router-cache-' . uniqid('', false) . '.php';
+        $routeTreeCache = new RouteTreeCache($file);
+        $routeTreeCache->dump($routes);
+
+        $router = Router::fromCache($routeTreeCache);
+        $reference = Router::fromRoutes($routes);
+
+        $match = $router->match('GET', '/users/42');
+
+        self::assertTrue($match->isFound());
+        self::assertSame('Users@show', $match->route()->handler());
+        self::assertSame(['id' => '42'], $match->parameters());
+        self::assertSame('/users/42', $router->url('users.show', ['id' => 42]));
+        self::assertFalse($router->match('GET', '/users/abc')->isFound());
+        self::assertSame($reference->match('GET', '/users/42')->route()->handler(), $match->route()->handler());
+        self::assertSame($router->tree(), $router->tree());
+
+        unlink($file);
+    }
+
+    public function testFromCacheFailsClosedOnAMissingArtifact(): void
+    {
+        $missing = sys_get_temp_dir() . '/zef-router-cache-missing-' . uniqid('', false) . '.php';
+        $routeTreeCache = new RouteTreeCache($missing);
+
+        try {
+            Router::fromCache($routeTreeCache);
+            self::fail('A router over a missing cache artifact must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertStringContainsString('does not exist.', $configException->getMessage());
+        }
     }
 
     private function routerWithHealthRoute(): Router

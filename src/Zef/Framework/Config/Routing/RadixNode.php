@@ -62,6 +62,18 @@ final class RadixNode
     }
 
     /**
+     * The static children in insertion order, keyed by their first
+     * character -- the export reader's view of the node ({@see
+     * RouteTreeCache}, which walks the graph to dump it as plain data).
+     *
+     * @return array<string, self>
+     */
+    public function staticChildren(): array
+    {
+        return $this->staticChildren;
+    }
+
+    /**
      * The anonymous parameter edge, or null when no parameter continues
      * here.
      */
