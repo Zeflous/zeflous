@@ -9,6 +9,9 @@ namespace Zef\Framework\Config\Routing;
  * matches a request host, and rendering a pattern's parameters back into a
  * host for reverse routing.
  *
+ * Anonymous wildcard labels ("*") match exactly one whole label and capture
+ * nothing, so a pattern carrying them still honours the label-count guard.
+ *
  * @internal
  */
 final class RouteHostParameters
@@ -63,6 +66,10 @@ final class RouteHostParameters
         $parameters = [];
 
         foreach ($patternLabels as $index => $patternLabel) {
+            if (RouteHostLabelKinds::isAnonymousWildcard($patternLabel)) {
+                continue;
+            }
+
             if (preg_match(self::LABEL_PARAMETER, $patternLabel, $matches) === 1) {
                 $parameters[$matches[1]] = $hostLabels[$index];
 

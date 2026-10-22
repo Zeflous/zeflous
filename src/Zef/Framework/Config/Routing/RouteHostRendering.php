@@ -12,6 +12,10 @@ use Zef\Framework\Config\ConfigException;
  * pattern's whole-label parameters into a concrete DNS hostname, with every
  * value validated as a DNS label fail-closed.
  *
+ * Anonymous wildcard labels ("*") carry no name, so a pattern containing
+ * one cannot be rendered: it is refused rather than emitted as a
+ * pattern-shaped pseudo-hostname.
+ *
  * @internal
  */
 final class RouteHostRendering
@@ -25,6 +29,15 @@ final class RouteHostRendering
      */
     public static function render(string $pattern, array $parameters): string
     {
+        foreach (explode('.', $pattern) as $label) {
+            if (RouteHostLabelKinds::isAnonymousWildcard($label)) {
+                throw new ConfigException(\sprintf(
+                    'The host pattern "%s" carries an anonymous "*" wildcard and cannot be rendered.',
+                    $pattern,
+                ));
+            }
+        }
+
         foreach (RouteHostParameters::parameterNames($pattern) as $name) {
             if (!\array_key_exists($name, $parameters)) {
                 throw new ConfigException(\sprintf('The host parameter "%s" is required.', $name));

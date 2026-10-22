@@ -96,6 +96,81 @@ final class RouterTest extends TestCase
         self::assertFalse($router->match('GET', '/dashboard', 'api.example.com')->isFound());
     }
 
+    public function testFacadeMatchesWildcardHostPatterns(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/dashboard',
+                'host' => '*.example.com',
+                'method' => ['GET'],
+                'handler' => 'Subdomain@dashboard',
+            ],
+            [
+                'path' => '/dashboard',
+                'host' => 'api.example.com',
+                'method' => ['GET'],
+                'handler' => 'Api@dashboard',
+            ],
+        ]);
+
+        self::assertSame(
+            'Api@dashboard',
+            $router->match('GET', '/dashboard', 'api.example.com')->route()->handler(),
+        );
+        self::assertSame(
+            'Subdomain@dashboard',
+            $router->match('GET', '/dashboard', 'shop.example.com')->route()->handler(),
+        );
+        self::assertFalse($router->match('GET', '/dashboard', 'a.b.example.com')->isFound());
+        self::assertFalse($router->match('GET', '/dashboard', '*.example.com')->isFound());
+    }
+
+    public function testAbsoluteUrlRefusesAWildcardHostPattern(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/dashboard',
+                'host' => '*.example.com',
+                'method' => ['GET'],
+                'handler' => 'Subdomain@dashboard',
+                'name' => 'subdomain.dashboard',
+            ],
+        ]);
+
+        try {
+            $router->absoluteUrl('subdomain.dashboard', []);
+            self::fail('A wildcard host pattern must not render into an absolute URL.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The host pattern "*.example.com" carries an anonymous "*" wildcard and cannot be rendered.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testAbsoluteUrlRequiresEveryHostParameter(): void
+    {
+        $router = Router::fromRoutes([
+            [
+                'path' => '/dashboard',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@dashboard',
+                'name' => 'tenant.dashboard',
+            ],
+        ]);
+
+        try {
+            $router->absoluteUrl('tenant.dashboard', []);
+            self::fail('A missing host parameter must fail closed.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The host parameter "tenant" is required.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
     public function testAbsoluteUrlGenerationRendersTenantHostParameters(): void
     {
         $router = Router::fromRoutes([

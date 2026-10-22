@@ -143,6 +143,14 @@ final class RouteTreeCacheTest extends TestCase
             $loadedTree->route('tenant.dashboard')->host(),
         );
         self::assertSame(
+            $compiledTree->route('shop')->host(),
+            $loadedTree->route('shop')->host(),
+        );
+        self::assertSame(
+            '*.example.com',
+            $loadedTree->route('shop')->host(),
+        );
+        self::assertSame(
             new RouteUrlGenerator($compiledTree)->generate('users.show', ['id' => '42']),
             new RouteUrlGenerator($loadedTree)->generate('users.show', ['id' => '42']),
         );
@@ -782,6 +790,9 @@ final class RouteTreeCacheTest extends TestCase
             ['GET', '/about', null, null, null],
             ['GET', '/dashboard', 'acme.example.com', null, null],
             ['GET', '/dashboard', 'other.example.org', null, null],
+            ['GET', '/shop', 'api.example.com', null, null],
+            ['GET', '/shop', 'a.b.example.com', null, null],
+            ['GET', '/shop', null, null, null],
             ['GET', '/admin', 'admin.example.com', null, null],
             ['GET', '/admin', 'elsewhere.example.org', null, null],
             ['GET', '/status', null, null, 'v1'],
@@ -888,6 +899,13 @@ final class RouteTreeCacheTest extends TestCase
                 'handler' => 'Tenant@dashboard',
                 'host' => '{tenant}.example.com',
                 'name' => 'tenant.dashboard',
+            ],
+            [
+                'path' => '/shop',
+                'method' => ['GET'],
+                'handler' => 'Shop@index',
+                'host' => '*.example.com',
+                'name' => 'shop',
             ],
             ['path' => '/dashboard', 'method' => ['GET'], 'handler' => 'Public@dashboard'],
             ['path' => '/status', 'method' => ['GET'], 'handler' => 'Status@v1', 'version' => 'v1',

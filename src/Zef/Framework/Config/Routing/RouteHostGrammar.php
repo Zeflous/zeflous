@@ -10,10 +10,12 @@ use Zef\Framework\Config\ConfigException;
  * The route host grammar: canonicalisation of declared host patterns and
  * untrusted request host values.
  *
- * Route patterns support exact DNS labels and whole-label parameters such as
- * "{tenant}.example.com". Ports, IP literals, partial-label parameters and
- * wildcard spellings are rejected so matching has one deterministic grammar
- * (the label rules every other host fold shares).
+ * Route patterns support exact DNS labels, whole-label parameters such as
+ * "{tenant}.example.com", and whole-label anonymous wildcards such as
+ * "*.example.com" (one label per "*", the RFC 6125 wildcard reading -- never
+ * a partial label and never several labels). Ports, IP literals with
+ * brackets, userinfo and scheme spellings are rejected so matching has one
+ * deterministic grammar (the label rules every other host fold shares).
  *
  * @internal
  */
@@ -43,6 +45,12 @@ final class RouteHostGrammar
         $seenParameters = [];
 
         foreach ($labels as $label) {
+            if (RouteHostLabelKinds::isAnonymousWildcard($label)) {
+                $canonical[] = '*';
+
+                continue;
+            }
+
             if (preg_match(self::LABEL_PARAMETER, $label, $matches) === 1) {
                 $parameter = mb_strtolower($matches[1]);
                 if (isset($seenParameters[$parameter])) {
@@ -90,8 +98,8 @@ final class RouteHostGrammar
     private static function invalid(string $host): ConfigException
     {
         return new ConfigException(\sprintf(
-            'The route host "%s" must be an exact DNS hostname without a port or wildcard, '
-            . 'or use whole-label parameters.',
+            'The route host "%s" must be an exact DNS hostname, whole-label parameters, '
+            . 'or whole-label "*" wildcards, without a port.',
             $host,
         ));
     }

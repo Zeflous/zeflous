@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace Zef\Framework\Config\Routing;
 
 /**
- * The parameterised-host bucket of a selection round: routes whose host
- * pattern matched with captures, keeping only the offers of the highest
- * specificity seen so far.
+ * The specificity-ordered host-claim bucket of a selection round: routes
+ * whose declared host matched the request host, keeping only the offers of
+ * the highest specificity seen so far. An exact host arrives as the most
+ * specific claim possible (every label literal), so it wins the bucket by
+ * the same ordering a wildcard or named pattern is judged by.
  *
  * @internal
  */

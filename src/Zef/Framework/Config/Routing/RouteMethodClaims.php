@@ -8,25 +8,32 @@ use Zef\Framework\Config\ConfigException;
 
 /**
  * The method claims of a route table: which registration first claimed
- * each method on each canonical host + canonical path pattern.
+ * each method on each canonical host + version + canonical path pattern.
  *
  * Several routes may share one parameter-blind pattern when their
  * method sets are disjoint (the REST convention -- `GET /photos` and
  * `POST /photos` are different resources), but a method claimed twice
- * on the same pattern would own the same tree position with the same
- * method: an ambiguity, not a merge, refused here with the method and
- * the first claimant in the message. The parameterised-host side of the
- * same ambiguity question lives in {@see RouteHostClaims}.
+ * on the same host + version + pattern would own the same tree position
+ * with the same method: an ambiguity, not a merge, refused here with the
+ * method and the first claimant in the message. The parameterised-host
+ * side of the same ambiguity question lives in {@see RouteHostClaims}.
+ *
+ * The claims map is a nested tuple (host => version => path => method),
+ * not one concatenated key: the claim identity is the tuple itself, so
+ * no separator grammar can alias two different tuples onto one string.
+ * Host-agnostic routes claim under the empty string, which no canonical
+ * host can equal (the grammar refuses empty hosts), and unversioned
+ * routes under "*", which {@see RouteVersion} refuses as a version.
  *
  * @internal
  */
 final class RouteMethodClaims
 {
     /**
-     * The claims: canonical pattern => method => the pattern that first
-     * claimed it.
+     * The claims: host => version => canonical path => method => the
+     * pattern that first claimed it.
      *
-     * @var array<string, array<string, string>>
+     * @var array<string, array<string, array<string, array<string, string>>>>
      */
     private array $claims = [];
 
@@ -46,15 +53,16 @@ final class RouteMethodClaims
         $host = $compiledRoute->host();
         $path = $compiledRoute->path()->canonical();
         $version = $compiledRoute->version();
-        $canonical = ($host ?? '*') . '|' . ($version ?? '*') . '|' . $path;
         $hostClaimScope = $path . '|' . ($version ?? '*');
+        $hostKey = $host ?? '';
+        $versionKey = $version ?? '*';
 
         foreach ($compiledRoute->methods() as $method) {
             if ($host !== null) {
                 $this->routeHostClaims->claim($hostClaimScope, $method, $host, $pattern);
             }
 
-            $registeredBy = $this->claims[$canonical][$method] ?? null;
+            $registeredBy = $this->claims[$hostKey][$versionKey][$path][$method] ?? null;
 
             if ($registeredBy !== null) {
                 throw new ConfigException(
@@ -67,7 +75,7 @@ final class RouteMethodClaims
                 );
             }
 
-            $this->claims[$canonical][$method] = $pattern;
+            $this->claims[$hostKey][$versionKey][$path][$method] = $pattern;
         }
     }
 }
