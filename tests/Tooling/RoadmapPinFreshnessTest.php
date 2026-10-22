@@ -17,7 +17,7 @@ final class RoadmapPinFreshnessTest extends TestCase
 {
     public function testALaneThatIsNotValidatingMainIsNotJudged(): void
     {
-        self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', null));
+        self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', null, []));
     }
 
     public function testThePassSuffixSaysWhetherThePinWasJudged(): void
@@ -34,7 +34,7 @@ final class RoadmapPinFreshnessTest extends TestCase
 
     public function testAMissingPinOnMainFailsClosed(): void
     {
-        $failures = RoadmapPinFreshness::failures('ROADMAP-STATUS.md', new RoadmapPinState(null, false, []));
+        $failures = RoadmapPinFreshness::failures('ROADMAP-STATUS.md', new RoadmapPinState(null, false, []), []);
 
         self::assertCount(1, $failures);
         self::assertSame(
@@ -45,7 +45,7 @@ final class RoadmapPinFreshnessTest extends TestCase
 
     public function testAPinOutsideTheMainLineageFailsClosed(): void
     {
-        $failures = RoadmapPinFreshness::failures('ROADMAP-STATUS.md', new RoadmapPinState('0badc0d', false, []));
+        $failures = RoadmapPinFreshness::failures('ROADMAP-STATUS.md', new RoadmapPinState('0badc0d', false, []), []);
 
         self::assertCount(1, $failures);
         self::assertSame(
@@ -59,7 +59,7 @@ final class RoadmapPinFreshnessTest extends TestCase
     {
         self::assertSame(
             [],
-            RoadmapPinFreshness::failures('ROADMAP-STATUS.md', new RoadmapPinState('5eb0ccb', true, [])),
+            RoadmapPinFreshness::failures('ROADMAP-STATUS.md', new RoadmapPinState('5eb0ccb', true, []), []),
         );
     }
 
@@ -78,7 +78,7 @@ final class RoadmapPinFreshnessTest extends TestCase
             "Merge branch 'main' into chore/changelog-update",
         ]);
 
-        self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState));
+        self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, []));
     }
 
     public function testTheAutomationUpdateMergeSpellingsKeepAStalePinGreen(): void
@@ -99,7 +99,7 @@ final class RoadmapPinFreshnessTest extends TestCase
             'Merge origin/main into fix/changelog-api-workflows',
         ]);
 
-        self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState));
+        self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, []));
     }
 
     public function testALandedChangeAfterThePinIsReportedWithItsCountAndFirstSubject(): void
@@ -110,12 +110,12 @@ final class RoadmapPinFreshnessTest extends TestCase
             'fix(composer): exclude the vendored psr shims from the dev classmap (#410)',
         ]);
 
-        $failures = RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState);
+        $failures = RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, []);
 
         self::assertCount(1, $failures);
         self::assertSame(
             'ROADMAP-STATUS.md "Last updated" pin `058ab8c` is stale: 2 commit(s) landed on main after it'
-            . ' that are not changelog or roadmap bookkeeping, starting with'
+            . ' that are not changelog, roadmap bookkeeping, or a recorded pull-request merge, starting with'
             . ' "chore(license): add the MIT license text (#409)".'
             . ' Refresh the pin (CONTRIBUTING.md, rule 13).',
             $failures[0],
@@ -159,7 +159,7 @@ final class RoadmapPinFreshnessTest extends TestCase
         foreach ($accepted as $subject) {
             self::assertSame(
                 [],
-                RoadmapPinFreshness::failures('ROADMAP-STATUS.md', new RoadmapPinState('058ab8c', true, [$subject])),
+                RoadmapPinFreshness::failures('ROADMAP-STATUS.md', new RoadmapPinState('058ab8c', true, [$subject]), []),
                 $subject,
             );
         }
@@ -202,10 +202,137 @@ final class RoadmapPinFreshnessTest extends TestCase
             $failures = RoadmapPinFreshness::failures(
                 'ROADMAP-STATUS.md',
                 new RoadmapPinState('058ab8c', true, [$subject]),
+                [],
             );
 
             self::assertCount(1, $failures, $subject);
             self::assertStringContainsString('is stale: 1 commit(s) landed on main', $failures[0], $subject);
         }
+    }
+
+    public function testARecordedPullRequestMergeLandingKeepsThePinFresh(): void
+    {
+        // The 2026-10-22 incident's remedy at the mechanism level: the merge
+        // machinery lands a pull request on main as a merge commit stamped
+        // `<title> (#<number>)`, and when the tree under validation already
+        // carries that number's ROADMAP-HISTORY row, the landing is accounted
+        // for -- the pin the pull request itself refreshed stays fresh across
+        // its own landing. Measured from the real #532 landing subject.
+        $roadmapPinState = new RoadmapPinState(
+            '1d27b6c',
+            true,
+            ['fix(tooling): accept every observed update-merge spelling as bookkeeping (#532)'],
+            ['fix(tooling): accept every observed update-merge spelling as bookkeeping (#532)'],
+        );
+
+        self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, [532]));
+    }
+
+    public function testAnUnrecordedPullRequestMergeLandingLeavesThePinStale(): void
+    {
+        // The queue's own discipline: a landing whose pull request carries no
+        // ROADMAP-HISTORY row in the tree under validation is an unaccounted
+        // substantive change -- exactly the #537 incident, whose healing pull
+        // request chased the merge and reddened main in between.
+        $roadmapPinState = new RoadmapPinState(
+            '6f8fecf',
+            true,
+            ['docs(contributing): require error-system and configuration-system integration (#537)'],
+            ['docs(contributing): require error-system and configuration-system integration (#537)'],
+        );
+
+        $failures = RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, [532]);
+
+        self::assertCount(1, $failures);
+        self::assertStringContainsString('is stale: 1 commit(s) landed on main', $failures[0]);
+        self::assertStringContainsString('not changelog, roadmap bookkeeping, or a recorded pull-request merge', $failures[0]);
+    }
+
+    public function testASuffixSpelledCommitThatIsNotAMergeDoesNotQualify(): void
+    {
+        // Only the merge machinery stamps the trailing number: a plain commit
+        // spelled with the suffix must not piggyback on another pull
+        // request's row.
+        $roadmapPinState = new RoadmapPinState(
+            '1d27b6c',
+            true,
+            ['fix(tooling): smuggle a change past the pin (#532)'],
+            [],
+        );
+
+        $failures = RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, [532]);
+
+        self::assertCount(1, $failures);
+    }
+
+    public function testAMergeCommitWithoutTheTrailingNumberDoesNotQualify(): void
+    {
+        // A merge commit whose subject carries no trailing "(#<number>)" is
+        // not the machinery's landing shape and must be refused whatever the
+        // ledger says.
+        $roadmapPinState = new RoadmapPinState(
+            '1d27b6c',
+            true,
+            ['Merge pull request 532 into main without the stamped number'],
+            ['Merge pull request 532 into main without the stamped number'],
+        );
+
+        self::assertCount(1, RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, [532]));
+    }
+
+    public function testTheRecordedLandingNearMissesAreRefused(): void
+    {
+        // One character off the landing shape and the walk turns red: the
+        // number without its parentheses, the suffix not at the end of the
+        // subject, a neighbour's number, and the zero a numberless row would
+        // contribute -- each is an unaccounted change.
+        $mergeSubjects = [
+            'fix(tooling): widen the bookkeeping spellings #532',
+            'fix(tooling): widen the bookkeeping spellings (#532) follow-up',
+            'fix(tooling): widen the bookkeeping spellings (#533)',
+            'fix(tooling): widen the bookkeeping spellings (#0)',
+        ];
+
+        foreach ($mergeSubjects as $subject) {
+            $failures = RoadmapPinFreshness::failures(
+                'ROADMAP-STATUS.md',
+                new RoadmapPinState('1d27b6c', true, [$subject], [$subject]),
+                [532],
+            );
+
+            self::assertCount(1, $failures, $subject);
+        }
+    }
+
+    public function testALedgerlessWalkRefusesEveryMergeShapedSubject(): void
+    {
+        // Fail closed on the ledger axis: a walk whose history document
+        // records no pull requests at all refuses even a perfectly shaped
+        // landing commit.
+        $subject = 'fix(tooling): accept every observed update-merge spelling as bookkeeping (#532)';
+        $roadmapPinState = new RoadmapPinState('1d27b6c', true, [$subject], [$subject]);
+
+        self::assertCount(1, RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, []));
+    }
+
+    public function testTheBookkeepingPatternsWinWithoutAnyLedgerRow(): void
+    {
+        // Pattern precedence: a changelog regeneration stamped with the
+        // pull-request suffix is bookkeeping by its pattern alone -- no
+        // history row required -- and a docs(roadmap) landing likewise.
+        $roadmapPinState = new RoadmapPinState(
+            '1d27b6c',
+            true,
+            [
+                'chore(changelog): regenerate API changelog (#539)',
+                'docs(roadmap): heal the status pin over the contributing integration rule (#541)',
+            ],
+            [
+                'chore(changelog): regenerate API changelog (#539)',
+                'docs(roadmap): heal the status pin over the contributing integration rule (#541)',
+            ],
+        );
+
+        self::assertSame([], RoadmapPinFreshness::failures('ROADMAP-STATUS.md', $roadmapPinState, []));
     }
 }

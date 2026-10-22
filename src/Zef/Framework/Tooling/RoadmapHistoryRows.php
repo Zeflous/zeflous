@@ -8,9 +8,11 @@ namespace Zef\Framework\Tooling;
  * Reads the `[merge date, pull-request number, commit]` triple of every history
  * row of a roadmap document.
  *
- * The pointer-freshness rule ({@see RoadmapPointerRules}) is the only consumer:
- * it needs the newest row to know which commit the `Last updated` pointer must
- * name.
+ * Two rules consume it: the pointer-freshness rule
+ * ({@see RoadmapPointerRules}) needs the newest row to know which commit the
+ * `Last updated` pointer must name, and the pin-freshness rule
+ * ({@see RoadmapPinFreshness}) needs the ledger of recorded pull-request
+ * numbers to accept the merge machinery's landing commits.
  */
 final class RoadmapHistoryRows
 {
@@ -40,6 +42,31 @@ final class RoadmapHistoryRows
         }
 
         return $rows;
+    }
+
+    /**
+     * The pull-request numbers that carry a history row: the document's ledger
+     * of recorded merges. A row without a pull-request cell records number 0
+     * and contributes nothing -- 0 is not a pull-request number, and accepting
+     * it would let a walk subject shaped "(#0)" piggyback on a numberless row.
+     *
+     * @param list<string> $lines
+     *
+     * @return list<int>
+     */
+    public static function pullRequests(array $lines): array
+    {
+        $numbers = [];
+
+        foreach (self::rows($lines) as $row) {
+            if ($row[1] === 0) {
+                continue;
+            }
+
+            $numbers[] = $row[1];
+        }
+
+        return $numbers;
     }
 
     /**

@@ -37,6 +37,27 @@ namespace Zef\Framework\Tooling;
  * whatever the branch and whatever the spelling: it reflects main's own
  * commits back into a branch, and any real content still reaches main
  * through a pull-request merge commit of its own, which the patterns refuse.
+ *
+ * A merge commit that lands a pull request on `main` is accepted when -- and
+ * only when -- the ledger already records that pull request: the merge
+ * machinery stamps every landing commit with the pull request's title and a
+ * trailing "(#<number>)", and a `ROADMAP-HISTORY.md` row carrying that number
+ * in the tree under validation is the record that the landing is accounted
+ * for. This is the acceptance that makes the rule enforceable at the merge
+ * queue ({@see RoadmapPinCommitCollector} judges the group head): a
+ * substantive pull request merges through the queue only when its history
+ * row and its pin refresh ride in the pull request itself, so the walk from
+ * the refreshed pin sees nothing but bookkeeping and the recorded landing.
+ * Before this acceptance existed, the queue let an unrecorded substantive
+ * merge land and the main lane went red after it -- the 2026-10-22 incident
+ * class, healed only reactively by a pin pull request that chased the merge;
+ * with the queue judging and the recorded landing accepted, the failure
+ * surfaces on the pull request's own queue entry, where it can be acted on,
+ * and `main` never reddens in the first place. The acceptance is fail closed
+ * on every axis: a subject not spelled with the trailing number, a number
+ * with no history row, a plain (non-merge) commit spelled with the suffix,
+ * or a ledger-less walk -- each refuses.
+ *
  * So the steady state after a refresh stays green, while any other landed
  * change (a feature, a fix, a documentation change) leaves the pin stale
  * until it is refreshed. That is the rule the document states for itself:
@@ -69,6 +90,12 @@ final class RoadmapPinFreshness
     ];
 
     /**
+     * The trailing pull-request number the merge machinery stamps on every
+     * commit it lands on `main`: `<pull request title> (#<number>)`.
+     */
+    private const string MERGE_PULL_REQUEST = '/\s\(#(\d+)\)$/';
+
+    /**
      * The pass-message suffix that says whether the pin was judged: the
      * verdict's phrasing belongs with the verdict, so the gate stays a thin
      * composer.
@@ -84,9 +111,11 @@ final class RoadmapPinFreshness
      * Every pin-freshness violation for one status document, in a stable
      * order.
      *
+     * @param list<int> $recordedPullRequests pull-request numbers that carry a `ROADMAP-HISTORY.md` row in the validated tree
+     *
      * @return list<string>
      */
-    public static function failures(string $name, ?RoadmapPinState $roadmapPinState): array
+    public static function failures(string $name, ?RoadmapPinState $roadmapPinState, array $recordedPullRequests): array
     {
         if (!$roadmapPinState instanceof RoadmapPinState) {
             return [];
@@ -98,7 +127,7 @@ final class RoadmapPinFreshness
             return [self::unusableMessage($name, $pinnedSha)];
         }
 
-        return self::landedCommits($name, $pinnedSha, $roadmapPinState->subjects);
+        return self::landedCommits($name, $pinnedSha, $roadmapPinState, $recordedPullRequests);
     }
 
     /**
@@ -125,18 +154,23 @@ final class RoadmapPinFreshness
 
     /**
      * The violation of a usable pin: commits that landed on main after it and
-     * are not changelog or roadmap bookkeeping.
+     * are not changelog bookkeeping, roadmap bookkeeping, or the recorded
+     * landing of a pull request the ledger already carries.
      *
-     * @param list<string> $subjects
+     * @param list<int> $recordedPullRequests
      *
      * @return list<string>
      */
-    private static function landedCommits(string $name, string $pinnedSha, array $subjects): array
+    private static function landedCommits(string $name, string $pinnedSha, RoadmapPinState $roadmapPinState, array $recordedPullRequests): array
     {
         $landed = [];
 
-        foreach ($subjects as $subject) {
+        foreach ($roadmapPinState->subjects as $subject) {
             if (self::isBookkeeping($subject)) {
+                continue;
+            }
+
+            if (self::isRecordedMerge($subject, $roadmapPinState->mergeSubjects, $recordedPullRequests)) {
                 continue;
             }
 
@@ -149,8 +183,8 @@ final class RoadmapPinFreshness
 
         return [\sprintf(
             '%s "Last updated" pin `%s` is stale: %d commit(s) landed on main after it'
-                . ' that are not changelog or roadmap bookkeeping, starting with "%s".'
-                . ' Refresh the pin (CONTRIBUTING.md, rule 13).',
+                . ' that are not changelog, roadmap bookkeeping, or a recorded pull-request merge,'
+                . ' starting with "%s". Refresh the pin (CONTRIBUTING.md, rule 13).',
             $name,
             $pinnedSha,
             \count($landed),
@@ -165,5 +199,31 @@ final class RoadmapPinFreshness
     private static function isBookkeeping(string $subject): bool
     {
         return array_any(self::BOOKKEEPING, static fn (string $pattern): bool => preg_match($pattern, $subject) === 1);
+    }
+
+    /**
+     * Whether a commit subject is the merge machinery's landing of a pull
+     * request the ledger already records: the subject must belong to a MERGE
+     * commit of the walk (a plain commit spelled with the trailing number
+     * does not qualify -- only the machinery stamps it), it must carry the
+     * trailing "(#<number>)", and that number must carry a
+     * `ROADMAP-HISTORY.md` row in the tree under validation. Anything else --
+     * an unrecorded number, a numberless subject, a ledger-less walk --
+     * refuses.
+     *
+     * @param list<string> $mergeSubjects
+     * @param list<int>    $recordedPullRequests
+     */
+    private static function isRecordedMerge(string $subject, array $mergeSubjects, array $recordedPullRequests): bool
+    {
+        if (!\in_array($subject, $mergeSubjects, true)) {
+            return false;
+        }
+
+        if (preg_match(self::MERGE_PULL_REQUEST, $subject, $matches) !== 1) {
+            return false;
+        }
+
+        return \in_array((int) $matches[1], $recordedPullRequests, true);
     }
 }

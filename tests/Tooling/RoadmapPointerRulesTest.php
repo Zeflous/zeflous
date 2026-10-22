@@ -97,4 +97,35 @@ final class RoadmapPointerRulesTest extends TestCase
     {
         self::assertNull(RoadmapPointerRules::pointer(explode("\n", "# Title\n")));
     }
+
+    public function testPullRequestsListsEveryNumberedRow(): void
+    {
+        // The ledger of recorded merges: every row that carries a
+        // pull-request cell contributes its number, in document order.
+        $document = "**Last updated:** 2026-10-13 · `main` @ `9baaa4b`\n\n"
+            . "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| a | #298 | 2026-10-12 | `eb1c10a` |\n"
+            . "| b | #303 | 2026-10-13 | `9baaa4b` |\n";
+        $lines = explode("\n", $document);
+
+        self::assertSame([298, 303], RoadmapHistoryRows::pullRequests($lines));
+    }
+
+    public function testPullRequestsExcludesNumberlessRows(): void
+    {
+        // A row without a pull-request cell records number 0 and contributes
+        // nothing: 0 is not a pull-request number, and accepting it would let
+        // a walk subject shaped "(#0)" piggyback on a numberless row.
+        $document = "| Work item | PR | Merged | Commit |\n|---|---|---|---|\n"
+            . "| a legacy row | missing | 2026-10-07 | `f6aa0dbeb8` |\n"
+            . "| b | #303 | 2026-10-13 | `9baaa4b` |\n";
+        $lines = explode("\n", $document);
+
+        self::assertSame([303], RoadmapHistoryRows::pullRequests($lines));
+    }
+
+    public function testPullRequestsWithoutAnyRowIsEmpty(): void
+    {
+        self::assertSame([], RoadmapHistoryRows::pullRequests(explode("\n", "# Title\n\nNo table here.\n")));
+    }
 }
