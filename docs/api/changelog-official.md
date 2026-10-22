@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): record the wildcard host grammar and pin the lane [\#529](https://github.com/Zeflous/zeflous/pull/529) ([mbetixz](https://github.com/mbetixz))
+- feat\(router\): match whole-label wildcard host patterns [\#528](https://github.com/Zeflous/zeflous/pull/528) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the edge-case audit remediation batch and pin the lane [\#524](https://github.com/Zeflous/zeflous/pull/524) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the compiled route tree cache and pin the lane [\#523](https://github.com/Zeflous/zeflous/pull/523) ([mbetixz](https://github.com/mbetixz))
 - feat\(router\): add the compiled route tree cache [\#522](https://github.com/Zeflous/zeflous/pull/522) ([mbetixz](https://github.com/mbetixz))
