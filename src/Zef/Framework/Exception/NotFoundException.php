@@ -13,9 +13,11 @@ use Override;
  *
  * An application throws this from its handlers when a route matched but
  * the entity behind the parameters is absent ("user with ID 123 not
- * found"); the router lane's own unmatched-path outcome owns the same
- * status through the dispatch translation, so the client sees one
- * 404 posture whether the miss happened at the pattern or behind it.
+ * found"); the router lane's own unmatched-path outcome raises the same
+ * refusal from the dispatch translation
+ * ({@see \Zef\Framework\Middleware\RouteDispatchHandler}), so the
+ * client sees one 404 posture whether the miss happened at the pattern
+ * or behind it.
  */
 final class NotFoundException extends ZefException implements CarriesHttpStatus
 {

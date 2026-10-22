@@ -11,18 +11,23 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use UnexpectedValueException;
 use Zef\Framework\Config\Routing\DispatchOutcome;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Exception\InvariantViolationException;
+use Zef\Framework\Exception\MethodNotAllowedException;
+use Zef\Framework\Exception\NotAcceptableException;
+use Zef\Framework\Exception\NotFoundException;
 use Zef\Framework\Http\Psr17Factory;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\ConditionalRequests;
 use Zef\Framework\Middleware\EntityTagMatch;
+use Zef\Framework\Middleware\ErrorMappingMiddleware;
 use Zef\Framework\Middleware\LastModifiedMatch;
 use Zef\Framework\Middleware\MiddlewareException;
 use Zef\Framework\Middleware\MiddlewarePipeline;
@@ -33,6 +38,7 @@ use Zef\Framework\Middleware\RouterRequestHandler;
 use Zef\Framework\Middleware\RouterRequestMatcher;
 use Zef\Framework\Middleware\ServerRequestMetadata;
 use Zef\Framework\Router\Router;
+use Zef\Test\Support\Log\RecordingLogger;
 
 /**
  * @internal
@@ -53,6 +59,37 @@ use Zef\Framework\Router\Router;
 #[CoversClass(MiddlewareException::class)]
 final class RouterRequestHandlerTest extends TestCase
 {
+    private ?string $routedErrorLog = null;
+
+    private false|string $previousErrorLog = false;
+
+    #[Override]
+    protected function setUp(): void
+    {
+        // The boundary-wrapped tests drive the error recorder's last-resort
+        // SAPI writes (the no-logger battery records every refusal). Routing
+        // that destination once up front keeps those writes observable and
+        // off the process's real stderr: Infection's initial test run
+        // terminates the suite on the first stderr byte it sees, so an
+        // unrouted write kills the mutation lane before a single mutant is
+        // generated.
+        $this->routedErrorLog = sys_get_temp_dir() . '/zef-router-errorlog-' . uniqid() . '.log';
+        $this->previousErrorLog = ini_set('error_log', $this->routedErrorLog);
+    }
+
+    #[Override]
+    protected function tearDown(): void
+    {
+        if ($this->routedErrorLog === null) {
+            return;
+        }
+
+        ini_set('error_log', (string) $this->previousErrorLog);
+        if (is_file($this->routedErrorLog) && !unlink($this->routedErrorLog)) {
+            throw new RuntimeException('Unable to remove the temporary error log.');
+        }
+    }
+
     public function testDispatchesPsr7RequestAndAddsVaryAccept(): void
     {
         $container = $this->containerWithProfileHandler();
@@ -75,7 +112,7 @@ final class RouterRequestHandlerTest extends TestCase
         self::assertSame('Accept', $response->getHeaderLine('Vary'));
     }
 
-    public function testMapsNotFoundMethodNotAllowedAndNotAcceptableToHttpResponses(): void
+    public function testTheDispatchTranslationRaisesTheTypedRefusalFamily(): void
     {
         $container = $this->containerWithProfileHandler();
         $router = Router::fromRoutes([
@@ -88,23 +125,171 @@ final class RouterRequestHandlerTest extends TestCase
         ]);
         $handler = $this->handler($router, $container);
 
-        $missing = $handler->handle($this->request('GET', 'api.example.com', 'application/json', '/missing'));
-        self::assertSame(404, $missing->getStatusCode());
-        self::assertSame('application/problem+json', $missing->getHeaderLine('Content-Type'));
-        $document = json_decode($missing->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
+        try {
+            $handler->handle($this->request('GET', 'api.example.com', 'application/json', '/missing'));
+            self::fail('An unmatched path must raise the typed not-found refusal.');
+        } catch (NotFoundException $notFoundException) {
+            self::assertSame('No route matches the requested resource.', $notFoundException->getMessage());
+            self::assertSame('N_F', $notFoundException->getErrorCode());
+        }
+
+        try {
+            $handler->handle($this->request('POST', 'api.example.com', 'application/json'));
+            self::fail('A method mismatch must raise the typed method-not-allowed refusal.');
+        } catch (MethodNotAllowedException $methodNotAllowedException) {
+            self::assertSame('POST', $methodNotAllowedException->method);
+            self::assertSame('/profile', $methodNotAllowedException->path);
+            self::assertSame(['GET'], $methodNotAllowedException->allowedMethods);
+            self::assertSame("Method 'POST' is not allowed for /profile.", $methodNotAllowedException->getMessage());
+        }
+
+        try {
+            $handler->handle($this->request('GET', 'api.example.com', 'text/html'));
+            self::fail('A rejected negotiation must raise the typed not-acceptable refusal.');
+        } catch (NotAcceptableException $notAcceptableException) {
+            self::assertSame(['application/json'], $notAcceptableException->acceptableMediaTypes);
+            self::assertSame('Supported media types: application/json', $notAcceptableException->getMessage());
+        }
+    }
+
+    public function testAHeadRequestMissRaisesTheSameTypedRefusal(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        try {
+            $this->handler($router, $container)
+                ->handle($this->request('HEAD', 'api.example.com', 'application/json', '/missing'))
+            ;
+            self::fail('A HEAD miss must raise the same typed not-found refusal.');
+        } catch (NotFoundException $notFoundException) {
+            self::assertSame('No route matches the requested resource.', $notFoundException->getMessage());
+        }
+    }
+
+    public function testTheErrorBoundaryAnswersTheRouterRefusalsWithTheFrameworkProblemPosture(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+        $handler = $this->handler($router, $container);
+
+        $response = $this->boundary()->process(
+            $this->request('GET', 'api.example.com', 'application/json', '/missing', extraHeaders: [
+                'X-Request-ID' => 'req-router-404',
+            ]),
+            $handler,
+        );
+
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame('application/problem+json; charset=utf-8', $response->getHeaderLine('Content-Type'));
+        self::assertSame('no-store', $response->getHeaderLine('Cache-Control'));
+        self::assertSame('nosniff', $response->getHeaderLine('X-Content-Type-Options'));
+        self::assertSame('Accept', $response->getHeaderLine('Vary'));
+        self::assertSame('req-router-404', $response->getHeaderLine('X-Request-ID'));
+
+        $document = json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
         self::assertIsArray($document);
-        self::assertSame('Not Found', $document['title']);
+        self::assertSame('https://zef.io/errors/not-found', $document['type']);
+        self::assertSame('Resource Not Found', $document['title']);
+        self::assertSame(404, $document['status']);
+        self::assertSame('No route matches the requested resource.', $document['detail']);
+        self::assertSame('/missing', $document['instance']);
+        self::assertSame('N_F', $document['code']);
+        self::assertSame('req-router-404', $document['trace_id']);
+    }
 
-        $methodMismatch = $handler->handle($this->request('POST', 'api.example.com', 'application/json'));
-        self::assertSame(405, $methodMismatch->getStatusCode());
-        self::assertSame('GET', $methodMismatch->getHeaderLine('Allow'));
-        self::assertSame('application/problem+json', $methodMismatch->getHeaderLine('Content-Type'));
+    public function testTheErrorBoundaryAnswersAMethodRefusalWithAllowFromThePayload(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
 
-        $notAcceptable = $handler->handle($this->request('GET', 'api.example.com', 'text/html'));
-        self::assertSame(406, $notAcceptable->getStatusCode());
-        self::assertSame('Accept', $notAcceptable->getHeaderLine('Vary'));
-        self::assertSame('application/problem+json', $notAcceptable->getHeaderLine('Content-Type'));
-        self::assertStringContainsString('application/json', $notAcceptable->getBody()->getContents());
+        $response = $this->boundary()->process(
+            $this->request('POST', 'api.example.com', 'application/json'),
+            $this->handler($router, $container),
+        );
+
+        self::assertSame(405, $response->getStatusCode());
+        self::assertSame('GET', $response->getHeaderLine('Allow'));
+
+        $document = json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($document);
+        self::assertSame('https://zef.io/errors/method-not-allowed', $document['type']);
+        self::assertSame("Method 'POST' is not allowed for /profile.", $document['detail']);
+        self::assertSame('M_N_A', $document['code']);
+    }
+
+    public function testTheErrorBoundaryAnswersANegotiationRefusalWithTheSupportedTypes(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+
+        $response = $this->boundary()->process(
+            $this->request('GET', 'api.example.com', 'application/xml'),
+            $this->handler($router, $container),
+        );
+
+        self::assertSame(406, $response->getStatusCode());
+        self::assertSame('Accept', $response->getHeaderLine('Vary'));
+
+        $document = json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
+        self::assertIsArray($document);
+        self::assertSame('https://zef.io/errors/not-acceptable', $document['type']);
+        self::assertSame('Not Acceptable', $document['title']);
+        self::assertSame('Supported media types: application/json', $document['detail']);
+        self::assertSame('N_A', $document['code']);
+    }
+
+    public function testTheErrorBoundaryNegotiationPreferringHtmlAnswersTheHtmlFallback(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $response = $this->boundary()->process(
+            $this->request('GET', 'api.example.com', 'text/html', '/missing'),
+            $this->handler($router, $container),
+        );
+
+        self::assertSame(404, $response->getStatusCode());
+        self::assertSame('text/html; charset=utf-8', $response->getHeaderLine('Content-Type'));
+        self::assertStringContainsString('Resource Not Found', $response->getBody()->getContents());
+    }
+
+    public function testARouterRefusalIsLoggedAtTheClientErrorWarningLevel(): void
+    {
+        $recordingLogger = new RecordingLogger();
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $this->boundary($recordingLogger)->process(
+            $this->request('GET', 'api.example.com', 'application/json', '/missing'),
+            $this->handler($router, $container),
+        );
+
+        self::assertCount(1, $recordingLogger->calls);
+        self::assertSame('warning', $recordingLogger->calls[0][0]);
+        self::assertSame(NotFoundException::class, $recordingLogger->calls[0][2]['exception_class']);
     }
 
     public function testIfNoneMatchReturnsNotModifiedWithoutExecutingASecondRepresentationBody(): void
@@ -441,11 +626,14 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $response = $this->handler($router, $container)
-            ->handle($this->request('GET', 'api.example.com:0', 'application/json'))
-        ;
-
-        self::assertSame(404, $response->getStatusCode());
+        try {
+            $this->handler($router, $container)
+                ->handle($this->request('GET', 'api.example.com:0', 'application/json'))
+            ;
+            self::fail('A refused host must raise the typed not-found refusal.');
+        } catch (NotFoundException $notFoundException) {
+            self::assertSame('No route matches the requested resource.', $notFoundException->getMessage());
+        }
     }
 
     public function testAPortOfOneKeepsTheHost(): void
@@ -483,11 +671,14 @@ final class RouterRequestHandlerTest extends TestCase
             ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
         ]);
 
-        $response = $this->handler($router, $container)
-            ->handle($this->request('GET', 'api.example.com:99999', 'application/json'))
-        ;
-
-        self::assertSame(404, $response->getStatusCode());
+        try {
+            $this->handler($router, $container)
+                ->handle($this->request('GET', 'api.example.com:99999', 'application/json'))
+            ;
+            self::fail('An out-of-range port must raise the typed not-found refusal.');
+        } catch (NotFoundException $notFoundException) {
+            self::assertSame('No route matches the requested resource.', $notFoundException->getMessage());
+        }
     }
 
     public function testAConditionalMatchOnAPostRequestIsIgnored(): void
@@ -567,46 +758,6 @@ final class RouterRequestHandlerTest extends TestCase
         $response = $this->handler($router, $container)->handle($request);
 
         self::assertSame(200, $response->getStatusCode());
-    }
-
-    public function testANotAcceptableResponseCarriesTheSupportedMediaTypesDetail(): void
-    {
-        $container = self::containerWithProfileHandler();
-        $router = Router::fromRoutes([
-            [
-                'path' => '/profile',
-                'host' => 'api.example.com',
-                'method' => ['GET'],
-                'handler' => 'Profile@show',
-                'produces' => ['application/json'],
-            ],
-        ]);
-
-        $response = $this->handler($router, $container)->handle($this->request('GET', 'api.example.com', 'text/html'));
-
-        self::assertSame(406, $response->getStatusCode());
-        $document = json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
-        self::assertIsArray($document);
-        self::assertSame('about:blank', $document['type']);
-        self::assertSame('Not Acceptable', $document['title']);
-        self::assertSame('Supported media types: application/json', $document['detail']);
-    }
-
-    public function testAProblemResponseCarriesTheBlankProblemType(): void
-    {
-        $container = self::containerWithProfileHandler();
-        $router = Router::fromRoutes([
-            ['path' => '/profile', 'host' => 'api.example.com', 'method' => ['GET'], 'handler' => 'Profile@show'],
-        ]);
-
-        $response = $this->handler($router, $container)
-            ->handle($this->request('GET', 'api.example.com', 'application/json', '/missing'))
-        ;
-
-        $document = json_decode($response->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
-        self::assertIsArray($document);
-        self::assertSame('about:blank', $document['type']);
-        self::assertSame('Not Found', $document['title']);
     }
 
     public function testARedirectStatusKeepsItsBody(): void
@@ -714,7 +865,12 @@ final class RouterRequestHandlerTest extends TestCase
     {
         $psr17Factory = new Psr17Factory();
 
-        return new RouterRequestHandler($router, $container, $psr17Factory, $psr17Factory);
+        return new RouterRequestHandler($router, $container, $psr17Factory);
+    }
+
+    private function boundary(?RecordingLogger $recordingLogger = null): ErrorMappingMiddleware
+    {
+        return new ErrorMappingMiddleware($recordingLogger);
     }
 
     /**

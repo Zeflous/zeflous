@@ -18,6 +18,16 @@
       <code><![CDATA[withUri]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <!-- createResponse lost its last src/ caller when the router's problem
+       rendering moved to the error lane (the dispatch translation now
+       throws the typed refusal family): the method stays the PSR-17
+       contract hosts compose their own handlers over, the same surface
+       posture as createRequest and createServerRequest above. -->
+  <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[createResponse]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Contracts/Psr/Http/Message/ResponseInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getReasonPhrase]]></code>
@@ -321,11 +331,6 @@
   <file src="src/Zef/Framework/Exception/ConflictException.php">
     <UnusedClass>
       <code><![CDATA[ConflictException]]></code>
-    </UnusedClass>
-  </file>
-  <file src="src/Zef/Framework/Exception/NotFoundException.php">
-    <UnusedClass>
-      <code><![CDATA[NotFoundException]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Exception/ValidationException.php">

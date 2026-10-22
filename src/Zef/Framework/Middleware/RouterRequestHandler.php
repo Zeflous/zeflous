@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Zef\Framework\Middleware;
 
 use Override;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -21,10 +20,14 @@ use Zef\Framework\Router\Router;
  *
  * The global middleware pipeline wraps this handler. Route middleware is then
  * composed inside it in the order stored on the matched route, and the terminal
- * handler executes the already-computed match through RouteDispatchHandler.
- * The request-to-match face lives in {@see RouterRequestMatcher} (with
- * {@see ServerRequestMetadata}), and conditional GET/HEAD semantics live in
- * {@see ConditionalRequests}.
+ * handler executes the already-computed match through RouteDispatchHandler,
+ * translating a non-executed outcome into the typed refusal family the
+ * request-scoped error boundary renders -- hosts compose this handler inside
+ * a pipeline that carries {@see ErrorMappingMiddleware} (the shipped
+ * profile's `http.errors` service) exactly as they do for their own
+ * handlers' typed refusals. The request-to-match face lives in
+ * {@see RouterRequestMatcher} (with {@see ServerRequestMetadata}), and
+ * conditional GET/HEAD semantics live in {@see ConditionalRequests}.
  *
  * @api
  */
@@ -39,7 +42,6 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
     public function __construct(
         Router $router,
         private Container $container,
-        private ResponseFactoryInterface $responseFactory,
         private StreamFactoryInterface $streamFactory,
     ) {
         $this->routeDispatcher = $router->dispatcher($this->container);
@@ -78,8 +80,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         $routeDispatchHandler = new RouteDispatchHandler(
             $this->routeDispatcher,
             $match,
-            $this->responseFactory,
-            $this->streamFactory,
+            $serverRequestMetadata,
         );
 
         $response = new MiddlewarePipeline($stack, $routeDispatchHandler)->handle($request);
