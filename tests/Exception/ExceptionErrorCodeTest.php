@@ -115,4 +115,18 @@ final class ExceptionErrorCodeTest extends TestCase
 
         self::assertSame($expected, ExceptionErrorCode::for($name));
     }
+
+    /**
+     * A name that carries no parent before the marker -- the engine's
+     * own spelling for a parentless anonymous class -- answers the
+     * digest over the 'class' stand-in: the empty parent is refused,
+     * not folded into the identity, and every rearrangement of the
+     * refusal's arms answers a different digest.
+     */
+    public function testABareAnonymousNameAnswersTheClassStandInDigest(): void
+    {
+        $expected = 'ANONYMOUS_' . mb_strtoupper(hash('crc32b', 'class|tail.php$57abc'));
+
+        self::assertSame($expected, ExceptionErrorCode::for('@anonymous/tail.php$57abc'));
+    }
 }

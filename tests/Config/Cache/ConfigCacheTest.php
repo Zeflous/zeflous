@@ -279,6 +279,11 @@ final class ConfigCacheTest extends TestCase
                 'The configuration cache "' . $this->file . '" is corrupted: it raised during its own load.',
                 $configException->getMessage(),
             );
+            self::assertSame(
+                0,
+                $configException->getCode(),
+                'the broader Throwable arm spells the same zero code the ParseError arm spells',
+            );
             self::assertInstanceOf(RuntimeException::class, $configException->getPrevious());
         }
     }

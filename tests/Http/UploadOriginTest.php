@@ -33,6 +33,36 @@ final class UploadOriginTest extends TestCase
         self::assertSame($spec, UploadOrigin::anchor($spec));
     }
 
+    /**
+     * The walk continues past an entry it does not own: a bag whose
+     * first field is a plain string and whose second field is the
+     * spec-shaped entry the walk DOES own still anchors the second --
+     * a walk that stopped at the first disowned entry would leave the
+     * second unanchored.
+     */
+    public function testTheWalkContinuesPastAnEntryItDoesNotOwn(): void
+    {
+        $anchored = UploadOrigin::anchor([
+            'plain' => 'a string spec',
+            'upload' => [
+                'name' => 'report.txt',
+                'type' => 'text/plain',
+                'tmp_name' => '/tmp/php-never-wrote-this',
+                'error' => \UPLOAD_ERR_OK,
+                'size' => 12,
+            ],
+        ]);
+
+        self::assertSame('a string spec', $anchored['plain']);
+        $upload = $anchored['upload'];
+        self::assertIsArray($upload);
+        self::assertSame(
+            \UPLOAD_ERR_NO_FILE,
+            $upload['error'],
+            'the walk anchored the entry after the one it did not own',
+        );
+    }
+
     public function testADisownedErrorOkLeafDowngradesToNoFile(): void
     {
         // The CLI engine never uploaded anything, so every error-OK

@@ -627,6 +627,18 @@
         // undefined-dimension error, and tests kill it. The ignore is
         // scoped to that single source line.
         "DecrementInteger": {
+            // The replay window's default literal: the knob's only
+            // observable face is the TTL the round-up hands the store, and
+            // the round-up of 299 999 ms lands on the same 300 seconds the
+            // default itself rounds to (intdiv(300 998, 1000) = 300), so
+            // the decremented default is value-equivalent through every
+            // verdict the protector can answer. The incremented default
+            // stays under the mutator: its TTL lands on 301, and the
+            // default-ctor TTL test kills it. Scoped to that single
+            // method.
+            "ignore": [
+                "Zef\\Framework\\Http\\ApcuReplayProtector::__construct"
+            ],
             "ignoreSourceCodeByRegex": [
                 // The Accept-negotiation sentinel and the range-specificity
                 // weights carry the IncrementInteger entry's construction
@@ -951,6 +963,17 @@
         // overlong-name fixtures). This ignore is scoped to that single
         // source line.
         "CastString": {
+            // The staging name's pid cast: the concat of an int operand
+            // stringifies with the identical bytes the explicit cast
+            // spells, so removing the cast answers the same staging path
+            // for every pid the engine can hand the writer. The name's own
+            // composition stays fully under its mutators: the battery pins
+            // the basename, the pid digits, the entropy width and the
+            // .staging suffix against every rearrangement. Scoped to that
+            // single method.
+            "ignore": [
+                "Zef\\Framework\\Config\\Cache\\ConfigCache::stagingName"
+            ],
             "ignoreSourceCodeByRegex": [
                 "\\$shortName = \\(string\\) preg_replace\\('/Exception\\$/'.*"
             ]
@@ -1228,33 +1251,6 @@
         "LogicalAnd": {
             "ignore": [
                 "Zef\\Framework\\Logging\\JsonLineRecordWriter::write"
-            ]
-        },
-        // The replay window's default literal: the knob's only
-        // observable face is the TTL the round-up hands the store, and
-        // the round-up of 299 999 ms lands on the same 300 seconds the
-        // default itself rounds to (intdiv(300 998, 1000) = 300), so
-        // the decremented default is value-equivalent through every
-        // verdict the protector can answer. The incremented default
-        // stays under the mutator: its TTL lands on 301, and the
-        // default-ctor TTL test kills it. Scoped to that single
-        // method.
-        "DecrementInteger": {
-            "ignore": [
-                "Zef\\Framework\\Http\\ApcuReplayProtector::__construct"
-            ]
-        },
-        // The staging name's pid cast: the concat of an int operand
-        // stringifies with the identical bytes the explicit cast
-        // spells, so removing the cast answers the same staging path
-        // for every pid the engine can hand the writer. The name's own
-        // composition stays fully under its mutators: the battery pins
-        // the basename, the pid digits, the entropy width and the
-        // .staging suffix against every rearrangement. Scoped to that
-        // single method.
-        "CastString": {
-            "ignore": [
-                "Zef\\Framework\\Config\\Cache\\ConfigCache::stagingName"
             ]
         },
         // The workflow collector's absent-directory early return

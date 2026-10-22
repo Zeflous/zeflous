@@ -70,6 +70,12 @@ final readonly class ReviewThreadPageInfo
         $decoded = json_decode($this->json, true);
 
         if (!\is_array($decoded)) {
+            // @infection-ignore-all The refusal's removal is
+            // value-equivalent: a payload that does not decode to a map
+            // walks on, and the walk's own null-coalescing read answers
+            // null for every path key a non-map carries -- the is_array
+            // refusal one statement later throws the identical message
+            // for every payload this arm can ever see.
             throw new ToolingException(self::MISSING_PAGE_INFO);
         }
 
