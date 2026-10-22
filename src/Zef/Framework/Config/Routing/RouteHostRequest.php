@@ -21,11 +21,7 @@ final class RouteHostRequest
      */
     public static function canonicalise(?string $host): ?string
     {
-        if ($host === null) {
-            return null;
-        }
-
-        if (str_contains($host, '{') || str_contains($host, '*')) {
+        if ($host === null || str_contains($host, '{') || str_contains($host, '*')) {
             return null;
         }
 
