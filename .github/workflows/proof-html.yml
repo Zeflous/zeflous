@@ -16,7 +16,7 @@ permissions:
 # the lane runs for head 92f182e0 were cancelled by a run for the older head
 # 511c72c5 that entered the group one second earlier). A cancelled lane leaves
 # the required check `cancelled`, the `CI Strict` aggregator polls it as
-# pending for 60 minutes, times out, and the pull request is blocked even
+# pending for 70 minutes, times out, and the pull request is blocked even
 # though nothing is wrong with its code.
 #
 # Keying the group on the COMMIT under verification (the pull-request head
