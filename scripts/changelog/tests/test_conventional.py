@@ -61,6 +61,9 @@ INVALID_TITLES = [
     "feat add pagination",  # missing the colon
     "feat(api) add pagination",  # missing the colon
     ": no type",
+    "feat:",  # the colon is there, the subject is not
+    "fix(router):",  # scope and colon, still no subject
+    "docs!:  ",  # breaking marker, whitespace-only subject
 ]
 
 
@@ -107,6 +110,28 @@ def test_scope_and_breaking_marker_are_optional() -> None:
     assert conv.conventional_type("fix(a/b): x") == "fix"
     assert conv.conventional_type("fix!: x") == "fix"
     assert conv.conventional_type("fix(a)!: x") == "fix"
+
+
+def test_a_subject_is_required_after_the_colon() -> None:
+    # CONTRIBUTING.md says `: <subject>` is required; the gate now enforces
+    # what the contract always said. A bare header parses as no header at
+    # all, so the failure message points at the expected shape.
+    for title in ("feat:", "fix(router):", "docs!:", "feat:   "):
+        ok, matched, msg = conv.validate_title(title)
+        assert ok is False, title
+        assert matched is None, title
+        assert msg, title
+        assert conv.is_conventional(title) is False
+        assert conv.conventional_type(title) is None
+
+
+def test_a_subject_without_a_space_still_parses() -> None:
+    # The space after the colon is the common form, not the contract: the
+    # requirement is a non-empty subject, spelled with or without the space.
+    assert conv.conventional_type("feat:tight") == "feat"
+    ok, ctype, _msg = conv.validate_title("feat(api):tight subject")
+    assert ok is True
+    assert ctype == "feat"
 
 
 def test_unknown_type_is_rejected_with_a_clear_message() -> None:

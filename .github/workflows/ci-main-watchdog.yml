@@ -60,9 +60,11 @@
 # `ci-coverage` must be dispatched before `sonarcloud.yml`: the SonarCloud
 # lane bridges the `coverage-reports` artifact by polling the CI Coverage
 # lane's run for the same commit. The four strict lanes precede `ci-strict`
-# because the aggregator polls their check-runs with a five-minute
-# absent-grace; the list below is ordered so every dependency is dispatched
-# first. The list deliberately EXCLUDES the two changelog lanes: a bot-merged
+# because the aggregator awaits their check-runs until every lane concludes
+# or its 70-minute deadline expires (a lane not yet dispatched reads as
+# absent, not failed); the list below is ordered so every dependency is
+# dispatched first. The list deliberately EXCLUDES the two changelog lanes:
+# a bot-merged
 # changelog PR is by definition already reflected in the changelog files (the
 # generators exclude their own bookkeeping PRs), and both lanes skip runs
 # whose actor is `github-actions[bot]`.

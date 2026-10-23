@@ -17,7 +17,8 @@ one place the rules live; both import from here. There is no second copy.
 WHAT A VALID TITLE LOOKS LIKE
 -----------------------------
 ``type(scope)!: subject`` -- the scope and the breaking-change ``!`` are
-optional, the type is one of ``ALLOWED_TYPES``::
+optional, the type is one of ``ALLOWED_TYPES``, and the subject after the
+colon is REQUIRED (a colon alone carries no description)::
 
     feat(api): add pagination
     fix: correct off-by-one
@@ -78,8 +79,14 @@ CONVENTIONAL_CATEGORY: dict[str, str] = {
 ALLOWED_TYPES: tuple[str, ...] = tuple(CONVENTIONAL_CATEGORY)
 
 # `type(scope)!: subject` -- the Conventional-Commit header. The scope and the
-# breaking-change `!` are optional; only the leading type is captured.
-CONVENTIONAL_RE = re.compile(r"^([a-z]+)(?:\([^)]*\))?!?:")
+# breaking-change `!` are optional; only the leading type is captured. The
+# subject after the colon is REQUIRED (CONTRIBUTING.md: "`: <subject>` --
+# required"): the header must continue with at least one non-whitespace
+# character, so a bare `feat:` parses as no header at all and the gate
+# rejects it. The same regex categorises commit subjects in the changelog
+# fallback, where an empty subject honestly falls to the "Other" bucket
+# instead of inheriting a type it does not spell out.
+CONVENTIONAL_RE = re.compile(r"^([a-z]+)(?:\([^)]*\))?!?:\s*\S")
 
 # A human-readable list of the accepted types, for the failure message.
 ALLOWED_TYPES_HINT = ", ".join(ALLOWED_TYPES)
@@ -99,9 +106,10 @@ def is_conventional(text: str) -> bool:
     """True when ``text`` is a valid Conventional-Commit header.
 
     A header is valid when it starts with one of ``ALLOWED_TYPES`` followed by
-    an optional ``(scope)``, an optional ``!`` and a ``:``. A recognised type
-    that is not in ``ALLOWED_TYPES`` (e.g. ``wip:``) is NOT valid -- the gate
-    only accepts the types the changelog can categorise.
+    an optional ``(scope)``, an optional ``!``, a ``:`` and a non-empty
+    subject. A recognised type that is not in ``ALLOWED_TYPES`` (e.g.
+    ``wip:``) is NOT valid -- the gate only accepts the types the changelog
+    can categorise.
     """
     ctype = conventional_type(text)
     return ctype is not None and ctype in CONVENTIONAL_CATEGORY

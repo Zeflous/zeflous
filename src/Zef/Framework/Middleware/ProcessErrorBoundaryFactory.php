@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Middleware;
 
+use Zef\Framework\AppEnvironment;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Container\Container;
@@ -68,9 +69,7 @@ final class ProcessErrorBoundaryFactory
             throw new ConfigException('observability.metrics.enabled must be a boolean.');
         }
 
-        $environment = getenv('APP_ENV');
-        $debugAllowed = \is_string($environment)
-            && \in_array(mb_strtolower($environment), ['local', 'development', 'dev', 'test', 'testing'], true);
+        $debugAllowed = AppEnvironment::isDevelopment();
 
         return new ProcessErrorBoundary(
             $logPath === '' ? null : new JsonLineLogger($logPath),

@@ -59,7 +59,8 @@ commit's head sha through the Checks API, so the required status-check context
 is unchanged, and a concluded verdict is never re-opened. It **fails** (never
 silently skips) whenever a lane is red — a skipped required check would
 otherwise count as satisfied and let a red pull request merge. A bounded
-fallback loop (60-second sleep, 45-minute deadline) covers the bootstrap case
+fallback loop (60-second sleep, 70-minute deadline — above the slowest
+lane's own timeout) covers the bootstrap case
 where `workflow_run` cannot yet fire because the file is not on the default
 branch.
 
@@ -163,7 +164,23 @@ cause rather than silencing the rule:
 - if a rule genuinely cannot be satisfied, raise it for review **before**
   merging — never widen the exclusion set unilaterally.
 
-The existing exclusion set is frozen; it may only shrink, never grow.
+The exclusion set is closed by default: it may only shrink. A widening is a
+**documented exception**, never a routine move, and it earns its place only
+when all of the following hold in the same pull request:
+
+- **one rule, one target** — a single `ruleKey` against a single named file
+  (or a generated/stub tree), never a blanket pattern;
+- **an in-file essay** — the exclusion carries its justification beside it
+  in `sonar-project.properties`: why fixing the finding would be worse than
+  carrying it (the `php:S1066` entry on `MeterCount.php` is the reference:
+  the merge SonarCloud suggests would mint an escaping mutation-testing
+  mutant, so the nested spelling is load-bearing);
+- **no reasonable alternative** — the pull request shows the direct fix was
+  tried or reasoned through, and names the cost it would carry.
+
+The two widenings the repository carries today (`stubs/**` in the file-set,
+`php:S1066` on `MeterCount.php`) are grandfathered under exactly this
+policy; any new one must clear the same bar.
 
 ### 7. Comprehensive and cohesive logic
 
@@ -204,8 +221,11 @@ green. Do not merge by hand and do not force a merge while a check is red or
 pending:
 
 - fix the failure and push again until every required check is green;
-- once every required check is green, **let auto-merge run on its own** — it is
-  armed automatically and will merge without manual intervention;
+- once every required check is green, **let auto-merge run on its own** — the
+  sweep arms it automatically *early* (on `opened`/`synchronize`, while
+  checks are still pending, because GitHub refuses to arm an already-green
+  pull request), and the **merge** — not the arm — is what waits for every
+  required check to pass;
 - never bypass a red or pending check.
 
 ### 11. Every conversation must be solved
@@ -262,7 +282,7 @@ Every change **MUST** pass the full strict pipeline. The gates are:
 | --- | --- |
 | Line coverage | **≥ 90 %** |
 | Infection mutation score | **MSI 100** (and covered MSI 100) |
-| PHPStan | **max level** + baseline ratchet (no new errors) |
+| PHPStan | **max level** + baseline veto (an absent or empty baseline passes; any committed ignored error fails — stricter than a ratchet) |
 | Psalm | **level 1** against the frozen baseline |
 | Deptrac | architecture boundaries respected |
 | `composer audit` | **strict** — fail on any advisory or non-allow-listed abandoned package |
@@ -338,8 +358,9 @@ read.
 3. Make sure `composer ci:strict` passes locally.
 4. Open the pull request against `main` with a **Conventional-Commit title**
    (see below).
-5. Let CI run. Auto-merge is armed automatically once every required check is
-   green — do not merge by hand.
+5. Let CI run. Auto-merge is armed automatically while checks are still
+   pending and merges once every required check is green — do not merge by
+   hand.
 
 ## PR title convention (PR Validator gate)
 
@@ -440,13 +461,18 @@ the pull request, GitHub re-runs them on the combined merge-group ref using
 the workflow files from `main` itself, so what gets certified is the merged
 result — not the pull request's own workflow version. `CI Strict`, `PR
 Validator`, `PhpCodeArcheology SARIF` and `SonarCloud analysis` are
-**required** — the rest are advisory signals. `SonarCloud Code Analysis`
-(the SonarCloud GitHub App's check) stays on pull requests as advisory
-decoration; the blocking server-side verdict travels with `SonarCloud
-analysis`, which waits on the same gate.
+**required** through the `main` ruleset — and `CI Bench`, `CI Static` and the
+aggregator's own job context (`CI Strict Aggregator`) join them through the
+repository's classic branch-protection rule, so the required set is the
+**union of the two layers**; the rest are advisory signals. `SonarCloud Code
+Analysis` (the SonarCloud GitHub App's check) stays on pull requests as
+advisory decoration; the blocking server-side verdict travels with
+`SonarCloud analysis`, which waits on the same gate.
 
-**Merge-blocking semantics:** the active `main` ruleset is the source of truth
-for which status-check contexts are required. A red advisory signal (for
+**Merge-blocking semantics:** the required status-check set is the **union of
+the active `main` ruleset and the repository's classic branch-protection
+rule** (both are live today; consolidating them into one layer is an owner
+action tracked on the audit issue). A red advisory signal (for
 example, an external analyzer that is not in that required set) is not itself
 a merge-gate bypass; do not promote an integration to required unless it
 reports reliably on the merge-group SHA. Conversely, a required check that is
@@ -471,10 +497,20 @@ a workflow fallback or exclusion to turn missing required-gate evidence green.
 | `API Documentation Check` | The generated API documentation is up to date. |
 | `PHPBench` | Benchmark regression check. |
 | `Changelog generator tests` | Unit tests for the changelog generator. |
-| `CI Ruleset Lint` | Weekly guard: every required status-check context in the live `main` ruleset must have a check-run on each of the last ten merged pull-request heads (the dead-required-check failure mode of the merge-gate audit). |
+| `CI Ruleset Lint` | Weekly guard: every required status-check context in the live `main` ruleset — united with the classic branch-protection layer's contexts when the lane's credentials can read that layer (administration-scoped; otherwise an explicit warning) — must have a check-run on each of the last ten merged pull-request heads (the dead-required-check failure mode of the merge-gate audit). |
 
 Do not weaken a gate, add a rule exclusion, or lower a threshold to make a
 change pass. Fix the underlying issue instead.
+
+### Repository automation inventory
+
+Beyond the gates named above, the repository carries automation lanes that
+never block a merge. [`docs/ci-notes/workflow-inventory.md`](docs/ci-notes/workflow-inventory.md)
+lists all of them — one line per workflow, its check-run context, and
+whether anything requires it — including the seven that live entirely
+outside the gate story (`auto-assign`, `changelog-official`, `proof-html`,
+`release-drafter`, `sbom`/`sbom-generate`, `stale-prs-updater`), and the
+required-set union the merge gate actually enforces.
 
 ### PhpCodeArcheology (architecture & maintainability)
 
@@ -561,8 +597,10 @@ appear in it; a pull request that is closed without merging, a draft, or a pull
 request merged into a non-default branch is excluded.
 
 The generator lives in `scripts/changelog/generate.py` and is driven by
-[`.github/workflows/changelog.yml`](.github/workflows/changelog.yml) on `push`
-to `main` and on `workflow_dispatch`.
+[`.github/workflows/changelog.yml`](.github/workflows/changelog.yml), which
+reacts to the completion of `CI Strict` on `main` (a `workflow_run` trigger —
+the F-1 loop fix: a raw `push` fired for the changelog lane's own merge
+commit too, so the lane chased its own tail) and on `workflow_dispatch`.
 
 ## Pull-request checklist
 
