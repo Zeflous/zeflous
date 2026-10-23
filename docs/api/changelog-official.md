@@ -7,6 +7,7 @@
 **Merged pull requests:**
 
 - fix: land the round-2 edge-case audit remediation batch [\#556](https://github.com/Zeflous/zeflous/pull/556) ([mbetixz](https://github.com/mbetixz))
+- feat\(router\): observe the match through the tracing and metrics engines [\#555](https://github.com/Zeflous/zeflous/pull/555) ([mbetixz](https://github.com/mbetixz))
 - refactor\(tooling\): move the CI gate engine out of the framework tree
  [\#551](https://github.com/Zeflous/zeflous/pull/551) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the router deprecation lifecycle and pin the lane
