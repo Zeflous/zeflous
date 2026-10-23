@@ -167,6 +167,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - chore(license): add the MIT license text [#409](https://github.com/Zeflous/zeflous/pull/409) ([mbetixz](https://github.com/mbetixz))
 - chore(repo): remove the demo template page [#412](https://github.com/Zeflous/zeflous/pull/412) ([mbetixz](https://github.com/mbetixz))
 - ci(merge-gate): fail closed on missing required evidence [#525](https://github.com/Zeflous/zeflous/pull/525) ([mbetixz](https://github.com/mbetixz))
+- refactor(tooling): move the CI gate engine out of the framework tree [#551](https://github.com/Zeflous/zeflous/pull/551) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 

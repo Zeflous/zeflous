@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-22T20:06:53Z",
+  "as_of": "2026-10-23T00:41:03Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 242,
+  "unreleased_count": 243,
   "versions": [
     {
       "version": "Unreleased",
@@ -5566,6 +5566,42 @@
                 "sha": "326767eeaed59d3b603bec71db587842be2f31f9",
                 "short_sha": "326767e",
                 "subject": "style(test): name the boundary variable after its class"
+              }
+            ]
+          },
+          {
+            "pr": 551,
+            "title": "refactor(tooling): move the CI gate engine out of the framework tree\n",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-23T00:41:03Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/551",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "67706bf94e371dbd7af6aaf0a82c8605ce0b4518",
+                "short_sha": "67706bf",
+                "subject": "refactor(tooling): move the CI gate engine out of the framework tree"
+              },
+              {
+                "sha": "c4ac09880b9586f684a4053fcf62cb2ba33b3113",
+                "short_sha": "c4ac098",
+                "subject": "chore(tooling): rewire the quality gates around the engine's new home"
+              },
+              {
+                "sha": "3e93a735fc021569fa18f33ce568c9a2401df68a",
+                "short_sha": "3e93a73",
+                "subject": "docs(tooling): record the dev-code boundary and the new evidence paths"
+              },
+              {
+                "sha": "e254a7d2e26f893baa10bace4b4f405d9380d7b9",
+                "short_sha": "e254a7d",
+                "subject": "merge main into refactor/tooling-into-tests: follow the two new gate-engine classes home"
+              },
+              {
+                "sha": "2a15e11a7e2f306d113f593860d1823ffa507bab",
+                "short_sha": "2a15e11",
+                "subject": "docs(roadmap): record the gate-engine relocation and pin the lane"
               }
             ]
           }
@@ -15097,6 +15133,42 @@
               "sha": "f038c6e0e61bfb76fa56d117e58d97b80f46ed5a",
               "short_sha": "f038c6e",
               "subject": "docs(roadmap): record the router deprecation lifecycle and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 551,
+          "title": "refactor(tooling): move the CI gate engine out of the framework tree\n",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-23T00:41:03Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/551",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "67706bf94e371dbd7af6aaf0a82c8605ce0b4518",
+              "short_sha": "67706bf",
+              "subject": "refactor(tooling): move the CI gate engine out of the framework tree"
+            },
+            {
+              "sha": "c4ac09880b9586f684a4053fcf62cb2ba33b3113",
+              "short_sha": "c4ac098",
+              "subject": "chore(tooling): rewire the quality gates around the engine's new home"
+            },
+            {
+              "sha": "3e93a735fc021569fa18f33ce568c9a2401df68a",
+              "short_sha": "3e93a73",
+              "subject": "docs(tooling): record the dev-code boundary and the new evidence paths"
+            },
+            {
+              "sha": "e254a7d2e26f893baa10bace4b4f405d9380d7b9",
+              "short_sha": "e254a7d",
+              "subject": "merge main into refactor/tooling-into-tests: follow the two new gate-engine classes home"
+            },
+            {
+              "sha": "2a15e11a7e2f306d113f593860d1823ffa507bab",
+              "short_sha": "2a15e11",
+              "subject": "docs(roadmap): record the gate-engine relocation and pin the lane"
             }
           ]
         }
