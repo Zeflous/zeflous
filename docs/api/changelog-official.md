@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- refactor\(tooling\): move the CI gate engine out of the framework tree
+ [\#551](https://github.com/Zeflous/zeflous/pull/551) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the router deprecation lifecycle and pin the lane
  [\#544](https://github.com/Zeflous/zeflous/pull/544) ([mbetixz](https://github.com/mbetixz))
 - fix\(tooling\): judge the roadmap pin on the merge queue and accept recorded landings [\#542](https://github.com/Zeflous/zeflous/pull/542) ([mbetixz](https://github.com/mbetixz))
