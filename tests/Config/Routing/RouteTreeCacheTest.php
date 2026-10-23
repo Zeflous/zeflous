@@ -818,6 +818,70 @@ final class RouteTreeCacheTest extends TestCase
     }
 
     /**
+     * The staging sibling's own name, observed through the engine's
+     * diagnostic for the failing rename: the artifact's basename, the
+     * writing process's own id, a twelve-hex-character entropy drawn from
+     * `random_bytes`, and the `.staging` suffix -- a sibling no concurrent
+     * writer can collide with. The rename onto the occupied directory
+     * fails, the diagnostic carries the whole staging path, and the failed
+     * dump still cleans its own sibling. (The same contract the
+     * configuration cache's staging name keeps -- the two must stay
+     * spellable the same way, and this battery pins this one against
+     * every rearrangement of its composition.).
+     */
+    public function testTheStagingSiblingCarriesTheBasenameThePidAndTheEntropy(): void
+    {
+        $occupied = $this->directory . '/occupied';
+        mkdir($occupied);
+        file_put_contents($occupied . '/sentinel', 'x');
+
+        $diagnostics = [];
+        set_error_handler(static function (int $severity, string $message) use (&$diagnostics): bool {
+            $diagnostics[] = $message;
+
+            return true;
+        });
+
+        try {
+            $routeTreeCache = new RouteTreeCache($occupied);
+
+            try {
+                $routeTreeCache->dump($this->table());
+                self::fail('A dump onto an occupied directory target must raise a ConfigException.');
+            } catch (ConfigException $configException) {
+                self::assertSame(
+                    \sprintf('The route tree cache "%s" could not be finalised.', $occupied),
+                    $configException->getMessage(),
+                );
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        $renames = array_values(array_filter(
+            $diagnostics,
+            static fn (string $message): bool => str_starts_with($message, 'rename('),
+        ));
+        self::assertCount(1, $renames, 'exactly one rename diagnostic carries the staging path');
+        self::assertMatchesRegularExpression(
+            '/^rename\(' . preg_quote($occupied, '/') . '\.' . preg_quote((string) getmypid(), '/')
+                . '-[0-9a-f]{12}\.staging,/',
+            $renames[0],
+            'the staging sibling is the basename, the pid, the entropy and the suffix',
+        );
+
+        $staging = glob($occupied . '.*.staging');
+        self::assertIsArray($staging);
+        self::assertSame([], $staging, 'the failed rename cleaned its own staging sibling');
+
+        if (is_file($occupied . '/sentinel')) {
+            unlink($occupied . '/sentinel');
+        }
+
+        rmdir($occupied);
+    }
+
+    /**
      * Dumps the mixed table, then rewrites the artifact with the mutation
      * applied to its decoded array -- surgical corruption of an otherwise
      * valid, parseable artifact.

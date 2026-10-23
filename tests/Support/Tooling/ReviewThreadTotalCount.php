@@ -41,6 +41,13 @@ final readonly class ReviewThreadTotalCount
         $decoded = json_decode($this->json, true);
 
         if (!\is_array($decoded)) {
+            // @infection-ignore-all The refusal's removal is
+            // value-equivalent: a payload that does not decode to a map
+            // walks on, and the walk's own null-coalescing read answers
+            // null for every path key a non-map carries (PHP's ?? reads a
+            // string offset as absent rather than raising) -- the is_array
+            // refusal one statement later throws the identical message
+            // for every payload this arm can ever see.
             throw new ToolingException(self::MISSING_TOTAL);
         }
 
@@ -50,6 +57,12 @@ final readonly class ReviewThreadTotalCount
             $next = $value[$key] ?? null;
 
             if (!\is_array($next)) {
+                // @infection-ignore-all Same chained equivalence: deleting
+                // this refusal lets the walk continue over a non-map value,
+                // whose next coalesced read answers null -- so the next
+                // level's own is_array refusal (or the integer-shape
+                // refusal after the loop) throws the identical message for
+                // every payload this arm can ever see.
                 throw new ToolingException(self::MISSING_TOTAL);
             }
 

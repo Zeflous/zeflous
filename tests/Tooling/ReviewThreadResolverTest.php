@@ -321,6 +321,35 @@ final class ReviewThreadResolverTest extends TestCase
     }
 
     /**
+     * A truncated walk names threads and unusable nodes together in its
+     * refusal: the cross-check counts every node the pages carried -- the
+     * thread the sweep could act on and the unusable node it could not --
+     * so the message's walked total is their sum, never one alone.
+     */
+    public function testATruncatedWalkCountsThreadsAndUnusableNodesTogether(): void
+    {
+        $graphql = static fn (string $query, array $variables): string => self::pagedThreadsPayload(
+            [
+                ['id' => 'PRRT_page1', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/A.php'],
+                ['isResolved' => false, 'isOutdated' => true, 'path' => 'src/B.php'],
+            ],
+            false,
+            null,
+            3,
+        );
+
+        try {
+            new ReviewThreadResolver($graphql)->resolve(131);
+            self::fail('A truncated walk must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'Review-thread pagination is inconsistent: 2 thread(s) walked against a total of 3.',
+                $toolingException->getMessage(),
+            );
+        }
+    }
+
+    /**
      * A page that claims another follows while carrying no cursor to follow
      * is refused outright: the walk would re-send the first page's query
      * forever, duplicating its threads until the job's own timeout.
