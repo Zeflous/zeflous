@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(router\): answer the CLI inspector commands over the engine's own seams [\#563](https://github.com/Zeflous/zeflous/pull/563) ([mbetixz](https://github.com/mbetixz))
 - fix: land the documentation-alignment audit remediation batch [\#562](https://github.com/Zeflous/zeflous/pull/562) ([mbetixz](https://github.com/mbetixz))
 - fix: land the round-2 edge-case audit remediation batch [\#556](https://github.com/Zeflous/zeflous/pull/556) ([mbetixz](https://github.com/mbetixz))
 - feat\(router\): observe the match through the tracing and metrics engines [\#555](https://github.com/Zeflous/zeflous/pull/555) ([mbetixz](https://github.com/mbetixz))
