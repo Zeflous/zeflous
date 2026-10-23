@@ -29,8 +29,10 @@ final readonly class RouteListLine
     {
         $pattern = $compiledRoute->path()->pattern();
 
-        if ($compiledRoute->host() !== null) {
-            $pattern .= ' @' . $compiledRoute->host();
+        $host = $compiledRoute->host();
+
+        if ($host !== null) {
+            $pattern .= ' @' . $host;
         }
 
         $parts = [
@@ -40,8 +42,10 @@ final readonly class RouteListLine
             $compiledRoute->handler(),
         ];
 
-        if ($compiledRoute->version() !== null) {
-            $parts[] = 'version: ' . $compiledRoute->version();
+        $version = $compiledRoute->version();
+
+        if ($version !== null) {
+            $parts[] = 'version: ' . $version;
         }
 
         if ($compiledRoute->produces() !== []) {

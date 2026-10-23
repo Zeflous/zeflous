@@ -37,8 +37,10 @@ final readonly class RouteMatchText
             $lines[] = '  route:       ' . ($route->name() ?? '(unnamed)');
             $lines[] = '  pattern:     ' . $route->path()->pattern();
 
-            if ($route->host() !== null) {
-                $lines[] = '  host:        ' . $route->host();
+            $host = $route->host();
+
+            if ($host !== null) {
+                $lines[] = '  host:        ' . $host;
             }
 
             $lines[] = '  methods:     ' . implode(',', $route->methods());
