@@ -82,6 +82,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(router): translate dispatch refusals into the typed error family [#533](https://github.com/Zeflous/zeflous/pull/533) ([mbetixz](https://github.com/mbetixz))
 - feat(router): answer deprecated routes with the standard lifecycle headers [#540](https://github.com/Zeflous/zeflous/pull/540) ([mbetixz](https://github.com/mbetixz))
 - feat(router): observe the match through the tracing and metrics engines [#555](https://github.com/Zeflous/zeflous/pull/555) ([mbetixz](https://github.com/mbetixz))
+- feat(router): answer the CLI inspector commands over the engine's own seams [#563](https://github.com/Zeflous/zeflous/pull/563) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -127,6 +128,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(tooling): judge the roadmap pin on the merge queue and accept recorded landings [#542](https://github.com/Zeflous/zeflous/pull/542) ([mbetixz](https://github.com/mbetixz))
 - fix: land the round-2 edge-case audit remediation batch [#556](https://github.com/Zeflous/zeflous/pull/556) ([mbetixz](https://github.com/mbetixz))
 - fix: land the documentation-alignment audit remediation batch [#562](https://github.com/Zeflous/zeflous/pull/562) ([mbetixz](https://github.com/mbetixz))
+- fix: close the ruleset lint's credential gap and name the classic layer's absence [#568](https://github.com/Zeflous/zeflous/pull/568) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
