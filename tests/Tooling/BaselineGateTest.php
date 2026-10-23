@@ -44,4 +44,43 @@ final class BaselineGateTest extends TestCase
 
         self::assertStringContainsString('ignores 2 error(s)', new BaselineGate()->evaluate($baseline)->message);
     }
+
+    /**
+     * The flow-mapping spelling PHPStan also emits -- `- {message: '...',
+     * count: 1, path: '...'}` -- is an ignored error the ratchet must
+     * count: the message key sits directly behind the mapping's opening
+     * brace rather than at the start of its own line.
+     */
+    public function testCountsFlowMappingEntries(): void
+    {
+        $baseline = "parameters:\n    ignoreErrors:\n        - {message: '#a#', count: 1, path: 'src/A.php'}\n";
+
+        self::assertStringContainsString('ignores 1 error(s)', new BaselineGate()->evaluate($baseline)->message);
+    }
+
+    /**
+     * The identifier-only alternative PHPStan documents -- an entry that
+     * carries `identifier:` instead of `message:` -- is an ignored error
+     * the same way, in both the block spelling and the flow mapping.
+     */
+    public function testCountsIdentifierOnlyEntries(): void
+    {
+        $baseline = "parameters:\n    ignoreErrors:\n"
+            . "        - identifier: class.notFound\n"
+            . "        - {identifier: 'method.notFound', count: 1, path: 'src/B.php'}\n";
+
+        self::assertStringContainsString('ignores 2 error(s)', new BaselineGate()->evaluate($baseline)->message);
+    }
+
+    /**
+     * A compact flow mapping whose message key rides after the comma that
+     * separates it from a preceding key is still one key position the
+     * count must see.
+     */
+    public function testCountsAMidFlowMessageKey(): void
+    {
+        $baseline = "parameters:\n    ignoreErrors:\n        - {count: 1, message: '#c#', path: 'src/C.php'}\n";
+
+        self::assertStringContainsString('ignores 1 error(s)', new BaselineGate()->evaluate($baseline)->message);
+    }
 }

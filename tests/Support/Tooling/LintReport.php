@@ -13,6 +13,12 @@ use SplFileInfo;
 
 /**
  * Collects the PHP files that the syntax-lint gate must check.
+ *
+ * A configured directory that does not exist refuses the collection
+ * ({@see ToolingException}): a missing directory shrinks the corpus the
+ * gate lints, and a shrunken corpus is a green that lies -- the honest
+ * answers are every configured directory present, or a failure that
+ * names the one that is not.
  */
 final readonly class LintReport
 {
@@ -34,7 +40,11 @@ final readonly class LintReport
             $path = $root . \DIRECTORY_SEPARATOR . $directory;
 
             if (!is_dir($path)) {
-                continue;
+                throw new ToolingException(\sprintf(
+                    'The lint corpus directory "%s" does not exist'
+                    . ' -- a shrunken corpus must fail loudly, not lint less.',
+                    $path,
+                ));
             }
 
             $iterator = new RecursiveIteratorIterator(

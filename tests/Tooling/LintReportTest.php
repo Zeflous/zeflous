@@ -8,6 +8,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Test\Support\Tooling\LintReport;
+use Zef\Test\Support\Tooling\ToolingException;
 
 /**
  * @internal
@@ -86,11 +87,23 @@ final class LintReportTest extends TestCase
         );
     }
 
-    public function testSkipsMissingDirectories(): void
+    /**
+     * A configured directory that does not exist refuses the collection:
+     * a missing directory shrinks the corpus the gate lints, and a
+     * shrunken corpus is a green that lies -- the honest answer names the
+     * directory that is gone.
+     */
+    public function testRefusesAMissingDirectory(): void
     {
-        $lintReport = LintReport::collectPhpFiles($this->root, ['does-not-exist']);
-
-        self::assertSame([], $lintReport->files);
-        self::assertSame(0, $lintReport->count());
+        try {
+            LintReport::collectPhpFiles($this->root, ['does-not-exist']);
+            self::fail('A missing lint corpus directory must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'The lint corpus directory "' . $this->root . '/does-not-exist" does not exist'
+                    . ' -- a shrunken corpus must fail loudly, not lint less.',
+                $toolingException->getMessage(),
+            );
+        }
     }
 }

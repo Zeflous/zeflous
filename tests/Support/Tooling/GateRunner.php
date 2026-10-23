@@ -33,14 +33,14 @@ final readonly class GateRunner
     public function run(string $gate, array $args): GateResult
     {
         return match ($gate) {
-            'coverage' => new CoverageGate((float) ($args[0] ?? '90'))
+            'coverage' => new CoverageGate($this->threshold($args, '90'))
                 ->evaluate(CoverageReport::fromCloverFile($this->root . '/build/clover.xml')),
             'zero-deps' => new ZeroDependencyGate()
                 ->evaluate(ComposerManifest::fromFiles(
                     $this->root . '/composer.json',
                     $this->root . '/composer.lock',
                 )),
-            'mutation' => new MutationGate((float) ($args[0] ?? '100'))
+            'mutation' => new MutationGate($this->threshold($args, '100'))
                 ->evaluate(MutationReport::fromInfectionJsonFile($this->root . '/build/infection/infection.json')),
             'baseline' => new BaselineGate()->evaluate($this->readBaseline()),
             'audit' => new DependencyAuditGate($this->readAuditAllowlist())
@@ -55,6 +55,28 @@ final readonly class GateRunner
             'smoke' => $this->smoke(),
             default => throw new ToolingException(\sprintf('Unknown gate "%s".', $gate)),
         };
+    }
+
+    /**
+     * The gate's floor argument, or the documented default: a threshold
+     * that is not numeric is an operator error the gate must refuse
+     * rather than coerce -- `(float) 'abc'` answers 0.0, and a floor of
+     * zero can never fail.
+     *
+     * @param list<string> $args
+     */
+    private function threshold(array $args, string $default): float
+    {
+        $value = $args[0] ?? $default;
+
+        if (!is_numeric($value)) {
+            throw new ToolingException(\sprintf(
+                'The gate threshold must be numeric, "%s" is not.',
+                $value,
+            ));
+        }
+
+        return (float) $value;
     }
 
     private function roadmap(): GateResult

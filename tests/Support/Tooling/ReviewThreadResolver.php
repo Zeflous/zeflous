@@ -38,7 +38,13 @@ use Closure;
  * walk follows the page's own `endCursor` until `hasNextPage` answers
  * false ({@see ReviewThreadPageInfo}), so a thread beyond the first
  * page is never silently left unresolved while the sweep reports
- * success.
+ * success. The walk is then cross-checked against the connection's
+ * own total ({@see ReviewThreadTotalCount}): every usable thread and
+ * every unusable node the pages carried must add up to exactly the
+ * total the connection reports, so a `pageInfo` that ends the walk
+ * early cannot truncate it silently, and a page that claims a
+ * continuation without a cursor is refused outright instead of being
+ * re-walked forever.
  */
 final readonly class ReviewThreadResolver
 {
@@ -88,10 +94,11 @@ final readonly class ReviewThreadResolver
             }
         }
 
-        // The unusable nodes ride the failure total: a thread the sweep
-        // cannot account for still counts as unresolved for the required
-        // check, so the sweep's answer names it instead of reporting a
-        // clean zero over an unaccounted thread.
+        // The unusable nodes ride the resolution's unusable total: a thread
+        // the sweep cannot account for still counts as unresolved for the
+        // required check, so the sweep's answer names it instead of
+        // reporting a clean zero over an unaccounted thread, and the CLI's
+        // exit code refuses a sweep that could not account for every node.
         return new ReviewThreadResolution($report->count(), $resolved, $failed, $report->unusable);
     }
 
@@ -101,6 +108,10 @@ final readonly class ReviewThreadResolver
      * own `endCursor` until `hasNextPage` answers false -- each page's
      * parsed report folding into one, threads and unusable nodes alike
      * (the sweep's answer accounts for every node the pages carried).
+     * The folded walk is then cross-checked against the connection's
+     * own total: a walk that walked fewer nodes than the connection
+     * reports is a truncated walk, and a truncated walk must refuse
+     * rather than resolve against a ledger it cannot see whole.
      */
     private function report(int $pullRequestNumber): ReviewThreadReport
     {
@@ -116,12 +127,21 @@ final readonly class ReviewThreadResolver
 
             $page = new ReviewThreadPageInfo($payload)->page();
             $parsed = new ReviewThreadPayload($payload)->report();
+            $totalCount = new ReviewThreadTotalCount($payload)->value();
 
             $threads = [...$threads, ...$parsed->threads];
             $unusable += $parsed->unusable;
 
             $cursor = $page['endCursor'];
         } while ($page['hasNextPage']);
+
+        if (\count($threads) + $unusable !== $totalCount) {
+            throw new ToolingException(\sprintf(
+                'Review-thread pagination is inconsistent: %d thread(s) walked against a total of %d.',
+                \count($threads) + $unusable,
+                $totalCount,
+            ));
+        }
 
         return new ReviewThreadReport($threads, $unusable);
     }
