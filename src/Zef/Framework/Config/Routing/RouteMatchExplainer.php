@@ -45,7 +45,7 @@ final class RouteMatchExplainer
         ?string $version = null,
     ): RouteMatchExplanation {
         $captured = [];
-        $walked = (new RouteMatcher())->walk($root, $path, 0, $captured);
+        $walked = new RouteMatcher()->walk($root, $path, 0, $captured);
 
         if ($walked === []) {
             $neighborhood = RouteMatchNeighborhood::around($root, $path);

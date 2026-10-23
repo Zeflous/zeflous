@@ -1,0 +1,126 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zef\Test\Middleware;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Zef\Framework\Config\Config;
+use Zef\Framework\Http\HttpException;
+use Zef\Framework\Middleware\RouteDebugMiddleware;
+use Zef\Framework\Middleware\RouteMatchTelemetry;
+use Zef\Framework\Middleware\RouteObservabilityFactory;
+use Zef\Framework\Router\Router;
+use Zef\Framework\Telemetry\CounterMeter;
+use Zef\Framework\Telemetry\NoopTracer;
+use Zef\Framework\Telemetry\TelemetryClock;
+use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
+
+/**
+ * The router observability family's construction seam, on its own
+ * terms: the telemetry the frozen repository's `observability.
+ * router` subtree arms (and the null the disarmed family answers --
+ * the honest void, not a noop unit), the debug middleware the
+ * `debug_match` disclosure arms (and its own null), and the family's
+ * validation travelling through the factory exactly as it travels
+ * through the policy.
+ *
+ * @internal
+ */
+#[CoversClass(RouteObservabilityFactory::class)]
+#[CoversClass(RouteMatchTelemetry::class)]
+#[CoversClass(RouteDebugMiddleware::class)]
+final class RouteObservabilityFactoryTest extends TestCase
+{
+    public function testTheAbsentFamilyAnswersTheNullTelemetry(): void
+    {
+        self::assertNull(RouteObservabilityFactory::telemetry(
+            new Config([]),
+            new NoopTracer(),
+            new CounterMeter(),
+        ));
+    }
+
+    public function testTheDisarmedFamilyAnswersTheNullTelemetry(): void
+    {
+        self::assertNull(RouteObservabilityFactory::telemetry(
+            self::config(['enabled' => false, 'debug_match' => true]),
+            new NoopTracer(),
+            new CounterMeter(),
+        ));
+    }
+
+    public function testTheArmedFamilyAnswersTheTelemetryOverTheGivenEngines(): void
+    {
+        $telemetryClock = new SteppingTelemetryClock();
+        $routeMatchTelemetry = RouteObservabilityFactory::telemetry(
+            self::config(['enabled' => true]),
+            new NoopTracer(),
+            new CounterMeter(),
+            $telemetryClock,
+        );
+
+        self::assertInstanceOf(RouteMatchTelemetry::class, $routeMatchTelemetry);
+    }
+
+    public function testTheAbsentFamilyAnswersTheNullDebugMiddleware(): void
+    {
+        self::assertNull(RouteObservabilityFactory::debugMiddleware(
+            new Config([]),
+            self::router(),
+        ));
+    }
+
+    public function testTheFamilyWithoutTheDebugArmAnswersTheNullDebugMiddleware(): void
+    {
+        self::assertNull(RouteObservabilityFactory::debugMiddleware(
+            self::config(['enabled' => true, 'debug_match' => false]),
+            self::router(),
+        ));
+    }
+
+    public function testTheDebugArmAnswersTheDebugMiddlewareOverTheGivenRouter(): void
+    {
+        $routeDebugMiddleware = RouteObservabilityFactory::debugMiddleware(
+            self::config(['enabled' => false, 'debug_match' => true]),
+            self::router(),
+        );
+
+        self::assertInstanceOf(RouteDebugMiddleware::class, $routeDebugMiddleware);
+    }
+
+    public function testTheFactoryTravelsTheFamilyValidation(): void
+    {
+        try {
+            RouteObservabilityFactory::telemetry(
+                self::config(['tracing' => true]),
+                new NoopTracer(),
+                new CounterMeter(),
+                new TelemetryClock(),
+            );
+            self::fail('An unknown knob must halt the family\'s construction.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                "The observability.router configuration carries the unknown knob 'tracing'"
+                . ' (known knobs: enabled, debug_match).',
+                $httpException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * @param array<string, bool> $routerSubtree
+     */
+    private static function config(array $routerSubtree): Config
+    {
+        return new Config(['observability' => ['router' => $routerSubtree]]);
+    }
+
+    private static function router(): Router
+    {
+        return Router::fromRoutes([
+            ['path' => '/users', 'method' => ['GET'], 'handler' => 'Users@index'],
+        ]);
+    }
+}

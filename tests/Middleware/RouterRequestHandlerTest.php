@@ -1186,7 +1186,6 @@ final class RouterRequestHandlerTest extends TestCase
         self::assertCount(1, $spans);
 
         $span = $spans[0];
-        \assert($span instanceof SpanData);
         self::assertSame(RouteMatchTelemetry::MATCH_SPAN_NAME, $span->name);
         self::assertSame('GET', $span->attributes['http.request.method']);
         self::assertSame('/profile', $span->attributes['url.path']);

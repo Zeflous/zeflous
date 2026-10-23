@@ -64,8 +64,7 @@ final class RouteMatchTelemetryTest extends TestCase
         $spans = $inMemorySpanExporter->spans();
         self::assertCount(1, $spans, 'one match span was opened, ended and delivered');
 
-        $span = $spans[0];
-        \assert($span instanceof SpanData);
+        $span = self::theMatchRecord($inMemorySpanExporter);
         self::assertSame(RouteMatchTelemetry::MATCH_SPAN_NAME, $span->name);
         self::assertSame('OK', $span->status);
         self::assertNull($span->statusDescription);
@@ -109,8 +108,7 @@ final class RouteMatchTelemetryTest extends TestCase
         );
         $tracer->flush();
 
-        $span = $inMemorySpanExporter->spans()[0];
-        \assert($span instanceof SpanData);
+        $span = self::theMatchRecord($inMemorySpanExporter);
         self::assertArrayNotHasKey('server.address', $span->attributes);
     }
 
@@ -125,8 +123,7 @@ final class RouteMatchTelemetryTest extends TestCase
         );
         $tracer->flush();
 
-        $span = $inMemorySpanExporter->spans()[0];
-        \assert($span instanceof SpanData);
+        $span = self::theMatchRecord($inMemorySpanExporter);
         self::assertArrayNotHasKey('router.route.name', $span->attributes);
     }
 
@@ -141,8 +138,7 @@ final class RouteMatchTelemetryTest extends TestCase
         );
         $tracer->flush();
 
-        $span = $inMemorySpanExporter->spans()[0];
-        \assert($span instanceof SpanData);
+        $span = self::theMatchRecord($inMemorySpanExporter);
         self::assertSame('ERROR', $span->status);
         self::assertSame(RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED, $span->statusDescription);
         self::assertSame(
@@ -169,8 +165,7 @@ final class RouteMatchTelemetryTest extends TestCase
         );
         $tracer->flush();
 
-        $span = $inMemorySpanExporter->spans()[0];
-        \assert($span instanceof SpanData);
+        $span = self::theMatchRecord($inMemorySpanExporter);
         self::assertSame('ERROR', $span->status);
         self::assertSame(RouteMatchExplanation::OUTCOME_NOT_ACCEPTABLE, $span->statusDescription);
         self::assertSame(
@@ -190,8 +185,7 @@ final class RouteMatchTelemetryTest extends TestCase
         );
         $tracer->flush();
 
-        $span = $inMemorySpanExporter->spans()[0];
-        \assert($span instanceof SpanData);
+        $span = self::theMatchRecord($inMemorySpanExporter);
         self::assertSame('UNSET', $span->status, 'a not-found is the void answer, neither success nor failure');
         self::assertNull($span->statusDescription);
         self::assertSame(RouteMatchExplanation::OUTCOME_NOT_FOUND, $span->attributes['router.match.outcome']);
@@ -248,8 +242,7 @@ final class RouteMatchTelemetryTest extends TestCase
         $spans = $inMemorySpanExporter->spans();
         self::assertCount(1, $spans, 'the failed match still ends its span');
 
-        $span = $spans[0];
-        \assert($span instanceof SpanData);
+        $span = self::theMatchRecord($inMemorySpanExporter);
         self::assertSame('ERROR', $span->status);
         self::assertSame(RuntimeException::class, $span->statusDescription);
         self::assertSame(RuntimeException::class, $span->events[0]['attributes']['exception.type']);
@@ -334,6 +327,15 @@ final class RouteMatchTelemetryTest extends TestCase
         }
 
         return CompiledRoute::fromArray($entry);
+    }
+
+    private static function theMatchRecord(InMemorySpanExporter $inMemorySpanExporter): SpanData
+    {
+        $spans = $inMemorySpanExporter->spans();
+
+        self::assertNotSame([], $spans, 'the match span was recorded');
+
+        return $spans[0];
     }
 
     private static function failingMeter(): MeterInterface
