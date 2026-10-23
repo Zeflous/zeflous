@@ -195,6 +195,147 @@ if ($command === 'container:inventory') {
     }
 }
 
+if (in_array($command, ['route:list', 'route:test', 'route:tree'], true)) {
+    $routeUsage = "Usage: bin/zef route:list <config-directory> [--json]\n"
+        . "       bin/zef route:test <config-directory> <method> <path>"
+        . " [--host=<host>] [--accept=<value>] [--version=<value>] [--json]\n"
+        . "       bin/zef route:tree <config-directory>\n";
+
+    $configDirectory = $argv[2] ?? '';
+
+    if ($configDirectory === '' || str_starts_with($configDirectory, '--')) {
+        fwrite(STDERR, $routeUsage);
+        exit(2);
+    }
+
+    $resolved = realpath($configDirectory);
+    if ($resolved === false || !is_dir($resolved)) {
+        fwrite(STDERR, "Configuration directory does not exist: {$configDirectory}\n");
+        exit(2);
+    }
+
+    $method = null;
+    $path = null;
+    $host = null;
+    $accept = null;
+    $version = null;
+    $asJson = false;
+
+    if ($command === 'route:test') {
+        $method = $argv[3] ?? '';
+        $path = $argv[4] ?? '';
+
+        if (preg_match('/^[!#$%&\'*+.^_`|~0-9A-Za-z-]{1,32}$/D', $method) !== 1) {
+            fwrite(STDERR, "Invalid request method: {$method}\n");
+            exit(2);
+        }
+
+        if ($path === '' || !str_starts_with($path, '/') || strlen($path) > 2048
+            || preg_match('/[\x00-\x1f\x7f]/', $path) === 1) {
+            fwrite(STDERR, "The request path must start with a slash and carry no control bytes.\n");
+            exit(2);
+        }
+    }
+
+    $flagOffset = $command === 'route:test' ? 5 : 3;
+    $routeFlags = [];
+
+    foreach (array_slice($argv, $flagOffset) as $argument) {
+        if (str_starts_with($argument, '--json')) {
+            $routeFlags[] = $argument;
+        } elseif ($command === 'route:test' && str_starts_with($argument, '--host=')) {
+            $host = substr($argument, strlen('--host='));
+        } elseif ($command === 'route:test' && str_starts_with($argument, '--accept=')) {
+            $accept = substr($argument, strlen('--accept='));
+        } elseif ($command === 'route:test' && str_starts_with($argument, '--version=')) {
+            $version = substr($argument, strlen('--version='));
+        } else {
+            fwrite(STDERR, $routeUsage);
+            exit(2);
+        }
+    }
+
+    foreach ($routeFlags as $routeFlag) {
+        if ($routeFlag === '--json' && $command !== 'route:tree') {
+            $asJson = true;
+        } else {
+            fwrite(STDERR, $routeUsage);
+            exit(2);
+        }
+    }
+
+    if ($command === 'route:test') {
+        foreach ([['--host=', $host, 253], ['--accept=', $accept, 256], ['--version=', $version, 256]] as $bound) {
+            [$flagName, $value, $limit] = $bound;
+            if ($value !== null
+                && ($value === '' || strlen($value) > $limit || preg_match('/[\x00-\x1f\x7f]/', $value) === 1)) {
+                fwrite(STDERR, "Invalid {$flagName} value.\n");
+                exit(2);
+            }
+        }
+    }
+
+    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    if (is_file($autoload)) {
+        require_once $autoload;
+    } else {
+        spl_autoload_register(static function (string $class): void {
+            $bases = [
+                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+            ];
+            foreach ($bases as $prefix => $base) {
+                if (str_starts_with($class, $prefix)) {
+                    $file = $base
+                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                    if (is_file($file)) {
+                        require $file;
+                    }
+                }
+            }
+        });
+    }
+
+    try {
+        $router = Zef\Test\Support\Tooling\RouteInspectionBoot::router($resolved);
+
+        if ($command === 'route:list') {
+            fwrite(
+                STDOUT,
+                $asJson
+                    ? Zef\Test\Support\Tooling\RouteListJson::rendered($router) . "\n"
+                    : Zef\Test\Support\Tooling\RouteListText::table($router),
+            );
+            exit(0);
+        }
+
+        if ($command === 'route:tree') {
+            fwrite(STDOUT, Zef\Test\Support\Tooling\RouteTreeText::rendered($router));
+            exit(0);
+        }
+
+        $answer = Zef\Test\Support\Tooling\RouteMatchAnswer::answered(
+            $router,
+            $method,
+            $path,
+            $host,
+            $accept,
+            $version,
+        );
+
+        fwrite(
+            STDOUT,
+            $asJson
+                ? Zef\Test\Support\Tooling\RouteMatchJson::rendered($answer) . "\n"
+                : Zef\Test\Support\Tooling\RouteMatchText::rendered($answer),
+        );
+        exit($answer->outcome === Zef\Framework\Config\Routing\RouteMatchExplanation::OUTCOME_FOUND ? 0 : 1);
+    } catch (Throwable $bootFailure) {
+        fwrite(STDERR, 'The route boot refused: ' . $bootFailure->getMessage() . "\n");
+        exit(1);
+    }
+}
+
 $path = getenv('ZEF_ERROR_LOG') ?: DEFAULT_ERROR_LOG;
 $requestIdFilter = null;
 foreach (array_slice($argv, 2) as $argument) {
