@@ -6,12 +6,12 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\BashArrayExpansionDetector;
-use Zef\Framework\Tooling\GateResult;
-use Zef\Framework\Tooling\WorkflowConcurrencyGate;
-use Zef\Framework\Tooling\WorkflowConcurrencyPolicy;
-use Zef\Framework\Tooling\WorkflowConcurrencyReport;
-use Zef\Framework\Tooling\WorkflowFileCollector;
+use Zef\Test\Support\Tooling\BashArrayExpansionDetector;
+use Zef\Test\Support\Tooling\GateResult;
+use Zef\Test\Support\Tooling\WorkflowConcurrencyGate;
+use Zef\Test\Support\Tooling\WorkflowConcurrencyPolicy;
+use Zef\Test\Support\Tooling\WorkflowConcurrencyReport;
+use Zef\Test\Support\Tooling\WorkflowFileCollector;
 
 /**
  * @internal

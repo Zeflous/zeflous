@@ -11,18 +11,18 @@ use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
-use Zef\Framework\Tooling\ContainerAnalysisArtifact;
-use Zef\Framework\Tooling\ContainerInventoryDetail;
-use Zef\Framework\Tooling\ContainerInventoryLine;
-use Zef\Framework\Tooling\ContainerInventoryReport;
-use Zef\Framework\Tooling\ContainerInventoryText;
-use Zef\Framework\Tooling\ToolingException;
 use Zef\Test\Support\Container\Aot\CallsHouse;
 use Zef\Test\Support\Container\Aot\House;
 use Zef\Test\Support\Container\Aot\Roof;
 use Zef\Test\Support\Container\Aot\Window;
 use Zef\Test\Support\Container\Lazy\EngineFactory;
 use Zef\Test\Support\Container\Lazy\EngineFuel;
+use Zef\Test\Support\Tooling\ContainerAnalysisArtifact;
+use Zef\Test\Support\Tooling\ContainerInventoryDetail;
+use Zef\Test\Support\Tooling\ContainerInventoryLine;
+use Zef\Test\Support\Tooling\ContainerInventoryReport;
+use Zef\Test\Support\Tooling\ContainerInventoryText;
+use Zef\Test\Support\Tooling\ToolingException;
 
 /**
  * @internal

@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-23 · `main` @ `b511578`
+**Last updated:** 2026-10-23 · `main` @ `e254a7d`
 
 ---
 
@@ -108,8 +108,8 @@ see how far the code has moved against the roadmap.
 | Architecture gate | ✅ Implemented | `php-codearch-config.yaml`, `scripts/ci/archeology-gate.php`, `.github/workflows/archeology.yml` (job `PhpCodeArcheology SARIF`). |
 | Static analysis | ✅ Implemented | PHPStan max + ratchet, Psalm level 1 + baseline, Progpilot (PHAR, SHA-256 pinned). |
 | Supply chain | ✅ Implemented | `composer audit` strict gate, SBOM workflows, dependency review. |
-| Zero-dependency gate | ✅ Implemented | `composer zero-deps` (part of `composer ci:static`) → `src/Zef/Framework/Tooling/ZeroDependencyGate.php` asserts `composer.json` `require === {php: ^8.4}` and `composer.lock` `packages === []`. |
-| Roadmap document gate | ✅ Implemented | `composer roadmap:gate` (part of `composer ci:static`) → `src/Zef/Framework/Tooling/RoadmapDocGate.php` audits the structural integrity of the roadmap documents, and `src/Zef/Framework/Tooling/RoadmapPinFreshness.php` — fed by `RoadmapPinCommitCollector.php`, on the lanes that validate `main` — enforces the pin-freshness invariant: the `Last updated` commit must be an ancestor of the validated commit and may only be followed by changelog or roadmap bookkeeping (changelog regenerations, `docs(roadmap):` document commits, and the branch-update machinery's `main`-into-branch merges, in all four of its observed spellings per #532 — its git invocation, the web UI's update button, the shorthand, and the descriptive `chore: merge main (...)` custom subject). Since #542 the judgment also runs on the merge queue's group head -- the commit the queue is about to make `main`'s tip -- and a recorded pull-request landing (a MERGE commit of the walk whose trailing `(#<number>)` carries a `ROADMAP-HISTORY.md` row in the tree under validation) is accepted, so an unrecorded substantive merge fails the pull request's own queue entry instead of reddening `main` after it lands. |
+| Zero-dependency gate | ✅ Implemented | `composer zero-deps` (part of `composer ci:static`) → `tests/Support/Tooling/ZeroDependencyGate.php` asserts `composer.json` `require === {php: ^8.4}` and `composer.lock` `packages === []`. |
+| Roadmap document gate | ✅ Implemented | `composer roadmap:gate` (part of `composer ci:static`) → `tests/Support/Tooling/RoadmapDocGate.php` audits the structural integrity of the roadmap documents, and `tests/Support/Tooling/RoadmapPinFreshness.php` — fed by `RoadmapPinCommitCollector.php`, on the lanes that validate `main` — enforces the pin-freshness invariant: the `Last updated` commit must be an ancestor of the validated commit and may only be followed by changelog or roadmap bookkeeping (changelog regenerations, `docs(roadmap):` document commits, and the branch-update machinery's `main`-into-branch merges, in all four of its observed spellings per #532 — its git invocation, the web UI's update button, the shorthand, and the descriptive `chore: merge main (...)` custom subject). Since #542 the judgment also runs on the merge queue's group head -- the commit the queue is about to make `main`'s tip -- and a recorded pull-request landing (a MERGE commit of the walk whose trailing `(#<number>)` carries a `ROADMAP-HISTORY.md` row in the tree under validation) is accepted, so an unrecorded substantive merge fails the pull request's own queue entry instead of reddening `main` after it lands. |
 
 ---
 

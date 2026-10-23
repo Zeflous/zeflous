@@ -6,9 +6,9 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\MutationGate;
-use Zef\Framework\Tooling\MutationReport;
-use Zef\Framework\Tooling\ToolingException;
+use Zef\Test\Support\Tooling\MutationGate;
+use Zef\Test\Support\Tooling\MutationReport;
+use Zef\Test\Support\Tooling\ToolingException;
 
 /**
  * @internal

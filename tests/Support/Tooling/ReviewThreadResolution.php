@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zef\Test\Support\Tooling;
+
+/**
+ * Outcome of a {@see ReviewThreadResolver} run: how many conversations the pull
+ * request carried, how many finished ones were resolved, and how many resolve
+ * attempts failed.
+ *
+ * The lane is fail-soft: a failed resolve is reported (and retried on the next
+ * sweep) but never aborts the sweep, because one stubborn thread must not stop
+ * the other pull requests from being processed.
+ */
+final readonly class ReviewThreadResolution
+{
+    public function __construct(
+        public int $total,
+        public int $resolved,
+        public int $failed,
+        public int $unusable = 0,
+    ) {
+    }
+
+    public function message(): string
+    {
+        return \sprintf(
+            'Review threads: %d total, %d finished conversation(s) resolved, %d failed, %d unusable.',
+            $this->total,
+            $this->resolved,
+            $this->failed,
+            $this->unusable,
+        );
+    }
+}

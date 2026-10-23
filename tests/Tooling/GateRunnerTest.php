@@ -7,8 +7,8 @@ namespace Zef\Test\Tooling;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\GateRunner;
-use Zef\Framework\Tooling\ToolingException;
+use Zef\Test\Support\Tooling\GateRunner;
+use Zef\Test\Support\Tooling\ToolingException;
 
 /**
  * @internal

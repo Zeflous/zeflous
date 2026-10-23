@@ -1,6 +1,10 @@
 deptrac:
   paths:
     - ./src
+    # The CI gate engine's post-relocation home: deptrac keeps guarding
+    # its layer discipline (Kernel/Exception/Container only) at the new
+    # path, exactly as it did from src/.
+    - ./tests/Support/Tooling
   exclude_files:
     # The vendored PSR shim is a zero-library boundary artifact, not a ZEF layer.
     - '#.*/Contracts/Psr/.*#'
@@ -52,7 +56,7 @@ deptrac:
     - name: Tooling
       collectors:
         - type: classNameRegex
-          value: '#^Zef\\Framework\\Tooling\\#'
+          value: '#^Zef\\Test\\Support\\Tooling\\#'
   ruleset:
     # Exception is the innermost layer: it may not depend on any other ZEF layer.
     Exception: ~

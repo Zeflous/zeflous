@@ -6,9 +6,9 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RoadmapContradictionRules;
-use Zef\Framework\Tooling\RoadmapSectionRows;
-use Zef\Framework\Tooling\RoadmapTableCells;
+use Zef\Test\Support\Tooling\RoadmapContradictionRules;
+use Zef\Test\Support\Tooling\RoadmapSectionRows;
+use Zef\Test\Support\Tooling\RoadmapTableCells;
 
 /**
  * @internal

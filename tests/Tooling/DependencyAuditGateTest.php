@@ -6,9 +6,9 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\DependencyAudit;
-use Zef\Framework\Tooling\DependencyAuditGate;
-use Zef\Framework\Tooling\ToolingException;
+use Zef\Test\Support\Tooling\DependencyAudit;
+use Zef\Test\Support\Tooling\DependencyAuditGate;
+use Zef\Test\Support\Tooling\ToolingException;
 
 /**
  * @internal

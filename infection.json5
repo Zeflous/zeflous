@@ -2,7 +2,11 @@
     "$schema": "vendor/infection/infection/resources/schema.json",
     "source": {
         "directories": [
-            "src/Zef"
+            "src/Zef",
+            // The CI gate engine's home after it left the framework's runtime
+            // tree: same classes, same mutation surface, new path under
+            // tests/Support/Tooling (developer tooling, never shipped).
+            "tests/Support/Tooling"
         ]
     },
     "logs": {
@@ -961,7 +965,7 @@
                 // mutation). The cast exists for Psalm's
                 // InvalidArrayOffset, which refuses a string offset on an
                 // integer-keyed map, not for runtime semantics.
-                "Zef\\Framework\\Tooling\\RoadmapRecordedMerge::isAccepted"
+                "Zef\\Test\\Support\\Tooling\\RoadmapRecordedMerge::isAccepted"
             ]
         },
         // The Exception suffix strip in ZefException::defaultErrorCode()
@@ -1275,7 +1279,7 @@
         // Scoped to that single method.
         "ArrayOneItem": {
             "ignore": [
-                "Zef\\Framework\\Tooling\\WorkflowFileCollector::collect"
+                "Zef\\Test\\Support\\Tooling\\WorkflowFileCollector::collect"
             ]
         }
     },

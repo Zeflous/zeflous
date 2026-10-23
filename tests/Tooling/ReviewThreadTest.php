@@ -6,7 +6,7 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\ReviewThread;
+use Zef\Test\Support\Tooling\ReviewThread;
 
 /**
  * @internal

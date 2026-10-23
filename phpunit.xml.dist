@@ -26,6 +26,13 @@
     <source>
         <include>
             <directory>src</directory>
+            <!-- The CI gate engine lives under tests/Support/Tooling (developer
+                 tooling, not framework runtime code), but its correctness is
+                 still gated by the same coverage threshold: the source include
+                 carries it into the clover report so the coverage gate and
+                 Infection keep measuring it at its new home, exactly as they
+                 did from src/. -->
+            <directory>tests/Support/Tooling</directory>
         </include>
         <exclude>
             <directory>src/Contracts/Psr</directory>

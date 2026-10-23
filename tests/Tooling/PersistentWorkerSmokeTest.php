@@ -7,8 +7,8 @@ namespace Zef\Test\Tooling;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Kernel;
-use Zef\Framework\Tooling\PersistentWorkerSmoke;
-use Zef\Framework\Tooling\SmokeResult;
+use Zef\Test\Support\Tooling\PersistentWorkerSmoke;
+use Zef\Test\Support\Tooling\SmokeResult;
 
 /**
  * @internal

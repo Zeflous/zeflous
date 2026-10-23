@@ -6,8 +6,8 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\GraphQlErrors;
-use Zef\Framework\Tooling\ReviewThreadMutation;
+use Zef\Test\Support\Tooling\GraphQlErrors;
+use Zef\Test\Support\Tooling\ReviewThreadMutation;
 
 /**
  * @internal

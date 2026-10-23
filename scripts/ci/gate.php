@@ -5,15 +5,15 @@ declare(strict_types=1);
 /**
  * Thin CLI entry point for the ZEF tooling gates.
  *
- * All gate logic lives in `Zef\Framework\Tooling\*` (unit-tested, fully covered);
+ * All gate logic lives in `Zef\Test\Support\Tooling\*` (unit-tested, fully covered);
  * this file only wires the real process runner and maps the result to an exit
  * code, so it stays a few lines long.
  *
  * Usage: php scripts/ci/gate.php <coverage|zero-deps|mutation|baseline|audit|lint|workflow-concurrency|roadmap|smoke> [arg]
  */
 
-use Zef\Framework\Tooling\GateRunner;
-use Zef\Framework\Tooling\ToolingException;
+use Zef\Test\Support\Tooling\GateRunner;
+use Zef\Test\Support\Tooling\ToolingException;
 use Symfony\Component\Process\Process;
 
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';

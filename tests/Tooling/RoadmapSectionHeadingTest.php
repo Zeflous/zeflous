@@ -8,7 +8,7 @@ use Iterator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RoadmapSectionHeading;
+use Zef\Test\Support\Tooling\RoadmapSectionHeading;
 
 /**
  * @internal

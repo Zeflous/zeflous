@@ -6,8 +6,8 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RoadmapPinFreshness;
-use Zef\Framework\Tooling\RoadmapPinState;
+use Zef\Test\Support\Tooling\RoadmapPinFreshness;
+use Zef\Test\Support\Tooling\RoadmapPinState;
 
 /**
  * @internal

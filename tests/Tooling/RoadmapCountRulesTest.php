@@ -6,11 +6,11 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RoadmapCountRules;
-use Zef\Framework\Tooling\RoadmapSectionLookup;
-use Zef\Framework\Tooling\RoadmapSectionRows;
-use Zef\Framework\Tooling\RoadmapSummaryTable;
-use Zef\Framework\Tooling\RoadmapTableCells;
+use Zef\Test\Support\Tooling\RoadmapCountRules;
+use Zef\Test\Support\Tooling\RoadmapSectionLookup;
+use Zef\Test\Support\Tooling\RoadmapSectionRows;
+use Zef\Test\Support\Tooling\RoadmapSummaryTable;
+use Zef\Test\Support\Tooling\RoadmapTableCells;
 
 /**
  * @internal

@@ -6,9 +6,9 @@ namespace Zef\Test\Tooling;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Tooling\RoadmapDocGate;
-use Zef\Framework\Tooling\RoadmapDocReport;
-use Zef\Framework\Tooling\RoadmapPinState;
+use Zef\Test\Support\Tooling\RoadmapDocGate;
+use Zef\Test\Support\Tooling\RoadmapDocReport;
+use Zef\Test\Support\Tooling\RoadmapPinState;
 
 /**
  * @internal

@@ -522,12 +522,12 @@
       <code><![CDATA[inject]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Tooling/ContainerInventoryReport.php">
+  <file src="tests/Support/Tooling/ContainerInventoryReport.php">
     <UnusedClass>
       <code><![CDATA[ContainerInventoryReport]]></code>
     </UnusedClass>
   </file>
-  <file src="src/Zef/Framework/Tooling/CoverageReport.php">
+  <file src="tests/Support/Tooling/CoverageReport.php">
     <InvalidOperand>
       <code><![CDATA[$this->coveredStatements / $this->statements * 100.0]]></code>
     </InvalidOperand>
@@ -545,7 +545,7 @@
       <code><![CDATA[!isset($xml->project->metrics)]]></code>
     </TypeDoesNotContainType>
   </file>
-  <file src="src/Zef/Framework/Tooling/GateResult.php">
+  <file src="tests/Support/Tooling/GateResult.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[exitCode]]></code>
     </PossiblyUnusedMethod>
@@ -553,7 +553,7 @@
       <code><![CDATA[$message]]></code>
     </PossiblyUnusedProperty>
   </file>
-  <file src="src/Zef/Framework/Tooling/GateRunner.php">
+  <file src="tests/Support/Tooling/GateRunner.php">
     <MixedAssignment>
       <code><![CDATA[$audit]]></code>
       <code><![CDATA[$config]]></code>
@@ -562,42 +562,42 @@
       <code><![CDATA[GateRunner]]></code>
     </UnusedClass>
   </file>
-  <file src="src/Zef/Framework/Tooling/GraphQlErrors.php">
+  <file src="tests/Support/Tooling/GraphQlErrors.php">
     <MixedAssignment>
       <code><![CDATA[$errors]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Tooling/PersistentWorkerSmoke.php">
+  <file src="tests/Support/Tooling/PersistentWorkerSmoke.php">
     <MixedAssignment>
       <code><![CDATA[$first]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Tooling/ReviewThread.php">
+  <file src="tests/Support/Tooling/ReviewThread.php">
     <PossiblyUnusedProperty>
       <code><![CDATA[$path]]></code>
     </PossiblyUnusedProperty>
   </file>
-  <file src="src/Zef/Framework/Tooling/ReviewThreadFactory.php">
+  <file src="tests/Support/Tooling/ReviewThreadFactory.php">
     <MixedAssignment>
       <code><![CDATA[$path]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Tooling/ReviewThreadMutation.php">
+  <file src="tests/Support/Tooling/ReviewThreadMutation.php">
     <MixedAssignment>
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Tooling/ReviewThreadPayload.php">
+  <file src="tests/Support/Tooling/ReviewThreadPayload.php">
     <MixedAssignment>
       <code><![CDATA[$node]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Tooling/ReviewThreadResolution.php">
+  <file src="tests/Support/Tooling/ReviewThreadResolution.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[message]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Tooling/ReviewThreadResolver.php">
+  <file src="tests/Support/Tooling/ReviewThreadResolver.php">
     <UnusedClass>
       <code><![CDATA[ReviewThreadResolver]]></code>
     </UnusedClass>

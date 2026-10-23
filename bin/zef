@@ -158,15 +158,23 @@ if ($command === 'container:inventory') {
     if (is_file($autoload)) {
         require_once $autoload;
     } else {
-        // The zero-dependency spelling: the framework's own tree is the
-        // only thing the analysis needs, so a bare install loads it
-        // through a minimal PSR-4 registration instead of Composer.
+        // The zero-dependency spelling: the analysis command rides the
+        // framework's own runtime tree plus the tooling support classes
+        // under tests/ (the gate engine's home since the src tree became
+        // runtime-only code), so a bare install loads both through minimal
+        // PSR-4 registrations instead of Composer.
         spl_autoload_register(static function (string $class): void {
-            if (str_starts_with($class, 'Zef\\Framework\\')) {
-                $file = dirname(__DIR__) . '/src/'
-                    . str_replace('\\', '/', substr($class, strlen('Zef\\Framework\\'))) . '.php';
-                if (is_file($file)) {
-                    require $file;
+            $bases = [
+                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+            ];
+            foreach ($bases as $prefix => $base) {
+                if (str_starts_with($class, $prefix)) {
+                    $file = $base
+                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                    if (is_file($file)) {
+                        require $file;
+                    }
                 }
             }
         });
@@ -175,7 +183,7 @@ if ($command === 'container:inventory') {
     try {
         fwrite(
             STDOUT,
-            Zef\Framework\Tooling\ContainerInventoryReport::rendering(
+            Zef\Test\Support\Tooling\ContainerInventoryReport::rendering(
                 $resolved,
                 $identifier === '' ? null : $identifier,
             ),

@@ -14,14 +14,15 @@ declare(strict_types=1);
  *     dangling `uriBaseId` removed.
  *
  *  2. REWRITE FQN URIs. The tool emits function/method-level findings with
- *     the class FQN (`Zef\Framework\Tooling\GateRunner` -- backslashes, no
+ *     the class FQN (`Zef\Test\Support\Tooling\GateRunner` -- backslashes, no
  *     `.php` extension) as the artifact URI. GitHub renders such an alert
  *     against a "file" that does not exist in the repository: the alert
  *     cannot be opened, and its location anchors nowhere. The FQN is
- *     resolved through the PSR-4 layout that holds for this repository
- *     (`Zef\...` maps to `src/Zef/...`) and rewritten ONLY when the mapped
- *     file actually exists on disk -- unknown FQNs are left untouched rather
- *     than fabricating a path (fail-closed).
+ *     resolved through the repository's PSR-4 layouts (the production
+ *     mapping `Zef\...` maps to `src/Zef/...`; the dev mapping
+ *     `Zef\Test\...` maps to `tests/...`) and rewritten ONLY when the
+ *     mapped file actually exists on disk -- unknown FQNs are left
+ *     untouched rather than fabricating a path (fail-closed).
  *
  *  3. DEDUPLICATE + FINGERPRINT. phpcodearcheology v2.11.3 emits every
  *     function/method-level finding TWICE (two results, same rule, same
@@ -89,13 +90,23 @@ function archeologyGateNormaliseUri(string $uri, string $root): string
     $uri = ltrim($uri, '/');
 
     // FQN-style URI: namespace segments separated by backslashes, no slash,
-    // no extension. Resolve it through the PSR-4 layout only when the mapped
-    // file exists -- never fabricate a repository path.
+    // no extension. Resolve it through the repository's PSR-4 layouts (the
+    // production mapping `Zef\...` maps to `src/Zef/...`; the dev mapping
+    // `Zef\Test\...` maps to `tests/...`) only when the mapped file
+    // exists -- never fabricate a repository path.
     if (preg_match('/^[A-Za-z][A-Za-z0-9_]*(\\\\[A-Za-z0-9_]+)+$/', $uri) === 1) {
-        $candidate = 'src/' . str_replace('\\', '/', $uri) . '.php';
+        $candidates = ['src/' . str_replace('\\', '/', $uri) . '.php'];
 
-        if (is_file($root . '/' . $candidate)) {
-            return $candidate;
+        if (str_starts_with($uri, 'Zef\\Test\\')) {
+            $candidates[] = 'tests/'
+                . str_replace('\\', '/', substr($uri, strlen('Zef\\Test\\')))
+                . '.php';
+        }
+
+        foreach ($candidates as $candidate) {
+            if (is_file($root . '/' . $candidate)) {
+                return $candidate;
+            }
         }
     }
 
