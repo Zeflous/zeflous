@@ -177,8 +177,27 @@ kind, no ignores:
   route line's indent is now one `str_repeat` at its own depth and
   the concat of two whitespace runs no longer exists to mutate.
 
-The settled answer: **292 mutants killed at scoped MSI 100/100,
+The settled answer: **294 mutants killed at scoped MSI 100/100,
 zero escapes, zero ignores.**
+
+## The architecture gate's settle
+
+The first CI round answered one finding: the class-difficulty
+ceiling — the tree's own class crossed it (Halstead difficulty
+20.59 against the ceiling of 20), the inspection seams being the
+straw that broke an already-laden engine facade. The house answer
+is the fold split (#540's own settle): the match orchestration
+`RadixTree::match()` carried inline — the walk, the host bucket,
+the version narrowing, the empty-set early return, the method
+judgment — moved into **`RouteMatchPipeline`**, a single-question
+fold that owns the sequence between the stages (the counting twin
+of the same sequence being `RouteMatchExplainer`, the development
+surface). The tree keeps the seam; the fold owns the pipeline; the
+tree's difficulty fell to 14.00 and the new fold answers at 10.18,
+both well under the ceiling. The fold is `@internal`, covered by
+the engine's own match suite (attributed in `RadixTreeTest`), and
+the hot path's one added call hop is inside the benchmark's noise
+(match 7.3–7.5μs, before and after).
 
 One operational lesson worth the record: the mutation lane runs the
 boot under mutants, and a mutant that breaks the artifact cleanup
