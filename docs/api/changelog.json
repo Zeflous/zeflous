@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-23T00:41:03Z",
+  "as_of": "2026-10-23T05:18:46Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 243,
+  "unreleased_count": 244,
   "versions": [
     {
       "version": "Unreleased",
@@ -4574,6 +4574,47 @@
                 "sha": "2780e43bd31261d5be153d22b9900d556c833998",
                 "short_sha": "2780e43",
                 "subject": "Merge branch 'main' into fix/roadmap-queue-freshness"
+              }
+            ]
+          },
+          {
+            "pr": 556,
+            "title": "fix: land the round-2 edge-case audit remediation batch",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-23T05:18:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/556",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "2bd63eb8495f66c6e8604c4387aae470cfd1a447",
+                "short_sha": "2bd63eb",
+                "subject": "fix(tooling): harden the gate engine's own edge cases (the round-2 audit's tooling findings -- every fix fail-closed: the workflow-concurrency policy now reads the cancelling flag from EVERY `cancel-in-progress:` spelling the file carries, normalising trailing comments and quotes, so a workflow-level `false` above a job-level `true` (the common cancel-stale-job-runs shape) can no longer hide a branch-keyed group behind the first spelling's refusal; the coverage parser refuses an impossible clover (covered statements above the total once certified >100 percent) and the coverage gate's failure message carries the shortfall at four decimals so a boundary verdict that renders 90.00 against a 90.00 floor explains itself; the gate runner refuses a non-numeric threshold instead of coercing it to a floor of zero that could never fail; the lint corpus refuses a missing configured directory (a shrunken corpus is a green that lies) and the gate refuses an empty corpus; the PHPStan ratchet counts the flow-mapping and identifier-only baseline spellings; the workflow collector refuses a workflow file it cannot read; the review-thread walk refuses a page that claims a continuation without a cursor (the infinite re-walk), cross-checks every walked node against the connection's own totalCount (a lying pageInfo can no longer truncate the walk silently -- the new RoadThreadTotalCount seam), and the CLI's exit code refuses unusable nodes a sweep could not account for; the throwaway container artifact's entropy moves from clock-derived uniqid to random_bytes)"
+              },
+              {
+                "sha": "8be585f685728e72d090a0a1cc76fcc790bcc337",
+                "short_sha": "8be585f",
+                "subject": "fix(runtime): the compiled caches dump atomically and the snapshot writer walks bytes (the round-2 audit's runtime findings: the route tree cache's dump wrote its artifact in place -- the one compiled-cache lane the staging-name doctrine never reached, so a boot racing a rebuild could require a half-written tree and halt on the ParseError arm until an operator re-dumped; the dump now lands in a uniquely named staging sibling and crosses through one rename, its failed finalisation cleaning its own sibling while the previous artifact survives whole, exactly the contract ConfigCache and the AOT cache already keep; the configuration cache's staging entropy moves from clock-derived uniqid to random_bytes (a predictable staging name is a name a co-tenant can pre-create ahead of the write), and the replay snapshot writer's remainder loop advances on byte offsets with the unpack idiom the JSON record writer already keeps -- the character-offset walk could skip the trailing half of a partially-written multibyte sequence and exit successfully on a torn snapshot)"
+              },
+              {
+                "sha": "1e6461bf6426dec7c31641c1c16efd1daed3c03d",
+                "short_sha": "1e6461b",
+                "subject": "ci: fail the fork probe closed, bound the sweep, and validate the manual scan arguments (the round-2 audit's workflow findings: the auto-merge sweep's fork probe now fails CLOSED -- a transient read failure on a fork pull request reads as fork, never as same-repo, because the fork answer is the one holding the human checkpoint the approve step exists to respect (the probe was the fail-open outlier beside the fail-closed changed-files read eleven lines below it); the sweep carries a ten-minute deadline inside its own loop so a sweep of many waiting pull requests stops cleanly at the deadline with the remainder first in line for the next oldest-first sweep, instead of dying on the job's fifteen-minute timeout mid-loop; the changelog-tests and pr-validator concurrency groups move from the mutating merge ref to the per-commit key every other lane already keeps (the PR #136 class); and the SonarCloud manual run's pr_number/branch arguments cross to the scanner through a validated step -- digits-only or refuse, branch percent-encoded -- never by direct interpolation of an input into the args line)"
+              },
+              {
+                "sha": "0704fa1790ae17aa8c58bc11d4b7bd56121949eb",
+                "short_sha": "0704fa1",
+                "subject": "docs(roadmap): record the round-2 audit remediation and pin the lane"
+              },
+              {
+                "sha": "4fc2b4d333a102c5a0b55ee8223ab53d0794a364",
+                "short_sha": "4fc2b4d",
+                "subject": "test(tooling): close the mutation round on the audit batch (17 escapes answered in kind: the route tree cache's staging name gains the same basename-pid-entropy battery the configuration cache's keeps -- the rename diagnostic pinned against every rearrangement of its composition, which kills the ten Concat/Ternary escapes and holds the entropy width under the integer mutators; the truncated-walk refusal names threads and unusable nodes together, killing the message-arithmetic escape; the remaining escapes are the documented equivalences the repository already carries -- the pid cast's bytes under concat (CastString, scoped beside ConfigCache's own), the unpack guard's unreachable false arm shared with the JSONL record writer (LogicalAnd), the comment-split explode limit whose element zero is limit-invariant (IncrementInteger, beside the produce split's own), and the two chained path-walk refusals whose deletion only moves the identical message to the next level's refusal (inline, beside the page-info walker's own decode-arm essay))"
+              },
+              {
+                "sha": "77b12093a082170d125fc864a9ff9a54298547b3",
+                "short_sha": "77b1209",
+                "subject": "docs(roadmap): point the pin at the mutation close-out"
               }
             ]
           }
@@ -15169,6 +15210,47 @@
               "sha": "2a15e11a7e2f306d113f593860d1823ffa507bab",
               "short_sha": "2a15e11",
               "subject": "docs(roadmap): record the gate-engine relocation and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 556,
+          "title": "fix: land the round-2 edge-case audit remediation batch",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-23T05:18:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/556",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "2bd63eb8495f66c6e8604c4387aae470cfd1a447",
+              "short_sha": "2bd63eb",
+              "subject": "fix(tooling): harden the gate engine's own edge cases (the round-2 audit's tooling findings -- every fix fail-closed: the workflow-concurrency policy now reads the cancelling flag from EVERY `cancel-in-progress:` spelling the file carries, normalising trailing comments and quotes, so a workflow-level `false` above a job-level `true` (the common cancel-stale-job-runs shape) can no longer hide a branch-keyed group behind the first spelling's refusal; the coverage parser refuses an impossible clover (covered statements above the total once certified >100 percent) and the coverage gate's failure message carries the shortfall at four decimals so a boundary verdict that renders 90.00 against a 90.00 floor explains itself; the gate runner refuses a non-numeric threshold instead of coercing it to a floor of zero that could never fail; the lint corpus refuses a missing configured directory (a shrunken corpus is a green that lies) and the gate refuses an empty corpus; the PHPStan ratchet counts the flow-mapping and identifier-only baseline spellings; the workflow collector refuses a workflow file it cannot read; the review-thread walk refuses a page that claims a continuation without a cursor (the infinite re-walk), cross-checks every walked node against the connection's own totalCount (a lying pageInfo can no longer truncate the walk silently -- the new RoadThreadTotalCount seam), and the CLI's exit code refuses unusable nodes a sweep could not account for; the throwaway container artifact's entropy moves from clock-derived uniqid to random_bytes)"
+            },
+            {
+              "sha": "8be585f685728e72d090a0a1cc76fcc790bcc337",
+              "short_sha": "8be585f",
+              "subject": "fix(runtime): the compiled caches dump atomically and the snapshot writer walks bytes (the round-2 audit's runtime findings: the route tree cache's dump wrote its artifact in place -- the one compiled-cache lane the staging-name doctrine never reached, so a boot racing a rebuild could require a half-written tree and halt on the ParseError arm until an operator re-dumped; the dump now lands in a uniquely named staging sibling and crosses through one rename, its failed finalisation cleaning its own sibling while the previous artifact survives whole, exactly the contract ConfigCache and the AOT cache already keep; the configuration cache's staging entropy moves from clock-derived uniqid to random_bytes (a predictable staging name is a name a co-tenant can pre-create ahead of the write), and the replay snapshot writer's remainder loop advances on byte offsets with the unpack idiom the JSON record writer already keeps -- the character-offset walk could skip the trailing half of a partially-written multibyte sequence and exit successfully on a torn snapshot)"
+            },
+            {
+              "sha": "1e6461bf6426dec7c31641c1c16efd1daed3c03d",
+              "short_sha": "1e6461b",
+              "subject": "ci: fail the fork probe closed, bound the sweep, and validate the manual scan arguments (the round-2 audit's workflow findings: the auto-merge sweep's fork probe now fails CLOSED -- a transient read failure on a fork pull request reads as fork, never as same-repo, because the fork answer is the one holding the human checkpoint the approve step exists to respect (the probe was the fail-open outlier beside the fail-closed changed-files read eleven lines below it); the sweep carries a ten-minute deadline inside its own loop so a sweep of many waiting pull requests stops cleanly at the deadline with the remainder first in line for the next oldest-first sweep, instead of dying on the job's fifteen-minute timeout mid-loop; the changelog-tests and pr-validator concurrency groups move from the mutating merge ref to the per-commit key every other lane already keeps (the PR #136 class); and the SonarCloud manual run's pr_number/branch arguments cross to the scanner through a validated step -- digits-only or refuse, branch percent-encoded -- never by direct interpolation of an input into the args line)"
+            },
+            {
+              "sha": "0704fa1790ae17aa8c58bc11d4b7bd56121949eb",
+              "short_sha": "0704fa1",
+              "subject": "docs(roadmap): record the round-2 audit remediation and pin the lane"
+            },
+            {
+              "sha": "4fc2b4d333a102c5a0b55ee8223ab53d0794a364",
+              "short_sha": "4fc2b4d",
+              "subject": "test(tooling): close the mutation round on the audit batch (17 escapes answered in kind: the route tree cache's staging name gains the same basename-pid-entropy battery the configuration cache's keeps -- the rename diagnostic pinned against every rearrangement of its composition, which kills the ten Concat/Ternary escapes and holds the entropy width under the integer mutators; the truncated-walk refusal names threads and unusable nodes together, killing the message-arithmetic escape; the remaining escapes are the documented equivalences the repository already carries -- the pid cast's bytes under concat (CastString, scoped beside ConfigCache's own), the unpack guard's unreachable false arm shared with the JSONL record writer (LogicalAnd), the comment-split explode limit whose element zero is limit-invariant (IncrementInteger, beside the produce split's own), and the two chained path-walk refusals whose deletion only moves the identical message to the next level's refusal (inline, beside the page-info walker's own decode-arm essay))"
+            },
+            {
+              "sha": "77b12093a082170d125fc864a9ff9a54298547b3",
+              "short_sha": "77b1209",
+              "subject": "docs(roadmap): point the pin at the mutation close-out"
             }
           ]
         }
