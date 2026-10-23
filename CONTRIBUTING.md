@@ -460,19 +460,22 @@ is validated through a **merge queue**: once the required checks are green on
 the pull request, GitHub re-runs them on the combined merge-group ref using
 the workflow files from `main` itself, so what gets certified is the merged
 result — not the pull request's own workflow version. `CI Strict`, `PR
-Validator`, `PhpCodeArcheology SARIF` and `SonarCloud analysis` are
-**required** through the `main` ruleset — and `CI Bench`, `CI Static` and the
-aggregator's own job context (`CI Strict Aggregator`) join them through the
-repository's classic branch-protection rule, so the required set is the
-**union of the two layers**; the rest are advisory signals. `SonarCloud Code
+Validator` and `PhpCodeArcheology SARIF` are **required** through the `main`
+ruleset — the only live protection layer since the owner consolidated the
+classic branch-protection rule into it on 2026-10-23 (before then `CI Bench`,
+`CI Static` and the aggregator's own job context joined the required set
+through that second layer, a union of seven contexts); the rest are advisory
+signals. `SonarCloud Code
 Analysis` (the SonarCloud GitHub App's check) stays on pull requests as
 advisory decoration; the blocking server-side verdict travels with
 `SonarCloud analysis`, which waits on the same gate.
 
-**Merge-blocking semantics:** the required status-check set is the **union of
-the active `main` ruleset and the repository's classic branch-protection
-rule** (both are live today; consolidating them into one layer is an owner
-action tracked on the audit issue). A red advisory signal (for
+**Merge-blocking semantics:** the required status-check set is the active
+`main` ruleset's contexts, united with the classic branch-protection rule's
+contexts whenever such a layer exists (the two layers were consolidated into
+the ruleset alone on 2026-10-23, closing the #561 owner action; `CI Ruleset
+Lint` watches the union either way, so a returning classic layer simply joins
+it again). A red advisory signal (for
 example, an external analyzer that is not in that required set) is not itself
 a merge-gate bypass; do not promote an integration to required unless it
 reports reliably on the merge-group SHA. Conversely, a required check that is
@@ -497,7 +500,7 @@ a workflow fallback or exclusion to turn missing required-gate evidence green.
 | `API Documentation Check` | The generated API documentation is up to date. |
 | `PHPBench` | Benchmark regression check. |
 | `Changelog generator tests` | Unit tests for the changelog generator. |
-| `CI Ruleset Lint` | Weekly guard: every required status-check context in the live `main` ruleset — united with the classic branch-protection layer's contexts when the lane's credentials can read that layer (administration-scoped; otherwise an explicit warning) — must have a check-run on each of the last ten merged pull-request heads (the dead-required-check failure mode of the merge-gate audit). |
+| `CI Ruleset Lint` | Weekly guard: every required status-check context in the live `main` ruleset — united with the classic branch-protection layer's contexts whenever such a layer exists (the read distinguishes `read` / `absent` / `unread`: an administration-scoped 401/403 stays an explicit warning, while the consolidation's 404 "Branch not protected" is the definitive absence) — must have a check-run on each of the last ten merged pull-request heads (the dead-required-check failure mode of the merge-gate audit). The lane reads the rulesets endpoint with the owner's `ZEF_TOKEN` PAT first — the only credential that reaches it in practice — then the workflow token, then the anonymous read. |
 
 Do not weaken a gate, add a rule exclusion, or lower a threshold to make a
 change pass. Fix the underlying issue instead.
