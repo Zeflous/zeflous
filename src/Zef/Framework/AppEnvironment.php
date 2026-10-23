@@ -6,25 +6,27 @@ namespace Zef\Framework;
 
 /**
  * The framework's environment reader: the `APP_ENV` allowlist fold
- * both environment doctrines consult -- the error lane's toolbar
- * ({@see Middleware\DebugToolbarFactory} arms it with
- * the same words) and the container's mode verdict
+ * both environment doctrines consult -- the error lane's factories
+ * ({@see Middleware\ErrorMappingFactory}, {@see
+ * Middleware\DebugToolbarFactory}, {@see
+ * Middleware\ProcessErrorBoundaryFactory}, and the route-debug seam's
+ * own reader) and the container's mode verdict
  * ({@see ContainerMode}).
  *
- * The vocabulary is declared once here for the container side and
- * re-declared in the middleware seam's own fold, the same
- * re-declaration trade `AotToggles` carries (the layer graph keeps
- * the seam unreachable; its KDD records the decision). The fold is
- * fail-closed: an absent variable -- or any value the allowlist does
- * not name -- answers *not* development, so no environment spelling
- * can accidentally arm a development posture production never asked
- * for.
+ * The vocabulary is declared exactly once, here: the middleware seam
+ * re-declared its own copy at the port (three factories, each with the
+ * allowlist spelled inline) until the round-3 documentation-alignment
+ * audit collapsed them onto this fold -- one doctrine, one spelling,
+ * no drift surface. The fold is fail-closed: an absent variable -- or
+ * any value the allowlist does not name -- answers *not* development,
+ * so no environment spelling can accidentally arm a development
+ * posture production never asked for.
  */
 final readonly class AppEnvironment
 {
     /**
-     * The `APP_ENV` spellings that answer development: the toolbar
-     * doctrine's own allowlist.
+     * The `APP_ENV` spellings that answer development: the development
+     * doctrine's allowlist.
      */
     private const array DEVELOPMENT_ENVIRONMENTS = ['local', 'development', 'dev', 'test', 'testing'];
 

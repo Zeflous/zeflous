@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Middleware;
 
+use Zef\Framework\AppEnvironment;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 
@@ -23,9 +24,7 @@ final class DebugToolbarFactory
             throw new ConfigException('http.error_handling.debug must be a boolean.');
         }
 
-        $environment = getenv('APP_ENV');
-        $debugAllowed = \is_string($environment)
-            && \in_array(mb_strtolower($environment), ['local', 'development', 'dev', 'test', 'testing'], true);
+        $debugAllowed = AppEnvironment::isDevelopment();
 
         return new DebugToolbarMiddleware($debug && $debugAllowed);
     }

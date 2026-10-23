@@ -17,6 +17,21 @@
 # turns the lane RED with the evidence, the same week it happens, instead of
 # waiting for the next audit.
 #
+# THE CLASSIC LAYER (the round-3 documentation-alignment audit, 2026-10-23)
+# ----------------------------------------------------------------------
+# The required set is the UNION of the active ruleset and the repository's
+# classic branch-protection rule -- both layers are live, and only the
+# ruleset half was being linted. The classic half, the
+# /branches/main/protection endpoint, is administration-scoped: an anonymous
+# read is a 403, and the workflow token does not carry the rights either, so
+# the lane tries the owner's optional ZEF_TOKEN first (the arming lanes' own
+# documented credential -- used here READ-ONLY), then the workflow token.
+# When neither can read it, the lane degrades to an explicit
+# weekly WARNING naming the unaudited layer -- a warning, not a red lane,
+# because the evidence is privileged by GitHub design, not missing by
+# accident (the fail-closed doctrine covers evidence the token SHOULD be
+# able to read; the ruleset read below is exactly that case).
+#
 # DESIGN NOTES
 # ------------
 #   * The rulesets endpoint wants administration rights a workflow token does
@@ -77,6 +92,12 @@ jobs:
       - name: Lint the live required-check set against merged-head evidence
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The owner's optional PAT (the arming lanes' own documented
+          # credential, preferred when present): reading the classic
+          # branch-protection layer needs administration rights the workflow
+          # token does not carry. The lane only READS with it -- it writes
+          # nothing -- and degrades to a weekly warning when it is absent.
+          CLASSIC_TOKEN: ${{ secrets.ZEF_TOKEN }}
           HEADS_TO_LINT: "10"
         run: |
           set -euo pipefail
@@ -115,6 +136,45 @@ jobs:
           if [ -z "${contexts}" ]; then
             echo "::error::Ruleset ${id} carries no required_status_checks rule to lint (fail closed)."
             exit 1
+          fi
+
+          # --- 1b. The classic branch-protection layer (read-only). -------
+          # The required set is the union of the ruleset and this layer; the
+          # layer is administration-scoped, so the read degrades to a warning
+          # rather than a red lane when no available credential can perform
+          # it (see the header's THE CLASSIC LAYER note).
+          classic_contexts=""
+          classic_status="unread"
+          classic=""
+          if [ -n "${CLASSIC_TOKEN}" ]; then
+            classic=$(GH_TOKEN="${CLASSIC_TOKEN}" gh api \
+              "repos/${GITHUB_REPOSITORY}/branches/main/protection" 2>/dev/null) || classic=""
+          fi
+          if [ -z "${classic}" ]; then
+            classic=$(gh api "repos/${GITHUB_REPOSITORY}/branches/main/protection" 2>/dev/null) || classic=""
+          fi
+          if [ -n "${classic}" ] \
+              && printf '%s' "${classic}" | jq -e 'type == "object"' >/dev/null 2>&1; then
+            if printf '%s' "${classic}" | jq -e '.required_status_checks != null' >/dev/null 2>&1; then
+              classic_contexts=$(printf '%s' "${classic}" | jq -r '.required_status_checks.contexts[]? // empty')
+              classic_status="read"
+            else
+              classic_status="empty"
+            fi
+          fi
+          if [ "${classic_status}" = "unread" ]; then
+            echo "::warning::The classic branch-protection layer could not be read with this lane's credentials (administration-scoped endpoint; no ZEF_TOKEN present or accepted). Its required contexts are UNAUDITED this week -- the owner's manual audit stands in (issue #561, V-1)."
+          fi
+          # Union the classic-only contexts onto the linted set. The ruleset's
+          # own contexts come first so the table's order stays stable, and a
+          # context both layers name is linted exactly once.
+          if [ "${classic_status}" = "read" ] && [ -n "${classic_contexts}" ]; then
+            while IFS= read -r ctx; do
+              [ -z "${ctx}" ] && continue
+              if ! printf '%s\n' "${contexts}" | grep -Fxq "${ctx}"; then
+                contexts="${contexts}"$'\n'"${ctx}"
+              fi
+            done <<< "${classic_contexts}"
           fi
 
           # --- 2. The last N merged pull-request heads. -------------------
@@ -159,11 +219,16 @@ jobs:
           done <<< "${heads}"
 
           # --- 4. Verdict + evidence. -------------------------------------
+          case "${classic_status}" in
+            read) classic_note=" united with the classic branch-protection layer" ;;
+            empty) classic_note=" (the classic branch-protection layer carries no required contexts)" ;;
+            *) classic_note=" (classic branch-protection layer UNREADABLE this week -- see the warning)" ;;
+          esac
           {
             echo "### Ruleset lint"
             echo ""
-            echo "Every required context of ruleset ${id} (refs/heads/main) must have a"
-            echo "check-run on each of the last ${total_heads} merged pull-request heads."
+            echo "Every required context of ruleset ${id} (refs/heads/main)${classic_note}"
+            echo "must have a check-run on each of the last ${total_heads} merged pull-request heads."
             echo ""
             echo "| Required context | Reported on | Missing on |"
             echo "| --- | --- | --- |"

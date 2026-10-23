@@ -161,3 +161,39 @@ Bedah lengkap (infection 0.31, PHPUnit adapter):
   compiler passes. **Sisa lane Middleware**: integrasi dispatcher
   (inner pipeline per-rute — `DispatchOutcome` sudah membawa
   `middleware()`), per-route fail-closed resolution (pola legacy #354).
+
+## KDD-M11: pencabutan "500 plain-text stack-habis" — terminal hilang kini
+sinyal invarian bertipe (2026-10-23, audit round-3)
+
+KDD-M6 butir (b) menjatuhkan pilihan legacy: stack-habis-tanpa-terminal
+menjawab `500 text/plain 'Pipeline terminal missing.'` inline, dengan alasan
+"response adalah response". Audit penyelarasan dokumentasi (issue #561,
+temuan V-6) mencatat pilihan itu sebagai pelanggaran huruf rule 17
+CONTRIBUTING.md: komponen TIDAK BOLEH membangun respons error-nya sendiri
+inline — itu melewati problem-details, negosiasi konten, kode error, dan
+trace ID, serta menyerahkan bentuk error kedua kepada klien. Keputusan
+dibalik:
+
+- **Lempar, bukan jawab**: stack-habis kini melempar
+  `InvariantViolationException('The middleware pipeline was built without a
+  terminal request handler.')` — kelas sinyal programming-error yang tepat
+  (kelas pipeline sendiri menyatakan invariannya: "a pipeline always ends at
+  one terminal handler"). `ErrorStatusMap` memetakan sinyal non-`CarriesHttp-
+  Status` ke 500 dan boundary merender problem+json — jalur render identik
+  dengan fault lain: lewat `ErrorMappingMiddleware` bila membungkus stack,
+  lewat `ProcessErrorBoundary` bila tidak.
+- **Disiplin onion berubah bentuk, bukan hilang**: penolakan melewati onion
+  sebagai fault — mark `enter` tetap, mark `exit` dilewati (unwinding, bukan
+  aliran balik). Test eksplisit mem-pin bentuk baru itu; test lama yang
+  mem-pin "500 mengalir balik seperti jawaban terminal" diganti.
+- **Import `Http\Response` di `MiddlewarePipeline` hilang** — justifikasi
+  edge deptrac Middleware→Http di `deptrac.yaml` diperbarui ke alasan hidup
+  (komposisi Response/negosiasi/eksposisi lintas lane), bukan fallback
+  terminal yang sudah tidak ada.
+- **Keseimbangan trade yang sama tetap jujur**: M6 menyebut "response adalah
+  response" sebagai alasan mempertahankan perilaku; pembalikan ini menyebut
+  alasan sebaliknya dengan bobot yang lebih tinggi (kontrak repo eksplisit,
+  rule 17, plus preseden `RouteDispatchHandler` — referensi integrasi error
+  yang tercatat di `docs/ci-notes/router-error-integration.md`). Kedua
+  catatan tetap berdiri berdampingan: M6 mencatat keputusan saat porting,
+  M11 mencatat pembalikannya beserta alasannya.
