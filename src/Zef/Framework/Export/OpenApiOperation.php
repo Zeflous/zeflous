@@ -74,14 +74,9 @@ final readonly class OpenApiOperation
 
         $operation['responses'] = OpenApiResponses::for($compiledRoute);
 
-        foreach (OpenApiDeprecation::rendered($compiledRoute->deprecation()) as $field => $value) {
-            $operation[$field] = $value;
-        }
+        $deprecationFields = OpenApiDeprecation::rendered($compiledRoute->deprecation());
+        $extensionFields = OpenApiOperationExtensions::for($compiledRoute);
 
-        foreach (OpenApiOperationExtensions::for($compiledRoute) as $field => $value) {
-            $operation[$field] = $value;
-        }
-
-        return $operation;
+        return array_merge($operation, $deprecationFields, $extensionFields);
     }
 }

@@ -88,14 +88,14 @@ final readonly class OpenApiUiMiddleware implements MiddlewareInterface
 
     #[Override]
     public function process(
-        ServerRequestInterface $serverRequest,
-        RequestHandlerInterface $requestHandler,
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler,
     ): ResponseInterface {
         if (!AppEnvironment::isDevelopment()) {
-            return $requestHandler->handle($serverRequest);
+            return $handler->handle($request);
         }
 
-        $path = $serverRequest->getUri()->getPath();
+        $path = $request->getUri()->getPath();
 
         if ($path === self::SPEC_PATH) {
             return new Response(
@@ -113,7 +113,7 @@ final readonly class OpenApiUiMiddleware implements MiddlewareInterface
             );
         }
 
-        return $requestHandler->handle($serverRequest);
+        return $handler->handle($request);
     }
 
     /**
