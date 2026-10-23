@@ -64,11 +64,11 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $serverRequestMetadata = ServerRequestMetadata::fromRequest($request);
-        $match = $this->matchObserved($request, $serverRequestMetadata);
+        $matchResult = $this->matchObserved($request, $serverRequestMetadata);
 
         $stack = [];
-        if ($match->isFound()) {
-            foreach ($match->route()->middleware() as $serviceId) {
+        if ($matchResult->isFound()) {
+            foreach ($matchResult->route()->middleware() as $serviceId) {
                 if (!$this->container->has($serviceId)) {
                     throw new MiddlewareException(\sprintf(
                         'Route middleware service "%s" is not registered.',
@@ -90,7 +90,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
 
         $routeDispatchHandler = new RouteDispatchHandler(
             $this->routeDispatcher,
-            $match,
+            $matchResult,
             $serverRequestMetadata,
         );
 
@@ -121,7 +121,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         ServerRequestInterface $serverRequest,
         ServerRequestMetadata $serverRequestMetadata,
     ): MatchResult {
-        if ($this->routeMatchTelemetry === null) {
+        if (!$this->routeMatchTelemetry instanceof RouteMatchTelemetry) {
             return $this->routerRequestMatcher->match($serverRequestMetadata);
         }
 

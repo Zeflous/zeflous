@@ -47,24 +47,24 @@ final class RouteMatchTelemetryTest extends TestCase
         $tracer = new Tracer(new BatchSpanProcessor($inMemorySpanExporter), new TelemetryClock());
         $counterMeter = new CounterMeter();
         $steppingTelemetryClock = new SteppingTelemetryClock(
-            monotonicEpoch: 0,
+            monotonicEpoch: 1_000_000_000,
             monotonicStep: 500_000_000,
         );
         $routeMatchTelemetry = new RouteMatchTelemetry($tracer, $counterMeter, $steppingTelemetryClock);
 
         $matchResult = $routeMatchTelemetry->observed(
             null,
-            self::metadata('GET', '/users/42', 'api.example.com'),
+            $this->metadata('GET', '/users/42', 'api.example.com'),
             static fn (): MatchResult => MatchResult::found(self::route('/users/{id}', 'users.show'), ['id' => '42']),
         );
 
-        self::assertTrue($matchResult->isFound(), 'the observation answers the match\'s own result');
+        self::assertTrue($matchResult->isFound(), "the observation answers the match's own result");
 
         $tracer->flush();
         $spans = $inMemorySpanExporter->spans();
         self::assertCount(1, $spans, 'one match span was opened, ended and delivered');
 
-        $span = self::theMatchRecord($inMemorySpanExporter);
+        $span = $this->theMatchRecord($inMemorySpanExporter);
         self::assertSame(RouteMatchTelemetry::MATCH_SPAN_NAME, $span->name);
         self::assertSame('OK', $span->status);
         self::assertNull($span->statusDescription);
@@ -94,51 +94,51 @@ final class RouteMatchTelemetryTest extends TestCase
             MeterSlot::key(RouteMatchTelemetry::MATCH_DURATION_SECONDS, $dimensions)
         ];
         self::assertSame(1, $duration['count']);
-        self::assertSame(0.5, $duration['sum'], 'the frozen clock\'s step is the exact duration, in seconds');
+        self::assertSame(0.5, $duration['sum'], "the frozen clock's step is the exact duration, in seconds");
     }
 
     public function testAHostlessRequestOmitsTheServerAddressAttribute(): void
     {
-        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = self::telemetry();
+        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
             null,
-            self::metadata('GET', '/users'),
+            $this->metadata('GET', '/users'),
             static fn (): MatchResult => MatchResult::found(self::route('/users'), []),
         );
         $tracer->flush();
 
-        $span = self::theMatchRecord($inMemorySpanExporter);
+        $span = $this->theMatchRecord($inMemorySpanExporter);
         self::assertArrayNotHasKey('server.address', $span->attributes);
     }
 
     public function testAFoundMatchWithoutARouteNameOmitsTheRouteNameAttribute(): void
     {
-        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = self::telemetry();
+        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
             null,
-            self::metadata('GET', '/users'),
+            $this->metadata('GET', '/users'),
             static fn (): MatchResult => MatchResult::found(self::route('/users'), []),
         );
         $tracer->flush();
 
-        $span = self::theMatchRecord($inMemorySpanExporter);
+        $span = $this->theMatchRecord($inMemorySpanExporter);
         self::assertArrayNotHasKey('router.route.name', $span->attributes);
     }
 
     public function testObservesAMethodNotAllowedRefusalWithTheErrorStatus(): void
     {
-        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer, $counterMeter] = self::telemetry();
+        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer, $counterMeter] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
             null,
-            self::metadata('DELETE', '/posts'),
+            $this->metadata('DELETE', '/posts'),
             static fn (): MatchResult => MatchResult::methodNotAllowed(['GET', 'POST']),
         );
         $tracer->flush();
 
-        $span = self::theMatchRecord($inMemorySpanExporter);
+        $span = $this->theMatchRecord($inMemorySpanExporter);
         self::assertSame('ERROR', $span->status);
         self::assertSame(RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED, $span->statusDescription);
         self::assertSame(
@@ -156,16 +156,16 @@ final class RouteMatchTelemetryTest extends TestCase
 
     public function testObservesANotAcceptableRefusalWithTheErrorStatus(): void
     {
-        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = self::telemetry();
+        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
             null,
-            self::metadata('GET', '/j'),
+            $this->metadata('GET', '/j'),
             static fn (): MatchResult => MatchResult::notAcceptable(['application/json']),
         );
         $tracer->flush();
 
-        $span = self::theMatchRecord($inMemorySpanExporter);
+        $span = $this->theMatchRecord($inMemorySpanExporter);
         self::assertSame('ERROR', $span->status);
         self::assertSame(RouteMatchExplanation::OUTCOME_NOT_ACCEPTABLE, $span->statusDescription);
         self::assertSame(
@@ -176,16 +176,16 @@ final class RouteMatchTelemetryTest extends TestCase
 
     public function testObservesANotFoundMissWithTheUnsetStatus(): void
     {
-        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer, $counterMeter] = self::telemetry();
+        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer, $counterMeter] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
             null,
-            self::metadata('GET', '/nowhere'),
+            $this->metadata('GET', '/nowhere'),
             static fn (): MatchResult => MatchResult::notFound(),
         );
         $tracer->flush();
 
-        $span = self::theMatchRecord($inMemorySpanExporter);
+        $span = $this->theMatchRecord($inMemorySpanExporter);
         self::assertSame('UNSET', $span->status, 'a not-found is the void answer, neither success nor failure');
         self::assertNull($span->statusDescription);
         self::assertSame(RouteMatchExplanation::OUTCOME_NOT_FOUND, $span->attributes['router.match.outcome']);
@@ -199,12 +199,12 @@ final class RouteMatchTelemetryTest extends TestCase
 
     public function testTheSpanJoinsTheRequestSpansTraceWhenTheBoundaryExposedOne(): void
     {
-        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = self::telemetry();
+        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = $this->telemetry();
 
         $requestSpan = $tracer->startSpan('zef.http.request', ['http.request.method' => 'GET']);
         $routeMatchTelemetry->observed(
             $requestSpan,
-            self::metadata('GET', '/users'),
+            $this->metadata('GET', '/users'),
             static fn (): MatchResult => MatchResult::found(self::route('/users'), []),
         );
         $requestSpan->end();
@@ -212,7 +212,7 @@ final class RouteMatchTelemetryTest extends TestCase
 
         $matchSpans = array_values(array_filter(
             $inMemorySpanExporter->spans(),
-            static fn (SpanData $span): bool => $span->name === RouteMatchTelemetry::MATCH_SPAN_NAME,
+            static fn (SpanData $spanData): bool => $spanData->name === RouteMatchTelemetry::MATCH_SPAN_NAME,
         ));
         self::assertCount(1, $matchSpans);
 
@@ -223,26 +223,26 @@ final class RouteMatchTelemetryTest extends TestCase
 
     public function testAFailingMatchRecordsTheFailureAndPropagatesIt(): void
     {
-        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer, $counterMeter] = self::telemetry();
+        [$routeMatchTelemetry, $inMemorySpanExporter, $tracer, $counterMeter] = $this->telemetry();
 
         try {
             $routeMatchTelemetry->observed(
                 null,
-                self::metadata('GET', '/users'),
+                $this->metadata('GET', '/users'),
                 static function (): never {
                     throw new RuntimeException('the engine refused');
                 },
             );
-            self::fail('the observation propagates the match\'s own failure');
-        } catch (RuntimeException $caught) {
-            self::assertSame('the engine refused', $caught->getMessage());
+            self::fail("the observation propagates the match's own failure");
+        } catch (RuntimeException $runtimeException) {
+            self::assertSame('the engine refused', $runtimeException->getMessage());
         }
 
         $tracer->flush();
         $spans = $inMemorySpanExporter->spans();
         self::assertCount(1, $spans, 'the failed match still ends its span');
 
-        $span = self::theMatchRecord($inMemorySpanExporter);
+        $span = $this->theMatchRecord($inMemorySpanExporter);
         self::assertSame('ERROR', $span->status);
         self::assertSame(RuntimeException::class, $span->statusDescription);
         self::assertSame(RuntimeException::class, $span->events[0]['attributes']['exception.type']);
@@ -254,13 +254,13 @@ final class RouteMatchTelemetryTest extends TestCase
     {
         $routeMatchTelemetry = new RouteMatchTelemetry(
             new NoopTracer(),
-            self::failingMeter(),
+            $this->failingMeter(),
             new SteppingTelemetryClock(),
         );
 
         $matchResult = $routeMatchTelemetry->observed(
             null,
-            self::metadata('GET', '/users'),
+            $this->metadata('GET', '/users'),
             static fn (): MatchResult => MatchResult::found(self::route('/users'), []),
         );
 
@@ -273,12 +273,15 @@ final class RouteMatchTelemetryTest extends TestCase
         $routeMatchTelemetry = new RouteMatchTelemetry(
             new NoopTracer(),
             $counterMeter,
-            new SteppingTelemetryClock(monotonicStep: 250_000_000),
+            new SteppingTelemetryClock(
+                monotonicEpoch: 2_000_000_000,
+                monotonicStep: 250_000_000,
+            ),
         );
 
         $routeMatchTelemetry->observed(
             null,
-            self::metadata('GET', '/users'),
+            $this->metadata('GET', '/users'),
             static fn (): MatchResult => MatchResult::notFound(),
         );
 
@@ -295,7 +298,7 @@ final class RouteMatchTelemetryTest extends TestCase
     /**
      * @return array{RouteMatchTelemetry, InMemorySpanExporter, Tracer, CounterMeter}
      */
-    private static function telemetry(): array
+    private function telemetry(): array
     {
         $inMemorySpanExporter = new InMemorySpanExporter();
         $tracer = new Tracer(new BatchSpanProcessor($inMemorySpanExporter), new TelemetryClock());
@@ -309,7 +312,7 @@ final class RouteMatchTelemetryTest extends TestCase
         ];
     }
 
-    private static function metadata(string $method, string $path, ?string $host = null): ServerRequestMetadata
+    private function metadata(string $method, string $path, ?string $host = null): ServerRequestMetadata
     {
         return new ServerRequestMetadata($method, $path, $host, '', '');
     }
@@ -329,7 +332,7 @@ final class RouteMatchTelemetryTest extends TestCase
         return CompiledRoute::fromArray($entry);
     }
 
-    private static function theMatchRecord(InMemorySpanExporter $inMemorySpanExporter): SpanData
+    private function theMatchRecord(InMemorySpanExporter $inMemorySpanExporter): SpanData
     {
         $spans = $inMemorySpanExporter->spans();
 
@@ -338,7 +341,7 @@ final class RouteMatchTelemetryTest extends TestCase
         return $spans[0];
     }
 
-    private static function failingMeter(): MeterInterface
+    private function failingMeter(): MeterInterface
     {
         return new class implements MeterInterface {
             #[Override]

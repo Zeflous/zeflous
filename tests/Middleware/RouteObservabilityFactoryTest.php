@@ -7,12 +7,15 @@ namespace Zef\Test\Middleware;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
+use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Http\HttpException;
 use Zef\Framework\Middleware\RouteDebugMiddleware;
 use Zef\Framework\Middleware\RouteMatchTelemetry;
 use Zef\Framework\Middleware\RouteObservabilityFactory;
+use Zef\Framework\Middleware\ServerRequestMetadata;
 use Zef\Framework\Router\Router;
 use Zef\Framework\Telemetry\CounterMeter;
+use Zef\Framework\Telemetry\MeterSlot;
 use Zef\Framework\Telemetry\NoopTracer;
 use Zef\Framework\Telemetry\TelemetryClock;
 use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
@@ -45,7 +48,7 @@ final class RouteObservabilityFactoryTest extends TestCase
     public function testTheDisarmedFamilyAnswersTheNullTelemetry(): void
     {
         self::assertNull(RouteObservabilityFactory::telemetry(
-            self::config(['enabled' => false, 'debug_match' => true]),
+            $this->config(['enabled' => false, 'debug_match' => true]),
             new NoopTracer(),
             new CounterMeter(),
         ));
@@ -53,38 +56,69 @@ final class RouteObservabilityFactoryTest extends TestCase
 
     public function testTheArmedFamilyAnswersTheTelemetryOverTheGivenEngines(): void
     {
-        $telemetryClock = new SteppingTelemetryClock();
+        $steppingTelemetryClock = new SteppingTelemetryClock();
         $routeMatchTelemetry = RouteObservabilityFactory::telemetry(
-            self::config(['enabled' => true]),
+            $this->config(['enabled' => true]),
             new NoopTracer(),
             new CounterMeter(),
-            $telemetryClock,
+            $steppingTelemetryClock,
         );
 
         self::assertInstanceOf(RouteMatchTelemetry::class, $routeMatchTelemetry);
+    }
+
+    public function testTheTelemetryMeasuresOnTheInjectedClock(): void
+    {
+        $counterMeter = new CounterMeter();
+        $routeMatchTelemetry = RouteObservabilityFactory::telemetry(
+            $this->config(['enabled' => true]),
+            new NoopTracer(),
+            $counterMeter,
+            new SteppingTelemetryClock(
+                monotonicEpoch: 3_000_000_000,
+                monotonicStep: 1_000_000_000,
+            ),
+        );
+        self::assertNotNull($routeMatchTelemetry);
+
+        $routeMatchTelemetry->observed(
+            null,
+            new ServerRequestMetadata('GET', '/users', null, '', ''),
+            static fn (): MatchResult => MatchResult::notFound(),
+        );
+
+        $duration = $counterMeter->snapshot()[MeterSlot::key(RouteMatchTelemetry::MATCH_DURATION_SECONDS, [
+            'http.request.method' => 'GET',
+            'router.match.outcome' => 'not_found',
+        ])];
+        self::assertSame(
+            1.0,
+            $duration['sum'],
+            'the injected clock is the clock the observation measures on -- the frozen step, exactly',
+        );
     }
 
     public function testTheAbsentFamilyAnswersTheNullDebugMiddleware(): void
     {
         self::assertNull(RouteObservabilityFactory::debugMiddleware(
             new Config([]),
-            self::router(),
+            $this->router(),
         ));
     }
 
     public function testTheFamilyWithoutTheDebugArmAnswersTheNullDebugMiddleware(): void
     {
         self::assertNull(RouteObservabilityFactory::debugMiddleware(
-            self::config(['enabled' => true, 'debug_match' => false]),
-            self::router(),
+            $this->config(['enabled' => true, 'debug_match' => false]),
+            $this->router(),
         ));
     }
 
     public function testTheDebugArmAnswersTheDebugMiddlewareOverTheGivenRouter(): void
     {
         $routeDebugMiddleware = RouteObservabilityFactory::debugMiddleware(
-            self::config(['enabled' => false, 'debug_match' => true]),
-            self::router(),
+            $this->config(['enabled' => false, 'debug_match' => true]),
+            $this->router(),
         );
 
         self::assertInstanceOf(RouteDebugMiddleware::class, $routeDebugMiddleware);
@@ -94,12 +128,12 @@ final class RouteObservabilityFactoryTest extends TestCase
     {
         try {
             RouteObservabilityFactory::telemetry(
-                self::config(['tracing' => true]),
+                $this->config(['tracing' => true]),
                 new NoopTracer(),
                 new CounterMeter(),
                 new TelemetryClock(),
             );
-            self::fail('An unknown knob must halt the family\'s construction.');
+            self::fail("An unknown knob must halt the family's construction.");
         } catch (HttpException $httpException) {
             self::assertSame(
                 "The observability.router configuration carries the unknown knob 'tracing'"
@@ -112,12 +146,12 @@ final class RouteObservabilityFactoryTest extends TestCase
     /**
      * @param array<string, bool> $routerSubtree
      */
-    private static function config(array $routerSubtree): Config
+    private function config(array $routerSubtree): Config
     {
         return new Config(['observability' => ['router' => $routerSubtree]]);
     }
 
-    private static function router(): Router
+    private function router(): Router
     {
         return Router::fromRoutes([
             ['path' => '/users', 'method' => ['GET'], 'handler' => 'Users@index'],

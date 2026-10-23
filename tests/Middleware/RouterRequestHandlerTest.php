@@ -1170,14 +1170,14 @@ final class RouterRequestHandlerTest extends TestCase
         $inMemorySpanExporter = new InMemorySpanExporter();
         $tracer = new Tracer(new BatchSpanProcessor($inMemorySpanExporter), new TelemetryClock());
         $counterMeter = new CounterMeter();
-        $handler = new RouterRequestHandler(
+        $routerRequestHandler = new RouterRequestHandler(
             $router,
             $container,
             new Psr17Factory(),
             new RouteMatchTelemetry($tracer, $counterMeter, new SteppingTelemetryClock()),
         );
 
-        $response = $handler->handle($this->request('GET', 'api.example.com', 'application/json'));
+        $response = $routerRequestHandler->handle($this->request('GET', 'api.example.com', 'application/json'));
 
         self::assertSame(200, $response->getStatusCode(), 'the observed match answers as the unobserved one does');
 
@@ -1212,7 +1212,7 @@ final class RouterRequestHandlerTest extends TestCase
         ]);
         $inMemorySpanExporter = new InMemorySpanExporter();
         $tracer = new Tracer(new BatchSpanProcessor($inMemorySpanExporter), new TelemetryClock());
-        $handler = new RouterRequestHandler(
+        $routerRequestHandler = new RouterRequestHandler(
             $router,
             $container,
             new Psr17Factory(),
@@ -1220,7 +1220,7 @@ final class RouterRequestHandlerTest extends TestCase
         );
         $requestSpan = $tracer->startSpan('zef.http.request', ['http.request.method' => 'GET']);
 
-        $handler->handle(
+        $routerRequestHandler->handle(
             $this->request('GET', 'api.example.com', 'application/json')
                 ->withAttribute(CorrelationMiddleware::SPAN_ATTRIBUTE, $requestSpan),
         );
@@ -1229,7 +1229,7 @@ final class RouterRequestHandlerTest extends TestCase
 
         $matchSpans = array_values(array_filter(
             $inMemorySpanExporter->spans(),
-            static fn (SpanData $span): bool => $span->name === RouteMatchTelemetry::MATCH_SPAN_NAME,
+            static fn (SpanData $spanData): bool => $spanData->name === RouteMatchTelemetry::MATCH_SPAN_NAME,
         ));
         self::assertCount(1, $matchSpans);
         self::assertSame(

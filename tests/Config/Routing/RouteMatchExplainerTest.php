@@ -33,7 +33,7 @@ final class RouteMatchExplainerTest extends TestCase
 {
     public function testExplainsAFoundMatchWithTheStageCountsAndNoFailedStage(): void
     {
-        $radixTree = self::table();
+        $radixTree = $this->table();
 
         $explanation = $radixTree->explain('GET', '/users/42');
 
@@ -52,7 +52,7 @@ final class RouteMatchExplainerTest extends TestCase
 
     public function testExplainsAPathStageMissWithTheNeighborhood(): void
     {
-        $explanation = self::table()->explain('GET', '/userss');
+        $explanation = $this->table()->explain('GET', '/userss');
 
         self::assertSame(RouteMatchExplanation::OUTCOME_NOT_FOUND, $explanation->outcome());
         self::assertSame(RouteMatchExplanation::STAGE_PATH, $explanation->failedStage());
@@ -82,7 +82,7 @@ final class RouteMatchExplainerTest extends TestCase
 
     public function testTheNeighborhoodIncludesParameterEdgePatternsAndTracksTheRun(): void
     {
-        $explanation = self::table()->explain('GET', '/users/abc');
+        $explanation = $this->table()->explain('GET', '/users/abc');
 
         self::assertSame(RouteMatchExplanation::STAGE_PATH, $explanation->failedStage());
         self::assertSame('/users/', $explanation->sharedPrefix());
@@ -196,14 +196,14 @@ final class RouteMatchExplainerTest extends TestCase
         ?string $accept,
         ?string $version,
     ): void {
-        $radixTree = self::table();
+        $radixTree = $this->table();
         $matchResult = $radixTree->match($method, $path, $host, $accept, $version);
         $explanation = $radixTree->explain($method, $path, $host, $accept, $version);
 
         self::assertSame(
-            self::outcomeOf($matchResult),
+            $this->outcomeOf($matchResult),
             $explanation->outcome(),
-            'the explanation runs the matcher\'s own folds, so its outcome is the match\'s own',
+            "the explanation runs the matcher's own folds, so its outcome is the match's own",
         );
     }
 
@@ -211,25 +211,32 @@ final class RouteMatchExplainerTest extends TestCase
      * The equivalence contract: the explanation's outcome is the
      * match's own, because the explainer runs the matcher's own
      * folds over the same tree.
-     *
-     * @return iterable<string, array{string, string, null|string, null|string, null|string}>
      */
     public static function provideTheOutcomeMirrorsTheMatchResultCases(): iterable
     {
-        return [
-            'a found static match' => ['GET', '/users', null, null, null],
-            'a found parameterized match' => ['GET', '/users/42', null, null, null],
-            'a constraint-refused match' => ['GET', '/users/abc', null, null, null],
-            'a path miss' => ['GET', '/nowhere', null, null, null],
-            'a host miss' => ['GET', '/a', 'other.example.com', null, null],
-            'a host-claimed match' => ['GET', '/a', 'api.example.com', null, null],
-            'a version miss' => ['GET', '/b', null, null, 'v3'],
-            'a version-selected match' => ['GET', '/b', null, null, 'v2'],
-            'a method refusal' => ['GET', '/posts', null, null, null],
-            'an answered method' => ['POST', '/posts', null, null, null],
-            'an accept refusal' => ['GET', '/j', null, 'text/html', null],
-            'an acceptable negotiation' => ['GET', '/j', null, 'application/json', null],
-        ];
+        yield 'a found static match' => ['GET', '/users', null, null, null];
+
+        yield 'a found parameterized match' => ['GET', '/users/42', null, null, null];
+
+        yield 'a constraint-refused match' => ['GET', '/users/abc', null, null, null];
+
+        yield 'a path miss' => ['GET', '/nowhere', null, null, null];
+
+        yield 'a host miss' => ['GET', '/a', 'other.example.com', null, null];
+
+        yield 'a host-claimed match' => ['GET', '/a', 'api.example.com', null, null];
+
+        yield 'a version miss' => ['GET', '/b', null, null, 'v3'];
+
+        yield 'a version-selected match' => ['GET', '/b', null, null, 'v2'];
+
+        yield 'a method refusal' => ['GET', '/posts', null, null, null];
+
+        yield 'an answered method' => ['POST', '/posts', null, null, null];
+
+        yield 'an accept refusal' => ['GET', '/j', null, 'text/html', null];
+
+        yield 'an acceptable negotiation' => ['GET', '/j', null, 'application/json', null];
     }
 
     public function testTheSummaryOmitsTheTokensACarriedOutcomeDoesNotHold(): void
@@ -255,7 +262,7 @@ final class RouteMatchExplainerTest extends TestCase
 
     public function testAControlByteInTheRequestPathEndsTheTrackedPrefixWhereTheTableDiverges(): void
     {
-        $explanation = self::table()->explain('GET', "/us\x00ers\x1Fs");
+        $explanation = $this->table()->explain('GET', "/us\x00ers\x1Fs");
 
         self::assertSame('/us', $explanation->sharedPrefix());
         self::assertSame(
@@ -315,11 +322,110 @@ final class RouteMatchExplainerTest extends TestCase
         self::assertSame(['/gebruiker/{id}'], $explanation->neighborPatterns());
     }
 
+    public function testAMultiByteRunIsTrackedAndCountedPastItsOwnCharacters(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/bé', 'method' => ['GET'], 'handler' => 'Be@one'],
+            ['path' => '/bétz', 'method' => ['GET'], 'handler' => 'Be@two'],
+        ]);
+
+        $explanation = $radixTree->explain('GET', '/bétq');
+
+        self::assertSame(RouteMatchExplanation::STAGE_PATH, $explanation->failedStage());
+        self::assertSame('/bét', $explanation->sharedPrefix(), 'the tracked prefix counts characters, never bytes');
+        self::assertSame(['/bétz'], $explanation->neighborPatterns());
+    }
+
+    public function testAMultiByteChildIsEnteredByItsOwnCharacter(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/bé', 'method' => ['GET'], 'handler' => 'Be@one'],
+            ['path' => '/bét', 'method' => ['GET'], 'handler' => 'Be@two'],
+        ]);
+
+        $explanation = $radixTree->explain('GET', '/bétq');
+
+        self::assertSame('/bét', $explanation->sharedPrefix(), 'the child lookup reads the path by characters');
+        self::assertSame(['/bét'], $explanation->neighborPatterns());
+    }
+
+    public function testTheCapLandsInsideOneNode(): void
+    {
+        $routes = [];
+        foreach (['a', 'b', 'c', 'd', 'e', 'f', 'g'] as $segment) {
+            $routes[] = ['path' => '/c/' . $segment, 'method' => ['GET'], 'handler' => 'C@' . $segment];
+        }
+
+        $routes[] = ['path' => '/c/h', 'method' => ['GET'], 'handler' => 'C@get'];
+        $routes[] = ['path' => '/c/h', 'method' => ['POST'], 'handler' => 'C@post'];
+
+        $radixTree = RadixTree::compile($routes);
+        $explanation = $radixTree->explain('GET', '/c/zzz');
+
+        self::assertSame(RouteMatchExplanation::STAGE_PATH, $explanation->failedStage());
+        self::assertCount(8, $explanation->neighborPatterns(), 'the cap is exactly the budget, mid-node included');
+        self::assertSame('/c/g', $explanation->neighborPatterns()[6]);
+        self::assertSame('/c/h', $explanation->neighborPatterns()[7]);
+    }
+
+    public function testTheBudgetCountsCharactersNotBytes(): void
+    {
+        $multiByteRun = '/' . str_repeat('é', 101);
+        $radixTree = RadixTree::compile([
+            ['path' => $multiByteRun . 'x', 'method' => ['GET'], 'handler' => 'Multi@x'],
+        ]);
+
+        $explanation = $radixTree->explain('GET', $multiByteRun . 'z');
+
+        self::assertSame(102, mb_strlen($explanation->sharedPrefix()));
+        self::assertSame(
+            'stage=path survivors=path:0,host:0,version:0 prefix=' . $multiByteRun
+            . ' candidates=' . $multiByteRun . 'x',
+            $explanation->summary(),
+            'a 102-character multi-byte rendering (202 bytes) is under the 128-character budget',
+        );
+    }
+
+    public function testTheBudgetBoundaryIsInclusive(): void
+    {
+        $exactBudgetRun = '/' . str_repeat('é', 127);
+        $radixTree = RadixTree::compile([
+            ['path' => $exactBudgetRun . 'x', 'method' => ['GET'], 'handler' => 'Exact@x'],
+        ]);
+
+        $explanation = $radixTree->explain('GET', $exactBudgetRun . 'z');
+
+        self::assertSame(128, mb_strlen($explanation->sharedPrefix()));
+        self::assertSame(
+            'stage=path survivors=path:0,host:0,version:0 prefix=' . $exactBudgetRun
+            . ' candidates=/' . str_repeat('é', 127) . '...',
+            $explanation->summary(),
+            'a rendering of exactly the budget is carried whole, never clamped -- the over-budget candidate is not',
+        );
+    }
+
+    public function testTheClampCutsMultiByteRenderingsByCharacters(): void
+    {
+        $overBudgetRun = '/' . str_repeat('é', 130);
+        $radixTree = RadixTree::compile([
+            ['path' => $overBudgetRun . 'x', 'method' => ['GET'], 'handler' => 'Over@x'],
+        ]);
+
+        $explanation = $radixTree->explain('GET', $overBudgetRun . 'z');
+
+        self::assertSame(
+            'stage=path survivors=path:0,host:0,version:0 prefix=/' . str_repeat('é', 127) . '...'
+            . ' candidates=/' . str_repeat('é', 127) . '...',
+            $explanation->summary(),
+            'the clamp keeps 128 whole characters, never a byte-sliced half of one',
+        );
+    }
+
     /**
      * The shared fixture: one table exercising every stage the
      * pipeline owns.
      */
-    private static function table(): RadixTree
+    private function table(): RadixTree
     {
         return RadixTree::compile([
             ['path' => '/users', 'method' => ['GET'], 'handler' => 'Users@index'],
@@ -345,7 +451,7 @@ final class RouteMatchExplainerTest extends TestCase
      * The outcome name a match result answers, in the explanation's
      * own vocabulary.
      */
-    private static function outcomeOf(MatchResult $matchResult): string
+    private function outcomeOf(MatchResult $matchResult): string
     {
         if ($matchResult->isFound()) {
             return RouteMatchExplanation::OUTCOME_FOUND;

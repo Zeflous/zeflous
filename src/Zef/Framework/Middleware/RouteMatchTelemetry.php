@@ -93,7 +93,7 @@ final readonly class RouteMatchTelemetry
     ): MatchResult {
         $span = $this->tracer->startSpan(
             self::MATCH_SPAN_NAME,
-            self::openingAttributes($serverRequestMetadata),
+            $this->openingAttributes($serverRequestMetadata),
             $parentSpan?->getContext(),
         );
         $startedNs = $this->telemetryClock->monotonicNs();
@@ -107,7 +107,7 @@ final readonly class RouteMatchTelemetry
         }
 
         $durationNs = $this->telemetryClock->monotonicNs() - $startedNs;
-        $outcome = self::outcomeOf($matchResult);
+        $outcome = $this->outcomeOf($matchResult);
 
         $this->answered($span, $matchResult, $outcome);
         $this->record($serverRequestMetadata->method, $outcome, $durationNs);
@@ -188,7 +188,7 @@ final readonly class RouteMatchTelemetry
      *
      * @return array<string, string>
      */
-    private static function openingAttributes(ServerRequestMetadata $serverRequestMetadata): array
+    private function openingAttributes(ServerRequestMetadata $serverRequestMetadata): array
     {
         $attributes = [
             'http.request.method' => $serverRequestMetadata->method,
@@ -206,7 +206,7 @@ final readonly class RouteMatchTelemetry
      * The outcome a match result settled on, in the explanation's
      * own closed vocabulary.
      */
-    private static function outcomeOf(MatchResult $matchResult): string
+    private function outcomeOf(MatchResult $matchResult): string
     {
         if ($matchResult->isFound()) {
             return RouteMatchExplanation::OUTCOME_FOUND;

@@ -37,7 +37,7 @@ final class RouteMatchExplainer
      * API-version against the tree's root node.
      */
     public static function explain(
-        RadixNode $root,
+        RadixNode $radixNode,
         string $method,
         string $path,
         ?string $host = null,
@@ -45,10 +45,10 @@ final class RouteMatchExplainer
         ?string $version = null,
     ): RouteMatchExplanation {
         $captured = [];
-        $walked = new RouteMatcher()->walk($root, $path, 0, $captured);
+        $walked = new RouteMatcher()->walk($radixNode, $path, 0, $captured);
 
         if ($walked === []) {
-            $neighborhood = RouteMatchNeighborhood::around($root, $path);
+            $neighborhood = RouteMatchNeighborhood::around($radixNode, $path);
 
             return RouteMatchExplanation::pathMiss(
                 $neighborhood['prefix'],

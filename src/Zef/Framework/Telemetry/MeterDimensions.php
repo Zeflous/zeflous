@@ -37,8 +37,6 @@ final class MeterDimensions
      * The framework-owned series' name prefixes, each over the
      * dimensions its series keep: the two request-counting lanes
      * (HTTP and container) and the router's match counting.
-     *
-     * @var array<string, list<string>>
      */
     private const array FRAMEWORK_DIMENSIONS = [
         'zef.http.' => self::HTTP_DIMENSIONS,

@@ -54,9 +54,9 @@ final class RouteDebugMiddlewareTest extends TestCase
 
     public function testStampsTheExplanationOnANotFoundRefusal(): void
     {
-        $response = self::middleware()->process(
-            self::request('GET', '/userss'),
-            new FixedResponseHandler(self::response(404)),
+        $response = $this->middleware()->process(
+            $this->request('GET', '/userss'),
+            new FixedResponseHandler($this->response(404)),
         );
 
         self::assertSame(
@@ -67,9 +67,9 @@ final class RouteDebugMiddlewareTest extends TestCase
 
     public function testStampsTheAllowedMethodsOnAMethodRefusal(): void
     {
-        $response = self::middleware()->process(
-            self::request('DELETE', '/posts'),
-            new FixedResponseHandler(self::response(405)),
+        $response = $this->middleware()->process(
+            $this->request('DELETE', '/posts'),
+            new FixedResponseHandler($this->response(405)),
         );
 
         self::assertSame(
@@ -80,9 +80,9 @@ final class RouteDebugMiddlewareTest extends TestCase
 
     public function testStampsTheProducibleMediaTypesOnANegotiationRefusal(): void
     {
-        $response = self::middleware()->process(
-            self::request('GET', '/j', 'text/html'),
-            new FixedResponseHandler(self::response(406)),
+        $response = $this->middleware()->process(
+            $this->request('GET', '/j', 'text/html'),
+            new FixedResponseHandler($this->response(406)),
         );
 
         self::assertSame(
@@ -93,9 +93,9 @@ final class RouteDebugMiddlewareTest extends TestCase
 
     public function testStampsTheHostStageOnAHostMiss(): void
     {
-        $response = self::middleware()->process(
-            self::request('GET', '/a', '', 'other.example.com'),
-            new FixedResponseHandler(self::response(404)),
+        $response = $this->middleware()->process(
+            $this->request('GET', '/a', '', 'other.example.com'),
+            new FixedResponseHandler($this->response(404)),
         );
 
         self::assertSame(
@@ -106,9 +106,9 @@ final class RouteDebugMiddlewareTest extends TestCase
 
     public function testStampsNothingWhenTheRouteTableMatched(): void
     {
-        $response = self::middleware()->process(
-            self::request('GET', '/users'),
-            new FixedResponseHandler(self::response(404)),
+        $response = $this->middleware()->process(
+            $this->request('GET', '/users'),
+            new FixedResponseHandler($this->response(404)),
         );
 
         self::assertSame('', $response->getHeaderLine(RouteDebugMiddleware::DEBUG_HEADER));
@@ -117,9 +117,9 @@ final class RouteDebugMiddlewareTest extends TestCase
     #[DataProvider('provideTheDisclosureAnswersOnlyTheRoutingRefusalStatusesCases')]
     public function testTheDisclosureAnswersOnlyTheRoutingRefusalStatuses(int $statusCode): void
     {
-        $response = self::middleware()->process(
-            self::request('GET', '/userss'),
-            new FixedResponseHandler(self::response($statusCode)),
+        $response = $this->middleware()->process(
+            $this->request('GET', '/userss'),
+            new FixedResponseHandler($this->response($statusCode)),
         );
 
         self::assertSame('', $response->getHeaderLine(RouteDebugMiddleware::DEBUG_HEADER));
@@ -144,9 +144,9 @@ final class RouteDebugMiddlewareTest extends TestCase
     {
         putenv('APP_ENV=' . $environment);
 
-        $response = self::middleware()->process(
-            self::request('GET', '/userss'),
-            new FixedResponseHandler(self::response(404)),
+        $response = $this->middleware()->process(
+            $this->request('GET', '/userss'),
+            new FixedResponseHandler($this->response(404)),
         );
 
         self::assertSame(
@@ -172,9 +172,9 @@ final class RouteDebugMiddlewareTest extends TestCase
     {
         putenv('APP_ENV');
 
-        $response = self::middleware()->process(
-            self::request('GET', '/userss'),
-            new FixedResponseHandler(self::response(404)),
+        $response = $this->middleware()->process(
+            $this->request('GET', '/userss'),
+            new FixedResponseHandler($this->response(404)),
         );
 
         self::assertSame('', $response->getHeaderLine(RouteDebugMiddleware::DEBUG_HEADER));
@@ -182,9 +182,9 @@ final class RouteDebugMiddlewareTest extends TestCase
 
     public function testAnAlreadyStampedHeaderIsNeverOverwritten(): void
     {
-        $response = self::middleware()->process(
-            self::request('GET', '/userss'),
-            new FixedResponseHandler(self::response(404, [
+        $response = $this->middleware()->process(
+            $this->request('GET', '/userss'),
+            new FixedResponseHandler($this->response(404, [
                 RouteDebugMiddleware::DEBUG_HEADER => 'the host application stamped its own',
             ])),
         );
@@ -195,11 +195,40 @@ final class RouteDebugMiddlewareTest extends TestCase
         );
     }
 
+    public function testAHeadPathMissIsExplainedAsThePathMiss(): void
+    {
+        $response = $this->middleware()->process(
+            $this->request('HEAD', '/userss'),
+            new FixedResponseHandler($this->response(404)),
+        );
+
+        self::assertSame(
+            'stage=path survivors=path:0,host:0,version:0 prefix=/users candidates=/users,/users/{id}',
+            $response->getHeaderLine(RouteDebugMiddleware::DEBUG_HEADER),
+            'a HEAD request the table has no path for is the path miss it is -- the fallback'
+            . ' rule reads the explanation the matcher would have read',
+        );
+    }
+
+    public function testANonHeadMethodRefusalIsExplainedAsTheRequestsOwnMethod(): void
+    {
+        $response = $this->middleware()->process(
+            $this->request('DELETE', '/both'),
+            new FixedResponseHandler($this->response(405)),
+        );
+
+        self::assertSame(
+            'stage=method survivors=path:1,host:1,version:1 allowed=GET,POST',
+            $response->getHeaderLine(RouteDebugMiddleware::DEBUG_HEADER),
+            'the fallback is the HEAD request\'s own rule -- a DELETE refusal is explained as the DELETE match',
+        );
+    }
+
     public function testAHeadRequestWhoseFallbackMatchesIsNotStamped(): void
     {
-        $response = self::middleware()->process(
-            self::request('HEAD', '/users'),
-            new FixedResponseHandler(self::response(404)),
+        $response = $this->middleware()->process(
+            $this->request('HEAD', '/users'),
+            new FixedResponseHandler($this->response(404)),
         );
 
         self::assertSame(
@@ -211,9 +240,9 @@ final class RouteDebugMiddlewareTest extends TestCase
 
     public function testAHeadRequestWhoseFallbackNegotiatesIsExplainedAsTheGetMatch(): void
     {
-        $response = self::middleware()->process(
-            self::request('HEAD', '/j', 'text/html'),
-            new FixedResponseHandler(self::response(406)),
+        $response = $this->middleware()->process(
+            $this->request('HEAD', '/j', 'text/html'),
+            new FixedResponseHandler($this->response(406)),
         );
 
         self::assertSame(
@@ -224,9 +253,9 @@ final class RouteDebugMiddlewareTest extends TestCase
 
     public function testAHeadRefusalWithoutTheGetAnswerIsExplainedAsTheMethodRefusal(): void
     {
-        $response = self::middleware()->process(
-            self::request('HEAD', '/posts'),
-            new FixedResponseHandler(self::response(405)),
+        $response = $this->middleware()->process(
+            $this->request('HEAD', '/posts'),
+            new FixedResponseHandler($this->response(405)),
         );
 
         self::assertSame(
@@ -235,12 +264,12 @@ final class RouteDebugMiddlewareTest extends TestCase
         );
     }
 
-    private static function middleware(): RouteDebugMiddleware
+    private function middleware(): RouteDebugMiddleware
     {
-        return new RouteDebugMiddleware(self::router());
+        return new RouteDebugMiddleware($this->router());
     }
 
-    private static function router(): Router
+    private function router(): Router
     {
         return Router::fromRoutes([
             ['path' => '/users', 'method' => ['GET'], 'handler' => 'Users@index'],
@@ -251,6 +280,7 @@ final class RouteDebugMiddlewareTest extends TestCase
                 'constraints' => ['id' => '\d+'],
             ],
             ['path' => '/posts', 'method' => ['POST'], 'handler' => 'Posts@store'],
+            ['path' => '/both', 'method' => ['GET', 'POST'], 'handler' => 'Both@answer'],
             ['path' => '/a', 'method' => ['GET'], 'handler' => 'A@x', 'host' => 'api.example.com'],
             [
                 'path' => '/j',
@@ -264,12 +294,12 @@ final class RouteDebugMiddlewareTest extends TestCase
     /**
      * @param array<string, string> $headers
      */
-    private static function response(int $statusCode, array $headers = []): ResponseInterface
+    private function response(int $statusCode, array $headers = []): ResponseInterface
     {
         return new Response($statusCode, $headers);
     }
 
-    private static function request(
+    private function request(
         string $method,
         string $path,
         string $accept = '',

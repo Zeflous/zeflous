@@ -72,10 +72,10 @@ final readonly class RouteDebugMiddleware implements MiddlewareInterface
 
     #[Override]
     public function process(
-        ServerRequestInterface $request,
-        RequestHandlerInterface $handler,
+        ServerRequestInterface $serverRequest,
+        RequestHandlerInterface $requestHandler,
     ): ResponseInterface {
-        $response = $handler->handle($request);
+        $response = $requestHandler->handle($serverRequest);
 
         if (!AppEnvironment::isDevelopment()) {
             return $response;
@@ -89,7 +89,7 @@ final readonly class RouteDebugMiddleware implements MiddlewareInterface
             return $response;
         }
 
-        return $this->disclosed($request, $response);
+        return $this->disclosed($serverRequest, $response);
     }
 
     /**
@@ -103,13 +103,13 @@ final readonly class RouteDebugMiddleware implements MiddlewareInterface
         ResponseInterface $response,
     ): ResponseInterface {
         $serverRequestMetadata = ServerRequestMetadata::fromRequest($serverRequest);
-        $explanation = $this->explained($serverRequestMetadata);
+        $routeMatchExplanation = $this->explained($serverRequestMetadata);
 
-        if ($explanation->isFound()) {
+        if ($routeMatchExplanation->isFound()) {
             return $response;
         }
 
-        $message = $response->withHeader(self::DEBUG_HEADER, $explanation->summary());
+        $message = $response->withHeader(self::DEBUG_HEADER, $routeMatchExplanation->summary());
         \assert($message instanceof ResponseInterface, self::PRESERVED_RESPONSE_TYPE);
 
         return $message;
@@ -125,17 +125,17 @@ final readonly class RouteDebugMiddleware implements MiddlewareInterface
      */
     private function explained(ServerRequestMetadata $serverRequestMetadata): RouteMatchExplanation
     {
-        $explanation = $this->explainAs($serverRequestMetadata->method, $serverRequestMetadata);
+        $routeMatchExplanation = $this->explainAs($serverRequestMetadata->method, $serverRequestMetadata);
 
         if (
             $serverRequestMetadata->method === 'HEAD'
-            && $explanation->outcome() === RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED
-            && \in_array(self::HEAD_FALLBACK_METHOD, $explanation->allowedMethods(), true)
+            && $routeMatchExplanation->outcome() === RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED
+            && \in_array(self::HEAD_FALLBACK_METHOD, $routeMatchExplanation->allowedMethods(), true)
         ) {
             return $this->explainAs(self::HEAD_FALLBACK_METHOD, $serverRequestMetadata);
         }
 
-        return $explanation;
+        return $routeMatchExplanation;
     }
 
     /**

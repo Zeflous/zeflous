@@ -46,9 +46,9 @@ final class RouteMatchNeighborhood
      *                                                       static prefix the path tracked, verbatim from the path, and
      *                                                       the capped, breadth-first patterns under it
      */
-    public static function around(RadixNode $root, string $path): array
+    public static function around(RadixNode $radixNode, string $path): array
     {
-        [$node, $offset] = self::deepestDescent($root, $path);
+        [$node, $offset] = self::deepestDescent($radixNode, $path);
 
         return [
             'prefix' => mb_substr($path, 0, $offset),
@@ -61,8 +61,9 @@ final class RouteMatchNeighborhood
      * while it continues the path, then enter the static child whose
      * run continues the path -- stopping where a run the path only
      * partially continues ends (the shared head counted, that run's
-     * node named), at the path's own end, or where no static child
-     * continues.
+     * node named) or where no static child continues (a path the
+     * node's own run already exhausted included: the child lookup
+     * past the path's end answers none).
      *
      * @return array{RadixNode, int} the node the descent stopped at
      *                               and the character offset the path tracked to reach it
@@ -81,13 +82,9 @@ final class RouteMatchNeighborhood
 
             $offset = $position;
 
-            if ($offset >= mb_strlen($path)) {
-                return [$node, $offset];
-            }
-
             $child = $node->staticChild(mb_substr($path, $offset, 1));
 
-            if ($child === null) {
+            if (!$child instanceof RadixNode) {
                 return [$node, $offset];
             }
 
@@ -99,7 +96,10 @@ final class RouteMatchNeighborhood
      * The patterns of a subtree, breadth-first and capped: every
      * route settled at or beneath the node, parameter edges included
      * (they are what lives past the node), each spelled as its
-     * pattern with its host claim when it carries one.
+     * pattern with its host claim when it carries one. The cap is
+     * the collection's one bound, paid at the first route that
+     * would exceed it -- the walk ends there, so the answer is
+     * exactly the budget, never a node more.
      *
      * @return list<string>
      */
@@ -108,12 +108,12 @@ final class RouteMatchNeighborhood
         $patterns = [];
         $queue = [$radixNode];
 
-        for ($index = 0; $index < \count($queue) && \count($patterns) < self::MAX_PATTERNS; ++$index) {
+        for ($index = 0; $index < \count($queue); ++$index) {
             $node = $queue[$index];
 
             foreach ($node->routes() as $compiledRoute) {
                 if (\count($patterns) >= self::MAX_PATTERNS) {
-                    break;
+                    return $patterns;
                 }
 
                 $patterns[] = self::spelling($compiledRoute);
@@ -124,10 +124,11 @@ final class RouteMatchNeighborhood
             }
 
             $parameterChild = $node->parameterChild();
-
-            if ($parameterChild !== null) {
-                $queue[] = $parameterChild;
+            if (!$parameterChild instanceof RadixNode) {
+                continue;
             }
+
+            $queue[] = $parameterChild;
         }
 
         return $patterns;
