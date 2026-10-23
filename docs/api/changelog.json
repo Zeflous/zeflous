@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-23T13:01:46Z",
+  "as_of": "2026-10-23T17:01:52Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 246,
+  "unreleased_count": 247,
   "versions": [
     {
       "version": "Unreleased",
@@ -3203,6 +3203,67 @@
                 "sha": "ab87e05b6313a9787bc51e9f6df18a1436e7d37f",
                 "short_sha": "ab87e05",
                 "subject": "docs(roadmap): settle the merge of the audit round into the lane"
+              }
+            ]
+          },
+          {
+            "pr": 563,
+            "title": "feat(router): answer the CLI inspector commands over the engine's own seams",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-23T17:01:52Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/563",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5e02230f176cfa7b946ada3b769c7a0a351ff55b",
+                "short_sha": "5e02230",
+                "subject": "feat(router): answer the route table's own inspection seams"
+              },
+              {
+                "sha": "7d761e1287abb5ec1202032d2be1002bddf6b975",
+                "short_sha": "7d761e1",
+                "subject": "feat(tooling): render the route inspection commands"
+              },
+              {
+                "sha": "0e2182691973f01e3ab46919511ab9316c185f0c",
+                "short_sha": "0e21826",
+                "subject": "test(router): pin the inspection seams and the CLI commands"
+              },
+              {
+                "sha": "3d13d847774fb3d3953054fc4ac0f06f4d272d68",
+                "short_sha": "3d13d84",
+                "subject": "docs(roadmap): record the router CLI inspector slice and pin the lane"
+              },
+              {
+                "sha": "3f1c1cdb649d9a46a5e8ed43b645c086ad0a11f3",
+                "short_sha": "3f1c1cd",
+                "subject": "refactor(router): settle the inspection seams under the architecture gate"
+              },
+              {
+                "sha": "c51ee5bd7dcc78b6131f63b002c8027d66224372",
+                "short_sha": "c51ee5b",
+                "subject": "docs(roadmap): pin the lane to the architecture-settled head"
+              },
+              {
+                "sha": "ff70bbacf6b538b8f9bf428b1e52dd791f0d326f",
+                "short_sha": "ff70bba",
+                "subject": "fix(tooling): settle the renderers' psalm posture and the CLI family's baseline entries"
+              },
+              {
+                "sha": "ab25b5203c427893cb6ad73cdb392c7ee15b7f1d",
+                "short_sha": "ab25b52",
+                "subject": "docs(roadmap): pin the lane to the psalm-settled head"
+              },
+              {
+                "sha": "5fff814b0cf8a0c71ffd8aac91a890b62763d2fc",
+                "short_sha": "5fff814",
+                "subject": "Merge remote-tracking branch 'origin/main' into feat/router-cli-inspector"
+              },
+              {
+                "sha": "2f620cf927654e700ec44596896c986ac20b8e58",
+                "short_sha": "2f620cf",
+                "subject": "docs(roadmap): pin the lane to the merge that carries main's landing"
               }
             ]
           }
@@ -15525,6 +15586,67 @@
               "sha": "0b8bca59d6d5a39a57e24f4d88b3410c0bae5979",
               "short_sha": "0b8bca5",
               "subject": "docs(roadmap): record the round-3 documentation-alignment audit landing (#562)"
+            }
+          ]
+        },
+        {
+          "pr": 563,
+          "title": "feat(router): answer the CLI inspector commands over the engine's own seams",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-23T17:01:52Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/563",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5e02230f176cfa7b946ada3b769c7a0a351ff55b",
+              "short_sha": "5e02230",
+              "subject": "feat(router): answer the route table's own inspection seams"
+            },
+            {
+              "sha": "7d761e1287abb5ec1202032d2be1002bddf6b975",
+              "short_sha": "7d761e1",
+              "subject": "feat(tooling): render the route inspection commands"
+            },
+            {
+              "sha": "0e2182691973f01e3ab46919511ab9316c185f0c",
+              "short_sha": "0e21826",
+              "subject": "test(router): pin the inspection seams and the CLI commands"
+            },
+            {
+              "sha": "3d13d847774fb3d3953054fc4ac0f06f4d272d68",
+              "short_sha": "3d13d84",
+              "subject": "docs(roadmap): record the router CLI inspector slice and pin the lane"
+            },
+            {
+              "sha": "3f1c1cdb649d9a46a5e8ed43b645c086ad0a11f3",
+              "short_sha": "3f1c1cd",
+              "subject": "refactor(router): settle the inspection seams under the architecture gate"
+            },
+            {
+              "sha": "c51ee5bd7dcc78b6131f63b002c8027d66224372",
+              "short_sha": "c51ee5b",
+              "subject": "docs(roadmap): pin the lane to the architecture-settled head"
+            },
+            {
+              "sha": "ff70bbacf6b538b8f9bf428b1e52dd791f0d326f",
+              "short_sha": "ff70bba",
+              "subject": "fix(tooling): settle the renderers' psalm posture and the CLI family's baseline entries"
+            },
+            {
+              "sha": "ab25b5203c427893cb6ad73cdb392c7ee15b7f1d",
+              "short_sha": "ab25b52",
+              "subject": "docs(roadmap): pin the lane to the psalm-settled head"
+            },
+            {
+              "sha": "5fff814b0cf8a0c71ffd8aac91a890b62763d2fc",
+              "short_sha": "5fff814",
+              "subject": "Merge remote-tracking branch 'origin/main' into feat/router-cli-inspector"
+            },
+            {
+              "sha": "2f620cf927654e700ec44596896c986ac20b8e58",
+              "short_sha": "2f620cf",
+              "subject": "docs(roadmap): pin the lane to the merge that carries main's landing"
             }
           ]
         }
