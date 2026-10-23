@@ -43,9 +43,13 @@ final readonly class OpenApiOperationAttributeReader
     public static function read(CompiledRoute $compiledRoute): ?array
     {
         $handler = $compiledRoute->handler();
-        $parts = explode(self::HANDLER_SEPARATOR, $handler, 2);
+        $parts = explode(self::HANDLER_SEPARATOR, $handler);
 
-        if (\count($parts) !== 2 || !class_exists($parts[0]) || !method_exists($parts[0], $parts[1])) {
+        if (\count($parts) !== 2) {
+            return null;
+        }
+
+        if (!class_exists($parts[0]) || !method_exists($parts[0], $parts[1])) {
             return null;
         }
 

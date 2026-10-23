@@ -52,8 +52,14 @@ final readonly class OpenApiOperationEnrichment
             );
         }
 
-        $enrichment = $fromAttribute ?? $fromMeta;
+        $enrichment = $fromAttribute;
 
-        return $enrichment ?? ['summary' => null, 'description' => null, 'tags' => []];
+        $enrichment ??= $fromMeta;
+
+        if ($enrichment === null) {
+            return ['summary' => null, 'description' => null, 'tags' => []];
+        }
+
+        return $enrichment;
     }
 }

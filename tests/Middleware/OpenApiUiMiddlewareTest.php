@@ -9,9 +9,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Zef\Framework\Export\ExportException;
+use Zef\Framework\Export\ExportJson;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\OpenApiUiMarkup;
 use Zef\Framework\Middleware\OpenApiUiMiddleware;
 use Zef\Framework\Router\Router;
 use Zef\Test\Support\Http\FixedResponseHandler;
@@ -30,6 +32,8 @@ use Zef\Test\Support\Tooling\RouteOpenApiExport;
  * @internal
  */
 #[CoversClass(OpenApiUiMiddleware::class)]
+#[CoversClass(OpenApiUiMarkup::class)]
+#[CoversClass(ExportJson::class)]
 final class OpenApiUiMiddlewareTest extends TestCase
 {
     private false|string $previousEnvironment;
@@ -85,11 +89,57 @@ final class OpenApiUiMiddlewareTest extends TestCase
         self::assertStringContainsString("url: '/openapi.json'", $body);
     }
 
+    public function testTheShellDocumentIsPinnedVerbatim(): void
+    {
+        // The golden shell: the exact document the fold answers over one
+        // title and one asset base, pinned verbatim so every concat
+        // mutant (an operand dropped, a fragment spliced differently)
+        // dies on the literal it no longer spells.
+        $expected = <<<'HTML'
+            <!doctype html>
+            <html lang="en">
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>Fixture API</title>
+                <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+            </head>
+            <body>
+                <div id="swagger-ui"></div>
+                <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+                <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+                <script>
+                    window.onload = function () {
+                        window.ui = SwaggerUIBundle({
+                            url: '/openapi.json',
+                            dom_id: '#swagger-ui',
+                            presets: [
+                                SwaggerUIBundle.presets.apis,
+                                SwaggerUIStandalonePreset
+                            ],
+                            layout: 'StandaloneLayout'
+                        });
+                    };
+                </script>
+            </body>
+            </html>
+
+            HTML;
+
+        self::assertSame(
+            $expected,
+            OpenApiUiMarkup::shell('Fixture API', 'https://unpkg.com/swagger-ui-dist@5/'),
+        );
+    }
+
     public function testTheTitleIsEscapedIntoTheShell(): void
     {
+        // The title's angle brackets AND double quotes both escape:
+        // ENT_QUOTES is what escapes the quotes, so a flags operand
+        // that loses it leaves the quotes bare.
         $openApiUiMiddleware = new OpenApiUiMiddleware(
             $this->router(),
-            'Fixture <script> API',
+            'Fixture <script> "quoted" API',
             '2.5.0',
         );
 
@@ -98,7 +148,10 @@ final class OpenApiUiMiddlewareTest extends TestCase
             new FixedResponseHandler($this->response(500)),
         );
 
-        self::assertStringContainsString('<title>Fixture &lt;script&gt; API</title>', (string) $response->getBody());
+        self::assertStringContainsString(
+            '<title>Fixture &lt;script&gt; &quot;quoted&quot; API</title>',
+            (string) $response->getBody(),
+        );
     }
 
     public function testTheSelfHostedAssetBaseIsSpelled(): void
@@ -164,6 +217,14 @@ final class OpenApiUiMiddlewareTest extends TestCase
         $this->expectExceptionMessageIsOrContains('The OpenAPI server scheme must be one of');
 
         new OpenApiUiMiddleware($this->router(), 'Fixture API', '2.5.0', 'ftp');
+    }
+
+    public function testTheConstructionGrammarRefusesAnEmptyAsset(): void
+    {
+        $this->expectException(ExportException::class);
+        $this->expectExceptionMessageIsOrContains('The Swagger UI asset URL must be a non-empty https URL base.');
+
+        new OpenApiUiMiddleware($this->router(), 'Fixture API', '2.5.0', 'https', '');
     }
 
     public function testTheConstructionGrammarRefusesANonHttpsAsset(): void

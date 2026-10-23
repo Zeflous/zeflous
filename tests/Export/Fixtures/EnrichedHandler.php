@@ -34,4 +34,17 @@ final class EnrichedHandler
     {
         return 'plain';
     }
+
+    /**
+     * The doubly-annotated sibling: a method whose two declarations
+     * are the ambiguity the export refuses with the route named --
+     * one declaration per operation, the table's own duplicate
+     * refusal replayed.
+     */
+    #[OpenApiOperationAttribute(summary: 'The first declaration')]
+    #[OpenApiOperationAttribute(summary: 'The second declaration')] // @phpstan-ignore-line
+    public function twice(): string
+    {
+        return 'twice';
+    }
 }

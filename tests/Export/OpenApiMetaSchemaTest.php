@@ -7,7 +7,20 @@ namespace Zef\Test\Export;
 use Opis\JsonSchema\Errors\ValidationError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Export\OpenApiDeprecation;
 use Zef\Framework\Export\OpenApiDocument;
+use Zef\Framework\Export\OpenApiInfo;
+use Zef\Framework\Export\OpenApiOperation;
+use Zef\Framework\Export\OpenApiOperationAttribute;
+use Zef\Framework\Export\OpenApiOperationAttributeReader;
+use Zef\Framework\Export\OpenApiOperationEnrichment;
+use Zef\Framework\Export\OpenApiOperationExtensions;
+use Zef\Framework\Export\OpenApiOperationMetaReader;
+use Zef\Framework\Export\OpenApiOperationProse;
+use Zef\Framework\Export\OpenApiParameters;
+use Zef\Framework\Export\OpenApiPaths;
+use Zef\Framework\Export\OpenApiResponses;
+use Zef\Framework\Export\OpenApiServers;
 use Zef\Framework\Router\Router;
 
 /**
@@ -22,6 +35,19 @@ use Zef\Framework\Router\Router;
  * @internal
  */
 #[CoversClass(OpenApiDocument::class)]
+#[CoversClass(OpenApiInfo::class)]
+#[CoversClass(OpenApiServers::class)]
+#[CoversClass(OpenApiPaths::class)]
+#[CoversClass(OpenApiOperation::class)]
+#[CoversClass(OpenApiParameters::class)]
+#[CoversClass(OpenApiResponses::class)]
+#[CoversClass(OpenApiDeprecation::class)]
+#[CoversClass(OpenApiOperationExtensions::class)]
+#[CoversClass(OpenApiOperationEnrichment::class)]
+#[CoversClass(OpenApiOperationAttribute::class)]
+#[CoversClass(OpenApiOperationAttributeReader::class)]
+#[CoversClass(OpenApiOperationMetaReader::class)]
+#[CoversClass(OpenApiOperationProse::class)]
 final class OpenApiMetaSchemaTest extends TestCase
 {
     public function testTheFixtureTableAnswersAValidDocument(): void

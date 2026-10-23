@@ -29,9 +29,10 @@ final readonly class OpenApiUiMarkup
     /**
      * The shell document for one titled UI over one asset base.
      *
-     * @param string           $title    the API's title, HTML-escaped into the page's
-     *                                   own title (the identity fold owns its grammar)
-     * @param non-empty-string $assetUrl the Swagger UI distribution's base URL (directory)
+     * @param string $title    the API's title, HTML-escaped into the page's
+     *                         own title (the identity fold owns its grammar)
+     * @param string $assetUrl the Swagger UI distribution's base URL (directory; the
+     *                         non-empty https grammar is the middleware's own guard)
      *
      * @return non-empty-string the complete HTML document
      */

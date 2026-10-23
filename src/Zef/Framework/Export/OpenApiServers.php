@@ -90,7 +90,7 @@ final readonly class OpenApiServers
 
         foreach ($routes as $route) {
             $host = $route->host();
-            if ($host === null || isset($hosts[$host])) {
+            if ($host === null || \in_array($host, $hosts, true)) {
                 continue;
             }
 
@@ -98,10 +98,10 @@ final readonly class OpenApiServers
                 continue;
             }
 
-            $hosts[$host] = true;
+            $hosts[] = $host;
         }
 
-        return array_keys($hosts);
+        return $hosts;
     }
 
     /**

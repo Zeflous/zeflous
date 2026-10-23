@@ -9,7 +9,21 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Export\ExportException;
+use Zef\Framework\Export\ExportJson;
+use Zef\Framework\Export\OpenApiDeprecation;
 use Zef\Framework\Export\OpenApiDocument;
+use Zef\Framework\Export\OpenApiInfo;
+use Zef\Framework\Export\OpenApiOperation;
+use Zef\Framework\Export\OpenApiOperationAttribute;
+use Zef\Framework\Export\OpenApiOperationAttributeReader;
+use Zef\Framework\Export\OpenApiOperationEnrichment;
+use Zef\Framework\Export\OpenApiOperationExtensions;
+use Zef\Framework\Export\OpenApiOperationMetaReader;
+use Zef\Framework\Export\OpenApiOperationProse;
+use Zef\Framework\Export\OpenApiParameters;
+use Zef\Framework\Export\OpenApiPaths;
+use Zef\Framework\Export\OpenApiResponses;
+use Zef\Framework\Export\OpenApiServers;
 use Zef\Framework\Router\Router;
 use Zef\Test\Export\Fixtures\EnrichedHandler;
 
@@ -22,6 +36,20 @@ use Zef\Test\Export\Fixtures\EnrichedHandler;
  * @internal
  */
 #[CoversClass(OpenApiDocument::class)]
+#[CoversClass(OpenApiInfo::class)]
+#[CoversClass(OpenApiServers::class)]
+#[CoversClass(OpenApiPaths::class)]
+#[CoversClass(OpenApiOperation::class)]
+#[CoversClass(OpenApiParameters::class)]
+#[CoversClass(OpenApiResponses::class)]
+#[CoversClass(OpenApiDeprecation::class)]
+#[CoversClass(OpenApiOperationExtensions::class)]
+#[CoversClass(OpenApiOperationEnrichment::class)]
+#[CoversClass(OpenApiOperationAttribute::class)]
+#[CoversClass(OpenApiOperationAttributeReader::class)]
+#[CoversClass(OpenApiOperationMetaReader::class)]
+#[CoversClass(OpenApiOperationProse::class)]
+#[CoversClass(ExportJson::class)]
 final class OpenApiDocumentTest extends TestCase
 {
     public function testTheDocumentCarriesTheRequiredRootShape(): void
@@ -198,6 +226,30 @@ final class OpenApiDocumentTest extends TestCase
         self::assertSame(['type' => 'string'], $this->mapAt($parameter['schema']));
     }
 
+    public function testAMultiParameterRoutePinsEveryParameter(): void
+    {
+        $table = [
+            [
+                'path' => '/users/{id}/posts/{post}',
+                'method' => ['GET'],
+                'handler' => 'Posts@show',
+                'constraints' => ['id' => '\d+'],
+            ],
+        ];
+
+        $operation = $this->mapAt(
+            $this->mapAt($this->mapAt($this->document($table)['paths'])['/users/{id}/posts/{post}'])['get'],
+        );
+
+        $first = $this->mapAt($this->mapAt($operation['parameters'])[0]);
+        $second = $this->mapAt($this->mapAt($operation['parameters'])[1]);
+
+        self::assertSame('id', $first['name']);
+        self::assertSame('^(?:\d+)$', $this->mapAt($first['schema'])['pattern']);
+        self::assertSame('post', $second['name']);
+        self::assertSame(['type' => 'string'], $this->mapAt($second['schema']));
+    }
+
     public function testTheServersSpellTheExactHostsInTheScheme(): void
     {
         $table = [
@@ -219,6 +271,28 @@ final class OpenApiDocumentTest extends TestCase
         $wildcardOperation = $this->mapAt($this->mapAt($this->mapAt($document['paths'])['/d'])['get']);
 
         self::assertSame('*.example.com', $wildcardOperation['x-zef-host']);
+    }
+
+    public function testTheServersWalkSurvivesEverySkipInTheMiddle(): void
+    {
+        // Every skip the exact-hosts walk can take -- a duplicate
+        // claim, a host-agnostic route, a wildcard -- lands in the
+        // MIDDLE, before another exact host the walk must still
+        // reach: a walk that stops at any skip loses the tail.
+        $table = [
+            ['path' => '/a', 'method' => ['GET'], 'handler' => 'A@x', 'host' => 'api.example.com'],
+            ['path' => '/b', 'method' => ['GET'], 'handler' => 'B@x', 'host' => 'api.example.com'],
+            ['path' => '/c', 'method' => ['GET'], 'handler' => 'C@x'],
+            ['path' => '/d', 'method' => ['GET'], 'handler' => 'D@x', 'host' => '{tenant}.example.com'],
+            ['path' => '/e', 'method' => ['GET'], 'handler' => 'E@x', 'host' => 'other.example.com'],
+        ];
+
+        $document = $this->document($table);
+
+        self::assertSame(
+            [['url' => 'https://api.example.com'], ['url' => 'https://other.example.com']],
+            $document['servers'],
+        );
     }
 
     public function testTheHandlerAttributeEnrichesTheOperation(): void
@@ -273,7 +347,10 @@ final class OpenApiDocumentTest extends TestCase
         ];
 
         $this->expectException(ExportException::class);
-        $this->expectExceptionMessageIsOrContains('declares its OpenAPI enrichment twice');
+        $this->expectExceptionMessageIsOrContains(
+            'The route "/twice" declares its OpenAPI enrichment twice: the handler method carries'
+            . ' the attribute and the route meta carries the openapi map -- declare one.',
+        );
 
         $this->document($table);
     }
@@ -312,6 +389,80 @@ final class OpenApiDocumentTest extends TestCase
         $this->document($table);
     }
 
+    public function testAReflectableHandlerWithoutTheAttributeCarriesNoEnrichment(): void
+    {
+        $table = [
+            ['path' => '/plain', 'method' => ['GET'], 'handler' => EnrichedHandler::class . '@plain'],
+        ];
+
+        $operation = $this->mapAt($this->mapAt($this->mapAt($this->document($table)['paths'])['/plain'])['get']);
+
+        self::assertArrayNotHasKey('summary', $operation);
+    }
+
+    public function testAMetaMapThatIsNotAMapIsRefused(): void
+    {
+        $table = [
+            [
+                'path' => '/notamap',
+                'method' => ['GET'],
+                'handler' => 'InventoryController::list',
+                'meta' => ['openapi' => 'just a string'],
+            ],
+        ];
+
+        $this->expectException(ExportException::class);
+        $this->expectExceptionMessageIsOrContains('meta openapi must be a map, string given');
+
+        $this->document($table);
+    }
+
+    public function testTagsThatAreNotAListAreRefused(): void
+    {
+        $table = [
+            [
+                'path' => '/maptags',
+                'method' => ['GET'],
+                'handler' => 'InventoryController::list',
+                'meta' => ['openapi' => ['tags' => ['first' => 'Inventory']]],
+            ],
+        ];
+
+        $this->expectException(ExportException::class);
+        $this->expectExceptionMessageIsOrContains('OpenAPI tags must be a list of strings');
+
+        $this->document($table);
+    }
+
+    public function testATagThatIsNotAStringIsRefused(): void
+    {
+        $table = [
+            [
+                'path' => '/inttags',
+                'method' => ['GET'],
+                'handler' => 'InventoryController::list',
+                'meta' => ['openapi' => ['tags' => [42]]],
+            ],
+        ];
+
+        $this->expectException(ExportException::class);
+        $this->expectExceptionMessageIsOrContains('OpenAPI tags must be non-empty printable strings');
+
+        $this->document($table);
+    }
+
+    public function testADoublyAnnotatedHandlerIsRefused(): void
+    {
+        $table = [
+            ['path' => '/twice', 'method' => ['GET'], 'handler' => EnrichedHandler::class . '@twice'],
+        ];
+
+        $this->expectException(ExportException::class);
+        $this->expectExceptionMessageIsOrContains('carries the OpenAPI operation attribute more than once');
+
+        $this->document($table);
+    }
+
     public function testANonReflectableHandlerCarriesNoAttributeEnrichment(): void
     {
         $table = [
@@ -326,6 +477,129 @@ final class OpenApiDocumentTest extends TestCase
 
         self::assertArrayNotHasKey('summary', $serviceOperation);
         self::assertArrayNotHasKey('summary', $missingOperation);
+    }
+
+    public function testTheIdentityCeilingAcceptsItsBoundaryAndCountsCharacters(): void
+    {
+        // The boundary is part of the budget (a 256-character title is a
+        // title) and the fold counts characters, not bytes (a
+        // 130-character two-byte-per-character title is 260 bytes but a
+        // 130-character title): both spellings kill the ceiling and
+        // byte-fold mutants respectively.
+        $multibyte = str_repeat('é', 130);
+
+        $boundary = OpenApiDocument::fromRoutes([], str_repeat('x', 256), '2.0.0', 'https')->toArray();
+        self::assertSame(str_repeat('x', 256), $this->mapAt($boundary['info'])['title']);
+
+        $characters = OpenApiDocument::fromRoutes([], $multibyte, '2.0.0', 'https')->toArray();
+        self::assertSame($multibyte, $this->mapAt($characters['info'])['title']);
+
+        $this->expectException(ExportException::class);
+        $this->expectExceptionMessageIsOrContains('The OpenAPI info.title must be non-empty');
+
+        OpenApiDocument::fromRoutes([], str_repeat('x', 257), '2.0.0', 'https')->toArray();
+    }
+
+    public function testTheProseCeilingAcceptsItsBoundaryAndCountsCharacters(): void
+    {
+        // The prose grammar's own boundary and character semantics: a
+        // 2048-character summary is prose, a 2049-character one is a
+        // refusal, and a two-byte-per-character summary of 1200
+        // characters (2400 bytes) is prose.
+        $table = [
+            [
+                'path' => '/long',
+                'method' => ['GET'],
+                'handler' => 'LongController::show',
+                'meta' => ['openapi' => ['summary' => str_repeat('x', 2048)]],
+            ],
+        ];
+
+        $operation = $this->mapAt($this->mapAt($this->mapAt($this->document($table)['paths'])['/long'])['get']);
+        self::assertSame(str_repeat('x', 2048), $operation['summary']);
+
+        $multibyte = str_repeat('é', 1200);
+        $table[0]['meta']['openapi']['summary'] = $multibyte;
+        $operation = $this->mapAt($this->mapAt($this->mapAt($this->document($table)['paths'])['/long'])['get']);
+        self::assertSame($multibyte, $operation['summary']);
+
+        $table[0]['meta']['openapi']['summary'] = str_repeat('x', 2049);
+        $this->expectException(ExportException::class);
+        $this->expectExceptionMessageIsOrContains('The route "/long" OpenAPI summary must be non-empty');
+
+        $this->document($table);
+    }
+
+    public function testAnEmptyTagAndAnOversizeTagAreEachRefusedAlone(): void
+    {
+        // Each operand of the tag grammar's guard is observable alone:
+        // the empty string (no other operand fires) and the oversize
+        // tag without a control byte (only the ceiling fires).
+        $table = [
+            [
+                'path' => '/tags',
+                'method' => ['GET'],
+                'handler' => 'TagController::list',
+                'meta' => ['openapi' => ['tags' => ['']]],
+            ],
+        ];
+
+        try {
+            $this->document($table);
+            self::fail('An empty tag must be refused.');
+        } catch (ExportException $exportException) {
+            self::assertStringContainsString(
+                'The route "/tags" OpenAPI tags must be non-empty printable strings',
+                $exportException->getMessage(),
+            );
+        }
+
+        $table[0]['meta']['openapi']['tags'] = [str_repeat('x', 2048)];
+
+        $accepted = $this->mapAt($this->mapAt($this->mapAt($this->document($table)['paths'])['/tags'])['get']);
+        self::assertSame([str_repeat('x', 2048)], $accepted['tags']);
+
+        $multibyteTag = str_repeat('é', 1200);
+        $table[0]['meta']['openapi']['tags'] = [$multibyteTag];
+
+        $characters = $this->mapAt($this->mapAt($this->mapAt($this->document($table)['paths'])['/tags'])['get']);
+        self::assertSame([$multibyteTag], $characters['tags']);
+
+        $table[0]['meta']['openapi']['tags'] = [str_repeat('x', 2049)];
+        $this->expectException(ExportException::class);
+        $this->expectExceptionMessageIsOrContains('The route "/tags" OpenAPI tags must be non-empty printable strings');
+
+        $this->document($table);
+    }
+
+    public function testAHandlerNamingAMissingMethodCarriesNoEnrichment(): void
+    {
+        // A loadable class whose method does not exist: the reflection
+        // guard refuses it before any ReflectionMethod is constructed,
+        // and the operation carries no attribute enrichment.
+        $table = [
+            ['path' => '/missingmethod', 'method' => ['GET'], 'handler' => EnrichedHandler::class . '@nonexistent'],
+        ];
+
+        $operation = $this->mapAt(
+            $this->mapAt($this->mapAt($this->document($table)['paths'])['/missingmethod'])['get'],
+        );
+
+        self::assertArrayNotHasKey('summary', $operation);
+    }
+
+    public function testAHandlerNamingABareClassCarriesNoEnrichment(): void
+    {
+        // A handler with no separator at all: the count judgement
+        // refuses it before any class lookup, and the operation carries
+        // no attribute enrichment.
+        $table = [
+            ['path' => '/bare', 'method' => ['GET'], 'handler' => EnrichedHandler::class],
+        ];
+
+        $operation = $this->mapAt($this->mapAt($this->mapAt($this->document($table)['paths'])['/bare'])['get']);
+
+        self::assertArrayNotHasKey('summary', $operation);
     }
 
     /**

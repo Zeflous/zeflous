@@ -11,6 +11,7 @@ use stdClass;
 use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Export\ExportException;
 use Zef\Framework\Export\PostmanCollection;
+use Zef\Framework\Export\PostmanItem;
 use Zef\Framework\Router\Router;
 
 /**
@@ -23,6 +24,7 @@ use Zef\Framework\Router\Router;
  * @internal
  */
 #[CoversClass(PostmanCollection::class)]
+#[CoversClass(PostmanItem::class)]
 final class PostmanCollectionTest extends TestCase
 {
     public function testTheCollectionCarriesItsIdentityAndItems(): void

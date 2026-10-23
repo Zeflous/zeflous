@@ -325,6 +325,16 @@
                 // boundary tests pin the character semantics. This ignore
                 // is scoped to that single method.
                 "Zef\\Framework\\Export\\PostmanCollection::identifier",
+                // The paths grouping's method fold is value-equivalent
+                // under the MBString mutator by the same construction
+                // the scheme and version folds carry: the method
+                // vocabulary the routing table can ever hand it is the
+                // PSR-7 HttpMethod grammar's closed ASCII set (the
+                // ServerRequest constructor refuses a non-ASCII token
+                // before any fold runs), so mb_strtolower and
+                // strtolower agree on every method the fold can see.
+                // This ignore is scoped to that single method.
+                "Zef\\Framework\\Export\\OpenApiPaths::grouped",
                 // The AOT knob's toggle fold is value-equivalent under the
                 // MBString mutator by the same construction the class's own
                 // docblock argues: the vocabulary carries no letter whose

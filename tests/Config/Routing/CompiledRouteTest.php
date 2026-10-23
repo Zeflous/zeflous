@@ -9,6 +9,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\CompiledRoute;
+use Zef\Framework\Config\Routing\RouteConstraintCompilability;
+use Zef\Framework\Config\Routing\RouteConstraintDeclarations;
 use Zef\Framework\Config\Routing\RouteConstraints;
 use Zef\Framework\Config\Routing\RouteDeprecation;
 use Zef\Framework\Config\Routing\RouteEntryCollections;
@@ -26,6 +28,8 @@ use Zef\Framework\Config\Routing\RouteEntryShape;
 #[CoversClass(RouteEntryCollections::class)]
 #[CoversClass(RouteEntryMeta::class)]
 #[CoversClass(RouteConstraints::class)]
+#[CoversClass(RouteConstraintCompilability::class)]
+#[CoversClass(RouteConstraintDeclarations::class)]
 final class CompiledRouteTest extends TestCase
 {
     public function testCompilesAMinimalEntry(): void

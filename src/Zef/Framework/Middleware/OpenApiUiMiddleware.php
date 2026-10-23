@@ -117,20 +117,13 @@ final readonly class OpenApiUiMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @return non-empty-string
-     *
-     * @throws ExportException when the asset URL is not an https URL base
+     * @throws ExportException when the asset URL is not a non-empty https URL base
      */
     private function validatedAssetUrl(string $assetUrl): string
     {
-        if ($assetUrl === '') {
-            throw new ExportException(
-                'The Swagger UI asset URL must be a non-empty https URL base.',
-            );
-        }
-
         if (
-            mb_strlen($assetUrl) > 2048
+            $assetUrl === ''
+            || mb_strlen($assetUrl) > 2048
             || preg_match('/[\x00-\x1f\x7f]/', $assetUrl) === 1
             || !str_starts_with($assetUrl, 'https://')
         ) {

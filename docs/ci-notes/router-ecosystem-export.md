@@ -164,16 +164,44 @@ loads from the CDN-pinned asset base (constructor-overridable for
 self-hosting, `https`-only), the title HTML-escaped, the spec path
 hard-coded — no JS ships in this repository.
 
+## The coverage attribution (the round the CI had to teach twice)
+
+The first CI round answered one finding with a bigger one hiding
+inside it: psalm's six errors were the visible defect, but the
+coverage numbers the SonarCloud gate judged (`new_coverage` 22.1% on
+a locally-green `coverage:gate`) exposed the real mechanism —
+**PHPUnit 13 with `requireCoverageMetadata="true"` filters a test's
+coverage to the code units its `CoversClass` metadata names**
+(`CodeCoverage::append()` runs `applyCoversAndUsesFilter()` over the
+raw data): every fold the document folds executed *transitively* was
+collected by pcov, returned by the driver (proven by patching the
+driver to log `collect()`'s raw arrays), and then **discarded before
+the report** because no test named it. The fold classes read 0% while
+their callers read 96%+ — and `RouteConstraints`/`RouteMatchPipeline`
+had never shown the hole because their tests always named them (the
+`#[CoversClass]` lists `CompiledRouteTest` and `RadixTreeTest` carry
+are the house's own precedent, spelled for exactly this reason).
+
+The fix is the house's own: every fold the family owns is named in
+the `CoversClass` list of a test that exercises it, and the same
+`ExportJson` fold the document tests never encoded is named where the
+middleware encodes it. The attribution bug also **masked 284
+mutants**: the "77 mutants, MSI 100/100" the first runs reported was
+the same filter in infection's own initial coverage — mutants on
+0%-covered lines are `Not Covered` and silently excluded from MSI.
+With the attribution honest, the scoped run is **361 mutants**, every
+one killed, and the escape rounds below are the real ones.
+
 ## The mutation adversary's rounds
 
-The scoped run (77 mutants, MSI 100/100) answered every escape in
-kind, zero new ignores beyond the one recorded below:
+The scoped run (361 mutants after the attribution fix, MSI 100/100)
+answered every escape in kind, two scoped ignores with the house's
+proof-comment discipline:
 
-- **The identifier's hash formatting (19 mutants)** — first
-  answered with the golden-id literal pin (a fixed table's exact
-  id) plus the path-only distinction test, which killed the offset
-  and splice mutants; the five surviving `MBString` equivalents
-  (mb_substr ≡ substr on the SHA-1 hex digest, ASCII by
+- **The identifier's hash formatting** — the golden-id literal pin
+  (a fixed table's exact id) plus the path-only distinction test
+  killed the offset and splice mutants; the five `MBString`
+  equivalents (mb_substr ≡ substr on the SHA-1 hex digest, ASCII by
   construction) took the house's scoped-ignore-with-proof
   (`infection.json5`, the `RedactionCandidate` measurement argument
   verbatim — the ignore is scoped to `PostmanCollection::identifier`
@@ -183,10 +211,47 @@ kind, zero new ignores beyond the one recorded below:
   multibyte pins (a 130-character two-byte name, a
   1029-character two-byte asset) killed the `mb_strlen`→`strlen`
   mutants by pinning the CHARACTER semantics the guards spell (the
-  messages say characters, the tests prove it).
-- **The asset guard's untested branches** — the http-scheme,
-  oversize and control-byte refusals each got their own test (the
-  combined guard's every operand observable alone).
+  messages say characters, the tests prove it) — and the same pins
+  landed for the identity and prose grammars (a 256-character title,
+  a 2048-character summary, 1200-character two-byte spellings) once
+  the attribution fix exposed those guards to the mutator at all.
+- **The HTML shell (47 concat mutants on one line)** — the golden
+  document pin: the shell's exact output as a nowdoc literal,
+  `assertSame` verbatim, kills every concat, operand-removal and
+  splice mutant at once; the `ENT_QUOTES | ENT_SUBSTITUTE` bitwise
+  operand is pinned by a title carrying double quotes (a flags
+  operand that loses ENT_QUOTES leaves the quotes bare).
+- **The guards that hid equivalences** — restructures, not ignores:
+  the attribute reader's separator split exploded whole (a
+  two-separator handler is not a `Class@method` pair; the count
+  judgement refuses it) so the limit operand has no mutant; the
+  reader's count guard split from the reflection guard so no
+  `LogicalOr` join exists to flip; the enrichment's null-fold spelled
+  as two `if`s (the `??` flip is value-equivalent — attribute XOR
+  meta by the ambiguity refusal above); the exact-hosts walk's map
+  of `true` became a plain list (`in_array`), where a `TrueValue`
+  mutant cannot hide behind `isset`'s any-value semantics; the asset
+  guard unified into one refusal so the empty-string `Throw_`
+  removal is observable (the split version's second guard re-fired
+  with the identical message — a mutant rescued by its own
+  redundancy).
+- **The walks and slices** — the exact-hosts walk's every skip
+  (duplicate claim, host-agnostic route, wildcard) lands in the
+  MIDDLE of one test, before another exact host the walk must still
+  reach: a `continue`→`break` mutant loses the tail; the multi-
+  parameter route pins BOTH parameter schemas so an `ArrayOneItem`
+  slice cannot answer one where two were declared.
+- **The honest-absence handlers** — a bare class name (no
+  separator), a loadable class with a missing method, and a handler
+  with two separators each carry no enrichment by their own guard:
+  the mutants that would skip a guard crash on the undefined operand
+  or the reflection that should never run.
+- **The method fold's ignore** — `OpenApiPaths::grouped`'s
+  `mb_strtolower` is the scheme/version folds' own argument: the
+  PSR-7 method grammar is closed ASCII (the ServerRequest
+  constructor refuses a non-ASCII token before any fold runs), so
+  the two lowerings agree on every method the table can ever hand
+  the fold — the scoped ignore carries that proof.
 
 ## The architecture gate's settle
 
