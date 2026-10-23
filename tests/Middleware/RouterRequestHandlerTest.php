@@ -17,6 +17,7 @@ use UnexpectedValueException;
 use Zef\Framework\Config\Routing\DispatchOutcome;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
+use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Exception\MethodNotAllowedException;
@@ -28,6 +29,7 @@ use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\ConditionalRequests;
+use Zef\Framework\Middleware\CorrelationMiddleware;
 use Zef\Framework\Middleware\DeprecationLinkHeader;
 use Zef\Framework\Middleware\EntityTagMatch;
 use Zef\Framework\Middleware\ErrorMappingMiddleware;
@@ -38,11 +40,20 @@ use Zef\Framework\Middleware\NotModifiedResponse;
 use Zef\Framework\Middleware\RequestAuthority;
 use Zef\Framework\Middleware\RouteDeprecationHeaders;
 use Zef\Framework\Middleware\RouteDispatchHandler;
+use Zef\Framework\Middleware\RouteMatchTelemetry;
 use Zef\Framework\Middleware\RouterRequestHandler;
 use Zef\Framework\Middleware\RouterRequestMatcher;
 use Zef\Framework\Middleware\ServerRequestMetadata;
 use Zef\Framework\Router\Router;
+use Zef\Framework\Telemetry\BatchSpanProcessor;
+use Zef\Framework\Telemetry\CounterMeter;
+use Zef\Framework\Telemetry\InMemorySpanExporter;
+use Zef\Framework\Telemetry\MeterSlot;
+use Zef\Framework\Telemetry\SpanData;
+use Zef\Framework\Telemetry\TelemetryClock;
+use Zef\Framework\Telemetry\Tracer;
 use Zef\Test\Support\Log\RecordingLogger;
+use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 
 /**
  * @internal
@@ -1142,6 +1153,91 @@ final class RouterRequestHandlerTest extends TestCase
         } catch (MethodNotAllowedException $methodNotAllowedException) {
             self::assertSame(['GET'], $methodNotAllowedException->allowedMethods);
         }
+    }
+
+    public function testTheMatchAnswersThroughTheTelemetryWhenTheConstructionCarriesOne(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'host' => 'api.example.com',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+        $inMemorySpanExporter = new InMemorySpanExporter();
+        $tracer = new Tracer(new BatchSpanProcessor($inMemorySpanExporter), new TelemetryClock());
+        $counterMeter = new CounterMeter();
+        $handler = new RouterRequestHandler(
+            $router,
+            $container,
+            new Psr17Factory(),
+            new RouteMatchTelemetry($tracer, $counterMeter, new SteppingTelemetryClock()),
+        );
+
+        $response = $handler->handle($this->request('GET', 'api.example.com', 'application/json'));
+
+        self::assertSame(200, $response->getStatusCode(), 'the observed match answers as the unobserved one does');
+
+        $tracer->flush();
+        $spans = $inMemorySpanExporter->spans();
+        self::assertCount(1, $spans);
+
+        $span = $spans[0];
+        \assert($span instanceof SpanData);
+        self::assertSame(RouteMatchTelemetry::MATCH_SPAN_NAME, $span->name);
+        self::assertSame('GET', $span->attributes['http.request.method']);
+        self::assertSame('/profile', $span->attributes['url.path']);
+        self::assertSame(RouteMatchExplanation::OUTCOME_FOUND, $span->attributes['router.match.outcome']);
+
+        $matches = $counterMeter->snapshot()[MeterSlot::key(RouteMatchTelemetry::MATCHES_TOTAL, [
+            'http.request.method' => 'GET',
+            'router.match.outcome' => RouteMatchExplanation::OUTCOME_FOUND,
+        ])];
+        self::assertSame(1, $matches['count']);
+    }
+
+    public function testTheMatchSpanJoinsTheSpanTheRequestCarries(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'host' => 'api.example.com',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+        $inMemorySpanExporter = new InMemorySpanExporter();
+        $tracer = new Tracer(new BatchSpanProcessor($inMemorySpanExporter), new TelemetryClock());
+        $handler = new RouterRequestHandler(
+            $router,
+            $container,
+            new Psr17Factory(),
+            new RouteMatchTelemetry($tracer, new CounterMeter(), new SteppingTelemetryClock()),
+        );
+        $requestSpan = $tracer->startSpan('zef.http.request', ['http.request.method' => 'GET']);
+
+        $handler->handle(
+            $this->request('GET', 'api.example.com', 'application/json')
+                ->withAttribute(CorrelationMiddleware::SPAN_ATTRIBUTE, $requestSpan),
+        );
+        $requestSpan->end();
+        $tracer->flush();
+
+        $matchSpans = array_values(array_filter(
+            $inMemorySpanExporter->spans(),
+            static fn (SpanData $span): bool => $span->name === RouteMatchTelemetry::MATCH_SPAN_NAME,
+        ));
+        self::assertCount(1, $matchSpans);
+        self::assertSame(
+            $requestSpan->getContext()->traceId,
+            $matchSpans[0]->context->traceId,
+            'the match span joins the request span the correlation boundary exposed',
+        );
     }
 
     private function containerWithProfileHandler(): Container
