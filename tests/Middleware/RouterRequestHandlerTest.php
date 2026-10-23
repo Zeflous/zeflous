@@ -6,6 +6,7 @@ namespace Zef\Test\Middleware;
 
 use DateTimeImmutable;
 use Override;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -17,6 +18,7 @@ use UnexpectedValueException;
 use Zef\Framework\Config\Routing\DispatchOutcome;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
+use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Exception\MethodNotAllowedException;
@@ -28,6 +30,7 @@ use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\ConditionalRequests;
+use Zef\Framework\Middleware\CorrelationMiddleware;
 use Zef\Framework\Middleware\DeprecationLinkHeader;
 use Zef\Framework\Middleware\EntityTagMatch;
 use Zef\Framework\Middleware\ErrorMappingMiddleware;
@@ -38,11 +41,22 @@ use Zef\Framework\Middleware\NotModifiedResponse;
 use Zef\Framework\Middleware\RequestAuthority;
 use Zef\Framework\Middleware\RouteDeprecationHeaders;
 use Zef\Framework\Middleware\RouteDispatchHandler;
+use Zef\Framework\Middleware\RouteMatchSpan;
+use Zef\Framework\Middleware\RouteMatchTelemetry;
+use Zef\Framework\Middleware\RouteMiddlewareStack;
 use Zef\Framework\Middleware\RouterRequestHandler;
 use Zef\Framework\Middleware\RouterRequestMatcher;
 use Zef\Framework\Middleware\ServerRequestMetadata;
 use Zef\Framework\Router\Router;
+use Zef\Framework\Telemetry\BatchSpanProcessor;
+use Zef\Framework\Telemetry\CounterMeter;
+use Zef\Framework\Telemetry\InMemorySpanExporter;
+use Zef\Framework\Telemetry\MeterSlot;
+use Zef\Framework\Telemetry\SpanData;
+use Zef\Framework\Telemetry\TelemetryClock;
+use Zef\Framework\Telemetry\Tracer;
 use Zef\Test\Support\Log\RecordingLogger;
+use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 
 /**
  * @internal
@@ -59,6 +73,8 @@ use Zef\Test\Support\Log\RecordingLogger;
 #[CoversClass(RouteDeprecationHeaders::class)]
 #[CoversClass(RouteDispatcher::class)]
 #[CoversClass(RouterRequestHandler::class)]
+#[CoversClass(RouteMatchSpan::class)]
+#[CoversClass(RouteMiddlewareStack::class)]
 #[CoversClass(RouterRequestMatcher::class)]
 #[CoversClass(ServerRequestMetadata::class)]
 #[CoversClass(RouteDispatchHandler::class)]
@@ -517,6 +533,64 @@ final class RouterRequestHandlerTest extends TestCase
         ;
 
         self::assertSame('ran', $response->getHeaderLine('X-Route-Middleware'));
+    }
+
+    public function testTheRouteMiddlewareListComposesOuterToInner(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $container->set(
+            'route.first',
+            static fn (): MiddlewareInterface => new class implements MiddlewareInterface {
+                #[Override]
+                public function process(
+                    ServerRequestInterface $serverRequest,
+                    RequestHandlerInterface $requestHandler,
+                ): ResponseInterface {
+                    $message = $requestHandler->handle($serverRequest)
+                        ->withAddedHeader('X-Route-Order', 'first')
+                    ;
+                    Assert::assertInstanceOf(ResponseInterface::class, $message);
+
+                    return $message;
+                }
+            },
+        );
+        $container->set(
+            'route.second',
+            static fn (): MiddlewareInterface => new class implements MiddlewareInterface {
+                #[Override]
+                public function process(
+                    ServerRequestInterface $serverRequest,
+                    RequestHandlerInterface $requestHandler,
+                ): ResponseInterface {
+                    $message = $requestHandler->handle($serverRequest)
+                        ->withAddedHeader('X-Route-Order', 'second')
+                    ;
+                    Assert::assertInstanceOf(ResponseInterface::class, $message);
+
+                    return $message;
+                }
+            },
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'middleware' => ['route.first', 'route.second'],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame(
+            ['second', 'first'],
+            $response->getHeader('X-Route-Order'),
+            'the declaration order composes outer-to-inner -- the response carries the'
+            . ' inner stamp before the outer one, and both middlewares ran',
+        );
     }
 
     public function testMissingRouteMiddlewareFailsClosed(): void
@@ -1142,6 +1216,90 @@ final class RouterRequestHandlerTest extends TestCase
         } catch (MethodNotAllowedException $methodNotAllowedException) {
             self::assertSame(['GET'], $methodNotAllowedException->allowedMethods);
         }
+    }
+
+    public function testTheMatchAnswersThroughTheTelemetryWhenTheConstructionCarriesOne(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'host' => 'api.example.com',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+        $inMemorySpanExporter = new InMemorySpanExporter();
+        $tracer = new Tracer(new BatchSpanProcessor($inMemorySpanExporter), new TelemetryClock());
+        $counterMeter = new CounterMeter();
+        $routerRequestHandler = new RouterRequestHandler(
+            $router,
+            $container,
+            new Psr17Factory(),
+            new RouteMatchTelemetry($tracer, $counterMeter, new SteppingTelemetryClock()),
+        );
+
+        $response = $routerRequestHandler->handle($this->request('GET', 'api.example.com', 'application/json'));
+
+        self::assertSame(200, $response->getStatusCode(), 'the observed match answers as the unobserved one does');
+
+        $tracer->flush();
+        $spans = $inMemorySpanExporter->spans();
+        self::assertCount(1, $spans);
+
+        $span = $spans[0];
+        self::assertSame(RouteMatchSpan::MATCH_SPAN_NAME, $span->name);
+        self::assertSame('GET', $span->attributes['http.request.method']);
+        self::assertSame('/profile', $span->attributes['url.path']);
+        self::assertSame(RouteMatchExplanation::OUTCOME_FOUND, $span->attributes['router.match.outcome']);
+
+        $matches = $counterMeter->snapshot()[MeterSlot::key(RouteMatchTelemetry::MATCHES_TOTAL, [
+            'http.request.method' => 'GET',
+            'router.match.outcome' => RouteMatchExplanation::OUTCOME_FOUND,
+        ])];
+        self::assertSame(1, $matches['count']);
+    }
+
+    public function testTheMatchSpanJoinsTheSpanTheRequestCarries(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'host' => 'api.example.com',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+        $inMemorySpanExporter = new InMemorySpanExporter();
+        $tracer = new Tracer(new BatchSpanProcessor($inMemorySpanExporter), new TelemetryClock());
+        $routerRequestHandler = new RouterRequestHandler(
+            $router,
+            $container,
+            new Psr17Factory(),
+            new RouteMatchTelemetry($tracer, new CounterMeter(), new SteppingTelemetryClock()),
+        );
+        $requestSpan = $tracer->startSpan('zef.http.request', ['http.request.method' => 'GET']);
+
+        $routerRequestHandler->handle(
+            $this->request('GET', 'api.example.com', 'application/json')
+                ->withAttribute(CorrelationMiddleware::SPAN_ATTRIBUTE, $requestSpan),
+        );
+        $requestSpan->end();
+        $tracer->flush();
+
+        $matchSpans = array_values(array_filter(
+            $inMemorySpanExporter->spans(),
+            static fn (SpanData $spanData): bool => $spanData->name === RouteMatchSpan::MATCH_SPAN_NAME,
+        ));
+        self::assertCount(1, $matchSpans);
+        self::assertSame(
+            $requestSpan->getContext()->traceId,
+            $matchSpans[0]->context->traceId,
+            'the match span joins the request span the correlation boundary exposed',
+        );
     }
 
     private function containerWithProfileHandler(): Container

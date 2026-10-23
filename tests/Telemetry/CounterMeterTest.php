@@ -113,6 +113,47 @@ final class CounterMeterTest extends TestCase
         );
     }
 
+    public function testTheRouterSeriesKeepsItsMethodAndOutcomeSlices(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.router.matches.total', 1, [
+            'http.request.method' => 'GET',
+            'router.match.outcome' => 'not_found',
+            'url.path' => '/orders/92',
+            'http.response.status_code' => 404,
+        ]);
+
+        $series = $counterMeter->snapshot()[MeterSlot::key('zef.router.matches.total', [
+            'http.request.method' => 'GET',
+            'router.match.outcome' => 'not_found',
+        ])];
+        self::assertSame(
+            ['http.request.method' => 'GET', 'router.match.outcome' => 'not_found'],
+            $series['attributes'],
+            'the router series keeps exactly the two slices it exists to be read by',
+        );
+    }
+
+    public function testTheRouterDurationSeriesObservesUnderTheSameSlices(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->observe('zef.router.match.duration_seconds', 0.000005, [
+            'http.request.method' => 'GET',
+            'router.match.outcome' => 'found',
+            'router.route.name' => 'orders.show',
+        ]);
+
+        $series = $counterMeter->snapshot()[MeterSlot::key('zef.router.match.duration_seconds', [
+            'http.request.method' => 'GET',
+            'router.match.outcome' => 'found',
+        ])];
+        self::assertSame(
+            ['http.request.method' => 'GET', 'router.match.outcome' => 'found'],
+            $series['attributes'],
+        );
+        self::assertSame(0.000005, $series['sum']);
+    }
+
     public function testTheErrorsTotalKeepsTheSanitisedExceptionType(): void
     {
         $counterMeter = new CounterMeter();

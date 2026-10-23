@@ -16,7 +16,10 @@ namespace Zef\Framework\Telemetry;
  * low-cardinality slices the request series exist to be read by (the
  * request method and the response status code), plus the exception
  * type the errors total is attributed by and the bounded service
- * identity the resolve duration slices on; the lifecycle events
+ * identity the resolve duration slices on; the `zef.router.*` series
+ * (the router's own match counting) keeps the request method and the
+ * closed match-outcome vocabulary the routing lane's series exist to
+ * be sliced by; the lifecycle events
  * total keeps the closed event vocabulary. A custom metric family's
  * dimensions pass the hygiene unit's sanitisation
  * ({@see TelemetrySanitizer}) and stay bounded by the store's series
@@ -31,10 +34,15 @@ namespace Zef\Framework\Telemetry;
 final class MeterDimensions
 {
     /**
-     * The framework-owned series' name prefixes: the two lanes whose
-     * dimensions the framework itself controls.
+     * The framework-owned series' name prefixes, each over the
+     * dimensions its series keep: the two request-counting lanes
+     * (HTTP and container) and the router's match counting.
      */
-    private const array FRAMEWORK_DIMENSIONS = ['zef.http.', 'zef.container.'];
+    private const array FRAMEWORK_DIMENSIONS = [
+        'zef.http.' => self::HTTP_DIMENSIONS,
+        'zef.container.' => self::HTTP_DIMENSIONS,
+        'zef.router.' => self::ROUTER_DIMENSIONS,
+    ];
 
     /**
      * The HTTP series' allowed dimensions: the request method and the
@@ -42,6 +50,14 @@ final class MeterDimensions
      * request-counting series exist to be read by.
      */
     private const array HTTP_DIMENSIONS = ['http.request.method', 'http.response.status_code'];
+
+    /**
+     * The router series' allowed dimensions: the request method and
+     * the closed match-outcome vocabulary (found, not_found,
+     * method_not_allowed, not_acceptable) -- the two slices the
+     * router's match counting exists to be read by.
+     */
+    private const array ROUTER_DIMENSIONS = ['http.request.method', 'router.match.outcome'];
 
     /**
      * The lifecycle events' closed vocabulary: the worker and request
@@ -75,12 +91,12 @@ final class MeterDimensions
     {
         $clean = TelemetryValues::attributes($attributes);
 
-        foreach (self::FRAMEWORK_DIMENSIONS as $prefix) {
+        foreach (self::FRAMEWORK_DIMENSIONS as $prefix => $allowed) {
             if (!str_starts_with($name, $prefix)) {
                 continue;
             }
 
-            return self::allowedDimensions($name, $clean, self::HTTP_DIMENSIONS);
+            return self::allowedDimensions($name, $clean, $allowed);
         }
 
         if ($name === 'zef.lifecycle.events.total') {

@@ -267,7 +267,7 @@ final class TracingFactoryTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 "The observability configuration carries the unknown family 'trcing'"
-                . ' (known families: timing, tracing, correlation, export, metrics).',
+                . ' (known families: timing, tracing, correlation, export, metrics, router).',
                 $httpException->getMessage(),
             );
         }

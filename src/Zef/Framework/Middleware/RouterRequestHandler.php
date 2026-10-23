@@ -8,9 +8,9 @@ use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use UnexpectedValueException;
+use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Router\Router;
@@ -29,6 +29,14 @@ use Zef\Framework\Router\Router;
  * {@see RouterRequestMatcher} (with {@see ServerRequestMetadata}), and
  * conditional GET/HEAD semantics live in {@see ConditionalRequests}.
  *
+ * The match itself answers through the observability engines when the
+ * construction carries a {@see RouteMatchTelemetry} (the router
+ * observability family's unit): the match span and the router's own
+ * metric series, opened under the request span the correlation boundary
+ * exposed on the request. The telemetry is optional and null by default --
+ * the family's honest off posture -- so a handler constructed without it
+ * answers exactly as it always did.
+ *
  * @api
  */
 final readonly class RouterRequestHandler implements RequestHandlerInterface
@@ -43,6 +51,7 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         Router $router,
         private Container $container,
         private StreamFactoryInterface $streamFactory,
+        private ?RouteMatchTelemetry $routeMatchTelemetry = null,
     ) {
         $this->routeDispatcher = $router->dispatcher($this->container);
         $this->routerRequestMatcher = new RouterRequestMatcher($router);
@@ -53,35 +62,15 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $serverRequestMetadata = ServerRequestMetadata::fromRequest($request);
-        $match = $this->routerRequestMatcher->match($serverRequestMetadata);
-
-        $stack = [];
-        if ($match->isFound()) {
-            foreach ($match->route()->middleware() as $serviceId) {
-                if (!$this->container->has($serviceId)) {
-                    throw new MiddlewareException(\sprintf(
-                        'Route middleware service "%s" is not registered.',
-                        $serviceId,
-                    ));
-                }
-
-                $middleware = $this->container->get($serviceId);
-                if (!$middleware instanceof MiddlewareInterface) {
-                    throw new MiddlewareException(\sprintf(
-                        'Route middleware service "%s" does not implement MiddlewareInterface.',
-                        $serviceId,
-                    ));
-                }
-
-                $stack[] = $middleware;
-            }
-        }
+        $matchResult = $this->matchObserved($request, $serverRequestMetadata);
 
         $routeDispatchHandler = new RouteDispatchHandler(
             $this->routeDispatcher,
-            $match,
+            $matchResult,
             $serverRequestMetadata,
         );
+
+        $stack = RouteMiddlewareStack::resolve($matchResult, $this->container);
 
         $response = new MiddlewarePipeline($stack, $routeDispatchHandler)->handle($request);
         $response = $this->conditionalRequests->apply($request, $response, $serverRequestMetadata->method);
@@ -96,5 +85,27 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         }
 
         return $message;
+    }
+
+    /**
+     * The match, answered through the observability family's unit
+     * when the construction carries one: the span under the request
+     * span the correlation boundary exposed, the router's own metric
+     * series, and the match's own result either way. A telemetry-less
+     * construction answers the matcher directly -- the family's off
+     * posture allocates and accounts nothing.
+     */
+    private function matchObserved(
+        ServerRequestInterface $serverRequest,
+        ServerRequestMetadata $serverRequestMetadata,
+    ): MatchResult {
+        if (!$this->routeMatchTelemetry instanceof RouteMatchTelemetry) {
+            return $this->routerRequestMatcher->match($serverRequestMetadata);
+        }
+
+        return $this->routeMatchTelemetry->observed(
+            $serverRequest,
+            fn (): MatchResult => $this->routerRequestMatcher->match($serverRequestMetadata),
+        );
     }
 }

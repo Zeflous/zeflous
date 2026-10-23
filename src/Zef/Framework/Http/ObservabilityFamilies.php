@@ -18,11 +18,14 @@ namespace Zef\Framework\Http;
  * lane's config face, {@see ExportPolicy}) and the `metrics`
  * family (the exposition boundary's config face, {@see
  * MetricsPolicy} -- the campaign's closing family) are live, and
- * the census is complete: every family the campaign planned has
- * landed -- an unknown child halts the boot with the known
- * families spelled out, exactly as the security map's own census
- * does, so a `timming` typo in a host's override file is a named
- * refusal rather than a silently absent family.
+ * the router lane's own observability slice joined the map after
+ * the campaign closed ({@see RouteObservabilityPolicy} -- the
+ * router's match telemetry and debug disclosure, the map's sixth
+ * family). The census stays complete: an unknown child halts the
+ * boot with the known families spelled out, exactly as the
+ * security map's own census does, so a `timming` typo in a host's
+ * override file is a named refusal rather than a silently absent
+ * family.
  */
 final class ObservabilityFamilies
 {
@@ -30,7 +33,7 @@ final class ObservabilityFamilies
      * The legitimate children of the `observability` map, in landing
      * order.
      */
-    private const array FAMILIES = ['timing', 'tracing', 'correlation', 'export', 'metrics'];
+    private const array FAMILIES = ['timing', 'tracing', 'correlation', 'export', 'metrics', 'router'];
 
     /**
      * Reads one family's subtree out of the merged `observability` map.

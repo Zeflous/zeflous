@@ -35,7 +35,17 @@ use Zef\Framework\Middleware\TracingFactory;
  * auth families, and the observability campaign's first four
  * families (timing, the tracing core, the correlation boundary,
  * then the export lane's knob block) plus the metrics family's
- * own two engine services and face -- and it ships them the way
+ * own two engine services and face -- the router lane's
+ * observability slice ships its knob block the same way (the
+ * `router` family: the match telemetry's arm and the debug
+ * disclosure) but deliberately no service registration of its
+ * own, because the family's collaborators compose at seams the
+ * container does not yet name -- the router facade is not a
+ * service, so the host's own composition (the `RouterRequestHandler`
+ * construction and the `middleware.stack` membership) wires the
+ * family through the `RouteObservabilityFactory` seam, and the
+ * registration arrives with the router's own future service
+ * wiring -- and it ships them the way
  * every family arrived: the subsystem's *service registration* as
  * a declarative entry under the reserved `framework.services` key
  * the container's existing grammar installs (string-addressed,
@@ -236,6 +246,10 @@ final readonly class FrameworkDefaults
                     'metrics_path' => '/metrics',
                     'health_path' => '/health',
                     'timeout_ms' => 500,
+                ],
+                'router' => [
+                    'enabled' => false,
+                    'debug_match' => false,
                 ],
             ],
             'tags' => [

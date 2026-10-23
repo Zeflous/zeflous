@@ -52,28 +52,19 @@ final readonly class RadixTree
     }
 
     /**
-     * Compiles a route table into a radix tree.
+     * Compiles a route table into a radix tree, assembling itself
+     * over the parts {@see RouteTableCompiler} answers (the list
+     * check, the one fail-closed {@see CompiledRoute::fromArray()}
+     * per entry, the {@see RouteTreeBuilder} wiring) -- the tree owns
+     * the assembly, the compiler the orchestration.
      *
      * @param array<mixed> $routes a list of Standard Route Schema entries
      */
     public static function compile(array $routes): self
     {
-        if (!array_is_list($routes)) {
-            throw new ConfigException('The route table must be a list of route entries.');
-        }
+        $compiledRoutes = RouteTableCompiler::compile($routes);
 
-        $compiledRoutes = [];
-
-        foreach (array_keys($routes) as $index) {
-            $compiledRoutes[] = CompiledRoute::fromArray($routes[$index]);
-        }
-
-        $routeTreeBuilder = new RouteTreeBuilder();
-
-        return new self(
-            $routeTreeBuilder->build($compiledRoutes),
-            $routeTreeBuilder->registry()->namedRoutes(),
-        );
+        return new self($compiledRoutes['root'], $compiledRoutes['namedRoutes']);
     }
 
     /**
@@ -113,5 +104,22 @@ final readonly class RadixTree
         }
 
         return RouteMethodAnswer::resolve($method, $routes, $captured, $requestHost, $accept);
+    }
+
+    /**
+     * Explains the match of a request against the tree: the same
+     * pipeline {@see self::match()} runs, staged and counted, so the
+     * caller can say why the table refused the request -- the
+     * development surface of the engine, answering a {@see
+     * RouteMatchExplanation} whose outcome is the match's own.
+     */
+    public function explain(
+        string $method,
+        string $path,
+        ?string $host = null,
+        ?string $accept = null,
+        ?string $version = null,
+    ): RouteMatchExplanation {
+        return RouteMatchExplainer::explain($this->radixNode, $method, $path, $host, $accept, $version);
     }
 }

@@ -36,6 +36,7 @@ use Zef\Framework\Config\Routing\RouteNodeInserter;
 use Zef\Framework\Config\Routing\RouteParameters;
 use Zef\Framework\Config\Routing\RoutePatternTokens;
 use Zef\Framework\Config\Routing\RouteProduces;
+use Zef\Framework\Config\Routing\RouteTableCompiler;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
 use Zef\Framework\Config\Routing\RouteVersion;
@@ -50,6 +51,7 @@ use Zef\Framework\Exception\InvariantViolationException;
  * @internal
  */
 #[CoversClass(RadixTree::class)]
+#[CoversClass(RouteTableCompiler::class)]
 #[CoversClass(RadixNode::class)]
 #[CoversClass(RouteTreeBuilder::class)]
 #[CoversClass(RouteTableRegistry::class)]
