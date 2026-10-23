@@ -46,53 +46,50 @@ final class RouteMatchExplainer
     ): RouteMatchExplanation {
         $captured = [];
         $walked = new RouteMatcher()->walk($radixNode, $path, 0, $captured);
-
-        if ($walked === []) {
-            $neighborhood = RouteMatchNeighborhood::around($radixNode, $path);
-
-            return RouteMatchExplanation::pathMiss(
-                $neighborhood['prefix'],
-                $neighborhood['patterns'],
-            );
-        }
-
         $requestHost = RouteHostRequest::canonicalise($host);
         $hostSelected = RouteHostSelection::select($walked, $requestHost);
-
-        if ($hostSelected === []) {
-            return RouteMatchExplanation::hostMiss(\count($walked), 0);
-        }
-
         $versionSelected = RouteVersionSelection::select($hostSelected, $version);
-
-        if ($versionSelected === []) {
-            return RouteMatchExplanation::versionMiss(\count($walked), \count($hostSelected));
-        }
-
         $matchResult = RouteMethodAnswer::resolve($method, $versionSelected, $captured, $requestHost, $accept);
 
-        if ($matchResult->isFound()) {
-            return RouteMatchExplanation::found(
+        return match (true) {
+            $walked === [] => self::pathMissExplanation($radixNode, $path),
+            $hostSelected === [] => RouteMatchExplanation::hostMiss(\count($walked), 0),
+            $versionSelected === [] => RouteMatchExplanation::versionMiss(
                 \count($walked),
                 \count($hostSelected),
-                \count($versionSelected),
-            );
-        }
-
-        if ($matchResult->isMethodNotAllowed()) {
-            return RouteMatchExplanation::methodRefusal(
+            ),
+            $matchResult->isMethodNotAllowed() => RouteMatchExplanation::methodRefusal(
                 $matchResult->allowedMethods(),
                 \count($walked),
                 \count($hostSelected),
                 \count($versionSelected),
-            );
-        }
+            ),
+            $matchResult->isFound() => RouteMatchExplanation::found(
+                \count($walked),
+                \count($hostSelected),
+                \count($versionSelected),
+            ),
+            default => RouteMatchExplanation::acceptRefusal(
+                $matchResult->acceptableMediaTypes(),
+                \count($walked),
+                \count($hostSelected),
+                \count($versionSelected),
+            ),
+        };
+    }
 
-        return RouteMatchExplanation::acceptRefusal(
-            $matchResult->acceptableMediaTypes(),
-            \count($walked),
-            \count($hostSelected),
-            \count($versionSelected),
+    /**
+     * The path-stage miss and its neighborhood, folded out of the
+     * pipeline's answer so the match expression stays one spelling
+     * per outcome.
+     */
+    private static function pathMissExplanation(RadixNode $radixNode, string $path): RouteMatchExplanation
+    {
+        $neighborhood = RouteMatchNeighborhood::around($radixNode, $path);
+
+        return RouteMatchExplanation::pathMiss(
+            $neighborhood['prefix'],
+            $neighborhood['patterns'],
         );
     }
 }

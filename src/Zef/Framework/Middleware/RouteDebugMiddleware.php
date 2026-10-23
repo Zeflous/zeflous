@@ -77,19 +77,24 @@ final readonly class RouteDebugMiddleware implements MiddlewareInterface
     ): ResponseInterface {
         $response = $requestHandler->handle($serverRequest);
 
-        if (!AppEnvironment::isDevelopment()) {
-            return $response;
-        }
-
-        if (!\in_array($response->getStatusCode(), self::REFUSAL_STATUSES, true)) {
-            return $response;
-        }
-
-        if ($response->hasHeader(self::DEBUG_HEADER)) {
+        if (!$this->disclosable($response)) {
             return $response;
         }
 
         return $this->disclosed($serverRequest, $response);
+    }
+
+    /**
+     * Whether the response may carry the disclosure: the double
+     * fail-closed gate's own fold -- a development environment, a
+     * routing-refusal status, and no header a lane before it
+     * already stamped.
+     */
+    private function disclosable(ResponseInterface $response): bool
+    {
+        return AppEnvironment::isDevelopment()
+            && \in_array($response->getStatusCode(), self::REFUSAL_STATUSES, true)
+            && !$response->hasHeader(self::DEBUG_HEADER);
     }
 
     /**

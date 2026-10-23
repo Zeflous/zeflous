@@ -335,18 +335,11 @@ final readonly class RouteMatchExplanation
      */
     public static function outcomeOf(MatchResult $matchResult): string
     {
-        if ($matchResult->isFound()) {
-            return self::OUTCOME_FOUND;
-        }
-
-        if ($matchResult->isMethodNotAllowed()) {
-            return self::OUTCOME_METHOD_NOT_ALLOWED;
-        }
-
-        if ($matchResult->isNotAcceptable()) {
-            return self::OUTCOME_NOT_ACCEPTABLE;
-        }
-
-        return self::OUTCOME_NOT_FOUND;
+        return match (true) {
+            $matchResult->isFound() => self::OUTCOME_FOUND,
+            $matchResult->isMethodNotAllowed() => self::OUTCOME_METHOD_NOT_ALLOWED,
+            $matchResult->isNotAcceptable() => self::OUTCOME_NOT_ACCEPTABLE,
+            default => self::OUTCOME_NOT_FOUND,
+        };
     }
 }
