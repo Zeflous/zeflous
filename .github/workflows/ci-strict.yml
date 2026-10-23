@@ -457,12 +457,34 @@ jobs:
 
             // Fail the job itself when a lane is red or the fallback timed out,
             // so the run is visibly red in the Actions tab as well as on the
-            // check-run.
+            // check-run -- BUT only when this run's own head is the head the
+            // verdict was written for. On the `workflow_run` path GitHub
+            // records this job's check-run against the DEFAULT BRANCH's tip
+            // (`context.sha`), while the verdict itself lands on the
+            // aggregated head (`wr.head_sha` -- the pull request whose lane
+            // completed). When those differ -- another pull request's lane
+            // went red and this pass correctly wrote the red `CI Strict`
+            // verdict on THAT pull request's head -- a red job-level exit
+            // would misreport `main` itself (observed 2026-10-23: a red
+            // "CI Strict Aggregator" on main's landing commit while it
+            // aggregated an unrelated pull request's failed CI Static; the
+            // context is required through the classic branch-protection
+            // layer, so the misreport is not merely cosmetic). The verdict
+            // is already recorded exactly where it belongs; the job exits
+            // green on purpose, with a notice naming both heads.
+            const verdictForAnotherHead =
+              context.eventName === "workflow_run" && sha !== context.sha;
             if (state.anyFailed || expired) {
-              core.setFailed(
-                expired
-                  ? "The fallback wait expired with strict lanes still unresolved; the CI Strict check is timed_out (red), not pending."
-                  : "One or more strict lanes failed; the CI Strict check is red.",
-              );
+              if (verdictForAnotherHead) {
+                core.notice(
+                  `Strict lanes failed for ${sha.slice(0, 8)}, and the red CI Strict check-run was written on that head. This job's own check-run records against ${context.sha.slice(0, 8)} (the default branch tip for a workflow_run firing), where a red exit would misreport main -- exiting green on purpose.`,
+                );
+              } else {
+                core.setFailed(
+                  expired
+                    ? "The fallback wait expired with strict lanes still unresolved; the CI Strict check is timed_out (red), not pending."
+                    : "One or more strict lanes failed; the CI Strict check is red.",
+                );
+              }
             }
             })();
