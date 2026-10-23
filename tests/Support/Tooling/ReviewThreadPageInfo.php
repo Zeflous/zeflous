@@ -20,6 +20,9 @@ final readonly class ReviewThreadPageInfo
 {
     private const string MISSING_PAGE_INFO = 'Review-thread payload is missing reviewThreads.pageInfo.';
 
+    private const string CURSORLESS_CONTINUATION
+        = 'Review-thread pagination is inconsistent: a page that follows carries no cursor to follow.';
+
     private const array PAGE_PATH = ['data', 'repository', 'pullRequest', 'reviewThreads', 'pageInfo'];
 
     public function __construct(private string $json)
@@ -39,7 +42,13 @@ final readonly class ReviewThreadPageInfo
 
     /**
      * The continuation pair off the walked page answer, narrowed from
-     * `mixed` and refused when the payload did not carry the shape.
+     * `mixed` and refused when the payload did not carry the shape. A
+     * page that claims another follows (`hasNextPage: true`) while
+     * carrying no cursor to follow (`endCursor: null`) is refused the
+     * same way: the walk would re-send the first page's query forever,
+     * duplicating its threads until the job's own timeout -- an
+     * answer that cannot be walked is an answer the resolver must not
+     * act on.
      *
      * @param array<array-key, mixed> $pageInfo
      *
@@ -53,6 +62,10 @@ final readonly class ReviewThreadPageInfo
 
         if (!$shapeCarried) {
             throw new ToolingException(self::MISSING_PAGE_INFO);
+        }
+
+        if ($hasNextPage && $endCursor === null) {
+            throw new ToolingException(self::CURSORLESS_CONTINUATION);
         }
 
         return ['hasNextPage' => $hasNextPage, 'endCursor' => $endCursor];

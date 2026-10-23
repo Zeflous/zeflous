@@ -304,6 +304,7 @@ jobs:
           fi
 
           echo "Fetching open, non-draft pull requests (oldest first)..."
+          sweep_started=$(date +%s)
           if ! raw=$(gh pr list --state open --limit 100 --json number,isDraft,createdAt); then
             echo "::warning::Could not list pull requests; nothing to do."
             exit 0
@@ -355,6 +356,22 @@ jobs:
           for pr in $prs; do
             echo "----------------------------------------"
             echo "Processing PR #$pr..."
+
+            # Sweep deadline (fail-safe against the loop's own worst case):
+            # one pull request can legally cost minutes of bounded polls and
+            # retries, and a sweep of many waiting pull requests would then
+            # die on the job's own timeout -- mid-loop, with the trailing
+            # pull requests unprocessed and the run marked failed. The
+            # deadline stops the loop cleanly instead: the remaining pull
+            # requests are the FIRST ones the next sweep picks up (the queue
+            # is oldest-first), so nothing is lost -- only deferred one
+            # sweep. Ten minutes leaves margin for the loop's own sleeps
+            # inside the fifteen-minute job timeout.
+            now=$(date +%s)
+            if [ $((now - sweep_started)) -ge 600 ]; then
+              echo "::warning::Sweep deadline (10 minutes) reached - the remaining pull request(s) wait for the next sweep (oldest-first keeps them first in line)."
+              break
+            fi
 
             # A PR can be closed/merged concurrently while this loop runs, so a
             # failed read is expected and must skip the PR, not kill the job.
@@ -464,8 +481,11 @@ jobs:
             #    with the zero-review ruleset into an unreviewed-execution
             #    path. The changelog lanes' pull requests never touch
             #    workflows, so the stall this step exists to clear stays
-            #    cleared.
-            is_fork=$(gh pr view "$pr" --json isCrossRepository --jq '.isCrossRepository' 2>/dev/null) || is_fork="false"
+            #    cleared. The fork probe FAILS CLOSED: a transient read
+            #    failure on a fork pull request must read as "fork", never as
+            #    "same-repo" -- the fork answer is the one that holds the
+            #    human checkpoint, so the unverifiable answer keeps it held.
+            is_fork=$(gh pr view "$pr" --json isCrossRepository --jq '.isCrossRepository' 2>/dev/null) || is_fork="true"
             # Read the pull request's changed-file list (--paginate walks every
             # page, not just the first 100 files). A transient read failure is
             # treated conservatively: leave this sweep's approvals to a

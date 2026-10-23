@@ -36,10 +36,18 @@ final readonly class CoverageReport
 
         $metrics = $xml->project->metrics;
 
-        return new self(
-            (int) $metrics['statements'],
-            (int) $metrics['coveredstatements'],
-        );
+        $statements = (int) $metrics['statements'];
+        $coveredStatements = (int) $metrics['coveredstatements'];
+
+        if ($coveredStatements > $statements) {
+            throw new ToolingException(\sprintf(
+                'Coverage report is impossible: %d covered statements exceed the %d total statements.',
+                $coveredStatements,
+                $statements,
+            ));
+        }
+
+        return new self($statements, $coveredStatements);
     }
 
     public function percentage(): float

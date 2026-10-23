@@ -472,6 +472,29 @@ jobs:
             echo "has drifted — see docs/security/sonarcloud.md section 4."
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Resolve the manual-run pull-request arguments (validated)
+        # The `pr_number` input and the dispatching branch name reach the
+        # scanner through its `args:` only after validation: a number that is
+        # not digits-only is refused outright (it names no pull request), and
+        # the branch name is percent-encoded before it crosses into the
+        # argument list -- a git branch name may legally carry characters an
+        # argument parser would treat as separators. Both rejections fail
+        # closed: a manual scan that cannot name its pull request honestly
+        # must not fall back to scanning as something else. The validated
+        # arguments cross to the scan step through the environment, never
+        # through direct interpolation of an input into the `args:` line.
+        if: inputs.pr_number != '' && steps.sonar_guard.outputs.available == 'true'
+        env:
+          INPUT_PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          set -euo pipefail
+          if ! [[ "${INPUT_PR_NUMBER}" =~ ^[0-9]+$ ]]; then
+            echo "::error::The pr_number input must be digits-only; '${INPUT_PR_NUMBER}' does not name a pull request."
+            exit 1
+          fi
+          encoded_branch=$(printf '%s' "${GITHUB_REF_NAME}" | jq -Rr '@uri')
+          echo "SONAR_PR_ARGS=-Dsonar.pullrequest.key=${INPUT_PR_NUMBER} -Dsonar.pullrequest.branch=${encoded_branch} -Dsonar.pullrequest.base=main" >> "$GITHUB_ENV"
+
       - name: SonarCloud scan
         if: steps.sonar_guard.outputs.available == 'true'
         uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4 # v8.2.2
@@ -498,7 +521,7 @@ jobs:
             -Dsonar.projectBaseDir=.
             ${{ env.COVERAGE_ARGS }}
             ${{ github.event_name == 'merge_group' && format('-Dsonar.branch.name={0}', env.QUEUE_SONAR_BRANCH) || '' }}
-            ${{ inputs.pr_number != '' && format('-Dsonar.pullrequest.key={0} -Dsonar.pullrequest.branch={1} -Dsonar.pullrequest.base=main', inputs.pr_number, github.ref_name) || '' }}
+            ${{ env.SONAR_PR_ARGS }}
         env:
           # Reported to SonarCloud for the SCM/CI sensor. Decoration itself is
           # delivered by the SonarCloud GitHub App, not by this workflow.

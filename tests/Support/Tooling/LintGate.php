@@ -8,7 +8,11 @@ namespace Zef\Test\Support\Tooling;
  * Syntax-lint gate.
  *
  * The actual `php -l` invocation is injected as a callable so the gate logic is
- * pure and testable; the CLI wires the real process runner.
+ * pure and testable; the CLI wires the real process runner. An empty corpus
+ * is a failure, not a pass: a lint that checked nothing certifies nothing,
+ * and the corpus collector's own refusal ({@see LintReport}) is the primary
+ * guard -- this arm is the defense that stands even when the corpus arrives
+ * empty by construction rather than by a missing directory.
  */
 final readonly class LintGate
 {
@@ -29,6 +33,12 @@ final readonly class LintGate
             }
 
             $failures[] = $file;
+        }
+
+        if ($lintReport->count() === 0) {
+            return GateResult::failed(
+                'Lint gate FAILED: no PHP files were found to lint -- an empty corpus certifies nothing.',
+            );
         }
 
         if ($failures !== []) {

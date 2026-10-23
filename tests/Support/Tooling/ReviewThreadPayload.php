@@ -21,7 +21,8 @@ namespace Zef\Test\Support\Tooling;
  * cannot account for still counts as unresolved for the required
  * check, so every unusable node surfaces in the report's own count
  * ({@see ReviewThreadReport::$unusable}) and rides the resolution's
- * failure total ({@see ReviewThreadResolution}).
+ * unusable total ({@see ReviewThreadResolution}), which the CLI's
+ * exit code refuses rather than reporting a clean zero.
  */
 final readonly class ReviewThreadPayload
 {

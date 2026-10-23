@@ -253,6 +253,7 @@ final class ReviewThreadResolverTest extends TestCase
                         [['id' => 'PRRT_page1', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/A.php']],
                         true,
                         'CURSOR_1',
+                        2,
                     );
                 }
 
@@ -260,6 +261,7 @@ final class ReviewThreadResolverTest extends TestCase
                     [['id' => 'PRRT_page2', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/B.php']],
                     false,
                     null,
+                    2,
                 );
             }
 
@@ -281,6 +283,110 @@ final class ReviewThreadResolverTest extends TestCase
     }
 
     /**
+     * The cross-check's refusal arm: a `pageInfo` that ends the walk early
+     * (hasNextPage false) while the connection's own total says more nodes
+     * exist is a truncated walk, and a truncated walk must refuse rather
+     * than resolve against a ledger it cannot see whole.
+     */
+    public function testATruncatedWalkRefusesAgainstTheConnectionTotal(): void
+    {
+        $calls = 0;
+
+        $graphql = static function (string $query, array $variables) use (&$calls): string {
+            if (str_contains($query, 'reviewThreads')) {
+                ++$calls;
+
+                return self::pagedThreadsPayload(
+                    [['id' => 'PRRT_page1', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/A.php']],
+                    false,
+                    null,
+                    2,
+                );
+            }
+
+            return self::resolveSuccess('');
+        };
+
+        try {
+            new ReviewThreadResolver($graphql)->resolve(131);
+            self::fail('A truncated walk must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'Review-thread pagination is inconsistent: 1 thread(s) walked against a total of 2.',
+                $toolingException->getMessage(),
+            );
+        }
+
+        self::assertSame(1, $calls, 'no mutation may fire for a walk that refused');
+    }
+
+    /**
+     * A truncated walk names threads and unusable nodes together in its
+     * refusal: the cross-check counts every node the pages carried -- the
+     * thread the sweep could act on and the unusable node it could not --
+     * so the message's walked total is their sum, never one alone.
+     */
+    public function testATruncatedWalkCountsThreadsAndUnusableNodesTogether(): void
+    {
+        $graphql = static fn (string $query, array $variables): string => self::pagedThreadsPayload(
+            [
+                ['id' => 'PRRT_page1', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/A.php'],
+                ['isResolved' => false, 'isOutdated' => true, 'path' => 'src/B.php'],
+            ],
+            false,
+            null,
+            3,
+        );
+
+        try {
+            new ReviewThreadResolver($graphql)->resolve(131);
+            self::fail('A truncated walk must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'Review-thread pagination is inconsistent: 2 thread(s) walked against a total of 3.',
+                $toolingException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * A page that claims another follows while carrying no cursor to follow
+     * is refused outright: the walk would re-send the first page's query
+     * forever, duplicating its threads until the job's own timeout.
+     */
+    public function testACursorlessContinuationIsRefusedInsteadOfReWalkingForever(): void
+    {
+        $calls = 0;
+
+        $graphql = static function (string $query, array $variables) use (&$calls): string {
+            if (str_contains($query, 'reviewThreads')) {
+                ++$calls;
+
+                return self::pagedThreadsPayload(
+                    [['id' => 'PRRT_page1', 'isResolved' => false, 'isOutdated' => true, 'path' => 'src/A.php']],
+                    true,
+                    null,
+                    1,
+                );
+            }
+
+            return self::resolveSuccess('');
+        };
+
+        try {
+            new ReviewThreadResolver($graphql)->resolve(131);
+            self::fail('A cursorless continuation must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'Review-thread pagination is inconsistent: a page that follows carries no cursor to follow.',
+                $toolingException->getMessage(),
+            );
+        }
+
+        self::assertSame(1, $calls, 'the refusal fired on the first page, not after a re-walk');
+    }
+
+    /**
      * Unusable nodes ride the failure total across every page of the
      * walk: a thread the sweep cannot account for still counts as
      * unresolved for the required check, so one unusable node on each
@@ -296,6 +402,7 @@ final class ReviewThreadResolverTest extends TestCase
                         [['isResolved' => false, 'isOutdated' => true, 'path' => 'src/A.php']],
                         true,
                         'CURSOR_1',
+                        2,
                     );
                 }
 
@@ -303,6 +410,7 @@ final class ReviewThreadResolverTest extends TestCase
                     [['isResolved' => false, 'isOutdated' => true, 'path' => 'src/B.php']],
                     false,
                     null,
+                    2,
                 );
             }
 
@@ -344,14 +452,21 @@ final class ReviewThreadResolverTest extends TestCase
     /**
      * @param list<array<string, mixed>> $nodes
      */
-    private static function pagedThreadsPayload(array $nodes, bool $hasNextPage, ?string $endCursor): string
-    {
+    private static function pagedThreadsPayload(
+        array $nodes,
+        bool $hasNextPage,
+        ?string $endCursor,
+        ?int $totalCount = null,
+    ): string {
         return (string) json_encode([
             'data' => [
                 'repository' => [
                     'pullRequest' => [
                         'reviewThreads' => [
-                            'totalCount' => \count($nodes),
+                            // The connection-wide total, constant on every
+                            // page -- the semantics GitHub answers and the
+                            // resolver's cross-check walks against.
+                            'totalCount' => $totalCount ?? \count($nodes),
                             'pageInfo' => [
                                 'hasNextPage' => $hasNextPage,
                                 'endCursor' => $endCursor,

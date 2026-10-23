@@ -92,6 +92,75 @@ final class RouteTreeCacheTest extends TestCase
         $this->assertTreesAnswerAlike($dumpedTree, RadixTree::compile($this->table()));
     }
 
+    /**
+     * The dump's finalisation arm: the cache target is the test directory
+     * itself, so the directory pre-check passes, the staging sibling is
+     * written into the (writable) parent, and the finalising rename onto
+     * the occupied directory fails -- the staging sibling never survives
+     * its own failed rename. The custom error handler swallows the
+     * engine's diagnostic for the failing rename; the branch under test
+     * is the failure handling, not the diagnostic.
+     */
+    public function testDumpThrowsWhenTheWriteCannotBeFinalised(): void
+    {
+        set_error_handler(static fn (): bool => true);
+
+        try {
+            $routeTreeCache = new RouteTreeCache($this->directory);
+            $routeTreeCache->dump($this->table());
+            self::fail('A dump that cannot be finalised must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                \sprintf('The route tree cache "%s" could not be finalised.', $this->directory),
+                $configException->getMessage(),
+            );
+            $staging = glob($this->directory . '.*.staging');
+            self::assertIsArray($staging);
+            self::assertSame(
+                [],
+                $staging,
+                'the failed rename cleaned its own staging sibling',
+            );
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    /**
+     * The atomic contract: an artifact the previous dump wrote survives a
+     * failed re-dump whole -- the staging sibling took the failure, the
+     * reader-facing name never saw a partial byte.
+     */
+    public function testADumpThatCannotBeFinalisedLeavesThePreviousArtifactWhole(): void
+    {
+        $routeTreeCache = new RouteTreeCache($this->file);
+        $routeTreeCache->dump($this->table());
+
+        set_error_handler(static fn (): bool => true);
+
+        try {
+            $unfinalisable = new RouteTreeCache($this->directory);
+
+            try {
+                $unfinalisable->dump($this->table());
+                self::fail('A dump that cannot be finalised must raise a ConfigException.');
+            } catch (ConfigException $configException) {
+                self::assertSame(
+                    \sprintf('The route tree cache "%s" could not be finalised.', $this->directory),
+                    $configException->getMessage(),
+                );
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        $staging = glob($this->directory . '.*.staging');
+        self::assertIsArray($staging);
+        self::assertSame([], $staging, 'the failed re-dump left no staging sibling behind');
+
+        $this->assertTreesAnswerAlike($routeTreeCache->load(), RadixTree::compile($this->table()));
+    }
+
     public function testRoundTripsAMixedTableAgainstTheCompiledReference(): void
     {
         $routeTreeCache = new RouteTreeCache($this->file);
@@ -684,24 +753,37 @@ final class RouteTreeCacheTest extends TestCase
 
     public function testDumpThrowsWhenTheWriteFails(): void
     {
-        // The cache target is the test directory itself: dirname() resolves
-        // to the (existing) parent, so the pre-check passes and the write
-        // itself fails. The custom error handler swallows the engine's
-        // diagnostic for the failing stream open; the branch under test is
-        // the failure handling, not the diagnostic.
+        // The staging write itself fails: the artifact's parent directory is
+        // read-only, so the payload cannot land anywhere and the write arm
+        // answers before the finalising rename is ever attempted. (An
+        // occupied-directory target no longer reaches this arm -- the
+        // staging sibling takes the write, and the target's own refusal is
+        // the finalisation arm the neighbouring tests pin.) The custom
+        // error handler swallows the engine's diagnostic for the failing
+        // stream open; the branch under test is the failure handling, not
+        // the diagnostic.
+        $readOnly = $this->directory . '/read-only';
+        mkdir($readOnly);
+        chmod($readOnly, 0o500);
+
         set_error_handler(static fn (): bool => true);
 
         try {
-            $routeTreeCache = new RouteTreeCache($this->directory);
+            $routeTreeCache = new RouteTreeCache($readOnly . '/route-tree.cache.php');
             $routeTreeCache->dump($this->table());
             self::fail('A failed route tree cache write must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(
-                \sprintf('The route tree cache "%s" could not be written.', $this->directory),
+                \sprintf(
+                    'The route tree cache "%s" could not be written.',
+                    $readOnly . '/route-tree.cache.php',
+                ),
                 $configException->getMessage(),
             );
         } finally {
             restore_error_handler();
+            chmod($readOnly, 0o700);
+            rmdir($readOnly);
         }
     }
 
@@ -733,6 +815,70 @@ final class RouteTreeCacheTest extends TestCase
                 $configException->getMessage(),
             );
         }
+    }
+
+    /**
+     * The staging sibling's own name, observed through the engine's
+     * diagnostic for the failing rename: the artifact's basename, the
+     * writing process's own id, a twelve-hex-character entropy drawn from
+     * `random_bytes`, and the `.staging` suffix -- a sibling no concurrent
+     * writer can collide with. The rename onto the occupied directory
+     * fails, the diagnostic carries the whole staging path, and the failed
+     * dump still cleans its own sibling. (The same contract the
+     * configuration cache's staging name keeps -- the two must stay
+     * spellable the same way, and this battery pins this one against
+     * every rearrangement of its composition.).
+     */
+    public function testTheStagingSiblingCarriesTheBasenameThePidAndTheEntropy(): void
+    {
+        $occupied = $this->directory . '/occupied';
+        mkdir($occupied);
+        file_put_contents($occupied . '/sentinel', 'x');
+
+        $diagnostics = [];
+        set_error_handler(static function (int $severity, string $message) use (&$diagnostics): bool {
+            $diagnostics[] = $message;
+
+            return true;
+        });
+
+        try {
+            $routeTreeCache = new RouteTreeCache($occupied);
+
+            try {
+                $routeTreeCache->dump($this->table());
+                self::fail('A dump onto an occupied directory target must raise a ConfigException.');
+            } catch (ConfigException $configException) {
+                self::assertSame(
+                    \sprintf('The route tree cache "%s" could not be finalised.', $occupied),
+                    $configException->getMessage(),
+                );
+            }
+        } finally {
+            restore_error_handler();
+        }
+
+        $renames = array_values(array_filter(
+            $diagnostics,
+            static fn (string $message): bool => str_starts_with($message, 'rename('),
+        ));
+        self::assertCount(1, $renames, 'exactly one rename diagnostic carries the staging path');
+        self::assertMatchesRegularExpression(
+            '/^rename\(' . preg_quote($occupied, '/') . '\.' . preg_quote((string) getmypid(), '/')
+                . '-[0-9a-f]{12}\.staging,/',
+            $renames[0],
+            'the staging sibling is the basename, the pid, the entropy and the suffix',
+        );
+
+        $staging = glob($occupied . '.*.staging');
+        self::assertIsArray($staging);
+        self::assertSame([], $staging, 'the failed rename cleaned its own staging sibling');
+
+        if (is_file($occupied . '/sentinel')) {
+            unlink($occupied . '/sentinel');
+        }
+
+        rmdir($occupied);
     }
 
     /**

@@ -61,10 +61,15 @@ permissions:
   contents: read
   pull-requests: read
 
-# One run at a time per pull request; a queued run proceeds after the current
-# one instead of being dropped (a title edit must not cancel a pending run).
+# One run at a time per commit under verification; a queued run proceeds
+# after the current one instead of being dropped (a title edit must not
+# cancel a pending run). Keyed on the commit (the PR head sha, falling
+# back to the push sha) rather than the mutating `github.ref` merge ref: a
+# merge-ref group lets two runs for two different heads of one pull request
+# queue behind each other, and the older run's result then answers for a
+# head it never saw (the PR #136 class).
 concurrency:
-  group: pr-validator-${{ github.ref }}
+  group: pr-validator-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: false
 
 jobs:

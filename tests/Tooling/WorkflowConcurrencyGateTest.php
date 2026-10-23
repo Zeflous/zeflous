@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Test\Support\Tooling\BashArrayExpansionDetector;
 use Zef\Test\Support\Tooling\GateResult;
+use Zef\Test\Support\Tooling\ToolingException;
 use Zef\Test\Support\Tooling\WorkflowConcurrencyGate;
 use Zef\Test\Support\Tooling\WorkflowConcurrencyPolicy;
 use Zef\Test\Support\Tooling\WorkflowConcurrencyReport;
@@ -241,6 +242,122 @@ final class WorkflowConcurrencyGateTest extends TestCase
             'cancels in progress but its concurrency group is not keyed on the commit sha (found: publish-',
             $gateResult->message,
         );
+    }
+
+    /**
+     * The exact first-only escape: a workflow whose workflow-level block
+     * refuses (`cancel-in-progress: false`) while its job-level block
+     * cancels (`true`) is a CANCELLING file -- the common "cancel stale
+     * job runs" shape. Trusting the first spelling alone read the file as
+     * non-cancelling and let the job-level branch-keyed group escape the
+     * deadlock rule this gate exists to enforce.
+     */
+    public function testAJobLevelCancellingBlockIsJudgedDespiteARefusingWorkflowLevelOne(): void
+    {
+        $gateResult = $this->gate([
+            'release.yml' => "name: Release\n"
+                . "concurrency:\n"
+                . '  group: release-${{ github.event_name }}-${{ github.sha }}' . "\n"
+                . "  cancel-in-progress: false\n"
+                . "jobs:\n  publish:\n"
+                . "    concurrency:\n"
+                . "      group: publish-\${{ github.ref }}\n"
+                . "      cancel-in-progress: true\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString(
+            'release.yml cancels in progress but its concurrency group is not keyed on the commit sha (found: publish-'
+            . self::GITHUB_REF_EXPRESSION . ').',
+            $gateResult->message,
+        );
+    }
+
+    /**
+     * A trailing comment is not part of the flag: `true # keep the newest`
+     * spells the cancelling boolean, and the first-only literal lookup that
+     * captured `true # keep` whole read the file as non-cancelling.
+     */
+    public function testATrailingCommentOnTheCancellingFlagIsNotPartOfTheFlag(): void
+    {
+        $gateResult = $this->gate([
+            'ci-coverage.yml' => "concurrency:\n  group: " . self::LANE_BRANCH_GROUP
+                . "\n  cancel-in-progress: true # keep the newest run\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('cancels in progress', $gateResult->message);
+    }
+
+    public function testASingleQuotedCancellingFlagReadsAsTheBoolean(): void
+    {
+        $gateResult = $this->gate([
+            'ci-coverage.yml' => "concurrency:\n  group: " . self::LANE_BRANCH_GROUP
+                . "\n  cancel-in-progress: 'true'\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('cancels in progress', $gateResult->message);
+    }
+
+    public function testADoubleQuotedCancellingFlagReadsAsTheBoolean(): void
+    {
+        $gateResult = $this->gate([
+            'ci-coverage.yml' => "concurrency:\n  group: " . self::LANE_BRANCH_GROUP
+                . "\n  cancel-in-progress: \"true\"\n",
+        ]);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('cancels in progress', $gateResult->message);
+    }
+
+    /**
+     * Normalisation must not manufacture cancellations: a refusing flag
+     * with a comment, and a refusing flag in quotes, stay non-cancelling.
+     */
+    public function testARefusingFlagWithACommentStaysNonCancelling(): void
+    {
+        $gateResult = $this->gate([
+            'ci-static.yml' => "concurrency:\n  group: " . self::BRANCH_GROUP
+                . "\n  cancel-in-progress: false # the aggregator must queue, not cancel\n",
+        ]);
+
+        self::assertTrue($gateResult->passed);
+    }
+
+    /**
+     * A workflow file the audit cannot read refuses the whole collection:
+     * its concurrency misconfiguration would otherwise escape the gate
+     * silently. A dangling symlink is the shape that reaches the unreadable
+     * arm while the directory itself still iterates; the error handler
+     * swallows the engine's diagnostic, the branch under test is the
+     * refusal.
+     */
+    public function testAnUnreadableWorkflowFileRefusesTheCollection(): void
+    {
+        $root = (string) tempnam(sys_get_temp_dir(), 'zef-wfcol-');
+        unlink($root);
+        mkdir($root . '/.github/workflows', 0o777, true);
+        symlink($root . '/.github/workflows/target-that-does-not-exist.yml', $root . '/.github/workflows/dangling.yml');
+
+        set_error_handler(static fn (): bool => true);
+
+        try {
+            new WorkflowFileCollector($root)->collect();
+            self::fail('An unreadable workflow file must refuse the collection.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'Unable to read the workflow file "' . $root . '/.github/workflows/dangling.yml"'
+                . ' for the concurrency audit.',
+                $toolingException->getMessage(),
+            );
+        } finally {
+            restore_error_handler();
+            unlink($root . '/.github/workflows/dangling.yml');
+            rmdir($root . '/.github/workflows');
+            rmdir($root . '/.github');
+            rmdir($root);
+        }
     }
 
     public function testATriggeringWorkflowWithoutAnyConcurrencyGroupFails(): void
