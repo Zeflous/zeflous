@@ -69,10 +69,20 @@ use Zef\Framework\Config\ConfigException;
  * ({@see RouteTreeCacheHydration}). This facade is the boot pipeline's
  * one public surface over them.
  *
+ * The dump itself is atomic -- the staging-name doctrine the
+ * configuration cache and the AOT artifact's own dump keep: the payload
+ * lands in a uniquely named sibling first and crosses to the artifact's
+ * own name through one `rename()`, so a boot that races a rebuild never
+ * `require`s a half-written tree (a torn write would surface as the
+ * `ParseError` arm of `load()` and halt every later boot until an
+ * operator re-dumps).
+ *
  * @api
  */
 final readonly class RouteTreeCache
 {
+    private const int ENTROPY_BYTES = 6;
+
     /**
      * @param non-empty-string $file path of the cache artifact (created by dump, read by load)
      */
@@ -83,15 +93,19 @@ final readonly class RouteTreeCache
 
     /**
      * Compiles the route table and writes the cache artifact, replacing
-     * whatever the file carried before, and returns the compiled tree so
-     * the build tooling keeps answering from the compilation it just paid
-     * for.
+     * whatever the file carried before -- atomically: the payload lands
+     * in a uniquely named staging sibling and crosses to the artifact's
+     * own name through one `rename()`, so a reader never observes a
+     * half-written tree no matter how many rebuilds race the same path
+     * -- and returns the compiled tree so the build tooling keeps
+     * answering from the compilation it just paid for.
      *
      * @param array<mixed> $routes a list of Standard Route Schema entries
      *
      * @throws ConfigException when the table is not a list, an entry is
      *                         invalid, the artifact directory does not
      *                         exist, or the artifact cannot be written
+     *                         or finalised
      */
     public function dump(array $routes): RadixTree
     {
@@ -117,18 +131,26 @@ final readonly class RouteTreeCache
             );
         }
 
-        $bytes = file_put_contents(
-            $this->file,
-            new RouteTreeCacheExport()->content($routes, $compiledRoutes, $radixNode),
-        );
+        $payload = new RouteTreeCacheExport()->content($routes, $compiledRoutes, $radixNode);
+        $staging = $this->stagingName();
 
-        if (!\is_int($bytes)) {
+        if (file_put_contents($staging, $payload, \LOCK_EX) === false) {
             throw new ConfigException(
                 \sprintf('The route tree cache "%s" could not be written.', $this->file),
             );
         }
 
-        return $radixTree;
+        if (rename($staging, $this->file)) {
+            return $radixTree;
+        }
+
+        if (is_file($staging)) {
+            unlink($staging);
+        }
+
+        throw new ConfigException(
+            \sprintf('The route tree cache "%s" could not be finalised.', $this->file),
+        );
     }
 
     /**
@@ -191,5 +213,23 @@ final readonly class RouteTreeCache
     public static function signatureOf(array $routes): string
     {
         return RouteTreeCacheExport::signatureOf($routes);
+    }
+
+    /**
+     * The staging sibling's name: the artifact's own basename, the
+     * writing process's identity, and entropy enough that two
+     * concurrent writers never collide on one staging file -- each
+     * rename stays atomic for its own payload (the same doctrine the
+     * configuration cache's staging name keeps).
+     *
+     * @return non-empty-string the staging path, beside the artifact it feeds
+     */
+    private function stagingName(): string
+    {
+        $pid = getmypid();
+
+        return \dirname($this->file) . '/' . basename($this->file)
+            . '.' . ($pid === false ? '0' : (string) $pid)
+            . '-' . bin2hex(random_bytes(self::ENTROPY_BYTES)) . '.staging';
     }
 }

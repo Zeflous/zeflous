@@ -132,7 +132,15 @@ final class ReplaySnapshotWriterTest extends TestCase
         );
     }
 
-    public function testTheLoopBoundCountsCharactersAndSlicesOnCharacterOffsets(): void
+    /**
+     * The loop bound is the BYTE count and the slices ride byte offsets:
+     * a one-byte-per-call budget over a snapshot whose label carries a
+     * two-byte multibyte character needs one call per byte -- fifteen for
+     * a fourteen-character snapshot -- and the slice past the label's
+     * first byte starts at the label's SECOND BYTE, never at the closing
+     * quote the character-offset walk once jumped to.
+     */
+    public function testTheLoopBoundCountsBytesAndSlicesOnByteOffsets(): void
     {
         ReplaySnapshotDoubleState::$fwriteChunk = 1;
 
@@ -142,18 +150,17 @@ final class ReplaySnapshotWriterTest extends TestCase
             static fn (array $call): string => $call[0],
             ReplaySnapshotDoubleState::$fwriteCalls,
         );
-        $contents = '{"label":"é"}' . "\n";
 
         self::assertCount(
-            mb_strlen($contents),
+            15,
             $payloads,
-            'The loop bound is the character count, so a one-byte-per-call budget needs exactly that many calls.',
+            'The loop bound is the byte count, so a one-byte-per-call budget needs exactly that many calls.',
         );
         self::assertSame(
-            mb_substr($contents, 11),
+            "\xA9\"}\n",
             $payloads[11],
-            'The write cursor advances on character offsets, so the slice past the multibyte label starts at '
-            . "the closing quote, not the label's second byte.",
+            "The write cursor advances on byte offsets, so the slice past the label's first byte"
+                . " starts at the label's second byte, not at the closing quote.",
         );
     }
 }
