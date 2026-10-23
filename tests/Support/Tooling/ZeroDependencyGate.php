@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Zef\Test\Support\Tooling;
 
 /**
- * Anti-regression zero-dependency gate (CONTRIBUTING.md rules 1 and 15).
+ * Anti-regression zero-dependency gate (CONTRIBUTING.md rules 1 and 16).
  *
  * ZEF ships zero Composer runtime dependencies: `composer.json` `require` must
  * be exactly `{"php": "^8.4"}` and `composer.lock` production `packages` must
