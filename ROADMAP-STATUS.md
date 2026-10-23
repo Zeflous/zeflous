@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-24 · `main` @ `PENDING-MERGE-COMMIT`
+**Last updated:** 2026-10-24 · `main` @ `056117e`
 
 ---
 
