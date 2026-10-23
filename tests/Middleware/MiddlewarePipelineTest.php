@@ -6,6 +6,7 @@ namespace Zef\Test\Middleware;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
@@ -32,30 +33,40 @@ final class MiddlewarePipelineTest extends TestCase
         self::assertSame('from the terminal', (string) $response->getBody());
     }
 
-    public function testAPipelineWithoutATerminalAnswersTheMissingTerminalResponse(): void
+    public function testAPipelineWithoutATerminalRefusesThroughTheInvariantSignal(): void
     {
-        $response = new MiddlewarePipeline()->handle($this->request());
-
-        self::assertSame(500, $response->getStatusCode());
-        self::assertSame('text/plain', $response->getHeaderLine('Content-Type'));
-        self::assertSame('Pipeline terminal missing.', (string) $response->getBody());
+        try {
+            new MiddlewarePipeline()->handle($this->request());
+            self::fail('a pipeline built without a terminal refuses instead of answering');
+        } catch (InvariantViolationException $invariantViolationException) {
+            self::assertSame(
+                'The middleware pipeline was built without a terminal request handler.',
+                $invariantViolationException->getMessage(),
+            );
+        }
     }
 
-    public function testAnExhaustedStackWithoutATerminalAnswersTheMissingTerminalResponse(): void
+    public function testAnExhaustedStackWithoutATerminalRefusesThroughTheInvariantSignal(): void
     {
         $middlewareTrace = new MiddlewareTrace();
         $recordingMiddleware = new RecordingMiddleware('delegating', $middlewareTrace);
 
         $middlewarePipeline = new MiddlewarePipeline([$recordingMiddleware]);
 
-        $response = $middlewarePipeline->handle($this->request());
+        try {
+            $middlewarePipeline->handle($this->request());
+            self::fail('the exhausted stack without a terminal refuses instead of answering');
+        } catch (InvariantViolationException $invariantViolationException) {
+            self::assertSame(
+                'The middleware pipeline was built without a terminal request handler.',
+                $invariantViolationException->getMessage(),
+            );
+        }
 
-        self::assertSame(500, $response->getStatusCode());
-        self::assertSame('Pipeline terminal missing.', (string) $response->getBody());
         self::assertSame(
-            ['delegating:enter', 'delegating:exit'],
+            ['delegating:enter'],
             $middlewareTrace->marks(),
-            'the missing-terminal 500 flows back through the onion like any terminal answer',
+            'the invariant refusal unwinds the onion like any fault: enter marks stay, exits are skipped',
         );
     }
 

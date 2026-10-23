@@ -9,7 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Zef\Framework\Http\Response;
+use Zef\Framework\Exception\InvariantViolationException;
 
 /**
  * The immutable PSR-15 execution pipeline.
@@ -26,8 +26,12 @@ use Zef\Framework\Http\Response;
  * A pipeline always ends at one terminal handler (the controller/action the
  * dispatcher resolves). When a pipeline is built without one -- a
  * programming error the factory never produces -- the exhausted stack
- * answers a 500 plain-text response rather than failing silently, so a
- * response is produced even on the error path.
+ * raises the typed invariant signal ({@see InvariantViolationException})
+ * instead of hand-building an error response: every error shape belongs to
+ * the error boundary (CONTRIBUTING.md, rule 17), so the refusal travels the
+ * same problem-details lane the boundary renders for every other fault --
+ * through the mapping middleware when one wraps the stack, through the
+ * process boundary when nothing does.
  */
 final readonly class MiddlewarePipeline implements RequestHandlerInterface
 {
@@ -58,7 +62,9 @@ final readonly class MiddlewarePipeline implements RequestHandlerInterface
     {
         if ($this->index >= \count($this->stack)) {
             if (!$this->requestHandler instanceof RequestHandlerInterface) {
-                return new Response(500, ['Content-Type' => 'text/plain'], 'Pipeline terminal missing.');
+                throw new InvariantViolationException(
+                    'The middleware pipeline was built without a terminal request handler.',
+                );
             }
 
             return $this->requestHandler->handle($request);
