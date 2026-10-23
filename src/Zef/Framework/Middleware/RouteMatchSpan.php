@@ -48,19 +48,26 @@ final readonly class RouteMatchSpan
 
     /**
      * Opens the match span under the request span the boundary
-     * exposed, carrying the request's own routing surface -- kept
-     * deliberately minimal, the request span's own three.
+     * exposed on the request, carrying the request's own routing
+     * surface -- kept deliberately minimal, the request span's own
+     * three.
+     *
+     * The parent arrives as the boundary's attribute value reads it:
+     * a foreign value under the attribute name is narrowed by the
+     * interface's own contract, never trusted as a parent -- the
+     * same guarded read {@see CorrelationMiddleware}'s boundary
+     * performs for the request span it exposes.
      */
     public static function open(
         TracerInterface $tracer,
-        ?SpanInterface $parentSpan,
+        mixed $parentSpan,
         ServerRequestMetadata $serverRequestMetadata,
     ): self {
         return new self(
             $tracer->startSpan(
                 self::MATCH_SPAN_NAME,
                 self::openingAttributes($serverRequestMetadata),
-                $parentSpan?->getContext(),
+                $parentSpan instanceof SpanInterface ? $parentSpan->getContext() : null,
             ),
         );
     }
@@ -87,7 +94,9 @@ final readonly class RouteMatchSpan
             $this->span->setStatus('ERROR', $outcome);
         }
 
-        $this->span->setAttributes($attributes);
+        foreach ($attributes as $key => $value) {
+            $this->span->setAttribute($key, $value);
+        }
     }
 
     /**

@@ -72,16 +72,16 @@ final readonly class RouteDebugMiddleware implements MiddlewareInterface
 
     #[Override]
     public function process(
-        ServerRequestInterface $serverRequest,
-        RequestHandlerInterface $requestHandler,
+        ServerRequestInterface $request,
+        RequestHandlerInterface $handler,
     ): ResponseInterface {
-        $response = $requestHandler->handle($serverRequest);
+        $response = $handler->handle($request);
 
         if (!$this->disclosable($response)) {
             return $response;
         }
 
-        return $this->disclosed($serverRequest, $response);
+        return $this->disclosed($request, $response);
     }
 
     /**

@@ -10,7 +10,6 @@ use Throwable;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Telemetry\MeterInterface;
-use Zef\Framework\Telemetry\SpanInterface;
 use Zef\Framework\Telemetry\TelemetryClockInterface;
 use Zef\Framework\Telemetry\TracerInterface;
 
@@ -82,7 +81,7 @@ final readonly class RouteMatchTelemetry
         $serverRequestMetadata = ServerRequestMetadata::fromRequest($serverRequest);
         $routeMatchSpan = RouteMatchSpan::open(
             $this->tracer,
-            $this->parentSpan($serverRequest),
+            $serverRequest->getAttribute(CorrelationMiddleware::SPAN_ATTRIBUTE),
             $serverRequestMetadata,
         );
         $startedNs = $this->telemetryClock->monotonicNs();
@@ -104,19 +103,6 @@ final readonly class RouteMatchTelemetry
         $this->record($serverRequestMetadata->method, $outcome, $durationNs);
 
         return $matchResult;
-    }
-
-    /**
-     * The request span the correlation boundary exposed on the
-     * request, when it did -- the boundary's own attribute contract
-     * guarded, so a foreign value under the attribute name is read
-     * as its absence, never trusted as a parent.
-     */
-    private function parentSpan(ServerRequestInterface $serverRequest): ?SpanInterface
-    {
-        $parentSpan = $serverRequest->getAttribute(CorrelationMiddleware::SPAN_ATTRIBUTE);
-
-        return $parentSpan instanceof SpanInterface ? $parentSpan : null;
     }
 
     /**
