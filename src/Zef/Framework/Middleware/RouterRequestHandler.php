@@ -8,14 +8,12 @@ use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use UnexpectedValueException;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Router\Router;
-use Zef\Framework\Telemetry\SpanInterface;
 
 /**
  * PSR-15 adapter that joins request metadata, radix matching and route middleware.
@@ -66,33 +64,13 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         $serverRequestMetadata = ServerRequestMetadata::fromRequest($request);
         $matchResult = $this->matchObserved($request, $serverRequestMetadata);
 
-        $stack = [];
-        if ($matchResult->isFound()) {
-            foreach ($matchResult->route()->middleware() as $serviceId) {
-                if (!$this->container->has($serviceId)) {
-                    throw new MiddlewareException(\sprintf(
-                        'Route middleware service "%s" is not registered.',
-                        $serviceId,
-                    ));
-                }
-
-                $middleware = $this->container->get($serviceId);
-                if (!$middleware instanceof MiddlewareInterface) {
-                    throw new MiddlewareException(\sprintf(
-                        'Route middleware service "%s" does not implement MiddlewareInterface.',
-                        $serviceId,
-                    ));
-                }
-
-                $stack[] = $middleware;
-            }
-        }
-
         $routeDispatchHandler = new RouteDispatchHandler(
             $this->routeDispatcher,
             $matchResult,
             $serverRequestMetadata,
         );
+
+        $stack = RouteMiddlewareStack::resolve($matchResult, $this->container);
 
         $response = new MiddlewarePipeline($stack, $routeDispatchHandler)->handle($request);
         $response = $this->conditionalRequests->apply($request, $response, $serverRequestMetadata->method);
@@ -125,11 +103,8 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
             return $this->routerRequestMatcher->match($serverRequestMetadata);
         }
 
-        $parentSpan = $serverRequest->getAttribute(CorrelationMiddleware::SPAN_ATTRIBUTE);
-
         return $this->routeMatchTelemetry->observed(
-            $parentSpan instanceof SpanInterface ? $parentSpan : null,
-            $serverRequestMetadata,
+            $serverRequest,
             fn (): MatchResult => $this->routerRequestMatcher->match($serverRequestMetadata),
         );
     }

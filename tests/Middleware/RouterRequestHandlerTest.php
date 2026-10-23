@@ -6,6 +6,7 @@ namespace Zef\Test\Middleware;
 
 use DateTimeImmutable;
 use Override;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -40,7 +41,9 @@ use Zef\Framework\Middleware\NotModifiedResponse;
 use Zef\Framework\Middleware\RequestAuthority;
 use Zef\Framework\Middleware\RouteDeprecationHeaders;
 use Zef\Framework\Middleware\RouteDispatchHandler;
+use Zef\Framework\Middleware\RouteMatchSpan;
 use Zef\Framework\Middleware\RouteMatchTelemetry;
+use Zef\Framework\Middleware\RouteMiddlewareStack;
 use Zef\Framework\Middleware\RouterRequestHandler;
 use Zef\Framework\Middleware\RouterRequestMatcher;
 use Zef\Framework\Middleware\ServerRequestMetadata;
@@ -70,6 +73,8 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 #[CoversClass(RouteDeprecationHeaders::class)]
 #[CoversClass(RouteDispatcher::class)]
 #[CoversClass(RouterRequestHandler::class)]
+#[CoversClass(RouteMatchSpan::class)]
+#[CoversClass(RouteMiddlewareStack::class)]
 #[CoversClass(RouterRequestMatcher::class)]
 #[CoversClass(ServerRequestMetadata::class)]
 #[CoversClass(RouteDispatchHandler::class)]
@@ -528,6 +533,64 @@ final class RouterRequestHandlerTest extends TestCase
         ;
 
         self::assertSame('ran', $response->getHeaderLine('X-Route-Middleware'));
+    }
+
+    public function testTheRouteMiddlewareListComposesOuterToInner(): void
+    {
+        $container = $this->containerWithProfileHandler();
+        $container->set(
+            'route.first',
+            static fn (): MiddlewareInterface => new class implements MiddlewareInterface {
+                #[Override]
+                public function process(
+                    ServerRequestInterface $serverRequest,
+                    RequestHandlerInterface $requestHandler,
+                ): ResponseInterface {
+                    $message = $requestHandler->handle($serverRequest)
+                        ->withAddedHeader('X-Route-Order', 'first')
+                    ;
+                    Assert::assertInstanceOf(ResponseInterface::class, $message);
+
+                    return $message;
+                }
+            },
+        );
+        $container->set(
+            'route.second',
+            static fn (): MiddlewareInterface => new class implements MiddlewareInterface {
+                #[Override]
+                public function process(
+                    ServerRequestInterface $serverRequest,
+                    RequestHandlerInterface $requestHandler,
+                ): ResponseInterface {
+                    $message = $requestHandler->handle($serverRequest)
+                        ->withAddedHeader('X-Route-Order', 'second')
+                    ;
+                    Assert::assertInstanceOf(ResponseInterface::class, $message);
+
+                    return $message;
+                }
+            },
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'middleware' => ['route.first', 'route.second'],
+            ],
+        ]);
+
+        $response = $this->handler($router, $container)
+            ->handle($this->request('GET', 'api.example.com', 'application/json'))
+        ;
+
+        self::assertSame(
+            ['second', 'first'],
+            $response->getHeader('X-Route-Order'),
+            'the declaration order composes outer-to-inner -- the response carries the'
+            . ' inner stamp before the outer one, and both middlewares ran',
+        );
     }
 
     public function testMissingRouteMiddlewareFailsClosed(): void
@@ -1186,7 +1249,7 @@ final class RouterRequestHandlerTest extends TestCase
         self::assertCount(1, $spans);
 
         $span = $spans[0];
-        self::assertSame(RouteMatchTelemetry::MATCH_SPAN_NAME, $span->name);
+        self::assertSame(RouteMatchSpan::MATCH_SPAN_NAME, $span->name);
         self::assertSame('GET', $span->attributes['http.request.method']);
         self::assertSame('/profile', $span->attributes['url.path']);
         self::assertSame(RouteMatchExplanation::OUTCOME_FOUND, $span->attributes['router.match.outcome']);
@@ -1229,7 +1292,7 @@ final class RouterRequestHandlerTest extends TestCase
 
         $matchSpans = array_values(array_filter(
             $inMemorySpanExporter->spans(),
-            static fn (SpanData $spanData): bool => $spanData->name === RouteMatchTelemetry::MATCH_SPAN_NAME,
+            static fn (SpanData $spanData): bool => $spanData->name === RouteMatchSpan::MATCH_SPAN_NAME,
         ));
         self::assertCount(1, $matchSpans);
         self::assertSame(

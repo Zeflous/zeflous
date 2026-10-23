@@ -67,15 +67,6 @@ final readonly class RouteMatchExplanation
     /** The stage whose narrowing left no candidate: the accept negotiation. */
     public const string STAGE_ACCEPT = 'accept';
 
-    /** The budget the summary's shared-prefix rendering clamps to. */
-    private const int PREFIX_BUDGET = 128;
-
-    /** The budget each summary candidate rendering clamps to. */
-    private const int CANDIDATE_BUDGET = 128;
-
-    /** The marker a clamped rendering carries. */
-    private const string CLAMP_MARKER = '...';
-
     /**
      * @param list<string> $neighborPatterns     the patterns under the deepest
      *                                           shared static prefix (path stage)
@@ -325,63 +316,37 @@ final readonly class RouteMatchExplanation
     }
 
     /**
-     * The compact development line: the outcome's stage, the
-     * narrowing the pipeline performed, and the payload the failing
-     * stage carries -- every free-form input clamped to its own
-     * budget and stripped of the control bytes a request path could
-     * carry, because the line is destined for a response header.
+     * The compact development line: the bounded rendering
+     * {@see RouteMatchSummary} spells from this explanation -- the
+     * outcome's stage, the narrowing the pipeline performed, and the
+     * payload the failing stage carries, every free-form input
+     * clamped to its own budget and stripped of control bytes,
+     * because the line is destined for a response header.
      */
     public function summary(): string
     {
-        $tokens = [
-            'stage=' . ($this->failedStage ?? 'none'),
-            \sprintf(
-                'survivors=path:%d,host:%d,version:%d',
-                $this->pathSurvivors,
-                $this->hostSurvivors,
-                $this->versionSurvivors,
-            ),
-        ];
-
-        if ($this->sharedPrefix !== '') {
-            $tokens[] = 'prefix=' . self::clamped($this->sharedPrefix, self::PREFIX_BUDGET);
-        }
-
-        if ($this->neighborPatterns !== []) {
-            $tokens[] = 'candidates=' . implode(',', array_map(
-                static fn (string $pattern): string => self::clamped($pattern, self::CANDIDATE_BUDGET),
-                $this->neighborPatterns,
-            ));
-        }
-
-        if ($this->allowedMethods !== []) {
-            $tokens[] = 'allowed=' . implode(',', $this->allowedMethods);
-        }
-
-        if ($this->producibleMediaTypes !== []) {
-            $tokens[] = 'producible=' . implode(',', array_map(
-                static fn (string $mediaType): string => self::clamped($mediaType, self::CANDIDATE_BUDGET),
-                $this->producibleMediaTypes,
-            ));
-        }
-
-        return implode(' ', $tokens);
+        return RouteMatchSummary::render($this);
     }
 
     /**
-     * One rendering's own clamp: the control bytes a header refuses
-     * stripped, the character budget honored, and the marker spelled
-     * when the clamp cut.
+     * The outcome a match result settled on, in this vocabulary's
+     * own closed spellings -- the fold the span's status and the
+     * meter's dimensions both read, so the vocabulary has one owner.
      */
-    private static function clamped(string $value, int $budget): string
+    public static function outcomeOf(MatchResult $matchResult): string
     {
-        $clean = preg_replace('/[\x00-\x1F\x7F]/', '', $value);
-        $clean = \is_string($clean) ? $clean : '';
-
-        if (mb_strlen($clean) <= $budget) {
-            return $clean;
+        if ($matchResult->isFound()) {
+            return self::OUTCOME_FOUND;
         }
 
-        return mb_substr($clean, 0, $budget) . self::CLAMP_MARKER;
+        if ($matchResult->isMethodNotAllowed()) {
+            return self::OUTCOME_METHOD_NOT_ALLOWED;
+        }
+
+        if ($matchResult->isNotAcceptable()) {
+            return self::OUTCOME_NOT_ACCEPTABLE;
+        }
+
+        return self::OUTCOME_NOT_FOUND;
     }
 }

@@ -12,8 +12,11 @@ use RuntimeException;
 use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
+use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\Uri;
+use Zef\Framework\Middleware\CorrelationMiddleware;
+use Zef\Framework\Middleware\RouteMatchSpan;
 use Zef\Framework\Middleware\RouteMatchTelemetry;
-use Zef\Framework\Middleware\ServerRequestMetadata;
 use Zef\Framework\Telemetry\BatchSpanProcessor;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\InMemorySpanExporter;
@@ -39,6 +42,7 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
  * @internal
  */
 #[CoversClass(RouteMatchTelemetry::class)]
+#[CoversClass(RouteMatchSpan::class)]
 final class RouteMatchTelemetryTest extends TestCase
 {
     public function testObservesAFoundMatchThroughBothEngines(): void
@@ -53,8 +57,7 @@ final class RouteMatchTelemetryTest extends TestCase
         $routeMatchTelemetry = new RouteMatchTelemetry($tracer, $counterMeter, $steppingTelemetryClock);
 
         $matchResult = $routeMatchTelemetry->observed(
-            null,
-            $this->metadata('GET', '/users/42', 'api.example.com'),
+            $this->request('GET', '/users/42', 'api.example.com'),
             static fn (): MatchResult => MatchResult::found(self::route('/users/{id}', 'users.show'), ['id' => '42']),
         );
 
@@ -65,7 +68,7 @@ final class RouteMatchTelemetryTest extends TestCase
         self::assertCount(1, $spans, 'one match span was opened, ended and delivered');
 
         $span = $this->theMatchRecord($inMemorySpanExporter);
-        self::assertSame(RouteMatchTelemetry::MATCH_SPAN_NAME, $span->name);
+        self::assertSame(RouteMatchSpan::MATCH_SPAN_NAME, $span->name);
         self::assertSame('OK', $span->status);
         self::assertNull($span->statusDescription);
         self::assertNull($span->parent, 'no boundary carried a request span, so the match span mints its own trace');
@@ -102,8 +105,7 @@ final class RouteMatchTelemetryTest extends TestCase
         [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
-            null,
-            $this->metadata('GET', '/users'),
+            $this->request('GET', '/users'),
             static fn (): MatchResult => MatchResult::found(self::route('/users'), []),
         );
         $tracer->flush();
@@ -117,8 +119,7 @@ final class RouteMatchTelemetryTest extends TestCase
         [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
-            null,
-            $this->metadata('GET', '/users'),
+            $this->request('GET', '/users'),
             static fn (): MatchResult => MatchResult::found(self::route('/users'), []),
         );
         $tracer->flush();
@@ -132,8 +133,7 @@ final class RouteMatchTelemetryTest extends TestCase
         [$routeMatchTelemetry, $inMemorySpanExporter, $tracer, $counterMeter] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
-            null,
-            $this->metadata('DELETE', '/posts'),
+            $this->request('DELETE', '/posts'),
             static fn (): MatchResult => MatchResult::methodNotAllowed(['GET', 'POST']),
         );
         $tracer->flush();
@@ -159,8 +159,7 @@ final class RouteMatchTelemetryTest extends TestCase
         [$routeMatchTelemetry, $inMemorySpanExporter, $tracer] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
-            null,
-            $this->metadata('GET', '/j'),
+            $this->request('GET', '/j'),
             static fn (): MatchResult => MatchResult::notAcceptable(['application/json']),
         );
         $tracer->flush();
@@ -179,8 +178,7 @@ final class RouteMatchTelemetryTest extends TestCase
         [$routeMatchTelemetry, $inMemorySpanExporter, $tracer, $counterMeter] = $this->telemetry();
 
         $routeMatchTelemetry->observed(
-            null,
-            $this->metadata('GET', '/nowhere'),
+            $this->request('GET', '/nowhere'),
             static fn (): MatchResult => MatchResult::notFound(),
         );
         $tracer->flush();
@@ -203,8 +201,7 @@ final class RouteMatchTelemetryTest extends TestCase
 
         $requestSpan = $tracer->startSpan('zef.http.request', ['http.request.method' => 'GET']);
         $routeMatchTelemetry->observed(
-            $requestSpan,
-            $this->metadata('GET', '/users'),
+            $this->request('GET', '/users')->withAttribute(CorrelationMiddleware::SPAN_ATTRIBUTE, $requestSpan),
             static fn (): MatchResult => MatchResult::found(self::route('/users'), []),
         );
         $requestSpan->end();
@@ -212,7 +209,7 @@ final class RouteMatchTelemetryTest extends TestCase
 
         $matchSpans = array_values(array_filter(
             $inMemorySpanExporter->spans(),
-            static fn (SpanData $spanData): bool => $spanData->name === RouteMatchTelemetry::MATCH_SPAN_NAME,
+            static fn (SpanData $spanData): bool => $spanData->name === RouteMatchSpan::MATCH_SPAN_NAME,
         ));
         self::assertCount(1, $matchSpans);
 
@@ -227,8 +224,7 @@ final class RouteMatchTelemetryTest extends TestCase
 
         try {
             $routeMatchTelemetry->observed(
-                null,
-                $this->metadata('GET', '/users'),
+                $this->request('GET', '/users'),
                 static function (): never {
                     throw new RuntimeException('the engine refused');
                 },
@@ -259,8 +255,7 @@ final class RouteMatchTelemetryTest extends TestCase
         );
 
         $matchResult = $routeMatchTelemetry->observed(
-            null,
-            $this->metadata('GET', '/users'),
+            $this->request('GET', '/users'),
             static fn (): MatchResult => MatchResult::found(self::route('/users'), []),
         );
 
@@ -280,8 +275,7 @@ final class RouteMatchTelemetryTest extends TestCase
         );
 
         $routeMatchTelemetry->observed(
-            null,
-            $this->metadata('GET', '/users'),
+            $this->request('GET', '/users'),
             static fn (): MatchResult => MatchResult::notFound(),
         );
 
@@ -312,9 +306,15 @@ final class RouteMatchTelemetryTest extends TestCase
         ];
     }
 
-    private function metadata(string $method, string $path, ?string $host = null): ServerRequestMetadata
+    private function request(string $method, string $path, string $host = ''): ServerRequest
     {
-        return new ServerRequestMetadata($method, $path, $host, '', '');
+        $uri = $host === '' ? new Uri($path) : new Uri('https://' . $host . $path);
+
+        return new ServerRequest(
+            $method,
+            $uri,
+            headers: $host === '' ? [] : ['Host' => $host],
+        );
     }
 
     private static function route(string $path, ?string $name = null): CompiledRoute

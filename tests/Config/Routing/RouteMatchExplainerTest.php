@@ -7,11 +7,15 @@ namespace Zef\Test\Config\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RadixTree;
+use Zef\Framework\Config\Routing\RouteMatchDescent;
 use Zef\Framework\Config\Routing\RouteMatchExplainer;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Config\Routing\RouteMatchNeighborhood;
+use Zef\Framework\Config\Routing\RouteMatchSummary;
+use Zef\Framework\Config\Routing\RouteSubtreePatterns;
 
 /**
  * The route match explanation, on its own terms: the staged
@@ -27,7 +31,10 @@ use Zef\Framework\Config\Routing\RouteMatchNeighborhood;
  */
 #[CoversClass(RouteMatchExplanation::class)]
 #[CoversClass(RouteMatchExplainer::class)]
+#[CoversClass(RouteMatchDescent::class)]
 #[CoversClass(RouteMatchNeighborhood::class)]
+#[CoversClass(RouteMatchSummary::class)]
+#[CoversClass(RouteSubtreePatterns::class)]
 #[CoversClass(RadixTree::class)]
 final class RouteMatchExplainerTest extends TestCase
 {
@@ -418,6 +425,30 @@ final class RouteMatchExplainerTest extends TestCase
             . ' candidates=/' . str_repeat('é', 127) . '...',
             $explanation->summary(),
             'the clamp keeps 128 whole characters, never a byte-sliced half of one',
+        );
+    }
+
+    public function testTheOutcomeFoldReadsEveryMatchResultVocabulary(): void
+    {
+        self::assertSame(
+            RouteMatchExplanation::OUTCOME_FOUND,
+            RouteMatchExplanation::outcomeOf(MatchResult::found(CompiledRoute::fromArray([
+                'path' => '/users',
+                'method' => ['GET'],
+                'handler' => 'Users@index',
+            ]), [])),
+        );
+        self::assertSame(
+            RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED,
+            RouteMatchExplanation::outcomeOf(MatchResult::methodNotAllowed(['GET'])),
+        );
+        self::assertSame(
+            RouteMatchExplanation::OUTCOME_NOT_ACCEPTABLE,
+            RouteMatchExplanation::outcomeOf(MatchResult::notAcceptable(['application/json'])),
+        );
+        self::assertSame(
+            RouteMatchExplanation::OUTCOME_NOT_FOUND,
+            RouteMatchExplanation::outcomeOf(MatchResult::notFound()),
         );
     }
 

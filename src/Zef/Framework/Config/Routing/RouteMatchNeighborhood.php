@@ -10,35 +10,21 @@ namespace Zef\Framework\Config\Routing;
  * that live under it -- the "what you probably meant" a path-stage
  * miss explains itself with.
  *
- * The descent is deliberately the static-only view of the walk: a
- * node's prefix is consumed character for character ({@see
- * PrefixConsumption}, the walk's own arithmetic, multi-byte exact),
- * then the static child whose run continues the path is entered --
- * no parameter edges are taken and no backtracking is performed,
- * because the neighborhood's question is not "which route matches"
- * (the matcher answered that: none) but "how far did the request's
- * own text track the table, and what lives past that point". A run
- * the path only partially continues still counts its shared head
- * ({@see SharedPrefixLength}, the tree builder's own measure) and
- * still names the run's subtree as the neighborhood: the developer
- * who typed `/users` against a `/users/{id}` table learns both
- * facts they can act on. A parameter edge IS part of what lives
- * past the point, so the subtree the neighborhood reports includes
- * them -- as candidate patterns, not as descent steps.
- *
- * The candidates are the subtree's patterns, collected breadth-first
- * so the shallowest (closest) spellings arrive first, and capped at
- * {@see self::MAX_PATTERNS} -- a neighborhood is a hint, not an
- * inventory, and a hint that grows with the table would grow the
- * header it renders into.
+ * The unit is the orchestrator over the two single-question folds
+ * the walk's own vocabulary owns: {@see RouteMatchDescent} answers
+ * how far the request's text tracked the table (a partially
+ * continued run counts its shared head, the tree builder's own
+ * measure), and {@see RouteSubtreePatterns} answers what lives past
+ * that point (the capped, breadth-first candidate patterns, host
+ * claims spelled, parameter edges included as patterns -- never as
+ * descent steps, because a descent that guessed what a
+ * `{parameter}` would have captured would be the second opinion
+ * this unit refuses to give).
  *
  * @internal
  */
 final class RouteMatchNeighborhood
 {
-    /** The candidate budget: the most patterns a neighborhood reports. */
-    private const int MAX_PATTERNS = 8;
-
     /**
      * Reads the neighborhood of a request path from the tree's root.
      *
@@ -48,102 +34,11 @@ final class RouteMatchNeighborhood
      */
     public static function around(RadixNode $radixNode, string $path): array
     {
-        [$node, $offset] = self::deepestDescent($radixNode, $path);
+        [$node, $offset] = RouteMatchDescent::deepest($radixNode, $path);
 
         return [
             'prefix' => mb_substr($path, 0, $offset),
-            'patterns' => self::patterns($node),
+            'patterns' => RouteSubtreePatterns::collect($node),
         ];
-    }
-
-    /**
-     * The static descent from the root: consume each node's prefix
-     * while it continues the path, then enter the static child whose
-     * run continues the path -- stopping where a run the path only
-     * partially continues ends (the shared head counted, that run's
-     * node named) or where no static child continues (a path the
-     * node's own run already exhausted included: the child lookup
-     * past the path's end answers none).
-     *
-     * @return array{RadixNode, int} the node the descent stopped at
-     *                               and the character offset the path tracked to reach it
-     */
-    private static function deepestDescent(RadixNode $radixNode, string $path): array
-    {
-        $node = $radixNode;
-        $offset = 0;
-
-        while (true) {
-            $position = PrefixConsumption::positionAfterPrefix($node, $path, $offset);
-
-            if ($position === null) {
-                return [$node, $offset + SharedPrefixLength::of($node->prefix(), mb_substr($path, $offset))];
-            }
-
-            $offset = $position;
-
-            $child = $node->staticChild(mb_substr($path, $offset, 1));
-
-            if (!$child instanceof RadixNode) {
-                return [$node, $offset];
-            }
-
-            $node = $child;
-        }
-    }
-
-    /**
-     * The patterns of a subtree, breadth-first and capped: every
-     * route settled at or beneath the node, parameter edges included
-     * (they are what lives past the node), each spelled as its
-     * pattern with its host claim when it carries one. The cap is
-     * the collection's one bound, paid at the first route that
-     * would exceed it -- the walk ends there, so the answer is
-     * exactly the budget, never a node more.
-     *
-     * @return list<string>
-     */
-    private static function patterns(RadixNode $radixNode): array
-    {
-        $patterns = [];
-        $queue = [$radixNode];
-
-        for ($index = 0; $index < \count($queue); ++$index) {
-            $node = $queue[$index];
-
-            foreach ($node->routes() as $compiledRoute) {
-                if (\count($patterns) >= self::MAX_PATTERNS) {
-                    return $patterns;
-                }
-
-                $patterns[] = self::spelling($compiledRoute);
-            }
-
-            foreach ($node->staticChildren() as $child) {
-                $queue[] = $child;
-            }
-
-            $parameterChild = $node->parameterChild();
-            if (!$parameterChild instanceof RadixNode) {
-                continue;
-            }
-
-            $queue[] = $parameterChild;
-        }
-
-        return $patterns;
-    }
-
-    /**
-     * One candidate's spelling: the pattern verbatim, with the host
-     * claim appended when the route carries one -- the two facts a
-     * developer matching a request against the table reads first.
-     */
-    private static function spelling(CompiledRoute $compiledRoute): string
-    {
-        $pattern = $compiledRoute->path()->pattern();
-        $host = $compiledRoute->host();
-
-        return $host === null ? $pattern : $pattern . ' @' . $host;
     }
 }

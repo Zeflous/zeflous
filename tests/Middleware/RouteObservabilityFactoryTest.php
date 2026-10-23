@@ -9,10 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Http\HttpException;
+use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\RouteDebugMiddleware;
+use Zef\Framework\Middleware\RouteMatchSpan;
 use Zef\Framework\Middleware\RouteMatchTelemetry;
 use Zef\Framework\Middleware\RouteObservabilityFactory;
-use Zef\Framework\Middleware\ServerRequestMetadata;
 use Zef\Framework\Router\Router;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\MeterSlot;
@@ -33,6 +35,7 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
  */
 #[CoversClass(RouteObservabilityFactory::class)]
 #[CoversClass(RouteMatchTelemetry::class)]
+#[CoversClass(RouteMatchSpan::class)]
 #[CoversClass(RouteDebugMiddleware::class)]
 final class RouteObservabilityFactoryTest extends TestCase
 {
@@ -82,8 +85,7 @@ final class RouteObservabilityFactoryTest extends TestCase
         self::assertNotNull($routeMatchTelemetry);
 
         $routeMatchTelemetry->observed(
-            null,
-            new ServerRequestMetadata('GET', '/users', null, '', ''),
+            new ServerRequest('GET', new Uri('/users')),
             static fn (): MatchResult => MatchResult::notFound(),
         );
 

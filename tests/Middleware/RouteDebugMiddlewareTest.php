@@ -220,7 +220,7 @@ final class RouteDebugMiddlewareTest extends TestCase
         self::assertSame(
             'stage=method survivors=path:1,host:1,version:1 allowed=GET,POST',
             $response->getHeaderLine(RouteDebugMiddleware::DEBUG_HEADER),
-            'the fallback is the HEAD request\'s own rule -- a DELETE refusal is explained as the DELETE match',
+            "the fallback is the HEAD request's own rule -- a DELETE refusal is explained as the DELETE match",
         );
     }
 

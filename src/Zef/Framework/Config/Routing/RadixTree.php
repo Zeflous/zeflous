@@ -52,28 +52,19 @@ final readonly class RadixTree
     }
 
     /**
-     * Compiles a route table into a radix tree.
+     * Compiles a route table into a radix tree, assembling itself
+     * over the parts {@see RouteTableCompiler} answers (the list
+     * check, the one fail-closed {@see CompiledRoute::fromArray()}
+     * per entry, the {@see RouteTreeBuilder} wiring) -- the tree owns
+     * the assembly, the compiler the orchestration.
      *
      * @param array<mixed> $routes a list of Standard Route Schema entries
      */
     public static function compile(array $routes): self
     {
-        if (!array_is_list($routes)) {
-            throw new ConfigException('The route table must be a list of route entries.');
-        }
+        $compiledRoutes = RouteTableCompiler::compile($routes);
 
-        $compiledRoutes = [];
-
-        foreach (array_keys($routes) as $index) {
-            $compiledRoutes[] = CompiledRoute::fromArray($routes[$index]);
-        }
-
-        $routeTreeBuilder = new RouteTreeBuilder();
-
-        return new self(
-            $routeTreeBuilder->build($compiledRoutes),
-            $routeTreeBuilder->registry()->namedRoutes(),
-        );
+        return new self($compiledRoutes['root'], $compiledRoutes['namedRoutes']);
     }
 
     /**
