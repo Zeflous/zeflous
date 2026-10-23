@@ -17,27 +17,37 @@
 # turns the lane RED with the evidence, the same week it happens, instead of
 # waiting for the next audit.
 #
-# THE CLASSIC LAYER (the round-3 documentation-alignment audit, 2026-10-23)
+# THE CLASSIC LAYER (the round-3 documentation-alignment audit, 2026-10-23;
+# consolidated the same day, issue #561)
 # ----------------------------------------------------------------------
 # The required set is the UNION of the active ruleset and the repository's
-# classic branch-protection rule -- both layers are live, and only the
-# ruleset half was being linted. The classic half, the
-# /branches/main/protection endpoint, is administration-scoped: an anonymous
-# read is a 403, and the workflow token does not carry the rights either, so
+# classic branch-protection rule, whenever such a layer exists -- only the
+# ruleset half was being linted before. As of 2026-10-23 the owner has
+# consolidated the protection into the ruleset alone (GET
+# /branches/main/protection answers 404 "Branch not protected"), and the
+# lane reads that shape as a first-class ABSENT verdict -- no warning, no
+# unaudited claim -- so the union doctrine survives the layer's return
+# without the lane lying about it in either direction. The read is
+# administration-scoped: the workflow token does not carry the rights, so
 # the lane tries the owner's optional ZEF_TOKEN first (the arming lanes' own
 # documented credential -- used here READ-ONLY), then the workflow token.
-# When neither can read it, the lane degrades to an explicit
-# weekly WARNING naming the unaudited layer -- a warning, not a red lane,
-# because the evidence is privileged by GitHub design, not missing by
-# accident (the fail-closed doctrine covers evidence the token SHOULD be
+# When no credential can read a layer that might exist, the lane degrades to
+# an explicit weekly WARNING naming the unaudited layer -- a warning, not a
+# red lane, because the evidence is privileged by GitHub design, not missing
+# by accident (the fail-closed doctrine covers evidence the token SHOULD be
 # able to read; the ruleset read below is exactly that case).
 #
 # DESIGN NOTES
 # ------------
-#   * The rulesets endpoint wants administration rights a workflow token does
-#     not carry; this repository is PUBLIC, and its rulesets are readable
-#     anonymously (probe-verified 2026-10-18), so the lane tries the
-#     authenticated read first and falls back to the anonymous read.
+#   * The rulesets endpoint wants administration rights no credential in
+#     this lane carries except the owner's PAT: the workflow token reads
+#     403, and the anonymous read is per-IP rate-limited and observed 403
+#     on GitHub-hosted runners (the dispatched verification run of
+#     2026-10-23 failed through both branches of the old chain -- the
+#     "rulesets are readable anonymously" probe of 2026-10-18 does not
+#     survive shared runner IPs). fetch() tries the PAT first, the workflow
+#     token second, the anonymous read last; with no PAT the lane is RED,
+#     fail-closed, exactly the doctrine the next bullet states.
 #   * Fail-closed: a ruleset that cannot be read is a RED lane, not a skip.
 #     A repository with no merged pull requests yet passes with a notice
 #     (there is no evidence to contradict).
@@ -93,24 +103,35 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # The owner's optional PAT (the arming lanes' own documented
-          # credential, preferred when present): reading the classic
-          # branch-protection layer needs administration rights the workflow
+          # credential, preferred when present): BOTH privileged reads this
+          # lane makes -- the rulesets endpoint and the classic
+          # branch-protection layer -- need administration rights the workflow
           # token does not carry. The lane only READS with it -- it writes
-          # nothing -- and degrades to a weekly warning when it is absent.
-          CLASSIC_TOKEN: ${{ secrets.ZEF_TOKEN }}
+          # nothing -- and degrades to fail-closed red (ruleset) or a weekly
+          # warning (classic layer) when it is absent or refused.
+          OWNER_TOKEN: ${{ secrets.ZEF_TOKEN }}
           HEADS_TO_LINT: "10"
         run: |
           set -euo pipefail
 
           api="https://api.github.com/repos/${GITHUB_REPOSITORY}"
 
-          # Read one API path, authenticated first, anonymous second. The
-          # rulesets endpoint wants administration rights the workflow token
-          # does not carry; this repository's public rulesets are readable
-          # anonymously, so the fallback is legitimate here.
+          # Read one API path, credentials in order of privilege: the owner's
+          # PAT first (the only credential that reads the administration-
+          # scoped rulesets endpoint in practice -- the auto-merge sweep reads
+          # the same endpoint with the same credential every run), the
+          # workflow token second, the anonymous read last. The weaker two
+          # cannot read /rulesets today (403 both, re-verified 2026-10-23 on a
+          # dispatched run), but they stay in the chain so the lane
+          # self-heals if the endpoint ever opens to them again.
           fetch() {
             local path="$1" out=""
-            out=$(gh api "${api}${path}" 2>/dev/null) || out=""
+            if [ -n "${OWNER_TOKEN}" ]; then
+              out=$(GH_TOKEN="${OWNER_TOKEN}" gh api "repos/${GITHUB_REPOSITORY}${path}" 2>/dev/null) || out=""
+            fi
+            if [ -z "${out}" ]; then
+              out=$(gh api "repos/${GITHUB_REPOSITORY}${path}" 2>/dev/null) || out=""
+            fi
             if [ -z "${out}" ]; then
               out=$(curl -fsSL "${api}${path}" 2>/dev/null) || out=""
             fi
@@ -118,18 +139,30 @@ jobs:
           }
 
           # --- 1. The live `main` ruleset. --------------------------------
+          # The LIST endpoint returns no `conditions` field (verified: absent
+          # even with ?includes=conditions), so the candidates are resolved by
+          # target and enforcement alone -- the same resolution the auto-merge
+          # sweep performs -- and refs/heads/main is confirmed on each
+          # candidate's DETAIL read, which is where the field actually lives.
           rulesets=$(fetch "/rulesets?per_page=100")
           id=""
+          detail=""
           if printf '%s' "${rulesets}" | jq -e 'type == "array"' >/dev/null 2>&1; then
-            id=$(printf '%s' "${rulesets}" | jq -r \
-              '[.[] | select(.enforcement == "active")
-                | select(((.conditions.ref_name.include // []) | index("refs/heads/main")) != null)][0].id // empty')
+            for candidate in $(printf '%s' "${rulesets}" | jq -r \
+                '[.[] | select(.target == "branch") | select(.enforcement == "active") | .id][]'); do
+              candidate_detail=$(fetch "/rulesets/${candidate}")
+              if printf '%s' "${candidate_detail}" | jq -e \
+                  '((.conditions.ref_name.include // []) | index("refs/heads/main")) != null' >/dev/null 2>&1; then
+                id="${candidate}"
+                detail="${candidate_detail}"
+                break
+              fi
+            done
           fi
           if [ -z "${id}" ]; then
             echo "::error::Could not resolve the active ruleset targeting refs/heads/main (fail closed) -- the lint cannot verify what it cannot read."
             exit 1
           fi
-          detail=$(fetch "/rulesets/${id}")
           contexts=$(printf '%s' "${detail}" \
             | jq -r '.rules[] | select(.type == "required_status_checks")
                       | .parameters.required_status_checks[].context')
@@ -139,31 +172,54 @@ jobs:
           fi
 
           # --- 1b. The classic branch-protection layer (read-only). -------
-          # The required set is the union of the ruleset and this layer; the
-          # layer is administration-scoped, so the read degrades to a warning
-          # rather than a red lane when no available credential can perform
-          # it (see the header's THE CLASSIC LAYER note).
+          # The required set is the union of the ruleset and this layer,
+          # whenever the layer exists. The read distinguishes three shapes:
+          # a 200 (read it), a 404 "Branch not protected" (the layer is
+          # definitively ABSENT -- the consolidation of issue #561 -- an
+          # absence contributing no contexts and claiming nothing unaudited),
+          # and any other status (a privilege gap: the weekly warning). The
+          # HTTP status rides a curl -w trailer so the shapes cannot be
+          # conflated -- gh api flattens all three into the same failure.
           classic_contexts=""
           classic_status="unread"
-          classic=""
-          if [ -n "${CLASSIC_TOKEN}" ]; then
-            classic=$(GH_TOKEN="${CLASSIC_TOKEN}" gh api \
-              "repos/${GITHUB_REPOSITORY}/branches/main/protection" 2>/dev/null) || classic=""
+          classic_code="000"
+          classic_body=""
+          read_protection() {
+            # $1 = the credential to read with (the PAT or the workflow
+            # token). Prints "<body>\n<http-code>"; a transport failure
+            # prints "\n000". Without -f, every HTTP status is a curl
+            # success, so the trailer is always written.
+            curl -sS --max-time 30 \
+              -H "Authorization: Bearer ${1}" \
+              -H "Accept: application/vnd.github+json" \
+              -w '\n%{http_code}' \
+              "${api}/branches/main/protection" 2>/dev/null || printf '\n000'
+          }
+          if [ -n "${OWNER_TOKEN}" ]; then
+            classic_resp=$(read_protection "${OWNER_TOKEN}")
+            classic_code="${classic_resp##*$'\n'}"
+            classic_body="${classic_resp%$'\n'*}"
           fi
-          if [ -z "${classic}" ]; then
-            classic=$(gh api "repos/${GITHUB_REPOSITORY}/branches/main/protection" 2>/dev/null) || classic=""
+          if [ "${classic_code}" != "200" ] && [ "${classic_code}" != "404" ]; then
+            # Not a definitive answer from the PAT (or no PAT at all): let
+            # the workflow token try before declaring the layer unreadable.
+            classic_resp=$(read_protection "${GH_TOKEN}")
+            classic_code="${classic_resp##*$'\n'}"
+            classic_body="${classic_resp%$'\n'*}"
           fi
-          if [ -n "${classic}" ] \
-              && printf '%s' "${classic}" | jq -e 'type == "object"' >/dev/null 2>&1; then
-            if printf '%s' "${classic}" | jq -e '.required_status_checks != null' >/dev/null 2>&1; then
-              classic_contexts=$(printf '%s' "${classic}" | jq -r '.required_status_checks.contexts[]? // empty')
+          if [ "${classic_code}" = "404" ]; then
+            classic_status="absent"
+          elif [ "${classic_code}" = "200" ] \
+              && printf '%s' "${classic_body}" | jq -e 'type == "object"' >/dev/null 2>&1; then
+            if printf '%s' "${classic_body}" | jq -e '.required_status_checks != null' >/dev/null 2>&1; then
+              classic_contexts=$(printf '%s' "${classic_body}" | jq -r '.required_status_checks.contexts[]? // empty')
               classic_status="read"
             else
               classic_status="empty"
             fi
           fi
           if [ "${classic_status}" = "unread" ]; then
-            echo "::warning::The classic branch-protection layer could not be read with this lane's credentials (administration-scoped endpoint; no ZEF_TOKEN present or accepted). Its required contexts are UNAUDITED this week -- the owner's manual audit stands in (issue #561, V-1)."
+            echo "::warning::The classic branch-protection layer could not be read with this lane's credentials (administration-scoped endpoint; no ZEF_TOKEN present or accepted). Its required contexts are UNAUDITED this week -- the owner's manual audit stands in."
           fi
           # Union the classic-only contexts onto the linted set. The ruleset's
           # own contexts come first so the table's order stays stable, and a
@@ -222,6 +278,7 @@ jobs:
           case "${classic_status}" in
             read) classic_note=" united with the classic branch-protection layer" ;;
             empty) classic_note=" (the classic branch-protection layer carries no required contexts)" ;;
+            absent) classic_note=" (no classic branch-protection layer exists -- the protection was consolidated into the ruleset, issue #561)" ;;
             *) classic_note=" (classic branch-protection layer UNREADABLE this week -- see the warning)" ;;
           esac
           {

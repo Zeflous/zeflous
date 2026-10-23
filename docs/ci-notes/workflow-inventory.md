@@ -14,16 +14,22 @@ it creates one, and whether anything requires that context.
 
 ## Required means required *somewhere*
 
-The merge-blocking set is the **union of two live protection layers** (issue
-#561, finding V-1): the active `main` ruleset (id 24654862) requires
-`CI Strict`, `PR Validator`, `PhpCodeArcheology SARIF` and
-`SonarCloud analysis`; the classic branch-protection rule on `main` requires
-`PR Validator`, `PhpCodeArcheology SARIF`, `CI Bench`, `CI Static`,
-`CI Strict` and `CI Strict Aggregator`. The union — seven distinct contexts —
-is what a pull request must satisfy. `CI Ruleset Lint` audits the union,
-reading the classic layer only when the lane's credentials can (the endpoint
-is administration-scoped; the lane degrades to a weekly warning otherwise).
-Consolidating the two layers into one is an owner action tracked on #561.
+The merge-blocking set was the **union of two live protection layers** until
+2026-10-23 (issue #561, finding V-1), when the owner consolidated the two
+into one: the classic branch-protection rule on `main` is gone
+(`GET /branches/main/protection` answers 404 "Branch not protected") and the
+active `main` ruleset (id 24654862) alone now requires `CI Strict`,
+`PR Validator` and `PhpCodeArcheology SARIF`. `CI Ruleset Lint` audits the
+required set — reading the rulesets endpoint with the owner's PAT first (the
+only credential that reaches the administration-scoped endpoint in practice;
+workflow token and anonymous reads answer 403), resolving the ruleset on the
+fields the LIST endpoint actually returns (`target` + `enforcement`, the
+branch targeting confirmed on the DETAIL read — the LIST response carries no
+`conditions` even with `?includes=conditions`), and reading the classic
+layer, whenever one exists, as a first-class verdict: `read`, `absent` (the
+consolidated today), or `unread` — a privilege gap that degrades to a weekly
+warning rather than a red lane, and a returning layer simply joins the union
+again.
 
 ## The inventory
 
@@ -41,7 +47,7 @@ Consolidating the two layers into one is an owner action tracked on #561.
 | `docs-check.yml` | Doctum API-docs build + per-type documentation-drift assertion | `API Documentation Check` | no (advisory) |
 | `phpbench.yml` | Post-merge PHPBench regression run (fail-closed when no benchmarks found) | `PHPBench` | no (advisory) |
 | `changelog-tests.yml` | pytest suite for the changelog generator with a 90 % coverage floor | `Changelog generator tests` | no (advisory) |
-| `ci-ruleset-lint.yml` | Weekly guard: every required context (ruleset, plus the classic layer when readable) must have a check-run on each of the last ten merged PR heads | `CI Ruleset Lint` | no (advisory — guards the required set) |
+| `ci-ruleset-lint.yml` | Weekly guard: every required context (the ruleset, plus the classic layer whenever one exists) must have a check-run on each of the last ten merged PR heads; reads PAT-first, verdicts an absent classic layer as absent | `CI Ruleset Lint` | no (advisory — guards the required set) |
 | `ci-main-watchdog.yml` | Scheduled sweep (every 20 min): replays any main lane missing from the current main HEAD, with a recursion guard | `Verify main HEAD validation` | no (repair lane) |
 | `auto-merge.yml` | The sweep: queue-aware branch sync, `action_required` run approvals, early auto-merge arming | `Auto Merge` | no (automation) |
 | `changelog.yml` | Regenerates the per-version changelog + JSON API after a validated merge on `main`; opens a self-merging PR | `Update changelog` | no (automation) |
