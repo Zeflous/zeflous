@@ -18,20 +18,22 @@ use Zef\Framework\Config\ConfigException;
  * or repaired at match time -- the tree is the roadmap's "makanan siap
  * saji": plain, pre-judged data.
  *
- * {@see self::match()} delegates the path walk to {@see RouteMatcher}, then
- * narrows candidates by exact host before judging the method: a matching exact
- * host takes precedence over host-agnostic routes, and a method mismatch on
- * that exact host remains 405 rather than falling through. The walk settles
- * routes whose pattern ended the path and whose constraints accept captured
- * values, and {@see RouteMethodAnswer} selects the one answering the request method
- * (the request method is upper-cased once, by
- * {@see CompiledRoute::answersMethod()} -- the single owner of the case
- * policy). A path that matched while no settled route answers the
- * request method yields the method-not-allowed result carrying the
- * sorted, de-duplicated union of the methods those routes do answer.
- * Match-time inputs never raise: a hostile URL is runtime data, not a
- * defect in the route table (that is what {@see ConfigException} is
- * reserved for).
+ * {@see self::match()} delegates the pipeline to {@see RouteMatchPipeline}:
+ * the path walk settles candidates, then the answer narrows by exact
+ * host before judging the method: a matching exact host takes
+ * precedence over host-agnostic routes, and a method mismatch on
+ * that exact host remains 405 rather than falling through. The walk
+ * settles routes whose pattern ended the path and whose constraints
+ * accept captured values, and {@see RouteMethodAnswer} selects the
+ * one answering the request method (the request method is
+ * upper-cased once, by {@see CompiledRoute::answersMethod()} -- the
+ * single owner of the case policy). A path that matched while no
+ * settled route answers the request method yields the
+ * method-not-allowed result carrying the sorted, de-duplicated
+ * union of the methods those routes do answer. Match-time inputs
+ * never raise: a hostile URL is runtime data, not a defect in the
+ * route table (that is what {@see ConfigException} is reserved
+ * for).
  *
  * A request path that is empty or lacks the leading slash is structurally
  * unreachable: the root node carries no route (every pattern contributes
@@ -117,10 +119,14 @@ final readonly class RadixTree
     }
 
     /**
-     * Matches a request method, path and optional exact host against the tree:
-     * the path walk settles candidates, {@see RouteHostSelection} picks the
-     * highest-precedence host bucket, {@see RouteVersionSelection} narrows by
-     * API version, and {@see RouteMethodAnswer} judges the method.
+     * Matches a request method, path and optional exact host against
+     * the tree: the pipeline fold {@see RouteMatchPipeline} runs the
+     * engine's own order (the path walk settles candidates, {@see
+     * RouteHostSelection} picks the highest-precedence host bucket,
+     * {@see RouteVersionSelection} narrows by API version, and {@see
+     * RouteMethodAnswer} judges the method) -- the counting twin of
+     * the same sequence is the development surface {@see
+     * self::explain()} answers.
      */
     public function match(
         string $method,
@@ -129,18 +135,7 @@ final readonly class RadixTree
         ?string $accept = null,
         ?string $version = null,
     ): MatchResult {
-        $captured = [];
-        $routes = new RouteMatcher()->walk($this->radixNode, $path, 0, $captured);
-
-        $requestHost = RouteHostRequest::canonicalise($host);
-        $routes = RouteHostSelection::select($routes, $requestHost);
-        $routes = RouteVersionSelection::select($routes, $version);
-
-        if ($routes === []) {
-            return MatchResult::notFound();
-        }
-
-        return RouteMethodAnswer::resolve($method, $routes, $captured, $requestHost, $accept);
+        return RouteMatchPipeline::match($this->radixNode, $method, $path, $host, $accept, $version);
     }
 
     /**
