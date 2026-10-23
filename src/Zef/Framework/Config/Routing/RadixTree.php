@@ -114,4 +114,21 @@ final readonly class RadixTree
 
         return RouteMethodAnswer::resolve($method, $routes, $captured, $requestHost, $accept);
     }
+
+    /**
+     * Explains the match of a request against the tree: the same
+     * pipeline {@see self::match()} runs, staged and counted, so the
+     * caller can say why the table refused the request -- the
+     * development surface of the engine, answering a {@see
+     * RouteMatchExplanation} whose outcome is the match's own.
+     */
+    public function explain(
+        string $method,
+        string $path,
+        ?string $host = null,
+        ?string $accept = null,
+        ?string $version = null,
+    ): RouteMatchExplanation {
+        return RouteMatchExplainer::explain($this->radixNode, $method, $path, $host, $accept, $version);
+    }
 }
