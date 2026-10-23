@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Zef\Test\Support\Tooling;
 
 /**
- * The analysis boot's throwaway artifact seam: the one file path the
- * container analysis CLI owns ({@see ContainerInventoryReport}). The
- * host's real boot wires their own container AOT cache location,
- * which the CLI cannot know -- this unit allocates the throwaway
- * spelling instead: under the system's temporary directory, the
- * `zef-container-inventory-` prefix, the sixteen hexadecimal
- * characters {@see random_bytes()} answers, and the `.php` extension
- * the artifact dump writes.
+ * The analysis boots' throwaway artifact seam: the one file path the
+ * analysis CLIs own ({@see ContainerInventoryReport} and {@see
+ * RouteInspectionBoot}). The host's real boot wires their own
+ * container AOT cache location, which a CLI cannot know -- this unit
+ * allocates the throwaway spelling instead: under the system's
+ * temporary directory, the `zef-container-inventory-` prefix, the
+ * sixteen hexadecimal characters {@see random_bytes()} answers, and
+ * the `.php` extension the artifact dump writes.
  *
  * The path is never pre-created: an absent artifact is the honest
  * first boot (the full lane compiles the same declarations the host's

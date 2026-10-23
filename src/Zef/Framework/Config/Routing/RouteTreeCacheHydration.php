@@ -60,7 +60,11 @@ final readonly class RouteTreeCacheHydration
         $radixNode = new RadixNode($rootFields['prefix']);
         $this->hydrateNode($radixNode, $rootFields, $compiledRoutes);
 
-        return new RadixTree($radixNode, $routeTableRegistry->namedRoutes());
+        return new RadixTree(
+            $radixNode,
+            $routeTableRegistry->namedRoutes(),
+            $compiledRoutes,
+        );
     }
 
     /**

@@ -160,8 +160,14 @@ deptrac:
     # container's typed read-side answer (`ContainerInventory`, its entries,
     # the AOT boot outcome) through the same boot the application rides --
     # the composition the Kernel layer's own orchestrator already performs,
-    # added here the way the middleware lane's engine widenings were.
+    # added here the way the middleware lane's engine widenings were. The
+    # route inspection commands widen the same lane the same way: they read
+    # the router facade and the compiled entries / match explanations the
+    # Config Routing engine answers (`Router`, `Config`) -- read-side
+    # composition over the same boot, never a parallel parse.
     Tooling:
       - Kernel
       - Exception
       - Container
+      - Router
+      - Config

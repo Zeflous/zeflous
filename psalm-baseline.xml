@@ -522,6 +522,48 @@
       <code><![CDATA[ContainerInventoryReport]]></code>
     </UnusedClass>
   </file>
+  <!-- The route inspection command family (the CLI lane's renderers
+       and boot, bin/zef route:list / route:test / route:tree):
+       consumed by the bin/zef dispatch script, which sits outside
+       Psalm's project files the same way the container inventory
+       report above does. The class is the command's engine, the
+       script its only caller, and the test suites exercise both
+       end to end. -->
+  <file src="tests/Support/Tooling/RouteInspectionBoot.php">
+    <UnusedClass>
+      <code><![CDATA[RouteInspectionBoot]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteListJson.php">
+    <UnusedClass>
+      <code><![CDATA[RouteListJson]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteListText.php">
+    <UnusedClass>
+      <code><![CDATA[RouteListText]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteMatchAnswer.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[answered]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="tests/Support/Tooling/RouteMatchJson.php">
+    <UnusedClass>
+      <code><![CDATA[RouteMatchJson]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteMatchText.php">
+    <UnusedClass>
+      <code><![CDATA[RouteMatchText]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteTreeText.php">
+    <UnusedClass>
+      <code><![CDATA[RouteTreeText]]></code>
+    </UnusedClass>
+  </file>
   <file src="tests/Support/Tooling/CoverageReport.php">
     <InvalidOperand>
       <code><![CDATA[$this->coveredStatements / $this->statements * 100.0]]></code>
