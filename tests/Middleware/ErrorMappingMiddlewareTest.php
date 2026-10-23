@@ -879,6 +879,76 @@ final class ErrorMappingMiddlewareTest extends TestCase
         }
     }
 
+    public function testTheReplayRetentionBoundFailsClosedOnNonPositiveValues(): void
+    {
+        $this->expectException(ConfigException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'http.error_handling.replay_max_snapshots must be an integer of 1 or above.',
+        );
+
+        ErrorMappingFactory::fromConfig(new Config([
+            'http' => [
+                'error_handling' => [
+                    'replay_max_snapshots' => 0,
+                ],
+            ],
+        ]));
+    }
+
+    public function testFactoryWiresTheConfiguredRetentionBound(): void
+    {
+        $previousEnvironment = getenv('APP_ENV');
+        $directory = sys_get_temp_dir() . '/zef-replay-retention-mw-' . bin2hex(random_bytes(8));
+        mkdir($directory, 0o700);
+
+        try {
+            putenv('APP_ENV=local');
+            $middleware = ErrorMappingFactory::fromConfig(new Config([
+                'http' => [
+                    'error_handling' => [
+                        'debug' => true,
+                        'log_path' => '',
+                        'replay_enabled' => true,
+                        'replay_path' => $directory,
+                        'replay_max_snapshots' => 1,
+                    ],
+                ],
+            ]));
+
+            $serverRequest = new ServerRequest('GET', new Uri('https://app.example.test/retention'));
+
+            $middleware->process($serverRequest, new ThrowingHandler(new RuntimeException('first failure')));
+            $filesAfterFirst = glob($directory . '/*.json');
+            self::assertIsArray($filesAfterFirst);
+            self::assertCount(1, $filesAfterFirst);
+            self::assertTrue(touch($filesAfterFirst[0], 1_000_000));
+
+            $middleware->process($serverRequest, new ThrowingHandler(new RuntimeException('second failure')));
+
+            $filesAfterSecond = glob($directory . '/*.json');
+            self::assertIsArray($filesAfterSecond);
+            self::assertCount(1, $filesAfterSecond, 'the retention bound holds through the factory wiring');
+            self::assertNotSame(
+                $filesAfterFirst[0],
+                $filesAfterSecond[0],
+                'the oldest snapshot was pruned, not the newest',
+            );
+        } finally {
+            if ($previousEnvironment === false) {
+                putenv('APP_ENV');
+            } else {
+                putenv('APP_ENV=' . $previousEnvironment);
+            }
+
+            $leftover = glob($directory . '/*');
+            foreach (\is_array($leftover) ? $leftover : [] as $file) {
+                @unlink($file);
+            }
+
+            @rmdir($directory);
+        }
+    }
+
     public function testFactoryWiresConfiguredJsonlLogDestination(): void
     {
         $logPath = sys_get_temp_dir() . '/zef-error-factory-' . bin2hex(random_bytes(8)) . '.jsonl';

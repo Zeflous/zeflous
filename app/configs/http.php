@@ -29,6 +29,7 @@ return [
         'log_path' => '',
         'replay_enabled' => false,
         'replay_path' => '',
+        'replay_max_snapshots' => 1000,
         'process_boundary' => false,
     ],
 ];

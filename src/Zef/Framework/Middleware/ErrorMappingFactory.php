@@ -49,6 +49,11 @@ final class ErrorMappingFactory
             throw new ConfigException('http.error_handling.replay_path must be a string.');
         }
 
+        $replayMaxSnapshots = $config->get('http.error_handling.replay_max_snapshots', 1000);
+        if (!\is_int($replayMaxSnapshots) || $replayMaxSnapshots < 1) {
+            throw new ConfigException('http.error_handling.replay_max_snapshots must be an integer of 1 or above.');
+        }
+
         if ($replayEnabled && (!$debug || !$debugAllowed || $replayPath === '')) {
             throw new ConfigException(
                 'Request replay requires debug=true, a local APP_ENV, and a configured replay_path.',
@@ -56,7 +61,7 @@ final class ErrorMappingFactory
         }
 
         $logger = $logPath === '' ? null : new JsonLineLogger($logPath);
-        $replayStore = $replayEnabled ? new ErrorReplayStore($replayPath) : null;
+        $replayStore = $replayEnabled ? new ErrorReplayStore($replayPath, $replayMaxSnapshots) : null;
 
         return new ErrorMappingMiddleware(
             $logger,

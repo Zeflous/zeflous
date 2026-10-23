@@ -304,6 +304,60 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertSame('', $largeSnapshot['body']);
     }
 
+    public function testRetentionBoundsTheSnapshotDirectoryOnEverySave(): void
+    {
+        $errorReplayStore = new ErrorReplayStore($this->directory, 2);
+
+        $firstId = $errorReplayStore->save(
+            new ServerRequest('GET', new Uri('https://app.example.test/retention-first')),
+            new RuntimeException('first failed'),
+            500,
+            'retention-1',
+        );
+        $secondId = $errorReplayStore->save(
+            new ServerRequest('GET', new Uri('https://app.example.test/retention-second')),
+            new RuntimeException('second failed'),
+            500,
+            'retention-2',
+        );
+
+        // The two saves may land in the same filesystem second: pin their
+        // order witnesses apart so the pruning decision is deterministic.
+        self::assertTrue(touch($this->directory . '/' . $firstId . '.json', 1_000_000));
+        self::assertTrue(touch($this->directory . '/' . $secondId . '.json', 2_000_000));
+
+        $thirdId = $errorReplayStore->save(
+            new ServerRequest('GET', new Uri('https://app.example.test/retention-third')),
+            new RuntimeException('third failed'),
+            500,
+            'retention-3',
+        );
+
+        $files = glob($this->directory . '/*.json');
+        self::assertIsArray($files);
+        self::assertCount(2, $files, 'the bound holds after the third save');
+        self::assertFileDoesNotExist($this->directory . '/' . $firstId . '.json', 'the oldest snapshot is pruned');
+        self::assertFileExists($this->directory . '/' . $secondId . '.json');
+        self::assertFileExists($this->directory . '/' . $thirdId . '.json');
+
+        $snapshot = json_decode(
+            (string) file_get_contents($this->directory . '/' . $thirdId . '.json'),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR,
+        );
+        self::assertIsArray($snapshot);
+        self::assertSame('retention-3', $snapshot['request_id'], 'the just-written snapshot survives with its id');
+    }
+
+    public function testTheRetentionBoundIsRefusedBelowOne(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageIsOrContains('Replay snapshot retention must be 1 or above.');
+
+        new ErrorReplayStore($this->directory, 0);
+    }
+
     public function testRefusesReplayDirectoriesWithGroupOrWorldPermissions(): void
     {
         self::assertTrue(chmod($this->directory, 0o755));

@@ -72,6 +72,7 @@ return [
         'log_path' => '/var/log/zef/errors.jsonl',
         'replay_enabled' => true,
         'replay_path' => '/var/lib/zef/error-replays',
+        'replay_max_snapshots' => 1000,
     ],
 ];
 ```
@@ -82,7 +83,7 @@ With `APP_ENV=local`, failed requests are captured into exclusive files with mod
 bin/zef errors:replay <snapshot-id> /var/lib/zef/error-replays http://127.0.0.1:8080
 ```
 
-The replay target is deliberately limited to `localhost`, `127.0.0.1`, or `::1`; the command does not forward credentials or cookies. Protect the replay directory as sensitive development data and clear it under your local retention policy.
+The replay target is deliberately limited to `localhost`, `127.0.0.1`, or `::1`; the command does not forward credentials or cookies. Protect the replay directory as sensitive development data. The directory is bounded by design: every capture prunes the storage down to the `replay_max_snapshots` newest snapshots (default `1000`, minimum `1`, validated at boot), oldest first, so a spamming error source in local development fills the bound and stops instead of filling the disk. Sizing the bound is the operator's call — raise it to keep a longer debugging history, lower it to shrink the sensitive-data footprint.
 
 ## Operational boundaries
 
