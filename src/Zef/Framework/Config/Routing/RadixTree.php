@@ -44,10 +44,12 @@ final readonly class RadixTree
 {
     /**
      * @param array<string, CompiledRoute> $namedRoutes the reverse-routing index
+     * @param list<CompiledRoute>          $routes      the compiled entries, in the table's own declaration order
      */
     public function __construct(
         private RadixNode $radixNode,
         private array $namedRoutes = [],
+        private array $routes = [],
     ) {
     }
 
@@ -64,7 +66,42 @@ final readonly class RadixTree
     {
         $compiledRoutes = RouteTableCompiler::compile($routes);
 
-        return new self($compiledRoutes['root'], $compiledRoutes['namedRoutes']);
+        return new self(
+            $compiledRoutes['root'],
+            $compiledRoutes['namedRoutes'],
+            $compiledRoutes['routes'],
+        );
+    }
+
+    /**
+     * The compiled entries, in the table's own declaration order --
+     * the inspection seam the CLI analysis commands render ({@see
+     * RouteTreeCache}'s artifact carries the entries in this same
+     * order, so a cached boot answers the identical list). The tree
+     * answers its own compiled route set; a caller that re-derives
+     * the list from raw entries would be a second parse, never this.
+     *
+     * @return list<CompiledRoute>
+     */
+    public function routes(): array
+    {
+        return $this->routes;
+    }
+
+    /**
+     * The tree's own node structure as plain depth-first rows -- the
+     * debugging seam the CLI's tree dump renders: one row per node
+     * (the depth, the edge kind, the node's prefix, the patterns of
+     * the routes settled on it), static children first and the
+     * parameter edge last, in the engine's own build order. The
+     * shape is a description, not a cache: nothing rehydrates from
+     * it.
+     *
+     * @return list<array{depth: int, edge: string, prefix: string, routes: list<string>}>
+     */
+    public function structure(): array
+    {
+        return RouteTreeStructure::rows($this->radixNode);
     }
 
     /**

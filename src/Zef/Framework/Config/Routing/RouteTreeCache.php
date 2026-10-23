@@ -121,7 +121,11 @@ final readonly class RouteTreeCache
 
         $routeTreeBuilder = new RouteTreeBuilder();
         $radixNode = $routeTreeBuilder->build($compiledRoutes);
-        $radixTree = new RadixTree($radixNode, $routeTreeBuilder->registry()->namedRoutes());
+        $radixTree = new RadixTree(
+            $radixNode,
+            $routeTreeBuilder->registry()->namedRoutes(),
+            $compiledRoutes,
+        );
 
         $directory = \dirname($this->file);
 
