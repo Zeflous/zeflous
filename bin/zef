@@ -336,6 +336,112 @@ if (in_array($command, ['route:list', 'route:test', 'route:tree'], true)) {
     }
 }
 
+if (in_array($command, ['route:openapi', 'route:postman'], true)) {
+    $exportUsage = "Usage: bin/zef route:openapi <config-directory> --title=<title> --version=<api-version>"
+        . " [--scheme=http|https]\n"
+        . "       bin/zef route:postman <config-directory> --title=<title>\n";
+
+    $configDirectory = $argv[2] ?? '';
+
+    if ($configDirectory === '' || str_starts_with($configDirectory, '--')) {
+        fwrite(STDERR, $exportUsage);
+        exit(2);
+    }
+
+    $resolved = realpath($configDirectory);
+    if ($resolved === false || !is_dir($resolved)) {
+        fwrite(STDERR, "Configuration directory does not exist: {$configDirectory}\n");
+        exit(2);
+    }
+
+    $exportTitle = null;
+    $exportVersion = null;
+    $exportScheme = 'https';
+
+    foreach (array_slice($argv, 3) as $argument) {
+        if (str_starts_with($argument, '--title=')) {
+            $exportTitle = substr($argument, strlen('--title='));
+        } elseif ($command === 'route:openapi' && str_starts_with($argument, '--version=')) {
+            $exportVersion = substr($argument, strlen('--version='));
+        } elseif ($command === 'route:openapi' && str_starts_with($argument, '--scheme=')) {
+            $exportScheme = substr($argument, strlen('--scheme='));
+        } else {
+            fwrite(STDERR, $exportUsage);
+            exit(2);
+        }
+    }
+
+    $requiredFlags = [['--title=', $exportTitle]];
+    if ($command === 'route:openapi') {
+        $requiredFlags[] = ['--version=', $exportVersion];
+    }
+
+    foreach ($requiredFlags as $bound) {
+        [$flagName, $value] = $bound;
+        if ($value === null
+            || $value === ''
+            || strlen($value) > 256
+            || preg_match('/[\x00-\x1f\x7f]/', $value) === 1) {
+            fwrite(STDERR, "Invalid {$flagName} value.\n");
+            fwrite(STDERR, $exportUsage);
+            exit(2);
+        }
+    }
+
+    if (!in_array($exportScheme, ['http', 'https'], true)) {
+        fwrite(STDERR, "Invalid --scheme= value.\n");
+        fwrite(STDERR, $exportUsage);
+        exit(2);
+    }
+
+    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    if (is_file($autoload)) {
+        require_once $autoload;
+    } else {
+        spl_autoload_register(static function (string $class): void {
+            $bases = [
+                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+            ];
+            foreach ($bases as $prefix => $base) {
+                if (str_starts_with($class, $prefix)) {
+                    $file = $base
+                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                    if (is_file($file)) {
+                        require $file;
+                    }
+                }
+            }
+        });
+    }
+
+    try {
+        $router = Zef\Test\Support\Tooling\RouteInspectionBoot::router($resolved);
+
+        if ($command === 'route:openapi') {
+            fwrite(
+                STDOUT,
+                Zef\Test\Support\Tooling\RouteOpenApiExport::rendered(
+                    $router,
+                    $exportTitle,
+                    $exportVersion,
+                    $exportScheme,
+                ) . "\n",
+            );
+            exit(0);
+        }
+
+        fwrite(
+            STDOUT,
+            Zef\Test\Support\Tooling\RoutePostmanExport::rendered($router, $exportTitle) . "\n",
+        );
+        exit(0);
+    } catch (Throwable $bootFailure) {
+        fwrite(STDERR, 'The export refused: ' . $bootFailure->getMessage() . "\n");
+        exit(1);
+    }
+}
+
 $path = getenv('ZEF_ERROR_LOG') ?: DEFAULT_ERROR_LOG;
 $requestIdFilter = null;
 foreach (array_slice($argv, 2) as $argument) {

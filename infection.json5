@@ -309,6 +309,22 @@
                 "Zef\\Framework\\Config\\Routing\\RouteAcceptRanges::quality",
                 "Zef\\Framework\\Middleware\\RouteDispatchHandler::varyOnAccept",
                 "Zef\\Framework\\Middleware\\ServerRequestMetadata::fromRequest",
+                // The Postman collection's identifier formatting is the
+                // router lane's own RedactionCandidate measurement, spelled
+                // for the hash family: the SHA-1 hex digest hash() answers
+                // is pure ASCII by construction (the [0-9a-f] hexits are
+                // the only bytes the function can ever return), so the
+                // five mb_substr slices that format the digest into the
+                // 8-4-4-4-12 spelling agree with their substr rewrites on
+                // every string the fold can ever hand them (verified by
+                // running the changed-set under the escaped mutations --
+                // the complete suite passes, the golden-id pin included).
+                // The neighbouring mb_strlen guard in the collection-name
+                // fold stays under the mutator: multibyte names diverge
+                // between the character and byte folds there, and the
+                // boundary tests pin the character semantics. This ignore
+                // is scoped to that single method.
+                "Zef\\Framework\\Export\\PostmanCollection::identifier",
                 // The AOT knob's toggle fold is value-equivalent under the
                 // MBString mutator by the same construction the class's own
                 // docblock argues: the vocabulary carries no letter whose

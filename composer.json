@@ -34,6 +34,7 @@
         "deptrac/deptrac": "^4.7",
         "friendsofphp/php-cs-fixer": "^3.95",
         "infection/infection": "^0.35",
+        "opis/json-schema": "^2.6",
         "php-code-archeology/php-code-archeology": "^2.11",
         "phpbench/phpbench": "^1.7",
         "phpstan/extension-installer": "^1.4",

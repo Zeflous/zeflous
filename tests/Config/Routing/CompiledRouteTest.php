@@ -87,6 +87,30 @@ final class CompiledRouteTest extends TestCase
         self::assertTrue($compiledRoute->constraints()->check('id', '42'));
     }
 
+    public function testTheDeclaredConstraintPatternIsReadableVerbatim(): void
+    {
+        // The read-side seam the ecosystem export renders from: the
+        // declared pattern, spelled as its author wrote it -- never
+        // the anchored storage form, never a re-derivation.
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/users/{id}/posts/{post}',
+            'method' => ['GET'],
+            'handler' => 'Users@show',
+            'constraints' => ['id' => '[0-9]+'],
+        ]);
+
+        self::assertSame('[0-9]+', $compiledRoute->constraints()->pattern('id'));
+        self::assertNull($compiledRoute->constraints()->pattern('post'));
+
+        $unconstrained = CompiledRoute::fromArray([
+            'path' => '/health',
+            'method' => ['GET'],
+            'handler' => 'Health@check',
+        ]);
+
+        self::assertNull($unconstrained->constraints()->pattern('anything'));
+    }
+
     public function testNormalizesMethodsUpperCasedAndSorted(): void
     {
         $compiledRoute = CompiledRoute::fromArray([
