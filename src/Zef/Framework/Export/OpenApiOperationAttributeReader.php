@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Export;
 
-use ReflectionMethod;
 use Zef\Framework\Config\Routing\CompiledRoute;
 
 /**
@@ -45,46 +44,22 @@ final readonly class OpenApiOperationAttributeReader
         $handler = $compiledRoute->handler();
         $parts = explode(self::HANDLER_SEPARATOR, $handler);
 
-        if (\count($parts) !== 2) {
+        if (\count($parts) !== 2 || !self::reflectable($parts)) {
             return null;
         }
 
-        if (!class_exists($parts[0]) || !method_exists($parts[0], $parts[1])) {
-            return null;
-        }
+        return OpenApiOperationAttributeDeclaration::read($parts[0], $parts[1], $compiledRoute);
+    }
 
-        $attributes = new ReflectionMethod($parts[0], $parts[1])
-            ->getAttributes(OpenApiOperationAttribute::class)
-        ;
-
-        if ($attributes === []) {
-            return null;
-        }
-
-        if (\count($attributes) > 1) {
-            throw new ExportException(
-                \sprintf(
-                    'The route "%s" handler "%s" carries the OpenAPI operation attribute more than once.',
-                    $compiledRoute->path()->pattern(),
-                    $handler,
-                ),
-            );
-        }
-
-        $openApiOperationAttribute = $attributes[0]->newInstance();
-
-        return [
-            'summary' => OpenApiOperationProse::optional(
-                $openApiOperationAttribute->summary,
-                'summary',
-                $compiledRoute,
-            ),
-            'description' => OpenApiOperationProse::optional(
-                $openApiOperationAttribute->description,
-                'description',
-                $compiledRoute,
-            ),
-            'tags' => OpenApiOperationProse::tags($openApiOperationAttribute->tags, $compiledRoute),
-        ];
+    /**
+     * Whether the handler's pair names a class and a method the
+     * reflection can read -- the guard that keeps the reader away
+     * from handlers it must never reflect.
+     *
+     * @param list<string> $parts the handler's `Class@method` pair
+     */
+    private static function reflectable(array $parts): bool
+    {
+        return class_exists($parts[0]) && method_exists($parts[0], $parts[1]);
     }
 }
