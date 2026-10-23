@@ -33,7 +33,12 @@ namespace Zef\Test\Support\Tooling;
  *     spelling the file carries (`preg_match_all`), not only the first --
  *     a job-level `concurrency:` block is as much a deadlock contributor
  *     as the workflow-level one, and the first-only read left it
- *     invisible.
+ *     invisible. The cancelling flag is read the same way ({@see
+ *     self::cancels()}): every `cancel-in-progress:` spelling the file
+ *     carries is judged, because a file whose workflow-level block
+ *     refuses (`false`) while a job-level block cancels (`true`) is a
+ *     cancelling file -- the common "cancel stale job runs" shape -- and
+ *     trusting the first spelling alone let exactly that escape.
  *
  *  4. EVERY TRIGGERING WORKFLOW DECLARES A GROUP. A workflow that
  *     triggers itself and declares no concurrency at all used to pass
@@ -78,9 +83,7 @@ final readonly class WorkflowConcurrencyPolicy
             return self::noGroupFailures($workflow, $contents);
         }
 
-        preg_match(self::CANCEL_KEY, $contents, $cancelMatch);
-
-        $cancels = self::CANCELLING[$cancelMatch[1] ?? ''] ?? false;
+        $cancels = self::cancels($contents);
 
         $failures = [];
 
@@ -112,6 +115,37 @@ final readonly class WorkflowConcurrencyPolicy
         }
 
         return $failures;
+    }
+
+    /**
+     * Whether any concurrency block in the file cancels in progress: the
+     * flag is read from EVERY `cancel-in-progress:` spelling the file
+     * carries -- a file whose workflow-level block refuses while a
+     * job-level block cancels is a cancelling file, so the conservative
+     * read judges the file by its most demanding block rather than by
+     * whichever spelling happens to sit first in the file. A dynamic
+     * expression stays a refusal: only the literal boolean spellings map
+     * ({@see CANCELLING}), and an unreadable shape cancels nothing.
+     */
+    private static function cancels(string $contents): bool
+    {
+        preg_match_all(self::CANCEL_KEY, $contents, $cancelMatches);
+
+        return array_any(
+            $cancelMatches[1],
+            static fn (string $spelling): bool => self::CANCELLING[self::normalised($spelling)] ?? false,
+        );
+    }
+
+    /**
+     * The comparable spelling of a captured flag: a trailing comment is
+     * not part of the flag, and neither are the quotes a literal spelling
+     * may carry -- `true # keep the newest` and `'true'` must read as the
+     * cancelling boolean they spell.
+     */
+    private static function normalised(string $spelling): string
+    {
+        return mb_trim(mb_trim(mb_trim(explode('#', $spelling, 2)[0]), "'"), '"');
     }
 
     /**

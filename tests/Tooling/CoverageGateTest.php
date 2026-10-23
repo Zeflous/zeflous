@@ -53,7 +53,26 @@ final class CoverageGateTest extends TestCase
         // fragments swapped) is detected rather than tolerated by two
         // independent substring checks that either order would satisfy.
         self::assertSame(
-            'Line coverage: 80.00% (required: 90.00%) -> Coverage gate FAILED.',
+            'Line coverage: 80.00% (required: 90.00%) -> Coverage gate FAILED (short by 10.0000%).',
+            $gateResult->message,
+        );
+    }
+
+    /**
+     * The shortfall arm is what makes a boundary failure legible: a score
+     * whose two-decimal rendering rounds UP onto the threshold still fails
+     * on the raw comparison, and the message must carry the number that
+     * explains the verdict instead of reading "90.00% (required: 90.00%)"
+     * over a FAILED line -- four decimals, because the shortfall of exactly
+     * this boundary class is smaller than two decimals can express.
+     */
+    public function testGateFailsBelowTheThresholdCarryingTheShortfall(): void
+    {
+        $gateResult = new CoverageGate(90.0)->evaluate($this->report(100000, 89996));
+
+        self::assertFalse($gateResult->passed);
+        self::assertSame(
+            'Line coverage: 90.00% (required: 90.00%) -> Coverage gate FAILED (short by 0.0040%).',
             $gateResult->message,
         );
     }
@@ -128,6 +147,31 @@ final class CoverageGateTest extends TestCase
             $this->expectException(ToolingException::class);
 
             CoverageReport::fromCloverFile($path);
+        } finally {
+            unlink($path);
+        }
+    }
+
+    /**
+     * A clover that answers more covered statements than it carries
+     * statements is not a report to score -- it is a corrupted one, and a
+     * naive division would certify a coverage above one hundred percent.
+     * The parser refuses it instead of letting an impossible ratio pass.
+     */
+    public function testFromCloverFileRefusesAnImpossibleRatio(): void
+    {
+        $path = $this->writeTempFile(
+            '<coverage><project><metrics statements="4000" coveredstatements="5000"/></project></coverage>',
+        );
+
+        try {
+            CoverageReport::fromCloverFile($path);
+            self::fail('A clover with covered statements above the total must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'Coverage report is impossible: 5000 covered statements exceed the 4000 total statements.',
+                $toolingException->getMessage(),
+            );
         } finally {
             unlink($path);
         }

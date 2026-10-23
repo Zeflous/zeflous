@@ -15,7 +15,8 @@ declare(strict_types=1);
  *
  * Exit codes:
  *   0  every finished conversation was resolved (or there was none)
- *   1  a resolve attempt failed, or the payload could not be read
+ *   1  a resolve attempt failed, a thread could not be accounted for
+ *      (unusable), or the payload could not be read
  *   2  the pull-request number argument is missing or not a positive integer
  */
 
@@ -116,4 +117,9 @@ try {
 
 fwrite(STDOUT, $resolution->message() . PHP_EOL);
 
-exit($resolution->failed === 0 ? 0 : 1);
+// A thread the sweep could not account for still counts as unresolved for
+// the required check: an unusable node rides the exit code the same way a
+// failed resolve does, so the auto-merge lane's warning surfaces a pull
+// request the sweep left blocked instead of reporting a clean zero over an
+// unaccounted thread.
+exit($resolution->failed === 0 && $resolution->unusable === 0 ? 0 : 1);

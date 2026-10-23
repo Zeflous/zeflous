@@ -291,11 +291,12 @@ final class ConfigCacheTest extends TestCase
     /**
      * The staging sibling's own name, observed through the engine's
      * diagnostic for the failing rename: the artifact's basename, the
-     * writing process's own id, a thirteen-hex-character entropy, and
-     * the `.staging` suffix -- a sibling no concurrent writer can
-     * collide with. The rename onto the occupied directory fails, the
-     * diagnostic carries the whole staging path, and the failed dump
-     * still cleans its own sibling.
+     * writing process's own id, a twelve-hex-character entropy drawn from
+     * `random_bytes` (unpredictable by a co-tenant, unlike a clock-derived
+     * `uniqid`), and the `.staging` suffix -- a sibling no concurrent
+     * writer can collide with. The rename onto the occupied directory
+     * fails, the diagnostic carries the whole staging path, and the failed
+     * dump still cleans its own sibling.
      */
     public function testTheStagingSiblingCarriesTheBasenameThePidAndTheEntropy(): void
     {
@@ -333,7 +334,7 @@ final class ConfigCacheTest extends TestCase
         self::assertCount(1, $renames, 'exactly one rename diagnostic carries the staging path');
         self::assertMatchesRegularExpression(
             '/^rename\(' . preg_quote($occupied, '/') . '\.' . preg_quote((string) getmypid(), '/')
-                . '-[0-9a-f]{13}\.staging,/',
+                . '-[0-9a-f]{12}\.staging,/',
             $renames[0],
             'the staging sibling is the basename, the pid, the entropy and the suffix',
         );

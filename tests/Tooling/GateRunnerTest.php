@@ -24,7 +24,14 @@ final class GateRunnerTest extends TestCase
         $this->root = (string) tempnam(sys_get_temp_dir(), 'zef-gate-');
         unlink($this->root);
         mkdir($this->root . '/build/infection', 0o777, true);
-        mkdir($this->root . '/src', 0o777, true);
+        // The lint corpus's five configured directories, all present: a
+        // missing corpus directory refuses the lint gate outright (a
+        // shrunken corpus must fail loudly), so the synthetic root mirrors
+        // the real repository's layout.
+        foreach (['src', 'tests', 'benchmarks', 'scripts', 'bin'] as $corpus) {
+            mkdir($this->root . '/' . $corpus, 0o777, true);
+        }
+
         file_put_contents($this->root . '/src/Example.php', '<?php');
     }
 
@@ -173,6 +180,64 @@ final class GateRunnerTest extends TestCase
         $runner = $this->runner(static fn (string $command): array => [255, 'Parse error']);
 
         self::assertFalse($runner->run('lint', [])->passed);
+    }
+
+    /**
+     * A threshold that is not numeric is an operator error the gate must
+     * refuse rather than coerce: `(float) 'abc'` answers 0.0, and a floor
+     * of zero can never fail -- the coercion would silently retire the
+     * gate. The refusal fires before the report is even read.
+     */
+    public function testTheCoverageThresholdMustBeNumeric(): void
+    {
+        try {
+            $this->runner()->run('coverage', ['abc']);
+            self::fail('A non-numeric coverage threshold must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'The gate threshold must be numeric, "abc" is not.',
+                $toolingException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * The empty string is the operator-error shape a stray flag leaves
+     * behind (`composer coverage:gate --` style invocations), and it is
+     * not numeric either.
+     */
+    public function testTheMutationThresholdMustBeNumeric(): void
+    {
+        try {
+            $this->runner()->run('mutation', ['']);
+            self::fail('An empty mutation threshold must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'The gate threshold must be numeric, "" is not.',
+                $toolingException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * The documented defaults stay numeric when the argument is absent:
+     * the coverage floor defaults to 90 and the mutation floor to 100,
+     * and neither default may be refused by the validation that guards
+     * the explicit arguments.
+     */
+    public function testTheDocumentedDefaultsRemainNumeric(): void
+    {
+        file_put_contents(
+            $this->root . '/build/clover.xml',
+            '<coverage><project><metrics statements="10" coveredstatements="10"/></project></coverage>',
+        );
+        file_put_contents(
+            $this->root . '/build/infection/infection.json',
+            '{"stats":{"msi":100,"coveredCodeMsi":100,"mutationCodeCoverage":100}}',
+        );
+
+        self::assertTrue($this->runner()->run('coverage', [])->passed);
+        self::assertTrue($this->runner()->run('mutation', [])->passed);
     }
 
     public function testWorkflowConcurrencyGateAuditsTheWorkflowDirectory(): void
@@ -337,6 +402,12 @@ final class GateRunnerTest extends TestCase
             $root . '/build',
             $root . '/src/Example.php',
             $root . '/src',
+            $root . '/tests',
+            $root . '/benchmarks',
+            $root . '/scripts',
+            $root . '/bin',
+            $root . '/.github/workflows',
+            $root . '/.github',
             $root . '/phpstan-baseline.neon',
             $root . '/composer.json',
             $root . '/composer.lock',

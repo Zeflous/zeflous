@@ -49,13 +49,34 @@ final class ReplaySnapshotWriter
         fclose($stream);
     }
 
-    /** @param resource $stream */
+    /**
+     * The byte-wise remainder loop: the cursor advances by the BYTES the
+     * stream actually accepted, and the remainder the next call ships is
+     * the byte-tail from that exact offset (`unpack()`'s own offset --
+     * deliberately not `substr()` arithmetic, which the coding standard's
+     * multibyte-safe fixer would silently turn into character arithmetic).
+     * A short write on a multibyte snapshot therefore resumes at the
+     * snapshot's NEXT BYTE, never at its next character: the
+     * character-offset walk this loop once kept could skip the trailing
+     * half of a partially-written multibyte sequence and exit
+     * "successfully" on a torn snapshot.
+     *
+     * @param resource $stream
+     */
     private static function writeAll($stream, string $contents): void
     {
         $offset = 0;
-        $length = mb_strlen($contents);
-        while ($offset < $length) {
-            $written = fwrite($stream, mb_substr($contents, $offset));
+
+        while (isset($contents[$offset])) {
+            $unpacked = unpack('a*', $contents, $offset);
+            $remainder = '';
+
+            if (\is_array($unpacked) && isset($unpacked[1]) && \is_string($unpacked[1])) {
+                $remainder = $unpacked[1];
+            }
+
+            $written = fwrite($stream, $remainder);
+
             if ($written === false || $written === 0) {
                 throw new ReplaySnapshotException('Unable to write a complete replay snapshot.');
             }

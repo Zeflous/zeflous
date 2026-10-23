@@ -18,10 +18,13 @@ use DirectoryIterator;
  * directory iteration with an extension filter -- deliberately NOT a glob
  * pattern, because a checkout root carrying glob metacharacters
  * (`/build/ci[2]/repo`) would make the pattern match nothing and the audit
- * would report its own absence as a pass. A file that cannot be read is left
- * out instead of aborting the whole audit. A repository without the workflow
- * directory simply matches nothing and yields an empty collection (a valid
- * outcome the gate reports as "0 workflow(s) audited").
+ * would report its own absence as a pass. A file that cannot be read
+ * refuses the whole collection ({@see ToolingException}): a workflow the
+ * audit cannot see is a workflow whose concurrency misconfiguration
+ * escapes the gate silently -- the fail-closed direction. A repository
+ * without the workflow directory simply matches nothing and yields an
+ * empty collection (a valid outcome the gate reports as
+ * "0 workflow(s) audited").
  */
 final readonly class WorkflowFileCollector
 {
@@ -58,7 +61,10 @@ final readonly class WorkflowFileCollector
             $contents = file_get_contents($file->getPathname());
 
             if (!\is_string($contents)) {
-                continue;
+                throw new ToolingException(\sprintf(
+                    'Unable to read the workflow file "%s" for the concurrency audit.',
+                    $file->getPathname(),
+                ));
             }
 
             $workflows[$file->getFilename()] = $contents;

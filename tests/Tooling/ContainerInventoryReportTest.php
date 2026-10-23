@@ -294,8 +294,12 @@ final class ContainerInventoryReportTest extends TestCase
 
         $basename = basename($path);
 
+        // Sixteen hex characters: the `random_bytes` entropy a co-tenant of
+        // the temporary directory cannot predict ahead of the allocation
+        // (the clock-derived thirteen a `uniqid` answered were predictable
+        // by anyone who could watch the clock).
         self::assertMatchesRegularExpression(
-            '/^zef-container-inventory-[a-f0-9]{13}\.php$/',
+            '/^zef-container-inventory-[a-f0-9]{16}\.php$/',
             $basename,
         );
         self::assertSame(sys_get_temp_dir(), \dirname($path));
