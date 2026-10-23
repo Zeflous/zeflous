@@ -56,6 +56,7 @@ use Zef\Framework\Middleware\ErrorFaultMetricsRecorder;
 use Zef\Framework\Middleware\ErrorFaultRecorder;
 use Zef\Framework\Middleware\ErrorMappingFactory;
 use Zef\Framework\Middleware\ErrorMappingMiddleware;
+use Zef\Framework\Middleware\ErrorReplayWiring;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Framework\Telemetry\MeterSlot;
@@ -74,7 +75,9 @@ use Zef\Test\Support\Log\RecordingLogger;
  */
 #[CoversClass(ErrorMappingMiddleware::class)]
 #[CoversClass(ErrorMappingFactory::class)]
+#[CoversClass(ErrorReplayWiring::class)]
 #[CoversClass(ErrorReplayStore::class)]
+#[CoversClass(ReplayRetention::class)]
 #[CoversClass(ReplayPayloadSanitizer::class)]
 #[CoversClass(CounterMeter::class)]
 #[CoversClass(MeterSlot::class)]

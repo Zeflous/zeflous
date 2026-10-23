@@ -27,6 +27,7 @@ use Zef\Test\Support\Http\RawPathUri;
 
 /** @internal */
 #[CoversClass(ErrorReplayStore::class)]
+#[CoversClass(ReplayRetention::class)]
 #[CoversClass(ReplayPayloadSanitizer::class)]
 #[CoversClass(ReplayBodyCapture::class)]
 #[CoversClass(ReplayBodyDecoder::class)]

@@ -60,11 +60,11 @@ final class ReplayRetention
         }
 
         foreach (\array_slice(array_keys($snapshots), 0, $excess) as $file) {
-            if (!unlink($file)) {
-                error_log('ZEF error replay retention failed to remove: ' . $file);
-
+            if (unlink($file)) {
                 continue;
             }
+
+            error_log('ZEF error replay retention failed to remove: ' . $file);
         }
     }
 }
