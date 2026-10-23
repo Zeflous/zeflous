@@ -82,6 +82,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(router): translate dispatch refusals into the typed error family [#533](https://github.com/Zeflous/zeflous/pull/533) ([mbetixz](https://github.com/mbetixz))
 - feat(router): answer deprecated routes with the standard lifecycle headers [#540](https://github.com/Zeflous/zeflous/pull/540) ([mbetixz](https://github.com/mbetixz))
 - feat(router): observe the match through the tracing and metrics engines [#555](https://github.com/Zeflous/zeflous/pull/555) ([mbetixz](https://github.com/mbetixz))
+- feat(router): answer the CLI inspector commands over the engine's own seams [#563](https://github.com/Zeflous/zeflous/pull/563) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
