@@ -29,9 +29,11 @@ namespace Zef\Framework\Http;
 use Zef\Test\Support\Http\ReplaySnapshotDoubleState;
 
 use function chmod as engine_chmod;
+use function error_log as engine_error_log;
 use function flock as engine_flock;
 use function fwrite as engine_fwrite;
 use function json_encode as engine_json_encode;
+use function unlink as engine_unlink;
 
 function chmod(string $filename, int $permissions): bool
 {
@@ -87,6 +89,54 @@ function fwrite($stream, string $data, ?int $length = null): false|int
     }
 
     return $answered;
+}
+
+/**
+ * The retention walk's removal, shadowed with the boundary's own arms: the
+ * queued answers are consumed oldest-call-first, so a test that arms a
+ * refusal watches the walk say so on the error_log double and keep walking
+ * past the stuck entry; every unarmed call answers the engine's own unlink.
+ *
+ * @param null|resource $context
+ */
+function unlink(string $filename, $context = null): bool
+{
+    if (ReplaySnapshotDoubleState::$unlinkAnswers !== []) {
+        $result = array_shift(ReplaySnapshotDoubleState::$unlinkAnswers);
+    } else {
+        $result = engine_unlink($filename, $context);
+    }
+
+    if (ReplaySnapshotDoubleState::$record) {
+        ReplaySnapshotDoubleState::$unlinkCalls[] = [$filename, $result];
+    }
+
+    return $result;
+}
+
+/**
+ * The boundary's SAPI log seam, shadowed for recording alone: while a test
+ * holds the record arm, the message is captured for the assertions and
+ * answered without touching the engine's own sink -- an armed test must not
+ * write to the runner's STDERR either (the mutation lane's initial run died
+ * on exactly that emission). Unarmed, the double is pure passthrough: every
+ * other suite and the production process keep the engine's own behaviour.
+ *
+ * @param 0|1|3|4 $message_type the engine's own message-type axis
+ */
+function error_log(
+    string $message,
+    int $message_type = 0,
+    ?string $destination = null,
+    ?string $additional_headers = null,
+): bool {
+    if (ReplaySnapshotDoubleState::$record) {
+        ReplaySnapshotDoubleState::$errorLogMessages[] = $message;
+
+        return true;
+    }
+
+    return engine_error_log($message, $message_type, $destination, $additional_headers);
 }
 
 /**

@@ -15,6 +15,7 @@ use Zef\Framework\Http\ReplayBodyCapture;
 use Zef\Framework\Http\ReplayBodyDecoder;
 use Zef\Framework\Http\ReplayBodyReader;
 use Zef\Framework\Http\ReplayPayloadSanitizer;
+use Zef\Framework\Http\ReplayRetention;
 use Zef\Framework\Http\ReplaySnapshotException;
 use Zef\Framework\Http\ReplaySnapshotWriter;
 use Zef\Framework\Http\ReplayStorageDirectory;

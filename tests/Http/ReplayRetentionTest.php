@@ -9,6 +9,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\ReplayRetention;
 use Zef\Framework\Http\ReplaySnapshotAge;
+use Zef\Test\Support\Http\ReplaySnapshotDoubleState;
+use Zef\Test\Support\Http\ReplaySnapshotFunctionDoubles;
 
 /**
  * The retention seam's own contract, measured against a real directory: the
@@ -26,6 +28,8 @@ final class ReplayRetentionTest extends TestCase
     #[Override]
     protected function setUp(): void
     {
+        ReplaySnapshotFunctionDoubles::define();
+
         $this->directory = sys_get_temp_dir() . '/zef-replay-retention-' . bin2hex(random_bytes(8));
         mkdir($this->directory, 0o700);
     }
@@ -33,6 +37,8 @@ final class ReplayRetentionTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
+        ReplaySnapshotFunctionDoubles::reset();
+
         $files = glob($this->directory . '/*');
         foreach (\is_array($files) ? $files : [] as $file) {
             if (!is_file($file) && !is_link($file)) {
@@ -136,6 +142,27 @@ final class ReplayRetentionTest extends TestCase
             'the unstattable entry sorts as the oldest garbage there is',
         );
         self::assertSame([0, 1_000_000], array_values($ordered));
+    }
+
+    public function testAPruneThatCannotUnlinkSaysSoAndKeepsWalking(): void
+    {
+        $ids = $this->seedSnapshots(3, 1_000);
+
+        ReplaySnapshotDoubleState::$unlinkAnswers = [false];
+
+        ReplayRetention::prune($this->directory, 1);
+
+        self::assertFileExists($this->directory . '/' . $ids[0] . '.json', 'the stuck snapshot stays');
+        self::assertFileDoesNotExist(
+            $this->directory . '/' . $ids[1] . '.json',
+            'the walk kept walking past the stuck entry',
+        );
+        self::assertFileExists($this->directory . '/' . $ids[2] . '.json', 'the newest snapshot is kept');
+        self::assertSame(
+            ['ZEF error replay retention failed to remove: ' . $this->directory . '/' . $ids[0] . '.json'],
+            ReplaySnapshotDoubleState::$errorLogMessages,
+            'the stuck removal is said so on the SAPI log, exactly once',
+        );
     }
 
     public function testAnEmptyDirectoryNeedsNoPruning(): void

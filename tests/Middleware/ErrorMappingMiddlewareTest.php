@@ -46,6 +46,7 @@ use Zef\Framework\Http\ProblemDetailsResponseHeaders;
 use Zef\Framework\Http\RedactedMessage;
 use Zef\Framework\Http\RedactionCandidate;
 use Zef\Framework\Http\ReplayPayloadSanitizer;
+use Zef\Framework\Http\ReplayRetention;
 use Zef\Framework\Http\RequestBodyPolicy;
 use Zef\Framework\Http\RequestFactory;
 use Zef\Framework\Http\Response;

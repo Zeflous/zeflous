@@ -48,9 +48,12 @@ final class ReplaySnapshotFunctionDoubles
         ReplaySnapshotDoubleState::$flockCalls = [];
         ReplaySnapshotDoubleState::$fwriteCalls = [];
         ReplaySnapshotDoubleState::$jsonEncodeCalls = [];
+        ReplaySnapshotDoubleState::$unlinkCalls = [];
+        ReplaySnapshotDoubleState::$errorLogMessages = [];
         ReplaySnapshotDoubleState::$chmodAnswer = null;
         ReplaySnapshotDoubleState::$flockAnswer = null;
         ReplaySnapshotDoubleState::$fwriteAnswers = [];
+        ReplaySnapshotDoubleState::$unlinkAnswers = [];
         ReplaySnapshotDoubleState::$fwriteChunk = null;
         ReplaySnapshotDoubleState::$record = false;
     }
