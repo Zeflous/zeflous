@@ -43,8 +43,8 @@ final class RouteMatchNeighborhood
      * Reads the neighborhood of a request path from the tree's root.
      *
      * @return array{prefix: string, patterns: list<string>} the deepest
-     *         static prefix the path tracked, verbatim from the path, and
-     *         the capped, breadth-first patterns under it
+     *                                                       static prefix the path tracked, verbatim from the path, and
+     *                                                       the capped, breadth-first patterns under it
      */
     public static function around(RadixNode $root, string $path): array
     {
@@ -65,7 +65,7 @@ final class RouteMatchNeighborhood
      * continues.
      *
      * @return array{RadixNode, int} the node the descent stopped at
-     *         and the character offset the path tracked to reach it
+     *                               and the character offset the path tracked to reach it
      */
     private static function deepestDescent(RadixNode $radixNode, string $path): array
     {
@@ -108,7 +108,7 @@ final class RouteMatchNeighborhood
         $patterns = [];
         $queue = [$radixNode];
 
-        for ($index = 0; $index < \count($queue) && \count($patterns) < self::MAX_PATTERNS; $index++) {
+        for ($index = 0; $index < \count($queue) && \count($patterns) < self::MAX_PATTERNS; ++$index) {
             $node = $queue[$index];
 
             foreach ($node->routes() as $compiledRoute) {

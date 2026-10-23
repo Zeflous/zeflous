@@ -9,8 +9,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RadixTree;
-use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Config\Routing\RouteMatchExplainer;
+use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Config\Routing\RouteMatchNeighborhood;
 
 /**
@@ -188,32 +188,7 @@ final class RouteMatchExplainerTest extends TestCase
         );
     }
 
-    /**
-     * The equivalence contract: the explanation's outcome is the
-     * match's own, because the explainer runs the matcher's own
-     * folds over the same tree.
-     *
-     * @return iterable<string, array{string, string, null|string, null|string, null|string}>
-     */
-    public static function provideMatchEquivalenceCases(): iterable
-    {
-        return [
-            'a found static match' => ['GET', '/users', null, null, null],
-            'a found parameterized match' => ['GET', '/users/42', null, null, null],
-            'a constraint-refused match' => ['GET', '/users/abc', null, null, null],
-            'a path miss' => ['GET', '/nowhere', null, null, null],
-            'a host miss' => ['GET', '/a', 'other.example.com', null, null],
-            'a host-claimed match' => ['GET', '/a', 'api.example.com', null, null],
-            'a version miss' => ['GET', '/b', null, null, 'v3'],
-            'a version-selected match' => ['GET', '/b', null, null, 'v2'],
-            'a method refusal' => ['GET', '/posts', null, null, null],
-            'an answered method' => ['POST', '/posts', null, null, null],
-            'an accept refusal' => ['GET', '/j', null, 'text/html', null],
-            'an acceptable negotiation' => ['GET', '/j', null, 'application/json', null],
-        ];
-    }
-
-    #[DataProvider('provideMatchEquivalenceCases')]
+    #[DataProvider('provideTheOutcomeMirrorsTheMatchResultCases')]
     public function testTheOutcomeMirrorsTheMatchResult(
         string $method,
         string $path,
@@ -230,6 +205,31 @@ final class RouteMatchExplainerTest extends TestCase
             $explanation->outcome(),
             'the explanation runs the matcher\'s own folds, so its outcome is the match\'s own',
         );
+    }
+
+    /**
+     * The equivalence contract: the explanation's outcome is the
+     * match's own, because the explainer runs the matcher's own
+     * folds over the same tree.
+     *
+     * @return iterable<string, array{string, string, null|string, null|string, null|string}>
+     */
+    public static function provideTheOutcomeMirrorsTheMatchResultCases(): iterable
+    {
+        return [
+            'a found static match' => ['GET', '/users', null, null, null],
+            'a found parameterized match' => ['GET', '/users/42', null, null, null],
+            'a constraint-refused match' => ['GET', '/users/abc', null, null, null],
+            'a path miss' => ['GET', '/nowhere', null, null, null],
+            'a host miss' => ['GET', '/a', 'other.example.com', null, null],
+            'a host-claimed match' => ['GET', '/a', 'api.example.com', null, null],
+            'a version miss' => ['GET', '/b', null, null, 'v3'],
+            'a version-selected match' => ['GET', '/b', null, null, 'v2'],
+            'a method refusal' => ['GET', '/posts', null, null, null],
+            'an answered method' => ['POST', '/posts', null, null, null],
+            'an accept refusal' => ['GET', '/j', null, 'text/html', null],
+            'an acceptable negotiation' => ['GET', '/j', null, 'application/json', null],
+        ];
     }
 
     public function testTheSummaryOmitsTheTokensACarriedOutcomeDoesNotHold(): void
@@ -255,7 +255,7 @@ final class RouteMatchExplainerTest extends TestCase
 
     public function testAControlByteInTheRequestPathEndsTheTrackedPrefixWhereTheTableDiverges(): void
     {
-        $explanation = self::table()->explain("GET", "/us\x00ers\x1Fs");
+        $explanation = self::table()->explain('GET', "/us\x00ers\x1Fs");
 
         self::assertSame('/us', $explanation->sharedPrefix());
         self::assertSame(
@@ -318,8 +318,6 @@ final class RouteMatchExplainerTest extends TestCase
     /**
      * The shared fixture: one table exercising every stage the
      * pipeline owns.
-     *
-     * @return RadixTree
      */
     private static function table(): RadixTree
     {
