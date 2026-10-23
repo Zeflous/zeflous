@@ -201,25 +201,58 @@ the global stack: it observes the boundary's rendered answer, and it
 stamps a header on it — it never renders a second error shape (the
 rule-17 posture: the boundary owns the refusal's rendering).
 
+## KDD-OB8 — the architecture gate answered with the lane's own doctrine
+
+The PhpCodeArcheology gate answered the slice's first cut with five
+difficulty findings (the ceiling is 20): the neighborhood at 40.26,
+the explanation at 23.25, and three files the slice had pushed over
+baselines that already sat at 17–20 (the tree, the handler, the
+telemetry). The settle is the fold split — every finding became a
+single-question class under the ceiling: `RouteMatchDescent` and
+`RouteSubtreePatterns` out of the neighborhood (the orchestrator
+stays), `RouteMatchSummary` out of the explanation (which gains the
+`outcomeOf` fold both engines read, so the outcome vocabulary has
+one owner), `RouteTableCompiler` out of `RadixTree::compile()` —
+answering the tree's *parts* rather than the tree, because the
+first cut's compiler-to-tree construction grew a dependency cycle
+the gate caught — `RouteMatchSpan` (the match span's lifecycle, the
+`CorrelationRequestSpan` decomposition replayed) out of the
+telemetry, and `RouteMiddlewareStack` (the fail-closed route
+middleware resolution) out of the handler.
+
+The settle taught a Halstead lesson recorded for the next lane: the
+difficulty metric counts **distinct operands**, so splitting a class
+into helpers that re-declare the same variables *raises* it — the
+subtree collection first split into three methods and went from
+23.43 to 30.29, then settled at 18.00 as ONE queue-draining walk
+with a single cap bound (the for-index machinery was the expensive
+part, not the loop body). Fewer names, one bound, one walk.
+
 ## Verification
 
-- `composer ci:static` EXIT-0 — phpunit 4765 tests / 10605
-  assertions (the suite grew by the slice's own 116), the
+- `composer ci:static` EXIT-0 — phpunit 4766 tests / 10608
+  assertions (the suite grew by the slice's own 117), the
   persistent-worker smoke at 20000 iterations (2760 bytes growth),
   workflow concurrency 23, the roadmap document gate, the strict
   supply-chain audit.
-- `composer coverage:gate` — **98.64%** line coverage (main carried
+- `composer coverage:gate` — **98.66%** line coverage (main carried
   98.62%): the slice's code fully covered, the tree's coverage
   unharmed.
-- Scoped Infection over the slice's eight new files and the five
-  modified files: **470 mutants, MSI 100 / covered MSI 100, zero
-  escapes, zero ignores** — the fourteen first-round escapes were
-  answered by eleven boundary tests (multi-byte tracked prefixes and
-  clamps counted in characters, the budget inclusive at exactly its
-  bound, the cap landing inside one node's own collection, the
+- The architecture gate — **0 error-level findings**, every touched
+  class under the difficulty ceiling (the folds at 3–19).
+- Scoped Infection over the slice's fourteen new files and the
+  three modified files: **307 mutants, MSI 100 / covered MSI 100,
+  zero escapes, zero ignores** — the twenty first-round escapes
+  were answered by the boundary tests (multi-byte tracked prefixes
+  and clamps counted in characters, the budget inclusive at exactly
+  its bound, the cap landing inside one node's own collection, the
   non-HEAD method refusal that pins the fallback rule to the HEAD
-  request, the injected clock measured to its frozen step) and the
-  two structural refolds of KDD-OB2.
+  request, the injected clock measured to its frozen step, the
+  outcome fold's every vocabulary, the route middleware list's
+  outer-to-inner composition) and the structural refolds of KDD-OB2
+  — the coverage-attribution discipline the settle also taught:
+  `CoversClass` restricts a test's credit, so a fold's strong
+  assertions must carry the fold's own attribution.
 - `composer bench` — flat: `RouterBench` 7.2–7.4μs on the 15- and
   300-route tables alike (`match()` is untouched by construction);
   the observed match adds work only when the family is armed.
