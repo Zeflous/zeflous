@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-23T05:18:46Z",
+  "as_of": "2026-10-23T06:45:37Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 244,
+  "unreleased_count": 245,
   "versions": [
     {
       "version": "Unreleased",
@@ -3122,6 +3122,87 @@
                 "sha": "168f5049987b5e9bcc566d7e44b7f019ddd64505",
                 "short_sha": "168f504",
                 "subject": "fix(router): settle the folded warning check under the mutation lane"
+              }
+            ]
+          },
+          {
+            "pr": 555,
+            "title": "feat(router): observe the match through the tracing and metrics engines",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-23T06:45:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/555",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ca9a1d8955f767ce6aeb3a38c7ae9350e3d896ea",
+                "short_sha": "ca9a1d8",
+                "subject": "feat(router): explain a match through the staged folds"
+              },
+              {
+                "sha": "a0341f93e49303d449016e172715a01f91e5e147",
+                "short_sha": "a0341f9",
+                "subject": "style(router): fold the formatter's pass over the explain units"
+              },
+              {
+                "sha": "6bd4292ded4800ce97a0b2be7e1c8cea3176a146",
+                "short_sha": "6bd4292",
+                "subject": "feat(router): observe the match through the telemetry engines"
+              },
+              {
+                "sha": "26bead8e27d9e12bdf640d97473041690296128e",
+                "short_sha": "26bead8",
+                "subject": "feat(router): arm the match telemetry and the debug disclosure as one family"
+              },
+              {
+                "sha": "bbd43d0317d47227170e5e128adc65e0688102ed",
+                "short_sha": "bbd43d0",
+                "subject": "test(router): kill the observability slice's every mutant"
+              },
+              {
+                "sha": "6693dcd24c9f3e29535c6a045ff28386ed2ac2cb",
+                "short_sha": "6693dcd",
+                "subject": "docs(roadmap): record the router observability slice and pin the lane"
+              },
+              {
+                "sha": "e11581b0c4f6533dd3296dd905ff0b22fdce8b5c",
+                "short_sha": "e11581b",
+                "subject": "refactor(router): settle the observability slice under the architecture gate"
+              },
+              {
+                "sha": "62c5075b3f4756542cf94088d3ba347f88687731",
+                "short_sha": "62c5075",
+                "subject": "docs(roadmap): pin the lane to the settled fold"
+              },
+              {
+                "sha": "d25376914066261e774e18eb2fd67e31b862a2cf",
+                "short_sha": "d253769",
+                "subject": "fix(router): answer the static-analysis and quality gates' findings"
+              },
+              {
+                "sha": "5903d5acb534d8e25259cb2c43a01c250bfe5bfc",
+                "short_sha": "5903d5a",
+                "subject": "docs(roadmap): pin the lane to the gates' settled answer"
+              },
+              {
+                "sha": "b3ed336241758c5c3db76385077c67e6831e0cb6",
+                "short_sha": "b3ed336",
+                "subject": "fix(router): settle the disclosure's PSR-15 face and the telemetry's psalm posture"
+              },
+              {
+                "sha": "80f997c646b4495fa6809615fb241b818ccf4600",
+                "short_sha": "80f997c",
+                "subject": "docs(roadmap): pin the lane to the psalm-settled head"
+              },
+              {
+                "sha": "1e5690b0bb28985dd6494c24fd273a7ba72b9285",
+                "short_sha": "1e5690b",
+                "subject": "Merge remote-tracking branch 'origin/main' into feat/router-observability"
+              },
+              {
+                "sha": "ab87e05b6313a9787bc51e9f6df18a1436e7d37f",
+                "short_sha": "ab87e05",
+                "subject": "docs(roadmap): settle the merge of the audit round into the lane"
               }
             ]
           }
@@ -15210,6 +15291,87 @@
               "sha": "2a15e11a7e2f306d113f593860d1823ffa507bab",
               "short_sha": "2a15e11",
               "subject": "docs(roadmap): record the gate-engine relocation and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 555,
+          "title": "feat(router): observe the match through the tracing and metrics engines",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-23T06:45:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/555",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ca9a1d8955f767ce6aeb3a38c7ae9350e3d896ea",
+              "short_sha": "ca9a1d8",
+              "subject": "feat(router): explain a match through the staged folds"
+            },
+            {
+              "sha": "a0341f93e49303d449016e172715a01f91e5e147",
+              "short_sha": "a0341f9",
+              "subject": "style(router): fold the formatter's pass over the explain units"
+            },
+            {
+              "sha": "6bd4292ded4800ce97a0b2be7e1c8cea3176a146",
+              "short_sha": "6bd4292",
+              "subject": "feat(router): observe the match through the telemetry engines"
+            },
+            {
+              "sha": "26bead8e27d9e12bdf640d97473041690296128e",
+              "short_sha": "26bead8",
+              "subject": "feat(router): arm the match telemetry and the debug disclosure as one family"
+            },
+            {
+              "sha": "bbd43d0317d47227170e5e128adc65e0688102ed",
+              "short_sha": "bbd43d0",
+              "subject": "test(router): kill the observability slice's every mutant"
+            },
+            {
+              "sha": "6693dcd24c9f3e29535c6a045ff28386ed2ac2cb",
+              "short_sha": "6693dcd",
+              "subject": "docs(roadmap): record the router observability slice and pin the lane"
+            },
+            {
+              "sha": "e11581b0c4f6533dd3296dd905ff0b22fdce8b5c",
+              "short_sha": "e11581b",
+              "subject": "refactor(router): settle the observability slice under the architecture gate"
+            },
+            {
+              "sha": "62c5075b3f4756542cf94088d3ba347f88687731",
+              "short_sha": "62c5075",
+              "subject": "docs(roadmap): pin the lane to the settled fold"
+            },
+            {
+              "sha": "d25376914066261e774e18eb2fd67e31b862a2cf",
+              "short_sha": "d253769",
+              "subject": "fix(router): answer the static-analysis and quality gates' findings"
+            },
+            {
+              "sha": "5903d5acb534d8e25259cb2c43a01c250bfe5bfc",
+              "short_sha": "5903d5a",
+              "subject": "docs(roadmap): pin the lane to the gates' settled answer"
+            },
+            {
+              "sha": "b3ed336241758c5c3db76385077c67e6831e0cb6",
+              "short_sha": "b3ed336",
+              "subject": "fix(router): settle the disclosure's PSR-15 face and the telemetry's psalm posture"
+            },
+            {
+              "sha": "80f997c646b4495fa6809615fb241b818ccf4600",
+              "short_sha": "80f997c",
+              "subject": "docs(roadmap): pin the lane to the psalm-settled head"
+            },
+            {
+              "sha": "1e5690b0bb28985dd6494c24fd273a7ba72b9285",
+              "short_sha": "1e5690b",
+              "subject": "Merge remote-tracking branch 'origin/main' into feat/router-observability"
+            },
+            {
+              "sha": "ab87e05b6313a9787bc51e9f6df18a1436e7d37f",
+              "short_sha": "ab87e05",
+              "subject": "docs(roadmap): settle the merge of the audit round into the lane"
             }
           ]
         },
