@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-23T17:01:52Z",
+  "as_of": "2026-10-23T18:20:05Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 247,
+  "unreleased_count": 248,
   "versions": [
     {
       "version": "Unreleased",
@@ -4813,6 +4813,32 @@
                 "sha": "0b8bca59d6d5a39a57e24f4d88b3410c0bae5979",
                 "short_sha": "0b8bca5",
                 "subject": "docs(roadmap): record the round-3 documentation-alignment audit landing (#562)"
+              }
+            ]
+          },
+          {
+            "pr": 568,
+            "title": "fix: close the ruleset lint's credential gap and name the classic layer's absence",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-23T18:20:05Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/568",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e522a2e0993b510a95a0a8686c1e98871a4dd8ff",
+                "short_sha": "e522a2e",
+                "subject": "ci(ruleset-lint): read with the PAT, resolve where the fields live"
+              },
+              {
+                "sha": "c8ca2eca7210594bce0cd4e6627ac03d1823389f",
+                "short_sha": "c8ca2ec",
+                "subject": "docs(contributing): tell the truth the consolidation left behind"
+              },
+              {
+                "sha": "a50d9b5ac011151f838c807a8f8958bd9c83f378",
+                "short_sha": "a50d9b5",
+                "subject": "docs(roadmap): record the ruleset-lint credential-gap remediation landing (#568)"
               }
             ]
           }
@@ -15647,6 +15673,32 @@
               "sha": "2f620cf927654e700ec44596896c986ac20b8e58",
               "short_sha": "2f620cf",
               "subject": "docs(roadmap): pin the lane to the merge that carries main's landing"
+            }
+          ]
+        },
+        {
+          "pr": 568,
+          "title": "fix: close the ruleset lint's credential gap and name the classic layer's absence",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-23T18:20:05Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/568",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e522a2e0993b510a95a0a8686c1e98871a4dd8ff",
+              "short_sha": "e522a2e",
+              "subject": "ci(ruleset-lint): read with the PAT, resolve where the fields live"
+            },
+            {
+              "sha": "c8ca2eca7210594bce0cd4e6627ac03d1823389f",
+              "short_sha": "c8ca2ec",
+              "subject": "docs(contributing): tell the truth the consolidation left behind"
+            },
+            {
+              "sha": "a50d9b5ac011151f838c807a8f8958bd9c83f378",
+              "short_sha": "a50d9b5",
+              "subject": "docs(roadmap): record the ruleset-lint credential-gap remediation landing (#568)"
             }
           ]
         }

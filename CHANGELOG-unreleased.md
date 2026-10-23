@@ -128,6 +128,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(tooling): judge the roadmap pin on the merge queue and accept recorded landings [#542](https://github.com/Zeflous/zeflous/pull/542) ([mbetixz](https://github.com/mbetixz))
 - fix: land the round-2 edge-case audit remediation batch [#556](https://github.com/Zeflous/zeflous/pull/556) ([mbetixz](https://github.com/mbetixz))
 - fix: land the documentation-alignment audit remediation batch [#562](https://github.com/Zeflous/zeflous/pull/562) ([mbetixz](https://github.com/mbetixz))
+- fix: close the ruleset lint's credential gap and name the classic layer's absence [#568](https://github.com/Zeflous/zeflous/pull/568) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
