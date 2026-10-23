@@ -8,6 +8,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\ReplayRetention;
+use Zef\Framework\Http\ReplaySnapshotAge;
 
 /**
  * The retention seam's own contract, measured against a real directory: the
@@ -17,6 +18,7 @@ use Zef\Framework\Http\ReplayRetention;
  * @internal
  */
 #[CoversClass(ReplayRetention::class)]
+#[CoversClass(ReplaySnapshotAge::class)]
 final class ReplayRetentionTest extends TestCase
 {
     private string $directory;
@@ -79,7 +81,61 @@ final class ReplayRetentionTest extends TestCase
 
         self::assertSame([$ids[1], $ids[2]], $this->snapshotIds(), 'only the snapshot files are pruned');
         self::assertFileExists($foreign, 'a non-snapshot file is never touched');
-        self::assertStringEqualsFile($foreign, 'kept');
+        self::assertSame('kept', (string) file_get_contents($foreign));
+    }
+
+    public function testPrunesByAgeNotByDirectoryOrder(): void
+    {
+        // Seeded in directory order live-first-dead-last but aged in the
+        // opposite direction: the pruning witness is the modification
+        // instant, never the glob's directory order.
+        $files = [
+            'a' => 3_000,
+            'b' => 1_000,
+            'c' => 4_000,
+            'd' => 2_000,
+            'e' => 5_000,
+        ];
+        foreach ($files as $id => $instant) {
+            $file = $this->directory . '/' . $id . '.json';
+            file_put_contents($file, '{}');
+            chmod($file, 0o600);
+            self::assertTrue(touch($file, $instant));
+        }
+
+        ReplayRetention::prune($this->directory, 3);
+
+        self::assertSame(
+            ['a', 'c', 'e'],
+            $this->snapshotIds(),
+            'the two OLDEST snapshots are pruned, not the two first-listed',
+        );
+    }
+
+    public function testTheAgeFoldAnswersZeroForUnstattableEntries(): void
+    {
+        $live = $this->directory . '/live.json';
+        file_put_contents($live, '{}');
+        chmod($live, 0o600);
+        self::assertTrue(touch($live, 1_000_000));
+
+        $dead = $this->directory . '/dead.json';
+        self::assertTrue(symlink($this->directory . '/missing-target.json', $dead));
+
+        set_error_handler(static fn (): bool => true);
+
+        try {
+            $ordered = ReplaySnapshotAge::orderedByAge($this->directory);
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertSame(
+            [$dead, $live],
+            array_keys($ordered),
+            'the unstattable entry sorts as the oldest garbage there is',
+        );
+        self::assertSame([0, 1_000_000], array_values($ordered));
     }
 
     public function testAnEmptyDirectoryNeedsNoPruning(): void

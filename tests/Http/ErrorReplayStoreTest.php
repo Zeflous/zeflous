@@ -350,6 +350,37 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertSame('retention-3', $snapshot['request_id'], 'the just-written snapshot survives with its id');
     }
 
+    public function testTheDefaultRetentionBoundHoldsOneThousandSnapshots(): void
+    {
+        for ($i = 0; $i < 1001; ++$i) {
+            $file = $this->directory . '/' . mb_str_pad((string) $i, 32, '0', \STR_PAD_LEFT) . '.json';
+            file_put_contents($file, '{}');
+            chmod($file, 0o600);
+            self::assertTrue(touch($file, 1_000_000 + $i));
+        }
+
+        $savedId = new ErrorReplayStore($this->directory)->save(
+            new ServerRequest('GET', new Uri('https://app.example.test/default-bound')),
+            new RuntimeException('default bound failed'),
+            500,
+            'default-bound',
+        );
+
+        $files = glob($this->directory . '/*.json');
+        self::assertIsArray($files);
+        self::assertCount(1000, $files, 'the shipped default bound holds at one thousand snapshots');
+        self::assertFileDoesNotExist(
+            $this->directory . '/' . mb_str_pad('0', 32, '0', \STR_PAD_LEFT) . '.json',
+            'the oldest seeded snapshot is pruned',
+        );
+        self::assertFileDoesNotExist(
+            $this->directory . '/' . mb_str_pad('1', 32, '0', \STR_PAD_LEFT) . '.json',
+            'the second-oldest seeded snapshot is pruned',
+        );
+        self::assertFileExists($this->directory . '/' . mb_str_pad('2', 32, '0', \STR_PAD_LEFT) . '.json');
+        self::assertFileExists($this->directory . '/' . $savedId . '.json');
+    }
+
     public function testTheRetentionBoundIsRefusedBelowOne(): void
     {
         $this->expectException(InvalidArgumentException::class);

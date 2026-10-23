@@ -22,6 +22,9 @@ use Throwable;
  */
 final readonly class ErrorReplayStore
 {
+    /** The retention bound a replay directory carries when none is configured. */
+    public const int DEFAULT_MAX_SNAPSHOTS = 1000;
+
     private string $directory;
 
     private int $maxSnapshots;
@@ -35,15 +38,10 @@ final readonly class ErrorReplayStore
      * @throws InvalidArgumentException when the directory or the bound is
      *                                  refused
      */
-    public function __construct(string $directory, int $maxSnapshots = 1000)
+    public function __construct(string $directory, int $maxSnapshots = self::DEFAULT_MAX_SNAPSHOTS)
     {
         $this->directory = ReplayStorageDirectory::resolve($directory);
-
-        if ($maxSnapshots < 1) {
-            throw new InvalidArgumentException('Replay snapshot retention must be 1 or above.');
-        }
-
-        $this->maxSnapshots = $maxSnapshots;
+        $this->maxSnapshots = ReplayRetention::resolveBound($maxSnapshots);
     }
 
     /**
