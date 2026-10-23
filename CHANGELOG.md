@@ -11,4 +11,4 @@ index: [`docs/api/changelog-index.json`](docs/api/changelog-index.json).
 
 | Version | Date | PRs | File |
 | --- | --- | --- | --- |
-| Unreleased | — | 245 | [CHANGELOG-unreleased.md](CHANGELOG-unreleased.md) |
+| Unreleased | — | 246 | [CHANGELOG-unreleased.md](CHANGELOG-unreleased.md) |

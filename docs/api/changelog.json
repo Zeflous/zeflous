@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-23T06:45:37Z",
+  "as_of": "2026-10-23T13:01:46Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 245,
+  "unreleased_count": 246,
   "versions": [
     {
       "version": "Unreleased",
@@ -4696,6 +4696,62 @@
                 "sha": "77b12093a082170d125fc864a9ff9a54298547b3",
                 "short_sha": "77b1209",
                 "subject": "docs(roadmap): point the pin at the mutation close-out"
+              }
+            ]
+          },
+          {
+            "pr": 562,
+            "title": "fix: land the documentation-alignment audit remediation batch",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-23T13:01:46Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/562",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0f0228f16cf9b9e2efd990264c9833e0852b1046",
+                "short_sha": "0f0228f",
+                "subject": "ci(strict): own the job-level verdict only on the head it lands on"
+              },
+              {
+                "sha": "82ddce266f80a3176ad38d077ed461a431419452",
+                "short_sha": "82ddce2",
+                "subject": "ci(ruleset-lint): see the classic branch-protection layer too"
+              },
+              {
+                "sha": "be072891078b8b1cc5344edf9aa20ffed903f56f",
+                "short_sha": "be07289",
+                "subject": "docs(contributing): tell the truth the round-3 audit found"
+              },
+              {
+                "sha": "2b889a55608dc3a744ddaa80254e6a325b1d4e36",
+                "short_sha": "2b889a5",
+                "subject": "ci(workflows): refresh the stale aggregator comments"
+              },
+              {
+                "sha": "585b4457c7dc69d66aba44d03253f253c70050ee",
+                "short_sha": "585b445",
+                "subject": "fix(changelog): require a subject in the conventional header"
+              },
+              {
+                "sha": "bcc10113e16bd72750ed6741cd801bb9b616f35a",
+                "short_sha": "bcc1011",
+                "subject": "fix(middleware): refuse the terminal-less pipeline through the error family"
+              },
+              {
+                "sha": "f9b4aac2d35f8c1ea72d8483217e97e2f5555c61",
+                "short_sha": "f9b4aac",
+                "subject": "fix(config): fold the debug environment through AppEnvironment"
+              },
+              {
+                "sha": "c50ff25406e9a6b31309f2543081a0378edb45c5",
+                "short_sha": "c50ff25",
+                "subject": "chore(contracts): strict_types on the vendored PSR-11 pair, rule citation fixed"
+              },
+              {
+                "sha": "0b8bca59d6d5a39a57e24f4d88b3410c0bae5979",
+                "short_sha": "0b8bca5",
+                "subject": "docs(roadmap): record the round-3 documentation-alignment audit landing (#562)"
               }
             ]
           }
@@ -15413,6 +15469,62 @@
               "sha": "77b12093a082170d125fc864a9ff9a54298547b3",
               "short_sha": "77b1209",
               "subject": "docs(roadmap): point the pin at the mutation close-out"
+            }
+          ]
+        },
+        {
+          "pr": 562,
+          "title": "fix: land the documentation-alignment audit remediation batch",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-23T13:01:46Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/562",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0f0228f16cf9b9e2efd990264c9833e0852b1046",
+              "short_sha": "0f0228f",
+              "subject": "ci(strict): own the job-level verdict only on the head it lands on"
+            },
+            {
+              "sha": "82ddce266f80a3176ad38d077ed461a431419452",
+              "short_sha": "82ddce2",
+              "subject": "ci(ruleset-lint): see the classic branch-protection layer too"
+            },
+            {
+              "sha": "be072891078b8b1cc5344edf9aa20ffed903f56f",
+              "short_sha": "be07289",
+              "subject": "docs(contributing): tell the truth the round-3 audit found"
+            },
+            {
+              "sha": "2b889a55608dc3a744ddaa80254e6a325b1d4e36",
+              "short_sha": "2b889a5",
+              "subject": "ci(workflows): refresh the stale aggregator comments"
+            },
+            {
+              "sha": "585b4457c7dc69d66aba44d03253f253c70050ee",
+              "short_sha": "585b445",
+              "subject": "fix(changelog): require a subject in the conventional header"
+            },
+            {
+              "sha": "bcc10113e16bd72750ed6741cd801bb9b616f35a",
+              "short_sha": "bcc1011",
+              "subject": "fix(middleware): refuse the terminal-less pipeline through the error family"
+            },
+            {
+              "sha": "f9b4aac2d35f8c1ea72d8483217e97e2f5555c61",
+              "short_sha": "f9b4aac",
+              "subject": "fix(config): fold the debug environment through AppEnvironment"
+            },
+            {
+              "sha": "c50ff25406e9a6b31309f2543081a0378edb45c5",
+              "short_sha": "c50ff25",
+              "subject": "chore(contracts): strict_types on the vendored PSR-11 pair, rule citation fixed"
+            },
+            {
+              "sha": "0b8bca59d6d5a39a57e24f4d88b3410c0bae5979",
+              "short_sha": "0b8bca5",
+              "subject": "docs(roadmap): record the round-3 documentation-alignment audit landing (#562)"
             }
           ]
         }
