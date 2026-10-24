@@ -188,3 +188,29 @@ refusals the family throws are exactly two: a malformed owned document,
 and (on an XML-owning runtime without the extension) a body the runtime
 cannot parse. Everything else is a pass-through the handler answers as
 the handler's own.
+
+## KDD-BP12 — the coverage round's lesson: the covers filter drops undeclared collaborators
+
+The gate round after the slice's landing taught the covers-filter
+lesson the injector lane already paid for (KDD-C4.16's round): with
+`requireCoverageMetadata` on, phpunit filters per-test attribution to
+the test's own covers list — a collaborator the walk executes but no
+test declares reads as ZERO in the clover, and SonarCloud's
+new-code gate prices it as uncovered. The slice's three static seams
+(`StandardBodyParsers` the manifest, `RequestMediaType` the type
+segment, `BodyParserFactory` the config seam) were executed by the
+very tests that shipped with the slice; they were never declared, so
+the gate saw 16 uncovered lines (89.19% on new code, floor 90%). The
+honest fix is declaration plus the seams' own pins, not coverage
+theater: the table test declares the manifest (its routing assertions
+already pin all four strategies), the reader test declares the segment
+seam and gains the walk's null answer plus the OWS trim the grammar
+promises, the boundary test declares the walk's collaborators the
+compression family's own covers list taught the pattern for, and the
+boot test declares the factory the container resolution already
+executes — with a dedicated factory test whose depth-knob refusal
+kills the default-policy bypass a resolution assertion alone cannot.
+The mutation ledger follows the coverage: a line the covers filter
+drops is a line infection never mutates, so the newly declared seams
+brought 21 fresh mutants with them — all killed by the same round's
+tests, none ignored.

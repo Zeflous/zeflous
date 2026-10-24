@@ -11,6 +11,7 @@ use Zef\Framework\Http\JsonBodyParser;
 use Zef\Framework\Http\MalformedBodyException;
 use Zef\Framework\Http\ParsedBodyReader;
 use Zef\Framework\Http\RequestBodyParsers;
+use Zef\Framework\Http\RequestMediaType;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\Uri;
@@ -25,6 +26,7 @@ use Zef\Framework\Http\Uri;
  */
 #[CoversClass(ParsedBodyReader::class)]
 #[CoversClass(RequestBodyParsers::class)]
+#[CoversClass(RequestMediaType::class)]
 final class ParsedBodyReaderTest extends TestCase
 {
     public function testARequestWithNoContentTypeLineOwnsNoParser(): void
@@ -32,6 +34,17 @@ final class ParsedBodyReaderTest extends TestCase
         $serverRequest = new ServerRequest('POST', new Uri('https://app.example.com/orders'));
 
         self::assertNull($this->reader()->forRequest($serverRequest));
+    }
+
+    public function testARequestTheFamilyDoesNotOwnAnswersNoParsedBody(): void
+    {
+        $serverRequest = new ServerRequest(
+            'POST',
+            new Uri('https://app.example.com/orders'),
+            stream: Stream::fromString('{"order": 7}'),
+        );
+
+        self::assertNull($this->reader()->parsedBody($serverRequest));
     }
 
     public function testARequestAlreadyCarryingAParsedBodyOwnsNoParser(): void
@@ -52,6 +65,21 @@ final class ParsedBodyReaderTest extends TestCase
             'POST',
             new Uri('https://app.example.com/orders'),
             headers: ['Content-Type' => 'application/json; charset=utf-8'],
+            stream: Stream::fromString('{"order": 7}'),
+        );
+
+        self::assertInstanceOf(
+            JsonBodyParser::class,
+            $this->reader()->forRequest($serverRequest),
+        );
+    }
+
+    public function testWhitespaceAroundTheTypeSegmentIsTrimmed(): void
+    {
+        $serverRequest = new ServerRequest(
+            'POST',
+            new Uri('https://app.example.com/orders'),
+            headers: ['Content-Type' => '  application/json ; charset=utf-8'],
             stream: Stream::fromString('{"order": 7}'),
         );
 

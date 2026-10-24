@@ -11,7 +11,9 @@ use SimpleXMLElement;
 use Zef\Framework\Http\BodyParserMiddleware;
 use Zef\Framework\Http\BodyParserPolicy;
 use Zef\Framework\Http\MalformedBodyException;
+use Zef\Framework\Http\ParsedBodyReader;
 use Zef\Framework\Http\RequestBodyParsers;
+use Zef\Framework\Http\RequestMediaType;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
@@ -33,7 +35,9 @@ use Zef\Test\Support\Http\ThrowingHandler;
  * @internal
  */
 #[CoversClass(BodyParserMiddleware::class)]
+#[CoversClass(ParsedBodyReader::class)]
 #[CoversClass(RequestBodyParsers::class)]
+#[CoversClass(RequestMediaType::class)]
 final class BodyParserMiddlewareTest extends TestCase
 {
     public function testAJsonBodyIsDecoratedOntoTheRequestWithoutConsumingTheStream(): void

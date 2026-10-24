@@ -11,6 +11,7 @@ use Zef\Framework\Http\FormBodyParser;
 use Zef\Framework\Http\JsonBodyParser;
 use Zef\Framework\Http\MalformedBodyException;
 use Zef\Framework\Http\RequestBodyParsers;
+use Zef\Framework\Http\StandardBodyParsers;
 use Zef\Framework\Http\TextBodyParser;
 use Zef\Framework\Http\XmlBodyParser;
 use Zef\Test\Support\Http\ClaimingParser;
@@ -28,6 +29,7 @@ use Zef\Test\Support\Http\ClaimingParser;
  * @internal
  */
 #[CoversClass(RequestBodyParsers::class)]
+#[CoversClass(StandardBodyParsers::class)]
 final class RequestBodyParsersTest extends TestCase
 {
     public function testTheStandardFamilyRoutesEveryOwnedMediaTypeToItsStrategy(): void

@@ -59,6 +59,7 @@ use Zef\Test\Support\Middleware\MiddlewareTrace;
  * @internal
  */
 #[CoversClass(ApplicationBootstrapper::class)]
+#[CoversClass(BodyParserFactory::class)]
 #[CoversClass(DirectoryInventory::class)]
 #[CoversClass(FrameworkDefaults::class)]
 final class ApplicationBootstrapperTest extends TestCase
