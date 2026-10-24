@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-24T03:11:57Z",
+  "as_of": "2026-10-24T06:42:54Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 250,
+  "unreleased_count": 251,
   "versions": [
     {
       "version": "Unreleased",
@@ -3315,6 +3315,37 @@
                 "sha": "67baf7424cc979eda0c628e2dfb00f92bce8a584",
                 "short_sha": "67baf74",
                 "subject": "docs(roadmap): refresh the pin to the slice's last substantive commit"
+              }
+            ]
+          },
+          {
+            "pr": 583,
+            "title": "feat(http): the output-compression engine over the incremental zlib seam",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-24T06:42:54Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/583",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6f5b6a8caddc9c1f19199312684b7026603f5748",
+                "short_sha": "6f5b6a8",
+                "subject": "feat(http): the output-compression engine over the incremental zlib seam"
+              },
+              {
+                "sha": "f62a8a05c6b229dfea87def50ab2c99534444968",
+                "short_sha": "f62a8a0",
+                "subject": "docs(roadmap): record the http compression slice and pin the lane"
+              },
+              {
+                "sha": "3bde82fed0dce7f9b2318b63b1cfe6f318ab9016",
+                "short_sha": "3bde82f",
+                "subject": "fix(bench): settle the compression subject's request narrowing under the static gate"
+              },
+              {
+                "sha": "785d0bf2ef885eb0a4986ac06939f00571cd7d8f",
+                "short_sha": "785d0bf",
+                "subject": "docs(roadmap): refresh the pin to the bench-settled head"
               }
             ]
           }
@@ -15933,6 +15964,37 @@
               "sha": "9a6f12dd5d2398f9344acbac523edc1d4b79b534",
               "short_sha": "9a6f12d",
               "subject": "docs(roadmap): ride the pin on the mid-flight merge above both lineages"
+            }
+          ]
+        },
+        {
+          "pr": 583,
+          "title": "feat(http): the output-compression engine over the incremental zlib seam",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-24T06:42:54Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/583",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6f5b6a8caddc9c1f19199312684b7026603f5748",
+              "short_sha": "6f5b6a8",
+              "subject": "feat(http): the output-compression engine over the incremental zlib seam"
+            },
+            {
+              "sha": "f62a8a05c6b229dfea87def50ab2c99534444968",
+              "short_sha": "f62a8a0",
+              "subject": "docs(roadmap): record the http compression slice and pin the lane"
+            },
+            {
+              "sha": "3bde82fed0dce7f9b2318b63b1cfe6f318ab9016",
+              "short_sha": "3bde82f",
+              "subject": "fix(bench): settle the compression subject's request narrowing under the static gate"
+            },
+            {
+              "sha": "785d0bf2ef885eb0a4986ac06939f00571cd7d8f",
+              "short_sha": "785d0bf",
+              "subject": "docs(roadmap): refresh the pin to the bench-settled head"
             }
           ]
         }
