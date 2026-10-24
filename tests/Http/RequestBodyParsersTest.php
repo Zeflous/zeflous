@@ -11,10 +11,7 @@ use Zef\Framework\Http\FormBodyParser;
 use Zef\Framework\Http\JsonBodyParser;
 use Zef\Framework\Http\MalformedBodyException;
 use Zef\Framework\Http\RequestBodyParsers;
-use Zef\Framework\Http\ServerRequest;
-use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\TextBodyParser;
-use Zef\Framework\Http\Uri;
 use Zef\Framework\Http\XmlBodyParser;
 use Zef\Test\Support\Http\ClaimingParser;
 
@@ -82,93 +79,6 @@ final class RequestBodyParsersTest extends TestCase
         $this->expectExceptionMessageIsOrContains('Maximum stack depth exceeded');
 
         $routed->parse('{"a": {"b": {"c": 1}}}');
-    }
-
-    public function testARequestWithNoContentTypeLineOwnsNoParser(): void
-    {
-        $serverRequest = new ServerRequest('POST', new Uri('https://app.example.com/orders'));
-
-        self::assertNull(RequestBodyParsers::standard(new BodyParserPolicy())->forRequest($serverRequest));
-    }
-
-    public function testARequestAlreadyCarryingAParsedBodyOwnsNoParser(): void
-    {
-        $request = new ServerRequest(
-            'POST',
-            new Uri('https://app.example.com/orders'),
-            headers: ['Content-Type' => 'application/json'],
-            stream: Stream::fromString('{"order": 7}'),
-        )->withParsedBody(['order' => 7]);
-
-        self::assertNull(RequestBodyParsers::standard(new BodyParserPolicy())->forRequest($request));
-    }
-
-    public function testAContentTypeLineWithParametersIsTheTypeTheGrammarWalks(): void
-    {
-        $serverRequest = new ServerRequest(
-            'POST',
-            new Uri('https://app.example.com/orders'),
-            headers: ['Content-Type' => 'application/json; charset=utf-8'],
-            stream: Stream::fromString('{"order": 7}'),
-        );
-
-        $parsers = RequestBodyParsers::standard(new BodyParserPolicy());
-
-        self::assertInstanceOf(JsonBodyParser::class, $parsers->forRequest($serverRequest));
-        self::assertSame(['order' => 7], $parsers->parsedBody($serverRequest));
-    }
-
-    public function testTheWalkReadsTheBodyWithoutConsumingTheStream(): void
-    {
-        $serverRequest = new ServerRequest(
-            'POST',
-            new Uri('https://app.example.com/orders'),
-            headers: ['Content-Type' => 'application/json'],
-            stream: Stream::fromString('{"order": 7}'),
-        );
-
-        RequestBodyParsers::standard(new BodyParserPolicy())->parsedBody($serverRequest);
-
-        $serverRequest->getBody()->rewind();
-        self::assertSame('{"order": 7}', (string) $serverRequest->getBody());
-    }
-
-    public function testAnEmptyBodyAnswersNoParsedBody(): void
-    {
-        $serverRequest = new ServerRequest(
-            'POST',
-            new Uri('https://app.example.com/orders'),
-            headers: ['Content-Type' => 'application/json'],
-            stream: Stream::fromString(''),
-        );
-
-        self::assertNull(RequestBodyParsers::standard(new BodyParserPolicy())->parsedBody($serverRequest));
-    }
-
-    public function testAJsonNullDocumentAnswersNoParsedBody(): void
-    {
-        $serverRequest = new ServerRequest(
-            'POST',
-            new Uri('https://app.example.com/orders'),
-            headers: ['Content-Type' => 'application/json'],
-            stream: Stream::fromString('null'),
-        );
-
-        self::assertNull(RequestBodyParsers::standard(new BodyParserPolicy())->parsedBody($serverRequest));
-    }
-
-    public function testAMalformedOwnedBodyRefusesThroughTheWalk(): void
-    {
-        $serverRequest = new ServerRequest(
-            'POST',
-            new Uri('https://app.example.com/orders'),
-            headers: ['Content-Type' => 'application/json'],
-            stream: Stream::fromString('{"order": '),
-        );
-
-        $this->expectException(MalformedBodyException::class);
-
-        RequestBodyParsers::standard(new BodyParserPolicy())->parsedBody($serverRequest);
     }
 
     public function testAHostBuiltTableAnswersItsFirstDeclaredOwner(): void

@@ -23,9 +23,21 @@ green (the JSON decoration over a 5.7 KB document).
 | `XmlBodyParser` | `application/xml` + `text/xml` + `application/*+xml`: SimpleXML over libxml, the XXE posture, the extension probe |
 | `FormBodyParser` | `application/x-www-form-urlencoded` on the non-SAPI path: the engine's own `parse_str()` decode |
 | `TextBodyParser` / `TextBody` | `text/plain`: the value object a scalar document legally rides |
-| `RequestBodyParsers` | the negotiation table: declaration order, first owner wins, `standard()` over one policy |
+| `RequestBodyParsers` / `StandardBodyParsers` / `RequestMediaType` | the negotiation table (declaration order, first owner wins), the shipped family's manifest (the four strategies, the JSON one alone reading the policy), and the request's own media type (the factory's Content-Type spelling lifted to the seam) |
+| `ParsedBodyReader` | the request-level walk: the no-type-line and already-parsed gates, the non-consuming capture, the owning parser's answer |
 | `MalformedBodyException` | the malformed-document refusal (the coarse-tier 400, below) |
-| `BodyParserMiddleware` | the PSR-15 boundary; `BodyParserFactory` the config seam |
+| `BodyParserMiddleware` | the PSR-15 boundary (the arm and the decoration); `BodyParserFactory` the config seam |
+
+The three-seam settle is itself a lesson: the first fold answered
+SonarCloud's S1142 (the four-return private walk) by moving the whole
+walk into the negotiation table -- and the archeology ceiling refused
+THAT (the table's Halstead difficulty 22.67 > 20), the
+media-type-seam and manifest extractions alone unable to bring it
+back under (the algebra cuts distinct operands faster than total
+ones), and the walk's return to the boundary pushed the boundary one
+point over in turn (21.00). The settled shape gives each question its
+own seam -- the media type, the manifest, the table, the reader, the
+boundary -- with difficulties 1.80 / 1.50 / 6.00 / 12.00 / 15.71.
 
 ## KDD-BP1 — the strategy face is named by the house convention, not the roadmap sketch
 

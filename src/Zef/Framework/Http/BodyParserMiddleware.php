@@ -14,12 +14,11 @@ use Psr\Http\Server\RequestHandlerInterface;
  * The body-parser family's PSR-15 boundary: the request decorated with
  * its deserialized body when the family owns the request's media type
  * -- the roadmap's Phase 3.1 multi-format parser, over the strategy
- * table ({@see RequestBodyParsers}) the config seam builds. The
- * boundary's own question is the family's arm and the decoration; the
- * walk itself -- which parser owns this request, and what that parser
- * answers for the body the request carries -- belongs to the table
- * ({@see RequestBodyParsers::parsedBody()}), the same two-questions
- * two-files fold the compression family taught.
+ * table ({@see RequestBodyParsers}) the config seam builds and the
+ * request reader ({@see ParsedBodyReader}) walks: the boundary's own
+ * questions are the family's arm and the decoration, the two-question
+ * fold the compression family taught -- with the walk itself the
+ * reader's, not the boundary's.
  *
  * The order of the walk is cheapest-refusal-first, and every refusal
  * answers the handler the request itself, untouched: a disabled family
@@ -46,7 +45,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 final readonly class BodyParserMiddleware implements MiddlewareInterface
 {
-    private RequestBodyParsers $requestBodyParsers;
+    private ParsedBodyReader $parsedBodyReader;
 
     /**
      * @param BodyParserPolicy        $bodyParserPolicy   the family's
@@ -61,8 +60,9 @@ final readonly class BodyParserMiddleware implements MiddlewareInterface
         private BodyParserPolicy $bodyParserPolicy,
         ?RequestBodyParsers $requestBodyParsers = null,
     ) {
-        $this->requestBodyParsers = $requestBodyParsers
-            ?? RequestBodyParsers::standard($bodyParserPolicy);
+        $this->parsedBodyReader = new ParsedBodyReader(
+            $requestBodyParsers ?? RequestBodyParsers::standard($bodyParserPolicy),
+        );
     }
 
     #[Override]
@@ -74,7 +74,7 @@ final readonly class BodyParserMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        $parsedBody = $this->requestBodyParsers->parsedBody($request);
+        $parsedBody = $this->parsedBodyReader->parsedBody($request);
 
         return $handler->handle(
             $parsedBody === null ? $request : $request->withParsedBody($parsedBody),
