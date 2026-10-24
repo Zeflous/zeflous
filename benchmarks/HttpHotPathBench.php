@@ -13,6 +13,8 @@ use Zef\Framework\Http\AuthBoundary;
 use Zef\Framework\Http\AuthMiddleware;
 use Zef\Framework\Http\AuthPolicy;
 use Zef\Framework\Http\BoundedReplayProtector;
+use Zef\Framework\Http\CompressionMiddleware;
+use Zef\Framework\Http\CompressionPolicy;
 use Zef\Framework\Http\CsrfMiddleware;
 use Zef\Framework\Http\CsrfPolicy;
 use Zef\Framework\Http\CsrfTokenManager;
@@ -85,6 +87,12 @@ final readonly class HttpHotPathBench
     private ServerRequest $serverRequest;
 
     private FixedResponseHandler $fixedResponseHandler;
+
+    private CompressionMiddleware $compressionMiddleware;
+
+    private FixedResponseHandler $compressibleResponseHandler;
+
+    private ServerRequest $compressionServerRequest;
 
     /** @var array<string, string> */
     private array $serverBag;
@@ -181,6 +189,20 @@ final readonly class HttpHotPathBench
         $this->healthPollRequest = new ServerRequest('GET', new Uri('https://api.example.com/health'));
         $this->serverRequest = new ServerRequest('GET', $this->uri);
         $this->fixedResponseHandler = new FixedResponseHandler($this->response);
+
+        $this->compressionMiddleware = new CompressionMiddleware(
+            new CompressionPolicy(enabled: true, minimumBytes: 1024, level: 6),
+        );
+        $compressibleBody = \sprintf(
+            '{"data":{"items":[%s],"page":2,"total":4200}}',
+            \implode(',', \array_fill(0, 128, '{"id":4711,"name":"zeflous-item","active":true}')),
+        );
+        $this->compressibleResponseHandler = new FixedResponseHandler(
+            new Response(200, ['Content-Type' => 'application/json'], $compressibleBody),
+        );
+        $this->compressionServerRequest = new ServerRequest('GET', $this->uri)
+            ->withHeader('Accept-Encoding', 'gzip, deflate, br')
+        ;
 
         $this->serverBag = [
             'REQUEST_METHOD' => 'GET',
@@ -337,6 +359,23 @@ final readonly class HttpHotPathBench
             || !str_contains((string) $response->getBody(), '"status":"ok"')
         ) {
             throw new InvariantViolationException('The health surface must aggregate the registered probes.');
+        }
+    }
+
+    #[Revs(500)]
+    public function benchACompressibleAnswerIsSwappedForItsGzipForm(): void
+    {
+        $response = $this->compressionMiddleware->process(
+            $this->compressionServerRequest,
+            $this->compressibleResponseHandler,
+        );
+
+        if (
+            $response->getHeaderLine('Content-Encoding') !== 'gzip'
+            || !str_contains($response->getHeaderLine('Vary'), 'Accept-Encoding')
+            || $response->hasHeader('Content-Length')
+        ) {
+            throw new InvariantViolationException('The compression boundary must swap the body for its gzip form.');
         }
     }
 }

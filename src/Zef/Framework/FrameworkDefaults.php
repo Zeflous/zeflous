@@ -7,6 +7,7 @@ namespace Zef\Framework;
 use Zef\Framework\Container\ContainerServices;
 use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Middleware\AuthFactory;
+use Zef\Framework\Middleware\CompressionFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CsrfFactory;
 use Zef\Framework\Middleware\DebugToolbarFactory;
@@ -300,6 +301,12 @@ final readonly class FrameworkDefaults
             ],
             'http.debug_toolbar' => [
                 'factory' => DebugToolbarFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'http.compression' => [
+                'factory' => CompressionFactory::class . self::CONFIG_FACTORY_ENTRY,
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],
