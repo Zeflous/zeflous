@@ -195,14 +195,16 @@ final readonly class HttpHotPathBench
         );
         $compressibleBody = \sprintf(
             '{"data":{"items":[%s],"page":2,"total":4200}}',
-            \implode(',', \array_fill(0, 128, '{"id":4711,"name":"zeflous-item","active":true}')),
+            implode(',', array_fill(0, 128, '{"id":4711,"name":"zeflous-item","active":true}')),
         );
         $this->compressibleResponseHandler = new FixedResponseHandler(
             new Response(200, ['Content-Type' => 'application/json'], $compressibleBody),
         );
-        $this->compressionServerRequest = new ServerRequest('GET', $this->uri)
+        $compressionServerRequest = new ServerRequest('GET', $this->uri)
             ->withHeader('Accept-Encoding', 'gzip, deflate, br')
         ;
+        \assert($compressionServerRequest instanceof ServerRequest);
+        $this->compressionServerRequest = $compressionServerRequest;
 
         $this->serverBag = [
             'REQUEST_METHOD' => 'GET',
