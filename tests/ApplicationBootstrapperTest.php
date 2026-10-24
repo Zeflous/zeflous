@@ -19,6 +19,7 @@ use Zef\Framework\Http\BodyParserMiddleware;
 use Zef\Framework\Http\CompressionMiddleware;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\SessionMiddleware;
 use Zef\Framework\Http\TimingMiddleware;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\AuthFactory;
@@ -37,6 +38,7 @@ use Zef\Framework\Middleware\ProcessErrorBoundary;
 use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
+use Zef\Framework\Middleware\SessionFactory;
 use Zef\Framework\Middleware\TimingFactory;
 use Zef\Framework\Middleware\TracingFactory;
 use Zef\Framework\Telemetry\CounterMeter;
@@ -119,6 +121,10 @@ final class ApplicationBootstrapperTest extends TestCase
                     'factory' => BodyParserFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
                 ],
+                'http.session' => [
+                    'factory' => SessionFactory::class . '::fromConfig',
+                    'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
+                ],
                 'security.headers' => [
                     'factory' => SecurityHeadersFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
@@ -188,6 +194,12 @@ final class ApplicationBootstrapperTest extends TestCase
             BodyParserMiddleware::class,
             $kernel->container()->get('http.body_parser'),
             'the body-parser family resolves through the container ahead of the stack membership',
+        );
+        self::assertTrue($kernel->container()->has('http.session'));
+        self::assertInstanceOf(
+            SessionMiddleware::class,
+            $kernel->container()->get('http.session'),
+            'the session family resolves through the container ahead of the stack membership',
         );
         self::assertSame([], $kernel->config()->get('routes'));
         self::assertTrue($kernel->container()->has('security.headers'));

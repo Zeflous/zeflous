@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 /*
- * HTTP families: error-handling policy and the output-compression engine.
+ * HTTP families: error-handling policy, the output-compression
+ * engine, the multi-format body parser, and the session/cookie
+ * abstraction.
  *
  * Error-handling policy
  * ---------------------
@@ -89,6 +91,50 @@ declare(strict_types=1);
  * the controller runs.
  */
 
+/*
+ * Session family
+ * ---------------
+ *
+ * The session and cookie abstraction (`http.session`, the service the
+ * framework registers ahead of the composition; the middleware the
+ * stack composes -- a host that wants sessions adds `http.session`
+ * to its `middleware.stack`, which is a stack write, not a service
+ * definition):
+ *
+ *   'enabled'                   (bool, default true)
+ *       The family's arm. A disabled family is a pass-through: the
+ *       middleware stays in the stack (its membership is the host's
+ *       declaration) but reads no cookie and loads no session.
+ *
+ *   'cookie_name'               (string, default 'zef_session')
+ *       The session cookie's name (an RFC 9110 token).
+ *
+ *   'idle_timeout'              (int, default 1800, 1..2592000)
+ *       The storage-side sliding expiry, in seconds: every write
+ *       refreshes it, so activity extends a session and only
+ *       write-idleness ends one. The default is thirty minutes.
+ *
+ *   'id_bytes'                  (int, default 32, 16..64)
+ *       The session identifier's entropy, in bytes -- folded through
+ *       base64url into the cookie value (32 bytes spells as 43
+ *       characters).
+ *
+ *   'cookie_secure'             (bool, default true)
+ *   'cookie_http_only'          (bool, default true)
+ *   'same_site'                 (string, default 'Lax')
+ *       The cookie's security flags, the roadmap's promised secure
+ *       trio: HttpOnly on, Secure armed (emitted over https, or
+ *       whenever same_site is None -- the one exception the browser
+ *       contract forces), and SameSite=Lax. same_site 'None'
+ *       requires cookie_secure, refused at validation.
+ *
+ * The storage behind the family is the session adapter port; the
+ * shipped driver is the in-memory one (single-worker, test, and
+ * local scope). A deployment preferring another storage composes the
+ * middleware over its own driver implementing the port -- a
+ * constructor write, never an application change.
+ */
+
 return [
     'error_handling' => [
         'debug' => false,
@@ -106,5 +152,14 @@ return [
     'body_parser' => [
         'enabled' => true,
         'json_depth' => 32,
+    ],
+    'session' => [
+        'enabled' => true,
+        'cookie_name' => 'zef_session',
+        'idle_timeout' => 1800,
+        'id_bytes' => 32,
+        'cookie_secure' => true,
+        'cookie_http_only' => true,
+        'same_site' => 'Lax',
     ],
 ];

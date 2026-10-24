@@ -134,7 +134,7 @@ final class BodyParserPolicyTest extends TestCase
         $this->expectException(HttpException::class);
         $this->expectExceptionMessageIsOrContains(
             "The http configuration carries the unknown family 'body_parse'"
-            . ' (known families: error_handling, compression, body_parser).',
+            . ' (known families: error_handling, compression, body_parser, session).',
         );
 
         HttpFamilies::subtree(['error_handling' => [], 'body_parse' => []], 'body_parser');

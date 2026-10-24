@@ -380,6 +380,21 @@
                 "Zef\\Framework\\Http\\ExportPolicy::assertUsableEndpoint",
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
                 "Zef\\Framework\\Http\\RateLimitStores::read",
+                // The cookie builder's construction fold carries the
+                // SameSite-vocabulary argument the CSRF fold below it
+                // already spelled: the words strict/lax/none contain no
+                // ASCII `k`, so every fold-divergent value misses the
+                // canonical-words check under both spellings and is
+                // rejected with the value spelled out -- the zone is
+                // value-equivalent by the same construction. The
+                // constructor's other grammars are regex folds the
+                // mutator does not target.
+                "Zef\\Framework\\Http\\SetCookie::__construct",
+                // The session family's own SameSite fold is the
+                // CsrfSameSite entry's twin over the same three words:
+                // the same no-`k` argument, the same value-equivalence,
+                // verified by the same construction.
+                "Zef\\Framework\\Http\\SessionSameSite::read",
                 "Zef\\Framework\\Http\\StrictToggles::read",
                 // The toolbar eligibility's two case folds are the same
                 // construction over their own closed vocabularies: the

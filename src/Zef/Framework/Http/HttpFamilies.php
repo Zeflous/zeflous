@@ -15,8 +15,10 @@ namespace Zef\Framework\Http;
  * family landed first ({@see ErrorMappingFactory} over
  * `http.error_handling`) and the compression family became the
  * second (`http.compression`). The body-parser family is the third
- * (`http.body_parser`, the Phase 3.1 multi-format parser): the tree
- * is declared with all three, and each family's factory reads its
+ * (`http.body_parser`, the Phase 3.1 multi-format parser), and the
+ * session family is the fourth (`http.session`, the Phase 3.3
+ * session and cookie abstraction): the tree
+ * is declared with all four, and each family's factory reads its
  * subtree through {@see self::subtree()}, which rejects an unknown
  * child with the known list spelled out: an `http.compresssion` typo
  * must never fall through to the default posture unnoticed, exactly
@@ -34,7 +36,7 @@ final class HttpFamilies
     /**
      * The legitimate children of the `http` map, in landing order.
      */
-    private const array FAMILIES = ['error_handling', 'compression', 'body_parser'];
+    private const array FAMILIES = ['error_handling', 'compression', 'body_parser', 'session'];
 
     /**
      * Reads one family's subtree out of the merged `http` map.
