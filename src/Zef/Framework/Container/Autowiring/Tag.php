@@ -39,6 +39,13 @@ use Zef\Framework\Container\ServiceTags;
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
 final readonly class Tag
 {
+    /**
+     * The constructor's caller is the reflection API itself:
+     * `ReflectionAttribute::newInstance()` (the autoconfiguration
+     * lane's read), so the tag's own grammar validation runs at the
+     * read -- a caller static analysis cannot see, and the psalm
+     * baseline's unused verdict records honestly.
+     */
     public function __construct(
         public string $tag,
     ) {

@@ -43,6 +43,14 @@ final readonly class AotClosureEntry
      * exactly, the closure live, the lifetime already converted by the
      * dispatch that chose this kind.
      *
+     * The one finding this validation carries is the tooling boundary
+     * itself, kept honestly in the baseline: the docblock position
+     * psalm would honour for the signature trust is exactly the
+     * position the fixer's phpdoc_to_comment policy folds into a
+     * plain comment, so the trust stays spelled the way the comment
+     * below already carries it and the coercion the analyser cannot
+     * verify through that fold rides the baseline.
+     *
      * @param array<array-key, mixed> $entry the payload's entry
      */
     public static function validated(string $id, array $entry, ServiceLifetime $serviceLifetime): self

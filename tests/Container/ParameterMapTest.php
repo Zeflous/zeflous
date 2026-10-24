@@ -47,7 +47,6 @@ final class ParameterMapTest extends TestCase
     {
         $values = ParameterMap::parse('parameters', null)->values();
 
-        self::assertSame([], $values->addresses());
         self::assertSame([], $values->toArray());
         self::assertFalse($values->has('db.host'));
     }
@@ -109,7 +108,7 @@ final class ParameterMapTest extends TestCase
         self::assertTrue($values->has('unset_thing'));
         self::assertSame(
             ['app_name', 'retries', 'debug', 'ratio', 'unset_thing'],
-            $values->addresses(),
+            array_keys($values->toArray()),
         );
     }
 
@@ -125,7 +124,7 @@ final class ParameterMapTest extends TestCase
         self::assertSame(500, $values->value('observability.export.timeout_ms'));
         self::assertSame(
             ['db.host', 'db.port', 'observability.export.timeout_ms'],
-            $values->addresses(),
+            array_keys($values->toArray()),
         );
     }
 
@@ -137,7 +136,7 @@ final class ParameterMapTest extends TestCase
 
         self::assertSame(['a.example', 'b.example'], $values->value('db.replicas'));
         self::assertFalse($values->has('db.replicas.0'));
-        self::assertSame(['db.replicas'], $values->addresses());
+        self::assertSame(['db.replicas'], array_keys($values->toArray()));
     }
 
     public function testAnEmptyArrayIsAValueNotAVanishingNode(): void
@@ -540,6 +539,6 @@ final class ParameterMapTest extends TestCase
             'db' => ['host' => 'localhost'],
         ])->values();
 
-        self::assertSame(['db.host'], $values->addresses());
+        self::assertSame(['db.host'], array_keys($values->toArray()));
     }
 }
