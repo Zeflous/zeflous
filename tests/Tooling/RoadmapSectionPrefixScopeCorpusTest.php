@@ -101,6 +101,18 @@ final class RoadmapSectionPrefixScopeCorpusTest extends TestCase
             ['httplayershimwork' => 2, 'httplayer' => 25],
             'httplayershimwork',
         ];
+
+        yield 'pairs: a shorter sibling between the twins cannot end the scan' => [
+            // Three sections: the middle one prefixes the area but neither
+            // extends the standing best nor is extended by it -- a prefix
+            // sibling, not a prefix twin. The scan must walk past it,
+            // because the longer twin that follows still extends the best
+            // and is the most specific section the area names. A scan that
+            // stopped at the sibling would answer the shorter section.
+            'HTTP Layer (Shim Work)',
+            ['httplayer' => 25, 'http' => 1, 'httplayershimwork' => 2],
+            'httplayershimwork',
+        ];
     }
 
     /**
@@ -116,7 +128,7 @@ final class RoadmapSectionPrefixScopeCorpusTest extends TestCase
             ),
         );
 
-        self::assertSame(['pairs' => 4, 'clean' => 2], $families);
-        self::assertCount(6, [...self::provideThePairingScopeCases()]);
+        self::assertSame(['pairs' => 5, 'clean' => 2], $families);
+        self::assertCount(7, [...self::provideThePairingScopeCases()]);
     }
 }
