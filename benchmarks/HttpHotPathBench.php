@@ -21,6 +21,7 @@ use Zef\Framework\Http\CsrfMiddleware;
 use Zef\Framework\Http\CsrfPolicy;
 use Zef\Framework\Http\CsrfTokenManager;
 use Zef\Framework\Http\InMemoryRateLimiter;
+use Zef\Framework\Http\InMemorySessionAdapter;
 use Zef\Framework\Http\MetricsPolicy;
 use Zef\Framework\Http\RateLimitMiddleware;
 use Zef\Framework\Http\RateLimitPolicy;
@@ -30,6 +31,9 @@ use Zef\Framework\Http\ResponseTime;
 use Zef\Framework\Http\SecurityHeadersMiddleware;
 use Zef\Framework\Http\SecurityHeadersPolicy;
 use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\SessionMiddleware;
+use Zef\Framework\Http\SessionPolicy;
+use Zef\Framework\Http\SessionState;
 use Zef\Framework\Http\StaticCredentialProvider;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\TimingMiddleware;
@@ -41,6 +45,7 @@ use Zef\Framework\Telemetry\PrometheusRenderer;
 use Zef\Test\Support\FixedHealthCheck;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Http\RecordingHandler;
+use Zef\Test\Support\Http\SessionObservingHandler;
 
 /**
  * The HTTP lane's hot-path reference suite -- the per-request costs the
@@ -103,6 +108,12 @@ final readonly class HttpHotPathBench
     private RecordingHandler $parsedBodyRecordingHandler;
 
     private ServerRequest $bodyParserServerRequest;
+
+    private SessionMiddleware $sessionMiddleware;
+
+    private SessionObservingHandler $sessionObservingHandler;
+
+    private ServerRequest $sessionServerRequest;
 
     /** @var array<string, string> */
     private array $serverBag;
@@ -229,6 +240,19 @@ final readonly class HttpHotPathBench
             $this->uri,
             headers: ['Content-Type' => 'application/json'],
             stream: Stream::fromString($jsonBody),
+        );
+
+        $inMemorySessionAdapter = new InMemorySessionAdapter(1800);
+        $inMemorySessionAdapter->save(
+            'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            ['user' => 4711, 'cart' => ['coffee', 'filters']],
+        );
+        $this->sessionMiddleware = new SessionMiddleware(new SessionPolicy(), $inMemorySessionAdapter);
+        $this->sessionObservingHandler = new SessionObservingHandler();
+        $this->sessionServerRequest = new ServerRequest(
+            'GET',
+            $this->uri,
+            cookieParams: ['zef_session' => 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'],
         );
 
         $this->serverBag = [
@@ -429,6 +453,27 @@ final readonly class HttpHotPathBench
         if (!$decorated) {
             throw new InvariantViolationException(
                 'The body-parser boundary must decorate the request with its parsed body.',
+            );
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchASessionBackedRequestRidesTheLiveRoundTrip(): void
+    {
+        $response = $this->sessionMiddleware->process(
+            $this->sessionServerRequest,
+            $this->sessionObservingHandler,
+        );
+
+        $state = $this->sessionObservingHandler->state;
+        if (
+            !$state instanceof SessionState
+            || $state->isNew()
+            || $state->value('user') !== 4711
+            || $response->hasHeader('Set-Cookie')
+        ) {
+            throw new InvariantViolationException(
+                'The session boundary must answer the live round trip: the bag loaded, no cookie line owed.',
             );
         }
     }

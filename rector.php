@@ -88,6 +88,10 @@ return RectorConfig::configure()
             // multi-format body-parser family's boundary (the same
             // PSR-15 process contract, in the HTTP lane).
             __DIR__ . '/src/Zef/Framework/Http/BodyParserMiddleware.php',
+            // SessionMiddleware::process() is the nineteenth -- the
+            // session and cookie family's boundary (the same PSR-15
+            // process contract, in the HTTP lane).
+            __DIR__ . '/src/Zef/Framework/Http/SessionMiddleware.php',
         ],
         // The rule resolves the expected name from a method-call chain's
         // return type differently on different environments (a fresh CI

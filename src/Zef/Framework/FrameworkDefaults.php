@@ -17,6 +17,7 @@ use Zef\Framework\Middleware\MetricsFactory;
 use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
+use Zef\Framework\Middleware\SessionFactory;
 use Zef\Framework\Middleware\TimingFactory;
 use Zef\Framework\Middleware\TracingFactory;
 
@@ -314,6 +315,12 @@ final readonly class FrameworkDefaults
             ],
             'http.body_parser' => [
                 'factory' => BodyParserFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'http.session' => [
+                'factory' => SessionFactory::class . self::CONFIG_FACTORY_ENTRY,
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],

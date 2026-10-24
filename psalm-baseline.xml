@@ -36,10 +36,8 @@
   <file src="src/Contracts/Psr/Http/Message/ServerRequestInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getAttributes]]></code>
-      <code><![CDATA[getCookieParams]]></code>
       <code><![CDATA[getQueryParams]]></code>
       <code><![CDATA[getUploadedFiles]]></code>
-      <code><![CDATA[withCookieParams]]></code>
       <code><![CDATA[withQueryParams]]></code>
       <code><![CDATA[withUploadedFiles]]></code>
       <code><![CDATA[withoutAttribute]]></code>
@@ -280,6 +278,11 @@
       <code><![CDATA[HeadMiddleware]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Http/RequestCookies.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[with]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Http/ServerProtocol.php">
     <LessSpecificReturnStatement>
       <code><![CDATA[$matches[1]]]></code>
@@ -288,6 +291,14 @@
     <MoreSpecificReturnType>
       <code><![CDATA[non-empty-string]]></code>
     </MoreSpecificReturnType>
+  </file>
+  <file src="src/Zef/Framework/Http/SessionState.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[value]]></code>
+      <code><![CDATA[set]]></code>
+      <code><![CDATA[remove]]></code>
+      <code><![CDATA[destroy]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Http/TextBody.php">
     <PossiblyUnusedProperty>
