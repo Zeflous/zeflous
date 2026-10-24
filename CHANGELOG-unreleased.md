@@ -84,6 +84,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(router): observe the match through the tracing and metrics engines [#555](https://github.com/Zeflous/zeflous/pull/555) ([mbetixz](https://github.com/mbetixz))
 - feat(router): answer the CLI inspector commands over the engine's own seams [#563](https://github.com/Zeflous/zeflous/pull/563) ([mbetixz](https://github.com/mbetixz))
 - feat(export): answer the ecosystem documents over the engine's own seams [#571](https://github.com/Zeflous/zeflous/pull/571) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the output-compression engine over the incremental zlib seam [#583](https://github.com/Zeflous/zeflous/pull/583) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
