@@ -31,7 +31,9 @@ final readonly class NamedArguments
         }
 
         $named = [];
-        foreach ($arguments as $name => $entry) {
+        $names = array_keys($arguments);
+
+        foreach ($names as $name) {
             if (!\is_string($name) || $name === '') {
                 throw new DefinitionException(
                     "Service '{$id}' name-keyed arguments must carry non-empty parameter names, "
@@ -39,7 +41,7 @@ final readonly class NamedArguments
                 );
             }
 
-            $named[$name] = ArgumentReference::assertWellFormed($id, $entry);
+            $named += [$name => ArgumentReference::assertWellFormed($id, $arguments[$name])];
         }
 
         return $named;

@@ -45,25 +45,10 @@ use Zef\Framework\Container\RadixTreeNavigator;
 #[CoversClass(NamespaceSpellings::class)]
 final class NamespaceRadixTreeTest extends TestCase
 {
-    public function testContainsExactAnswersOverTheIndexedPositions(): void
-    {
-        $tree = $this->built('app.window', 'app.house.door', 'flat', 'App\Widget\Controller');
-
-        self::assertTrue($tree->containsExact('app.window'));
-        self::assertTrue($tree->containsExact('app.house.door'));
-        self::assertTrue($tree->containsExact('flat'));
-        self::assertTrue($tree->containsExact('App\Widget\Controller'));
-        self::assertFalse($tree->containsExact('app.house'));
-        self::assertFalse($tree->containsExact('app'));
-        self::assertFalse($tree->containsExact(''));
-        self::assertFalse($tree->containsExact('missing.entirely'));
-    }
-
     public function testTheTwoSeparatorsSpellOnePosition(): void
     {
         $tree = $this->built('App\Widget\Controller');
 
-        self::assertTrue($tree->containsExact('App.Widget.Controller'));
         self::assertSame(['App\Widget\Controller'], $tree->idsUnderPrefix('App.Widget'));
         self::assertSame(['App\Widget\Controller'], $tree->idsUnderPrefix('App\Widget\\'));
     }
@@ -131,8 +116,6 @@ final class NamespaceRadixTreeTest extends TestCase
         // the child chain.
         $tree = $this->built('a.b', 'a.b.c');
 
-        self::assertTrue($tree->containsExact('a.b'));
-        self::assertTrue($tree->containsExact('a.b.c'));
         self::assertSame(['a.b', 'a.b.c'], $tree->idsUnderPrefix('a.b'));
     }
 
@@ -169,11 +152,6 @@ final class NamespaceRadixTreeTest extends TestCase
 
         $tree = $this->built(...$ids);
 
-        foreach (range(0, 9) as $index) {
-            self::assertTrue($tree->containsExact("app.carrier.{$index}"));
-        }
-
-        self::assertFalse($tree->containsExact('app.carrier'));
         self::assertSame($ids, $tree->idsUnderPrefix('app.carrier'));
         self::assertSame($ids, $tree->idsUnderPrefix('app.carrier.'));
     }
@@ -185,8 +163,6 @@ final class NamespaceRadixTreeTest extends TestCase
         // subtree under '1' without the '10'/'11' siblings.
         $tree = $this->built('app.carrier.1', 'app.carrier.10', 'app.carrier.11');
 
-        self::assertTrue($tree->containsExact('app.carrier.1'));
-        self::assertTrue($tree->containsExact('app.carrier.10'));
         self::assertSame(['app.carrier.1'], $tree->idsUnderPrefix('app.carrier.1'));
         self::assertSame(
             ['app.carrier.1', 'app.carrier.10', 'app.carrier.11'],

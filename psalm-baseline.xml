@@ -18,11 +18,6 @@
       <code><![CDATA[withUri]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <!-- createResponse lost its last src/ caller when the router's problem
-       rendering moved to the error lane (the dispatch translation now
-       throws the typed refusal family): the method stays the PSR-17
-       contract hosts compose their own handlers over, the same surface
-       posture as createRequest and createServerRequest above. -->
   <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[createResponse]]></code>
@@ -42,9 +37,11 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[getAttributes]]></code>
       <code><![CDATA[getCookieParams]]></code>
+      <code><![CDATA[getParsedBody]]></code>
       <code><![CDATA[getQueryParams]]></code>
       <code><![CDATA[getUploadedFiles]]></code>
       <code><![CDATA[withCookieParams]]></code>
+      <code><![CDATA[withParsedBody]]></code>
       <code><![CDATA[withQueryParams]]></code>
       <code><![CDATA[withUploadedFiles]]></code>
       <code><![CDATA[withoutAttribute]]></code>
@@ -110,25 +107,9 @@
       <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Container/Aot/AotArguments.php">
+  <file src="src/Zef/Framework/Config/Cache/ConfigCache.php">
     <MixedAssignment>
-      <code><![CDATA[$argument]]></code>
-      <code><![CDATA[$argument]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/Aot/AotArtifact.php">
-    <MixedAssignment>
-      <code><![CDATA[$ids]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/Aot/AotArtifactEntries.php">
-    <MixedAssignment>
-      <code><![CDATA[$entry]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/Aot/AotArtifactEntry.php">
-    <MixedAssignment>
-      <code><![CDATA[$kind]]></code>
+      <code><![CDATA[$payload]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Container/Aot/AotClosureEntry.php">
@@ -141,22 +122,6 @@
       <code><![CDATA[int]]></code>
     </PossiblyUnusedReturnValue>
   </file>
-  <file src="src/Zef/Framework/Container/Aot/AotDigest.php">
-    <MixedAssignment>
-      <code><![CDATA[$entry]]></code>
-      <code><![CDATA[$value]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/Aot/AotExportability.php">
-    <MixedAssignment>
-      <code><![CDATA[$entry]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/Aot/AotLiterals.php">
-    <MixedAssignment>
-      <code><![CDATA[$entry]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Container/Aot/AotOutcome.php">
     <PossiblyUnusedProperty>
       <code><![CDATA[$definitions]]></code>
@@ -164,12 +129,6 @@
     </PossiblyUnusedProperty>
   </file>
   <file src="src/Zef/Framework/Container/Aot/ContainerAotCache.php">
-    <MixedAssignment>
-      <code><![CDATA[$payload]]></code>
-    </MixedAssignment>
-    <PossiblyUndefinedArrayOffset>
-      <code><![CDATA[$entry['closure']]]></code>
-    </PossiblyUndefinedArrayOffset>
     <PossiblyUnusedMethod>
       <code><![CDATA[file]]></code>
     </PossiblyUnusedMethod>
@@ -191,11 +150,6 @@
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Container/Autowiring/ReflectionMetadataExtractor.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[isInstantiable]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Zef/Framework/Container/Autowiring/Tag.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
@@ -211,11 +165,6 @@
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Container/ContainerLocator.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[ids]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Zef/Framework/Container/Container.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[createRequestScope]]></code>
@@ -223,14 +172,14 @@
       <code><![CDATA[namespaceFallbacks]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Container/ContainerLocator.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[ids]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Container/NamespaceFallbacks.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[fallback]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Zef/Framework/Container/NamespaceRadixTree.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[containsExact]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Container/NamespacedServices.php">
@@ -241,42 +190,8 @@
       <code><![CDATA[stats]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Container/NamedArguments.php">
-    <MixedAssignment>
-      <code><![CDATA[$entry]]></code>
-      <code><![CDATA[$named[$name]]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/ParameterInjectability.php">
-    <MixedAssignment>
-      <code><![CDATA[$element]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/ParameterLiterals.php">
-    <MixedAssignment>
-      <code><![CDATA[$nested]]></code>
-      <code><![CDATA[$value]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/ParameterMap.php">
-    <MixedAssignment>
-      <code><![CDATA[$providerSource]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/ParameterProviderAnswers.php">
-    <MixedAssignment>
-      <code><![CDATA[$answer]]></code>
-      <code><![CDATA[$computed[$address]]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Container/ParameterProviders.php">
-    <MixedAssignment>
-      <code><![CDATA[$provider]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Container/ParameterValues.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[addresses]]></code>
       <code><![CDATA[toArray]]></code>
     </PossiblyUnusedMethod>
   </file>
@@ -286,19 +201,11 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Container/RequestScope.php">
-    <MixedAssignment>
-      <code><![CDATA[$instance]]></code>
-    </MixedAssignment>
     <PossiblyUnusedMethod>
       <code><![CDATA[close]]></code>
       <code><![CDATA[get]]></code>
       <code><![CDATA[has]]></code>
     </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Zef/Framework/Container/SingletonMemo.php">
-    <MixedAssignment>
-      <code><![CDATA[$instance]]></code>
-    </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Container/TaggedServices.php">
     <PossiblyUnusedMethod>
@@ -312,10 +219,6 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
-  <!-- The typed error family is the host application's throwing surface
-       (ROADMAP "Error Handling System" phase 1): applications raise these
-       from their handlers, so src/ itself never instantiates them, the
-       same API-surface posture as ServiceProviderInterface above. -->
   <file src="src/Zef/Framework/Exception/AuthenticationException.php">
     <UnusedClass>
       <code><![CDATA[AuthenticationException]]></code>
@@ -335,6 +238,11 @@
     <UnusedClass>
       <code><![CDATA[ValidationException]]></code>
     </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Export/OpenApiOperationAttribute.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Health/HealthAggregator.php">
     <PossiblyUnusedMethod>
@@ -364,28 +272,6 @@
       <code><![CDATA[TimeoutHealthCheck]]></code>
     </UnusedClass>
   </file>
-  <file src="src/Zef/Framework/Config/Cache/ConfigCache.php">
-    <MixedAssignment>
-      <code><![CDATA[$payload]]></code>
-    </MixedAssignment>
-  </file>
-    <file src="src/Zef/Framework/Http/TextBody.php">
-    <!-- The text property is the host application's read surface: the
-         body-parser family hands the value object to the PSR-7 parsed
-         body, and the controller that typed its input as TextBody reads
-         the property. Host API by design, same posture as the vendored
-         contract's getter faces. -->
-    <PossiblyUnusedProperty>
-      <code><![CDATA[$text]]></code>
-    </PossiblyUnusedProperty>
-  </file>
-<file src="src/Zef/Framework/Http/UploadOrigin.php">
-    <MixedAssignment>
-      <code><![CDATA[$downgraded[$key]]]></code>
-      <code><![CDATA[$leafError]]></code>
-      <code><![CDATA[$spec['error']]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Http/CorsMiddleware.php">
     <UnusedClass>
       <code><![CDATA[CorsMiddleware]]></code>
@@ -410,6 +296,23 @@
       <code><![CDATA[non-empty-string]]></code>
     </MoreSpecificReturnType>
   </file>
+  <file src="src/Zef/Framework/Http/TextBody.php">
+    <!-- The text property is the host application's read surface: the
+         body-parser family hands the value object to the PSR-7 parsed
+         body, and the controller that typed its input as TextBody reads
+         the property. Host API by design, same posture as the vendored
+         contract's getter faces. -->
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$text]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Http/UploadOrigin.php">
+    <MixedAssignment>
+      <code><![CDATA[$downgraded[$key]]]></code>
+      <code><![CDATA[$leafError]]></code>
+      <code><![CDATA[$spec['error']]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Kernel.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[version]]></code>
@@ -427,8 +330,8 @@
   </file>
   <file src="src/Zef/Framework/Middleware/ProcessErrorBoundary.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[restore]]></code>
       <code><![CDATA[installed]]></code>
+      <code><![CDATA[restore]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Telemetry/BatchSpanProcessor.php">
@@ -516,8 +419,8 @@
     <MixedAssignment>
       <code><![CDATA[$entry]]></code>
       <code><![CDATA[$sanitized[$key]]]></code>
-      <code><![CDATA[$walked[$name]]]></code>
       <code><![CDATA[$value]]></code>
+      <code><![CDATA[$walked[$name]]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Telemetry/TraceContextPropagator.php">
@@ -528,70 +431,6 @@
   <file src="tests/Support/Tooling/ContainerInventoryReport.php">
     <UnusedClass>
       <code><![CDATA[ContainerInventoryReport]]></code>
-    </UnusedClass>
-  </file>
-  <!-- The route inspection command family (the CLI lane's renderers
-       and boot, bin/zef route:list / route:test / route:tree):
-       consumed by the bin/zef dispatch script, which sits outside
-       Psalm's project files the same way the container inventory
-       report above does. The class is the command's engine, the
-       script its only caller, and the test suites exercise both
-       end to end. -->
-  <!-- The ecosystem export command family (bin/zef route:openapi /
-       route:postman) and the operation attribute: the renderers are
-       consumed by the bin/zef dispatch script, which sits outside
-       psalm's project files, so the unused-code analysis cannot see
-       the script its only caller, and the attribute's constructor is
-       instantiated through reflection (newInstance) over user
-       handler methods the analysis cannot enumerate. -->
-  <file src="src/Zef/Framework/Export/OpenApiOperationAttribute.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="tests/Support/Tooling/RouteOpenApiExport.php">
-    <UnusedClass>
-      <code><![CDATA[RouteOpenApiExport]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/RoutePostmanExport.php">
-    <UnusedClass>
-      <code><![CDATA[RoutePostmanExport]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/RouteInspectionBoot.php">
-    <UnusedClass>
-      <code><![CDATA[RouteInspectionBoot]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/RouteListJson.php">
-    <UnusedClass>
-      <code><![CDATA[RouteListJson]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/RouteListText.php">
-    <UnusedClass>
-      <code><![CDATA[RouteListText]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/RouteMatchAnswer.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[answered]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="tests/Support/Tooling/RouteMatchJson.php">
-    <UnusedClass>
-      <code><![CDATA[RouteMatchJson]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/RouteMatchText.php">
-    <UnusedClass>
-      <code><![CDATA[RouteMatchText]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/RouteTreeText.php">
-    <UnusedClass>
-      <code><![CDATA[RouteTreeText]]></code>
     </UnusedClass>
   </file>
   <file src="tests/Support/Tooling/CoverageReport.php">
@@ -667,6 +506,51 @@
   <file src="tests/Support/Tooling/ReviewThreadResolver.php">
     <UnusedClass>
       <code><![CDATA[ReviewThreadResolver]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteInspectionBoot.php">
+    <UnusedClass>
+      <code><![CDATA[RouteInspectionBoot]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteListJson.php">
+    <UnusedClass>
+      <code><![CDATA[RouteListJson]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteListText.php">
+    <UnusedClass>
+      <code><![CDATA[RouteListText]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteMatchAnswer.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[answered]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="tests/Support/Tooling/RouteMatchJson.php">
+    <UnusedClass>
+      <code><![CDATA[RouteMatchJson]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteMatchText.php">
+    <UnusedClass>
+      <code><![CDATA[RouteMatchText]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteOpenApiExport.php">
+    <UnusedClass>
+      <code><![CDATA[RouteOpenApiExport]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RoutePostmanExport.php">
+    <UnusedClass>
+      <code><![CDATA[RoutePostmanExport]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RouteTreeText.php">
+    <UnusedClass>
+      <code><![CDATA[RouteTreeText]]></code>
     </UnusedClass>
   </file>
 </files>

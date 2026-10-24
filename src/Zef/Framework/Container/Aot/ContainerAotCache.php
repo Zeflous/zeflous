@@ -70,7 +70,10 @@ final readonly class ContainerAotCache
     }
 
     /**
-     * The artifact's location, as the refusal messages spell it.
+     * The artifact's location -- the report and test surface for the
+     * location the refusals already name from the constructor's own
+     * string (they never read through here); the psalm baseline's
+     * unused verdict records that reporting role.
      */
     public function file(): string
     {
@@ -123,7 +126,7 @@ final readonly class ContainerAotCache
             . "    'tags' => " . var_export($tags, true) . ",\n"
             . "    'lazy' => " . var_export($lazy, true) . ",\n"
             . "    'entries' => [\n"
-            . $this->renderedEntries($entries)
+            . AotEntriesBlock::rendered($entries)
             . "    ],\n"
             . "];\n";
 
@@ -196,39 +199,9 @@ final readonly class ContainerAotCache
         }
 
         try {
-            $payload = require $this->file;
+            return AotArtifact::validated($this->file, require $this->file);
         } catch (ParseError $parseError) {
             throw AotRefusals::artifactCorrupt($this->file, $parseError->getMessage());
         }
-
-        return AotArtifact::validated($this->file, $payload);
-    }
-
-    /**
-     * Renders the entries block: closure entries embed their rendered
-     * code verbatim (the array literal evaluates it into a live closure
-     * at `require` time), build entries export as plain data.
-     *
-     * @param array<string, array{kind: 'build', factory: string, arguments: list<mixed>,
-     *     calls: list<array{method: string, arguments: list<mixed>}>, lifetime: string}
-     *     |array{kind: 'closure', closure: string, lifetime: string}> $entries
-     */
-    private function renderedEntries(array $entries): string
-    {
-        $rendered = '';
-
-        foreach ($entries as $id => $entry) {
-            if ($entry['kind'] === 'closure') {
-                $rendered .= '        ' . var_export($id, true) . " => [\n"
-                    . "            'kind' => 'closure',\n"
-                    . '            ' . "'closure' => " . $entry['closure'] . ",\n"
-                    . '            ' . "'lifetime' => " . var_export($entry['lifetime'], true) . ",\n"
-                    . "        ],\n";
-            } else {
-                $rendered .= '        ' . var_export($id, true) . ' => ' . var_export($entry, true) . ",\n";
-            }
-        }
-
-        return $rendered;
     }
 }

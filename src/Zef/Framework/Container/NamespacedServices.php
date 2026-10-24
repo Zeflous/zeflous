@@ -36,6 +36,16 @@ namespace Zef\Framework\Container;
  * ({@see Container::set()}) never enters the tree, so the namespace
  * questions cannot see it: the same honest boundary the tree's whole
  * family carries, spelled here where the host reads it.
+ *
+ * Nothing inside the framework consumes this read side yet: the
+ * surface's own registration is for the host, and the in-repo consumer
+ * the area's CLI analysis story owes -- the container inventory
+ * command's namespace view, the same deferred-consumer posture the
+ * lazy lane's baseline entries carried until `container:inventory`
+ * landed (#487's precedent) -- is the consumer these four answers
+ * wait for. The psalm baseline carries them as unused for exactly
+ * that reason, and the entries leave it the moment the CLI reads
+ * them.
  */
 final readonly class NamespacedServices
 {

@@ -46,6 +46,11 @@ final readonly class TaggedServices
 
     /**
      * Whether any booted definition carries the tag.
+     *
+     * Part of the read side the reserved `framework.tags` service
+     * carries for the host (#404's lane): consumed by application
+     * wiring outside this repository, the psalm baseline's unused
+     * verdict recording that boundary.
      */
     public function has(string $tag): bool
     {
@@ -70,6 +75,10 @@ final readonly class TaggedServices
      * unchanged (a tagged service that cannot build is a defect to
      * surface, not a collection entry to skip).
      *
+     * The `framework.tags` service's batch read, consumed by the
+     * host's application wiring (outside this repository); the psalm
+     * baseline's unused verdict records that boundary.
+     *
      * @return list<mixed>
      */
     public function services(string $tag): array
@@ -86,6 +95,10 @@ final readonly class TaggedServices
      * The tag nobody carries is refused with the way out; the tag
      * several services carry is refused naming every one of them --
      * multiplicity that is expected belongs to {@see services()}.
+     *
+     * Part of the `framework.tags` host read side; the psalm
+     * baseline's unused verdict records the outside-repository
+     * consumer boundary.
      */
     public function one(string $tag): mixed
     {

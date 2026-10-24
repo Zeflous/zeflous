@@ -33,8 +33,8 @@ final readonly class AotExportability
         }
 
         if (\is_array($value)) {
-            foreach ($value as $key => $entry) {
-                self::assertExportable($entry, $serviceId, $path . '.' . $key);
+            foreach (array_keys($value) as $key) {
+                self::assertExportable($value[$key], $serviceId, $path . '.' . $key);
             }
 
             return;

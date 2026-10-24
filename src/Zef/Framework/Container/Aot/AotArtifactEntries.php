@@ -30,12 +30,12 @@ final readonly class AotArtifactEntries
 
         $validated = [];
 
-        foreach ($entries as $id => $entry) {
+        foreach (array_keys($entries) as $id) {
             if (!\is_string($id) || $id === '') {
                 throw AotRefusals::entryMalformed($id);
             }
 
-            $validated[$id] = AotArtifactEntry::validated($id, $entry);
+            $validated[$id] = AotArtifactEntry::validated($id, $entries[$id]);
         }
 
         return $validated;

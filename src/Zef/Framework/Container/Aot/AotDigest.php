@@ -73,8 +73,8 @@ final readonly class AotDigest
     {
         $folded = '';
 
-        foreach ($sources as $name => $value) {
-            $folded .= 'map:' . self::fold($value, $name) . "\n";
+        foreach (array_keys($sources) as $name) {
+            $folded .= 'map:' . self::fold($sources[$name], $name) . "\n";
         }
 
         return hash(
@@ -114,9 +114,9 @@ final readonly class AotDigest
     {
         $entries = '';
 
-        foreach ($value as $key => $entry) {
+        foreach (array_keys($value) as $key) {
             $entries .= (\is_int($key) ? 'idx:' : 'key:') . $key . '='
-                . self::fold($entry, $path . '.' . $key) . ';';
+                . self::fold($value[$key], $path . '.' . $key) . ';';
         }
 
         return '[' . $entries . ']';

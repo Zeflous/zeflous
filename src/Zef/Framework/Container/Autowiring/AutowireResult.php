@@ -25,6 +25,12 @@ use Zef\Framework\Container\ServiceDefinition;
 final readonly class AutowireResult
 {
     /**
+     * The report's own fields (generated, reused, values) are the
+     * run's observability, read by the host's wiring and the test
+     * battery -- the psalm baseline's unused verdict records that
+     * boundary, the same report-surface posture the AOT outcome's
+     * own fields carry.
+     *
      * @param list<ServiceDefinition> $definitions the planned set: every
      *                                             declared definition (rewritten
      *                                             where the lane applies) plus

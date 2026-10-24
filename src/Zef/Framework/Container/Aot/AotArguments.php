@@ -32,8 +32,8 @@ final readonly class AotArguments
     {
         $rendered = [];
 
-        foreach ($arguments as $index => $argument) {
-            $rendered[] = self::code($argument, $serviceId, $path . '.' . $index);
+        foreach (array_keys($arguments) as $index) {
+            $rendered[] = self::code($arguments[$index], $serviceId, $path . '.' . $index);
         }
 
         return implode(', ', $rendered);
@@ -52,8 +52,8 @@ final readonly class AotArguments
     {
         $rendered = [];
 
-        foreach ($arguments as $index => $argument) {
-            $rendered[] = self::code($argument, $serviceId, $path . '.' . $index);
+        foreach (array_keys($arguments) as $index) {
+            $rendered[] = self::code($arguments[$index], $serviceId, $path . '.' . $index);
         }
 
         return '[' . implode(', ', $rendered) . ']';

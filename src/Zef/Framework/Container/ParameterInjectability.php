@@ -32,8 +32,8 @@ final readonly class ParameterInjectability
             return \is_scalar($value) || $value === null ? null : $value;
         }
 
-        foreach ($value as $element) {
-            $offender = self::offender($element);
+        foreach (array_keys($value) as $key) {
+            $offender = self::offender($value[$key]);
 
             if ($offender !== null) {
                 return $offender;

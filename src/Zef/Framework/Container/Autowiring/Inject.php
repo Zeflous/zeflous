@@ -27,6 +27,14 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PARAMETER)]
 final readonly class Inject
 {
+    /**
+     * The constructor's caller is the reflection API itself:
+     * {@see AutowireAttributes} reads the attribute through
+     * `ReflectionAttribute::newInstance()`, so the identifier's own
+     * shape validation runs at the read -- a caller static analysis
+     * cannot see, and the psalm baseline's unused verdict records
+     * honestly.
+     */
     public function __construct(
         public string $id,
     ) {

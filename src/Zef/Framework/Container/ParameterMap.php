@@ -82,16 +82,14 @@ final readonly class ParameterMap
         }
 
         $literals = $source;
-        $providerSource = [];
 
         if (\array_key_exists(self::PROVIDERS_KEY, $literals)) {
-            $providerSource = $literals[self::PROVIDERS_KEY];
             unset($literals[self::PROVIDERS_KEY]);
         }
 
         $literalValues = ParameterLiterals::values($literals);
 
-        $declarations = ParameterProviders::declarations($providerSource);
+        $declarations = ParameterProviders::declarations(self::providersMember($source));
 
         foreach (array_keys($declarations) as $address) {
             if (\array_key_exists($address, $literalValues)) {
@@ -103,5 +101,26 @@ final readonly class ParameterMap
             ...$literalValues,
             ...ParameterProviderAnswers::values($declarations),
         ]));
+    }
+
+    /**
+     * The reserved providers member itself -- the validating fold the
+     * declarations lane consumes -- or the empty map when the knob
+     * carries no providers half at all: the member's own presence is
+     * the distinction the empty answer keeps honest (an absent key is
+     * no providers, a present-but-unvalidated member is the refusal
+     * the declarations lane raises in its own words).
+     *
+     * @param array<array-key, mixed> $source the knob's whole map
+     *
+     * @return mixed the providers member as the configuration carried it
+     */
+    private static function providersMember(array $source): mixed
+    {
+        if (\array_key_exists(self::PROVIDERS_KEY, $source)) {
+            return $source[self::PROVIDERS_KEY];
+        }
+
+        return [];
     }
 }

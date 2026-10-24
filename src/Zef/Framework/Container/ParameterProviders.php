@@ -36,13 +36,13 @@ final readonly class ParameterProviders
 
         $declarations = [];
 
-        foreach ($source as $address => $provider) {
+        foreach (array_keys($source) as $address) {
             if (!\is_string($address)) {
                 throw ParameterRefusals::providerKeyNotAnAddress($address);
             }
 
             ParameterKeys::assert("The 'parameters' > 'providers' address", $address);
-            $declarations[$address] = ParameterProviderCheck::assert($address, $provider);
+            $declarations += [$address => ParameterProviderCheck::assert($address, $source[$address])];
         }
 
         return $declarations;

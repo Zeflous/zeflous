@@ -41,6 +41,12 @@ final class RequestScope
      * Resolves the identifier inside this scope: request-scoped ids
      * memoise here, wider lifetimes resolve exactly as they do at the
      * container's root.
+     *
+     * The caller this read waits for is the HTTP roadmap's §5.1
+     * runtime adapter (phase 2, the persistent-worker lane), which
+     * holds the scope a request long -- the same surface
+     * {@see Container::createRequestScope()} opens. The psalm
+     * baseline carries the deferred consumer.
      */
     public function get(string $id): mixed
     {
@@ -55,6 +61,10 @@ final class RequestScope
      * Whether the underlying container carries the identifier: the
      * definition-level question, exactly the root container's own. A
      * closed scope carries nothing -- the request it named is over.
+     *
+     * Part of the scope's own lifecycle surface the §5.1 runtime
+     * adapter consumes (phase 2); the psalm baseline carries the
+     * deferred consumer.
      */
     public function has(string $id): bool
     {
@@ -68,6 +78,10 @@ final class RequestScope
     /**
      * Closes the scope: memoised request-scoped instances are released,
      * further resolutions through it are refused.
+     *
+     * The request-end half of the §5.1 runtime adapter's lifecycle
+     * (phase 2, the persistent-worker lane): open per request, closed
+     * at its end. The psalm baseline carries the deferred consumer.
      */
     public function close(): void
     {
@@ -95,13 +109,28 @@ final class RequestScope
             return $this->instances[$id];
         }
 
-        $instance = $build();
+        return $this->record($id, $build());
+    }
+
+    /**
+     * The build's answer, captured once as this seam's own parameter
+     * -- the one value the judgements below read, because the answer
+     * must live somewhere while the mid-resolution check runs between
+     * the guarded factory call and the memo write it guards: the
+     * store is the commitment, and the assignment the return spells
+     * answers it.
+     *
+     * @param mixed $instance the guarded factory call's answer -- the
+     *                        service's own type, whatever it is
+     *
+     * @return mixed the memoised instance
+     */
+    private function record(string $id, mixed $instance): mixed
+    {
         if ($this->closed) {
             throw RequestScopeRefusals::closedMidResolution($id);
         }
 
-        $this->instances[$id] = $instance;
-
-        return $instance;
+        return $this->instances[$id] = $instance;
     }
 }

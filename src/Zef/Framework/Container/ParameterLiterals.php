@@ -39,8 +39,8 @@ final readonly class ParameterLiterals
     {
         $flat = [];
 
-        foreach ($source as $segment => $value) {
-            $flat = [...$flat, ...self::walk((string) $segment, $value)];
+        foreach (array_keys($source) as $segment) {
+            $flat = [...$flat, ...self::walk((string) $segment, $source[$segment])];
         }
 
         return $flat;
@@ -58,8 +58,8 @@ final readonly class ParameterLiterals
         if (\is_array($value) && $value !== [] && self::isAddressable($value)) {
             $flat = [];
 
-            foreach ($value as $segment => $nested) {
-                $flat = [...$flat, ...self::walk($address . '.' . $segment, $nested)];
+            foreach (array_keys($value) as $segment) {
+                $flat = [...$flat, ...self::walk($address . '.' . $segment, $value[$segment])];
             }
 
             return $flat;

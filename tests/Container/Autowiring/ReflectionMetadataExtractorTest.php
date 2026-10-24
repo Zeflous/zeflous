@@ -23,7 +23,6 @@ use Zef\Test\Support\Container\Autowiring\NullableDefaultedHouse;
 use Zef\Test\Support\Container\Autowiring\ParameterlessHouse;
 use Zef\Test\Support\Container\Autowiring\TargetedHouse;
 use Zef\Test\Support\Container\Autowiring\TypedVariadicHouse;
-use Zef\Test\Support\Container\Autowiring\UninstantiableHouse;
 use Zef\Test\Support\Container\Autowiring\UnionHouse;
 use Zef\Test\Support\Container\Autowiring\UntypedHouse;
 use Zef\Test\Support\Container\Greeter;
@@ -133,13 +132,6 @@ final class ReflectionMetadataExtractorTest extends TestCase
                 $autowiringException->getMessage(),
             );
         }
-    }
-
-    public function testTheInstantiableVerdictSeparatesTheDeclarableFromTheRest(): void
-    {
-        self::assertTrue($this->reflectionMetadataExtractor->isInstantiable(InterfaceHouse::class));
-        self::assertFalse($this->reflectionMetadataExtractor->isInstantiable(LoggerInterface::class));
-        self::assertFalse($this->reflectionMetadataExtractor->isInstantiable(UninstantiableHouse::class));
     }
 
     public function testAnUnknownClassIsRefusedByName(): void

@@ -35,7 +35,10 @@ final readonly class AotDefinitions
     /**
      * Installs a validated artifact's entries into the container.
      *
-     * @return int how many definitions were installed
+     * @return int how many definitions were installed -- the count the
+     *             install battery pins (the observability the lane's
+     *             own seam answers; the psalm baseline's
+     *             unused-return verdict records that test surface)
      */
     public static function install(Container $container, AotArtifact $aotArtifact): int
     {
