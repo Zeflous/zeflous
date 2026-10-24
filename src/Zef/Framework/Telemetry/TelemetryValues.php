@@ -34,8 +34,14 @@ final class TelemetryValues
 
     /**
      * Sanitises one recorded value.
+     *
+     * The declared union is the walk's own honest range -- exactly what
+     * the match arms answer and nothing wider -- so the analysers can
+     * verify every member that leaves the fold.
+     *
+     * @return null|array<array-key, mixed>|bool|float|int|string
      */
-    public static function value(mixed $value, int $depth = 0): mixed
+    public static function value(mixed $value, int $depth = 0): array|bool|float|int|string|null
     {
         return match (true) {
             \is_string($value) => TelemetrySanitizer::string($value),
@@ -60,12 +66,12 @@ final class TelemetryValues
     {
         $sanitized = [];
 
-        foreach ($attributes as $key => $value) {
+        foreach (array_keys($attributes) as $key) {
             if (TelemetrySanitizer::isSensitiveKey($key)) {
                 continue;
             }
 
-            $sanitized[$key] = self::value($value);
+            $sanitized[$key] = self::value($attributes[$key]);
         }
 
         return $sanitized;
@@ -109,7 +115,7 @@ final class TelemetryValues
 
         $walked = [];
 
-        foreach (\array_slice($value, 0, self::ENTRY_BUDGET, true) as $key => $entry) {
+        foreach (array_keys(\array_slice($value, 0, self::ENTRY_BUDGET, true)) as $key) {
             $name = (string) $key;
 
             if (TelemetrySanitizer::isSensitiveKey($name)) {
@@ -118,7 +124,7 @@ final class TelemetryValues
                 continue;
             }
 
-            $walked[$name] = self::value($entry, $depth + 1);
+            $walked[$name] = self::value($value[$key], $depth + 1);
         }
 
         return $walked;

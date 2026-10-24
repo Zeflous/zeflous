@@ -48,17 +48,19 @@ final class PrometheusLabels
             $pairs[self::sanitizedName($name)] = $value;
         }
 
-        foreach ($attributes as $name => $value) {
+        foreach (array_keys($attributes) as $name) {
             if (!\is_string($name) || $name === '') {
                 continue;
             }
 
-            if (!\is_scalar($value)) {
+            $scalar = self::scalar($attributes[$name]);
+
+            if ($scalar === null) {
                 // Non-scalar dimensions are dropped, never stringified blindly.
                 continue;
             }
 
-            $pairs[self::sanitizedName($name)] = (string) $value;
+            $pairs[self::sanitizedName($name)] = $scalar;
         }
 
         if ($pairs === []) {
@@ -98,5 +100,18 @@ final class PrometheusLabels
     private static function escapedValue(string $value): string
     {
         return str_replace(['\\', '"', "\n"], ['\\\\', '\"', '\n'], $value);
+    }
+
+    /**
+     * One dimension's scalar judgement: the mixed member crosses
+     * straight into the fold's parameter, and only a scalar answers
+     * its string spelling -- anything else is the null that drops the
+     * dimension, never a blind stringification.
+     *
+     * @param mixed $value the dimension's value, as the series carried it
+     */
+    private static function scalar(mixed $value): ?string
+    {
+        return \is_scalar($value) ? (string) $value : null;
     }
 }

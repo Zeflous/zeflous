@@ -31,11 +31,9 @@ final class PrometheusSeries
         $rawKey = \is_string($rawKey) ? $rawKey : '';
         $pipe = mb_strpos($rawKey, '|');
         if ($pipe !== false) {
-            $decoded = json_decode(mb_substr($rawKey, $pipe + 1), true);
-
             return [
                 'metric' => PrometheusMetricName::sanitized(mb_substr($rawKey, 0, $pipe)),
-                'attributes' => \is_array($decoded) ? $decoded : [],
+                'attributes' => self::asArray(json_decode(mb_substr($rawKey, $pipe + 1), true)),
             ];
         }
 
@@ -43,5 +41,20 @@ final class PrometheusSeries
             'metric' => PrometheusMetricName::sanitized($rawKey),
             'attributes' => $series['attributes'],
         ];
+    }
+
+    /**
+     * Narrows the composite key's decoded identity half to the attribute
+     * map it must be: anything the JSON half decodes to but an array is
+     * not an attribute map at all, and the empty map is the honest
+     * answer the series' identity then carries.
+     *
+     * @param mixed $decoded the decoded identity half, as json_decode answered it
+     *
+     * @return array<mixed,mixed>
+     */
+    private static function asArray(mixed $decoded): array
+    {
+        return \is_array($decoded) ? $decoded : [];
     }
 }

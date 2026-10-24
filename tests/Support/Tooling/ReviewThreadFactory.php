@@ -33,13 +33,23 @@ final readonly class ReviewThreadFactory
             return null;
         }
 
-        $path = $fields['path'] ?? null;
-
         return new ReviewThread(
             $id,
             ($fields['isResolved'] ?? false) === true,
             ($fields['isOutdated'] ?? false) === true,
-            \is_string($path) ? $path : '',
+            self::path($fields['path'] ?? null),
         );
+    }
+
+    /**
+     * The node's path member judged at the fold's own seam: the mixed
+     * member crosses straight into the parameter, and a path that is
+     * not a string is the empty spelling, never a guess.
+     *
+     * @param mixed $path the node's path member, as the payload carried it
+     */
+    private static function path(mixed $path): string
+    {
+        return \is_string($path) ? $path : '';
     }
 }

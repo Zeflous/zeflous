@@ -30,11 +30,21 @@ final readonly class CoverageReport
         $xml = simplexml_load_file($path);
         libxml_use_internal_errors($previousUseInternalErrors);
 
-        if (!$xml instanceof SimpleXMLElement || !isset($xml->project->metrics)) {
+        if (!$xml instanceof SimpleXMLElement) {
             throw new ToolingException('Unable to read coverage metrics from the Clover report.');
         }
 
-        $metrics = $xml->project->metrics;
+        $project = $xml->project;
+
+        if (!$project instanceof SimpleXMLElement) {
+            throw new ToolingException('Unable to read coverage metrics from the Clover report.');
+        }
+
+        if (!isset($project->metrics)) {
+            throw new ToolingException('Unable to read coverage metrics from the Clover report.');
+        }
+
+        $metrics = $project->metrics;
 
         $statements = (int) $metrics['statements'];
         $coveredStatements = (int) $metrics['coveredstatements'];
@@ -56,6 +66,6 @@ final readonly class CoverageReport
             return 0.0;
         }
 
-        return $this->coveredStatements / $this->statements * 100.0;
+        return (float) $this->coveredStatements / (float) $this->statements * 100.0;
     }
 }

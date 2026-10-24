@@ -42,9 +42,10 @@ final readonly class ReviewThreadPayload
 
         $threads = [];
         $unusable = 0;
+        $nodes = new ReviewThreadNodes($decoded)->toList();
 
-        foreach (new ReviewThreadNodes($decoded)->toList() as $node) {
-            $thread = ReviewThreadFactory::fromNode($node);
+        foreach (array_keys($nodes) as $index) {
+            $thread = ReviewThreadFactory::fromNode($nodes[$index]);
 
             if (!$thread instanceof ReviewThread) {
                 ++$unusable;

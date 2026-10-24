@@ -32,16 +32,30 @@ final readonly class ReviewThreadMutation
             return false;
         }
 
-        $value = $decoded;
+        return self::resolved($decoded, self::RESOLVED_FLAG_PATH);
+    }
 
-        foreach (self::RESOLVED_FLAG_PATH as $key) {
-            if (!\is_array($value) || !\array_key_exists($key, $value)) {
-                return false;
-            }
-
-            $value = $value[$key];
+    /**
+     * The resolved flag's own walk, one level per fold: each level is
+     * judged as the map it must be before the member crosses to the
+     * next level -- the decoded answer's mixedness flows through the
+     * fold's own parameters, never a binding.
+     *
+     * @param mixed        $node the level the walk has reached
+     * @param list<string> $path the levels still to walk
+     */
+    private static function resolved(mixed $node, array $path): bool
+    {
+        if ($path === []) {
+            return $node === true;
         }
 
-        return $value === true;
+        $key = $path[0];
+
+        if (!\is_array($node) || !\array_key_exists($key, $node)) {
+            return false;
+        }
+
+        return self::resolved($node[$key], \array_slice($path, 1));
     }
 }

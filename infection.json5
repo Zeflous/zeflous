@@ -1201,11 +1201,21 @@
         // passes, the fractional join still carries its 3.5). These
         // ignores are scoped to those two places.
         "CastFloat": {
+            // The coverage percentage's two operand casts in
+            // CoverageReport::percentage() join the same family against
+            // the same analysis: the strict-binary-operands policy
+            // refuses the int-operand mix uncast, and PHP's division
+            // operator always answers float, so every runtime
+            // observable coerces identically without either cast
+            // (verified by this zone's own escaped pair -- the full
+            // suite passes under each removed cast; the equivalence is
+            // engine-level). The ignore is scoped to that single method.
             "ignoreSourceCodeByRegex": [
                 "\\$count = \\(float\\) \\$series\\['count'\\];"
             ],
             "ignore": [
-                "Zef\\Framework\\Telemetry\\MeterCount::advanced"
+                "Zef\\Framework\\Telemetry\\MeterCount::advanced",
+                "Zef\\Test\\Support\\Tooling\\CoverageReport::percentage"
             ]
         },
         // The render's series ceiling in

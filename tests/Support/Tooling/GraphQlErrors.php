@@ -18,8 +18,18 @@ final readonly class GraphQlErrors
      */
     public static function present(array $decoded): bool
     {
-        $errors = $decoded['errors'] ?? null;
+        return self::errors($decoded['errors'] ?? null);
+    }
 
+    /**
+     * The errors member's own judgement: the decoded member crosses
+     * straight into the fold's mixed parameter, and only a non-empty
+     * array answers present.
+     *
+     * @param mixed $errors the decoded errors member, as json_decode answered it
+     */
+    private static function errors(mixed $errors): bool
+    {
         return \is_array($errors) && $errors !== [];
     }
 }

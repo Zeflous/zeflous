@@ -87,8 +87,8 @@ final class SpanRecording
      */
     public function setAttributes(array $attributes): void
     {
-        foreach ($attributes as $key => $value) {
-            $this->setAttribute($key, $value);
+        foreach (array_keys($attributes) as $key) {
+            $this->setAttribute($key, $attributes[$key]);
         }
     }
 

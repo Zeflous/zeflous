@@ -84,12 +84,12 @@ final class CorrelationAttributes
         $normalized = [];
         $correlationBudget = new CorrelationBudget(self::MAX_ATTRIBUTE_BYTES);
 
-        foreach ($attributes as $key => $value) {
+        foreach (array_keys($attributes) as $key) {
             if (!\is_string($key)) {
                 throw new InvalidArgumentException(self::INVALID_KEY);
             }
 
-            $value = self::entry($key, $value);
+            $value = self::entry($key, $attributes[$key]);
             $normalized[$key] = $value;
 
             $correlationBudget->spend($key, $value);
