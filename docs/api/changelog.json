@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-24T07:39:02Z",
+  "as_of": "2026-10-24T11:00:39Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 252,
+  "unreleased_count": 253,
   "versions": [
     {
       "version": "Unreleased",
@@ -5058,6 +5058,57 @@
                 "sha": "e940ca22c935ea9205b3647968b562bcca3863d4",
                 "short_sha": "e940ca2",
                 "subject": "docs(roadmap): the newest same-date row's cell rides the merge too"
+              }
+            ]
+          },
+          {
+            "pr": 586,
+            "title": "fix(container): answer the psalm baseline's Container findings honestly",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-24T11:00:39Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/586",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c7b5ceabc4d2b8bd555fa2d7150e946448c6b193",
+                "short_sha": "c7b5cea",
+                "subject": "fix(container): clear the baseline's type-family findings honestly"
+              },
+              {
+                "sha": "178512b51550fcae9e42eba803d4c1323e10c78b",
+                "short_sha": "178512b",
+                "subject": "fix(container): dispose the unused-code findings per their own seams"
+              },
+              {
+                "sha": "24c21237c39c196c63fcf6884d2f82dbff6b323e",
+                "short_sha": "24c2123",
+                "subject": "docs(roadmap): record the baseline's honest Container answer (#586)"
+              },
+              {
+                "sha": "913311602c9c3e963396b2e2908d0e817f13f636",
+                "short_sha": "9133116",
+                "subject": "fix(container): fold the unknown-kind refusal into its one caller"
+              },
+              {
+                "sha": "79677909bd0f55902ee4d5cb8c76a47a24d9bdcc",
+                "short_sha": "7967790",
+                "subject": "docs(roadmap): the pin rides the mutation close-out's head"
+              },
+              {
+                "sha": "a860ff86724d71909d7a32ba0a36d9c93b9ff9f8",
+                "short_sha": "a860ff8",
+                "subject": "fix(tooling): the rendering guard's ignore joins the standing block"
+              },
+              {
+                "sha": "671ce979ecff8e1e4d175cdd9ce79f8f40277d3e",
+                "short_sha": "671ce97",
+                "subject": "Merge branch 'main' into fix/psalm-baseline-honest-clears"
+              },
+              {
+                "sha": "eae56e1fb8275043e2eae980e889f552b6f83995",
+                "short_sha": "eae56e1",
+                "subject": "docs(roadmap): the pin rides the config-deduplicate's head"
               }
             ]
           }
@@ -16137,6 +16188,57 @@
               "sha": "785d0bf2ef885eb0a4986ac06939f00571cd7d8f",
               "short_sha": "785d0bf",
               "subject": "docs(roadmap): refresh the pin to the bench-settled head"
+            }
+          ]
+        },
+        {
+          "pr": 586,
+          "title": "fix(container): answer the psalm baseline's Container findings honestly",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-24T11:00:39Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/586",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c7b5ceabc4d2b8bd555fa2d7150e946448c6b193",
+              "short_sha": "c7b5cea",
+              "subject": "fix(container): clear the baseline's type-family findings honestly"
+            },
+            {
+              "sha": "178512b51550fcae9e42eba803d4c1323e10c78b",
+              "short_sha": "178512b",
+              "subject": "fix(container): dispose the unused-code findings per their own seams"
+            },
+            {
+              "sha": "24c21237c39c196c63fcf6884d2f82dbff6b323e",
+              "short_sha": "24c2123",
+              "subject": "docs(roadmap): record the baseline's honest Container answer (#586)"
+            },
+            {
+              "sha": "913311602c9c3e963396b2e2908d0e817f13f636",
+              "short_sha": "9133116",
+              "subject": "fix(container): fold the unknown-kind refusal into its one caller"
+            },
+            {
+              "sha": "79677909bd0f55902ee4d5cb8c76a47a24d9bdcc",
+              "short_sha": "7967790",
+              "subject": "docs(roadmap): the pin rides the mutation close-out's head"
+            },
+            {
+              "sha": "a860ff86724d71909d7a32ba0a36d9c93b9ff9f8",
+              "short_sha": "a860ff8",
+              "subject": "fix(tooling): the rendering guard's ignore joins the standing block"
+            },
+            {
+              "sha": "671ce979ecff8e1e4d175cdd9ce79f8f40277d3e",
+              "short_sha": "671ce97",
+              "subject": "Merge branch 'main' into fix/psalm-baseline-honest-clears"
+            },
+            {
+              "sha": "eae56e1fb8275043e2eae980e889f552b6f83995",
+              "short_sha": "eae56e1",
+              "subject": "docs(roadmap): the pin rides the config-deduplicate's head"
             }
           ]
         }

@@ -133,6 +133,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix: close the ruleset lint's credential gap and name the classic layer's absence [#568](https://github.com/Zeflous/zeflous/pull/568) ([mbetixz](https://github.com/mbetixz))
 - fix(errors): bound the replay snapshot directory [#577](https://github.com/Zeflous/zeflous/pull/577) ([mbetixz](https://github.com/mbetixz))
 - fix(tooling): answer the three detection-scope questions with their corpora (#576) [#582](https://github.com/Zeflous/zeflous/pull/582) ([mbetixz](https://github.com/mbetixz))
+- fix(container): answer the psalm baseline's Container findings honestly [#586](https://github.com/Zeflous/zeflous/pull/586) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
