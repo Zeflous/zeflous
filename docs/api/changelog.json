@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-24T00:32:28Z",
+  "as_of": "2026-10-24T03:11:57Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 249,
+  "unreleased_count": 250,
   "versions": [
     {
       "version": "Unreleased",
@@ -4890,6 +4890,72 @@
                 "sha": "a50d9b5ac011151f838c807a8f8958bd9c83f378",
                 "short_sha": "a50d9b5",
                 "subject": "docs(roadmap): record the ruleset-lint credential-gap remediation landing (#568)"
+              }
+            ]
+          },
+          {
+            "pr": 577,
+            "title": "fix(errors): bound the replay snapshot directory",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-24T03:11:57Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/577",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ec7cd23b44ece59aecf75fd259486b89b999790a",
+                "short_sha": "ec7cd23",
+                "subject": "fix(errors): bound the replay snapshot directory"
+              },
+              {
+                "sha": "b349d48304a497ac98531f9824ec20d7df0effdc",
+                "short_sha": "b349d48",
+                "subject": "fix(errors): harden the retention seam for the architecture and mutation gates"
+              },
+              {
+                "sha": "9fdaaee125b3504c3f0bc896b13706a8a355af3c",
+                "short_sha": "9fdaaee",
+                "subject": "docs(roadmap): record the replay retention bound landing (#577)"
+              },
+              {
+                "sha": "904d7ccbe1d312173dd6474b25e68430d8eb7479",
+                "short_sha": "904d7cc",
+                "subject": "fix(errors): let the coverage record reach the wiring fold and retire the redundant jump"
+              },
+              {
+                "sha": "7962ec60f0b4edaa3f2977413c4e09114a597b47",
+                "short_sha": "7962ec6",
+                "subject": "docs(roadmap): walk the pin to the coverage-record fix (#577)"
+              },
+              {
+                "sha": "eb36acc9bf3e58f738428bed1a8bbfd88dcc0343",
+                "short_sha": "eb36acc",
+                "subject": "fix(errors): arm the retention walk's failure through the boundary's own doubles"
+              },
+              {
+                "sha": "bdbf2e1beaabb4c866d821373d0fc9a4ad5df53a",
+                "short_sha": "bdbf2e1",
+                "subject": "docs(roadmap): walk the pin to the armed-failure contract (#577)"
+              },
+              {
+                "sha": "e539196d45b1980da0b98de7ebd1e397e487b146",
+                "short_sha": "e539196",
+                "subject": "Merge branch 'main' into fix/replay-retention-bound"
+              },
+              {
+                "sha": "a0b13bde7197596b97d944e259e86c097034375a",
+                "short_sha": "a0b13bd",
+                "subject": "docs(roadmap): refresh the pin to the retention bound's last substantive commit"
+              },
+              {
+                "sha": "5368a203cd4bde70b01c96079068881769d2a298",
+                "short_sha": "5368a20",
+                "subject": "Merge branch 'main' into fix/replay-retention-bound"
+              },
+              {
+                "sha": "9a6f12dd5d2398f9344acbac523edc1d4b79b534",
+                "short_sha": "9a6f12d",
+                "subject": "docs(roadmap): ride the pin on the mid-flight merge above both lineages"
               }
             ]
           }
@@ -15801,6 +15867,72 @@
               "sha": "67baf7424cc979eda0c628e2dfb00f92bce8a584",
               "short_sha": "67baf74",
               "subject": "docs(roadmap): refresh the pin to the slice's last substantive commit"
+            }
+          ]
+        },
+        {
+          "pr": 577,
+          "title": "fix(errors): bound the replay snapshot directory",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-24T03:11:57Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/577",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ec7cd23b44ece59aecf75fd259486b89b999790a",
+              "short_sha": "ec7cd23",
+              "subject": "fix(errors): bound the replay snapshot directory"
+            },
+            {
+              "sha": "b349d48304a497ac98531f9824ec20d7df0effdc",
+              "short_sha": "b349d48",
+              "subject": "fix(errors): harden the retention seam for the architecture and mutation gates"
+            },
+            {
+              "sha": "9fdaaee125b3504c3f0bc896b13706a8a355af3c",
+              "short_sha": "9fdaaee",
+              "subject": "docs(roadmap): record the replay retention bound landing (#577)"
+            },
+            {
+              "sha": "904d7ccbe1d312173dd6474b25e68430d8eb7479",
+              "short_sha": "904d7cc",
+              "subject": "fix(errors): let the coverage record reach the wiring fold and retire the redundant jump"
+            },
+            {
+              "sha": "7962ec60f0b4edaa3f2977413c4e09114a597b47",
+              "short_sha": "7962ec6",
+              "subject": "docs(roadmap): walk the pin to the coverage-record fix (#577)"
+            },
+            {
+              "sha": "eb36acc9bf3e58f738428bed1a8bbfd88dcc0343",
+              "short_sha": "eb36acc",
+              "subject": "fix(errors): arm the retention walk's failure through the boundary's own doubles"
+            },
+            {
+              "sha": "bdbf2e1beaabb4c866d821373d0fc9a4ad5df53a",
+              "short_sha": "bdbf2e1",
+              "subject": "docs(roadmap): walk the pin to the armed-failure contract (#577)"
+            },
+            {
+              "sha": "e539196d45b1980da0b98de7ebd1e397e487b146",
+              "short_sha": "e539196",
+              "subject": "Merge branch 'main' into fix/replay-retention-bound"
+            },
+            {
+              "sha": "a0b13bde7197596b97d944e259e86c097034375a",
+              "short_sha": "a0b13bd",
+              "subject": "docs(roadmap): refresh the pin to the retention bound's last substantive commit"
+            },
+            {
+              "sha": "5368a203cd4bde70b01c96079068881769d2a298",
+              "short_sha": "5368a20",
+              "subject": "Merge branch 'main' into fix/replay-retention-bound"
+            },
+            {
+              "sha": "9a6f12dd5d2398f9344acbac523edc1d4b79b534",
+              "short_sha": "9a6f12d",
+              "subject": "docs(roadmap): ride the pin on the mid-flight merge above both lineages"
             }
           ]
         }
