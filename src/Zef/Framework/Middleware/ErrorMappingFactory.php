@@ -7,11 +7,14 @@ namespace Zef\Framework\Middleware;
 use Zef\Framework\AppEnvironment;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
-use Zef\Framework\Http\ErrorReplayStore;
 use Zef\Framework\Logging\JsonLineLogger;
 use Zef\Framework\Telemetry\MeterInterface;
 
 /** Builds the global error boundary from the frozen configuration.
+ *
+ * The replay section's own read, validation, and wiring lives in its
+ * {@see ErrorReplayWiring} fold -- the configuration family's per-key
+ * validation weight is split by lane, not stacked on this one seam.
  *
  * @api the framework profile's `http.errors` service registration names
  *      this factory through the container's string-addressed grammar
@@ -39,24 +42,8 @@ final class ErrorMappingFactory
 
         $debugAllowed = AppEnvironment::isDevelopment();
 
-        $replayEnabled = $config->get('http.error_handling.replay_enabled', false);
-        if (!\is_bool($replayEnabled)) {
-            throw new ConfigException('http.error_handling.replay_enabled must be a boolean.');
-        }
-
-        $replayPath = $config->get('http.error_handling.replay_path', '');
-        if (!\is_string($replayPath)) {
-            throw new ConfigException('http.error_handling.replay_path must be a string.');
-        }
-
-        if ($replayEnabled && (!$debug || !$debugAllowed || $replayPath === '')) {
-            throw new ConfigException(
-                'Request replay requires debug=true, a local APP_ENV, and a configured replay_path.',
-            );
-        }
-
         $logger = $logPath === '' ? null : new JsonLineLogger($logPath);
-        $replayStore = $replayEnabled ? new ErrorReplayStore($replayPath) : null;
+        $replayStore = ErrorReplayWiring::store($config, $debug, $debugAllowed);
 
         return new ErrorMappingMiddleware(
             $logger,

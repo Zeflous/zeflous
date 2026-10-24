@@ -32,6 +32,12 @@ final class ReplaySnapshotDoubleState
     /** @var list<array{int, int, false|string}> the json_encode calls: [flags, depth, result] */
     public static array $jsonEncodeCalls = [];
 
+    /** @var list<array{string, bool}> the unlink calls: [path, result] */
+    public static array $unlinkCalls = [];
+
+    /** @var list<string> the error_log messages the boundary emitted */
+    public static array $errorLogMessages = [];
+
     /** Forcing chmod's answer; null delegates to the global call. */
     public static ?bool $chmodAnswer = null;
 
@@ -40,6 +46,9 @@ final class ReplaySnapshotDoubleState
 
     /** @var list<false|int> the queued fwrite answers, consumed before any real write */
     public static array $fwriteAnswers = [];
+
+    /** @var list<bool> the queued unlink answers, consumed before any real removal */
+    public static array $unlinkAnswers = [];
 
     /**
      * The per-call byte budget the fwrite double writes (the short-write

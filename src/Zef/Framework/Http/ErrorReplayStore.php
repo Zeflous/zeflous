@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Http;
 
+use InvalidArgumentException;
 use JsonException;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
@@ -12,14 +13,35 @@ use Throwable;
  * Stores sanitized failed-request snapshots in an explicitly configured local
  * directory. Only JSON and URL-encoded bodies are replayable; other bodies are
  * omitted rather than persisted without a format-aware redaction pass.
+ *
+ * The directory is bounded: every save prunes the storage down to the
+ * configured snapshot bound ({@see ReplayRetention}), oldest first, so an
+ * error-spamming source in local development fills the bound and stops --
+ * the accumulation the round-2 audit recorded (finding C-1) ends at an
+ * operator-sized ceiling instead of at the filesystem's.
  */
 final readonly class ErrorReplayStore
 {
+    /** The retention bound a replay directory carries when none is configured. */
+    public const int DEFAULT_MAX_SNAPSHOTS = 1000;
+
     private string $directory;
 
-    public function __construct(string $directory)
+    private int $maxSnapshots;
+
+    /**
+     * @param string $directory    the replay storage directory (validated by
+     *                             {@see ReplayStorageDirectory})
+     * @param int    $maxSnapshots the retention bound (>= 1): the directory
+     *                             keeps at most this many snapshots
+     *
+     * @throws InvalidArgumentException when the directory or the bound is
+     *                                  refused
+     */
+    public function __construct(string $directory, int $maxSnapshots = self::DEFAULT_MAX_SNAPSHOTS)
     {
         $this->directory = ReplayStorageDirectory::resolve($directory);
+        $this->maxSnapshots = ReplayRetention::resolveBound($maxSnapshots);
     }
 
     /**
@@ -55,6 +77,7 @@ final readonly class ErrorReplayStore
         $json = json_encode($snapshot, \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_SUBSTITUTE);
 
         ReplaySnapshotWriter::write($this->directory, $id, $json);
+        ReplayRetention::prune($this->directory, $this->maxSnapshots);
 
         return $id;
     }

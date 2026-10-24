@@ -15,6 +15,7 @@ use Zef\Framework\Http\ReplayBodyCapture;
 use Zef\Framework\Http\ReplayBodyDecoder;
 use Zef\Framework\Http\ReplayBodyReader;
 use Zef\Framework\Http\ReplayPayloadSanitizer;
+use Zef\Framework\Http\ReplayRetention;
 use Zef\Framework\Http\ReplaySnapshotException;
 use Zef\Framework\Http\ReplaySnapshotWriter;
 use Zef\Framework\Http\ReplayStorageDirectory;
@@ -27,6 +28,7 @@ use Zef\Test\Support\Http\RawPathUri;
 
 /** @internal */
 #[CoversClass(ErrorReplayStore::class)]
+#[CoversClass(ReplayRetention::class)]
 #[CoversClass(ReplayPayloadSanitizer::class)]
 #[CoversClass(ReplayBodyCapture::class)]
 #[CoversClass(ReplayBodyDecoder::class)]
@@ -302,6 +304,91 @@ final class ErrorReplayStoreTest extends TestCase
         self::assertIsArray($largeSnapshot);
         self::assertFalse($largeSnapshot['body_replayable']);
         self::assertSame('', $largeSnapshot['body']);
+    }
+
+    public function testRetentionBoundsTheSnapshotDirectoryOnEverySave(): void
+    {
+        $errorReplayStore = new ErrorReplayStore($this->directory, 2);
+
+        $firstId = $errorReplayStore->save(
+            new ServerRequest('GET', new Uri('https://app.example.test/retention-first')),
+            new RuntimeException('first failed'),
+            500,
+            'retention-1',
+        );
+        $secondId = $errorReplayStore->save(
+            new ServerRequest('GET', new Uri('https://app.example.test/retention-second')),
+            new RuntimeException('second failed'),
+            500,
+            'retention-2',
+        );
+
+        // The two saves may land in the same filesystem second: pin their
+        // order witnesses apart so the pruning decision is deterministic.
+        self::assertTrue(touch($this->directory . '/' . $firstId . '.json', 1_000_000));
+        self::assertTrue(touch($this->directory . '/' . $secondId . '.json', 2_000_000));
+
+        $thirdId = $errorReplayStore->save(
+            new ServerRequest('GET', new Uri('https://app.example.test/retention-third')),
+            new RuntimeException('third failed'),
+            500,
+            'retention-3',
+        );
+
+        $files = glob($this->directory . '/*.json');
+        self::assertIsArray($files);
+        self::assertCount(2, $files, 'the bound holds after the third save');
+        self::assertFileDoesNotExist($this->directory . '/' . $firstId . '.json', 'the oldest snapshot is pruned');
+        self::assertFileExists($this->directory . '/' . $secondId . '.json');
+        self::assertFileExists($this->directory . '/' . $thirdId . '.json');
+
+        $snapshot = json_decode(
+            (string) file_get_contents($this->directory . '/' . $thirdId . '.json'),
+            true,
+            512,
+            \JSON_THROW_ON_ERROR,
+        );
+        self::assertIsArray($snapshot);
+        self::assertSame('retention-3', $snapshot['request_id'], 'the just-written snapshot survives with its id');
+    }
+
+    public function testTheDefaultRetentionBoundHoldsOneThousandSnapshots(): void
+    {
+        for ($i = 0; $i < 1001; ++$i) {
+            $file = $this->directory . '/' . mb_str_pad((string) $i, 32, '0', \STR_PAD_LEFT) . '.json';
+            file_put_contents($file, '{}');
+            chmod($file, 0o600);
+            self::assertTrue(touch($file, 1_000_000 + $i));
+        }
+
+        $savedId = new ErrorReplayStore($this->directory)->save(
+            new ServerRequest('GET', new Uri('https://app.example.test/default-bound')),
+            new RuntimeException('default bound failed'),
+            500,
+            'default-bound',
+        );
+
+        $files = glob($this->directory . '/*.json');
+        self::assertIsArray($files);
+        self::assertCount(1000, $files, 'the shipped default bound holds at one thousand snapshots');
+        self::assertFileDoesNotExist(
+            $this->directory . '/' . mb_str_pad('0', 32, '0', \STR_PAD_LEFT) . '.json',
+            'the oldest seeded snapshot is pruned',
+        );
+        self::assertFileDoesNotExist(
+            $this->directory . '/' . mb_str_pad('1', 32, '0', \STR_PAD_LEFT) . '.json',
+            'the second-oldest seeded snapshot is pruned',
+        );
+        self::assertFileExists($this->directory . '/' . mb_str_pad('2', 32, '0', \STR_PAD_LEFT) . '.json');
+        self::assertFileExists($this->directory . '/' . $savedId . '.json');
+    }
+
+    public function testTheRetentionBoundIsRefusedBelowOne(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageIsOrContains('Replay snapshot retention must be 1 or above.');
+
+        new ErrorReplayStore($this->directory, 0);
     }
 
     public function testRefusesReplayDirectoriesWithGroupOrWorldPermissions(): void
