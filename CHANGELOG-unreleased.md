@@ -84,6 +84,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(router): observe the match through the tracing and metrics engines [#555](https://github.com/Zeflous/zeflous/pull/555) ([mbetixz](https://github.com/mbetixz))
 - feat(router): answer the CLI inspector commands over the engine's own seams [#563](https://github.com/Zeflous/zeflous/pull/563) ([mbetixz](https://github.com/mbetixz))
 - feat(export): answer the ecosystem documents over the engine's own seams [#571](https://github.com/Zeflous/zeflous/pull/571) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the output-compression engine over the incremental zlib seam [#583](https://github.com/Zeflous/zeflous/pull/583) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -131,6 +132,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix: land the documentation-alignment audit remediation batch [#562](https://github.com/Zeflous/zeflous/pull/562) ([mbetixz](https://github.com/mbetixz))
 - fix: close the ruleset lint's credential gap and name the classic layer's absence [#568](https://github.com/Zeflous/zeflous/pull/568) ([mbetixz](https://github.com/mbetixz))
 - fix(errors): bound the replay snapshot directory [#577](https://github.com/Zeflous/zeflous/pull/577) ([mbetixz](https://github.com/mbetixz))
+- fix(tooling): answer the three detection-scope questions with their corpora (#576) [#582](https://github.com/Zeflous/zeflous/pull/582) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
