@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(export\): answer the ecosystem documents over the engine's own seams [\#571](https://github.com/Zeflous/zeflous/pull/571) ([mbetixz](https://github.com/mbetixz))
 - fix: close the ruleset lint's credential gap and name the classic layer's absence [\#568](https://github.com/Zeflous/zeflous/pull/568) ([mbetixz](https://github.com/mbetixz))
 - feat\(router\): answer the CLI inspector commands over the engine's own seams [\#563](https://github.com/Zeflous/zeflous/pull/563) ([mbetixz](https://github.com/mbetixz))
 - fix: land the documentation-alignment audit remediation batch [\#562](https://github.com/Zeflous/zeflous/pull/562) ([mbetixz](https://github.com/mbetixz))
