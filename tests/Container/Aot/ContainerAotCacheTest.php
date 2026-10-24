@@ -23,6 +23,7 @@ use Zef\Framework\Container\Aot\AotClosureEntry;
 use Zef\Framework\Container\Aot\AotClosures;
 use Zef\Framework\Container\Aot\AotDefinitions;
 use Zef\Framework\Container\Aot\AotEntries;
+use Zef\Framework\Container\Aot\AotEntriesBlock;
 use Zef\Framework\Container\Aot\AotException;
 use Zef\Framework\Container\Aot\AotLifetimes;
 use Zef\Framework\Container\Aot\AotLiterals;
@@ -62,6 +63,7 @@ use Zef\Test\Support\Container\Aot\Window;
  * @internal
  */
 #[CoversClass(ContainerAotCache::class)]
+#[CoversClass(AotEntriesBlock::class)]
 #[CoversClass(AotArtifact::class)]
 #[CoversClass(AotDefinitions::class)]
 #[CoversClass(AotEntries::class)]

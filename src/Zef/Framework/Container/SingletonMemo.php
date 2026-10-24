@@ -47,10 +47,9 @@ final class SingletonMemo
             return $this->resolved[$id];
         }
 
-        $instance = $build();
-        $this->resolved[$id] = $instance;
+        $this->resolved[$id] = $build();
 
-        return $instance;
+        return $this->resolved[$id];
     }
 
     /**

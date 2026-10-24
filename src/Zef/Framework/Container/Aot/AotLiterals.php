@@ -76,8 +76,8 @@ final readonly class AotLiterals
     {
         $rendered = [];
 
-        foreach ($value as $key => $entry) {
-            $rendered[] = var_export($key, true) . ' => ' . self::export($entry, $serviceId, $path . '.' . $key);
+        foreach (array_keys($value) as $key) {
+            $rendered[] = var_export($key, true) . ' => ' . self::export($value[$key], $serviceId, $path . '.' . $key);
         }
 
         return '[' . implode(', ', $rendered) . ']';

@@ -193,6 +193,24 @@ final readonly class AotRefusals
     }
 
     /**
+     * The kind dispatch's own refusal fold: a kind member spelled as a
+     * string names its own spelling ({@see entryUnknownKind()});
+     * anything else -- absent, null, or a type the artifact's grammar
+     * never carried -- is the malformed entry it always was
+     * ({@see entryMalformed()}). One seam, so the dispatch that reads
+     * the member never binds it to a variable of its own.
+     *
+     * @param int|string $id   the entry whose kind is neither live spelling
+     * @param mixed      $kind the kind member as the artifact carried it
+     */
+    public static function entryKindRefused(int|string $id, mixed $kind): AotException
+    {
+        return \is_string($kind)
+            ? self::entryUnknownKind($id, $kind)
+            : self::entryMalformed($id);
+    }
+
+    /**
      * @param int|string $id       the entry carrying the lifetime
      * @param string     $lifetime the spelling as the artifact carried it,
      *                             empty included -- an empty spelling is

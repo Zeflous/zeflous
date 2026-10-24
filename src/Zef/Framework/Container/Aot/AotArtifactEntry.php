@@ -33,14 +33,10 @@ final readonly class AotArtifactEntry
             throw AotRefusals::entryMalformed($id);
         }
 
-        $kind = $entry['kind'] ?? null;
-
-        return match ($kind) {
+        return match ($entry['kind'] ?? null) {
             'closure' => AotClosureEntry::validated($id, $entry, AotLifetimes::from($id, $entry)),
             'build' => AotBuildEntry::validated($id, $entry, AotLifetimes::from($id, $entry)),
-            default => throw \is_string($kind)
-                ? AotRefusals::entryUnknownKind($id, $kind)
-                : AotRefusals::entryMalformed($id),
+            default => throw AotRefusals::entryKindRefused($id, $entry['kind'] ?? null),
         };
     }
 }

@@ -31,16 +31,34 @@ final readonly class ParameterProviderAnswers
         $computed = [];
 
         foreach ($declarations as $address => $provider) {
-            $answer = new $provider()->value();
-            $offender = ParameterInjectability::offender($answer);
-
-            if ($offender !== null) {
-                throw ParameterRefusals::providerAnsweredUninjectable($address, $provider, $offender);
-            }
-
-            $computed[$address] = $answer;
+            $computed += [$address => self::checked($address, $provider, new $provider()->value())];
         }
 
         return $computed;
+    }
+
+    /**
+     * One provider's computed value, checked injectable where it
+     * carries elements -- the answer captured once as this seam's own
+     * parameter, because the provider's construction is the one call
+     * the lane pays and its answer is the one value every judgement
+     * here reads (the offender check, the refusal that names it, and
+     * the return the computed map folds over).
+     *
+     * @param string                                   $address  the dot-address the provider computes
+     * @param class-string<ParameterProviderInterface> $provider the declared provider class
+     * @param mixed                                    $answer   the provider's computed value
+     *
+     * @return mixed the computed value, injectable where it carries elements
+     */
+    private static function checked(string $address, string $provider, mixed $answer): mixed
+    {
+        $offender = ParameterInjectability::offender($answer);
+
+        if ($offender !== null) {
+            throw ParameterRefusals::providerAnsweredUninjectable($address, $provider, $offender);
+        }
+
+        return $answer;
     }
 }
