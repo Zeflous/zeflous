@@ -46,6 +46,30 @@
                 "Zef\\Framework\\Http\\SapiTransmitter::field"
             ]
         },
+        // The rendering fold's closure-arm guard in
+        // AotEntriesBlock::rendered() is the one conjunction the LogicalAnd
+        // mutator can flip without any observable difference: the guard
+        // exists for the two analysers' own disagreement about the entries
+        // map's shape (psalm merges the union's optional members and
+        // demands the closure key's presence be judged; phpstan narrows
+        // the union by the kind literal and would flag any
+        // presence-question asked after it -- the conjunct order and the
+        // captured member are the one spelling both accept), while the
+        // runtime itself can never distinguish the arms: the dumper's own
+        // data always carries a string closure member on the closure kind
+        // and never carries one on the build kind, so every input the
+        // fold ever meets answers both conjuncts identically. A test that
+        // fed the distinguishing shape to the fold would have to spell an
+        // input the fold's own declared contract excludes -- pinning the
+        // analyser scaffolding at the cost of the contract's honesty. The
+        // neighbouring guard in the fold (the kind comparison) stays under
+        // the mutator: its flip is killed by the closure-entry rendering
+        // test. This ignore is scoped to that single method.
+        "LogicalAnd": {
+            "ignore": [
+                "Zef\\Framework\\Container\\Aot\\AotEntriesBlock::rendered"
+            ]
+        },
         // The byte-length measurement in BodyBudget::refuses() is the one
         // call the MBString mutator can rewrite without any observable
         // difference: mb_strlen($data, '8bit') and strlen($data) both

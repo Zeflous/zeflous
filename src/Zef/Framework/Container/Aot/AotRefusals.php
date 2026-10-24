@@ -179,34 +179,25 @@ final readonly class AotRefusals
     }
 
     /**
-     * @param int|string $id   the entry carrying the unknown kind
-     * @param string     $kind the kind spelling as the artifact carried it,
-     *                         empty included -- an empty spelling is a
-     *                         defect the refusal must be able to name
-     */
-    public static function entryUnknownKind(int|string $id, string $kind): AotException
-    {
-        return new AotException(
-            "The artifact entry for service '{$id}' carries the unknown entry kind '{$kind}' "
-            . '(known kinds: closure, build).',
-        );
-    }
-
-    /**
      * The kind dispatch's own refusal fold: a kind member spelled as a
-     * string names its own spelling ({@see entryUnknownKind()});
-     * anything else -- absent, null, or a type the artifact's grammar
-     * never carried -- is the malformed entry it always was
-     * ({@see entryMalformed()}). One seam, so the dispatch that reads
-     * the member never binds it to a variable of its own.
+     * string names its own spelling; anything else -- absent, null, or
+     * a type the artifact's grammar never carried -- is the malformed
+     * entry it always was ({@see entryMalformed()}). One seam, so the
+     * dispatch that reads the member never binds it to a variable of
+     * its own.
      *
      * @param int|string $id   the entry whose kind is neither live spelling
-     * @param mixed      $kind the kind member as the artifact carried it
+     * @param mixed      $kind the kind member as the artifact carried it,
+     *                         empty string included -- an empty spelling is
+     *                         a defect the refusal must be able to name
      */
     public static function entryKindRefused(int|string $id, mixed $kind): AotException
     {
         return \is_string($kind)
-            ? self::entryUnknownKind($id, $kind)
+            ? new AotException(
+                "The artifact entry for service '{$id}' carries the unknown entry kind '{$kind}' "
+                . '(known kinds: closure, build).',
+            )
             : self::entryMalformed($id);
     }
 
