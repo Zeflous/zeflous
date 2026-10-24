@@ -38,31 +38,14 @@ use Zef\Test\Support\Tooling\RoadmapSectionPrefix;
 final class RoadmapSectionPrefixScopeCorpusTest extends TestCase
 {
     /**
-     * @dataProvider provideThePairingScopeCorpus
+     * @dataProvider provideThePairingScopeCases
      *
      * @param array<string, int> $sectionRows
      */
-    #[DataProvider('provideThePairingScopeCorpus')]
+    #[DataProvider('provideThePairingScopeCases')]
     public function testThePairingScope(string $area, array $sectionRows, ?string $expected): void
     {
         self::assertSame($expected, RoadmapSectionPrefix::matching($area, $sectionRows));
-    }
-
-    /**
-     * The ratchet odometer: the corpus is complete when the family counts
-     * hold, so a pairing change cannot land quietly.
-     */
-    public function testTheCorpusCountsAreTheRatchet(): void
-    {
-        $families = array_count_values(
-            array_map(
-                static fn (string $case): string => explode(':', $case, 2)[0],
-                array_keys([...self::provideThePairingScopeCorpus()]),
-            ),
-        );
-
-        self::assertSame(['pairs' => 4, 'clean' => 2], $families);
-        self::assertSame(6, array_sum($families));
     }
 
     /**
@@ -73,7 +56,7 @@ final class RoadmapSectionPrefixScopeCorpusTest extends TestCase
      *
      * @return iterable<non-empty-string, array{string, array<string, int>, ?string}>
      */
-    public static function provideThePairingScopeCorpus(): iterable
+    public static function provideThePairingScopeCases(): iterable
     {
         yield 'pairs: the section that prefixes the area' => [
             'HTTP Layer (Zero-Library Shim)',
@@ -118,5 +101,22 @@ final class RoadmapSectionPrefixScopeCorpusTest extends TestCase
             ['httplayershimwork' => 2, 'httplayer' => 25],
             'httplayershimwork',
         ];
+    }
+
+    /**
+     * The ratchet odometer: the corpus is complete when the family counts
+     * hold, so a pairing change cannot land quietly.
+     */
+    public function testTheCorpusCountsAreTheRatchet(): void
+    {
+        $families = array_count_values(
+            array_map(
+                static fn (string $case): string => explode(':', $case, 2)[0],
+                array_keys([...self::provideThePairingScopeCases()]),
+            ),
+        );
+
+        self::assertSame(['pairs' => 4, 'clean' => 2], $families);
+        self::assertCount(6, [...self::provideThePairingScopeCases()]);
     }
 }

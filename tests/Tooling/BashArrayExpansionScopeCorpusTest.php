@@ -39,31 +39,14 @@ use Zef\Test\Support\Tooling\BashArrayExpansionDetector;
 final class BashArrayExpansionScopeCorpusTest extends TestCase
 {
     /**
-     * @dataProvider provideTheDetectionScopeCorpus
+     * @dataProvider provideTheDetectionScopeCases
+     *
+     * @param list<string> $expected
      */
-    #[DataProvider('provideTheDetectionScopeCorpus')]
+    #[DataProvider('provideTheDetectionScopeCases')]
     public function testTheDetectionScope(string $contents, array $expected): void
     {
         self::assertSame($expected, BashArrayExpansionDetector::failures('corpus.yml', $contents));
-    }
-
-    /**
-     * The ratchet odometer: the corpus is complete when the three family
-     * counts hold, so an entry cannot appear or disappear -- a gap cannot be
-     * quietly forgotten, a fix cannot quietly widen -- without this test
-     * going red until the counts are updated in the same diff.
-     */
-    public function testTheCorpusCountsAreTheRatchet(): void
-    {
-        $families = array_count_values(
-            array_map(
-                static fn (string $case): string => explode(':', $case, 2)[0],
-                array_keys([...self::provideTheDetectionScopeCorpus()]),
-            ),
-        );
-
-        self::assertSame(['detected' => 7, 'clean' => 6, 'gap' => 2], $families);
-        self::assertSame(15, array_sum($families));
     }
 
     /**
@@ -75,7 +58,7 @@ final class BashArrayExpansionScopeCorpusTest extends TestCase
      *
      * @return iterable<non-empty-string, array{string, list<string>}>
      */
-    public static function provideTheDetectionScopeCorpus(): iterable
+    public static function provideTheDetectionScopeCases(): iterable
     {
         $failure = ['corpus.yml expands a bash array without [@] (word-splitting).'];
 
@@ -171,5 +154,24 @@ final class BashArrayExpansionScopeCorpusTest extends TestCase
             . "for name in \"\${required[@]}\"; do :; done;# a bare \${required} would word-split\n",
             $failure,
         ];
+    }
+
+    /**
+     * The ratchet odometer: the corpus is complete when the three family
+     * counts hold, so an entry cannot appear or disappear -- a gap cannot be
+     * quietly forgotten, a fix cannot quietly widen -- without this test
+     * going red until the counts are updated in the same diff.
+     */
+    public function testTheCorpusCountsAreTheRatchet(): void
+    {
+        $families = array_count_values(
+            array_map(
+                static fn (string $case): string => explode(':', $case, 2)[0],
+                array_keys([...self::provideTheDetectionScopeCases()]),
+            ),
+        );
+
+        self::assertSame(['detected' => 7, 'clean' => 6, 'gap' => 2], $families);
+        self::assertCount(15, [...self::provideTheDetectionScopeCases()]);
     }
 }

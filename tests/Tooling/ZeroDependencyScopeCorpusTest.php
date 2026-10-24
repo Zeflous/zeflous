@@ -60,12 +60,12 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
     }
 
     /**
-     * @dataProvider provideTheDecisionMatrix
+     * @dataProvider provideTheDecisionMatrixCases
      *
      * @param array<string, string>       $require
      * @param list<array<string, string>> $packages
      */
-    #[DataProvider('provideTheDecisionMatrix')]
+    #[DataProvider('provideTheDecisionMatrixCases')]
     public function testTheDecisionMatrix(array $require, array $packages, bool $expected): void
     {
         $gateResult = new ZeroDependencyGate()->evaluate(new ComposerManifest($require, $packages));
@@ -74,41 +74,12 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
     }
 
     /**
-     * @dataProvider provideTheFenceCorpus
-     */
-    #[DataProvider('provideTheFenceCorpus')]
-    public function testTheFence(string $composerJson, string $composerLock): void
-    {
-        file_put_contents($this->composerJsonPath, $composerJson);
-        file_put_contents($this->composerLockPath, $composerLock);
-
-        $gateResult = new ZeroDependencyGate()->evaluate(
-            ComposerManifest::fromFiles($this->composerJsonPath, $this->composerLockPath),
-        );
-
-        self::assertSame(
-            'Zero-dependency gate PASSED: composer.json require is {"php": "^8.4"} and composer.lock packages is [].',
-            $gateResult->message,
-        );
-    }
-
-    /**
-     * The ratchet odometer: the corpus is complete when the family counts
-     * hold, so the scope cannot widen or narrow quietly.
-     */
-    public function testTheCorpusCountsAreTheRatchet(): void
-    {
-        self::assertSame(6, count([...self::provideTheDecisionMatrix()]));
-        self::assertSame(2, count([...self::provideTheFenceCorpus()]));
-    }
-
-    /**
      * The decision matrix over the manifest's two channels: what each channel
      * contributes to the verdict, from the one green cell to every refusal.
      *
      * @return iterable<non-empty-string, array{array<string, string>, list<array<string, string>>, bool}>
      */
-    public static function provideTheDecisionMatrix(): iterable
+    public static function provideTheDecisionMatrixCases(): iterable
     {
         yield 'holds: the php platform alone keeps the lane green' => [
             ['php' => '^8.4'],
@@ -148,6 +119,25 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
     }
 
     /**
+     * @dataProvider provideTheFenceCases
+     */
+    #[DataProvider('provideTheFenceCases')]
+    public function testTheFence(string $composerJson, string $composerLock): void
+    {
+        file_put_contents($this->composerJsonPath, $composerJson);
+        file_put_contents($this->composerLockPath, $composerLock);
+
+        $gateResult = new ZeroDependencyGate()->evaluate(
+            ComposerManifest::fromFiles($this->composerJsonPath, $this->composerLockPath),
+        );
+
+        self::assertSame(
+            'Zero-dependency gate PASSED: composer.json require is {"php": "^8.4"} and composer.lock packages is [].',
+            $gateResult->message,
+        );
+    }
+
+    /**
      * The fence: the channels that never reach the verdict. The dev
      * dependency tree is none of the gate's business -- a `require-dev`
      * section and a locked `packages-dev` list both pass by construction,
@@ -155,7 +145,7 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
      *
      * @return iterable<non-empty-string, array{string, string}>
      */
-    public static function provideTheFenceCorpus(): iterable
+    public static function provideTheFenceCases(): iterable
     {
         yield 'outside: a require-dev section never reaches the verdict' => [
             '{"name":"zeflous/zeflous","require":{"php":"^8.4"},"require-dev":{"phpunit/phpunit":"^11.0"}}',
@@ -166,5 +156,15 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
             '{"name":"zeflous/zeflous","require":{"php":"^8.4"}}',
             '{"content-hash":"abc123","packages":[],"packages-dev":[{"name":"phpunit/phpunit","version":"11.0.0"}]}',
         ];
+    }
+
+    /**
+     * The ratchet odometer: the corpus is complete when the family counts
+     * hold, so the scope cannot widen or narrow quietly.
+     */
+    public function testTheCorpusCountsAreTheRatchet(): void
+    {
+        self::assertCount(6, [...self::provideTheDecisionMatrixCases()]);
+        self::assertCount(2, [...self::provideTheFenceCases()]);
     }
 }
