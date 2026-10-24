@@ -27,7 +27,11 @@ use Zef\Test\Support\Tooling\BashArrayExpansionDetector;
  * per-family counts. A gap entry is an accepted blind spot documented by
  * name, not an accident: removing one (by fixing the detection, or by
  * deciding the form is out of scope) must update the inventory counts in the
- * same diff, which is exactly what makes the change conscious.
+ * same diff, which is exactly what makes the change conscious. The detection
+ * widening of issue #576 flipped three gap entries to detections and the
+ * trailing-comment false positive to clean in the same diff that widened
+ * the grammar; the two gap entries that remain are the documented
+ * approximations of a line discipline that is not a bash tokenizer.
  *
  * @internal
  */
@@ -58,16 +62,18 @@ final class BashArrayExpansionScopeCorpusTest extends TestCase
             ),
         );
 
-        self::assertSame(4, $families['detected']);
-        self::assertSame(5, $families['clean']);
-        self::assertSame(4, $families['gap']);
-        self::assertSame(13, array_sum($families));
+        self::assertSame(7, $families['detected']);
+        self::assertSame(6, $families['clean']);
+        self::assertSame(2, $families['gap']);
+        self::assertSame(15, array_sum($families));
     }
 
     /**
      * The detection-scope corpus: one workflow fragment per escape form, with
-     * the verdict the detector must answer today. The `gap:` entries pin the
-     * C-4 blind spots exactly as issue #576 received them.
+     * the verdict the detector must answer today. The `gap:` entries are the
+     * accepted approximations that remain after issue #576's widening -- a
+     * line discipline without a bash tokenizer has exactly two residuals, and
+     * both are documented by name.
      *
      * @return iterable<non-empty-string, array{string, list<string>}>
      */
@@ -125,33 +131,46 @@ final class BashArrayExpansionScopeCorpusTest extends TestCase
             [],
         ];
 
-        yield 'gap: an unbraced expansion of a declared array slips through' => [
+        yield 'detected: the unbraced expansion of a declared array' => [
             // The word-splitting defect does not need the braces: a bare
-            // $required word-splits exactly like ${required} does, but the
-            // detection grammar only reads the braced spelling.
+            // $required word-splits exactly like ${required} does.
             "required=(\"CI Static\")\nfor name in \$required; do :; done\n",
-            [],
+            $failure,
         ];
 
-        yield 'gap: a quoted unbraced expansion of a declared array slips through' => [
+        yield 'detected: the quoted unbraced expansion of a declared array' => [
             "required=(\"CI Static\")\necho \"\$required\"\n",
-            [],
+            $failure,
         ];
 
-        yield 'gap: an array first declared with += is not read as a declaration' => [
+        yield 'detected: an array first declared with +=' => [
             // Bash grows an array with name+=(...) too -- including from
-            // nothing -- and the declaration grammar only reads `name=(`,
-            // so an append-only array's expansions escape the intersect.
+            // nothing -- so the declaration grammar reads the append form.
             "required+=(\"CI Static\")\nfor name in \${required}; do :; done\n",
-            [],
+            $failure,
         ];
 
-        yield 'gap: a trailing comment that mentions the bare expansion flags a clean file' => [
-            // Only full-line comments are stripped: a correct loop with an
-            // explanatory trailing comment still trips the detector, the
-            // false positive the corpus exists to make visible.
+        yield 'clean: a trailing comment that mentions the bare expansion no longer flags the file' => [
             "required=(\"CI Static\")\n"
             . "for name in \"\${required[@]}\"; do :; done # a bare \${required} would word-split\n",
+            [],
+        ];
+
+        yield 'gap: a bare expansion inside a quoted string after an in-string hash stays invisible' => [
+            // The comment strip is positional, not lexical: a hash preceded
+            // by whitespace is stripped even inside a quoted string, so an
+            // expansion behind it disappears with the "comment". Seeing
+            // through this needs a bash tokenizer, not a line discipline.
+            "required=(\"a b\")\necho \"note # \${required}\"\n",
+            [],
+        ];
+
+        yield 'gap: a hash glued to a semicolon keeps its mention flagged' => [
+            // The mirror residual: a bash comment may start at any word
+            // boundary, and this one is glued to the semicolon, so the
+            // whitespace-anchored strip leaves the mention in the code.
+            "required=(\"CI Static\")\n"
+            . "for name in \"\${required[@]}\"; do :; done;# a bare \${required} would word-split\n",
             $failure,
         ];
     }
