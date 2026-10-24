@@ -37,11 +37,9 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[getAttributes]]></code>
       <code><![CDATA[getCookieParams]]></code>
-      <code><![CDATA[getParsedBody]]></code>
       <code><![CDATA[getQueryParams]]></code>
       <code><![CDATA[getUploadedFiles]]></code>
       <code><![CDATA[withCookieParams]]></code>
-      <code><![CDATA[withParsedBody]]></code>
       <code><![CDATA[withQueryParams]]></code>
       <code><![CDATA[withUploadedFiles]]></code>
       <code><![CDATA[withoutAttribute]]></code>
