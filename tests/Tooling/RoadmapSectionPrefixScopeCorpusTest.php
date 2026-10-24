@@ -26,7 +26,11 @@ use Zef\Test\Support\Tooling\RoadmapSectionPrefix;
  * The corpus is the ratchet, in the same spirit as the PHPStan baseline
  * gate ({@see BaselineGate}): each case's key names the family it belongs
  * to, and the inventory test pins the per-family counts so an entry cannot
- * appear or disappear without the counts moving in the same diff.
+ * appear or disappear without the counts moving in the same diff. The
+ * most-specific-section resolution of issue #576 flipped both order-sensitivity
+ * gap entries to pairs in the same diff that changed the resolver; the corpus
+ * carries no gap entries because a longest-prefix resolution has no documented
+ * blind spot -- the answer is a function of the map's contents alone.
  *
  * @internal
  */
@@ -57,16 +61,15 @@ final class RoadmapSectionPrefixScopeCorpusTest extends TestCase
             ),
         );
 
-        self::assertSame(2, $families['pairs']);
-        self::assertSame(2, $families['clean']);
-        self::assertSame(2, $families['gap']);
+        self::assertSame(['pairs' => 4, 'clean' => 2], $families);
         self::assertSame(6, array_sum($families));
     }
 
     /**
      * The pairing-scope corpus: one area over one section map per case, with
-     * the section the resolver must answer today. The `gap:` entries pin the
-     * first-match-wins blind spots exactly as issue #576 received them.
+     * the section the resolver must answer today. The twin cases carry the
+     * same map in both orders and the same answer, which is the determinism
+     * issue #576's resolution bought.
      *
      * @return iterable<non-empty-string, array{string, array<string, int>, ?string}>
      */
@@ -99,19 +102,18 @@ final class RoadmapSectionPrefixScopeCorpusTest extends TestCase
             null,
         ];
 
-        yield 'gap: the shorter twin wins by document order' => [
-            // Two sections where one normalised title prefixes the other:
-            // the resolver walks the map in insertion order and the first
-            // match returns, so the shorter section answers even when the
-            // area names the longer one's work.
+        yield 'pairs: the longer twin answers whatever the order' => [
+            // Two sections where one normalised title prefixes the other: the
+            // area names the longer one's work, and the most specific section
+            // answers -- the shorter first is no longer enough to win.
             'HTTP Layer (Shim Work)',
             ['httplayer' => 25, 'httplayershimwork' => 2],
-            'httplayer',
+            'httplayershimwork',
         ];
 
-        yield 'gap: the longer twin wins by document order' => [
-            // The same shape with the rows reversed: the answer flips with
-            // the map's order, which is the order-sensitivity the gap names.
+        yield 'pairs: the twin answer holds when the rows are reversed' => [
+            // The same shape with the rows reversed: the answer is a function
+            // of the map's contents alone, not its order.
             'HTTP Layer (Shim Work)',
             ['httplayershimwork' => 2, 'httplayer' => 25],
             'httplayershimwork',

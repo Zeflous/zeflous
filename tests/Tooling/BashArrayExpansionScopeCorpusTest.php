@@ -62,9 +62,7 @@ final class BashArrayExpansionScopeCorpusTest extends TestCase
             ),
         );
 
-        self::assertSame(7, $families['detected']);
-        self::assertSame(6, $families['clean']);
-        self::assertSame(2, $families['gap']);
+        self::assertSame(['detected' => 7, 'clean' => 6, 'gap' => 2], $families);
         self::assertSame(15, array_sum($families));
     }
 

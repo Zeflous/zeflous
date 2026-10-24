@@ -15,6 +15,14 @@ namespace Zef\Test\Support\Tooling;
  *
  * A section matches when its normalised title is a prefix of the normalised area
  * name, so "HTTP Layer" matches the bullet's "HTTP Layer (Zero-Library Shim)".
+ * When several sections match, the most specific one answers: every matching
+ * title prefixes the area, so the matching titles also prefix each other, and
+ * the longest of them is the section that names the area's own work -- the
+ * twin-prefix shape the live `ROADMAP-STATUS.md` already carries (`## HTTP
+ * Layer` beside `## HTTP Layer -- "Zero-Library Shim"`). The answer therefore
+ * holds whatever order the section map carries its rows in, which the
+ * pairing-scope corpus ({@see RoadmapSectionPrefixScopeCorpusTest}, issue #576)
+ * pins together with the resolution rule itself.
  */
 final class RoadmapSectionPrefix
 {
@@ -27,13 +35,20 @@ final class RoadmapSectionPrefix
     public static function matching(string $area, array $sectionRows): ?string
     {
         $normalised = RoadmapTableCells::normalise($area);
+        $best = null;
 
         foreach (array_keys($sectionRows) as $section) {
-            if ($section !== '' && str_starts_with($normalised, $section)) {
-                return $section;
+            if ($section === '' || !str_starts_with($normalised, $section)) {
+                continue;
             }
+
+            if ($best !== null && !str_starts_with($section, $best)) {
+                continue;
+            }
+
+            $best = $section;
         }
 
-        return null;
+        return $best;
     }
 }
