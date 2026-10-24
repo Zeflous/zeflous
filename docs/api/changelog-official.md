@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(http\): the multi-format body parser over the strategy table [\#589](https://github.com/Zeflous/zeflous/pull/589) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): answer the psalm baseline's Container findings honestly [\#586](https://github.com/Zeflous/zeflous/pull/586) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the output-compression engine over the incremental zlib seam [\#583](https://github.com/Zeflous/zeflous/pull/583) ([mbetixz](https://github.com/mbetixz))
 - fix\(tooling\): answer the three detection-scope questions with their corpora \(\#576\) [\#582](https://github.com/Zeflous/zeflous/pull/582) ([mbetixz](https://github.com/mbetixz))
