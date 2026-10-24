@@ -7,6 +7,7 @@
 **Merged pull requests:**
 
 - feat\(http\): the output-compression engine over the incremental zlib seam [\#583](https://github.com/Zeflous/zeflous/pull/583) ([mbetixz](https://github.com/mbetixz))
+- fix\(tooling\): answer the three detection-scope questions with their corpora \(\#576\) [\#582](https://github.com/Zeflous/zeflous/pull/582) ([mbetixz](https://github.com/mbetixz))
 - fix\(errors\): bound the replay snapshot directory [\#577](https://github.com/Zeflous/zeflous/pull/577) ([mbetixz](https://github.com/mbetixz))
 - feat\(export\): answer the ecosystem documents over the engine's own seams [\#571](https://github.com/Zeflous/zeflous/pull/571) ([mbetixz](https://github.com/mbetixz))
 - fix: close the ruleset lint's credential gap and name the classic layer's absence [\#568](https://github.com/Zeflous/zeflous/pull/568) ([mbetixz](https://github.com/mbetixz))
