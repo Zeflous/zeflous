@@ -11,15 +11,16 @@ namespace Zef\Framework\Http;
  *
  * The security map's own census ({@see SecurityFamilies}) deferred
  * this seam on purpose until a second family existed to know the
- * whole set, and the `http` map reaches that moment here: the error
+ * whole set, and the `http` map reached that moment when the error
  * family landed first ({@see ErrorMappingFactory} over
- * `http.error_handling`), and the compression family is the second
- * (`http.compression`). The tree is declared with both, and the
- * compression family's factory reads its subtree through
- * {@see self::subtree()}, which rejects an unknown child with the
- * known list spelled out: an `http.compresssion` typo must never
- * fall through to the default posture unnoticed, exactly as an
- * unknown knob inside a family map never does.
+ * `http.error_handling`) and the compression family became the
+ * second (`http.compression`). The body-parser family is the third
+ * (`http.body_parser`, the Phase 3.1 multi-format parser): the tree
+ * is declared with all three, and each family's factory reads its
+ * subtree through {@see self::subtree()}, which rejects an unknown
+ * child with the known list spelled out: an `http.compresssion` typo
+ * must never fall through to the default posture unnoticed, exactly
+ * as an unknown knob inside a family map never does.
  *
  * The census is family-additive: the error family's own factory
  * still reads its knobs through the repository's dotted addresses
@@ -33,7 +34,7 @@ final class HttpFamilies
     /**
      * The legitimate children of the `http` map, in landing order.
      */
-    private const array FAMILIES = ['error_handling', 'compression'];
+    private const array FAMILIES = ['error_handling', 'compression', 'body_parser'];
 
     /**
      * Reads one family's subtree out of the merged `http` map.

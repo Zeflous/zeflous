@@ -7,6 +7,7 @@ namespace Zef\Framework;
 use Zef\Framework\Container\ContainerServices;
 use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Middleware\AuthFactory;
+use Zef\Framework\Middleware\BodyParserFactory;
 use Zef\Framework\Middleware\CompressionFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CsrfFactory;
@@ -307,6 +308,12 @@ final readonly class FrameworkDefaults
             ],
             'http.compression' => [
                 'factory' => CompressionFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+            ],
+            'http.body_parser' => [
+                'factory' => BodyParserFactory::class . self::CONFIG_FACTORY_ENTRY,
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],

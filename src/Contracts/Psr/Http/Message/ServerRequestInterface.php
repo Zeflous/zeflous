@@ -74,8 +74,12 @@ interface ServerRequestInterface extends RequestInterface
     /**
      * Returns an instance with the specified body parameters.
      *
-     * @param array<string, mixed>|object|null $data The deserialized body;
-     *        scalars are invalid per PSR-7.
+     * @param array<array-key, mixed>|object|null $data The deserialized body;
+     *        scalars are invalid per PSR-7. The array's keys are whatever the
+     *        deserialized document carries -- a JSON object folds to string
+     *        keys, a JSON list to integer keys, and a SAPI bag's
+     *        numeric-string keys to their canonical engine integer form
+     *        ({@see \Zef\Framework\Http\RequestFactory}).
      */
     public function withParsedBody($data): ServerRequestInterface;
 

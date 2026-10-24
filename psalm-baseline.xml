@@ -42,11 +42,9 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[getAttributes]]></code>
       <code><![CDATA[getCookieParams]]></code>
-      <code><![CDATA[getParsedBody]]></code>
       <code><![CDATA[getQueryParams]]></code>
       <code><![CDATA[getUploadedFiles]]></code>
       <code><![CDATA[withCookieParams]]></code>
-      <code><![CDATA[withParsedBody]]></code>
       <code><![CDATA[withQueryParams]]></code>
       <code><![CDATA[withUploadedFiles]]></code>
       <code><![CDATA[withoutAttribute]]></code>
@@ -371,7 +369,17 @@
       <code><![CDATA[$payload]]></code>
     </MixedAssignment>
   </file>
-  <file src="src/Zef/Framework/Http/UploadOrigin.php">
+    <file src="src/Zef/Framework/Http/TextBody.php">
+    <!-- The text property is the host application's read surface: the
+         body-parser family hands the value object to the PSR-7 parsed
+         body, and the controller that typed its input as TextBody reads
+         the property. Host API by design, same posture as the vendored
+         contract's getter faces. -->
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$text]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+<file src="src/Zef/Framework/Http/UploadOrigin.php">
     <MixedAssignment>
       <code><![CDATA[$downgraded[$key]]]></code>
       <code><![CDATA[$leafError]]></code>
