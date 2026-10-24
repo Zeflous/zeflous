@@ -105,11 +105,6 @@
       <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Config/Cache/ConfigCache.php">
-    <MixedAssignment>
-      <code><![CDATA[$payload]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Container/Aot/AotClosureEntry.php">
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$closure]]></code>
@@ -295,11 +290,6 @@
     </MoreSpecificReturnType>
   </file>
   <file src="src/Zef/Framework/Http/TextBody.php">
-    <!-- The text property is the host application's read surface: the
-         body-parser family hands the value object to the PSR-7 parsed
-         body, and the controller that typed its input as TextBody reads
-         the property. Host API by design, same posture as the vendored
-         contract's getter faces. -->
     <PossiblyUnusedProperty>
       <code><![CDATA[$text]]></code>
     </PossiblyUnusedProperty>
@@ -337,11 +327,6 @@
       <code><![CDATA[shutdown]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Telemetry/CorrelationAttributes.php">
-    <MixedAssignment>
-      <code><![CDATA[$value]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Telemetry/CorrelationContext.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[redactedAttributes]]></code>
@@ -367,30 +352,10 @@
       <code><![CDATA[spans]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Telemetry/MeterDimensions.php">
-    <MixedAssignment>
-      <code><![CDATA[$kept[$dimension]]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Telemetry/NoopTracer.php">
     <UnusedClass>
       <code><![CDATA[NoopTracer]]></code>
     </UnusedClass>
-  </file>
-  <file src="src/Zef/Framework/Telemetry/OtlpJsonPayloadEncoder.php">
-    <MixedAssignment>
-      <code><![CDATA[$value]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Telemetry/PrometheusLabels.php">
-    <MixedAssignment>
-      <code><![CDATA[$value]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Telemetry/PrometheusSeries.php">
-    <MixedAssignment>
-      <code><![CDATA[$decoded]]></code>
-    </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Telemetry/SpanData.php">
     <PossiblyUnusedMethod>
@@ -408,19 +373,6 @@
       <code><![CDATA[$this]]></code>
     </PossiblyUnusedReturnValue>
   </file>
-  <file src="src/Zef/Framework/Telemetry/SpanRecording.php">
-    <MixedAssignment>
-      <code><![CDATA[$value]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Telemetry/TelemetryValues.php">
-    <MixedAssignment>
-      <code><![CDATA[$entry]]></code>
-      <code><![CDATA[$sanitized[$key]]]></code>
-      <code><![CDATA[$value]]></code>
-      <code><![CDATA[$walked[$name]]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Telemetry/TraceContextPropagator.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[inject]]></code>
@@ -432,21 +384,8 @@
     </UnusedClass>
   </file>
   <file src="tests/Support/Tooling/CoverageReport.php">
-    <InvalidOperand>
-      <code><![CDATA[$this->coveredStatements / $this->statements * 100.0]]></code>
-    </InvalidOperand>
-    <MixedArrayAccess>
-      <code><![CDATA[$metrics['coveredstatements']]]></code>
-      <code><![CDATA[$metrics['statements']]]></code>
-    </MixedArrayAccess>
-    <MixedAssignment>
-      <code><![CDATA[$metrics]]></code>
-    </MixedAssignment>
-    <MixedPropertyFetch>
-      <code><![CDATA[$xml->project->metrics]]></code>
-    </MixedPropertyFetch>
     <TypeDoesNotContainType>
-      <code><![CDATA[!isset($xml->project->metrics)]]></code>
+      <code><![CDATA[isset($project->metrics)]]></code>
     </TypeDoesNotContainType>
   </file>
   <file src="tests/Support/Tooling/GateResult.php">
@@ -458,43 +397,14 @@
     </PossiblyUnusedProperty>
   </file>
   <file src="tests/Support/Tooling/GateRunner.php">
-    <MixedAssignment>
-      <code><![CDATA[$audit]]></code>
-      <code><![CDATA[$config]]></code>
-    </MixedAssignment>
     <UnusedClass>
       <code><![CDATA[GateRunner]]></code>
     </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/GraphQlErrors.php">
-    <MixedAssignment>
-      <code><![CDATA[$errors]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="tests/Support/Tooling/PersistentWorkerSmoke.php">
-    <MixedAssignment>
-      <code><![CDATA[$first]]></code>
-    </MixedAssignment>
   </file>
   <file src="tests/Support/Tooling/ReviewThread.php">
     <PossiblyUnusedProperty>
       <code><![CDATA[$path]]></code>
     </PossiblyUnusedProperty>
-  </file>
-  <file src="tests/Support/Tooling/ReviewThreadFactory.php">
-    <MixedAssignment>
-      <code><![CDATA[$path]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="tests/Support/Tooling/ReviewThreadMutation.php">
-    <MixedAssignment>
-      <code><![CDATA[$value]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="tests/Support/Tooling/ReviewThreadPayload.php">
-    <MixedAssignment>
-      <code><![CDATA[$node]]></code>
-    </MixedAssignment>
   </file>
   <file src="tests/Support/Tooling/ReviewThreadResolution.php">
     <PossiblyUnusedMethod>

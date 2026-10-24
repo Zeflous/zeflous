@@ -129,15 +129,43 @@ final readonly class GateRunner
 
     private function composerAuditIgnore(): mixed
     {
-        // arrayValue() already returns null for any non-array level, so the
-        // lookup chain is fail-safe without an explicit is_array() guard here.
-        // The guard is deliberately absent: as a redundant branch it was an
-        // equivalent mutant no test could distinguish (undetectable under
-        // mutation testing), so removing it keeps the MSI gate honest.
-        $config = $this->arrayValue($this->readComposerJson(), 'config');
-        $audit = $this->arrayValue($config, 'audit');
+        // The traversal narrows every intermediate level to the array it
+        // must be (arrayNode), so the lookup chain is fail-safe without
+        // an explicit is_array() guard at the leaf's own consumer: a
+        // non-array level answers null, and the leaf member crosses to
+        // the allowlist fold still mixed, judged there. The leaf guard is
+        // deliberately absent: as a redundant branch it was an equivalent
+        // mutant no test could distinguish (undetectable under mutation
+        // testing), so removing it keeps the MSI gate honest.
+        $config = $this->arrayNode($this->readComposerJson(), 'config');
+        $audit = $this->arrayNode($config, 'audit');
 
         return $this->arrayValue($audit, 'ignore');
+    }
+
+    /**
+     * The composer document's one array level: the member the level
+     * carries for the key, narrowed to the array the next level needs
+     * -- anything else answers null, the fail-safe the chain's own
+     * leaf reads.
+     *
+     * @param mixed $value the level as the composer document carried it
+     *
+     * @return null|array<mixed,mixed> the member when it is an array
+     */
+    private function arrayNode(mixed $value, string $key): ?array
+    {
+        return $this->asArray(\is_array($value) ? $value[$key] ?? null : null);
+    }
+
+    /**
+     * @param mixed $member the member the level carried
+     *
+     * @return null|array<mixed,mixed> the member when it is an array
+     */
+    private function asArray(mixed $member): ?array
+    {
+        return \is_array($member) ? $member : null;
     }
 
     private function readComposerJson(): mixed

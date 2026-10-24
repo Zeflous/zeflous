@@ -30,6 +30,7 @@ final readonly class PersistentWorkerSmoke
 
         $baseline = memory_get_usage();
         $first = $container->get('zef.smoke.service');
+        \assert($first instanceof stdClass);
         $resolved = 0;
 
         for ($iteration = 0; $iteration < $this->iterations; ++$iteration) {

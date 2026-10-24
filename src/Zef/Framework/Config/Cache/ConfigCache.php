@@ -141,13 +141,18 @@ final readonly class ConfigCache
         }
 
         try {
-            $payload = require $file;
+            return $this->asArray(require $file, $file);
         } catch (ParseError $parseError) {
             throw new ConfigException(
                 \sprintf('The configuration cache "%s" is corrupted: it is not valid PHP.', $file),
                 0,
                 $parseError,
             );
+        } catch (ConfigException $configException) {
+            // The narrowing fold's own refusal crosses unwrapped: the
+            // artifact's shape failures and its execution failures are
+            // different corruptions, and each keeps its own message.
+            throw $configException;
         } catch (Throwable $throwable) {
             throw new ConfigException(
                 \sprintf('The configuration cache "%s" is corrupted: it raised during its own load.', $file),
@@ -155,8 +160,6 @@ final readonly class ConfigCache
                 $throwable,
             );
         }
-
-        return $this->asArray($payload, $file);
     }
 
     /**
@@ -194,7 +197,10 @@ final readonly class ConfigCache
 
     /**
      * Narrows the executed cache file's return value to the configuration
-     * array; anything else is corruption.
+     * array; anything else is corruption. The payload crosses straight
+     * from the `require` into the fold's own mixed parameter -- the
+     * artifact's mixedness is consumed at this one named seam that judges
+     * it, never a binding the analysers would have to type.
      *
      * @return array<array-key, mixed>
      */

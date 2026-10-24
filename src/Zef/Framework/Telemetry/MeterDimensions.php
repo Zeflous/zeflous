@@ -119,15 +119,7 @@ final class MeterDimensions
      */
     private static function allowedDimensions(string $name, array $clean, array $allowed): array
     {
-        /** @var array<string,mixed> $kept */
-        $kept = [];
-        foreach ($allowed as $dimension) {
-            if (!\array_key_exists($dimension, $clean)) {
-                continue;
-            }
-
-            $kept[$dimension] = $clean[$dimension];
-        }
+        $kept = array_intersect_key($clean, array_flip($allowed));
 
         if ($name === 'zef.http.errors.total') {
             $kept = self::exceptionDimension($clean, $kept);

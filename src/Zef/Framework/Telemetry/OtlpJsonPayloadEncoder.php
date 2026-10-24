@@ -83,8 +83,8 @@ final class OtlpJsonPayloadEncoder
     {
         $encoded = [];
 
-        foreach ($attributes as $key => $value) {
-            $encoded[] = ['key' => $key, 'value' => self::anyValue($value)];
+        foreach (array_keys($attributes) as $key) {
+            $encoded[] = ['key' => $key, 'value' => self::anyValue($attributes[$key])];
         }
 
         return $encoded;
