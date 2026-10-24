@@ -11,6 +11,14 @@ namespace Zef\Test\Support\Tooling;
  * be exactly `{"php": "^8.4"}` and `composer.lock` production `packages` must
  * stay empty. This gate fails the build when either invariant is violated, so
  * a runtime dependency can never be introduced silently.
+ *
+ * The manifest pair is the gate's whole input ({@see ComposerManifest}): the
+ * dev channels pass by construction because the input type carries no field
+ * that could read them, and every dependency source outside the Composer
+ * manifests -- a committed vendor tree, a bundled artifact -- is outside the
+ * gate by design. The scope corpus (issue #576,
+ * {@see ZeroDependencyScopeCorpusTest}) pins that fence so widening it stays
+ * an owner decision rather than a quiet drift.
  */
 final readonly class ZeroDependencyGate
 {
