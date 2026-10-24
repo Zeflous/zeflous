@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-24T11:00:39Z",
+  "as_of": "2026-10-24T18:09:51Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 253,
+  "unreleased_count": 254,
   "versions": [
     {
       "version": "Unreleased",
@@ -3346,6 +3346,67 @@
                 "sha": "785d0bf2ef885eb0a4986ac06939f00571cd7d8f",
                 "short_sha": "785d0bf",
                 "subject": "docs(roadmap): refresh the pin to the bench-settled head"
+              }
+            ]
+          },
+          {
+            "pr": 589,
+            "title": "feat(http): the multi-format body parser over the strategy table",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-24T18:09:51Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/589",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "13ecc343ad5572ec87a5e0d5c424927d49fe7dc9",
+                "short_sha": "13ecc34",
+                "subject": "feat(http): the multi-format body parser over the strategy table"
+              },
+              {
+                "sha": "f90438b1b95f3dca7ae8cd9b3b5d397e3d2064cd",
+                "short_sha": "f90438b",
+                "subject": "docs(roadmap): record the http body-parser slice and pin the lane"
+              },
+              {
+                "sha": "d817f7b346f5c10a293478f36ee40f60f0faebb4",
+                "short_sha": "d817f7b",
+                "subject": "fix(test): pin the entity-amplification refusal at the universal text ceiling"
+              },
+              {
+                "sha": "42e064813f5c646f63fbc929dc338d677f3a1bcd",
+                "short_sha": "42e0648",
+                "subject": "merge main into feat/http-xml-parser"
+              },
+              {
+                "sha": "e46953ce68938e82dd82bac153a59b1b2e8fa75f",
+                "short_sha": "e46953c",
+                "subject": "docs(roadmap): ride the pin on the mid-flight merge above both lineages"
+              },
+              {
+                "sha": "e93bd65f820764814f80d15b12ded71f0321d341",
+                "short_sha": "e93bd65",
+                "subject": "fix(baseline): drop the newly-live vendored contract entries the merge reintroduced"
+              },
+              {
+                "sha": "5e2df3aa7ffba214e4f525115a081800a82d1d60",
+                "short_sha": "5e2df3a",
+                "subject": "refactor(http): fold the request walk into the negotiation table"
+              },
+              {
+                "sha": "049465d60100c1a3864678cc94710f22676a8589",
+                "short_sha": "049465d",
+                "subject": "refactor(http): settle the boundary's three questions across three seams"
+              },
+              {
+                "sha": "f3868e1f59ded0bfc778aeef6b4dd469f589d0f9",
+                "short_sha": "f3868e1",
+                "subject": "test(http): settle the coverage round's undeclared seams honestly"
+              },
+              {
+                "sha": "07abbc727d5497936c780cddd526e39f7af7fd74",
+                "short_sha": "07abbc7",
+                "subject": "docs(roadmap): refresh the pin to the coverage-settled head"
               }
             ]
           }
@@ -16239,6 +16300,67 @@
               "sha": "eae56e1fb8275043e2eae980e889f552b6f83995",
               "short_sha": "eae56e1",
               "subject": "docs(roadmap): the pin rides the config-deduplicate's head"
+            }
+          ]
+        },
+        {
+          "pr": 589,
+          "title": "feat(http): the multi-format body parser over the strategy table",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-24T18:09:51Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/589",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "13ecc343ad5572ec87a5e0d5c424927d49fe7dc9",
+              "short_sha": "13ecc34",
+              "subject": "feat(http): the multi-format body parser over the strategy table"
+            },
+            {
+              "sha": "f90438b1b95f3dca7ae8cd9b3b5d397e3d2064cd",
+              "short_sha": "f90438b",
+              "subject": "docs(roadmap): record the http body-parser slice and pin the lane"
+            },
+            {
+              "sha": "d817f7b346f5c10a293478f36ee40f60f0faebb4",
+              "short_sha": "d817f7b",
+              "subject": "fix(test): pin the entity-amplification refusal at the universal text ceiling"
+            },
+            {
+              "sha": "42e064813f5c646f63fbc929dc338d677f3a1bcd",
+              "short_sha": "42e0648",
+              "subject": "merge main into feat/http-xml-parser"
+            },
+            {
+              "sha": "e46953ce68938e82dd82bac153a59b1b2e8fa75f",
+              "short_sha": "e46953c",
+              "subject": "docs(roadmap): ride the pin on the mid-flight merge above both lineages"
+            },
+            {
+              "sha": "e93bd65f820764814f80d15b12ded71f0321d341",
+              "short_sha": "e93bd65",
+              "subject": "fix(baseline): drop the newly-live vendored contract entries the merge reintroduced"
+            },
+            {
+              "sha": "5e2df3aa7ffba214e4f525115a081800a82d1d60",
+              "short_sha": "5e2df3a",
+              "subject": "refactor(http): fold the request walk into the negotiation table"
+            },
+            {
+              "sha": "049465d60100c1a3864678cc94710f22676a8589",
+              "short_sha": "049465d",
+              "subject": "refactor(http): settle the boundary's three questions across three seams"
+            },
+            {
+              "sha": "f3868e1f59ded0bfc778aeef6b4dd469f589d0f9",
+              "short_sha": "f3868e1",
+              "subject": "test(http): settle the coverage round's undeclared seams honestly"
+            },
+            {
+              "sha": "07abbc727d5497936c780cddd526e39f7af7fd74",
+              "short_sha": "07abbc7",
+              "subject": "docs(roadmap): refresh the pin to the coverage-settled head"
             }
           ]
         }
