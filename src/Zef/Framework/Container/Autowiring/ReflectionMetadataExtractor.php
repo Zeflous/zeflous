@@ -36,18 +36,6 @@ final readonly class ReflectionMetadataExtractor
     }
 
     /**
-     * The immutable is-instantiable verdict for a class-shaped
-     * declaration: a definition that survives boot can only fail at
-     * instantiation through its arguments' references -- never through
-     * an interface, an abstract class, an enum or a private constructor
-     * parading as a `class` shape.
-     */
-    public function isInstantiable(string $class): bool
-    {
-        return $this->reflect($class)->isInstantiable();
-    }
-
-    /**
      * The one reflection construction, behind the shared unknown-class
      * refusal: reflection's own exception is never the answer a
      * declaration deserves -- the class is named in the message.

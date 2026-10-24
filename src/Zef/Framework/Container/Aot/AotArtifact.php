@@ -139,12 +139,12 @@ final readonly class AotArtifact
 
         $validated = [];
 
-        foreach ($tags as $tag => $ids) {
+        foreach (array_keys($tags) as $tag) {
             if (!\is_string($tag) || $tag === '') {
                 throw AotRefusals::artifactShape($file, 'the tag index keys must be non-empty tag strings');
             }
 
-            $validated[$tag] = AotArtifactIds::validated($file, "the tag index for '{$tag}'", $ids);
+            $validated[$tag] = AotArtifactIds::validated($file, "the tag index for '{$tag}'", $tags[$tag]);
         }
 
         return $validated;

@@ -62,6 +62,17 @@ final class AutowireImplementations
      * order -- an empty list when nothing declares the type (an empty
      * collection is a valid collection).
      *
+     * The one psalm finding this method carries is the analysers' own
+     * vocabulary disagreement, kept honestly in the baseline: psalm's
+     * reflection stub refines a named type's `getName()` to
+     * `class-string` and demands the same for is_a's operand, while
+     * PHPStan's stub spells it a plain string -- and the narrowing
+     * that would satisfy psalm would also assert existence the
+     * runtime has not yet checked (a variadic may gather a type the
+     * autoload lane has not met, and the empty answer is the honest
+     * one there). Spelling the operand class-string for one analyser
+     * would trade a vocabulary disagreement for a behavioural one.
+     *
      * @param string $type the class or interface the collection gathers
      *
      * @return list<string>

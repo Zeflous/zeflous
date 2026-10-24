@@ -62,14 +62,6 @@ final readonly class ParameterValues
     }
 
     /**
-     * @return list<string> the addresses, in declaration order
-     */
-    public function addresses(): array
-    {
-        return array_keys($this->values);
-    }
-
-    /**
      * @return array<string, mixed> the flat map itself (the report and
      *                              test surface; the pass reads through
      *                              the accessors above)

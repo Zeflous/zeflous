@@ -73,8 +73,6 @@ final class NamespacedBootTest extends TestCase
         $namespacesMap = NamespacesMap::parse('namespaces', null);
         $tree = NamespaceTree::sealed(['@decor:app.target:base', 'app.public'], $namespacesMap);
 
-        self::assertFalse($tree->containsExact('@decor:app.target:base'));
-        self::assertTrue($tree->containsExact('app.public'));
         self::assertSame(['app.public'], $tree->idsUnderPrefix('app'));
     }
 

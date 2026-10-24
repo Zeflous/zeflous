@@ -24,6 +24,12 @@ use Zef\Framework\Container\ContainerCompilePlan;
  *
  * @internal the bootstrapper threads the outcome; the service makes it
  *           observable. Pure data, no behaviour beyond the accessors.
+ *
+ * The observable half is the host's: the fields the `framework.aot`
+ * service answers are read by application wiring outside this
+ * repository, and the psalm baseline's unused verdict on the report
+ * fields records exactly that boundary -- the same report-surface
+ * posture the inventory and the reflection census carry.
  */
 final readonly class AotOutcome
 {

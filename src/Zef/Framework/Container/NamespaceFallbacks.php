@@ -78,6 +78,10 @@ final class NamespaceFallbacks
      * while forgetting every memoised answer, because the memo cannot
      * prove which instance the replaced factory would have built.
      *
+     * The composition root calls this from the application's own
+     * wiring (outside this repository) -- the psalm baseline's unused
+     * verdict records that boundary, not dead code.
+     *
      * @param Closure(Container, string): mixed $factory receives the container and the missed identifier
      */
     public function fallback(

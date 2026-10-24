@@ -44,16 +44,6 @@ final readonly class NamespaceRadixTree
     }
 
     /**
-     * Whether the identifier's namespace position is indexed -- the
-     * collapsed spelling decides, so `App\Widget` and `App.Widget`
-     * answer together.
-     */
-    public function containsExact(string $id): bool
-    {
-        return new NamespaceTreeIndexing()->spellingAt($this->root, NamespaceSpellings::collapsed($id)) !== null;
-    }
-
-    /**
      * Every indexed identifier whose namespace path lies under the
      * prefix (segment-boundary semantics, the trailing separator
      * normalised), in the identifiers' own spellings, sorted

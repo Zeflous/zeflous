@@ -76,7 +76,9 @@ final readonly class ContainerLocator implements ContainerInterface
 
     /**
      * The subset's identifiers, in ask order, one member per asked
-     * identifier.
+     * identifier -- the locator's own read side, consumed by the host
+     * wiring that holds the view (outside this repository; the psalm
+     * baseline's unused verdict records that boundary).
      *
      * @return list<string>
      */

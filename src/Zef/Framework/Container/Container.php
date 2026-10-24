@@ -70,6 +70,10 @@ final readonly class Container implements ContainerInterface
      * identifiers nobody declared (ROADMAP area 9's namespace half
      * -- definitions on demand, spelled in code because the factory
      * receives the identifier it resolves).
+     *
+     * The registry reaches the host through this read: the
+     * composition root's own wiring (outside this repository) is the
+     * caller the psalm baseline's unused verdict records.
      */
     public function namespaceFallbacks(): NamespaceFallbacks
     {
@@ -114,6 +118,11 @@ final readonly class Container implements ContainerInterface
      * the subset's boundary enforced, not advisory. Every asked
      * identifier must already be one the container can answer, and
      * the boot's `@`-prefixed machinery is refused with the ask.
+     *
+     * The composition root asks: the locator is the host-facing half
+     * of the PSR-11 story (#487's lane), consumed from application
+     * wiring that lives outside this repository -- the psalm
+     * baseline's unused verdict is that boundary, not dead code.
      */
     public function locator(string ...$ids): ContainerLocator
     {
@@ -139,6 +148,15 @@ final readonly class Container implements ContainerInterface
      * Opens a request scope: the per-request resolution surface the
      * request-scoped declarations resolve in ({@see RequestScope},
      * wired to the store's scope machinery).
+     *
+     * The runtime lane this seam waits for is the HTTP roadmap's
+     * §5.1 runtime adapter (phase 2, the persistent-worker lane): the
+     * adapter opens one scope per worker request, resolves the
+     * request's graph through it, and closes it at the request's end
+     * -- the scope's own get/has/close surface consumed as one
+     * lifecycle. Until that lane lands, the composition root and the
+     * test battery are the callers, and the psalm baseline carries
+     * the deferred consumer honestly.
      */
     public function createRequestScope(): RequestScope
     {
