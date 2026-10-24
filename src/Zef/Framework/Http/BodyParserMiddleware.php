@@ -14,7 +14,12 @@ use Psr\Http\Server\RequestHandlerInterface;
  * The body-parser family's PSR-15 boundary: the request decorated with
  * its deserialized body when the family owns the request's media type
  * -- the roadmap's Phase 3.1 multi-format parser, over the strategy
- * table ({@see RequestBodyParsers}) the config seam builds.
+ * table ({@see RequestBodyParsers}) the config seam builds. The
+ * boundary's own question is the family's arm and the decoration; the
+ * walk itself -- which parser owns this request, and what that parser
+ * answers for the body the request carries -- belongs to the table
+ * ({@see RequestBodyParsers::parsedBody()}), the same two-questions
+ * two-files fold the compression family taught.
  *
  * The order of the walk is cheapest-refusal-first, and every refusal
  * answers the handler the request itself, untouched: a disabled family
@@ -38,12 +43,6 @@ use Psr\Http\Server\RequestHandlerInterface;
  * be captured (neither tellable nor restorable) passes the request
  * through rather than draining it -- the parser never destroys the
  * request it was handed (KDD-BP6).
- *
- * The type segment is extracted once, before the first `;` parameter,
- * trimmed -- the request factory's own ingress spelling
- * ({@see RequestFactory::formBody()}): a `Content-Type` line with
- * parameters (`application/json; charset=utf-8`) is the type the
- * grammar walks, and a line with no type segment owns nothing.
  */
 final readonly class BodyParserMiddleware implements MiddlewareInterface
 {
@@ -75,44 +74,10 @@ final readonly class BodyParserMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        $parsedBody = $this->parsedBody($request);
+        $parsedBody = $this->requestBodyParsers->parsedBody($request);
 
         return $handler->handle(
             $parsedBody === null ? $request : $request->withParsedBody($parsedBody),
         );
-    }
-
-    /**
-     * The deserialized body the family answers for this request, or
-     * null when no decoration happens (the pass-through walks and the
-     * JSON null document alike -- a null parsed body IS the PSR
-     * contract's "no body" answer).
-     *
-     * @return null|array<array-key, mixed>|object the parsed body, or null
-     *
-     * @throws MalformedBodyException when the owning strategy refuses
-     *                                the document
-     */
-    private function parsedBody(ServerRequestInterface $request): array|object|null
-    {
-        $mediaType = mb_trim(explode(';', $request->getHeaderLine('Content-Type'))[0]);
-
-        if ($mediaType === '' || $request->getParsedBody() !== null) {
-            return null;
-        }
-
-        $bodyParser = $this->requestBodyParsers->forMediaType($mediaType);
-
-        if (!$bodyParser instanceof BodyParserInterface) {
-            return null;
-        }
-
-        $body = StreamSnapshot::capture($request->getBody());
-
-        if ($body === null || $body === '') {
-            return null;
-        }
-
-        return $bodyParser->parse($body);
     }
 }
