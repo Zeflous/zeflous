@@ -9,6 +9,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\CompiledRoute;
+use Zef\Framework\Config\Routing\RouteConstraintCompilability;
+use Zef\Framework\Config\Routing\RouteConstraintDeclarations;
 use Zef\Framework\Config\Routing\RouteConstraints;
 use Zef\Framework\Config\Routing\RouteDeprecation;
 use Zef\Framework\Config\Routing\RouteEntryCollections;
@@ -26,6 +28,8 @@ use Zef\Framework\Config\Routing\RouteEntryShape;
 #[CoversClass(RouteEntryCollections::class)]
 #[CoversClass(RouteEntryMeta::class)]
 #[CoversClass(RouteConstraints::class)]
+#[CoversClass(RouteConstraintCompilability::class)]
+#[CoversClass(RouteConstraintDeclarations::class)]
 final class CompiledRouteTest extends TestCase
 {
     public function testCompilesAMinimalEntry(): void
@@ -85,6 +89,30 @@ final class CompiledRouteTest extends TestCase
         self::assertFalse($compiledRoute->constraints()->check('id', "42\n"));
         self::assertFalse($compiledRoute->constraints()->check('id', "42\n\n"));
         self::assertTrue($compiledRoute->constraints()->check('id', '42'));
+    }
+
+    public function testTheDeclaredConstraintPatternIsReadableVerbatim(): void
+    {
+        // The read-side seam the ecosystem export renders from: the
+        // declared pattern, spelled as its author wrote it -- never
+        // the anchored storage form, never a re-derivation.
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/users/{id}/posts/{post}',
+            'method' => ['GET'],
+            'handler' => 'Users@show',
+            'constraints' => ['id' => '[0-9]+'],
+        ]);
+
+        self::assertSame('[0-9]+', $compiledRoute->constraints()->pattern('id'));
+        self::assertNull($compiledRoute->constraints()->pattern('post'));
+
+        $unconstrained = CompiledRoute::fromArray([
+            'path' => '/health',
+            'method' => ['GET'],
+            'handler' => 'Health@check',
+        ]);
+
+        self::assertNull($unconstrained->constraints()->pattern('anything'));
     }
 
     public function testNormalizesMethodsUpperCasedAndSorted(): void
