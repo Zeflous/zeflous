@@ -73,12 +73,24 @@ tree), `LIBXML_NONET` on every parse (no network fetch a DTD or entity
 reference could trigger), and no `LIBXML_PARSEHUGE` (the libxml depth,
 text-node and entity-amplification ceilings stay in force). The pins:
 an external-entity document parses with the entity resolving to empty
-(the `file:///etc/passwd` content never enters the tree), and a
-billion-laughs amplification document is refused by the engine's own
-entity limits in under a millisecond. The internal-errors mode is
-process-global engine state, so the parse restores the prior mode and
-drains the error queue in a `finally` — a persistent worker never
-observes a leaked diagnostic mode or a stale libxml error.
+(the `file:///etc/passwd` content never enters the tree), and an
+entity-amplification document whose expansion crosses the engine's own
+text ceiling is refused (the pinned 10^7 chain — 518 source bytes that
+expand past the ten-megabyte text limit every libxml2 release since
+2.9 enforces without `PARSEHUGE`). WHICH ceiling fires varies by
+build: the legacy 2.9 series answers its entity-reference-loop
+heuristic on the nesting alone, the modern series lets the expansion
+accounting refuse — and the first CI round caught exactly that lesson:
+a small nested-entity chain (expansion in the kilobytes) is refused by
+the legacy heuristic but is a legal document the modern engine parses,
+so it is deliberately pinned on neither side. The refusal is the
+universal observable; the ceiling that answers it is the engine's own
+business. The internal-errors mode is process-global engine state, so
+the parse restores the prior mode and drains the error queue in a
+`finally` — a persistent worker never observes a leaked diagnostic
+mode or a stale libxml error, and both facts are pinned under the mode
+the caller left on (a mode-restore to false makes the queue read empty
+on every build — the pin had to observe before the restore).
 
 ## KDD-BP5 — the two JSON refusals, and the null document's honest answer
 
