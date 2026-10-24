@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 /*
- * HTTP error-handling policy.
+ * HTTP families: error-handling policy and the output-compression engine.
+ *
+ * Error-handling policy
+ * ---------------------
  *
  * Debug disclosure is fail-closed: setting debug=true is not sufficient by
  * itself. APP_ENV must explicitly be local, development, dev, test or testing.
@@ -21,6 +24,40 @@ declare(strict_types=1);
  * the same error system the request boundary feeds. A process is a
  * process-wide commitment made once at the entry point, so the reference
  * profile spells the honest default and a host that wants it flips the knob.
+ *
+ * Compression family
+ * ------------------
+ *
+ * The output-compression engine (`http.compression`, the service the
+ * framework registers ahead of the composition; the middleware the
+ * stack composes -- a host that wants compressed answers adds
+ * `http.compression` to its `middleware.stack`, which is a stack
+ * write, not a service definition):
+ *
+ *   'enabled'                   (bool, default true)
+ *       The family's arm. A disabled family is a pass-through: the
+ *       middleware stays in the stack (its membership is the host's
+ *       declaration) but reads no encoding line and compresses
+ *       nothing.
+ *
+ *   'minimum_bytes'             (int, default 1024, 1..1048576)
+ *       The threshold: only bodies at or above it compress. The
+ *       default is the roadmap's own example -- compressing a
+ *       300-byte JSON reply spends more CPU than the bytes save. A
+ *       body whose size the stream cannot report compresses without
+ *       the threshold's protection (buffering the whole body to
+ *       learn its size is the memory posture the family exists to
+ *       avoid).
+ *
+ *   'level'                     (int, default 6, 1..9)
+ *       The zlib compression level the engine asks for. Six is
+ *       zlib's own middle, where the ratio curve has already
+ *       flattened and the cost curve has not steepened.
+ *
+ * The engine negotiates the client's `Accept-Encoding` against what
+ * this PHP build can produce (brotli only behind its extension;
+ * gzip and deflate over the bundled zlib engine) and refuses to
+ * double-encode a response that already carries a Content-Encoding.
  */
 
 return [
@@ -31,5 +68,10 @@ return [
         'replay_path' => '',
         'replay_max_snapshots' => 1000,
         'process_boundary' => false,
+    ],
+    'compression' => [
+        'enabled' => true,
+        'minimum_bytes' => 1024,
+        'level' => 6,
     ],
 ];
