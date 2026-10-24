@@ -60,6 +60,35 @@ declare(strict_types=1);
  * double-encode a response that already carries a Content-Encoding.
  */
 
+/*
+ * Body-parser family
+ * -------------------
+ *
+ * The multi-format request-body parser (`http.body_parser`, the
+ * service the framework registers ahead of the composition; the
+ * middleware the stack composes -- a host that wants parsed bodies
+ * adds `http.body_parser` to its `middleware.stack`, which is a stack
+ * write, not a service definition):
+ *
+ *   'enabled'                   (bool, default true)
+ *       The family's arm. A disabled family is a pass-through: the
+ *       middleware stays in the stack (its membership is the host's
+ *       declaration) but reads no media type and parses nothing.
+ *
+ *   'json_depth'                (int, default 32, 1..512)
+ *       The recursion ceiling the JSON strategy asks the engine for.
+ *       The default is the error system's own documented ceiling, so
+ *       the two JSON decoders in the process refuse at the same
+ *       depth; the corridor's ceiling is the engine's own maximum.
+ *
+ * The family owns `application/json` (and its `+json` vendor
+ * members), `application/xml`, `text/xml` (and `application/+xml`
+ * vendor members), `application/x-www-form-urlencoded` on the
+ * non-SAPI path, and `text/plain`. Multipart stays with the engine's
+ * own SAPI decode; a malformed owned body refuses with a 400 before
+ * the controller runs.
+ */
+
 return [
     'error_handling' => [
         'debug' => false,
@@ -73,5 +102,9 @@ return [
         'enabled' => true,
         'minimum_bytes' => 1024,
         'level' => 6,
+    ],
+    'body_parser' => [
+        'enabled' => true,
+        'json_depth' => 32,
     ],
 ];

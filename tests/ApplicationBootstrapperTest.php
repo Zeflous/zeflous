@@ -15,12 +15,14 @@ use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Health\HealthChecker;
+use Zef\Framework\Http\BodyParserMiddleware;
 use Zef\Framework\Http\CompressionMiddleware;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\TimingMiddleware;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\AuthFactory;
+use Zef\Framework\Middleware\BodyParserFactory;
 use Zef\Framework\Middleware\CompressionFactory;
 use Zef\Framework\Middleware\CorrelationFactory;
 use Zef\Framework\Middleware\CorrelationMiddleware;
@@ -57,6 +59,7 @@ use Zef\Test\Support\Middleware\MiddlewareTrace;
  * @internal
  */
 #[CoversClass(ApplicationBootstrapper::class)]
+#[CoversClass(BodyParserFactory::class)]
 #[CoversClass(DirectoryInventory::class)]
 #[CoversClass(FrameworkDefaults::class)]
 final class ApplicationBootstrapperTest extends TestCase
@@ -110,6 +113,10 @@ final class ApplicationBootstrapperTest extends TestCase
                 ],
                 'http.compression' => [
                     'factory' => CompressionFactory::class . '::fromConfig',
+                    'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
+                ],
+                'http.body_parser' => [
+                    'factory' => BodyParserFactory::class . '::fromConfig',
                     'arguments' => [['service' => FrameworkDefaults::CONFIG_SERVICE]],
                 ],
                 'security.headers' => [
@@ -175,6 +182,12 @@ final class ApplicationBootstrapperTest extends TestCase
             CompressionMiddleware::class,
             $kernel->container()->get('http.compression'),
             'the compression family resolves through the container ahead of the stack membership',
+        );
+        self::assertTrue($kernel->container()->has('http.body_parser'));
+        self::assertInstanceOf(
+            BodyParserMiddleware::class,
+            $kernel->container()->get('http.body_parser'),
+            'the body-parser family resolves through the container ahead of the stack membership',
         );
         self::assertSame([], $kernel->config()->get('routes'));
         self::assertTrue($kernel->container()->has('security.headers'));

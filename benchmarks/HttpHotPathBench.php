@@ -12,6 +12,8 @@ use Zef\Framework\Http\AllowScopePolicy;
 use Zef\Framework\Http\AuthBoundary;
 use Zef\Framework\Http\AuthMiddleware;
 use Zef\Framework\Http\AuthPolicy;
+use Zef\Framework\Http\BodyParserMiddleware;
+use Zef\Framework\Http\BodyParserPolicy;
 use Zef\Framework\Http\BoundedReplayProtector;
 use Zef\Framework\Http\CompressionMiddleware;
 use Zef\Framework\Http\CompressionPolicy;
@@ -29,6 +31,7 @@ use Zef\Framework\Http\SecurityHeadersMiddleware;
 use Zef\Framework\Http\SecurityHeadersPolicy;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\StaticCredentialProvider;
+use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\TimingMiddleware;
 use Zef\Framework\Http\TimingPolicy;
 use Zef\Framework\Http\Uri;
@@ -37,6 +40,7 @@ use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\PrometheusRenderer;
 use Zef\Test\Support\FixedHealthCheck;
 use Zef\Test\Support\Http\FixedResponseHandler;
+use Zef\Test\Support\Http\RecordingHandler;
 
 /**
  * The HTTP lane's hot-path reference suite -- the per-request costs the
@@ -93,6 +97,12 @@ final readonly class HttpHotPathBench
     private FixedResponseHandler $compressibleResponseHandler;
 
     private ServerRequest $compressionServerRequest;
+
+    private BodyParserMiddleware $bodyParserMiddleware;
+
+    private RecordingHandler $parsedBodyRecordingHandler;
+
+    private ServerRequest $bodyParserServerRequest;
 
     /** @var array<string, string> */
     private array $serverBag;
@@ -205,6 +215,21 @@ final readonly class HttpHotPathBench
         ;
         \assert($compressionServerRequest instanceof ServerRequest);
         $this->compressionServerRequest = $compressionServerRequest;
+
+        $this->bodyParserMiddleware = new BodyParserMiddleware(
+            new BodyParserPolicy(enabled: true, jsonDepth: 32),
+        );
+        $this->parsedBodyRecordingHandler = new RecordingHandler($this->response);
+        $jsonBody = \sprintf(
+            '{"data":{"items":[%s],"page":2,"total":4200}}',
+            implode(',', array_fill(0, 128, '{"id":4711,"name":"zeflous-item","active":true}')),
+        );
+        $this->bodyParserServerRequest = new ServerRequest(
+            'POST',
+            $this->uri,
+            headers: ['Content-Type' => 'application/json'],
+            stream: Stream::fromString($jsonBody),
+        );
 
         $this->serverBag = [
             'REQUEST_METHOD' => 'GET',
@@ -378,6 +403,33 @@ final readonly class HttpHotPathBench
             || $response->hasHeader('Content-Length')
         ) {
             throw new InvariantViolationException('The compression boundary must swap the body for its gzip form.');
+        }
+    }
+
+    #[Revs(500)]
+    public function benchAJsonRequestIsDecoratedWithItsParsedBody(): void
+    {
+        $this->bodyParserMiddleware->process(
+            $this->bodyParserServerRequest,
+            $this->parsedBodyRecordingHandler,
+        );
+
+        $parsedBody = $this->parsedBodyRecordingHandler->observed()->getParsedBody();
+        $decorated = false;
+        if (\is_array($parsedBody)) {
+            $data = $parsedBody['data'] ?? null;
+            if (\is_array($data)) {
+                $items = $data['items'] ?? null;
+                $decorated = \is_array($items)
+                    && \count($items) === 128
+                    && ($data['page'] ?? null) === 2;
+            }
+        }
+
+        if (!$decorated) {
+            throw new InvariantViolationException(
+                'The body-parser boundary must decorate the request with its parsed body.',
+            );
         }
     }
 }

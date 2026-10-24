@@ -156,7 +156,7 @@ final class CompressionPolicyTest extends TestCase
         $this->expectException(HttpException::class);
         $this->expectExceptionMessageIsOrContains(
             "The http configuration carries the unknown family 'compresssion'"
-            . ' (known families: error_handling, compression).',
+            . ' (known families: error_handling, compression, body_parser).',
         );
 
         HttpFamilies::subtree(['error_handling' => [], 'compresssion' => []], 'compression');

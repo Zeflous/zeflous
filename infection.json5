@@ -438,7 +438,31 @@
                 // under their mutators: the digest battery pins them.
                 // Both ignores are scoped to those single methods.
                 "Zef\\Framework\\Http\\ReplayStores::read",
-                "Zef\\Framework\\Exception\\ExceptionErrorCode::anonymous"
+                "Zef\\Framework\\Exception\\ExceptionErrorCode::anonymous",
+                // The structured-suffix grammar in MediaTypeSuffix::
+                // underApplication() joins the byte-agreement class:
+                // the prefix length is measured over the ASCII
+                // APPLICATION_PREFIX constant (mb_strlen and strlen
+                // agree on every value it can ever carry); the total
+                // length gate can only diverge when a multibyte byte
+                // count crosses the prefix-plus-suffix boundary the
+                // character count does not, which requires a
+                // multibyte byte inside the ASCII prefix or suffix
+                // regions the very next comparisons demand
+                // byte-identically, so a diverging gate answer never
+                // survives the AND it feeds; and the prefix slice can
+                // only diverge on a multibyte head, which the prefix
+                // comparison then refuses under both spellings alike.
+                // All three were verified by running the full suite
+                // under each manually applied mutation (the complete
+                // suite passes, each direction). The method's two
+                // remaining mb_ sites (the suffix length and the tail
+                // slice) stay semantically load-bearing and are killed
+                // by the character-count test (the grammar pinned
+                // with a multibyte suffix); they sit under this ignore
+                // only because the ignore is method-scoped. This
+                // ignore is scoped to that single method.
+                "Zef\\Framework\\Http\\MediaTypeSuffix::underApplication"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",

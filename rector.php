@@ -84,6 +84,10 @@ return RectorConfig::configure()
             // output-compression family's boundary (the same PSR-15
             // process contract, in the HTTP lane).
             __DIR__ . '/src/Zef/Framework/Http/CompressionMiddleware.php',
+            // BodyParserMiddleware::process() is the eighteenth -- the
+            // multi-format body-parser family's boundary (the same
+            // PSR-15 process contract, in the HTTP lane).
+            __DIR__ . '/src/Zef/Framework/Http/BodyParserMiddleware.php',
         ],
         // The rule resolves the expected name from a method-call chain's
         // return type differently on different environments (a fresh CI
