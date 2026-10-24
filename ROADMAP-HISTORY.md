@@ -33,7 +33,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 29 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **179** |
+| **Total merged PRs** | **180** |
 
 ---
 

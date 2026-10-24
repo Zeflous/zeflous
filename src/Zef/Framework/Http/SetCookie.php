@@ -70,6 +70,10 @@ final readonly class SetCookie
         'none' => self::SAME_SITE_NONE,
     ];
 
+    /** The shared rejection suffix: the value the call site read, as
+     * the message spells it — the policy family's own GIVEN_SUFFIX. */
+    private const string GIVEN_SUFFIX = ' given.';
+
     /**
      * @param string   $name      the cookie's name (RFC 9110 token)
      * @param string   $value     the cookie's value (cookie-octets; empty
@@ -106,7 +110,7 @@ final readonly class SetCookie
         if (preg_match(self::NAME_GRAMMAR, $name) !== 1) {
             throw new HttpException(
                 'The cookie name must be an RFC 9110 token, '
-                . "'" . $name . "' given.",
+                . "'" . $name . "'" . self::GIVEN_SUFFIX,
             );
         }
 
@@ -115,14 +119,14 @@ final readonly class SetCookie
         if (preg_match(self::PATH_GRAMMAR, $path) !== 1) {
             throw new HttpException(
                 'The cookie path must be root-relative or empty, '
-                . "'" . $path . "' given.",
+                . "'" . $path . "'" . self::GIVEN_SUFFIX,
             );
         }
 
         if ($domain !== '' && preg_match(self::DOMAIN_GRAMMAR, $domain) !== 1) {
             throw new HttpException(
                 'The cookie domain must be a dot-separated domain or empty, '
-                . "'" . $domain . "' given.",
+                . "'" . $domain . "'" . self::GIVEN_SUFFIX,
             );
         }
 
@@ -134,19 +138,19 @@ final readonly class SetCookie
         ) {
             throw new HttpException(
                 'The cookie sameSite must be one of the SameSite vocabulary '
-                . '(Strict, Lax, None), ' . "'" . $sameSite . "' given.",
+                . '(Strict, Lax, None), ' . "'" . $sameSite . "'" . self::GIVEN_SUFFIX,
             );
         }
 
         if ($maxAge !== null && $maxAge < 0) {
             throw new HttpException(
-                'The cookie maxAge must not be negative, ' . $maxAge . ' given.',
+                'The cookie maxAge must not be negative, ' . $maxAge . self::GIVEN_SUFFIX,
             );
         }
 
         if ($expiresAt !== null && $expiresAt < 0) {
             throw new HttpException(
-                'The cookie expiresAt must not be negative, ' . $expiresAt . ' given.',
+                'The cookie expiresAt must not be negative, ' . $expiresAt . self::GIVEN_SUFFIX,
             );
         }
     }
