@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-23T18:20:05Z",
+  "as_of": "2026-10-24T00:32:28Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 248,
+  "unreleased_count": 249,
   "versions": [
     {
       "version": "Unreleased",
@@ -3264,6 +3264,57 @@
                 "sha": "2f620cf927654e700ec44596896c986ac20b8e58",
                 "short_sha": "2f620cf",
                 "subject": "docs(roadmap): pin the lane to the merge that carries main's landing"
+              }
+            ]
+          },
+          {
+            "pr": 571,
+            "title": "feat(export): answer the ecosystem documents over the engine's own seams",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-24T00:32:28Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/571",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "570aa3b3f464cb3429c92fc06f3907bb69ea5ad3",
+                "short_sha": "570aa3b",
+                "subject": "feat(export): answer the ecosystem documents over the engine's own seams"
+              },
+              {
+                "sha": "4d7de55a5cac6cff07e6791458cd9b368daa3e8f",
+                "short_sha": "4d7de55",
+                "subject": "docs(roadmap): record the ecosystem export landing"
+              },
+              {
+                "sha": "056117efacdd7ff1f16a7e8e2430c728b6448191",
+                "short_sha": "056117e",
+                "subject": "chore: merge main into feat/router-ecosystem-export (mid-flight: the ruleset-lint credential-gap remediation #568 and its changelog regenerations)"
+              },
+              {
+                "sha": "d821610036ab72f7cfb44be6a2eaea207569b4c9",
+                "short_sha": "d821610",
+                "subject": "docs(roadmap): pin the lane to the merge that carries main's landing"
+              },
+              {
+                "sha": "a90b1ef5574422e9043d658c57a43f17900199be",
+                "short_sha": "a90b1ef",
+                "subject": "fix: settle the export family's static-analysis findings"
+              },
+              {
+                "sha": "beede5ee746dc492444d87785033ca477fdbdf43",
+                "short_sha": "beede5e",
+                "subject": "fix: settle the export family's coverage attribution and mutation adversary"
+              },
+              {
+                "sha": "97f2cb1bbcc1e858ef526aa43d3329eeaaf778fe",
+                "short_sha": "97f2cb1",
+                "subject": "fix: fold the attribute declaration out of the reader"
+              },
+              {
+                "sha": "67baf7424cc979eda0c628e2dfb00f92bce8a584",
+                "short_sha": "67baf74",
+                "subject": "docs(roadmap): refresh the pin to the slice's last substantive commit"
               }
             ]
           }
@@ -15699,6 +15750,57 @@
               "sha": "a50d9b5ac011151f838c807a8f8958bd9c83f378",
               "short_sha": "a50d9b5",
               "subject": "docs(roadmap): record the ruleset-lint credential-gap remediation landing (#568)"
+            }
+          ]
+        },
+        {
+          "pr": 571,
+          "title": "feat(export): answer the ecosystem documents over the engine's own seams",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-24T00:32:28Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/571",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "570aa3b3f464cb3429c92fc06f3907bb69ea5ad3",
+              "short_sha": "570aa3b",
+              "subject": "feat(export): answer the ecosystem documents over the engine's own seams"
+            },
+            {
+              "sha": "4d7de55a5cac6cff07e6791458cd9b368daa3e8f",
+              "short_sha": "4d7de55",
+              "subject": "docs(roadmap): record the ecosystem export landing"
+            },
+            {
+              "sha": "056117efacdd7ff1f16a7e8e2430c728b6448191",
+              "short_sha": "056117e",
+              "subject": "chore: merge main into feat/router-ecosystem-export (mid-flight: the ruleset-lint credential-gap remediation #568 and its changelog regenerations)"
+            },
+            {
+              "sha": "d821610036ab72f7cfb44be6a2eaea207569b4c9",
+              "short_sha": "d821610",
+              "subject": "docs(roadmap): pin the lane to the merge that carries main's landing"
+            },
+            {
+              "sha": "a90b1ef5574422e9043d658c57a43f17900199be",
+              "short_sha": "a90b1ef",
+              "subject": "fix: settle the export family's static-analysis findings"
+            },
+            {
+              "sha": "beede5ee746dc492444d87785033ca477fdbdf43",
+              "short_sha": "beede5e",
+              "subject": "fix: settle the export family's coverage attribution and mutation adversary"
+            },
+            {
+              "sha": "97f2cb1bbcc1e858ef526aa43d3329eeaaf778fe",
+              "short_sha": "97f2cb1",
+              "subject": "fix: fold the attribute declaration out of the reader"
+            },
+            {
+              "sha": "67baf7424cc979eda0c628e2dfb00f92bce8a584",
+              "short_sha": "67baf74",
+              "subject": "docs(roadmap): refresh the pin to the slice's last substantive commit"
             }
           ]
         }
