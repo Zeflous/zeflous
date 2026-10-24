@@ -135,6 +135,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(errors): bound the replay snapshot directory [#577](https://github.com/Zeflous/zeflous/pull/577) ([mbetixz](https://github.com/mbetixz))
 - fix(tooling): answer the three detection-scope questions with their corpora (#576) [#582](https://github.com/Zeflous/zeflous/pull/582) ([mbetixz](https://github.com/mbetixz))
 - fix(container): answer the psalm baseline's Container findings honestly [#586](https://github.com/Zeflous/zeflous/pull/586) ([mbetixz](https://github.com/mbetixz))
+- fix(baseline): answer the psalm baseline's remaining findings honestly [#594](https://github.com/Zeflous/zeflous/pull/594) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 

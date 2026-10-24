@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-24T18:09:51Z",
+  "as_of": "2026-10-24T20:53:39Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 254,
+  "unreleased_count": 255,
   "versions": [
     {
       "version": "Unreleased",
@@ -5170,6 +5170,27 @@
                 "sha": "eae56e1fb8275043e2eae980e889f552b6f83995",
                 "short_sha": "eae56e1",
                 "subject": "docs(roadmap): the pin rides the config-deduplicate's head"
+              }
+            ]
+          },
+          {
+            "pr": 594,
+            "title": "fix(baseline): answer the psalm baseline's remaining findings honestly",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-24T20:53:39Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/594",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5a9a0b77d3d7b28fdf6b379e8054fade886e02f4",
+                "short_sha": "5a9a0b7",
+                "subject": "fix(baseline): answer the psalm baseline's remaining findings honestly"
+              },
+              {
+                "sha": "2b23b2ca4ad9d64fe905e1bca1c9a71b12a45c30",
+                "short_sha": "2b23b2c",
+                "subject": "docs(roadmap): record the baseline's honest remaining answer"
               }
             ]
           }
@@ -16361,6 +16382,27 @@
               "sha": "07abbc727d5497936c780cddd526e39f7af7fd74",
               "short_sha": "07abbc7",
               "subject": "docs(roadmap): refresh the pin to the coverage-settled head"
+            }
+          ]
+        },
+        {
+          "pr": 594,
+          "title": "fix(baseline): answer the psalm baseline's remaining findings honestly",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-24T20:53:39Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/594",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5a9a0b77d3d7b28fdf6b379e8054fade886e02f4",
+              "short_sha": "5a9a0b7",
+              "subject": "fix(baseline): answer the psalm baseline's remaining findings honestly"
+            },
+            {
+              "sha": "2b23b2ca4ad9d64fe905e1bca1c9a71b12a45c30",
+              "short_sha": "2b23b2c",
+              "subject": "docs(roadmap): record the baseline's honest remaining answer"
             }
           ]
         }
