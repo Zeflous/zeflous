@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-24T06:42:54Z",
+  "as_of": "2026-10-24T07:39:02Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 251,
+  "unreleased_count": 252,
   "versions": [
     {
       "version": "Unreleased",
@@ -4987,6 +4987,77 @@
                 "sha": "9a6f12dd5d2398f9344acbac523edc1d4b79b534",
                 "short_sha": "9a6f12d",
                 "subject": "docs(roadmap): ride the pin on the mid-flight merge above both lineages"
+              }
+            ]
+          },
+          {
+            "pr": 582,
+            "title": "fix(tooling): answer the three detection-scope questions with their corpora (#576)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-24T07:39:02Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/582",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d733b0cc42e8e876c5896fde261c89f546a2da58",
+                "short_sha": "d733b0c",
+                "subject": "test(tooling): the bash array detector's detection-scope corpus"
+              },
+              {
+                "sha": "f7f9b9e369a8f3b997c58113748ba42de230f60a",
+                "short_sha": "f7f9b9e",
+                "subject": "fix(tooling): see the bash array detector's other escape forms"
+              },
+              {
+                "sha": "d1f4f1698ff322a265fc5165e630358572932302",
+                "short_sha": "d1f4f16",
+                "subject": "test(tooling): the roadmap section prefix's pairing corpus"
+              },
+              {
+                "sha": "7f2c163479adbed1c158f6cb037d0481e79a65d0",
+                "short_sha": "7f2c163",
+                "subject": "fix(tooling): pair roadmap areas with their most specific section"
+              },
+              {
+                "sha": "df72a453297f71b13f0f25b497adfcd0f14e0887",
+                "short_sha": "df72a45",
+                "subject": "test(tooling): the zero-dependency gate's scope corpus"
+              },
+              {
+                "sha": "40083b2863e85eb980ef635c30c5c3d9560a8ff3",
+                "short_sha": "40083b2",
+                "subject": "test(tooling): spell the three corpora in the suite's own provider idiom"
+              },
+              {
+                "sha": "5eefe21318bcb5d622e98e1a44fb33efad70f2d6",
+                "short_sha": "5eefe21",
+                "subject": "docs(roadmap): record the detection-scope corpora landing (#582)"
+              },
+              {
+                "sha": "2342366a14edd83f1808ca12cbfa7978f8856eef",
+                "short_sha": "2342366",
+                "subject": "test(tooling): a prefix sibling between the twins cannot end the scan"
+              },
+              {
+                "sha": "f5a45122f1f6a12ce3aca46efba5a93035c2638a",
+                "short_sha": "f5a4512",
+                "subject": "docs(roadmap): the history document's pin rides the landing too"
+              },
+              {
+                "sha": "1692ce793d77cdd5ad824a9c9ffc9c2b763a543c",
+                "short_sha": "1692ce7",
+                "subject": "Merge branch 'main' into fix/detection-scope-corpus"
+              },
+              {
+                "sha": "0a97c5f52fb7e8e7aa585cdcac208294213e4b71",
+                "short_sha": "0a97c5f",
+                "subject": "docs(roadmap): ride the pin on the mid-flight merge above both lineages"
+              },
+              {
+                "sha": "e940ca22c935ea9205b3647968b562bcca3863d4",
+                "short_sha": "e940ca2",
+                "subject": "docs(roadmap): the newest same-date row's cell rides the merge too"
               }
             ]
           }
@@ -15964,6 +16035,77 @@
               "sha": "9a6f12dd5d2398f9344acbac523edc1d4b79b534",
               "short_sha": "9a6f12d",
               "subject": "docs(roadmap): ride the pin on the mid-flight merge above both lineages"
+            }
+          ]
+        },
+        {
+          "pr": 582,
+          "title": "fix(tooling): answer the three detection-scope questions with their corpora (#576)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-24T07:39:02Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/582",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d733b0cc42e8e876c5896fde261c89f546a2da58",
+              "short_sha": "d733b0c",
+              "subject": "test(tooling): the bash array detector's detection-scope corpus"
+            },
+            {
+              "sha": "f7f9b9e369a8f3b997c58113748ba42de230f60a",
+              "short_sha": "f7f9b9e",
+              "subject": "fix(tooling): see the bash array detector's other escape forms"
+            },
+            {
+              "sha": "d1f4f1698ff322a265fc5165e630358572932302",
+              "short_sha": "d1f4f16",
+              "subject": "test(tooling): the roadmap section prefix's pairing corpus"
+            },
+            {
+              "sha": "7f2c163479adbed1c158f6cb037d0481e79a65d0",
+              "short_sha": "7f2c163",
+              "subject": "fix(tooling): pair roadmap areas with their most specific section"
+            },
+            {
+              "sha": "df72a453297f71b13f0f25b497adfcd0f14e0887",
+              "short_sha": "df72a45",
+              "subject": "test(tooling): the zero-dependency gate's scope corpus"
+            },
+            {
+              "sha": "40083b2863e85eb980ef635c30c5c3d9560a8ff3",
+              "short_sha": "40083b2",
+              "subject": "test(tooling): spell the three corpora in the suite's own provider idiom"
+            },
+            {
+              "sha": "5eefe21318bcb5d622e98e1a44fb33efad70f2d6",
+              "short_sha": "5eefe21",
+              "subject": "docs(roadmap): record the detection-scope corpora landing (#582)"
+            },
+            {
+              "sha": "2342366a14edd83f1808ca12cbfa7978f8856eef",
+              "short_sha": "2342366",
+              "subject": "test(tooling): a prefix sibling between the twins cannot end the scan"
+            },
+            {
+              "sha": "f5a45122f1f6a12ce3aca46efba5a93035c2638a",
+              "short_sha": "f5a4512",
+              "subject": "docs(roadmap): the history document's pin rides the landing too"
+            },
+            {
+              "sha": "1692ce793d77cdd5ad824a9c9ffc9c2b763a543c",
+              "short_sha": "1692ce7",
+              "subject": "Merge branch 'main' into fix/detection-scope-corpus"
+            },
+            {
+              "sha": "0a97c5f52fb7e8e7aa585cdcac208294213e4b71",
+              "short_sha": "0a97c5f",
+              "subject": "docs(roadmap): ride the pin on the mid-flight merge above both lineages"
+            },
+            {
+              "sha": "e940ca22c935ea9205b3647968b562bcca3863d4",
+              "short_sha": "e940ca2",
+              "subject": "docs(roadmap): the newest same-date row's cell rides the merge too"
             }
           ]
         },
