@@ -529,6 +529,28 @@
        report above does. The class is the command's engine, the
        script its only caller, and the test suites exercise both
        end to end. -->
+  <!-- The ecosystem export command family (bin/zef route:openapi /
+       route:postman) and the operation attribute: the renderers are
+       consumed by the bin/zef dispatch script, which sits outside
+       psalm's project files, so the unused-code analysis cannot see
+       the script its only caller, and the attribute's constructor is
+       instantiated through reflection (newInstance) over user
+       handler methods the analysis cannot enumerate. -->
+  <file src="src/Zef/Framework/Export/OpenApiOperationAttribute.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="tests/Support/Tooling/RouteOpenApiExport.php">
+    <UnusedClass>
+      <code><![CDATA[RouteOpenApiExport]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/RoutePostmanExport.php">
+    <UnusedClass>
+      <code><![CDATA[RoutePostmanExport]]></code>
+    </UnusedClass>
+  </file>
   <file src="tests/Support/Tooling/RouteInspectionBoot.php">
     <UnusedClass>
       <code><![CDATA[RouteInspectionBoot]]></code>

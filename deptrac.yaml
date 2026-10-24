@@ -49,6 +49,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Middleware\\#'
+    - name: Export
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Export\\#'
     - name: Kernel
       collectors:
         - type: classNameRegex
@@ -130,7 +134,12 @@ deptrac:
     # flow from: it is the one PSR-15 middleware whose answers flow from the
     # health seam's aggregator, so the composition lane joins `Health` the
     # same way it joined `Telemetry` -- the engine's own layer stays
-    # config-blind, and only the composition seam meets both engines.
+    # config-blind, and only the composition seam meets both engines. The
+    # ecosystem export's development endpoint (`OpenApiUiMiddleware`, the
+    # router lane's closing slice) widens the lane to `Export` the same way:
+    # it is the one PSR-15 middleware whose answers flow from the export
+    # family's document rendering, so the composition lane -- not the export
+    # family's own layer -- is where the disclosure's face lives.
     Middleware:
       - Exception
       - Container
@@ -139,6 +148,19 @@ deptrac:
       - Http
       - Telemetry
       - Health
+      - Export
+    # The export family is the ecosystem bridge: the route table's own
+    # rendering into the interchange documents the wider PHP and tooling
+    # ecosystem reads (OpenAPI 3.1, Postman Collection v2.1.0). It reads the
+    # compiled table the Config Routing engine answers (the read-side seams
+    # the inspection lane landed: `RadixTree::routes()`,
+    # `RouteConstraints::pattern()`) and depends on nothing else but the
+    # exception root -- the same one-way, engine-blind posture the Telemetry
+    # layer carries: the engine never knows a document is being rendered
+    # from it, and only this family's folds do the translating.
+    Export:
+      - Exception
+      - Config
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the
@@ -164,10 +186,15 @@ deptrac:
     # route inspection commands widen the same lane the same way: they read
     # the router facade and the compiled entries / match explanations the
     # Config Routing engine answers (`Router`, `Config`) -- read-side
-    # composition over the same boot, never a parallel parse.
+    # composition over the same boot, never a parallel parse. The ecosystem
+    # export commands widen it once more, the same way: `route:openapi` and
+    # `route:postman` render the same compiled entries through the export
+    # family's document folds (`Export`) -- read-side composition again, the
+    # renderer never re-deriving what the folds already own.
     Tooling:
       - Kernel
       - Exception
       - Container
       - Router
       - Config
+      - Export

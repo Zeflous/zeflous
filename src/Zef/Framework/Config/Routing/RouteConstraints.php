@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Config\Routing;
 
-use Zef\Framework\Config\ConfigException;
-
 /**
  * The parameter constraints of one route, validated and anchored at
  * compile time.
@@ -25,7 +23,11 @@ use Zef\Framework\Config\ConfigException;
  * matches before a trailing newline, an end the captured value did
  * not reach). At match time {@see self::check()} is the single seam
  * -- one anchored `preg_match` per captured value, and `true` when
- * the parameter carries no constraint at all.
+ * the parameter carries no constraint at all. The read side answers
+ * the same truth for tooling: {@see self::pattern()} hands the
+ * declared pattern (verbatim, unanchored) to the export folds, so an
+ * OpenAPI parameter schema renders the route's own constraint -- the
+ * engine's declaration, never a re-derivation.
  *
  * @api
  */
@@ -33,8 +35,9 @@ final readonly class RouteConstraints
 {
     /**
      * @param array<string, non-empty-string> $patterns anchored patterns per parameter name
+     * @param array<string, non-empty-string> $declared the declared pattern per parameter name, verbatim
      */
-    private function __construct(private array $patterns)
+    private function __construct(private array $patterns, private array $declared)
     {
     }
 
@@ -45,36 +48,25 @@ final readonly class RouteConstraints
      */
     public static function fromMap(array $constraints, RoutePath $routePath): self
     {
-        $names = array_fill_keys($routePath->parameterNames(), true);
-        $patterns = [];
+        [$patterns, $declared] = RouteConstraintDeclarations::validated($constraints, $routePath);
 
-        foreach ($constraints as $name => $pattern) {
-            if (!isset($names[$name])) {
-                throw new ConfigException(
-                    \sprintf(
-                        'The route pattern "%s" constrains the unknown parameter "%s".',
-                        $routePath->pattern(),
-                        $name,
-                    ),
-                );
-            }
+        return new self($patterns, $declared);
+    }
 
-            $anchored = '/^(?:' . $pattern . ')\z/';
-
-            if (!self::isCompilable($anchored)) {
-                throw new ConfigException(
-                    \sprintf(
-                        'The route pattern "%s" has an invalid constraint pattern for the parameter "%s".',
-                        $routePath->pattern(),
-                        $name,
-                    ),
-                );
-            }
-
-            $patterns[$name] = $anchored;
-        }
-
-        return new self($patterns);
+    /**
+     * The declared constraint pattern for one parameter, verbatim and
+     * unanchored, or null when the parameter carries no constraint:
+     * the read-side seam the ecosystem export renders from (an
+     * OpenAPI parameter schema's `pattern` is the route's own
+     * declaration, spelled as its author wrote it).
+     *
+     * @param string $name the route parameter's name
+     *
+     * @return null|non-empty-string
+     */
+    public function pattern(string $name): ?string
+    {
+        return $this->declared[$name] ?? null;
     }
 
     /**
@@ -88,28 +80,5 @@ final readonly class RouteConstraints
         }
 
         return preg_match($this->patterns[$name], $value) === 1;
-    }
-
-    /**
-     * Probes whether a pattern compiles. The engine-level diagnostic the
-     * invalid pattern raises is converted into the probe's answer: an
-     * invalid pattern is an expected outcome here, not an error to report,
-     * so the scoped handler throws a marker the catch turns into `false`.
-     *
-     * @param non-empty-string $pattern
-     */
-    private static function isCompilable(string $pattern): bool
-    {
-        set_error_handler(static function (): never {
-            throw new ConfigException('The constraint pattern does not compile.');
-        });
-
-        try {
-            return preg_match($pattern, '') !== false;
-        } catch (ConfigException) {
-            return false;
-        } finally {
-            restore_error_handler();
-        }
     }
 }
