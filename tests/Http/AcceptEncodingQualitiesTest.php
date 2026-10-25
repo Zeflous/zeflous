@@ -59,6 +59,34 @@ final class AcceptEncodingQualitiesTest extends TestCase
         );
     }
 
+    public function testAQualityParameterWithLeadingOwsReads(): void
+    {
+        // The weight grammar's own OWS (RFC 9110: `weight = OWS ";" OWS
+        // "q=" qvalue`) -- a legal header the walk must read through,
+        // not a refusal: `gzip; q=0` is the client refusing gzip, and
+        // reading it as the default 1.0 would serve exactly what was
+        // refused (the round-3 audit's R3-1).
+        self::assertSame(
+            ['gzip' => 0.0],
+            AcceptEncodingQualities::qualities('gzip; q=0'),
+            "the OWS before the parameter name is the grammar's own, not the value's",
+        );
+        self::assertSame(
+            ['gzip' => 0.5],
+            AcceptEncodingQualities::qualities('gzip ; q=0.5'),
+            'trailing OWS on the token and leading OWS on the parameter are one legal member',
+        );
+    }
+
+    public function testOwsAroundTheSemicolonIsNotOwsInsideTheValue(): void
+    {
+        self::assertSame(
+            ['gzip' => 0.0],
+            AcceptEncodingQualities::qualities('gzip ; q= 1'),
+            "the grammar's OWS lives around the parameter, never inside its value",
+        );
+    }
+
     #[DataProvider('provideMalformedMembersAreSkippedCases')]
     public function testMalformedMembersAreSkipped(string $header, string $survivor): void
     {

@@ -18,8 +18,8 @@ green at ~58.3 μs per compressed 5.6 KB answer (±0.23%, 500 revs).
 |---|---|
 | `CompressionKnobs` / `CompressionPolicy` | the strict knob reading (`http.compression`: `enabled`, `minimum_bytes` 1..1048576, `level` 1..9) |
 | `HttpFamilies` | the `http` map's family census — the second family is the moment the census exists (KDD-CP10) |
-| `AcceptEncodingQualities` | the `Accept-Encoding` grammar (bounded 8192, coding→q map, malformed members skipped) |
-| `CompressionCapabilities` | what this PHP build can produce (brotli only behind its extension; gzip+deflate over the bundled zlib engine) |
+| `AcceptEncodingQualities` | the `Accept-Encoding` grammar (bounded 8192, coding→q map, weight-grammar OWS read, malformed members skipped) |
+| `CompressionCapabilities` | what the family's fold can produce (gzip+deflate over the bundled zlib engine; `br` unadmitted until the fold speaks it) |
 | `CompressionNegotiator` | the preference walk: roadmap order `br` > `gzip` > `deflate`, ∩ client grant ∩ capability |
 | `ContentCoding` | the vocabulary: preference table + zlib windows (`gzip`=31, `deflate`=15 — the RFC 9110 zlib reading) |
 | `CompressedBody` | the streaming fold: 8192-byte chunk reads → `deflate_add()` → `php://temp/maxmemory:65536` |
@@ -49,17 +49,24 @@ the same trade the emitter's chunked `echo` makes. The destination is
 its 64 KB allowance and spills to disk beyond it — Phase 1.1's
 memory-safe-buffering posture replayed for the compression lane.
 
-## KDD-CP2 — the capability probe is honest, the preference table is the roadmap's
+## KDD-CP2 — the capability probe is honest about the fold, the preference table is the roadmap's
 
-The preference order `br` > `gzip` > `deflate` is the roadmap's own. PHP
-core carries no brotli (PECL only), so `CompressionCapabilities::detect()`
-probes the function table (`brotli_compress`, `deflate_init`) and the
-negotiator walks the preference order ∩ the probe's answer: on a stock
-build `br` never wins however loudly the client asks, and on a build with
-the extension it lights up without a code change. The probe is injectable
-(the negotiator takes the list), so the capability-absent posture — an
-empty list that must answer identity — is pinnable without uninstalling
-an extension.
+The preference order `br` > `gzip` > `deflate` is the roadmap's own.
+`CompressionCapabilities::detect()` answers the family's own fold, not
+the function table: `CompressedBody` folds through the zlib engine's
+incremental seam, so the probe admits `gzip`+`deflate` over
+`deflate_init()` and nothing else. Brotli exists only behind a PECL
+extension, and the extension's presence is not a capability this
+family owns -- the fold has no brotli seam to ride, so admitting `br`
+would hand the negotiator a coding whose first eligible body answers
+500 (the round-3 audit's R3-2: ext-brotli build + browser clients +
+one compressible response = a guaranteed failure; CI's stock runners
+never saw it because they carry no brotli). The negotiator walks the
+preference order ∩ the probe's answer: `br` never wins however loudly
+the client asks, until the fold grows a brotli seam and the probe grows
+its admission with it. The probe is injectable (the negotiator takes
+the list), so the capability-absent posture — an empty list that must
+answer identity — is pinnable without uninstalling an extension.
 
 ## KDD-CP3 — identity is served, never 406'd
 

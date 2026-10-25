@@ -26,7 +26,14 @@ namespace Zef\Framework\Http;
  * with no quality parameter is 1.0. A repeated coding keeps its
  * highest quality -- the same max-fold the media-range parser
  * applies, so `gzip;q=0.1, gzip` reads as 1.0, never as the 0.1 an
- * earlier member wished on it.
+ * earlier member wished on it. The parameters may carry the weight
+ * grammar's own optional whitespace around the semicolons (`gzip ;
+ * q=0.5` is the member `gzip;q=0.5` spells): each parameter is
+ * trimmed before the `q=` match and the token before its own match,
+ * exactly as the media-range parser trims its own -- while the value
+ * stays anchored at the equals sign (`q= 1` is the refusal it always
+ * was, because the grammar's OWS lives around the parameter, never
+ * inside its value).
  *
  * The map keeps zero qualities and the `identity` and `*` spellings:
  * whether a zero excludes a coding and whether a wildcard accepts one
@@ -66,22 +73,27 @@ final class AcceptEncodingQualities
     }
 
     /**
+     * @param string $member the `;`-separated member, OWS already
+     *                       trimmed around it by the walk
+     *
      * @return null|array{string, float} the lowercase coding with its
      *                                   quality, or null when the member is
      *                                   not a coding token
      */
     private static function coding(string $member): ?array
     {
-        $token = explode(';', $member)[0];
+        $token = mb_trim(explode(';', $member)[0]);
         if (preg_match('/^[a-z0-9!#$%&\'*+\-.^_`|~]+$/', $token) !== 1) {
             return null;
         }
 
-        return [$token, self::quality(explode(';', $member))];
+        return [$token, self::quality(array_map(trim(...), explode(';', $member)))];
     }
 
     /**
-     * @param list<string> $segments the member's `;`-separated parameters
+     * @param list<string> $segments the member's `;`-separated
+     *                               parameters, each trimmed of the
+     *                               weight grammar's own OWS
      *
      * @return float the last `q=` parameter's value, or 1.0 when the member
      *               carries none

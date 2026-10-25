@@ -11,6 +11,7 @@ use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\SessionFactory;
 use Zef\Test\Support\Http\SessionObservingHandler;
+use Zef\Test\Support\Http\SessionWritingHandler;
 
 /**
  * The session middleware's construction seam, on its own terms: the
@@ -39,14 +40,14 @@ final class SessionFactoryTest extends TestCase
                 ],
             ],
         ]);
-        $sessionObservingHandler = new SessionObservingHandler();
+        $sessionWritingHandler = new SessionWritingHandler();
 
         $response = SessionFactory::fromConfig($config)
-            ->process($this->request(), $sessionObservingHandler)
+            ->process($this->request(), $sessionWritingHandler)
         ;
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertNotNull($sessionObservingHandler->state, 'the factory-built boundary decorates the session bag');
+        self::assertNotNull($sessionWritingHandler->state, 'the factory-built boundary decorates the session bag');
         self::assertMatchesRegularExpression(
             '/^shop_session=[A-Za-z0-9_-]{43};/',
             $response->getHeaderLine('Set-Cookie'),
@@ -56,15 +57,15 @@ final class SessionFactoryTest extends TestCase
 
     public function testTheFactoryBuildsTheDefaultArmedPostureFromTheAbsentFamily(): void
     {
-        $sessionObservingHandler = new SessionObservingHandler();
+        $sessionWritingHandler = new SessionWritingHandler();
 
         $response = SessionFactory::fromConfig(new Config([]))
-            ->process($this->request(), $sessionObservingHandler)
+            ->process($this->request(), $sessionWritingHandler)
         ;
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertNotNull($sessionObservingHandler->state);
-        self::assertTrue($sessionObservingHandler->state->isNew(), 'the absent family reads the armed default posture');
+        self::assertNotNull($sessionWritingHandler->state);
+        self::assertTrue($sessionWritingHandler->state->isNew(), 'the absent family reads the armed default posture');
         self::assertMatchesRegularExpression(
             '/^zef_session=[A-Za-z0-9_-]{43};/',
             $response->getHeaderLine('Set-Cookie'),

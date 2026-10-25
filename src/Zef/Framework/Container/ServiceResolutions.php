@@ -106,18 +106,30 @@ final readonly class ServiceResolutions
     }
 
     /**
-     * The singleton lane: the frame ledger opens its wider-lifetime
-     * frame around the guarded call, so the memo records exactly what
-     * the factory resolved -- and the request lane's captive guard can
-     * name the captor while it does.
+     * The singleton lane: the frame ledger's wider-lifetime frame
+     * rides the guarded call itself -- the closure handed onward wraps
+     * the call in {@see ResolutionFrames::withinSingleton()} -- so the
+     * frame is open at both moments that call can run: the eager
+     * factory call the lane takes here, and the lazy proxy's
+     * materialisation, later, at an arbitrary first-use call-site far
+     * from this lane ({@see LazyMaterialisations} runs the embedded
+     * closure there). One wrapped spelling for both moments, so they
+     * cannot drift apart again -- and the memo records exactly what
+     * the factory resolved while the request lane's captive guard can
+     * name the captor at either moment.
      */
     private function singletonLane(string $id, Container $container): mixed
     {
         return $this->singletonMemo->answer(
             $id,
-            fn (): mixed => $this->resolutionFrames->withinSingleton(
+            fn (): mixed => $this->lazyDeferrals->answering(
                 $id,
-                fn (): mixed => $this->lazyDeferrals->answering($id, $container, $this->guarded(...)),
+                $container,
+                fn (string $resolvedId, Container $resolvedContainer): mixed => $this->resolutionFrames
+                    ->withinSingleton(
+                        $resolvedId,
+                        fn (): mixed => $this->guarded($resolvedId, $resolvedContainer),
+                    ),
             ),
         );
     }
