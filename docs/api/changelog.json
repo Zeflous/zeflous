@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-25T06:41:24Z",
+  "as_of": "2026-10-25T13:58:36Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 259,
+  "unreleased_count": 260,
   "versions": [
     {
       "version": "Unreleased",
@@ -3490,6 +3490,37 @@
                 "sha": "ebf31398b5c448eac381d0013c2a2ea65d9a4770",
                 "short_sha": "ebf3139",
                 "subject": "docs(roadmap): record the storage layout slice and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 610,
+            "title": "feat(http): the debugging utilities over the inspection boot",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-25T13:58:36Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/610",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0128e4bef7b865984ec098e470a435bf3924ec50",
+                "short_sha": "0128e4b",
+                "subject": "feat(http): the debugging utilities over the inspection boot"
+              },
+              {
+                "sha": "35854034c9cda900a5785d52bcc1da7d92b17ca8",
+                "short_sha": "3585403",
+                "subject": "docs(roadmap): record the debugging utilities slice and pin the lane"
+              },
+              {
+                "sha": "2b36b56b3dbf88f5e2a18f189fc8401ba4bbab95",
+                "short_sha": "2b36b56",
+                "subject": "fix(http): spell the audit folds within the channel's own line bound"
+              },
+              {
+                "sha": "cc62ae02f80a4d275817e30be72425ceb4cf46ff",
+                "short_sha": "cc62ae0",
+                "subject": "docs(roadmap): re-pin the debugging utilities row to the fold-spelling fix"
               }
             ]
           }
@@ -16661,6 +16692,37 @@
               "sha": "ebf31398b5c448eac381d0013c2a2ea65d9a4770",
               "short_sha": "ebf3139",
               "subject": "docs(roadmap): record the storage layout slice and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 610,
+          "title": "feat(http): the debugging utilities over the inspection boot",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-25T13:58:36Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/610",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0128e4bef7b865984ec098e470a435bf3924ec50",
+              "short_sha": "0128e4b",
+              "subject": "feat(http): the debugging utilities over the inspection boot"
+            },
+            {
+              "sha": "35854034c9cda900a5785d52bcc1da7d92b17ca8",
+              "short_sha": "3585403",
+              "subject": "docs(roadmap): record the debugging utilities slice and pin the lane"
+            },
+            {
+              "sha": "2b36b56b3dbf88f5e2a18f189fc8401ba4bbab95",
+              "short_sha": "2b36b56",
+              "subject": "fix(http): spell the audit folds within the channel's own line bound"
+            },
+            {
+              "sha": "cc62ae02f80a4d275817e30be72425ceb4cf46ff",
+              "short_sha": "cc62ae0",
+              "subject": "docs(roadmap): re-pin the debugging utilities row to the fold-spelling fix"
             }
           ]
         }
