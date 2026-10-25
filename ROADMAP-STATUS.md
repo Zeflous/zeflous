@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-25 · `main` @ `ee52d1a`
+**Last updated:** 2026-10-25 · `main` @ `7dbf2f2`
 
 ---
 
@@ -95,6 +95,16 @@ see how far the code has moved against the roadmap.
 | Area | Status | Evidence |
 |------|--------|----------|
 | Versioning policy | ✅ Implemented | `src/Zef/Framework/Version.php` (`Version::current()`), `tests/VersionTest.php`. |
+
+---
+
+## Storage layout (`files/**` route map)
+
+Cross-cutting substrate — not a `ROADMAP.md` area of its own; tracked here the way the quality-gates cross-cut is.
+
+| Area | Status | Evidence |
+|------|--------|----------|
+| The lane map, the repository skeleton, the inspector | 🟡 Partial | `src/Zef/Framework/Storage/` (#605): `StorageLane` the five-lane vocabulary (`logs`/`cache`/`temp`/`uploads`/`replay`, each with its one-line purpose, `sessions` waiting for the file driver), `StorageRoot` + `StorageDocumentRoot` the root's geometry (existing/writable/non-symlink/resolvable/outside the public document root, the fold split answering the archeology ceiling), `StorageLaneDirectory` the per-lane fold (every refusal naming its lane), `StorageLayout` the fail-closed walk and `StoragePaths` the answered snapshot; the repository's own `files/` skeleton with the `.gitignore` contents-ignored/structure-kept discipline, `StorageSkeletonTest` pinning tree ↔ vocabulary ↔ gitignore; the inspector `bin/zef storage:map [<root>] [--json]` over `tests/Support/Tooling/StorageMapText`/`StorageMapJson` — the root defaulting to the checkout's `files/`, `ZEF_STORAGE_ROOT` the env override, exit 1 naming a misprovisioned tree's defect (the doctor's verdict, never the route commands' usage 2); deptrac's empty-ruleset `Storage` layer; scoped infection 81 mutants MSI 100/100; KDD-SL1..SL7 in `docs/ci-notes/storage-layout.md`. The family integrations (error lane `log_path`, replay default, config/AOT cache defaults, the CLI's `var/log` migration, the sessions lane) are each a named follow-up slice. |
 
 ---
 

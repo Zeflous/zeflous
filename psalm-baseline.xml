@@ -333,6 +333,11 @@
       <code><![CDATA[restore]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Storage/StorageLayout.php">
+    <UnusedClass>
+      <code><![CDATA[StorageLayout]]></code>
+    </UnusedClass>
+  </file>
   <file src="src/Zef/Framework/Telemetry/BatchSpanProcessor.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[shutdown]]></code>
@@ -470,6 +475,16 @@
   <file src="tests/Support/Tooling/RouteTreeText.php">
     <UnusedClass>
       <code><![CDATA[RouteTreeText]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/StorageMapJson.php">
+    <UnusedClass>
+      <code><![CDATA[StorageMapJson]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/StorageMapText.php">
+    <UnusedClass>
+      <code><![CDATA[StorageMapText]]></code>
     </UnusedClass>
   </file>
 </files>

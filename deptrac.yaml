@@ -53,6 +53,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Export\\#'
+    - name: Storage
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Storage\\#'
     - name: Kernel
       collectors:
         - type: classNameRegex
@@ -161,6 +165,16 @@ deptrac:
     Export:
       - Exception
       - Config
+    # The storage layout is the `files/**` route map: the pure value
+    # component every file-writing family resolves its on-disk lane
+    # addresses through. It owns no filesystem writes, no configuration
+    # reading and no error tier of its own (its refusals are the
+    # construction-time InvalidArgumentException the replay directory and
+    # the JSON log destination already spell) -- so it depends on nothing,
+    # the same innermost posture the Exception root carries, and every
+    # future consumer (the error lane's log address, the configuration
+    # cache, the session file driver) reaches it one-way.
+    Storage: ~
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the
@@ -190,7 +204,10 @@ deptrac:
     # export commands widen it once more, the same way: `route:openapi` and
     # `route:postman` render the same compiled entries through the export
     # family's document folds (`Export`) -- read-side composition again, the
-    # renderer never re-deriving what the folds already own.
+    # renderer never re-deriving what the folds already own. The storage map
+    # command widens it to the layout's own component (`Storage`): the
+    # inspector renders the resolved lane map the value component answers,
+    # the same read-side composition over a component that owns no writes.
     Tooling:
       - Kernel
       - Exception
@@ -198,3 +215,4 @@ deptrac:
       - Router
       - Config
       - Export
+      - Storage

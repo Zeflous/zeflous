@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-10-25 · `main` @ `ee52d1a`
+**Last updated:** 2026-10-25 · `main` @ `7dbf2f2`
 
 **How to read this file**
 
@@ -33,7 +33,8 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Roadmap docs | 3 |
 | Configuration System | 29 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
-| **Total merged PRs** | **181** |
+| Storage layout | 1 |
+| **Total merged PRs** | **182** |
 
 ---
 
@@ -303,6 +304,14 @@ Superseded or investigative runs, kept so the history is complete and verifiable
 |---|---|---|---|
 | feat(kernel): config-driven container definitions and the middleware pipeline (`src/Zef/Framework/Middleware/`: `MiddlewarePipeline` the PSR-15 execution engine — final readonly, the index advanced by constructing the next stage, a terminal-less exhaustion answering the 500 plain-text response; `PipelineFactory` the construction lane over the `middleware.stack` configuration key — priority-highest-first Schwartzian ordering with an explicit declaration-order tiebreak, per-entry fail-closed resolution through the PSR-11 container, non-`MiddlewareInterface` services rejected at build time; `MiddlewareDefinition` the string/map entry grammar with the `is_numeric` priority gate and `id` as the `service` alias; plus the container's declarative definition grammar `src/Zef/Framework/Container/Definition*` — the four mutually-exclusive shapes parsed fail-closed, `['service' => id]` references, boot-time reference-graph validation (unknown targets and circular chains with the walked path) — and the `ContainerBootstrapper` config->container glue over the `services` key; deptrac Middleware layer above `[Exception, Container, Config, Http]` and the Kernel collector widened; mutation hygiene cleaning the three `X: syntax error`-misclassified mutants in the ConfigCache zone; `PipelineBench`; KDD-M1..M10 in `docs/ci-notes/middleware-pipeline.md`) | #328 | 2026-10-14 | `7711c6a20` |
 
+## 12. Storage layout
+
+The `files/**` route map — the cross-cutting substrate every file-writing family resolves its on-disk lane addresses through (the consistency mandate the repository's own operator spelled: one declared root, five canonical lanes, the same map in the sandbox, in development and in production).
+
+| Work item | PR | Merged | Commit |
+|---|---|---|---|
+| feat(storage): the files tree route map (five classes under `src/Zef/Framework/Storage/`: `StorageLane` the lane vocabulary — logs/cache/temp/uploads/replay, the five lanes with a live writer or a named reservation, each carrying its one-line purpose the inspector prints, and `sessions` deliberately absent until the file driver lands (the census-moment doctrine: a lane without a writer is a directory nobody provisions and nobody checks); `StorageRoot` the root's own geometry — existing, writable, non-symlink, `realpath()`-resolvable, outside the public document root, never created for you (the standing doctrine: provisioning is deployment tooling); `StorageDocumentRoot` the document-root fold — the JSON log destination's own spelling replayed under the Storage layer, the equal-or-inside judgement in one comparison, failing closed on an unresolvable declared root, AND the archeology answer: the root's first spelling at difficulty 20.89 folded the geometry out and fell to 10.71 with the fold at 14.08, the house's own ceiling discipline; `StorageLaneDirectory` the per-lane fold — every refusal NAMING the lane, an operator told "the 'uploads' lane is not writable" fixes one directory; `StorageLayout` the fail-closed walk — root fold, then every lane in the vocabulary's declaration order, stopping at the FIRST refusal, never a partial map; and `StoragePaths` the answered snapshot — no filesystem calls of its own, a changed tree is a new walk); the privacy posture deliberately NOT duplicated (the route map owns WHERE, the lanes' own validators own HOW PRIVATE — `ReplayStorageDirectory`'s owner-only requirement and `JsonLogFilePrivacy` stay exactly where they are, two questions two seams); the repository's own `files/` skeleton ships (five lanes with `.gitkeep`, the `.gitignore` discipline ignoring contents and keeping structure, `StorageSkeletonTest` pinning the tree against the vocabulary so a lane on one side without the other reddens before any environment provisions a wrong-shaped tree); and the inspector `bin/zef storage:map [<root>] [--json]` over the two Tooling renderers (`StorageMapText` the size-headed table, `StorageMapJson` the stable record shape over the route family's one encoding spelling) — the root defaulting to the checkout's own `files/`, `ZEF_STORAGE_ROOT` riding the replay arm's env doctrine, and the exit codes inverted against the route commands' own DELIBERATELY: the tree IS the subject of the diagnosis, so a missing or misprovisioned tree answers exit 1 with the defect named on STDERR, never the route command's usage-defect 2 — the doctor's primary failure is the verdict it exists to report; deptrac gains the Storage layer (ruleset empty — the component depends on nothing, the innermost posture) with the Tooling widening for the renderers; the ad-hoc path conventions consolidate in their own named slices (the CLI's `var/log` default, the error lane's `log_path`/`replay_path` knobs and the config/AOT cache paths all keep their semantics — each derivation is a knob renegotiation its family's own tests must own); psalm books three unused-class baseline entries (the route inspector's own posture: the orchestrator and the renderers are consumed by `bin/zef`, which sits outside psalm's project files); scoped infection 81 mutants MSI 100/100 with 0 escapes (one method-scoped `FalseValue` ignore — the document-root resolvers' own doctrine entry, the third method joining the two the JSON log and replay folds already carry); 5326 tests / 13040 assertions; KDD-SL1..SL7 in `docs/ci-notes/storage-layout.md`) | #605 | 2026-10-25 | `7dbf2f2` |
+
 ## Not yet done
 
 These roadmap areas are **not yet complete** (see `ROADMAP-STATUS.md` for the live meter) — each bullet names what is still open:
@@ -313,6 +322,7 @@ These roadmap areas are **not yet complete** (see `ROADMAP-STATUS.md` for the li
 - **Event Source System** — not started.
 - **Module Integration System** — not started beyond the `ServiceProviderInterface` contract.
 - **Adapters Layer** (view engine, database) — not started.
+- **Storage layout (`files/**` route map)** — the map, the repository skeleton and the `storage:map` inspector are live (#605): the five-lane vocabulary, the root and lane folds with every refusal naming its subject, the fail-closed walk, and the skeleton pin holding the tree against the vocabulary. Remaining open: the family integrations, each its own slice with its own knob renegotiation — the error lane's `log_path` deriving from the `logs` lane, the replay directory defaulting to the `replay` lane, the configuration and AOT caches defaulting to the `cache` lane, the CLI's own `var/log` default migrating, and the `sessions` lane joining when the session file driver lands.
 - **Error Handling** — phases 1, 2 and 4 plus phase 3's logging, tracing and metrics slices are live (#2, #434, #444, and the lane's hardening follow-up): the typed family with the three-tier status map, RFC 9457 problem+json with the escaped HTML fallback, the outermost error boundary wired into the default stack, the debug/production disclosure modes over the double APP_ENV gate, the observability severity policy with the W3C span error record and `zef.http.errors.total`, the CSP-safe toolbar, the owner-only JSONL logger, the guarded `bin/zef` inspector and the fail-closed local replay. Remaining open: the optional error-analytics dashboard (phase 3.3, low priority), the metrics `route` dimension (the Router lane's observability slice -- the throw site that feeds it is live since #533), and the toolbar's query counting (waiting on the database adapters).
 
 ---

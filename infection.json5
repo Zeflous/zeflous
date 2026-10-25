@@ -1163,12 +1163,18 @@
         // express this: the arm's own line is a bare ": false;" that
         // a health check's narrowing arm shares, and that shared arm
         // is observably false for every non-boolean answer, so the
-        // ignore is scoped to the two resolver methods instead, each
-        // of which carries exactly one boolean literal.
+        // ignore is scoped to the three resolver methods instead, each
+        // of which carries exactly one boolean literal. The storage
+        // layout's own document-root fold (the route map's slice) joins
+        // the same list with the same argument: its arm is the very
+        // spelling the JSON log destination's fold owns, replayed
+        // under the Storage layer, and its battery rides the same
+        // document-root geometry the storage root's own guard pins.
         "FalseValue": {
             "ignore": [
                 "Zef\\Framework\\Http\\ReplayStorageDirectory::resolve",
-                "Zef\\Framework\\Logging\\JsonLogDocumentRoot::assertDestinationIsOutside"
+                "Zef\\Framework\\Logging\\JsonLogDocumentRoot::assertDestinationIsOutside",
+                "Zef\\Framework\\Storage\\StorageDocumentRoot::assertOutside"
             ]
         },
         // The TYPE bookkeeping's boolean stores are
