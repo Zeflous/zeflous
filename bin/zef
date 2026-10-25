@@ -506,6 +506,154 @@ if ($command === 'storage:map') {
     }
 }
 
+if (in_array($command, ['http:dump', 'http:headers'], true)) {
+    $httpUsage = "Usage: bin/zef http:dump <config-directory> <method> <path>"
+        . " [--host=<host>] [--scheme=http|https] [--header=<Name: Value>]... [--body=<text>]\n"
+        . "       bin/zef http:headers <config-directory> <method> <path>"
+        . " [--host=<host>] [--scheme=http|https] [--header=<Name: Value>]... [--body=<text>] [--json]\n";
+
+    $configDirectoryArgument = $argv[2] ?? '';
+    $method = $argv[3] ?? '';
+    $path = $argv[4] ?? '';
+
+    if ($configDirectoryArgument === '' || str_starts_with($configDirectoryArgument, '--')) {
+        fwrite(STDERR, $httpUsage);
+        exit(2);
+    }
+
+    $resolvedConfigDirectory = realpath($configDirectoryArgument);
+    if ($resolvedConfigDirectory === false || !is_dir($resolvedConfigDirectory)) {
+        fwrite(STDERR, "Configuration directory does not exist: {$configDirectoryArgument}\n");
+        exit(2);
+    }
+
+    if (preg_match('/^[!#$%&\'*+.^_`|~0-9A-Za-z-]{1,32}$/D', $method) !== 1) {
+        fwrite(STDERR, "Invalid request method: {$method}\n");
+        exit(2);
+    }
+
+    if ($path === '' || !str_starts_with($path, '/') || strlen($path) > 2048
+        || preg_match('/[\x00-\x1f\x7f]/', $path) === 1) {
+        fwrite(STDERR, "The request path must start with a slash and carry no control bytes.\n");
+        exit(2);
+    }
+
+    $host = 'localhost';
+    $scheme = 'http';
+    $headerArguments = [];
+    $body = '';
+    $asJson = false;
+
+    foreach (array_slice($argv, 5) as $argument) {
+        if (str_starts_with($argument, '--host=')) {
+            $host = substr($argument, strlen('--host='));
+        } elseif (str_starts_with($argument, '--scheme=')) {
+            $scheme = substr($argument, strlen('--scheme='));
+        } elseif (str_starts_with($argument, '--header=')) {
+            $headerArguments[] = substr($argument, strlen('--header='));
+        } elseif (str_starts_with($argument, '--body=')) {
+            $body = substr($argument, strlen('--body='));
+        } elseif ($argument === '--json' && $command === 'http:headers') {
+            $asJson = true;
+        } else {
+            fwrite(STDERR, $httpUsage);
+            exit(2);
+        }
+    }
+
+    if ($host === '' || strlen($host) > 253 || preg_match('/[\x00-\x1f\x7f]/', $host) === 1) {
+        fwrite(STDERR, "Invalid --host= value.\n");
+        exit(2);
+    }
+
+    if (!in_array($scheme, ['http', 'https'], true)) {
+        fwrite(STDERR, "The --scheme= flag accepts http or https.\n");
+        exit(2);
+    }
+
+    if (count($headerArguments) > 16) {
+        fwrite(STDERR, "At most 16 --header= flags are accepted.\n");
+        exit(2);
+    }
+
+    $headerPairs = [];
+    foreach ($headerArguments as $headerArgument) {
+        $colon = strpos($headerArgument, ':');
+        $headerName = $colon === false ? '' : substr($headerArgument, 0, $colon);
+        $headerValue = $colon === false ? '' : ltrim(substr($headerArgument, $colon + 1), ' ');
+
+        if (preg_match('/^[!#$%&\'*+.^_`|~0-9A-Za-z-]+$/D', $headerName) !== 1
+            || $headerValue === ''
+            || strlen($headerValue) > 4096
+            || preg_match('/[\x00-\x08\x0a-\x1f\x7f]/', $headerValue) === 1) {
+            fwrite(STDERR, "Each --header= flag must spell `Name: value`"
+                . " with a printable value of at most 4096 bytes.\n");
+            exit(2);
+        }
+
+        $headerPairs[] = [$headerName, $headerValue];
+    }
+
+    if (strlen($body) > 8192) {
+        fwrite(STDERR, "The --body= flag accepts at most 8192 bytes.\n");
+        exit(2);
+    }
+
+    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    if (is_file($autoload)) {
+        require_once $autoload;
+    } else {
+        spl_autoload_register(static function (string $class): void {
+            $bases = [
+                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+            ];
+            foreach ($bases as $prefix => $base) {
+                if (str_starts_with($class, $prefix)) {
+                    $file = $base
+                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                    if (is_file($file)) {
+                        require $file;
+                    }
+                }
+            }
+        });
+    }
+
+    try {
+        $exchange = Zef\Test\Support\Tooling\HttpInspectionBoot::answered(
+            $resolvedConfigDirectory,
+            $method,
+            $path,
+            $host,
+            $scheme,
+            $headerPairs,
+            $body,
+        );
+
+        if ($command === 'http:dump') {
+            fwrite(STDOUT, Zef\Test\Support\Tooling\HttpDumpText::rendered($exchange));
+            exit(0);
+        }
+
+        $audit = Zef\Framework\Http\SecurityHeaderAudit::over(
+            $exchange->response,
+            $exchange->scheme(),
+        );
+
+        fwrite(
+            STDOUT,
+            $asJson
+                ? Zef\Test\Support\Tooling\HeaderAuditJson::rendered($audit) . "\n"
+                : Zef\Test\Support\Tooling\HeaderAuditText::table($audit),
+        );
+        exit($audit->passed() ? 0 : 1);
+    } catch (Throwable $inspectionFailure) {
+        fwrite(STDERR, 'The HTTP inspection refused: ' . $inspectionFailure->getMessage() . "\n");
+        exit(1);
+    }
+}
+
 $path = getenv('ZEF_ERROR_LOG') ?: DEFAULT_ERROR_LOG;
 $requestIdFilter = null;
 foreach (array_slice($argv, 2) as $argument) {

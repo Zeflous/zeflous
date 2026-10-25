@@ -208,6 +208,13 @@ deptrac:
     # command widens it to the layout's own component (`Storage`): the
     # inspector renders the resolved lane map the value component answers,
     # the same read-side composition over a component that owns no writes.
+    # The HTTP inspection commands widen it twice more, the same way:
+    # `http:dump` and `http:headers` answer a simulated exchange through
+    # the same composition the runtime rides -- the middleware lane's own
+    # PSR-15 request handler inside the pipeline the kernel's orchestrator
+    # builds (`Middleware`) -- and render it through the HTTP layer's own
+    # wire folds and security-header audit (`Http`) -- execution-side
+    # composition over the same boot, the exchange never re-derived.
     Tooling:
       - Kernel
       - Exception
@@ -216,3 +223,5 @@ deptrac:
       - Config
       - Export
       - Storage
+      - Http
+      - Middleware

@@ -2,7 +2,6 @@
 <files psalm-version="6.19.2@fa716e443b23e6fa35bf58907e67ca692ec3c00a">
   <file src="src/Contracts/Psr/Http/Message/MessageInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[getProtocolVersion]]></code>
       <code><![CDATA[withProtocolVersion]]></code>
     </PossiblyUnusedMethod>
   </file>
@@ -13,7 +12,6 @@
   </file>
   <file src="src/Contracts/Psr/Http/Message/RequestInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[getRequestTarget]]></code>
       <code><![CDATA[withRequestTarget]]></code>
       <code><![CDATA[withUri]]></code>
     </PossiblyUnusedMethod>
@@ -21,11 +19,6 @@
   <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[createResponse]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Contracts/Psr/Http/Message/ResponseInterface.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[getReasonPhrase]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Contracts/Psr/Http/Message/ServerRequestFactoryInterface.php">
@@ -485,6 +478,36 @@
   <file src="tests/Support/Tooling/StorageMapText.php">
     <UnusedClass>
       <code><![CDATA[StorageMapText]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Http/SecurityHeaderAudit.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[over]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="tests/Support/Tooling/HttpExchange.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[scheme]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="tests/Support/Tooling/HttpInspectionBoot.php">
+    <UnusedClass>
+      <code><![CDATA[HttpInspectionBoot]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/HttpDumpText.php">
+    <UnusedClass>
+      <code><![CDATA[HttpDumpText]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/HeaderAuditText.php">
+    <UnusedClass>
+      <code><![CDATA[HeaderAuditText]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/HeaderAuditJson.php">
+    <UnusedClass>
+      <code><![CDATA[HeaderAuditJson]]></code>
     </UnusedClass>
   </file>
 </files>
