@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-25T03:15:21Z",
+  "as_of": "2026-10-25T05:51:09Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 257,
+  "unreleased_count": 258,
   "versions": [
     {
       "version": "Unreleased",
@@ -3469,6 +3469,27 @@
                 "sha": "eb011ea2aaeb697bbb2145c47c72e98774fdd982",
                 "short_sha": "eb011ea",
                 "subject": "docs(roadmap): refresh the pin to the difficulty-settled head"
+              }
+            ]
+          },
+          {
+            "pr": 605,
+            "title": "feat(storage): the files tree route map",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-25T05:51:09Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/605",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7dbf2f24897e9bc3d263e3d15e120d2b16e5ebe3",
+                "short_sha": "7dbf2f2",
+                "subject": "feat(storage): the files tree route map"
+              },
+              {
+                "sha": "ebf31398b5c448eac381d0013c2a2ea65d9a4770",
+                "short_sha": "ebf3139",
+                "subject": "docs(roadmap): record the storage layout slice and pin the lane"
               }
             ]
           }
@@ -16527,6 +16548,27 @@
               "sha": "eb011ea2aaeb697bbb2145c47c72e98774fdd982",
               "short_sha": "eb011ea",
               "subject": "docs(roadmap): refresh the pin to the difficulty-settled head"
+            }
+          ]
+        },
+        {
+          "pr": 605,
+          "title": "feat(storage): the files tree route map",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-25T05:51:09Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/605",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7dbf2f24897e9bc3d263e3d15e120d2b16e5ebe3",
+              "short_sha": "7dbf2f2",
+              "subject": "feat(storage): the files tree route map"
+            },
+            {
+              "sha": "ebf31398b5c448eac381d0013c2a2ea65d9a4770",
+              "short_sha": "ebf3139",
+              "subject": "docs(roadmap): record the storage layout slice and pin the lane"
             }
           ]
         }
