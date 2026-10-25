@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-25T13:58:36Z",
+  "as_of": "2026-10-25T18:22:20Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 260,
+  "unreleased_count": 261,
   "versions": [
     {
       "version": "Unreleased",
@@ -3521,6 +3521,42 @@
                 "sha": "cc62ae02f80a4d275817e30be72425ceb4cf46ff",
                 "short_sha": "cc62ae0",
                 "subject": "docs(roadmap): re-pin the debugging utilities row to the fold-spelling fix"
+              }
+            ]
+          },
+          {
+            "pr": 613,
+            "title": "feat(event): the core synchronous dispatcher (the Event Source lane's first slice -- roadmap §1.A)",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-25T18:22:20Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/613",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b7a1627b3aecb4cb74f516221a0132c98c7b583d",
+                "short_sha": "b7a1627",
+                "subject": "feat(event): the core synchronous dispatcher (the Event Source lane's first slice -- roadmap §1.A)"
+              },
+              {
+                "sha": "6d5f89f6b2df56939e247a8f67bc6a38d0bf68ce",
+                "short_sha": "6d5f89f",
+                "subject": "docs(roadmap): record the event dispatcher slice and pin the lane"
+              },
+              {
+                "sha": "03d88cde31161446bb6d77ed873f9401fcf92e2b",
+                "short_sha": "03d88cd",
+                "subject": "fix(event): pin the nullable-prefix cut's byte equivalence in the mutation ledger"
+              },
+              {
+                "sha": "2f68944f5667e9e48a0bc3309926555a298a405f",
+                "short_sha": "2f68944",
+                "subject": "docs(roadmap): re-pin the event dispatcher row to the mutation-ledger fix"
+              },
+              {
+                "sha": "cfe0a7ad0646797e8f7ac9b491830dc40421a2a5",
+                "short_sha": "cfe0a7a",
+                "subject": "docs(roadmap): move the event dispatcher row's commit to the mutation-ledger fix"
               }
             ]
           }
@@ -16723,6 +16759,42 @@
               "sha": "cc62ae02f80a4d275817e30be72425ceb4cf46ff",
               "short_sha": "cc62ae0",
               "subject": "docs(roadmap): re-pin the debugging utilities row to the fold-spelling fix"
+            }
+          ]
+        },
+        {
+          "pr": 613,
+          "title": "feat(event): the core synchronous dispatcher (the Event Source lane's first slice -- roadmap §1.A)",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-25T18:22:20Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/613",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b7a1627b3aecb4cb74f516221a0132c98c7b583d",
+              "short_sha": "b7a1627",
+              "subject": "feat(event): the core synchronous dispatcher (the Event Source lane's first slice -- roadmap §1.A)"
+            },
+            {
+              "sha": "6d5f89f6b2df56939e247a8f67bc6a38d0bf68ce",
+              "short_sha": "6d5f89f",
+              "subject": "docs(roadmap): record the event dispatcher slice and pin the lane"
+            },
+            {
+              "sha": "03d88cde31161446bb6d77ed873f9401fcf92e2b",
+              "short_sha": "03d88cd",
+              "subject": "fix(event): pin the nullable-prefix cut's byte equivalence in the mutation ledger"
+            },
+            {
+              "sha": "2f68944f5667e9e48a0bc3309926555a298a405f",
+              "short_sha": "2f68944",
+              "subject": "docs(roadmap): re-pin the event dispatcher row to the mutation-ledger fix"
+            },
+            {
+              "sha": "cfe0a7ad0646797e8f7ac9b491830dc40421a2a5",
+              "short_sha": "cfe0a7a",
+              "subject": "docs(roadmap): move the event dispatcher row's commit to the mutation-ledger fix"
             }
           ]
         }
