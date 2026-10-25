@@ -139,6 +139,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(tooling): answer the three detection-scope questions with their corpora (#576) [#582](https://github.com/Zeflous/zeflous/pull/582) ([mbetixz](https://github.com/mbetixz))
 - fix(container): answer the psalm baseline's Container findings honestly [#586](https://github.com/Zeflous/zeflous/pull/586) ([mbetixz](https://github.com/mbetixz))
 - fix(baseline): answer the psalm baseline's remaining findings honestly [#594](https://github.com/Zeflous/zeflous/pull/594) ([mbetixz](https://github.com/mbetixz))
+- fix: close the round-3 audit's four core-logic holes (q-OWS, br fold honesty, lazy captive guard, session amplification) [#599](https://github.com/Zeflous/zeflous/pull/599) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
