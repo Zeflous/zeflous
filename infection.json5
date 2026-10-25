@@ -490,7 +490,29 @@
                 // with a multibyte suffix); they sit under this ignore
                 // only because the ignore is method-scoped. This
                 // ignore is scoped to that single method.
-                "Zef\\Framework\\Http\\MediaTypeSuffix::underApplication"
+                "Zef\\Framework\\Http\\MediaTypeSuffix::underApplication",
+                // The event shape field's nullable-prefix cut is the
+                // purest byte-agreement class in the ledger: the
+                // NULLABLE_PREFIX constant is the single ASCII byte
+                // '?', str_starts_with has already proven it is the
+                // string's first byte, and a one-character cut at
+                // offset one through an ASCII byte is the SAME cut
+                // under mb_substr and substr (and the same length
+                // under mb_strlen and strlen) for every value the
+                // line can ever see -- the two MBString rewrites
+                // this method's single call site can produce are
+                // equivalent by construction, with no observable
+                // difference for ANY input, so no test can ever
+                // separate them. The mb_ spelling itself is the
+                // house's own formatter doctrine (MbStrFunctions
+                // rewrites every substr/strlen to its mb_ twin), so
+                // the byte-level spelling is not a source-level
+                // option. This ignore is scoped to that single
+                // method; EventName's own mb_strlen length ceiling
+                // stays fully under the mutator -- its character
+                // semantics are load-bearing and the multibyte name
+                // tests kill both of its rewrites.
+                "Zef\\Framework\\Event\\EventShapeField::__construct"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",

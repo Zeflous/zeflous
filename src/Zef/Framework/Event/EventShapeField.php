@@ -36,6 +36,11 @@ final readonly class EventShapeField
         $nullable = false;
 
         if (str_starts_with($spelling, self::NULLABLE_PREFIX)) {
+            // The prefix is one ASCII byte, so this character cut and a
+            // byte cut are the same cut for every possible spelling --
+            // the equivalence the mutation ledger's MBString ignore for
+            // this method documents (the mb_ spelling itself is the
+            // house formatter's own doctrine).
             $bare = mb_substr($spelling, mb_strlen(self::NULLABLE_PREFIX));
             $nullable = true;
         }
