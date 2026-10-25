@@ -57,6 +57,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Storage\\#'
+    - name: Event
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Event\\#'
     - name: Kernel
       collectors:
         - type: classNameRegex
@@ -175,6 +179,14 @@ deptrac:
     # future consumer (the error lane's log address, the configuration
     # cache, the session file driver) reaches it one-way.
     Storage: ~
+    # The event layer is the dispatcher core of the Event Source lane's
+    # first slice: the name grammar, the payload shape vocabulary, the
+    # listener registry and the synchronous dispatcher -- a self-contained
+    # foundation with construction-time InvalidArgumentException refusals
+    # only (the Storage posture), so every future consumer (the async queue,
+    # the retry/dead-letter regime, the module system's `events` knob, the
+    # telemetry wiring) reaches it one-way.
+    Event: ~
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the
