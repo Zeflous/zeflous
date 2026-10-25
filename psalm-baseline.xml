@@ -510,4 +510,48 @@
       <code><![CDATA[HeaderAuditJson]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Event/EventDispatcher.php">
+    <UnusedClass>
+      <code><![CDATA[EventDispatcher]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Event/EventName.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/EventShape.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+      <code><![CDATA[fields]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/EventPayload.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[value]]></code>
+      <code><![CDATA[fields]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/Event.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[name]]></code>
+      <code><![CDATA[payload]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/ListenerPriority.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/ListenerRegistry.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[isEmpty]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/DispatchOutcome.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[name]]></code>
+      <code><![CDATA[deliveredTo]]></code>
+    </PossiblyUnusedMethod>
+  </file>
 </files>
