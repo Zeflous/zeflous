@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-24T20:53:39Z",
+  "as_of": "2026-10-25T00:18:08Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 255,
+  "unreleased_count": 256,
   "versions": [
     {
       "version": "Unreleased",
@@ -3407,6 +3407,37 @@
                 "sha": "07abbc727d5497936c780cddd526e39f7af7fd74",
                 "short_sha": "07abbc7",
                 "subject": "docs(roadmap): refresh the pin to the coverage-settled head"
+              }
+            ]
+          },
+          {
+            "pr": 597,
+            "title": "feat(http): the session and cookie abstraction over the storage port",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-25T00:18:08Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/597",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6df22483fa030fcfe6466e4c3f18cfb102362d49",
+                "short_sha": "6df2248",
+                "subject": "feat(http): the session and cookie abstraction over the storage port"
+              },
+              {
+                "sha": "3ae37cf3e541004c1e2300ccaedeecd857a2c196",
+                "short_sha": "3ae37cf",
+                "subject": "docs(roadmap): record the http session slice and pin the lane"
+              },
+              {
+                "sha": "fcc165609233d08fcb65830c93f2c82e7ddeac52",
+                "short_sha": "fcc1656",
+                "subject": "fix(http): settle the cookie builder's suffix literal and the row's own phrasing"
+              },
+              {
+                "sha": "7dd00f21c5b72f394339d5e61155c8ceaf91ddfd",
+                "short_sha": "7dd00f2",
+                "subject": "docs(roadmap): refresh the pin to the suffix-settled head"
               }
             ]
           }
@@ -16403,6 +16434,37 @@
               "sha": "2b23b2ca4ad9d64fe905e1bca1c9a71b12a45c30",
               "short_sha": "2b23b2c",
               "subject": "docs(roadmap): record the baseline's honest remaining answer"
+            }
+          ]
+        },
+        {
+          "pr": 597,
+          "title": "feat(http): the session and cookie abstraction over the storage port",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-25T00:18:08Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/597",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6df22483fa030fcfe6466e4c3f18cfb102362d49",
+              "short_sha": "6df2248",
+              "subject": "feat(http): the session and cookie abstraction over the storage port"
+            },
+            {
+              "sha": "3ae37cf3e541004c1e2300ccaedeecd857a2c196",
+              "short_sha": "3ae37cf",
+              "subject": "docs(roadmap): record the http session slice and pin the lane"
+            },
+            {
+              "sha": "fcc165609233d08fcb65830c93f2c82e7ddeac52",
+              "short_sha": "fcc1656",
+              "subject": "fix(http): settle the cookie builder's suffix literal and the row's own phrasing"
+            },
+            {
+              "sha": "7dd00f21c5b72f394339d5e61155c8ceaf91ddfd",
+              "short_sha": "7dd00f2",
+              "subject": "docs(roadmap): refresh the pin to the suffix-settled head"
             }
           ]
         }
