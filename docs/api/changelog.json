@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-25T00:18:08Z",
+  "as_of": "2026-10-25T03:15:21Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 256,
+  "unreleased_count": 257,
   "versions": [
     {
       "version": "Unreleased",
@@ -3438,6 +3438,37 @@
                 "sha": "7dd00f21c5b72f394339d5e61155c8ceaf91ddfd",
                 "short_sha": "7dd00f2",
                 "subject": "docs(roadmap): refresh the pin to the suffix-settled head"
+              }
+            ]
+          },
+          {
+            "pr": 602,
+            "title": "feat(http): the slow-request detection boundary",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-25T03:15:21Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/602",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "fa544a85a438e2564abc871a971126e30a967e4e",
+                "short_sha": "fa544a8",
+                "subject": "feat(http): the slow-request detection boundary"
+              },
+              {
+                "sha": "0c03484207e68cd78c59b6bc6442b7ab6cabbea1",
+                "short_sha": "0c03484",
+                "subject": "docs(roadmap): record the slow-request slice and pin the lane"
+              },
+              {
+                "sha": "ee52d1ae27a460d7c200c4821e5bf3d7433396cf",
+                "short_sha": "ee52d1a",
+                "subject": "fix(http): settle the boundary's difficulty through the policy and record folds"
+              },
+              {
+                "sha": "eb011ea2aaeb697bbb2145c47c72e98774fdd982",
+                "short_sha": "eb011ea",
+                "subject": "docs(roadmap): refresh the pin to the difficulty-settled head"
               }
             ]
           }
@@ -16465,6 +16496,37 @@
               "sha": "7dd00f21c5b72f394339d5e61155c8ceaf91ddfd",
               "short_sha": "7dd00f2",
               "subject": "docs(roadmap): refresh the pin to the suffix-settled head"
+            }
+          ]
+        },
+        {
+          "pr": 602,
+          "title": "feat(http): the slow-request detection boundary",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-25T03:15:21Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/602",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "fa544a85a438e2564abc871a971126e30a967e4e",
+              "short_sha": "fa544a8",
+              "subject": "feat(http): the slow-request detection boundary"
+            },
+            {
+              "sha": "0c03484207e68cd78c59b6bc6442b7ab6cabbea1",
+              "short_sha": "0c03484",
+              "subject": "docs(roadmap): record the slow-request slice and pin the lane"
+            },
+            {
+              "sha": "ee52d1ae27a460d7c200c4821e5bf3d7433396cf",
+              "short_sha": "ee52d1a",
+              "subject": "fix(http): settle the boundary's difficulty through the policy and record folds"
+            },
+            {
+              "sha": "eb011ea2aaeb697bbb2145c47c72e98774fdd982",
+              "short_sha": "eb011ea",
+              "subject": "docs(roadmap): refresh the pin to the difficulty-settled head"
             }
           ]
         }

@@ -87,6 +87,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the output-compression engine over the incremental zlib seam [#583](https://github.com/Zeflous/zeflous/pull/583) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the multi-format body parser over the strategy table [#589](https://github.com/Zeflous/zeflous/pull/589) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the session and cookie abstraction over the storage port [#597](https://github.com/Zeflous/zeflous/pull/597) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the slow-request detection boundary [#602](https://github.com/Zeflous/zeflous/pull/602) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
