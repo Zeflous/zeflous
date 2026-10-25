@@ -50,7 +50,7 @@ final class CompressionNegotiatorTest extends TestCase
 
         self::assertNull(
             $compressionNegotiator->negotiate('gzip; q=0'),
-            'the weight grammar\'s OWS is not an exemption from the refusal it spells '
+            "the weight grammar's OWS is not an exemption from the refusal it spells "
             . '-- a client that wrote the zero through a space refused gzip all the same (round-3 audit R3-1)',
         );
     }
@@ -62,7 +62,7 @@ final class CompressionNegotiatorTest extends TestCase
         self::assertSame(
             'deflate',
             $compressionNegotiator->negotiate('gzip ; q=0, deflate'),
-            'a zero spelled through the weight grammar\'s own OWS still refuses its coding '
+            "a zero spelled through the weight grammar's own OWS still refuses its coding "
             . '-- the walk falls to the next preference, exactly as the tight spelling behaves',
         );
     }
@@ -106,7 +106,7 @@ final class CompressionNegotiatorTest extends TestCase
         self::assertSame(
             $expected,
             CompressionCapabilities::detect(),
-            'the probe answers the fold\'s own vocabulary over what this build can produce',
+            "the probe answers the fold's own vocabulary over what this build can produce",
         );
     }
 

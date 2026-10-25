@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Container;
 
-use Closure;
-
 /**
  * The resolution lanes over the registration core -- the store's own
  * dispatch ({@see ServiceStore} keeps the registration surface and the
@@ -109,39 +107,30 @@ final readonly class ServiceResolutions
 
     /**
      * The singleton lane: the frame ledger's wider-lifetime frame
-     * rides the guarded call itself ({@see framedGuarded()}) so it is
-     * open at both moments that call can run -- the eager factory
-     * call the lane takes here, and the lazy proxy's materialisation,
-     * later, at an arbitrary first-use call-site far from this lane --
-     * and the memo records exactly what the factory resolved while
-     * the request lane's captive guard can name the captor at either
-     * moment.
+     * rides the guarded call itself -- the closure handed onward wraps
+     * the call in {@see ResolutionFrames::withinSingleton()} -- so the
+     * frame is open at both moments that call can run: the eager
+     * factory call the lane takes here, and the lazy proxy's
+     * materialisation, later, at an arbitrary first-use call-site far
+     * from this lane ({@see LazyMaterialisations} runs the embedded
+     * closure there). One wrapped spelling for both moments, so they
+     * cannot drift apart again -- and the memo records exactly what
+     * the factory resolved while the request lane's captive guard can
+     * name the captor at either moment.
      */
     private function singletonLane(string $id, Container $container): mixed
     {
         return $this->singletonMemo->answer(
             $id,
-            fn (): mixed => $this->lazyDeferrals->answering($id, $container, $this->framedGuarded()),
-        );
-    }
-
-    /**
-     * The singleton lane's guarded call with the wider-lifetime frame
-     * opened around it: the spelling the eager lane runs in place, and
-     * the spelling the lazy proxy's materialiser embeds for its later
-     * first use -- one closure, so the two moments cannot drift apart
-     * again. The materialiser once ran the bare guarded call, and a
-     * request-scoped dependency resolved beneath it slipped past the
-     * captive guard into the singleton's forever memo -- the
-     * cross-request leak the frame ledger exists to refuse.
-     *
-     * @return Closure(string, Container): mixed the frame-wrapped guarded call
-     */
-    private function framedGuarded(): Closure
-    {
-        return fn (string $id, Container $container): mixed => $this->resolutionFrames->withinSingleton(
-            $id,
-            fn (): mixed => $this->guarded($id, $container),
+            fn (): mixed => $this->lazyDeferrals->answering(
+                $id,
+                $container,
+                fn (string $resolvedId, Container $resolvedContainer): mixed => $this->resolutionFrames
+                    ->withinSingleton(
+                        $resolvedId,
+                        fn (): mixed => $this->guarded($resolvedId, $resolvedContainer),
+                    ),
+            ),
         );
     }
 }

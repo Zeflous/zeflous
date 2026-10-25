@@ -80,33 +80,29 @@ final readonly class SessionSettlement
             );
         }
 
-        if ($sessionState->isNew()) {
-            if (!$sessionState->isDirty()) {
-                // A mint the handler never wrote into is an identifier
-                // the client never needs to learn: no storage entry,
-                // no issuance cookie -- minting alone is not state.
-                return $response;
-            }
-
-            $this->sessionAdapter->save($sessionState->id(), $sessionState->data());
-
-            return $this->withCookie(
-                $response,
-                new SetCookie(
-                    name: $this->sessionPolicy->cookieName,
-                    value: $sessionState->id(),
-                    sameSite: $this->sessionPolicy->sameSite,
-                    secure: $this->sessionPolicy->cookieSecure,
-                    httpOnly: $this->sessionPolicy->cookieHttpOnly,
-                ),
-                $serverRequest,
-            );
-        }
-
         if ($sessionState->isDirty()) {
             $this->sessionAdapter->save($sessionState->id(), $sessionState->data());
+
+            if ($sessionState->isNew()) {
+                return $this->withCookie(
+                    $response,
+                    new SetCookie(
+                        name: $this->sessionPolicy->cookieName,
+                        value: $sessionState->id(),
+                        sameSite: $this->sessionPolicy->sameSite,
+                        secure: $this->sessionPolicy->cookieSecure,
+                        httpOnly: $this->sessionPolicy->cookieHttpOnly,
+                    ),
+                    $serverRequest,
+                );
+            }
         }
 
+        // A live session the handler never wrote owes no cookie line
+        // (the client already carries the identifier), and a mint the
+        // handler never wrote into is an identifier the client never
+        // needs to learn: no storage entry, no issuance cookie,
+        // because minting alone is not state worth persisting.
         return $response;
     }
 

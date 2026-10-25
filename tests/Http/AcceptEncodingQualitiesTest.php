@@ -69,7 +69,7 @@ final class AcceptEncodingQualitiesTest extends TestCase
         self::assertSame(
             ['gzip' => 0.0],
             AcceptEncodingQualities::qualities('gzip; q=0'),
-            'the OWS before the parameter name is the grammar\'s own, not the value\'s',
+            "the OWS before the parameter name is the grammar's own, not the value's",
         );
         self::assertSame(
             ['gzip' => 0.5],
@@ -83,7 +83,7 @@ final class AcceptEncodingQualitiesTest extends TestCase
         self::assertSame(
             ['gzip' => 0.0],
             AcceptEncodingQualities::qualities('gzip ; q= 1'),
-            'the grammar\'s OWS lives around the parameter, never inside its value',
+            "the grammar's OWS lives around the parameter, never inside its value",
         );
     }
 

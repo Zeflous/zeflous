@@ -164,7 +164,7 @@ final class InMemorySessionAdapterTest extends TestCase
         self::assertSame(
             ['n' => 1],
             $inMemorySessionAdapter->load('a'),
-            'the cadence held: the entry the sweep has not yet reached is still the load\'s to answer',
+            "the cadence held: the entry the sweep has not yet reached is still the load's to answer",
         );
 
         $mutableClock->advance(56);
