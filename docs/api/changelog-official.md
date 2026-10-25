@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(http\): the session and cookie abstraction over the storage port [\#597](https://github.com/Zeflous/zeflous/pull/597) ([mbetixz](https://github.com/mbetixz))
 - fix\(baseline\): answer the psalm baseline's remaining findings honestly [\#594](https://github.com/Zeflous/zeflous/pull/594) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the multi-format body parser over the strategy table [\#589](https://github.com/Zeflous/zeflous/pull/589) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): answer the psalm baseline's Container findings honestly [\#586](https://github.com/Zeflous/zeflous/pull/586) ([mbetixz](https://github.com/mbetixz))
