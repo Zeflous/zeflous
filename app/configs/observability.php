@@ -198,6 +198,36 @@ declare(strict_types=1);
  *       probe can hold its own slot, but the response as a whole
  *       can no longer block forever.
  *
+ * The `slow_request` family -- the total-duration boundary
+ * (`observability.slow_request`, the roadmap HTTP Phase 4.1
+ * request-lifecycle tracing's closing item):
+ *
+ *   'enabled'                   (bool, default true)
+ *       The family's arm. A disabled family is a pass-through that
+ *       never reads the clock -- the timing family's own inert
+ *       posture -- while a deployment that composes the middleware
+ *       into its stack is asking to be told about pathology, which
+ *       is why the arm ships on.
+ *
+ *   'threshold_ms'              (int, default 1000, 1..3600000)
+ *       The bar a request must STRICTLY exceed to be recorded: one
+ *       full second, the weight where a request stops being an
+ *       answer and starts being a question. The corridor holds at
+ *       both construction paths and refuses the nonsense spellings
+ *       (the zero bar that would record every request, the
+ *       hour-deep bar and beyond); a legal-but-mistyped unit value
+ *       stays legal -- the record's own threshold_ms fact carries
+ *       the bar it was judged against, the number to correct. The record
+ *       carries method, path, request id and the two duration
+ *       facts -- privacy-by-default, exactly the error lane's own
+ *       request facts -- and travels to the error-handling lane's
+ *       own `http.error_handling.log_path` sink when one is
+ *       configured, so slow-request records and error records join
+ *       on the same identifier; an unconfigured path leaves the
+ *       record on the SAPI error log. The record fires on the
+ *       request that answered slowly AND the request that threw
+ *       slowly: a total duration exists either way.
+ *
  * Environment overlay spelling (prefix + `__` as the dot, values
  * strictly typed): APP_OBSERVABILITY__TIMING__ENABLED=1,
  * APP_OBSERVABILITY__TIMING__EMIT_HEADER=on,
@@ -217,7 +247,9 @@ declare(strict_types=1);
  * APP_OBSERVABILITY__METRICS__ENABLED=1,
  * APP_OBSERVABILITY__METRICS__METRICS_PATH=/metrics,
  * APP_OBSERVABILITY__METRICS__HEALTH_PATH=/health,
- * APP_OBSERVABILITY__METRICS__TIMEOUT_MS=250.
+ * APP_OBSERVABILITY__METRICS__TIMEOUT_MS=250,
+ * APP_OBSERVABILITY__SLOW_REQUEST__ENABLED=1,
+ * APP_OBSERVABILITY__SLOW_REQUEST__THRESHOLD_MS=2500.
  *
  * The shipped profile declares no overrides -- the defaults are the
  * posture -- and an application fills this file with the knobs it

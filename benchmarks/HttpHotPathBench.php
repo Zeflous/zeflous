@@ -34,6 +34,8 @@ use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\SessionMiddleware;
 use Zef\Framework\Http\SessionPolicy;
 use Zef\Framework\Http\SessionState;
+use Zef\Framework\Http\SlowRequestMiddleware;
+use Zef\Framework\Http\SlowRequestPolicy;
 use Zef\Framework\Http\StaticCredentialProvider;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\TimingMiddleware;
@@ -110,6 +112,8 @@ final readonly class HttpHotPathBench
     private ServerRequest $bodyParserServerRequest;
 
     private SessionMiddleware $sessionMiddleware;
+
+    private SlowRequestMiddleware $slowRequestMiddleware;
 
     private SessionObservingHandler $sessionObservingHandler;
 
@@ -248,6 +252,7 @@ final readonly class HttpHotPathBench
             ['user' => 4711, 'cart' => ['coffee', 'filters']],
         );
         $this->sessionMiddleware = new SessionMiddleware(new SessionPolicy(), $inMemorySessionAdapter);
+        $this->slowRequestMiddleware = new SlowRequestMiddleware(new SlowRequestPolicy());
         $this->sessionObservingHandler = new SessionObservingHandler();
         $this->sessionServerRequest = new ServerRequest(
             'GET',
@@ -474,6 +479,21 @@ final readonly class HttpHotPathBench
         ) {
             throw new InvariantViolationException(
                 'The session boundary must answer the live round trip: the bag loaded, no cookie line owed.',
+            );
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchAMeasuredRequestUnderTheBarAnswersWithoutARecord(): void
+    {
+        $response = $this->slowRequestMiddleware->process(
+            $this->serverRequest,
+            $this->fixedResponseHandler,
+        );
+
+        if ($response->getStatusCode() !== 200) {
+            throw new InvariantViolationException(
+                'The slow-request boundary must answer the measured request untouched.',
             );
         }
     }

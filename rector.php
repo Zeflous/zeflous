@@ -92,6 +92,10 @@ return RectorConfig::configure()
             // session and cookie family's boundary (the same PSR-15
             // process contract, in the HTTP lane).
             __DIR__ . '/src/Zef/Framework/Http/SessionMiddleware.php',
+            // SlowRequestMiddleware::process() is the twentieth -- the
+            // slow-request family's total-duration boundary (the same
+            // PSR-15 process contract, in the HTTP lane).
+            __DIR__ . '/src/Zef/Framework/Http/SlowRequestMiddleware.php',
         ],
         // The rule resolves the expected name from a method-call chain's
         // return type differently on different environments (a fresh CI

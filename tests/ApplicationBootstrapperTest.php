@@ -39,6 +39,7 @@ use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Framework\Middleware\SessionFactory;
+use Zef\Framework\Middleware\SlowRequestFactory;
 use Zef\Framework\Middleware\TimingFactory;
 use Zef\Framework\Middleware\TracingFactory;
 use Zef\Framework\Telemetry\CounterMeter;
@@ -169,6 +170,12 @@ final class ApplicationBootstrapperTest extends TestCase
                         ['service' => FrameworkDefaults::CONFIG_SERVICE],
                         ['service' => 'observability.meter'],
                         ['service' => 'observability.health'],
+                    ],
+                ],
+                'observability.slow_request' => [
+                    'factory' => SlowRequestFactory::class . '::fromConfig',
+                    'arguments' => [
+                        ['service' => FrameworkDefaults::CONFIG_SERVICE],
                     ],
                 ],
             ],
