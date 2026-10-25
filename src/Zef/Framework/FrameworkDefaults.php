@@ -18,6 +18,7 @@ use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
 use Zef\Framework\Middleware\RateLimitFactory;
 use Zef\Framework\Middleware\SecurityHeadersFactory;
 use Zef\Framework\Middleware\SessionFactory;
+use Zef\Framework\Middleware\SlowRequestFactory;
 use Zef\Framework\Middleware\TimingFactory;
 use Zef\Framework\Middleware\TracingFactory;
 
@@ -79,7 +80,11 @@ use Zef\Framework\Middleware\TracingFactory;
  * the meter separate
  * because its producers are the lanes that will record against it,
  * the registry separate because a host's probes join it through their
- * own explicit rebind. The remaining growth follows the
+ * own explicit rebind. The slow-request family joined the map the
+ * same way the timing family did: the `observability.slow_request`
+ * registration over the config service, its records travelling to
+ * the error lane's own structured log address rather than a sink of
+ * the family's own. The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
  * `http.trusted_hosts`, ...) migrate with their wiring, and the
  * container's `aot` switch has arrived with the compile/dump area
@@ -254,6 +259,10 @@ final readonly class FrameworkDefaults
                     'enabled' => false,
                     'debug_match' => false,
                 ],
+                'slow_request' => [
+                    'enabled' => true,
+                    'threshold_ms' => 1000,
+                ],
             ],
             'tags' => [
                 'interfaces' => [],
@@ -381,6 +390,12 @@ final readonly class FrameworkDefaults
                     ['service' => self::CONFIG_SERVICE],
                     ['service' => 'observability.meter'],
                     ['service' => 'observability.health'],
+                ],
+            ],
+            'observability.slow_request' => [
+                'factory' => SlowRequestFactory::class . self::CONFIG_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
                 ],
             ],
         ];
