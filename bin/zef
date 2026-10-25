@@ -442,6 +442,70 @@ if (in_array($command, ['route:openapi', 'route:postman'], true)) {
     }
 }
 
+if ($command === 'storage:map') {
+    $storageUsage = "Usage: bin/zef storage:map [<storage-root>] [--json]\n";
+
+    $storageRootArgument = null;
+    $storageAsJson = false;
+
+    foreach (array_slice($argv, 2) as $argument) {
+        if ($argument === '--json') {
+            $storageAsJson = true;
+        } elseif (str_starts_with($argument, '--')) {
+            fwrite(STDERR, $storageUsage);
+            exit(2);
+        } elseif ($storageRootArgument === null) {
+            $storageRootArgument = $argument;
+        } else {
+            fwrite(STDERR, $storageUsage);
+            exit(2);
+        }
+    }
+
+    $environmentRoot = getenv('ZEF_STORAGE_ROOT');
+    $storageRoot = $storageRootArgument ?? (
+        \is_string($environmentRoot) && $environmentRoot !== ''
+            ? $environmentRoot
+            : dirname(__DIR__) . '/files'
+    );
+
+    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    if (is_file($autoload)) {
+        require_once $autoload;
+    } else {
+        spl_autoload_register(static function (string $class): void {
+            $bases = [
+                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+            ];
+            foreach ($bases as $prefix => $base) {
+                if (str_starts_with($class, $prefix)) {
+                    $file = $base
+                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                    if (is_file($file)) {
+                        require $file;
+                    }
+                }
+            }
+        });
+    }
+
+    try {
+        $storagePaths = Zef\Framework\Storage\StorageLayout::resolve($storageRoot);
+
+        fwrite(
+            STDOUT,
+            $storageAsJson
+                ? Zef\Test\Support\Tooling\StorageMapJson::rendered($storagePaths) . "\n"
+                : Zef\Test\Support\Tooling\StorageMapText::table($storagePaths),
+        );
+        exit(0);
+    } catch (Throwable $layoutFailure) {
+        fwrite(STDERR, 'The storage layout refused: ' . $layoutFailure->getMessage() . "\n");
+        exit(1);
+    }
+}
+
 $path = getenv('ZEF_ERROR_LOG') ?: DEFAULT_ERROR_LOG;
 $requestIdFilter = null;
 foreach (array_slice($argv, 2) as $argument) {

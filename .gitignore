@@ -21,3 +21,18 @@ __pycache__/
 .coverage.*
 htmlcov/
 .pytest_cache/
+
+# The storage layout's lanes: the structure is tracked (the .gitkeep
+# pins each lane the vocabulary spells), the contents never are -- a
+# log, a compiled cache, a replay snapshot and an uploaded file are
+# all deployment state, not source.
+/files/logs/*
+!/files/logs/.gitkeep
+/files/cache/*
+!/files/cache/.gitkeep
+/files/temp/*
+!/files/temp/.gitkeep
+/files/uploads/*
+!/files/uploads/.gitkeep
+/files/replay/*
+!/files/replay/.gitkeep
