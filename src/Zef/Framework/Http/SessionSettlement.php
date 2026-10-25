@@ -18,15 +18,20 @@ use Psr\Http\Message\ServerRequestInterface;
  * answers the deletion cookie -- including the freshly-minted case,
  * because the client that carried a now-expired cookie (the very
  * reason the session was minted fresh) still holds a stale cookie
- * the deletion retires; a freshly minted session saves its bag and
- * answers the issuance cookie carrying the new identifier -- the
- * client must learn the identifier before it can ever carry it; and
- * a live session saves only when the bag carries writes, the
- * write-only refresh the family's idle doctrine spells: the idle
- * clock is the storage's own last-write clock, so a request that
- * reads without writing does not extend the session, and the
- * read-only touch the alternative doctrine would answer with a
- * storage write per request is a knob the family grows when a
+ * the deletion retires; a freshly minted session the handler WROTE
+ * INTO saves its bag and answers the issuance cookie carrying the
+ * new identifier -- the client must learn the identifier before it
+ * can ever carry it -- while a freshly minted session the handler
+ * never wrote answers neither, because minting alone is not state
+ * worth persisting: the cookie-less traffic (crawler, attacker,
+ * private browsing) that mints and never returns would otherwise
+ * grow the storage one abandoned empty entry per request (the
+ * round-3 audit's R3-4); and a live session saves only when the bag
+ * carries writes, the write-only refresh the family's idle doctrine
+ * spells: the idle clock is the storage's own last-write clock, so a
+ * request that reads without writing does not extend the session,
+ * and the read-only touch the alternative doctrine would answer with
+ * a storage write per request is a knob the family grows when a
  * consumer asks for it, not a posture it assumes silently.
  *
  * The cookie line is appended beside whatever `Set-Cookie` values
@@ -76,6 +81,13 @@ final readonly class SessionSettlement
         }
 
         if ($sessionState->isNew()) {
+            if (!$sessionState->isDirty()) {
+                // A mint the handler never wrote into is an identifier
+                // the client never needs to learn: no storage entry,
+                // no issuance cookie -- minting alone is not state.
+                return $response;
+            }
+
             $this->sessionAdapter->save($sessionState->id(), $sessionState->data());
 
             return $this->withCookie(

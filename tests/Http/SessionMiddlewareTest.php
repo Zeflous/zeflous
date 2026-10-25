@@ -24,6 +24,7 @@ use Zef\Framework\Http\Uri;
 use Zef\Test\Support\Http\MutableClock;
 use Zef\Test\Support\Http\RecordingSessionAdapter;
 use Zef\Test\Support\Http\SessionObservingHandler;
+use Zef\Test\Support\Http\SessionWritingHandler;
 
 /**
  * The session family's PSR-15 boundary, on its own terms: the request
@@ -67,12 +68,17 @@ final class SessionMiddlewareTest extends TestCase
         self::assertSame([], $response->getHeader('Set-Cookie'), 'a disabled family answers no cookie line');
     }
 
-    public function testACookielessRequestAnswersAFreshSessionAndItsCookie(): void
+    public function testACookielessRequestTheHandlerNeverWroteAnswersNeither(): void
     {
-        $inMemorySessionAdapter = new InMemorySessionAdapter(1800);
+        // The round-3 audit's R3-4: a mint the handler never wrote into
+        // is not state worth persisting -- no storage entry, no issuance
+        // cookie. The cookie-less traffic (crawler, attacker, private
+        // browsing) that mints and never returns must not grow the
+        // storage one abandoned empty entry per request.
+        $recordingSessionAdapter = new RecordingSessionAdapter();
         $sessionObservingHandler = new SessionObservingHandler();
 
-        $response = new SessionMiddleware(new SessionPolicy(), $inMemorySessionAdapter)->process(
+        $response = new SessionMiddleware(new SessionPolicy(), $recordingSessionAdapter)->process(
             $this->request([]),
             $sessionObservingHandler,
         );
@@ -81,6 +87,23 @@ final class SessionMiddlewareTest extends TestCase
         self::assertNotNull($state, 'the handler answered a request decorated with the session bag');
         self::assertTrue($state->isNew());
         self::assertSame([], $state->data());
+        self::assertSame([], $recordingSessionAdapter->savedIds, 'an untouched mint is never saved');
+        self::assertSame([], $response->getHeader('Set-Cookie'), 'an untouched mint owes no cookie line');
+    }
+
+    public function testACookielessRequestTheHandlerWritesAnswersTheCookieAndTheSave(): void
+    {
+        $inMemorySessionAdapter = new InMemorySessionAdapter(1800);
+        $sessionWritingHandler = new SessionWritingHandler();
+
+        $response = new SessionMiddleware(new SessionPolicy(), $inMemorySessionAdapter)->process(
+            $this->request([]),
+            $sessionWritingHandler,
+        );
+
+        $state = $sessionWritingHandler->state;
+        self::assertNotNull($state);
+        self::assertTrue($state->isNew());
 
         $cookieLines = $response->getHeader('Set-Cookie');
         self::assertCount(1, $cookieLines);
@@ -90,19 +113,19 @@ final class SessionMiddlewareTest extends TestCase
             'the fresh identifier rides the secure-default cookie, Secure staying scheme-conditional over http',
         );
         self::assertSame(
-            [],
+            ['user' => 7],
             $inMemorySessionAdapter->load($state->id()),
-            'the fresh session is saved, its bag empty',
+            'the written bag is saved under the fresh identifier',
         );
     }
 
     public function testASecureSchemeCarriesTheSecureAttribute(): void
     {
-        $sessionObservingHandler = new SessionObservingHandler();
+        $sessionWritingHandler = new SessionWritingHandler();
 
         $response = new SessionMiddleware(new SessionPolicy(), new InMemorySessionAdapter(1800))->process(
             $this->request([], 'https'),
-            $sessionObservingHandler,
+            $sessionWritingHandler,
         );
 
         self::assertMatchesRegularExpression(
@@ -150,7 +173,11 @@ final class SessionMiddlewareTest extends TestCase
         self::assertTrue($state->isNew(), 'the expired session answers a fresh mint');
         self::assertNotSame(self::LIVE_ID, $state->id());
         self::assertNull($inMemorySessionAdapter->load(self::LIVE_ID), 'the stale identifier stays retired');
-        self::assertCount(1, $response->getHeader('Set-Cookie'), 'the fresh identifier rides its cookie line');
+        self::assertSame(
+            [],
+            $response->getHeader('Set-Cookie'),
+            'an untouched fresh mint owes no cookie line -- the handler never wrote into it',
+        );
     }
 
     public function testAMalformedCarriedValueIsTreatedAsAbsent(): void
@@ -171,7 +198,11 @@ final class SessionMiddlewareTest extends TestCase
             $recordingSessionAdapter->loadedIds,
             'the storage is never asked about a value the grammar already refused',
         );
-        self::assertCount(1, $response->getHeader('Set-Cookie'));
+        self::assertSame(
+            [],
+            $response->getHeader('Set-Cookie'),
+            'an untouched fresh mint owes no cookie line',
+        );
     }
 
     public function testANonStringCookieBagValueRefusesFailClosed(): void
@@ -305,6 +336,10 @@ final class SessionMiddlewareTest extends TestCase
             #[Override]
             public function handle(ServerRequestInterface $serverRequest): ResponseInterface
             {
+                $state = $serverRequest->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
+                Assert::assertInstanceOf(SessionState::class, $state);
+                $state->set('user', 7);
+
                 $message = new Response(200)->withAddedHeader('Set-Cookie', 'theme=dark; Path=/');
                 Assert::assertInstanceOf(ResponseInterface::class, $message);
 
