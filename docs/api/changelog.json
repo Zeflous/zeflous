@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-25T05:51:09Z",
+  "as_of": "2026-10-25T06:41:24Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 258,
+  "unreleased_count": 259,
   "versions": [
     {
       "version": "Unreleased",
@@ -5274,6 +5274,52 @@
                 "sha": "2b23b2ca4ad9d64fe905e1bca1c9a71b12a45c30",
                 "short_sha": "2b23b2c",
                 "subject": "docs(roadmap): record the baseline's honest remaining answer"
+              }
+            ]
+          },
+          {
+            "pr": 599,
+            "title": "fix: close the round-3 audit's four core-logic holes (q-OWS, br fold honesty, lazy captive guard, session amplification)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-25T06:41:24Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/599",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "06a712a13ccaf67352ac553e2e37de073ac279e9",
+                "short_sha": "06a712a",
+                "subject": "fix(http,container): close the round-3 audit's first three core-logic holes"
+              },
+              {
+                "sha": "93d01c236f06f070bfebc9cee1289f31836dda99",
+                "short_sha": "93d01c2",
+                "subject": "test(http,container): keep the round-3 pins legible to the static gates"
+              },
+              {
+                "sha": "42273e67f142d77ee2fcc18d549160207a1fcf56",
+                "short_sha": "42273e6",
+                "subject": "fix(http): close the session family's storage-amplification hole"
+              },
+              {
+                "sha": "2984f49f2a54610da0d34176bb418c227f2eecff",
+                "short_sha": "2984f49",
+                "subject": "test(http): pin the factory wiring over the written session"
+              },
+              {
+                "sha": "d51cb6e12fd8f1ac97618c5487ffac1112fc5db5",
+                "short_sha": "d51cb6e",
+                "subject": "refactor(http): fold the round-3 remediations under the archeology ceiling"
+              },
+              {
+                "sha": "5e0b4c06f2b39ce03599f1a57b980b41e1cf1613",
+                "short_sha": "5e0b4c0",
+                "subject": "test(http): pin the entries fold's own save-path contract"
+              },
+              {
+                "sha": "2f3db871d3d5609006af9b234264adbe60d4d437",
+                "short_sha": "2f3db87",
+                "subject": "docs(roadmap): record the round-3 audit remediation landing (#599)"
               }
             ]
           }
@@ -16517,6 +16563,52 @@
               "sha": "7dd00f21c5b72f394339d5e61155c8ceaf91ddfd",
               "short_sha": "7dd00f2",
               "subject": "docs(roadmap): refresh the pin to the suffix-settled head"
+            }
+          ]
+        },
+        {
+          "pr": 599,
+          "title": "fix: close the round-3 audit's four core-logic holes (q-OWS, br fold honesty, lazy captive guard, session amplification)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-25T06:41:24Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/599",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "06a712a13ccaf67352ac553e2e37de073ac279e9",
+              "short_sha": "06a712a",
+              "subject": "fix(http,container): close the round-3 audit's first three core-logic holes"
+            },
+            {
+              "sha": "93d01c236f06f070bfebc9cee1289f31836dda99",
+              "short_sha": "93d01c2",
+              "subject": "test(http,container): keep the round-3 pins legible to the static gates"
+            },
+            {
+              "sha": "42273e67f142d77ee2fcc18d549160207a1fcf56",
+              "short_sha": "42273e6",
+              "subject": "fix(http): close the session family's storage-amplification hole"
+            },
+            {
+              "sha": "2984f49f2a54610da0d34176bb418c227f2eecff",
+              "short_sha": "2984f49",
+              "subject": "test(http): pin the factory wiring over the written session"
+            },
+            {
+              "sha": "d51cb6e12fd8f1ac97618c5487ffac1112fc5db5",
+              "short_sha": "d51cb6e",
+              "subject": "refactor(http): fold the round-3 remediations under the archeology ceiling"
+            },
+            {
+              "sha": "5e0b4c06f2b39ce03599f1a57b980b41e1cf1613",
+              "short_sha": "5e0b4c0",
+              "subject": "test(http): pin the entries fold's own save-path contract"
+            },
+            {
+              "sha": "2f3db871d3d5609006af9b234264adbe60d4d437",
+              "short_sha": "2f3db87",
+              "subject": "docs(roadmap): record the round-3 audit remediation landing (#599)"
             }
           ]
         },
