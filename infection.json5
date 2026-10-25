@@ -378,6 +378,19 @@
                 "Zef\\Framework\\Http\\ETagMiddleware::applyConditionalGet",
                 "Zef\\Framework\\Http\\ExportBounds::assertUsableEndpoint",
                 "Zef\\Framework\\Http\\ExportPolicy::assertUsableEndpoint",
+                // The wire-dump body fold's two measurements run under
+                // the '8bit' encoding -- the BodyBudget entry's own
+                // argument, replayed for the dump family: mb_strlen and
+                // strlen (mb_substr and substr) answer the exact byte
+                // count (and the exact byte slice) of any string under
+                // '8bit' semantics, so the mutator's spelling swap is
+                // value-equivalent by construction, on every body the
+                // fold can ever see (verified by running the family
+                // suite under the manually applied mutations -- the
+                // complete suite passes, the multibyte truncation
+                // boundary included). This ignore is scoped to that
+                // single method.
+                "Zef\\Framework\\Http\\HttpWireBody::rendered",
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
                 "Zef\\Framework\\Http\\RateLimitStores::read",
                 // The cookie builder's construction fold carries the
