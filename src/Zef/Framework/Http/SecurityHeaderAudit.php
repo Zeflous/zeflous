@@ -56,9 +56,17 @@ final readonly class SecurityHeaderAudit
      */
     public function passed(): bool
     {
-        return array_all(
-            $this->findings,
-            static fn (SecurityHeaderFinding $securityHeaderFinding): bool => !$securityHeaderFinding->required || !$securityHeaderFinding->isFinding(),
-        );
+        return array_all($this->findings, $this->isPassing(...));
+    }
+
+    /**
+     * Whether one finding keeps the audit passing: an actionable
+     * finding at the advisory tier never fails, and a non-actionable
+     * verdict never does either -- only the actionable required finding
+     * is the failure.
+     */
+    private function isPassing(SecurityHeaderFinding $securityHeaderFinding): bool
+    {
+        return !$securityHeaderFinding->required || !$securityHeaderFinding->isFinding();
     }
 }

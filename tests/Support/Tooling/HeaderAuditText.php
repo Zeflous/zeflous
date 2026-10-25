@@ -43,9 +43,9 @@ final readonly class HeaderAuditText
      */
     private static function detail(SecurityHeaderFinding $securityHeaderFinding): string
     {
-        return match (true) {
-            $securityHeaderFinding->verdict === SecurityHeaderFinding::VERDICT_PASS => $securityHeaderFinding->actual,
-            $securityHeaderFinding->verdict === SecurityHeaderFinding::VERDICT_NOT_APPLICABLE => $securityHeaderFinding->note,
+        return match ($securityHeaderFinding->verdict) {
+            SecurityHeaderFinding::VERDICT_PASS => $securityHeaderFinding->actual,
+            SecurityHeaderFinding::VERDICT_NOT_APPLICABLE => $securityHeaderFinding->note,
             default => 'expected ' . $securityHeaderFinding->expected . ' -- ' . $securityHeaderFinding->note,
         };
     }
