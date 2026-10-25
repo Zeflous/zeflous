@@ -110,22 +110,17 @@ final class CompressionNegotiatorTest extends TestCase
         );
     }
 
-    public function testTheProbeNeverAdmitsACodingTheFoldCannotFold(): void
+    public function testTheDefaultProbeNeverAnswersBrHoweverLoudlyTheClientAsks(): void
     {
-        // The vocabulary invariant the brotli trap taught: whatever the
-        // function table says, a detected coding must carry a window
-        // the fold can ask for -- an admitted coding without one is a
-        // 500 waiting for the first eligible body.
-        $detected = CompressionCapabilities::detect();
+        // The round-3 audit's R3-2, end to end: the default negotiator
+        // reads the probe, and the probe answers the fold -- so no
+        // build answers 'br' until the fold grows a brotli seam,
+        // whatever the function table carries (a build with the
+        // extension once answered 'br' and 500'd on the first eligible
+        // body).
+        $compressionNegotiator = new CompressionNegotiator();
 
-        self::assertNotContains('br', $detected, 'br stays unadmitted until the fold grows a brotli seam');
-
-        foreach ($detected as $coding) {
-            self::assertNotNull(
-                ContentCoding::window($coding),
-                "the probe admits only codings the fold spells a window for, and '{$coding}' has one",
-            );
-        }
+        self::assertNotSame('br', $compressionNegotiator->negotiate('gzip, deflate, br'));
     }
 
     public function testAnEmptyCapabilityListAnswersIdentity(): void

@@ -400,10 +400,11 @@ final class RequestScopeTest extends TestCase
         // The resolution answers the unmaterialised proxy; the first
         // use runs the factory beneath the scope's open resolution.
         $holder = $scope->get('app.captor');
+        self::assertInstanceOf(CaptiveHolder::class, $holder);
 
         try {
-            $holder->leaf;
-            self::fail('Expected a RequestScopeException to be thrown.');
+            $leaf = $holder->leaf;
+            self::fail('Expected a RequestScopeException to be thrown, materialised ' . get_debug_type($leaf));
         } catch (RequestScopeException $requestScopeException) {
             self::assertSame(
                 "Service 'app.captor' (singleton) is resolving and would capture the request-scoped service 'app.leaf' "
@@ -434,10 +435,11 @@ final class RequestScopeTest extends TestCase
 
         $firstScope = $container->createRequestScope();
         $holder = $firstScope->get('app.captor');
+        self::assertInstanceOf(CaptiveHolder::class, $holder);
 
         try {
-            $holder->leaf;
-            self::fail('Expected a RequestScopeException to be thrown.');
+            $leaf = $holder->leaf;
+            self::fail('Expected a RequestScopeException to be thrown, materialised ' . get_debug_type($leaf));
         } catch (RequestScopeException) {
         } finally {
             $firstScope->close();
