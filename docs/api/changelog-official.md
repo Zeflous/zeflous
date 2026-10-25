@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(storage\): the files tree route map [\#605](https://github.com/Zeflous/zeflous/pull/605) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the slow-request detection boundary [\#602](https://github.com/Zeflous/zeflous/pull/602) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the session and cookie abstraction over the storage port [\#597](https://github.com/Zeflous/zeflous/pull/597) ([mbetixz](https://github.com/mbetixz))
 - fix\(baseline\): answer the psalm baseline's remaining findings honestly [\#594](https://github.com/Zeflous/zeflous/pull/594) ([mbetixz](https://github.com/mbetixz))
