@@ -372,6 +372,83 @@ final class RequestScopeTest extends TestCase
         }
     }
 
+    public function testALazySingletonMaterialisingARequestScopedIdIsTheCaptiveRefusal(): void
+    {
+        // The lazy lane's materialisation runs beneath the same
+        // wider-lifetime frame the eager lane opens: a proxy first used
+        // inside a scope must not capture the scope's instances into
+        // the singleton's forever memo -- the cross-request leak the
+        // frame ledger exists to refuse, answered at the materialisation
+        // the round-3 audit found unframed (a lazy singleton's proxy
+        // materialises once, far from the lane that built it, and the
+        // frame must ride the guarded call to still be open there).
+        $container = new Container();
+        $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
+        $container->set(
+            'app.captor',
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
+
+                return new CaptiveHolder($leaf);
+            },
+        );
+        $container->markLazy('app.captor', CaptiveHolder::class);
+
+        $scope = $container->createRequestScope();
+
+        // The resolution answers the unmaterialised proxy; the first
+        // use runs the factory beneath the scope's open resolution.
+        $holder = $scope->get('app.captor');
+
+        try {
+            $holder->leaf;
+            self::fail('Expected a RequestScopeException to be thrown.');
+        } catch (RequestScopeException $requestScopeException) {
+            self::assertSame(
+                "Service 'app.captor' (singleton) is resolving and would capture the request-scoped service 'app.leaf' "
+                . 'beyond the scope it was born in -- the runtime capture the boot graph refuses: '
+                . "give 'app.leaf' a singleton or transient lifetime, or make 'app.captor' request-scoped.",
+                $requestScopeException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheLazyCaptorFrameClosesAfterARefusal(): void
+    {
+        // The refused materialisation leaves no captor behind: a plain
+        // request-scoped resolution inside a fresh scope resolves
+        // cleanly afterwards, proving the frame's finally unwound.
+        $container = new Container();
+        $container->set('app.leaf', static fn (): stdClass => new stdClass(), ServiceLifetime::REQUEST);
+        $container->set(
+            'app.captor',
+            static function (Container $container): CaptiveHolder {
+                $leaf = $container->get('app.leaf');
+                Assert::assertInstanceOf(stdClass::class, $leaf);
+
+                return new CaptiveHolder($leaf);
+            },
+        );
+        $container->markLazy('app.captor', CaptiveHolder::class);
+
+        $firstScope = $container->createRequestScope();
+        $holder = $firstScope->get('app.captor');
+
+        try {
+            $holder->leaf;
+            self::fail('Expected a RequestScopeException to be thrown.');
+        } catch (RequestScopeException) {
+        } finally {
+            $firstScope->close();
+        }
+
+        $secondScope = $container->createRequestScope();
+
+        self::assertInstanceOf(stdClass::class, $secondScope->get('app.leaf'));
+        $secondScope->close();
+    }
+
     public function testTheCaptiveGuardFiresAtTheRootToo(): void
     {
         // Outside any scope the request lane would refuse the

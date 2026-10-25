@@ -44,6 +44,29 @@ final class CompressionNegotiatorTest extends TestCase
         self::assertSame('gzip', $compressionNegotiator->negotiate('br, gzip'));
     }
 
+    public function testASpelledZeroWithTheGrammarOwnOwsRefuses(): void
+    {
+        $compressionNegotiator = new CompressionNegotiator(['gzip', 'deflate']);
+
+        self::assertNull(
+            $compressionNegotiator->negotiate('gzip; q=0'),
+            'the weight grammar\'s OWS is not an exemption from the refusal it spells '
+            . '-- a client that wrote the zero through a space refused gzip all the same (round-3 audit R3-1)',
+        );
+    }
+
+    public function testASpelledQualityWithTheGrammarOwnOwsReads(): void
+    {
+        $compressionNegotiator = new CompressionNegotiator(['gzip', 'deflate']);
+
+        self::assertSame(
+            'deflate',
+            $compressionNegotiator->negotiate('gzip ; q=0, deflate'),
+            'a zero spelled through the weight grammar\'s own OWS still refuses its coding '
+            . '-- the walk falls to the next preference, exactly as the tight spelling behaves',
+        );
+    }
+
     public function testAWildcardGrantsTheUnspelledPreference(): void
     {
         $compressionNegotiator = new CompressionNegotiator(['gzip', 'deflate']);
@@ -68,13 +91,13 @@ final class CompressionNegotiatorTest extends TestCase
         );
     }
 
-    public function testTheEngineProbesTheRuntimeCapability(): void
+    public function testTheEngineProbesTheFoldSVocabulary(): void
     {
+        // The round-3 audit's R3-2: the probe answers the family's own
+        // fold, not the function table -- a build with the brotli
+        // extension must not light up a preference the fold would
+        // refuse at a 500 on every compressed answer.
         $expected = [];
-        if (\function_exists('brotli_compress')) {
-            $expected[] = 'br';
-        }
-
         if (\function_exists('deflate_init')) {
             $expected[] = 'gzip';
             $expected[] = 'deflate';
@@ -83,8 +106,26 @@ final class CompressionNegotiatorTest extends TestCase
         self::assertSame(
             $expected,
             CompressionCapabilities::detect(),
-            'the probe answers the preference order over what this build can produce',
+            'the probe answers the fold\'s own vocabulary over what this build can produce',
         );
+    }
+
+    public function testTheProbeNeverAdmitsACodingTheFoldCannotFold(): void
+    {
+        // The vocabulary invariant the brotli trap taught: whatever the
+        // function table says, a detected coding must carry a window
+        // the fold can ask for -- an admitted coding without one is a
+        // 500 waiting for the first eligible body.
+        $detected = CompressionCapabilities::detect();
+
+        self::assertNotContains('br', $detected, 'br stays unadmitted until the fold grows a brotli seam');
+
+        foreach ($detected as $coding) {
+            self::assertNotNull(
+                ContentCoding::window($coding),
+                "the probe admits only codings the fold spells a window for, and '{$coding}' has one",
+            );
+        }
     }
 
     public function testAnEmptyCapabilityListAnswersIdentity(): void
