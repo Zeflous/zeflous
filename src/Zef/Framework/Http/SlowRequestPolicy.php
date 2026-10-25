@@ -55,6 +55,29 @@ final readonly class SlowRequestPolicy
     }
 
     /**
+     * The bar's own arithmetic: whether a monotonic span strictly
+     * exceeds the threshold -- the millisecond knob translated to its
+     * nanosecond spelling once, here, where the knob lives, so the
+     * verdict the boundary answers is the policy's own judgment and
+     * never a call site's re-derivation.
+     *
+     * The comparison is deliberately strict: a span that exactly MEETS
+     * the bar is not slow ({@see ROADMAP.md}'s own "melebihi"), and a
+     * negative span (a broken clock seam whose second reading lands
+     * before its first) exceeds no positive bar -- a broken
+     * measurement can fabricate nothing.
+     *
+     * @param int $elapsedNs the request's total monotonic span, in
+     *                       nanoseconds
+     *
+     * @return bool whether the span strictly exceeds the bar
+     */
+    public function exceededBy(int $elapsedNs): bool
+    {
+        return $elapsedNs > $this->thresholdMs * 1000000;
+    }
+
+    /**
      * Reads the merged `observability.slow_request` map into the policy.
      *
      * @param mixed $map the subtree as the frozen repository carries it: a

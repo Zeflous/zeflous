@@ -48,12 +48,22 @@ record, so the test battery pins the slow-throw case explicitly.
 
 The roadmap spells the promise as "melebihi" — exceeds. A span that
 exactly MEETS the bar is not slow, and the comparison is held in
-integer nanoseconds (`elapsedNs > thresholdMs * 1_000_000`) rather
-than post-division floats, so the boundary is exact rather than a
-float's neighbour: the test battery pins the span that exactly meets
-the bar and the span one nanosecond over it. The float appears only
-at the rendering fold (`elapsed_ms`, two decimals — the timing
-family's own `%.2fms` precision, the number a log consumer graphs).
+integer nanoseconds (`SlowRequestPolicy::exceededBy()`, the
+millisecond knob translated to its nanosecond spelling once where
+the knob lives) rather than post-division floats, so the boundary is
+exact rather than a float's neighbour: the test battery pins the span
+that exactly meets the bar and the span one nanosecond over it. The
+float appears only at the rendering fold (`elapsed_ms`, two decimals
+— the timing family's own `%.2fms` precision, the number a log
+consumer graphs).
+
+The archeology round settled the verdict's home: the middleware's
+first spelling carried the comparison inline (difficulty 24.60 over
+the ceiling 20), and the house answer was the fold the compression
+family taught — the bar's arithmetic belongs to the policy that owns
+the knob, the conditional write to the record that owns the answer,
+and the boundary keeps only the span. Two folds, three questions in
+three places, difficulty under the ceiling at every unit.
 
 A broken clock seam whose second reading lands before its first
 answers a negative span, which no positive bar can ever exceed: a

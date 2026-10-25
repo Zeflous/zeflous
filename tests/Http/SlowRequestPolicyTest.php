@@ -257,6 +257,43 @@ final class SlowRequestPolicyTest extends TestCase
         yield 'the corridor ceiling exceeded' => [3600001];
     }
 
+    /**
+     * @param int $elapsedNs the span the bar judges
+     */
+    #[DataProvider('provideTheBarsArithmeticIsStrictlyExceedsCases')]
+    public function testTheBarsArithmeticIsStrictlyExceeds(int $elapsedNs, bool $exceeded): void
+    {
+        $slowRequestPolicy = new SlowRequestPolicy();
+
+        self::assertSame(
+            $exceeded,
+            $slowRequestPolicy->exceededBy($elapsedNs),
+            'the default one-second bar, judged in integer nanoseconds',
+        );
+    }
+
+    /**
+     * @return iterable<string, array{int, bool}>
+     */
+    public static function provideTheBarsArithmeticIsStrictlyExceedsCases(): iterable
+    {
+        yield 'a span one nanosecond under the bar is not slow' => [999_999_999, false];
+
+        yield 'a span exactly meeting the bar is not slow' => [1_000_000_000, false];
+
+        yield 'a span one nanosecond over the bar is slow' => [1_000_000_001, true];
+
+        yield 'a negative span exceeds no positive bar' => [-1_500_000_000, false];
+    }
+
+    public function testTheBarsArithmeticReadsTheConfiguredKnob(): void
+    {
+        $slowRequestPolicy = SlowRequestPolicy::fromMap(['threshold_ms' => 2500]);
+
+        self::assertFalse($slowRequestPolicy->exceededBy(2_500_000_000), 'exactly the configured bar');
+        self::assertTrue($slowRequestPolicy->exceededBy(2_500_000_001), 'one nanosecond over it');
+    }
+
     public function testTheCorridorEdgesAreLegalSpellings(): void
     {
         self::assertSame(1, new SlowRequestPolicy(thresholdMs: 1)->thresholdMs, 'the floor is legal');

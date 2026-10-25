@@ -8,10 +8,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * The slow-request family's record fold: the bounded, privacy-by-default
- * context one slow-request record carries, written through the shared
- * {@see ErrorFaultLogWriter} containment -- the diagnostic lane's own
- * twin over the family's own facts.
+ * The slow-request family's record fold: the verdict and the record --
+ * whether a span earned a record at all, and the bounded,
+ * privacy-by-default context the record it earned carries, written
+ * through the shared {@see ErrorFaultLogWriter} containment -- the
+ * diagnostic lane's own twin over the family's own facts.
  *
  * The bounds and the privacy posture are the error lane's own
  * ({@see DiagnosticContextFactory}, `docs/error-handling.md`,
@@ -50,6 +51,39 @@ final class SlowRequestRecord
     private const int FACT_BOUND = 2048;
 
     /**
+     * The conditional write: the span that strictly exceeds the bar
+     * answers its record, the span that meets or misses the bar
+     * answers nothing -- the one question (does this span earn a
+     * record?) and its answer (the record itself) in one fold, so the
+     * boundary that brackets the span never re-derives the bar's own
+     * arithmetic.
+     *
+     * @param null|LoggerInterface   $logger            the PSR-3 sink the record
+     *                                                  travels through; null falls
+     *                                                  back to the SAPI error log
+     *                                                  the writer owns
+     * @param ServerRequestInterface $serverRequest     the request that was
+     *                                                  measured
+     * @param int                    $elapsedNs         the request's total
+     *                                                  monotonic span, in
+     *                                                  nanoseconds
+     * @param SlowRequestPolicy      $slowRequestPolicy the bar the span was
+     *                                                  judged against
+     */
+    public static function whenExceeded(
+        ?LoggerInterface $logger,
+        ServerRequestInterface $serverRequest,
+        int $elapsedNs,
+        SlowRequestPolicy $slowRequestPolicy,
+    ): void {
+        if (!$slowRequestPolicy->exceededBy($elapsedNs)) {
+            return;
+        }
+
+        self::write($logger, $serverRequest, $elapsedNs, $slowRequestPolicy->thresholdMs);
+    }
+
+    /**
      * Writes one slow-request record through the containment seam.
      *
      * @param null|LoggerInterface   $logger        the PSR-3 sink the record
@@ -66,7 +100,7 @@ final class SlowRequestRecord
      * @param int                    $thresholdMs   the bar the span was judged
      *                                              against, in milliseconds
      */
-    public static function write(
+    private static function write(
         ?LoggerInterface $logger,
         ServerRequestInterface $serverRequest,
         int $elapsedNs,

@@ -23,14 +23,13 @@ use Psr\Log\LoggerInterface;
  * span its request spends inside the remaining pipeline between two
  * monotonic readings -- the timing family's own measured-span shape
  * over the same injectable clock seam ({@see TimingClock}, one
- * named place the suite can freeze) -- and answers the verdict
- * against the policy's threshold. The verdict is STRICT: a span
- * that exactly meets the bar is not slow ({@see ROADMAP.md}'s own
- * "melebihi"), the comparison held in integer nanoseconds so the
- * boundary is exact rather than a float's neighbour. A broken clock
- * seam whose second reading lands before its first answers a
- * negative span, which no positive bar can ever exceed: a broken
- * measurement can fabricate nothing.
+ * named place the suite can freeze) -- and hands the span to the
+ * record fold's verdict ({@see SlowRequestRecord::whenExceeded()},
+ * over the policy's own {@see SlowRequestPolicy::exceededBy()}
+ * arithmetic: a span that exactly meets the bar is not slow -- the
+ * roadmap's own "melebihi" -- held in integer nanoseconds so the
+ * boundary is exact rather than a float's neighbour; a broken clock
+ * seam answering a negative span fabricates nothing).
  *
  * The record fires on BOTH outcomes, the one seam a finally block
  * owns: a request that answered slowly AND a request that threw
@@ -114,20 +113,12 @@ final readonly class SlowRequestMiddleware implements MiddlewareInterface
         try {
             return $handler->handle($request);
         } finally {
-            $this->verdict($request, ($this->nowNs)() - $startNs);
+            SlowRequestRecord::whenExceeded(
+                $this->logger,
+                $request,
+                ($this->nowNs)() - $startNs,
+                $this->slowRequestPolicy,
+            );
         }
-    }
-
-    /**
-     * The verdict: a span that strictly exceeds the bar is recorded,
-     * integer-held against the threshold's own nanosecond spelling.
-     */
-    private function verdict(ServerRequestInterface $request, int $elapsedNs): void
-    {
-        if ($elapsedNs <= $this->slowRequestPolicy->thresholdMs * 1000000) {
-            return;
-        }
-
-        SlowRequestRecord::write($this->logger, $request, $elapsedNs, $this->slowRequestPolicy->thresholdMs);
     }
 }
