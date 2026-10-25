@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(http\): the debugging utilities over the inspection boot [\#610](https://github.com/Zeflous/zeflous/pull/610) ([mbetixz](https://github.com/mbetixz))
 - feat\(storage\): the files tree route map [\#605](https://github.com/Zeflous/zeflous/pull/605) ([mbetixz](https://github.com/mbetixz))
 - feat\(http\): the slow-request detection boundary [\#602](https://github.com/Zeflous/zeflous/pull/602) ([mbetixz](https://github.com/mbetixz))
 - fix: close the round-3 audit's four core-logic holes \(q-OWS, br fold honesty, lazy captive guard, session amplification\) [\#599](https://github.com/Zeflous/zeflous/pull/599) ([mbetixz](https://github.com/mbetixz))
