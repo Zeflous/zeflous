@@ -32,7 +32,8 @@
 #     never be produced before a PR has landed.
 #   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
 #     original tag kept as a trailing comment (`githubactions:S7637`, the
-#     retired SonarCloud lane's finding, stays at zero; pinning remains the
+#     SonarCloud lane's finding -- the lane was retired 2026-10-26 and
+#     returned the same day -- stays at zero; pinning remains the
 #     standing supply-chain discipline).
 #   * The gem itself is pinned to an exact version (`-v 1.18.0`).
 #   * Least privilege: `contents: read` at the workflow level; only the job

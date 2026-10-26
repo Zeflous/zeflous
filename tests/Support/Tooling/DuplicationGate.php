@@ -11,7 +11,9 @@ namespace Zef\Test\Support\Tooling;
  * (`src/Contracts/Psr/`) stays outside the detector's scope -- it is
  * third-party boilerplate this repository mirrors, not code it owns,
  * a boundary this gate has owned outright since the SonarCloud lane
- * (whose `sonar.cpd.exclusions` drew it first) was retired.
+ * was retired (2026-10-26; the lane returned the same day and mirrors the
+ * boundary in its own `sonar.cpd.exclusions` -- the local gate keeps the
+ * blocking verdict, the cloud detector only echoes it).
  */
 final readonly class DuplicationGate
 {

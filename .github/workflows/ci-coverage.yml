@@ -4,11 +4,18 @@
 # reason as `ci-static.yml`: one lane's failure no longer entangles the others
 # and this lane can be retried on its own.
 #
-# (2026-10-26) The `coverage-reports` artifact and the report-regeneration
-# step this lane used to carry existed solely to feed the SonarCloud lane's
-# coverage bridge; both went with that lane's retirement. The gate variant
-# (`composer coverage:gate`) still writes build/clover.xml + build/junit.xml
-# for local inspection, but nothing consumes them from CI anymore.
+# (2026-10-26, later the same day) The SonarCloud lane is BACK (a new
+# account, organization `zefl`, project `zefl_zeflous` -- the resurrection
+# record lives in docs/security/sonarcloud.md), so this lane is the SOLE
+# PRODUCER of the `coverage-reports` artifact (clover + JUnit) that the
+# SonarCloud lane bridges for its coverage-on-new-code condition again.
+# The restoration is LEANER than the retired shape: the gate variant
+# (`composer coverage:gate`) demonstrably writes build/clover.xml AND
+# build/junit.xml in one suite run, so the retired lane's separate
+# report-regeneration step (a full SECOND suite run) and its two
+# composer-script indirections (`coverage:ci`, `ci:coverage:reports`) were
+# NOT brought back -- only the artifact upload of the two files the gate
+# already wrote.
 #
 # The job NAME below ("CI Coverage") is the status-check context -- keep it
 # stable.
@@ -87,3 +94,19 @@ jobs:
 
       - name: Run coverage gate (composer ci:coverage)
         run: composer ci:coverage
+
+      - name: Upload coverage reports
+        # Consumed by the SonarCloud job's coverage bridge (it fetches this
+        # artifact by name for the same commit). Published AFTER the gate so a
+        # failed coverage lane never feeds a phantom report to the scanner.
+        # The upload is the files the gate itself already wrote
+        # (coverage:gate emits clover AND junit) -- no regeneration step, no
+        # second suite run; that leaner shape is the resurrection's own.
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-reports
+          path: |
+            build/clover.xml
+            build/junit.xml
+          if-no-files-found: error
+          retention-days: 14

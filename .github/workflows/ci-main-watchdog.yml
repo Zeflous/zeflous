@@ -7,8 +7,8 @@
 # (push, pull_request, workflow_run -- everything except workflow_dispatch
 # and repository_dispatch) do NOT trigger new workflow runs. A pull request
 # whose merge is attributed to `github-actions[bot]` therefore lands on `main`
-# with ZERO `on: push` workflow runs: no `CI Strict`, no archeology SARIF,
-# no coverage gate, nothing. Only the two *scheduled*
+# with ZERO `on: push` workflow runs: no `CI Strict`, no SonarCloud analysis,
+# no archeology SARIF, no coverage gate, nothing. Only the two *scheduled*
 # lanes (Auto Merge, Stale PRs Updater) keep running, and external GitHub
 # Apps (DeepSource and friends) still analyse the commit because they receive
 # webhooks directly, outside GitHub Actions. On the commits page that looks
@@ -57,7 +57,9 @@
 #
 # DISPATCH ORDER MATTERS
 # ----------------------
-# The four strict lanes precede `ci-strict`
+# `ci-coverage` must be dispatched before `sonarcloud.yml`: the SonarCloud
+# lane bridges the `coverage-reports` artifact by polling the CI Coverage
+# lane's run for the same commit. The four strict lanes precede `ci-strict`
 # because the aggregator awaits their check-runs until every lane concludes
 # or its 70-minute deadline expires (a lane not yet dispatched reads as
 # absent, not failed); the list below is ordered so every dependency is
@@ -70,7 +72,7 @@
 # CONVENTIONS
 # -----------
 #   * No `uses:` at all -- the sweep is pure `gh`/REST, so there is nothing
-#     to pin (the discipline originally kept for `githubactions:S7637`).
+#     to pin and nothing for SonarCloud's `githubactions:S7637` to flag.
 #   * Least privilege: `contents: read` (API reads) + `actions: write`
 #     (dispatch workflows, list runs). Nothing else.
 #   * Like every scheduled sweep in this repository, no single lane problem
@@ -116,7 +118,8 @@ jobs:
           set -uo pipefail
 
           # The lanes a HUMAN push to `main` triggers, in dependency order
-          # (strict lanes -> aggregator -> the rest). The two
+          # (strict lanes -> aggregator -> the rest -> SonarCloud last, so
+          # its coverage bridge can find the CI Coverage artifact). The two
           # changelog lanes are deliberately absent: see the file header.
           #
           # F-5: the two SCHEDULED sweeps (`ci-main-watchdog` itself and
@@ -140,6 +143,7 @@ jobs:
             proof-html
             sbom
             release-drafter
+            sonarcloud
             auto-merge
             ci-main-watchdog
           )

@@ -31,6 +31,8 @@ the pull request and its merge group. The rest are advisory signals.
 | `CI Bench` | `composer ci:bench` — PHPBench. |
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
+| `SonarCloud analysis` | The cloud analyzer's scanner lane (advisory — resurrected 2026-10-26 on the new `zefl` org; bridges the CI Coverage artifact and waits for the server-side "ZEF" quality gate); fail-closed when uncredentialed in a context that must have credentials — see [`docs/security/sonarcloud.md`](docs/security/sonarcloud.md). |
+| `SonarCloud Code Analysis` | The SonarCloud GitHub App's own check on pull requests — advisory decoration that appears once the app is granted the repository; mirrors the same server-side verdict `SonarCloud analysis` waits for. |
 | `Dependency Review` | Supply-chain review of dependency changes. |
 | `SBOM` | CycloneDX SBOM generation with a keyless (OIDC) attestation. |
 | `API Documentation Check` | The generated API documentation builds. |

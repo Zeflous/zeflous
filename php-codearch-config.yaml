@@ -1,6 +1,6 @@
 # PhpCodeArcheology — strict architecture & maintainability gate.
 #
-# This is the repository's non-server-side counterpart to SonarCloud: it
+# This is the repository's cloud-quality counterpart to SonarCloud (retired 2026-10-26, returned the same day): it
 # measures architecture and maintainability (60+ metrics, complexity,
 # coupling, cohesion, git churn hotspots, health score) rather than type
 # safety, so it complements PHPStan/Psalm instead of duplicating them.
