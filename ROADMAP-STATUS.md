@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-26 · `main` @ `6b0b10e`
+**Last updated:** 2026-10-26 · `main` @ `d7fda56`
 
 ---
 
@@ -123,6 +123,7 @@ Cross-cutting substrate — not a `ROADMAP.md` area of its own; tracked here the
 
 | Duplication + mess gates | ✅ Implemented | `composer qa:duplication` / `composer qa:mess` (part of `composer ci:static`, folded between `rector:check` and `test`) → `tests/Support/Tooling/DuplicationGate.php` + `MessGate.php` over phpcpd 9.2 / phpmd 3.0 (`require-dev` provisioned — the production channels stay zero), the per-rule OPT-IN ruleset `phpmd.xml` (eleven rules calibrated green, the 1547-finding census and the add-a-rule recipe in `docs/ci-notes/qa-gates.md`), both arms fail-closed on exit codes that disagree with their payloads; the blocking path rides the existing `CI Static` → `CI Strict` aggregation, no ruleset change. |
 | SonarCloud lane retirement | ✅ Implemented | The cloud lane and every wire that kept it alive are gone (#622): `sonarcloud.yml` + `sonar-project.properties` deleted; the changelog lanes' dispatch step, the watchdog's dispatch entry, and the coverage bridge's dead weight (the report-regeneration step + the `coverage-reports` artifact + the `coverage:ci`/`ci:coverage:reports` composer scripts) removed; the ruleset's `code_quality` rule — which read SonarCloud's reporting and blocked merges without an analysis — dropped from the active `main` ruleset before the queue entry (required set and ALLGREEN queue untouched); the retirement record with the account-side teardown steps and the surviving doctrine lives in `docs/security/sonarcloud.md`. |
+| SonarCloud lane resurrection | ✅ Implemented | The cloud lane is back on the new account (#628, hours after the #622 retirement): organization `zefl`, project `zefl_zeflous`, quality gate "ZEF"; `sonarcloud.yml` + `sonar-project.properties` restored with the full scope doctrine and the three earned issue exclusions; INFORMATIVE -- the ruleset's `code_quality` rule deliberately NOT re-added (required set unchanged), no `merge_group`/queue-path branches, no changelog dispatch wires; the coverage bridge leaner (the gate's own clover + junit artifact, no second suite run); `ci-main-watchdog.yml` dispatches the lane last so the bridge finds the CI Coverage artifact; the first PR analysis verified live (real PHP indexed, coverage 98.4 bridged, gate OK); the resurrection record with the account-side steps still owed (the GitHub App grant for decoration) lives in `docs/security/sonarcloud.md`. |
 
 ---
 
