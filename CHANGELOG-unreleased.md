@@ -190,6 +190,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - ci(merge-gate): fail closed on missing required evidence [#525](https://github.com/Zeflous/zeflous/pull/525) ([mbetixz](https://github.com/mbetixz))
 - refactor(tooling): move the CI gate engine out of the framework tree [#551](https://github.com/Zeflous/zeflous/pull/551) ([mbetixz](https://github.com/mbetixz))
 - ci(qa): retire the SonarCloud lane [#622](https://github.com/Zeflous/zeflous/pull/622) ([mbetixz](https://github.com/mbetixz))
+- ci(qa): resurrect the SonarCloud lane on the new account [#628](https://github.com/Zeflous/zeflous/pull/628) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 
