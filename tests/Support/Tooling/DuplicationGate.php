@@ -10,7 +10,8 @@ namespace Zef\Test\Support\Tooling;
  * duplication the next reader pays for. The vendored PSR shim
  * (`src/Contracts/Psr/`) stays outside the detector's scope -- it is
  * third-party boilerplate this repository mirrors, not code it owns,
- * the same boundary `sonar.cpd.exclusions` already draws.
+ * a boundary this gate has owned outright since the SonarCloud lane
+ * (whose `sonar.cpd.exclusions` drew it first) was retired.
  */
 final readonly class DuplicationGate
 {

@@ -7,9 +7,9 @@
 # REPRODUCIBLE / IDEMPOTENT
 # -------------------------
 #   * Setiap `uses:` dipin ke commit SHA penuh 40 karakter dengan tag asli
-#     sebagai komentar. Ref tag/branch adalah yang ditandai SonarCloud sebagai
-#     `githubactions:S7637`; pinning menjaga temuan supply-chain tetap nol
-#     tanpa satu pun ruleKey exclusion.
+#     sebagai komentar. Ref tag/branch adalah yang dahulu ditandai lane
+#     SonarCloud (pensiun) sebagai `githubactions:S7637`; pinning tetap
+#     menjadi disiplin supply-chain, temuan tetap nol.
 #   * Tidak memerlukan secret eksternal: memakai `github.token` bawaan.
 #   * Idempotent: menjalankan ulang hanya memperbarui draft yang sama, tidak
 #     membuat rilis baru dan tidak menyentuh kode.

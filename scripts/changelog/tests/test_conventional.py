@@ -1,9 +1,10 @@
 """Unit tests for the shared Conventional-Commit taxonomy.
 
 These live under ``scripts/changelog/`` (not ``tests/``) on purpose: the
-repository's SonarCloud scope excludes ``scripts/**`` from analysis and
-coverage, so the taxonomy's own tests stay out of the PHP project's quality
-gate while still running in CI. They are executed by the ``test`` job of
+PHP quality gates scope themselves to ``src/`` and ``tests/`` (a boundary
+the retired SonarCloud lane drew first for ``scripts/**``), so the
+taxonomy's own tests stay out of the PHP project's quality gate while still
+running in CI. They are executed by the ``test`` job of
 ``.github/workflows/changelog-tests.yml`` with a 90% coverage floor.
 
 The module is loaded by path (like ``test_generate.py``) so the tests do not

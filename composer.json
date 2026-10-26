@@ -106,7 +106,6 @@
             "@php -d pcov.enabled=1 -d pcov.directory=$PWD -d pcov.exclude=/vendor/ -d memory_limit=1G -d zend.assertions=1 vendor/bin/phpunit --coverage-clover build/clover.xml --log-junit build/junit.xml --coverage-text",
             "@php scripts/ci/gate.php coverage 90"
         ],
-        "coverage:ci": "@php -d pcov.enabled=1 -d pcov.directory=$PWD -d pcov.exclude=/vendor/ -d memory_limit=1G -d zend.assertions=1 vendor/bin/phpunit --coverage-clover build/clover.xml --log-junit build/junit.xml --coverage-text",
         "format": "php-cs-fixer fix --using-cache=no",
         "format:check": "php-cs-fixer check --diff --using-cache=no",
         "phpcs": "phpcs",
@@ -164,7 +163,6 @@
         "ci:coverage": [
             "@composer coverage:gate"
         ],
-        "ci:coverage:reports": "@composer coverage:ci",
         "ci:infection": [
             "@composer mutation",
             "@composer mutation:zones"

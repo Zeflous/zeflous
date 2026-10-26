@@ -31,8 +31,9 @@
 #     on `workflow_dispatch` -- never on `pull_request` -- so a changelog can
 #     never be produced before a PR has landed.
 #   * Every `uses:` is pinned to a FULL 40-character commit SHA with the
-#     original tag kept as a trailing comment (SonarCloud `githubactions:S7637`
-#     stays at zero without any rule exclusion).
+#     original tag kept as a trailing comment (`githubactions:S7637`, the
+#     retired SonarCloud lane's finding, stays at zero; pinning remains the
+#     standing supply-chain discipline).
 #   * The gem itself is pinned to an exact version (`-v 1.18.0`).
 #   * Least privilege: `contents: read` at the workflow level; only the job
 #     that opens the update pull request gets `contents: write` +
@@ -232,7 +233,6 @@ jobs:
           # keyed per commit AND per event, so a dispatched duplicate would run
           # side by side with the natural one). Dispatch ONLY in built-in mode.
           if [ "${pat_mode}" = "false" ]; then
-            pr_number=$(gh pr view "$branch" --json number --jq '.number')
             # The four strict lanes now live in their own workflows, so each must
             # be dispatched individually: dispatching only the `CI Strict`
             # aggregator would leave it polling for lane runs that were never
@@ -242,12 +242,6 @@ jobs:
                 && echo "Dispatched ${lane}.yml on $branch." \
                 || echo "::warning::Could not dispatch ${lane}.yml on $branch."
             done
-            # SonarCloud is dispatched with the PR number so the analysis is
-            # attached to this pull request (the ruleset's `code_quality` rule
-            # reads it; without an analysis the merge stays blocked).
-            gh workflow run sonarcloud.yml --ref "$branch" -f pr_number="$pr_number" \
-              && echo "Dispatched sonarcloud.yml on $branch for PR #$pr_number." \
-              || echo "::warning::Could not dispatch sonarcloud.yml on $branch."
           else
             echo "PAT mode: the pull_request runs fired on the push; no dispatch needed."
           fi

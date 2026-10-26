@@ -152,12 +152,12 @@ practice this means:
 - small, single-responsibility units with clear names;
 - no dead code, no commented-out code, no debug leftovers.
 
-### 6. SonarCloud-clean logic (no new ruleKey exclusions)
+### 6. Analyzer-clean logic (no new rule exclusions)
 
-Code logic **MUST NOT** introduce new SonarCloud issues. Fix the underlying
+Code logic **MUST NOT** introduce new analyzer findings. Fix the underlying
 cause rather than silencing the rule:
 
-- do **not** add a new `ruleKey` exclusion, ignore pattern, or quality-profile
+- do **not** add a new detector exclusion, ignore pattern, or quality-profile
   override to make a finding disappear;
 - do **not** mark a new issue as "won't fix" / "false positive" to pass the
   gate;
@@ -168,19 +168,24 @@ The exclusion set is closed by default: it may only shrink. A widening is a
 **documented exception**, never a routine move, and it earns its place only
 when all of the following hold in the same pull request:
 
-- **one rule, one target** — a single `ruleKey` against a single named file
+- **one rule, one target** — a single rule against a single named file
   (or a generated/stub tree), never a blanket pattern;
 - **an in-file essay** — the exclusion carries its justification beside it
-  in `sonar-project.properties`: why fixing the finding would be worse than
-  carrying it (the `php:S1066` entry on `MeterCount.php` is the reference:
-  the merge SonarCloud suggests would mint an escaping mutation-testing
-  mutant, so the nested spelling is load-bearing);
+  in the configuration that owns it: why fixing the finding would be worse
+  than carrying it. The retired `php:S1066` entry on `MeterCount.php` is the
+  reference shape (its record is preserved in
+  [`docs/security/sonarcloud.md`](docs/security/sonarcloud.md)): the merge
+  the analyzer suggested would have minted an escaping mutation-testing
+  mutant, so the nested spelling is load-bearing — a mechanical conflict
+  between two gates, proven, never a style preference;
 - **no reasonable alternative** — the pull request shows the direct fix was
   tried or reasoned through, and names the cost it would carry.
 
-The two widenings the repository carries today (`stubs/**` in the file-set,
-`php:S1066` on `MeterCount.php`) are grandfathered under exactly this
-policy; any new one must clear the same bar.
+The doctrine applies to every analyzer this repository runs today — the
+local duplication and mess gates (`phpmd.xml`'s per-rule opt-in list and its
+documented exclusions), the archeology gate, the mutation ledger — exactly
+as it applied to SonarCloud while that lane lived. Any new exclusion must
+clear the same bar.
 
 ### 7. Comprehensive and cohesive logic
 
@@ -467,10 +472,7 @@ ruleset — the only live protection layer since the owner consolidated the
 classic branch-protection rule into it on 2026-10-23 (before then `CI Bench`,
 `CI Static` and the aggregator's own job context joined the required set
 through that second layer, a union of seven contexts); the rest are advisory
-signals. `SonarCloud Code
-Analysis` (the SonarCloud GitHub App's check) stays on pull requests as
-advisory decoration; the blocking server-side verdict travels with
-`SonarCloud analysis`, which waits on the same gate.
+signals.
 
 **Merge-blocking semantics:** the required status-check set is the active
 `main` ruleset's contexts, united with the classic branch-protection rule's
@@ -496,8 +498,6 @@ a workflow fallback or exclusion to turn missing required-gate evidence green.
 | `CI Bench` | `composer ci:bench` — PHPBench. |
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
-| `SonarCloud Code Analysis` | The SonarCloud GitHub App's check on pull requests — advisory decoration; the blocking server-side quality gate is carried by `SonarCloud analysis`, which waits on the same server-side verdict. |
-| `SonarCloud analysis` | The scanner lane that produces the analysis (bridging the CI Coverage artifact); fail-closed when uncredentialed in a context that must have credentials — see [`docs/security/sonarcloud.md`](docs/security/sonarcloud.md). |
 | `Dependency Review` | Supply-chain review of dependency changes. |
 | `API Documentation Check` | The generated API documentation is up to date. |
 | `PHPBench` | Benchmark regression check. |
@@ -520,7 +520,7 @@ required-set union the merge gate actually enforces.
 ### PhpCodeArcheology (architecture & maintainability)
 
 [PhpCodeArcheology](https://github.com/PhpCodeArcheology/PhpCodeArcheology) is
-the repository's **non-server-side** counterpart to SonarCloud. Where PHPStan
+the repository's cloud-quality counterpart: where PHPStan
 and Psalm check type safety and bugs, PhpCodeArcheology measures **architecture
 and maintainability** — 60+ metrics (cyclomatic/cognitive complexity,
 maintainability index, LCOM, coupling, instability, Halstead), git churn
@@ -626,7 +626,7 @@ for review. A pull request that cannot tick a box is not ready to merge.
 - [ ] **Quality gates:** coverage ≥ 90 %, Infection MSI 100, PHPStan max + ratchet, Psalm L1, Deptrac, duplication + mess (phpcpd/phpmd), `composer audit` strict — all green.
 - [ ] Edge cases and corner cases are handled and covered by tests.
 - [ ] Logic follows the Enterprise Coding Standard and is comprehensive and cohesive.
-- [ ] No new SonarCloud issue introduced; no new `ruleKey` exclusion added.
+- [ ] No new analyzer finding introduced; no new rule exclusion added.
 - [ ] Logic re-hardened before push.
 - [ ] Unit-test coverage is above 90 %.
 - [ ] CI gates watched to green; auto-merge left to run on its own.

@@ -140,8 +140,7 @@ jobs:
           echo "Progpilot: no security findings in src/."
 
       - name: PhpCodeArcheology (architecture & maintainability gate)
-        # PhpCodeArcheology is the repository's non-server-side counterpart to
-        # SonarCloud: it measures architecture and maintainability (60+ metrics,
+        # PhpCodeArcheology measures architecture and maintainability (60+ metrics,
         # complexity, coupling, cohesion, git churn hotspots, health score)
         # rather than type safety, so it complements PHPStan/Psalm instead of
         # duplicating them. It is installed as a Composer dev-dependency

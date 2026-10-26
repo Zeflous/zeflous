@@ -1,9 +1,10 @@
 """Unit tests for the per-version changelog generator.
 
 These live under ``scripts/changelog/`` (not ``tests/``) on purpose: the
-repository's SonarCloud scope excludes ``scripts/**`` from analysis and
-coverage, so the generator's own tests stay out of the PHP project's quality
-gate while still running in CI. They are executed by the ``test`` job of
+PHP quality gates scope themselves to ``src/`` and ``tests/`` (a boundary
+the retired SonarCloud lane drew first for ``scripts/**``), so the
+generator's own tests stay out of the PHP project's quality gate while still
+running in CI. They are executed by the ``test`` job of
 ``.github/workflows/changelog-tests.yml`` with a 90% coverage floor.
 
 The GitHub API is never called: the module's ``_api_get`` / ``_api_get_all``
