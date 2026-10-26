@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-26T09:24:47Z",
+  "as_of": "2026-10-26T11:44:13Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 264,
+  "unreleased_count": 265,
   "versions": [
     {
       "version": "Unreleased",
@@ -3619,6 +3619,52 @@
                 "sha": "3a1f502b9782cd4e6f32461fa049a59206a71c19",
                 "short_sha": "3a1f502",
                 "subject": "docs(roadmap): re-pin the wildcard listeners row to the walk-killer fix"
+              }
+            ]
+          },
+          {
+            "pr": 623,
+            "title": "feat(event): the deferred delivery arm with retry, dead letters and quarantine",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-26T11:44:13Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/623",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0f563d209b2b5b39577a91f83406eed15e678ada",
+                "short_sha": "0f563d2",
+                "subject": "feat(event): the deferred delivery arm with retry, dead letters and quarantine"
+              },
+              {
+                "sha": "811980b41e5c3d075ed8ac15d84925451e9c68fc",
+                "short_sha": "811980b",
+                "subject": "docs(roadmap): record the deferred delivery slice and pin the lane"
+              },
+              {
+                "sha": "98f6fa0cf2a2e1af0305bb640b2fc7e7d535dcb7",
+                "short_sha": "98f6fa0",
+                "subject": "fix(event): answer the archeology ceiling with the composition the doctrine demands"
+              },
+              {
+                "sha": "5c5221edecf5e9fe0cc5707f20817feecd412f26",
+                "short_sha": "5c5221e",
+                "subject": "docs(roadmap): refresh the pin to the ceiling-settled head"
+              },
+              {
+                "sha": "6b0b10e5ed559bdc67dbf9880ca07629c43aa5a9",
+                "short_sha": "6b0b10e",
+                "subject": "fix(event): import the verdict test's own failure classes"
+              },
+              {
+                "sha": "613fd051dfee1b989d56919ca90c5c06d046fb2f",
+                "short_sha": "613fd05",
+                "subject": "docs(roadmap): ride the pin to the import-fix head"
+              },
+              {
+                "sha": "ae3db0346190e178a2a32fe26cd85c53af36fc7c",
+                "short_sha": "ae3db03",
+                "subject": "Merge branch 'main' into feat/event-async-delivery"
               }
             ]
           }
@@ -16961,6 +17007,52 @@
               "sha": "df738299c1138e087677978c7b6d0db301718971",
               "short_sha": "df73829",
               "subject": "docs(roadmap): record the SonarCloud retirement and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 623,
+          "title": "feat(event): the deferred delivery arm with retry, dead letters and quarantine",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-26T11:44:13Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/623",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0f563d209b2b5b39577a91f83406eed15e678ada",
+              "short_sha": "0f563d2",
+              "subject": "feat(event): the deferred delivery arm with retry, dead letters and quarantine"
+            },
+            {
+              "sha": "811980b41e5c3d075ed8ac15d84925451e9c68fc",
+              "short_sha": "811980b",
+              "subject": "docs(roadmap): record the deferred delivery slice and pin the lane"
+            },
+            {
+              "sha": "98f6fa0cf2a2e1af0305bb640b2fc7e7d535dcb7",
+              "short_sha": "98f6fa0",
+              "subject": "fix(event): answer the archeology ceiling with the composition the doctrine demands"
+            },
+            {
+              "sha": "5c5221edecf5e9fe0cc5707f20817feecd412f26",
+              "short_sha": "5c5221e",
+              "subject": "docs(roadmap): refresh the pin to the ceiling-settled head"
+            },
+            {
+              "sha": "6b0b10e5ed559bdc67dbf9880ca07629c43aa5a9",
+              "short_sha": "6b0b10e",
+              "subject": "fix(event): import the verdict test's own failure classes"
+            },
+            {
+              "sha": "613fd051dfee1b989d56919ca90c5c06d046fb2f",
+              "short_sha": "613fd05",
+              "subject": "docs(roadmap): ride the pin to the import-fix head"
+            },
+            {
+              "sha": "ae3db0346190e178a2a32fe26cd85c53af36fc7c",
+              "short_sha": "ae3db03",
+              "subject": "Merge branch 'main' into feat/event-async-delivery"
             }
           ]
         }
