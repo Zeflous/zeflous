@@ -191,6 +191,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - refactor(tooling): move the CI gate engine out of the framework tree [#551](https://github.com/Zeflous/zeflous/pull/551) ([mbetixz](https://github.com/mbetixz))
 - ci(qa): retire the SonarCloud lane [#622](https://github.com/Zeflous/zeflous/pull/622) ([mbetixz](https://github.com/mbetixz))
 - ci(qa): resurrect the SonarCloud lane on the new account [#628](https://github.com/Zeflous/zeflous/pull/628) ([mbetixz](https://github.com/mbetixz))
+- chore(sonar): drop the no-effect sonar.sources and sonar.tests keys [#631](https://github.com/Zeflous/zeflous/pull/631) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 

@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-26T13:39:37Z",
+  "as_of": "2026-10-26T17:17:40Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 266,
+  "unreleased_count": 267,
   "versions": [
     {
       "version": "Unreleased",
@@ -6565,6 +6565,27 @@
                 "sha": "0e3450797f25e125a667c33556329f8288cc6e76",
                 "short_sha": "0e34507",
                 "subject": "docs(roadmap): record the SonarCloud resurrection and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 631,
+            "title": "chore(sonar): drop the no-effect sonar.sources and sonar.tests keys",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-26T17:17:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/631",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "21fff7618efb4d1cf879fa30c9977fafe7420a93",
+                "short_sha": "21fff76",
+                "subject": "chore(sonar): drop the no-effect sonar.sources and sonar.tests keys"
+              },
+              {
+                "sha": "d631e7bb4d6f7243220fbb2845e935c096dee728",
+                "short_sha": "d631e7b",
+                "subject": "docs(roadmap): record the sonar scope-keys hygiene and refresh the pin"
               }
             ]
           }
@@ -17095,6 +17116,27 @@
               "sha": "0e3450797f25e125a667c33556329f8288cc6e76",
               "short_sha": "0e34507",
               "subject": "docs(roadmap): record the SonarCloud resurrection and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 631,
+          "title": "chore(sonar): drop the no-effect sonar.sources and sonar.tests keys",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-26T17:17:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/631",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "21fff7618efb4d1cf879fa30c9977fafe7420a93",
+              "short_sha": "21fff76",
+              "subject": "chore(sonar): drop the no-effect sonar.sources and sonar.tests keys"
+            },
+            {
+              "sha": "d631e7bb4d6f7243220fbb2845e935c096dee728",
+              "short_sha": "d631e7b",
+              "subject": "docs(roadmap): record the sonar scope-keys hygiene and refresh the pin"
             }
           ]
         }
