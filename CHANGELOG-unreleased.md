@@ -91,6 +91,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(storage): the files tree route map [#605](https://github.com/Zeflous/zeflous/pull/605) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the debugging utilities over the inspection boot [#610](https://github.com/Zeflous/zeflous/pull/610) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the core synchronous dispatcher (the Event Source lane's first slice -- roadmap §1.A) [#613](https://github.com/Zeflous/zeflous/pull/613) ([mbetixz](https://github.com/mbetixz))
+- feat(qa): the local duplication and mess gates over the tooling engine [#616](https://github.com/Zeflous/zeflous/pull/616) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 

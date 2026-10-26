@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-25T18:22:20Z",
+  "as_of": "2026-10-26T02:16:11Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 261,
+  "unreleased_count": 262,
   "versions": [
     {
       "version": "Unreleased",
@@ -3557,6 +3557,27 @@
                 "sha": "cfe0a7ad0646797e8f7ac9b491830dc40421a2a5",
                 "short_sha": "cfe0a7a",
                 "subject": "docs(roadmap): move the event dispatcher row's commit to the mutation-ledger fix"
+              }
+            ]
+          },
+          {
+            "pr": 616,
+            "title": "feat(qa): the local duplication and mess gates over the tooling engine",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-26T02:16:11Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/616",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e9bdeacbc08919f05043f03d1a011bfc9513c263",
+                "short_sha": "e9bdeac",
+                "subject": "feat(qa): the local duplication and mess gates over the tooling engine"
+              },
+              {
+                "sha": "bf65a1f9fb9d3b18ce83f06eaf0031b0df7fef53",
+                "short_sha": "bf65a1f",
+                "subject": "docs(roadmap): record the qa gates slice and pin the lane"
               }
             ]
           }
@@ -16795,6 +16816,27 @@
               "sha": "cfe0a7ad0646797e8f7ac9b491830dc40421a2a5",
               "short_sha": "cfe0a7a",
               "subject": "docs(roadmap): move the event dispatcher row's commit to the mutation-ledger fix"
+            }
+          ]
+        },
+        {
+          "pr": 616,
+          "title": "feat(qa): the local duplication and mess gates over the tooling engine",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-26T02:16:11Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/616",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e9bdeacbc08919f05043f03d1a011bfc9513c263",
+              "short_sha": "e9bdeac",
+              "subject": "feat(qa): the local duplication and mess gates over the tooling engine"
+            },
+            {
+              "sha": "bf65a1f9fb9d3b18ce83f06eaf0031b0df7fef53",
+              "short_sha": "bf65a1f",
+              "subject": "docs(roadmap): record the qa gates slice and pin the lane"
             }
           ]
         }
