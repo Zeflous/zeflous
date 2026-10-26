@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-26 · `main` @ `ecaadea`
+**Last updated:** 2026-10-26 · `main` @ `6c6353c`
 
 ---
 
@@ -122,6 +122,7 @@ Cross-cutting substrate — not a `ROADMAP.md` area of its own; tracked here the
 | Roadmap document gate | ✅ Implemented | `composer roadmap:gate` (part of `composer ci:static`) → `tests/Support/Tooling/RoadmapDocGate.php` audits the structural integrity of the roadmap documents, and `tests/Support/Tooling/RoadmapPinFreshness.php` — fed by `RoadmapPinCommitCollector.php`, on the lanes that validate `main` — enforces the pin-freshness invariant: the `Last updated` commit must be an ancestor of the validated commit and may only be followed by changelog or roadmap bookkeeping (changelog regenerations, `docs(roadmap):` document commits, and the branch-update machinery's `main`-into-branch merges, in all four of its observed spellings per #532 — its git invocation, the web UI's update button, the shorthand, and the descriptive `chore: merge main (...)` custom subject). Since #542 the judgment also runs on the merge queue's group head -- the commit the queue is about to make `main`'s tip -- and a recorded pull-request landing (a MERGE commit of the walk whose trailing `(#<number>)` carries a `ROADMAP-HISTORY.md` row in the tree under validation) is accepted, so an unrecorded substantive merge fails the pull request's own queue entry instead of reddening `main` after it lands. |
 
 | Duplication + mess gates | ✅ Implemented | `composer qa:duplication` / `composer qa:mess` (part of `composer ci:static`, folded between `rector:check` and `test`) → `tests/Support/Tooling/DuplicationGate.php` + `MessGate.php` over phpcpd 9.2 / phpmd 3.0 (`require-dev` provisioned — the production channels stay zero), the per-rule OPT-IN ruleset `phpmd.xml` (eleven rules calibrated green, the 1547-finding census and the add-a-rule recipe in `docs/ci-notes/qa-gates.md`), both arms fail-closed on exit codes that disagree with their payloads; the blocking path rides the existing `CI Static` → `CI Strict` aggregation, no ruleset change. |
+| SonarCloud lane retirement | ✅ Implemented | The cloud lane and every wire that kept it alive are gone (#622): `sonarcloud.yml` + `sonar-project.properties` deleted; the changelog lanes' dispatch step, the watchdog's dispatch entry, and the coverage bridge's dead weight (the report-regeneration step + the `coverage-reports` artifact + the `coverage:ci`/`ci:coverage:reports` composer scripts) removed; the ruleset's `code_quality` rule — which read SonarCloud's reporting and blocked merges without an analysis — dropped from the active `main` ruleset before the queue entry (required set and ALLGREEN queue untouched); the retirement record with the account-side teardown steps and the surviving doctrine lives in `docs/security/sonarcloud.md`. |
 
 ---
 
