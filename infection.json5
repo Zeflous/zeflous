@@ -122,11 +122,13 @@
         // mutator: it is not an MBString target. This ignore is scoped
         // to that single method.
         //
-        // The SameSite-vocabulary fold in CsrfSameSite::read() is the
-        // sixth, and carries the same argument over its own vocabulary:
-        // the words strict/lax/none contain no ASCII `k`, so every
-        // fold-divergent value misses the folded map under both spellings
-        // and is rejected with the value spelled out -- the zone is
+        // The SameSite-vocabulary fold in SameSiteVocabulary::read()
+        // (one fold serving the CSRF and session families since the
+        // duplication gate paid down the twin classes) is the sixth, and
+        // carries the same argument over its own vocabulary: the words
+        // strict/lax/none contain no ASCII `k`, so every fold-divergent
+        // value misses the folded map under both spellings and is
+        // rejected with the value spelled out -- the zone is
         // value-equivalent by the same construction. The neighbouring
         // map lookup stays under the mutator where applicable: it is not
         // an MBString target. This ignore is scoped to that single
@@ -374,7 +376,6 @@
                 "Zef\\Framework\\Http\\AuthCredential::fromBearerLine",
                 "Zef\\Framework\\Http\\BodyBudget::refuses",
                 "Zef\\Framework\\Http\\CsrfMiddleware::enforce",
-                "Zef\\Framework\\Http\\CsrfSameSite::read",
                 "Zef\\Framework\\Http\\ETagMiddleware::applyConditionalGet",
                 "Zef\\Framework\\Http\\ExportBounds::assertUsableEndpoint",
                 "Zef\\Framework\\Http\\ExportPolicy::assertUsableEndpoint",
@@ -403,11 +404,13 @@
                 // constructor's other grammars are regex folds the
                 // mutator does not target.
                 "Zef\\Framework\\Http\\SetCookie::__construct",
-                // The session family's own SameSite fold is the
-                // CsrfSameSite entry's twin over the same three words:
-                // the same no-`k` argument, the same value-equivalence,
-                // verified by the same construction.
-                "Zef\\Framework\\Http\\SessionSameSite::read",
+                // The shared SameSite-vocabulary fold is what the two
+                // family entries (CsrfSameSite::read and its session
+                // twin) became when the duplication gate paid the pair
+                // down into one reading: the same no-`k` argument, the
+                // same value-equivalence, verified by the same
+                // construction, now stated once for both knob surfaces.
+                "Zef\\Framework\\Http\\SameSiteVocabulary::read",
                 "Zef\\Framework\\Http\\StrictToggles::read",
                 // The toolbar eligibility's two case folds are the same
                 // construction over their own closed vocabularies: the

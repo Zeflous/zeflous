@@ -11,7 +11,7 @@ namespace Zef\Framework\Http;
  * CsrfPolicy}).
  *
  * The fold mirrors the family's SameSite vocabulary ({@see
- * SessionSameSite}): the grammar lives in one named place both the
+ * SameSiteVocabulary}): the grammar lives in one named place both the
  * config path and the constructor read through, instead of two
  * private spellings the policy carried -- the extraction the
  * architecture gate's difficulty ceiling asked for, kept ahead of

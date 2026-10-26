@@ -20,7 +20,7 @@ session round trip, ~6.6µs per request).
 |---|---|
 | `SessionKnobs` / `SessionPolicy` | the strict knob reading (`http.session`: `enabled`, `cookie_name`, `idle_timeout` 1..2592000, `id_bytes` 16..64, `cookie_secure`, `cookie_http_only`, `same_site`) |
 | `SessionBounds` | the two integer corridors, asserted at the policy's constructor (the `CsrfBounds` pattern) |
-| `SessionCookieName` / `SessionSameSite` | the two vocabulary folds (the RFC 9110 token name; the SameSite words) |
+| `SessionCookieName` / `SameSiteVocabulary` | the two vocabulary folds (the RFC 9110 token name; the SameSite words — the vocabulary fold the duplication gate later paid into one shared reading, `docs/ci-notes/qa-gates.md` KDD-QA3) |
 | `SessionId` | the identifier core: issuance over injectable `random_bytes`, the incoming grammar's alphabet and length corridor |
 | `RequestCookies` | the stateless helper's request half: the fail-closed read and the symmetric write over the PSR-7 cookie bag |
 | `SetCookie` | the response half: the secure-default cookie value object and its `Set-Cookie` renderer, deletion included |
@@ -95,11 +95,14 @@ posture `CsrfSetCookie` documents — but the CSRF family's own issuance
 line is NOT folded here: it predates this seam, its attribute order is
 the reference implementation's own provenance, and restructuring a
 family this slice does not own is the one-way-composition discipline
-every lane follows. The SameSite vocabulary folds stay two
+every lane follows. The SameSite vocabulary folds stayed two
 (`SessionSameSite` beside `CsrfSameSite`) for the same reason the
 security map's census deferred its seam: the shared cookie-attribute
 vocabulary is a fold a THIRD cookie-writing family's landing would
-justify.
+justify -- a deferral the duplication gate's own arrival later answered
+(`SameSiteVocabulary`, `docs/ci-notes/qa-gates.md` KDD-QA3: two
+byte-identical 38-line bodies are a clone regardless of how many knob
+surfaces ask the question).
 
 ## KDD-SC6 — a destroyed fresh session still answers the deletion cookie
 

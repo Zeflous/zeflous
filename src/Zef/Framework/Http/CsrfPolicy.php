@@ -13,7 +13,7 @@ namespace Zef\Framework\Http;
  * be the native type a file declared or the raw string an environment
  * overlay wrote over it. Every knob is read strictly through the family's
  * shared readers ({@see StrictToggles} for the toggles, {@see
- * StrictIntegers} for the entropy, {@see CsrfSameSite} for the SameSite
+ * StrictIntegers} for the entropy, {@see SameSiteVocabulary} for the SameSite
  * vocabulary, the private name reader for the two field names), the
  * unknown-key census is {@see CsrfKnobs}, and the bounds are {@see
  * CsrfBounds}: a wrong type, an out-of-range value, an unknown vocabulary
@@ -70,14 +70,14 @@ final readonly class CsrfPolicy
         public int $tokenBytes = 32,
         public bool $cookieSecure = true,
         public bool $cookieHttpOnly = true,
-        public string $sameSite = CsrfSameSite::STRICT,
+        public string $sameSite = SameSiteVocabulary::STRICT,
     ) {
         CsrfBounds::assert($this->tokenBytes);
 
         $this->assertTokenName($this->cookieName, 'cookie_name');
         $this->assertTokenName($this->headerName, 'header_name');
 
-        if ($this->sameSite === CsrfSameSite::NONE && !$this->cookieSecure) {
+        if ($this->sameSite === SameSiteVocabulary::NONE && !$this->cookieSecure) {
             throw new HttpException(
                 'The security.csrf same_site None knob requires the Secure cookie attribute'
                 . ' (cookie_secure).',
@@ -132,7 +132,7 @@ final readonly class CsrfPolicy
             'tokenBytes' => StrictIntegers::read($map['token_bytes'] ?? 32, 'security.csrf token_bytes'),
             'cookieSecure' => StrictToggles::read($map['cookie_secure'] ?? true, 'security.csrf cookie_secure'),
             'cookieHttpOnly' => StrictToggles::read($map['cookie_http_only'] ?? true, 'security.csrf cookie_http_only'),
-            'sameSite' => CsrfSameSite::read($map['same_site'] ?? CsrfSameSite::STRICT),
+            'sameSite' => SameSiteVocabulary::read($map['same_site'] ?? SameSiteVocabulary::STRICT, 'security.csrf'),
         ];
     }
 

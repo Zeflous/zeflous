@@ -34,7 +34,7 @@ final class CsrfSetCookie
             'SameSite=' . $csrfPolicy->sameSite,
         ];
 
-        if ($csrfPolicy->cookieSecure && ($scheme === 'https' || $csrfPolicy->sameSite === CsrfSameSite::NONE)) {
+        if ($csrfPolicy->cookieSecure && ($scheme === 'https' || $csrfPolicy->sameSite === SameSiteVocabulary::NONE)) {
             $attributes[] = 'Secure';
         }
 

@@ -47,6 +47,8 @@ final readonly class GateRunner
                 ->evaluate(DependencyAudit::fromComposerAuditJson($this->auditPayload())),
             'lint' => new LintGate(fn (string $file): bool => $this->lintFile($file))
                 ->evaluate(LintReport::collectPhpFiles($this->root, ['src', 'tests', 'benchmarks', 'scripts', 'bin'])),
+            'duplication' => $this->duplication(),
+            'mess' => $this->mess(),
             'workflow-concurrency' => new WorkflowConcurrencyGate()
                 ->evaluate(new WorkflowConcurrencyReport(
                     new WorkflowFileCollector($this->root)->collect(),
@@ -219,6 +221,77 @@ final readonly class GateRunner
         ));
 
         return $exitCode === 0;
+    }
+
+    /**
+     * The copy-paste detector's own run, payload and verdict: the tool
+     * writes the PMD report to stdout (`--quiet` keeps the human summary
+     * off the stream), exits 0 clean / 1 with clones, and anything else
+     * is a run the gate refuses to trust. The exit code and the parsed
+     * payload must agree -- a tool that reports clones while exiting
+     * clean (or the reverse) is a tool whose verdict nobody can read.
+     */
+    private function duplication(): GateResult
+    {
+        [$exitCode, $output] = ($this->processRunner)(\sprintf(
+            'cd %s && vendor/bin/phpcpd src --exclude src/Contracts/Psr'
+            . ' --log-pmd php://stdout --quiet 2>/dev/null',
+            escapeshellarg($this->root),
+        ));
+
+        if ($exitCode !== 0 && $exitCode !== 1) {
+            throw new ToolingException(\sprintf(
+                'The copy-paste detector did not complete a normal run (exit %d), '
+                . 'so the duplication gate cannot read a verdict.',
+                $exitCode,
+            ));
+        }
+
+        $report = DuplicationReport::fromPmdXml($output, $this->root);
+
+        if (($exitCode === 1) !== $report->hasClones()) {
+            throw new ToolingException(
+                'The copy-paste detector exit code and its PMD payload disagree, '
+                . 'so the duplication gate cannot pick a verdict.',
+            );
+        }
+
+        return new DuplicationGate()->evaluate($report);
+    }
+
+    /**
+     * The mess detector's own run, payload and verdict: the tool writes
+     * the JSON report to stdout, exits 0 clean / 2 with violations, and
+     * anything else (a missing ruleset, a crash) is a run the gate
+     * refuses to trust. The exit code and the parsed payload must agree
+     * for the same fail-closed reason as the duplication arm.
+     */
+    private function mess(): GateResult
+    {
+        [$exitCode, $output] = ($this->processRunner)(\sprintf(
+            'cd %s && vendor/bin/phpmd analyze src --format=json --ruleset=phpmd.xml'
+            . " --exclude='*src/Contracts/Psr/*' --no-progress 2>/dev/null",
+            escapeshellarg($this->root),
+        ));
+
+        if ($exitCode !== 0 && $exitCode !== 2) {
+            throw new ToolingException(\sprintf(
+                'The mess detector did not complete a normal run (exit %d), '
+                . 'so the mess gate cannot read a verdict.',
+                $exitCode,
+            ));
+        }
+
+        $report = MessReport::fromJson($output, $this->root);
+
+        if (($exitCode === 2) !== $report->hasViolations()) {
+            throw new ToolingException(
+                'The mess detector exit code and its JSON payload disagree, '
+                . 'so the mess gate cannot pick a verdict.',
+            );
+        }
+
+        return new MessGate()->evaluate($report);
     }
 
     private function smoke(): GateResult

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The ZEF mess gate's ruleset (phpmd 3, `composer qa:mess`).
+
+    Per-rule OPT-IN, never whole rulesets: a new phpmd release adding a
+    rule to a bundled ruleset must not redden this gate by surprise; a
+    rule joins only when someone reads its findings, disposes of the
+    current crop honestly (fix it, or exclude it with a written reason),
+    and adds the ref line here. The disposition of every stock rule
+    against main @ 0c5a634 (1547 findings under the six default
+    rulesets) is recorded in docs/ci-notes/qa-gates.md: included rules
+    were clean that day, and excluded rules carry their architectural
+    reason inline there (the short version: cleancode and naming overlap
+    the phpcs + slevomat lanes and the static-factory idiom, codesize
+    overlaps the archeology gate's calibrated difficulty/effort
+    ceilings, and the controversial pair is owned by phpstan/psalm or
+    false-positives the by-ref out-param pattern produces).
+
+    Adding a rule: one `<rule ref="rulesets/<set>.xml/<Rule>"/>` line,
+    then make main green for it before the commit lands. Tuning one:
+    nest `<properties><property name="..." value="..."/></properties>`
+    inside the ref. A rule of your own: a class extending
+    PHPMD\AbstractRule registered by its FQCN; the recipe is in
+    docs/ci-notes/qa-gates.md (the class autoloads through this
+    repository's own composer autoloader, `Zef\Test\` in tests/Support
+    is a working home for it).
+-->
+<ruleset name="ZEF"
+         xmlns="http://pmd.sf.net/ruleset/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
+         xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+    <description>The ZEF mess gate: debug-code, control-flow and unused-symbol guards the other lanes lack.</description>
+
+    <!-- design: the guards phpstan does not spell. -->
+    <rule ref="rulesets/design.xml/CountInLoopExpression"/>
+    <rule ref="rulesets/design.xml/DepthOfInheritance"/>
+    <rule ref="rulesets/design.xml/DevelopmentCodeFragment"/>
+    <rule ref="rulesets/design.xml/EmptyCatchBlock"/>
+    <rule ref="rulesets/design.xml/EvalExpression"/>
+    <rule ref="rulesets/design.xml/ExitExpression"/>
+    <rule ref="rulesets/design.xml/GotoStatement"/>
+
+    <!-- unusedcode: the local/field/method arm psalm findUnusedCode complements. -->
+    <rule ref="rulesets/unusedcode.xml/UnusedLocalVariable"/>
+    <rule ref="rulesets/unusedcode.xml/UnusedPrivateField"/>
+    <rule ref="rulesets/unusedcode.xml/UnusedPrivateMethod"/>
+    <rule ref="rulesets/unusedcode.xml/UnusedSuppression"/>
+</ruleset>

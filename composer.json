@@ -37,6 +37,7 @@
         "opis/json-schema": "^2.6",
         "php-code-archeology/php-code-archeology": "^2.11",
         "phpbench/phpbench": "^1.7",
+        "phpmd/phpmd": "^3.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.3",
         "phpstan/phpstan-deprecation-rules": "^2.0",
@@ -46,6 +47,7 @@
         "rector/rector": "^2.7",
         "slevomat/coding-standard": "^8.31",
         "squizlabs/php_codesniffer": "^4.0",
+        "systemsdk/phpcpd": "^9.2",
         "vimeo/psalm": "^6.19"
     },
     "suggest": {
@@ -125,6 +127,8 @@
         "bench": "phpbench run --report=aggregate --progress=none",
         "bench:regression": "phpbench run --report=aggregate --progress=none",
         "smoke:persistent": "@php scripts/ci/gate.php smoke",
+        "qa:duplication": "@php scripts/ci/gate.php duplication",
+        "qa:mess": "@php scripts/ci/gate.php mess",
         "lint": "@php scripts/ci/gate.php lint",
         "workflow:concurrency": "@php scripts/ci/gate.php workflow-concurrency",
         "ci": [
@@ -149,6 +153,8 @@
             "@composer format:check",
             "@composer phpcs",
             "@composer rector:check",
+            "@composer qa:duplication",
+            "@composer qa:mess",
             "@composer test",
             "@composer smoke:persistent",
             "@composer workflow:concurrency",
@@ -198,6 +204,8 @@
         "bench": "Run the PHPBench benchmarks with assertions.",
         "bench:regression": "Run PHPBench with the aggregate report.",
         "smoke:persistent": "Run the persistent-worker (RoadRunner) smoke test.",
+        "qa:duplication": "Run the copy-paste detector (phpcpd) over src/ and fail on any clone pair (the vendored PSR shim is excluded).",
+        "qa:mess": "Run the mess detector (phpmd) over src/ under the opted-in ruleset (phpmd.xml) and fail on any violation.",
         "lint": "Fast syntax lint of the codebase (via the tooling gate dispatcher).",
         "ci": "Full local CI pipeline (mirrors the standard GitHub Actions workflow).",
         "ci:strict": "Strict CI pipeline: every gate, including coverage, mutation and strict audit."
