@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-26T11:44:13Z",
+  "as_of": "2026-10-26T13:39:37Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 265,
+  "unreleased_count": 266,
   "versions": [
     {
       "version": "Unreleased",
@@ -6544,6 +6544,27 @@
                 "sha": "df738299c1138e087677978c7b6d0db301718971",
                 "short_sha": "df73829",
                 "subject": "docs(roadmap): record the SonarCloud retirement and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 628,
+            "title": "ci(qa): resurrect the SonarCloud lane on the new account",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-26T13:39:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/628",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d7fda566a39b1adbc5485332956422608a43057a",
+                "short_sha": "d7fda56",
+                "subject": "ci(qa): resurrect the SonarCloud lane on the new account"
+              },
+              {
+                "sha": "0e3450797f25e125a667c33556329f8288cc6e76",
+                "short_sha": "0e34507",
+                "subject": "docs(roadmap): record the SonarCloud resurrection and pin the lane"
               }
             ]
           }
@@ -17053,6 +17074,27 @@
               "sha": "ae3db0346190e178a2a32fe26cd85c53af36fc7c",
               "short_sha": "ae3db03",
               "subject": "Merge branch 'main' into feat/event-async-delivery"
+            }
+          ]
+        },
+        {
+          "pr": 628,
+          "title": "ci(qa): resurrect the SonarCloud lane on the new account",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-26T13:39:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/628",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d7fda566a39b1adbc5485332956422608a43057a",
+              "short_sha": "d7fda56",
+              "subject": "ci(qa): resurrect the SonarCloud lane on the new account"
+            },
+            {
+              "sha": "0e3450797f25e125a667c33556329f8288cc6e76",
+              "short_sha": "0e34507",
+              "subject": "docs(roadmap): record the SonarCloud resurrection and pin the lane"
             }
           ]
         }
