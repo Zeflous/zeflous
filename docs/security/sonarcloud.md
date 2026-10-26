@@ -146,6 +146,18 @@ only when someone decides to remove its pattern from
 `sonar-project.properties`. The scanner step's "Analysis scope (diagnostic)"
 prints the analysed file counts so scope drift is visible, never silent.
 
+The lane's first-life spelling also carried `sonar.sources=src` and
+`sonar.tests=tests`. The scanner's analysis-scope UX ignores both keys and
+warned about them on every run ("The following properties are configured but
+have no effect: sonar.sources, sonar.tests"), so they were removed on
+2026-10-26, hours into the resurrected lane's life: the exclusion allow-list
+above is the only scope control the scanner actually honours, and the
+intent those keys documented now lives in this record instead of in dead
+configuration. The removal changes nothing about what is analysed — the
+whole-project scope was measured as early as run 37652159694 (2026-10-07,
+the first life), which is exactly how `vendor/` reached the first PR's
+24.6%-coverage artefact before the allow-list existed.
+
 ## 6. Original setup checklist (preserved from the first life)
 
 1. Sign in at <https://sonarcloud.io> with the GitHub account that owns this
