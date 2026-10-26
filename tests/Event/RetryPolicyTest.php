@@ -103,16 +103,16 @@ final class RetryPolicyTest extends TestCase
 
     public function testABackoffThatWouldOverflowAtTheDoublingCapsAtTheMaximum(): void
     {
-        $base = (PHP_INT_MAX >> 1) + 1;
+        $base = (\PHP_INT_MAX >> 1) + 1;
         $retryPolicy = new RetryPolicy(3, $base);
 
         self::assertSame($base, $retryPolicy->readyAtForNextAttempt(1, 0));
-        self::assertSame(PHP_INT_MAX, $retryPolicy->readyAtForNextAttempt(2, 0));
+        self::assertSame(\PHP_INT_MAX, $retryPolicy->readyAtForNextAttempt(2, 0));
     }
 
     public function testABackoffThatFitsAfterTheDoublingStillLandsExactly(): void
     {
-        $base = (PHP_INT_MAX >> 2) + 1;
+        $base = (\PHP_INT_MAX >> 2) + 1;
         $retryPolicy = new RetryPolicy(3, $base);
 
         self::assertSame(2 * $base, $retryPolicy->readyAtForNextAttempt(2, 0));
@@ -120,9 +120,9 @@ final class RetryPolicyTest extends TestCase
 
     public function testABackoffAtTheExactHalvingBoundaryLandsOneShortOfTheMaximum(): void
     {
-        $retryPolicy = new RetryPolicy(3, PHP_INT_MAX >> 1);
+        $retryPolicy = new RetryPolicy(3, \PHP_INT_MAX >> 1);
 
-        self::assertSame(PHP_INT_MAX - 1, $retryPolicy->readyAtForNextAttempt(2, 0));
+        self::assertSame(\PHP_INT_MAX - 1, $retryPolicy->readyAtForNextAttempt(2, 0));
     }
 
     public function testABigButRoomyBackoffStillLandsExactly(): void

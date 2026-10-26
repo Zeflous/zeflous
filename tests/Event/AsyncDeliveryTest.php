@@ -9,12 +9,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Event\AsyncDelivery;
 use Zef\Framework\Event\DeferralOutcome;
+use Zef\Framework\Event\DeliveryAdmission;
+use Zef\Framework\Event\DeliveryAttempt;
+use Zef\Framework\Event\DeliveryFailure;
 use Zef\Framework\Event\DrainOutcome;
+use Zef\Framework\Event\DrainPass;
 use Zef\Framework\Event\Event;
 use Zef\Framework\Event\EventName;
 use Zef\Framework\Event\EventPayload;
+use Zef\Framework\Event\FailureVerdict;
 use Zef\Framework\Event\ListenerPriority;
 use Zef\Framework\Event\ListenerSubscription;
+use Zef\Framework\Event\PreparedDelivery;
 use Zef\Framework\Event\RetryPolicy;
 
 /**
@@ -28,6 +34,11 @@ use Zef\Framework\Event\RetryPolicy;
  * @internal
  */
 #[CoversClass(AsyncDelivery::class)]
+#[CoversClass(DeliveryAdmission::class)]
+#[CoversClass(DeliveryAttempt::class)]
+#[CoversClass(DeliveryFailure::class)]
+#[CoversClass(DrainPass::class)]
+#[CoversClass(FailureVerdict::class)]
 #[CoversClass(DeferralOutcome::class)]
 #[CoversClass(DrainOutcome::class)]
 final class AsyncDeliveryTest extends TestCase
@@ -50,10 +61,10 @@ final class AsyncDeliveryTest extends TestCase
         $asyncDelivery = new AsyncDelivery(new RetryPolicy(3, 10), 5, 3);
         $event = $this->event();
 
-        $outcome = $asyncDelivery->defer($event, [
+        $outcome = $asyncDelivery->defer(new PreparedDelivery($event, [
             new ListenerSubscription(new RecordingListener(new EventLog(), 'a'), new ListenerPriority(0)),
             new ListenerSubscription(new RecordingListener(new EventLog(), 'b'), new ListenerPriority(0)),
-        ]);
+        ]));
 
         self::assertSame('user.created', $outcome->name()->spelling());
         self::assertSame(2, $outcome->admitted());
@@ -69,10 +80,10 @@ final class AsyncDeliveryTest extends TestCase
         $asyncDelivery = new AsyncDelivery(new RetryPolicy(3, 10), 5, 3);
         $event = $this->event();
 
-        $asyncDelivery->defer($event, [
+        $asyncDelivery->defer(new PreparedDelivery($event, [
             new ListenerSubscription(new RecordingListener($eventLog, 'late'), new ListenerPriority(0)),
             new ListenerSubscription(new RecordingListener($eventLog, 'early'), new ListenerPriority(10)),
-        ]);
+        ]));
 
         $outcome = $asyncDelivery->drain(1_000);
 
@@ -89,9 +100,9 @@ final class AsyncDeliveryTest extends TestCase
         $asyncDelivery = new AsyncDelivery(new RetryPolicy(3, 10), 5, 3);
         $failingListener = new FailingListener();
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($failingListener, new ListenerPriority(0)),
-        ]);
+        ]));
 
         $first = $asyncDelivery->drain(1_000);
         self::assertSame(0, $first->delivered());
@@ -129,10 +140,10 @@ final class AsyncDeliveryTest extends TestCase
         $eventLog = new EventLog();
         $asyncDelivery = new AsyncDelivery(new RetryPolicy(3, 10), 5, 3);
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription(new FailingListener(), new ListenerPriority(10)),
             new ListenerSubscription(new RecordingListener($eventLog, 'survivor'), new ListenerPriority(0)),
-        ]);
+        ]));
 
         $outcome = $asyncDelivery->drain(1_000);
 
@@ -147,10 +158,10 @@ final class AsyncDeliveryTest extends TestCase
         $eventLog = new EventLog();
         $asyncDelivery = new AsyncDelivery(new RetryPolicy(1, 10), 5, 3);
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription(new FailingListener(), new ListenerPriority(10)),
             new ListenerSubscription(new RecordingListener($eventLog, 'survivor'), new ListenerPriority(0)),
-        ]);
+        ]));
 
         $outcome = $asyncDelivery->drain(1_000);
 
@@ -165,9 +176,9 @@ final class AsyncDeliveryTest extends TestCase
         $asyncDelivery = new AsyncDelivery(new RetryPolicy(2, 10), 5, 3);
         $failingListener = new FailingListener('the listener failed');
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($failingListener, new ListenerPriority(0)),
-        ]);
+        ]));
         $asyncDelivery->drain(1_000);
 
         $outcome = $asyncDelivery->drain(1_010);
@@ -191,12 +202,12 @@ final class AsyncDeliveryTest extends TestCase
         $poison = new FailingListener();
         $other = new FailingListener();
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($poison, new ListenerPriority(0)),
-        ]);
-        $asyncDelivery->defer($this->event(), [
+        ]));
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($other, new ListenerPriority(0)),
-        ]);
+        ]));
         $firstPass = $asyncDelivery->drain(1_000);
 
         self::assertSame(2, $firstPass->deadLettered());
@@ -204,9 +215,9 @@ final class AsyncDeliveryTest extends TestCase
         self::assertFalse($asyncDelivery->isListenerQuarantined($poison));
         self::assertFalse($asyncDelivery->isListenerQuarantined($other));
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($poison, new ListenerPriority(0)),
-        ]);
+        ]));
         $secondPass = $asyncDelivery->drain(2_000);
 
         self::assertSame(1, $secondPass->deadLettered());
@@ -221,16 +232,16 @@ final class AsyncDeliveryTest extends TestCase
         $failingListener = new FailingListener();
         $recordingListener = new RecordingListener(new EventLog(), 'healthy');
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($failingListener, new ListenerPriority(0)),
-        ]);
+        ]));
         $asyncDelivery->drain(1_000);
         self::assertTrue($asyncDelivery->isListenerQuarantined($failingListener));
 
-        $outcome = $asyncDelivery->defer($this->event(), [
+        $outcome = $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($failingListener, new ListenerPriority(10)),
             new ListenerSubscription($recordingListener, new ListenerPriority(0)),
-        ]);
+        ]));
 
         self::assertSame(1, $outcome->admitted());
         self::assertSame(1, $outcome->skippedQuarantined());
@@ -244,14 +255,14 @@ final class AsyncDeliveryTest extends TestCase
         $failingListener = new FailingListener();
         $recordingListener = new RecordingListener($eventLog, 'recovers');
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($failingListener, new ListenerPriority(0)),
             new ListenerSubscription($recordingListener, new ListenerPriority(0)),
-        ]);
-        $asyncDelivery->defer($this->event(), [
+        ]));
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($failingListener, new ListenerPriority(0)),
             new ListenerSubscription($recordingListener, new ListenerPriority(0)),
-        ]);
+        ]));
 
         $firstPass = $asyncDelivery->drain(1_000);
 
@@ -272,9 +283,9 @@ final class AsyncDeliveryTest extends TestCase
         $asyncDelivery = new AsyncDelivery(new RetryPolicy(1, 0), 5, 3);
         $selfDeferringListener = new SelfDeferringListener($asyncDelivery);
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription($selfDeferringListener, new ListenerPriority(0)),
-        ]);
+        ]));
 
         $firstPass = $asyncDelivery->drain(1_000);
 
@@ -292,9 +303,9 @@ final class AsyncDeliveryTest extends TestCase
         $eventLog = new EventLog();
         $asyncDelivery = new AsyncDelivery(new RetryPolicy(3, 10), 5, 3);
 
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription(new RecordingListener($eventLog, 'x'), new ListenerPriority(0)),
-        ]);
+        ]));
 
         $outcome = $asyncDelivery->drain(0);
 
@@ -319,14 +330,14 @@ final class AsyncDeliveryTest extends TestCase
     public function testABatchRefusedByCapacityLeavesNoEntriesBehind(): void
     {
         $asyncDelivery = new AsyncDelivery(new RetryPolicy(3, 10), 1, 3);
-        $asyncDelivery->defer($this->event(), [
+        $asyncDelivery->defer($this->prepared([
             new ListenerSubscription(new RecordingListener(new EventLog(), 'x'), new ListenerPriority(0)),
-        ]);
+        ]));
 
         try {
-            $asyncDelivery->defer($this->event(), [
+            $asyncDelivery->defer($this->prepared([
                 new ListenerSubscription(new RecordingListener(new EventLog(), 'y'), new ListenerPriority(0)),
-            ]);
+            ]));
             self::fail('The overflowing defer was not refused.');
         } catch (InvalidArgumentException $invalidArgumentException) {
             self::assertSame(
@@ -342,5 +353,13 @@ final class AsyncDeliveryTest extends TestCase
     private function event(): Event
     {
         return new Event(new EventName('user.created'), new EventPayload(['userId' => 7]));
+    }
+
+    /**
+     * @param list<ListenerSubscription> $pool
+     */
+    private function prepared(array $pool): PreparedDelivery
+    {
+        return new PreparedDelivery($this->event(), $pool);
     }
 }

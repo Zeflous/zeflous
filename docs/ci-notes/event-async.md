@@ -10,15 +10,33 @@ the regime ED8 declared the synchronous fold would never hide.
 
 | Unit | Question it owns |
 |---|---|
+| `PreparedDelivery` | the pair one delivery reads: the frozen event and the ordered pool |
+| `DeliveryPlan` | the plan fold: prepare (validate + freeze + pool-walk) over the books |
 | `DeferredDelivery` | the queue's own entry: which event, to which listener, on which attempt, due when |
 | `AsyncDeliveryQueue` | the bounded book of pending entries and the due-selection fold |
 | `RetryPolicy` | the attempts ceiling and the exponential backoff arithmetic |
 | `DeadLetter` | the record of one delivery that exhausted its attempts |
 | `DeadLetterBook` | the book of dead letters, attributed per listener |
 | `ListenerQuarantine` | the poison-pill answer: which listeners future defers skip |
-| `AsyncDelivery` | the orchestrator: admission (pool snapshot + quarantine filter + capacity) and the drain fold |
-| `EventDispatcher::defer` / `drain` | the two facade verbs (nullable engine; sync-only construction stays legal) |
+| `DeliveryAdmission` | the admission fold: the quarantine filter over a prepared pool, bounded by the capacity |
+| `DeliveryAttempt` | the attempt boundary: one entry's listener call, the failure answered instead of thrown |
+| `DeliveryFailure` | the judgment fold: what a failed delivery becomes (retry entry, or dead letter + quarantine verdict) |
+| `FailureVerdict` | the judgment's answer: the retry entry, or the dead letter and its quarantine verdict |
+| `DrainPass` | the pass fold: one pass over the due entries, the counts it answered with |
+| `AsyncDelivery` | the composition root: the regime's folds and books, wired at construction |
+| `EventDispatcher::deferredDelivery` | the one-way composition: the deferred vocabulary over this dispatcher's own plan |
+| `DeferredEventDispatcher` | the deferred vocabulary: the defer/drain pair over a plan and an engine |
 | `DeferralOutcome` / `DrainOutcome` | the observable answers of the two verbs |
+
+The fold count is the difficulty ceiling's own demand, the ED11a
+precedent replayed: the first spelling held the freeze, the pool-walk,
+the admission, the attempt, the judgment and the pass on the
+dispatcher and the engine, and the code-archaeology gate refused both
+at class difficulty 32.70 / 35.85 (drain alone at 26.00). Every fold
+above is a seam that ceiling forced out, each named for the question
+it owns; the dispatcher and the engine are composition roots under
+the ceiling (16.50 / 14.55), and the deepest fold (DrainPass) stands
+at 13.07.
 
 ## KDD-EA1 — "Async" means deferred with an explicit drain, never parallel
 
@@ -120,12 +138,17 @@ line; a drain never discovers a payload problem.
 
 ## KDD-EA11 — The layer still depends on nothing
 
-No new deptrac layer, no config knob, no container wiring: the
-engine is layer-internal, the verbs join the facade, and every
-future consumer (the worker adapter, the module `events` knob, the
-traceability fold) reaches in one-way. A dispatcher constructed
-without an engine is the legal sync-only shape; `defer`/`drain`
-on such a dispatcher fail closed with the construction spelled.
+No new deptrac layer, no config knob, no container wiring: every
+fold is layer-internal, and every future consumer (the worker
+adapter, the module `events` knob, the traceability fold) reaches in
+one-way. The sync-only shape is answered structurally, not by a
+refusal: the deferred vocabulary exists only as the composed facade
+a host asks for (`EventDispatcher::deferredDelivery($engine)`), so a
+dispatcher that was never asked simply has no deferred verbs to
+call. (The first spelling carried a nullable engine on the
+dispatcher with fail-closed verbs; the composition is the same
+doctrine with less surface -- and it is what brought both classes
+under the difficulty ceiling.)
 
 ## KDD-EA12 — Named follow-ups (the honest scope ledger)
 

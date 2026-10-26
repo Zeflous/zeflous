@@ -10,6 +10,7 @@ use Zef\Framework\Event\Event;
 use Zef\Framework\Event\EventListener;
 use Zef\Framework\Event\ListenerPriority;
 use Zef\Framework\Event\ListenerSubscription;
+use Zef\Framework\Event\PreparedDelivery;
 
 /**
  * A listener that defers itself once during its own delivery --
@@ -37,8 +38,7 @@ final class SelfDeferringListener implements EventListener
 
         $this->deferred = true;
         $this->asyncDelivery->defer(
-            $event,
-            [new ListenerSubscription($this, new ListenerPriority(0))],
+            new PreparedDelivery($event, [new ListenerSubscription($this, new ListenerPriority(0))]),
         );
     }
 }

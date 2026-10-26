@@ -232,6 +232,12 @@
       <code><![CDATA[skippedQuarantined]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Event/DeferredEventDispatcher.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[defer]]></code>
+      <code><![CDATA[drain]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Event/DispatchOutcome.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[deliveredTo]]></code>

@@ -52,13 +52,13 @@ final class AsyncDeliveryQueueTest extends TestCase
 
     public function testACapacityOfOneHoldsExactlyOneEntry(): void
     {
-        $queue = new AsyncDeliveryQueue(1);
+        $asyncDeliveryQueue = new AsyncDeliveryQueue(1);
         $only = $this->delivery(0);
 
-        $queue->admit([$only]);
+        $asyncDeliveryQueue->admit([$only]);
 
-        self::assertSame(1, $queue->count());
-        self::assertSame([$only], $queue->takeDue(0));
+        self::assertSame(1, $asyncDeliveryQueue->count());
+        self::assertSame([$only], $asyncDeliveryQueue->takeDue(0));
     }
 
     public function testABatchThatWouldExceedTheCapacityIsRefusedWhole(): void
