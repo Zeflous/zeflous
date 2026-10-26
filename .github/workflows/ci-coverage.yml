@@ -1,12 +1,14 @@
-# Strict CI lane -- line-coverage gate (needs pcov) + coverage report producer.
+# Strict CI lane -- line-coverage gate (needs pcov).
 #
 # SPLIT OUT OF `.github/workflows/ci-strict.yml` (2026-10-08), for the same
 # reason as `ci-static.yml`: one lane's failure no longer entangles the others
 # and this lane can be retried on its own.
 #
-# This lane is also the SOLE PRODUCER of the `coverage-reports` artifact
-# (clover + JUnit) that the SonarCloud lane bridges for its coverage-on-new-code
-# condition, so it is the only lane whose runs the scanner waits for.
+# (2026-10-26) The `coverage-reports` artifact and the report-regeneration
+# step this lane used to carry existed solely to feed the SonarCloud lane's
+# coverage bridge; both went with that lane's retirement. The gate variant
+# (`composer coverage:gate`) still writes build/clover.xml + build/junit.xml
+# for local inspection, but nothing consumes them from CI anymore.
 #
 # The job NAME below ("CI Coverage") is the status-check context -- keep it
 # stable.
@@ -85,25 +87,3 @@ jobs:
 
       - name: Run coverage gate (composer ci:coverage)
         run: composer ci:coverage
-
-      - name: Regenerate coverage reports (clover + JUnit)
-        # ci:coverage runs the gate variant, which writes build/clover.xml but
-        # does not emit the JUnit report. This script (composer ci:coverage:reports)
-        # reruns PHPUnit with both report writers so the SonarCloud job can
-        # download a complete report set instead of installing dependencies and
-        # rerunning the suite itself. The gate above already enforced the 90%
-        # floor, so a failure here is a real signal, not a budget artefact.
-        run: composer ci:coverage:reports
-
-      - name: Upload coverage reports
-        # Consumed by the SonarCloud job's coverage bridge (it fetches this
-        # artifact by name for the same commit). Published AFTER the gate so a
-        # failed coverage lane never feeds a phantom report to the scanner.
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: coverage-reports
-          path: |
-            build/clover.xml
-            build/junit.xml
-          if-no-files-found: error
-          retention-days: 14

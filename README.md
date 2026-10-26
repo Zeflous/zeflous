@@ -18,12 +18,9 @@ validated through a **merge queue**: once the required checks are green on the
 pull request, GitHub re-runs them on the combined merge-group ref using the
 workflow files from `main` itself, so what gets certified is the merged
 result — not the pull request's own workflow version. `CI Strict`, `PR
-Validator`, `PhpCodeArcheology SARIF` and `SonarCloud analysis` are
+Validator` and `PhpCodeArcheology SARIF` are
 **required** on `main` — a change cannot merge until they are green on both
-the pull request and its merge group. The rest are advisory signals;
-`SonarCloud Code Analysis` (the SonarCloud GitHub App's check) stays on pull
-requests as advisory decoration — the blocking server-side verdict travels
-with `SonarCloud analysis`, which waits on the same gate.
+the pull request and its merge group. The rest are advisory signals.
 
 | Check | What it enforces |
 | --- | --- |
@@ -34,8 +31,6 @@ with `SonarCloud analysis`, which waits on the same gate.
 | `CI Bench` | `composer ci:bench` — PHPBench. |
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
-| `SonarCloud Code Analysis` | The SonarCloud GitHub App's check on pull requests — advisory decoration; the blocking server-side quality gate is carried by `SonarCloud analysis`, which waits on the same server-side verdict. |
-| `SonarCloud analysis` | The scanner lane that produces the analysis (bridging the CI Coverage artifact); fail-closed when uncredentialed in a context that must have credentials — see [`docs/security/sonarcloud.md`](docs/security/sonarcloud.md). |
 | `Dependency Review` | Supply-chain review of dependency changes. |
 | `SBOM` | CycloneDX SBOM generation with a keyless (OIDC) attestation. |
 | `API Documentation Check` | The generated API documentation builds. |

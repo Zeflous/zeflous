@@ -55,9 +55,9 @@ declare(strict_types=1);
  *
  *     This is severity curation of an alert feed, in line with the doctrine
  *     this gate has had since it was written ("fails only on genuine
- *     error-level architecture defects"). It is NOT a SonarCloud ruleKey
- *     exclusion: SonarCloud is a different analyzer, remains untouched, and
- *     no analysis rule is switched off anywhere -- the tool still runs every
+ *     error-level architecture defects"). It is not an analyzer ruleKey
+ *     exclusion of the kind the retired SonarCloud lane carried: no
+ *     analysis rule is switched off anywhere -- the tool still runs every
  *     rule on every commit and every finding is still reported in the
  *     artifact.
  *

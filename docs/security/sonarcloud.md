@@ -1,153 +1,136 @@
-# SonarCloud gate
+# SonarCloud gate — retired (2026-10-26)
 
-Cloud-side quality analysis for this repository, run by
-`.github/workflows/sonarcloud.yml` and configured by
-`sonar-project.properties` at the repository root.
-
-This document records **what is analysed, by what, which verdict blocks a pull
-request, why pull-request decoration is an account-side setting, and the
-one-time setup it needs.** It exists so those decisions are reviewable instead
-of implicit in a workflow file.
+The SonarCloud analysis lane was **retired** by the QA-gates follow-up slice.
+The workflow (`.github/workflows/sonarcloud.yml`), the root configuration
+(`sonar-project.properties`), and every dispatch wire that kept the lane alive
+are gone from the tree. This document survives as the **retirement record**:
+why the lane was removed, exactly what the removal changed, what has to happen
+on the GitHub/SonarCloud account side for the retirement to be complete, and
+the two pieces of doctrine that outlive the analyzer. The original setup
+checklist and investigation notes are preserved below in case the lane is
+ever resurrected.
 
 ---
 
-## 1. Position in the pipeline
+## 1. Why it was retired
 
-The analysis lane is deliberately separate from the local quality gates
-(PHPStan max level, PHP_CodeSniffer + Slevomat, PHP-CS-Fixer, Rector, Deptrac,
-Infection, PHPUnit; see `composer ci:strict`). The local gates prove structural
-and behavioural correctness deterministically; this lane adds an independent
-cloud reviewer whose findings do not overlap theirs, and a blocking
-quality-gate verdict.
+The decision is the one `docs/ci-notes/qa-gates.md` (KDD-QA8) recorded as "a
+user decision, one-slice job when it comes". The facts that made it safe:
 
-## 2. What this gate is
+- **SonarCloud was never in the merge-blocking set.** Since the #568 ruleset
+  consolidation the required checks are exactly `CI Strict`, `PR Validator`
+  and `PhpCodeArcheology SARIF`; the SonarCloud job's own verdict ran green
+  or red without ever gating a merge through those contexts.
+- **The signals it uniquely owned went local first.** The duplication and
+  mess detectors (`composer qa:duplication`, `composer qa:mess` inside
+  `composer ci:static`, PR #616) own the copy-paste and code-smell verdicts
+  in the battery that demonstrably blocks: the first-push reds on the most
+  recent non-changelog slices (#610 `CI Static`, #613 `CI Infection`) were
+  local-gate mirrors while `SonarCloud analysis` was green both times.
+- **The trial was the trigger, not the reason.** The account's OSS/trial
+  horizon is what prompted the retirement now; the structural justification
+  above is what makes the retirement honest rather than a down-scoping.
 
-- **Cloud-side analysis** of the repository, scoped by the explicit exclusion
-  allow-list in `sonar-project.properties` (section 4 below).
-- **Blocking on the SonarCloud quality-gate verdict**: `sonar.qualitygate.wait=true`
-  makes the scanner wait for the server-side computation; a red gate fails the
-  job. The default "Sonar way" gate applies (new-code reliability, security,
-  maintainability, coverage, duplications).
-- **Coverage bridge is fail-closed**: the required `SonarCloud analysis` check
-  waits for a successful `CI Coverage` run and consumes its unexpired
-  `coverage-reports` artifact. If the lane fails or times out, the artifact is
-  missing/expired/unreadable, or the Clover report is invalid, the SonarCloud
-  job fails visibly. It must never apply a global coverage exclusion or report a
-  green quality gate without coverage evidence.
-- **Pull-request decoration**: once the GitHub ALM binding is configured
-  (section 3, step 4), SonarCloud posts inline comments and a quality summary
-  on every pull request it analyses.
-- **Always conclusive; green-with-notice only where GitHub withholds secrets,
-  fail-closed everywhere else**: when the job cannot scan credentialed in a
-  context where GitHub itself withholds repository secrets — a `pull_request`
-  event whose head is from a fork, or whose author is `dependabot[bot]` or
-  `renovate[bot]` — it is green **with a visible notice** (step summary +
-  `::notice::`): a context that cannot be credentialed must not block the
-  pull-request queue. In every other context (a same-repository pull request,
-  a push to `main`, a merge-group validation, a manual run) the `SONAR_TOKEN`
-  secret is always injectable, so its absence is a misconfiguration, and the
-  job **fails closed** instead of certifying an analysis that never ran —
-  `SonarCloud analysis` is a required check, and a required check must never
-  be green without an analysis (narrowed 2026-10-18; see
-  `docs/ci-notes/merge-gate-audit.md`, finding 5). The job name
-  **`SonarCloud analysis`** is a status-check context; keep it stable if a
-  branch protection rule pins it.
-- **Merge-queue path** (`merge_group`, 2026-10-18): the merge queue analyses
-  the combined merge-group ref with the default branch's workflow files, as
-  the short-lived SonarCloud branch `merge-queue`. The SonarCloud GitHub App
-  does not report on merge groups (product management statement, May 2024,
-  community.sonarsource.com/t/112436), so the app's `SonarCloud Code
-  Analysis` check cannot be a queue-enforceable required check; the blocking
-  verdict travels with this job instead — `sonar.qualitygate.wait=true` makes
-  it wait for the server-side gate on the `merge-queue` branch, so the queue
-  path enforces the same server-side quality gate the pull-request path
-  decorates. The app's check stays on pull requests as advisory decoration.
+## 2. What the retirement changed (repository side)
 
-## 3. Setup checklist (one-time)
+| Removed | Where |
+| --- | --- |
+| The scanner workflow | `.github/workflows/sonarcloud.yml` (deleted) |
+| The analysis configuration | `sonar-project.properties` (deleted; its scope doctrine is summarised in section 5 below) |
+| The changelog lanes' dispatch step | `changelog.yml` / `changelog-official.yml` no longer `gh workflow run sonarcloud.yml` for their update-branch PRs |
+| The main-validation watchdog lane | `ci-main-watchdog.yml`'s dispatch list drops `sonarcloud` (it was ordered last so its coverage bridge could find the `CI Coverage` artifact) |
+| The workflow inventory row | `docs/ci-notes/workflow-inventory.md` |
+| The check table + prose | `README.md`, `CONTRIBUTING.md` (the "SonarCloud-clean logic" section is rewritten as the local-gate doctrine it already was in practice) |
 
-The workflow ships fully wired; only the SonarCloud account side is manual.
+Merge blocking is unchanged: the required-check set, the merge queue's
+ALLGREEN grouping and every local gate are untouched.
+
+## 3. Account-side teardown (GitHub + SonarCloud)
+
+The retirement is complete only when the account side matches the tree.
+
+1. **Remove the `code_quality` rule from the `main` ruleset** (Repository
+   settings → Rules → Rulesets → `main`). This is the one step the original
+   KDD-QA8 recipe did not name, discovered while scoping the removal: the
+   ruleset carried a `code_quality` rule (severity: all) that reads
+   SonarCloud's code-quality reporting — without an analysis to read it
+   **blocks the merge** (the same failure mode the changelog lanes'
+   `workflow_dispatch` + `pr_number` wiring existed to prevent). Retiring the
+   workflow without retiring this rule deadlocks every subsequent pull
+   request, changelog PRs included.
+2. **Delete the `SONAR_TOKEN` repository secret** (optional cleanup; nothing
+   reads it once the workflow is gone).
+3. **SonarCloud account side** (optional): delete the `zef_zeflous` project
+   and revoke the SonarQube Cloud GitHub App's access to `Zeflous/zeflous`
+   — Administration → ALM Integrations → GitHub, and the org's GitHub Apps
+   configuration. Keeping them is harmless; they simply receive no further
+   analyses.
+
+## 4. Doctrine that outlives the lane
+
+- **The `MeterCount::advanced()` nested-guard spelling is load-bearing.**
+  The lane's one issue-level exclusion (`php:S1066`) existed because merging
+  the nested `is_int` guards into one `&&`-joined condition mints an
+  **escaping mutation-testing mutant** (the mixed-operand case answers the
+  identical float under both spellings, so no test can distinguish them,
+  breaking the MSI-100 contract). The exclusion is gone with the analyzer,
+  but the *code shape* must stay: do not "simplify" those guards; the
+  mutation gate (`infection.json5`, the MeterCount cast records) still owns
+  the reasoning.
+- **Exclusions were gate-conflict answers, never style preferences.** The
+  lane's whole exclusion history held exactly one issue-level entry, each
+  time documenting a mechanical conflict between two gates. That bar is the
+  repository's standing doctrine for ANY analyzer, local or cloud: an
+  exclusion must name the two gates that conflict and prove the conflict is
+  mechanical, or it does not land.
+
+## 5. The scope doctrine, for the record
+
+The analyzer saw an explicit allow-list (everything that is not first-party
+source excluded: `vendor/**`, `build/**`, `.github/**`, `scripts/**`,
+`stubs/**`, docs and manifest files), with `tests/**`, `benchmarks/**` and
+`scripts/**` additionally outside the coverage denominator, and the vendored
+PSR shim outside the copy-paste detector — the same boundary the local
+`DuplicationGate` draws in its own docblock. The local gates inherited that
+boundary as their own doctrine when the lane retired.
+
+---
+
+## 6. Original setup checklist (preserved for resurrection)
 
 1. Sign in at <https://sonarcloud.io> with the GitHub account that owns this
    repository.
 2. **Put the organization on the OSS plan** (free for open-source
    organizations). The Free plan's language set has **no PHP analyzer**: the
-   scanner preprocesses files but indexes none of them and the run ends with an
-   effectively empty code model. The OSS plan unlocks PHP, unlimited branches
-   and pull-request analysis, at zero cost for public repositories.
+   scanner preprocesses files but indexes none of them and the run ends with
+   an effectively empty code model. The OSS plan unlocks PHP, unlimited
+   branches and pull-request analysis, at zero cost for public repositories.
 3. **Create the project manually** (`Create project -> Manually`), pick the
-   organization `zeflous`, and set the project key to **`zef_zeflous`** (or
-   note the key SonarCloud assigns and align `sonar-project.properties` in the
-   same change). Choose a **public** project.
-4. **Bind GitHub (ALM integration)** — *this is the step that turns decoration
-   on.* Go to **Administration -> ALM Integrations -> GitHub** and install /
-   configure the **SonarQube Cloud GitHub App** so that it is granted access to
-   **`Zeflous/zeflous`**. On GitHub this lives at
-   **Organization settings -> GitHub Apps -> SonarQube Cloud -> Configure**,
-   where the app's repository access must include `Zeflous/zeflous` (choose
-   "All repositories" or add `Zeflous/zeflous` to the selected list). The
-   app's installation on org `Zeflous` currently exists with
-   `repository_selection: selected`.
-   *Diagnostic*: if this is misconfigured, the analysis still runs and the gate
-   is still evaluated, but GitHub PRs carry **no** `sonarqubecloud[bot]`
-   comment and **no** `SonarCloud Code Analysis` check-run — the symptom that
-   prompted this document.
-5. **Disable Automatic Analysis** (Project Administration -> Analysis Method ->
-   disable "Automatic Analysis"): CI-based analysis and automatic analysis
-   conflict.
-6. **Create a token** (My Account -> Security -> Generate Token) and save it as
-   the repository secret **`SONAR_TOKEN`** (Settings -> Secrets and variables
-   -> Actions). Any token whose SonarCloud identity is a member of the
-   organization **`zeflous`** works. The optional **`ZEF_TOKEN`** secret is
-   accepted for compatibility and falls back automatically when unset.
-7. **Verify**: open a pull request. A correct configuration produces, on the
-   PR: a **`sonarqubecloud[bot]` comment** titled "Quality Gate Passed/Failed",
-   a **`SonarCloud Code Analysis`** check-run (GitHub App `sonarqubecloud`),
-   and, in the SonarCloud UI, the PR under **Pull Requests** with its
-   `qualityGateStatus`.
+   organization `zeflous`, and set the project key to **`zef_zeflous`**.
+   Choose a **public** project.
+4. **Bind GitHub (ALM integration)** — *the step that turns decoration on.*
+   Administration → ALM Integrations → GitHub, install/configure the
+   **SonarQube Cloud GitHub App** so it is granted access to
+   `Zeflous/zeflous` (Organization settings → GitHub Apps → SonarQube Cloud
+   → Configure; "All repositories" or the selected list including this one).
+   *Diagnostic*: if misconfigured, the analysis still runs and the gate is
+   still evaluated, but GitHub PRs carry **no** `sonarqubecloud[bot]`
+   comment and **no** `SonarCloud Code Analysis` check-run.
+5. **Disable Automatic Analysis** (Analysis Method): CI-based analysis and
+   automatic analysis conflict.
+6. **Create a token** and save it as the repository secret
+   **`SONAR_TOKEN`**. Any token whose SonarCloud identity is a member of the
+   organization **`zeflous`** works.
+7. **Verify**: a correct configuration produces, on the PR: a
+   `sonarqubecloud[bot]` comment ("Quality Gate Passed/Failed"), a
+   `SonarCloud Code Analysis` check-run (GitHub App `sonarqubecloud`), and
+   the PR in the SonarCloud UI with its `qualityGateStatus`.
 
-## 4. Analysis scope
+The scanner action to pin, if resurrected: `SonarSource/sonarqube-scan-action`
+at the full commit SHA of tag `v8.2.2`, with `-Dsonar.projectBaseDir=.` and
+the exclusions allow-list restored (section 5).
 
-SonarCloud's new analysis-scope UX **analyses the whole project and ignores
-`sonar.sources` / `sonar.tests`** (measured on run 37652159694, 2026-10-07: the
-scanner warns *"The following properties are configured but have no effect:
-sonar.sources, sonar.tests"*). The authoritative control is therefore the
-explicit **`sonar.exclusions` allow-list** in `sonar-project.properties`, which
-excludes everything that is not first-party source:
-
-| Excluded | Why |
-| --- | --- |
-| `vendor/**` | third-party dependencies (the vendored PSR shim included) |
-| `build/**`, `.scannerwork/**`, `node_modules/**` | generated / tooling output |
-| `.github/**`, `.git/**` and the `.*cache` files | not application code |
-| `scripts/**`, `doctum.php`, `rector.php` | dev/CI tooling with its own local gates |
-| `stubs/**` | static-analysis artifacts (phpstan scanFiles / psalm stubs): the optional extensions' snake_case function names and inert declaration bodies are not ours to rename or slim |
-| `README.md`, `ROADMAP.md`, `composer.*`, `package.json`, `index.html` | non-code files |
-
-`sonar.coverage.exclusions` additionally keeps non-instrumented trees out of
-the coverage denominator (`tests/**`, `benchmarks/**`, `scripts/**`), and
-`sonar.cpd.exclusions` keeps the vendored shim out of the copy-paste detector
-while leaving first-party code fully visible to it.
-
-**Issue-level exclusions (one, and it stays one):** `php:S1066` on
-`src/Zef/Framework/Telemetry/MeterCount.php` is the repository's only
-`sonar.issue.ignore.multicriteria` entry. The rule asks the nested `is_int`
-guards in `MeterCount::advanced()` to merge into one `&&`-joined condition,
-but that merged spelling mints an **escaping mutation-testing mutant**: the
-mixed-operand case the joined guard would reroute between the two arithmetic
-paths answers the identical float under both (PHP widens the int operand
-either way), so no test can distinguish them, and the mutation gate's MSI
-100% contract cannot be met by the code shape the rule prefers. The nested
-spelling — no binary boolean operator anywhere — is load-bearing for the
-mutation gate, in exactly the way `infection.json5`'s documented
-equivalent-mutant records are. The exclusion is scoped to that single file;
-the rule stays on everywhere else. Any future exclusion must document an
-equally mechanical conflict between two gates, not a style preference.
-
-**Diagnostic**: the workflow's "Analysis scope (diagnostic)" step prints the
-tracked-file and `src/`-file counts on every run, so scope drift is visible
-rather than silent.
-
-## 5. Chain of evidence for the decoration investigation (2026-10-07)
+## 7. Chain of evidence for the decoration investigation (2026-10-07)
 
 | Fact | Source |
 | --- | --- |
@@ -159,9 +142,6 @@ rather than silent.
 | The app check-run DOES exist on the reference repo | `Zeflous/zef-framework` -> `SonarCloud Code Analysis` / app `sonarqubecloud` |
 | Decoration is an app-side feature | `docs/security` of the reference + `sonar-project.properties` comment: "a SonarCloud organization can only decorate pull requests of GitHub repos owned by the account/org it is bound to" |
 
-Conclusion: the workflow and the analysis were already correct; decoration is
-delivered by the **SonarQube Cloud GitHub App** and is gated by that app being
-granted access to this repository. The workflow was nevertheless hardened for
-scope parity with the reference (section 4) and switched to the same scanner
-action (`SonarSource/sonarqube-scan-action`, pinned to the full commit SHA of
-tag `v8.2.2`).
+Conclusion at the time: the workflow and the analysis were already correct;
+decoration is delivered by the **SonarQube Cloud GitHub App** and is gated by
+that app being granted access to this repository.
