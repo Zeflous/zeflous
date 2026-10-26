@@ -64,8 +64,10 @@
 #
 # DOCTRINE CARRIED OVER FROM THE LANE'S FIRST LIFE (still load-bearing):
 #   - Scope is an explicit EXCLUSION allow-list in sonar-project.properties
-#     (SonarCloud's analysis-scope UX analyses the whole project and ignores
-#     `sonar.sources`/`sonar.tests`); a new top-level directory enters the
+#     (SonarCloud's analysis-scope UX analyses the whole project; the ignored
+#     `sonar.sources`/`sonar.tests` keys were removed 2026-10-26 to silence
+#     the scanner's no-effect warning -- the allow-list is the only scope
+#     control the scanner honours); a new top-level directory enters the
 #     scope only when someone removes its pattern -- fail-closed, never
 #     silent. The "Analysis scope (diagnostic)" step prints the analysed
 #     file counts so scope drift is visible.
