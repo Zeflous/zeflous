@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-26T02:16:11Z",
+  "as_of": "2026-10-26T06:41:48Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 262,
+  "unreleased_count": 263,
   "versions": [
     {
       "version": "Unreleased",
@@ -3578,6 +3578,47 @@
                 "sha": "bf65a1f9fb9d3b18ce83f06eaf0031b0df7fef53",
                 "short_sha": "bf65a1f",
                 "subject": "docs(roadmap): record the qa gates slice and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 619,
+            "title": "feat(event): the wildcard listener support over the one-pool dispatch",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-26T06:41:48Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/619",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e387641934c65fc01c32b4b7fe82cb86423ca4e5",
+                "short_sha": "e387641",
+                "subject": "feat(event): the wildcard listener support over the one-pool dispatch"
+              },
+              {
+                "sha": "f359d723319e33d09c56cb8e9bb37f2ec71e7f50",
+                "short_sha": "f359d72",
+                "subject": "docs(roadmap): record the wildcard listeners slice and pin the lane"
+              },
+              {
+                "sha": "1903f8748ccfa4b8717e30285f5b059bc515c11f",
+                "short_sha": "1903f87",
+                "subject": "fix(event): cover the match walk directly (the Sonar new-code lesson)"
+              },
+              {
+                "sha": "ecaadea81e7874ae49e2b0f5f4a2e3caa614479f",
+                "short_sha": "ecaadea",
+                "subject": "fix(event): kill the walk's continue-to-break mutant, unmasked"
+              },
+              {
+                "sha": "6098662cde033151397f5c79e02cb34db7309b2a",
+                "short_sha": "6098662",
+                "subject": "Merge branch 'main' into feat/event-wildcard-listeners"
+              },
+              {
+                "sha": "3a1f502b9782cd4e6f32461fa049a59206a71c19",
+                "short_sha": "3a1f502",
+                "subject": "docs(roadmap): re-pin the wildcard listeners row to the walk-killer fix"
               }
             ]
           }
@@ -16837,6 +16878,47 @@
               "sha": "bf65a1f9fb9d3b18ce83f06eaf0031b0df7fef53",
               "short_sha": "bf65a1f",
               "subject": "docs(roadmap): record the qa gates slice and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 619,
+          "title": "feat(event): the wildcard listener support over the one-pool dispatch",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-26T06:41:48Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/619",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e387641934c65fc01c32b4b7fe82cb86423ca4e5",
+              "short_sha": "e387641",
+              "subject": "feat(event): the wildcard listener support over the one-pool dispatch"
+            },
+            {
+              "sha": "f359d723319e33d09c56cb8e9bb37f2ec71e7f50",
+              "short_sha": "f359d72",
+              "subject": "docs(roadmap): record the wildcard listeners slice and pin the lane"
+            },
+            {
+              "sha": "1903f8748ccfa4b8717e30285f5b059bc515c11f",
+              "short_sha": "1903f87",
+              "subject": "fix(event): cover the match walk directly (the Sonar new-code lesson)"
+            },
+            {
+              "sha": "ecaadea81e7874ae49e2b0f5f4a2e3caa614479f",
+              "short_sha": "ecaadea",
+              "subject": "fix(event): kill the walk's continue-to-break mutant, unmasked"
+            },
+            {
+              "sha": "6098662cde033151397f5c79e02cb34db7309b2a",
+              "short_sha": "6098662",
+              "subject": "Merge branch 'main' into feat/event-wildcard-listeners"
+            },
+            {
+              "sha": "3a1f502b9782cd4e6f32461fa049a59206a71c19",
+              "short_sha": "3a1f502",
+              "subject": "docs(roadmap): re-pin the wildcard listeners row to the walk-killer fix"
             }
           ]
         }
