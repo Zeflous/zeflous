@@ -7,6 +7,7 @@ namespace Zef\Test\Event;
 use LogicException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Zef\Framework\Event\DeadLetter;
 use Zef\Framework\Event\DeferredDelivery;
 use Zef\Framework\Event\Event;
