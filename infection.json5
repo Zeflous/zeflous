@@ -1050,6 +1050,25 @@
             "ignore": [
                 "Zef\\Framework\\Telemetry\\CorrelationIdentity::__construct",
                 "Zef\\Framework\\Telemetry\\PrometheusNumbers::rendered"
+            ],
+            // The retry policy's final headroom check in
+            // readyAtForNextAttempt() is value-equivalent under the
+            // GreaterThan boundary: when the delay lands exactly on the
+            // headroom, the uncapped spelling answers now + headroom,
+            // and headroom is PHP_INT_MAX - now BY CONSTRUCTION, so the
+            // addition answers PHP_INT_MAX -- the identical value the
+            // capped spelling returns. No test can distinguish the two
+            // spellings on any input the method accepts (now >= 0 keeps
+            // the headroom arithmetic inside the integer range; verified
+            // by running the family suite under the manually applied
+            // mutation -- the complete suite passes, the halving-boundary
+            // test included). The LOOP guard's own GreaterThan mutants
+            // stay under the mutator: the overflow-window and
+            // exact-halving boundary tests kill them. Scoped by regex to
+            // the final check's line alone so the loop guard keeps its
+            // boundary protection.
+            "ignoreSourceCodeByRegex": [
+                ".*if \\(\\$delay > \\$headroom\\) \\{.*"
             ]
         },
         // The system clock's int cast in
