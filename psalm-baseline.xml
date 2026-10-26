@@ -228,6 +228,11 @@
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Event/WildcardSubscriptions.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[isEmpty]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Health/HealthAggregator.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[aggregate]]></code>
@@ -539,6 +544,11 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
       <code><![CDATA[fields]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/EventPattern.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/EventPayload.php">
