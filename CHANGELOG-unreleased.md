@@ -92,6 +92,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(http): the debugging utilities over the inspection boot [#610](https://github.com/Zeflous/zeflous/pull/610) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the core synchronous dispatcher (the Event Source lane's first slice -- roadmap §1.A) [#613](https://github.com/Zeflous/zeflous/pull/613) ([mbetixz](https://github.com/mbetixz))
 - feat(qa): the local duplication and mess gates over the tooling engine [#616](https://github.com/Zeflous/zeflous/pull/616) ([mbetixz](https://github.com/mbetixz))
+- feat(event): the wildcard listener support over the one-pool dispatch [#619](https://github.com/Zeflous/zeflous/pull/619) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
