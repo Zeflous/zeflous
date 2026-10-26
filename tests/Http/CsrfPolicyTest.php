@@ -11,8 +11,8 @@ use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Http\CsrfBounds;
 use Zef\Framework\Http\CsrfKnobs;
 use Zef\Framework\Http\CsrfPolicy;
-use Zef\Framework\Http\CsrfSameSite;
 use Zef\Framework\Http\HttpException;
+use Zef\Framework\Http\SameSiteVocabulary;
 use Zef\Framework\Http\StrictIntegers;
 use Zef\Framework\Http\StrictToggles;
 
@@ -29,7 +29,7 @@ use Zef\Framework\Http\StrictToggles;
 #[CoversClass(CsrfBounds::class)]
 #[CoversClass(CsrfKnobs::class)]
 #[CoversClass(CsrfPolicy::class)]
-#[CoversClass(CsrfSameSite::class)]
+#[CoversClass(SameSiteVocabulary::class)]
 #[CoversClass(StrictIntegers::class)]
 #[CoversClass(StrictToggles::class)]
 final class CsrfPolicyTest extends TestCase
@@ -45,7 +45,7 @@ final class CsrfPolicyTest extends TestCase
         self::assertSame(32, $policy->tokenBytes);
         self::assertTrue($policy->cookieSecure);
         self::assertTrue($policy->cookieHttpOnly);
-        self::assertSame(CsrfSameSite::STRICT, $policy->sameSite);
+        self::assertSame(SameSiteVocabulary::STRICT, $policy->sameSite);
     }
 
     public function testTheEmptyMapReadsTheDefaultPosture(): void
@@ -95,15 +95,15 @@ final class CsrfPolicyTest extends TestCase
         self::assertSame(16, $policy->tokenBytes);
         self::assertFalse($policy->cookieSecure);
         self::assertFalse($policy->cookieHttpOnly);
-        self::assertSame(CsrfSameSite::LAX, $policy->sameSite, 'the vocabulary folds case-insensitively');
+        self::assertSame(SameSiteVocabulary::LAX, $policy->sameSite, 'the vocabulary folds case-insensitively');
     }
 
     public function testTheSameSiteVocabularyFoldsEverySpelling(): void
     {
-        self::assertSame(CsrfSameSite::STRICT, CsrfSameSite::read('strict'));
-        self::assertSame(CsrfSameSite::LAX, CsrfSameSite::read('LAX'));
-        self::assertSame(CsrfSameSite::NONE, CsrfSameSite::read('None'));
-        self::assertSame(CsrfSameSite::STRICT, CsrfSameSite::read('Strict'));
+        self::assertSame(SameSiteVocabulary::STRICT, SameSiteVocabulary::read('strict', 'security.csrf'));
+        self::assertSame(SameSiteVocabulary::LAX, SameSiteVocabulary::read('LAX', 'security.csrf'));
+        self::assertSame(SameSiteVocabulary::NONE, SameSiteVocabulary::read('None', 'security.csrf'));
+        self::assertSame(SameSiteVocabulary::STRICT, SameSiteVocabulary::read('Strict', 'security.csrf'));
     }
 
     public function testTheFrameworkProfileMirrorsThePolicyDefaults(): void

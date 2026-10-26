@@ -9,11 +9,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\HttpException;
 use Zef\Framework\Http\HttpFamilies;
+use Zef\Framework\Http\SameSiteVocabulary;
 use Zef\Framework\Http\SessionBounds;
 use Zef\Framework\Http\SessionCookieName;
 use Zef\Framework\Http\SessionKnobs;
 use Zef\Framework\Http\SessionPolicy;
-use Zef\Framework\Http\SessionSameSite;
 use Zef\Framework\Http\StrictIntegers;
 use Zef\Framework\Http\StrictKnobs;
 use Zef\Framework\Http\StrictToggles;
@@ -30,7 +30,7 @@ use Zef\Framework\Http\StrictToggles;
  */
 #[CoversClass(SessionPolicy::class)]
 #[CoversClass(SessionKnobs::class)]
-#[CoversClass(SessionSameSite::class)]
+#[CoversClass(SameSiteVocabulary::class)]
 #[CoversClass(SessionBounds::class)]
 #[CoversClass(SessionCookieName::class)]
 #[CoversClass(HttpFamilies::class)]
@@ -244,9 +244,9 @@ final class SessionPolicyTest extends TestCase
 
     public function testTheSameSiteVocabularyFoldsCaseInsensitively(): void
     {
-        self::assertSame('Strict', SessionSameSite::read('strict'));
-        self::assertSame('Lax', SessionSameSite::read('LAX'));
-        self::assertSame('None', SessionSameSite::read('none'));
+        self::assertSame('Strict', SameSiteVocabulary::read('strict', 'http.session'));
+        self::assertSame('Lax', SameSiteVocabulary::read('LAX', 'http.session'));
+        self::assertSame('None', SameSiteVocabulary::read('none', 'http.session'));
     }
 
     public function testTheSameSiteVocabularyRejectsAnUnknownWord(): void

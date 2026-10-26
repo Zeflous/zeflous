@@ -397,6 +397,16 @@
       <code><![CDATA[isset($project->metrics)]]></code>
     </TypeDoesNotContainType>
   </file>
+  <file src="tests/Support/Tooling/DuplicationReport.php">
+    <RedundantCondition>
+      <code><![CDATA[$document->duplication]]></code>
+      <code><![CDATA[$duplication->file]]></code>
+    </RedundantCondition>
+    <TypeDoesNotContainType>
+      <code><![CDATA[[]]]></code>
+      <code><![CDATA[[]]]></code>
+    </TypeDoesNotContainType>
+  </file>
   <file src="tests/Support/Tooling/GateResult.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[exitCode]]></code>
@@ -409,6 +419,11 @@
     <UnusedClass>
       <code><![CDATA[GateRunner]]></code>
     </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/MessReport.php">
+    <MixedAssignment>
+      <code><![CDATA[$fileViolation]]></code>
+    </MixedAssignment>
   </file>
   <file src="tests/Support/Tooling/ReviewThread.php">
     <PossiblyUnusedProperty>

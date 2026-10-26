@@ -175,6 +175,185 @@ final class GateRunnerTest extends TestCase
         self::assertTrue($runner->run('lint', [])->passed);
     }
 
+    /**
+     * The duplication arm's four verdicts: a clean run passes, a clone
+     * run fails naming the pair, and a run whose exit code disagrees
+     * with its payload (either direction) is refused outright instead
+     * of being read as whichever half looks greener.
+     */
+    public function testDuplicationGatePassesACleanRun(): void
+    {
+        $runner = $this->runner(function (string $command): array {
+            self::assertSame(
+                'cd ' . escapeshellarg($this->root)
+                    . ' && vendor/bin/phpcpd src --exclude src/Contracts/Psr'
+                    . ' --log-pmd php://stdout --quiet 2>/dev/null',
+                $command,
+            );
+
+            return [
+                0,
+                '<?xml version="1.0" encoding="UTF-8"?>'
+                . '<pmd-cpd xmlns="https://systemsdk.github.io/phpcpd/report" version="1.0.0"/>',
+            ];
+        });
+
+        $gateResult = $runner->run('duplication', []);
+
+        self::assertTrue($gateResult->passed);
+        self::assertStringContainsString('Duplication gate PASSED', $gateResult->message);
+    }
+
+    public function testDuplicationGateFailsACloneRun(): void
+    {
+        $runner = $this->runner(fn (string $command): array => [
+            1,
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            . '<pmd-cpd xmlns="https://systemsdk.github.io/phpcpd/report" version="1.0.0">'
+            . '<duplication lines="38" tokens="110" exact="false">'
+            . '<file line="19" endline="57" path="' . $this->root . '/src/Http/A.php"/>'
+            . '<file line="27" endline="65" path="' . $this->root . '/src/Http/B.php"/>'
+            . '</duplication>'
+            . '</pmd-cpd>',
+        ]);
+
+        $gateResult = $runner->run('duplication', []);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('src/Http/A.php:19-57 <-> src/Http/B.php:27-65', $gateResult->message);
+    }
+
+    public function testDuplicationGateRefusesARunThatDidNotComplete(): void
+    {
+        $runner = $this->runner(static fn (string $command): array => [2, '']);
+
+        $this->expectException(ToolingException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The copy-paste detector did not complete a normal run (exit 2), '
+            . 'so the duplication gate cannot read a verdict.',
+        );
+
+        $runner->run('duplication', []);
+    }
+
+    public function testDuplicationGateRefusesAnExitCodeThatDisagreesWithThePayload(): void
+    {
+        $runner = $this->runner(fn (string $command): array => [
+            0,
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            . '<pmd-cpd xmlns="https://systemsdk.github.io/phpcpd/report" version="1.0.0">'
+            . '<duplication lines="38" tokens="110" exact="false">'
+            . '<file line="19" endline="57" path="' . $this->root . '/src/A.php"/>'
+            . '</duplication>'
+            . '</pmd-cpd>',
+        ]);
+
+        $this->expectException(ToolingException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The copy-paste detector exit code and its PMD payload disagree, '
+            . 'so the duplication gate cannot pick a verdict.',
+        );
+
+        $runner->run('duplication', []);
+    }
+
+    public function testDuplicationGateRefusesACloneExitCodeWithACleanPayload(): void
+    {
+        $runner = $this->runner(static fn (string $command): array => [
+            1,
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            . '<pmd-cpd xmlns="https://systemsdk.github.io/phpcpd/report" version="1.0.0"/>',
+        ]);
+
+        $this->expectException(ToolingException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The copy-paste detector exit code and its PMD payload disagree, '
+            . 'so the duplication gate cannot pick a verdict.',
+        );
+
+        $runner->run('duplication', []);
+    }
+
+    /**
+     * The mess arm mirrors the duplication arm's contract with phpmd's
+     * own exit semantics (0 clean / 2 violations).
+     */
+    public function testMessGatePassesACleanRun(): void
+    {
+        $runner = $this->runner(function (string $command): array {
+            self::assertSame(
+                'cd ' . escapeshellarg($this->root)
+                    . ' && vendor/bin/phpmd analyze src --format=json --ruleset=phpmd.xml'
+                    . " --exclude='*src/Contracts/Psr/*' --no-progress 2>/dev/null",
+                $command,
+            );
+
+            return [0, '{"version":"3.0.0","files":[]}'];
+        });
+
+        $gateResult = $runner->run('mess', []);
+
+        self::assertTrue($gateResult->passed);
+        self::assertStringContainsString('Mess gate PASSED', $gateResult->message);
+    }
+
+    public function testMessGateFailsAViolatingRun(): void
+    {
+        $runner = $this->runner(fn (string $command): array => [
+            2,
+            '{"version":"3.0.0","files":[{"file":"' . $this->root . '/src/A.php","violations":['
+            . '{"beginLine":12,"rule":"EvalExpression","description":"eval()"}]}]}',
+        ]);
+
+        $gateResult = $runner->run('mess', []);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('EvalExpression x1 (src/A.php:12)', $gateResult->message);
+    }
+
+    public function testMessGateRefusesARunThatDidNotComplete(): void
+    {
+        $runner = $this->runner(static fn (string $command): array => [1, '']);
+
+        $this->expectException(ToolingException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The mess detector did not complete a normal run (exit 1), '
+            . 'so the mess gate cannot read a verdict.',
+        );
+
+        $runner->run('mess', []);
+    }
+
+    public function testMessGateRefusesAnExitCodeThatDisagreesWithThePayload(): void
+    {
+        $runner = $this->runner(static fn (string $command): array => [
+            0,
+            '{"version":"3.0.0","files":[{"file":"src/A.php","violations":['
+            . '{"beginLine":12,"rule":"EvalExpression","description":"eval()"}]}]}',
+        ]);
+
+        $this->expectException(ToolingException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The mess detector exit code and its JSON payload disagree, '
+            . 'so the mess gate cannot pick a verdict.',
+        );
+
+        $runner->run('mess', []);
+    }
+
+    public function testMessGateRefusesAViolatingExitCodeWithACleanPayload(): void
+    {
+        $runner = $this->runner(static fn (string $command): array => [2, '{"version":"3.0.0","files":[]}']);
+
+        $this->expectException(ToolingException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The mess detector exit code and its JSON payload disagree, '
+            . 'so the mess gate cannot pick a verdict.',
+        );
+
+        $runner->run('mess', []);
+    }
+
     public function testLintGateFailsWhenTheProcessFails(): void
     {
         $runner = $this->runner(static fn (string $command): array => [255, 'Parse error']);

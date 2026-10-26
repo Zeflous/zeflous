@@ -99,8 +99,10 @@ jobs:
 
       - name: Run static pipeline (composer ci:static)
         # composer validate --strict, lint, PHPStan (max level) + ratchet,
-        # Deptrac, PHP-CS-Fixer check, PHP_CodeSniffer, Rector dry-run, PHPUnit,
-        # the persistent-worker smoke test and the strict supply-chain audit.
+        # Deptrac, PHP-CS-Fixer check, PHP_CodeSniffer, Rector dry-run,
+        # the copy-paste detector (phpcpd) and mess detector (phpmd) QA
+        # gates, PHPUnit, the persistent-worker smoke test and the strict
+        # supply-chain audit.
         run: composer ci:static
 
       - name: Roadmap documents (integrity gate)

@@ -18,7 +18,7 @@ namespace Zef\Framework\Http;
  * two integer knobs through the integer seam ({@see StrictIntegers}),
  * the cookie name through the family's name vocabulary ({@see
  * SessionCookieName}), and the SameSite posture
- * through the family's vocabulary ({@see SessionSameSite}): a wrong
+ * through the family's vocabulary ({@see SameSiteVocabulary}): a wrong
  * type, an out-of-corridor bound, an unknown word or an unknown key
  * halts the boot with the knob named.
  *
@@ -69,7 +69,7 @@ final readonly class SessionPolicy
      *                               whenever SameSite is None)
      * @param bool   $cookieHttpOnly whether the cookie carries HttpOnly
      * @param string $sameSite       the SameSite posture: one of the
-     *                               {@see SessionSameSite} words
+     *                               {@see SameSiteVocabulary} words
      */
     public function __construct(
         public bool $enabled = true,
@@ -78,13 +78,13 @@ final readonly class SessionPolicy
         public int $idBytes = 32,
         public bool $cookieSecure = true,
         public bool $cookieHttpOnly = true,
-        public string $sameSite = SessionSameSite::LAX,
+        public string $sameSite = SameSiteVocabulary::LAX,
     ) {
         $this->cookieName = SessionCookieName::read($cookieName);
         SessionBounds::assertIdleTimeout($this->idleTimeout);
         SessionBounds::assertIdBytes($this->idBytes);
 
-        if ($this->sameSite === SessionSameSite::NONE && !$this->cookieSecure) {
+        if ($this->sameSite === SameSiteVocabulary::NONE && !$this->cookieSecure) {
             throw new HttpException(
                 'The http.session same_site None knob requires the Secure cookie attribute'
                 . ' (cookie_secure).',
@@ -124,7 +124,7 @@ final readonly class SessionPolicy
             idBytes: StrictIntegers::read($map['id_bytes'] ?? 32, 'http.session id_bytes'),
             cookieSecure: StrictToggles::read($map['cookie_secure'] ?? true, 'http.session cookie_secure'),
             cookieHttpOnly: StrictToggles::read($map['cookie_http_only'] ?? true, 'http.session cookie_http_only'),
-            sameSite: SessionSameSite::read($map['same_site'] ?? SessionSameSite::LAX),
+            sameSite: SameSiteVocabulary::read($map['same_site'] ?? SameSiteVocabulary::LAX, 'http.session'),
         );
     }
 }
