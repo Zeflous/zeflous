@@ -203,6 +203,24 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Adapters/Event/FileDeliveryStore.php">
+    <UnusedClass>
+      <code><![CDATA[FileDeliveryStore]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Event/DurableDelivery.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[deadLetters]]></code>
+      <code><![CDATA[isListenerQuarantined]]></code>
+      <code><![CDATA[pendingCount]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/DurableEventDispatcher.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[defer]]></code>
+      <code><![CDATA[drain]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Event/AsyncDelivery.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
@@ -253,20 +271,10 @@
       <code><![CDATA[retried]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Event/Event.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[payload]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Zef/Framework/Event/EventDispatcher.php">
     <UnusedClass>
       <code><![CDATA[EventDispatcher]]></code>
     </UnusedClass>
-  </file>
-  <file src="src/Zef/Framework/Event/EventName.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/EventPattern.php">
     <PossiblyUnusedMethod>

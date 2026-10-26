@@ -168,4 +168,32 @@ final readonly class EventDispatcher
     {
         return new DeferredEventDispatcher($this->deliveryPlan, $asyncDelivery);
     }
+
+    /**
+     * The durable vocabulary over this dispatcher's own plan: the
+     * defer/drain pair composed one-way with the persistence, the
+     * resolution and the policy the host spells -- the arm whose
+     * entries survive the process that admitted them. The event
+     * book the plan already reads is the same book the drain
+     * re-validates each loaded record against, so the live
+     * definitions stay the one authority on what a deferred entry
+     * means, in-process and across the boundary alike.
+     */
+    public function durableDelivery(
+        DeferredDeliveryStore $deferredDeliveryStore,
+        EventListenerResolver $eventListenerResolver,
+        RetryPolicy $retryPolicy,
+        int $quarantineThreshold,
+    ): DurableEventDispatcher {
+        return new DurableEventDispatcher(
+            $this->deliveryPlan,
+            new DurableDelivery(
+                $deferredDeliveryStore,
+                $eventListenerResolver,
+                $this->eventBook,
+                $retryPolicy,
+                $quarantineThreshold,
+            ),
+        );
+    }
 }

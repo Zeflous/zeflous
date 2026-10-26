@@ -61,6 +61,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Event\\#'
+    - name: Adapters
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Adapters\\#'
     - name: Kernel
       collectors:
         - type: classNameRegex
@@ -187,6 +191,21 @@ deptrac:
     # the retry/dead-letter regime, the module system's `events` knob, the
     # telemetry wiring) reaches it one-way.
     Event: ~
+    # The adapters lane is the ROADMAP's "Bridge to Ecosystem" made real:
+    # the concrete answers to questions the core layers own as ports. Its
+    # first pair is the durable delivery store -- the Event layer's
+    # `DeferredDeliveryStore` port answered by the filesystem adapter
+    # (`Adapters\Event\FileDeliveryStore`), the direction hexagonal spells:
+    # the port depends on nothing, the adapter depends on the port. The
+    # directory fold composes the storage layer's document-root judgment
+    # (`StorageDocumentRoot`, the one spelling of "a web-served tree is a
+    # disclosed tree" the whole tree already shares), so the lane depends
+    # on Storage one-way too. Every future adapter (the view engine, the
+    # database layer, the cross-process transports the roadmap names) joins
+    # here, over its own port, in its own slice.
+    Adapters:
+      - Event
+      - Storage
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the
