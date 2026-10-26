@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-26T06:41:48Z",
+  "as_of": "2026-10-26T09:24:47Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 263,
+  "unreleased_count": 264,
   "versions": [
     {
       "version": "Unreleased",
@@ -6477,6 +6477,27 @@
                 "sha": "2a15e11a7e2f306d113f593860d1823ffa507bab",
                 "short_sha": "2a15e11",
                 "subject": "docs(roadmap): record the gate-engine relocation and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 622,
+            "title": "ci(qa): retire the SonarCloud lane",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-10-26T09:24:47Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/622",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6c6353cbfdd0601a0e303c78c1188bc1c91dc6ac",
+                "short_sha": "6c6353c",
+                "subject": "ci(qa): retire the SonarCloud lane"
+              },
+              {
+                "sha": "df738299c1138e087677978c7b6d0db301718971",
+                "short_sha": "df73829",
+                "subject": "docs(roadmap): record the SonarCloud retirement and pin the lane"
               }
             ]
           }
@@ -16919,6 +16940,27 @@
               "sha": "3a1f502b9782cd4e6f32461fa049a59206a71c19",
               "short_sha": "3a1f502",
               "subject": "docs(roadmap): re-pin the wildcard listeners row to the walk-killer fix"
+            }
+          ]
+        },
+        {
+          "pr": 622,
+          "title": "ci(qa): retire the SonarCloud lane",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-10-26T09:24:47Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/622",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6c6353cbfdd0601a0e303c78c1188bc1c91dc6ac",
+              "short_sha": "6c6353c",
+              "subject": "ci(qa): retire the SonarCloud lane"
+            },
+            {
+              "sha": "df738299c1138e087677978c7b6d0db301718971",
+              "short_sha": "df73829",
+              "subject": "docs(roadmap): record the SonarCloud retirement and pin the lane"
             }
           ]
         }
