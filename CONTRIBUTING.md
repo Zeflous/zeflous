@@ -172,10 +172,10 @@ when all of the following hold in the same pull request:
   (or a generated/stub tree), never a blanket pattern;
 - **an in-file essay** — the exclusion carries its justification beside it
   in the configuration that owns it: why fixing the finding would be worse
-  than carrying it. The retired `php:S1066` entry on `MeterCount.php` is the
-  reference shape (its record is preserved in
+  than carrying it. The `php:S1066` entry on `MeterCount.php` is the
+  reference shape (the SonarCloud lane's own record,
   [`docs/security/sonarcloud.md`](docs/security/sonarcloud.md)): the merge
-  the analyzer suggested would have minted an escaping mutation-testing
+  the analyzer suggests would mint an escaping mutation-testing
   mutant, so the nested spelling is load-bearing — a mechanical conflict
   between two gates, proven, never a style preference;
 - **no reasonable alternative** — the pull request shows the direct fix was
@@ -183,9 +183,9 @@ when all of the following hold in the same pull request:
 
 The doctrine applies to every analyzer this repository runs today — the
 local duplication and mess gates (`phpmd.xml`'s per-rule opt-in list and its
-documented exclusions), the archeology gate, the mutation ledger — exactly
-as it applied to SonarCloud while that lane lived. Any new exclusion must
-clear the same bar.
+documented exclusions), the archeology gate, the mutation ledger, and the
+SonarCloud lane the 2026-10-26 resurrection brought back — all of them face
+the same bar. Any new exclusion must clear it.
 
 ### 7. Comprehensive and cohesive logic
 
@@ -498,6 +498,8 @@ a workflow fallback or exclusion to turn missing required-gate evidence green.
 | `CI Bench` | `composer ci:bench` — PHPBench. |
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
 | `PhpCodeArcheology SARIF` | The architecture & maintainability report is published to GitHub Code Scanning and the gate passes (no error-level architecture finding). |
+| `SonarCloud analysis` | The cloud analyzer's scanner lane (advisory): credential guard, coverage bridge over the CI Coverage artifact, server-side "ZEF" quality-gate wait — resurrected 2026-10-26 on the new `zefl` org after the same-day retirement; fail-closed when uncredentialed in a context that must have credentials (see [`docs/security/sonarcloud.md`](docs/security/sonarcloud.md)). |
+| `SonarCloud Code Analysis` | The SonarCloud GitHub App's own check on pull requests — advisory decoration that appears once the app is granted the repository; mirrors the same server-side verdict. |
 | `Dependency Review` | Supply-chain review of dependency changes. |
 | `API Documentation Check` | The generated API documentation is up to date. |
 | `PHPBench` | Benchmark regression check. |

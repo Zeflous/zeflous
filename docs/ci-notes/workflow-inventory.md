@@ -42,6 +42,7 @@ again.
 | `ci-strict.yml` | The event-driven aggregator: creates/updates the required `CI Strict` check-run from the four lanes' check-runs; the `merge_group` polling path owns a group head's verdict | `CI Strict` (Checks API) + `CI Strict Aggregator` (the job) | yes — both layers (ruleset: the check; classic: the job context) |
 | `pr-validator.yml` | PR title Conventional-Commit gate, single-sourced from `scripts/changelog/conventional.py` | `PR Validator` | yes — both layers |
 | `archeology.yml` | Publishes the PhpCodeArcheology SARIF to GitHub Code Scanning; curates non-error findings out of the upload | `PhpCodeArcheology SARIF` | yes — both layers |
+| `sonarcloud.yml` | SonarCloud scanner lane (resurrected 2026-10-26 on the new `zefl` org, project `zefl_zeflous`, gate "ZEF"): credential guard, coverage bridge, server-side quality-gate wait | `SonarCloud analysis` | no (advisory — the resurrection deliberately did not re-add the ruleset's `code_quality` rule) |
 | `dependency-review.yml` | Supply-chain diff of dependency changes on pull requests | `Dependency Review` | no (advisory) |
 | `docs-check.yml` | Doctum API-docs build + per-type documentation-drift assertion | `API Documentation Check` | no (advisory) |
 | `phpbench.yml` | Post-merge PHPBench regression run (fail-closed when no benchmarks found) | `PHPBench` | no (advisory) |

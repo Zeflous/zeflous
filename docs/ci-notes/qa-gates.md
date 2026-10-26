@@ -234,3 +234,32 @@ one workflow, delete the properties file, amend the one docs page —
 and nothing about merge blocking changes, because (KDD-QA1) it was
 never in the blocking set. That follow-up is a user decision, recorded
 here so it is a one-slice job when it comes.
+
+## The standing after the retirement and the same-day return (2026-10-26)
+
+The one-slice removal the section above recorded DID come — as PR #622
+(merged 2026-10-26T09:24:47Z): the lane, the properties file, the changelog
+dispatch wires, the watchdog entry, the coverage bridge's dead weight and
+the ruleset's `code_quality` rule all went, and `docs/security/sonarcloud.md`
+became the retirement record. Hours later the owner provisioned a NEW
+SonarCloud account (organization `zefl`, project `zefl_zeflous`, quality
+gate "ZEF") and asked for the lane back — the cloud analyzer's contribution
+to code quality is valued, on top of the local stack rather than instead of
+it. The resurrection (the same day) rebuilt the lane's proven machinery and
+deliberately kept the retirement's structural lessons:
+
+- the lane is **advisory** — the `code_quality` ruleset rule is NOT
+  re-added (a lapsed analyzer must never deadlock the queue; the required
+  set stays `CI Strict`, `PR Validator`, `PhpCodeArcheology SARIF`);
+- no `merge_group` trigger and no queue-path branches — the watchdog's
+  post-merge dispatch keeps `main` analysed;
+- no changelog dispatch wires — they existed to feed the `code_quality`
+  rule, which stays gone;
+- the coverage bridge is LEANER than the retired shape: it consumes the
+  gate's own clover + junit artifact, no second suite run, no composer
+  indirections.
+
+KDD-QA1's hierarchy of record is therefore unchanged by the return: the
+duplication and mess verdicts that block are the LOCAL gates; SonarCloud
+adds the cloud analyzer's decoration, trending and server-side gate on top.
+The record of both turns lives in `docs/security/sonarcloud.md`.

@@ -1,0 +1,424 @@
+# SonarCloud quality gate: cloud-side static analysis (bugs, vulnerabilities,
+# code smells, duplications, security hotspots) over the repository, with a
+# server-side quality-gate verdict and pull-request decoration.
+#
+# RESURRECTION RECORD (2026-10-26, same day as the retirement).
+# -------------------------------------------------------------------
+# This lane lived from 2026-10-07 until PR #622 retired it at 08:27Z on
+# 2026-10-26 (the QA-gates slice's documented follow-up: the local
+# duplication and mess gates own the signals in the battery that
+# demonstrably blocks). Hours later the owner provisioned a NEW SonarCloud
+# account and asked for the lane back -- the value being the cloud analyzer's
+# PR decoration, the web UI's trending, and the server-side quality gate over
+# the whole tree. This file is that restoration, rebuilt from the retired
+# revision's proven machinery, with the parts that existed only to serve the
+# merge-blocking role deliberately NOT restored:
+#
+#   * INFORMATIVE, NOT MERGE-BLOCKING. The required set stays exactly `CI
+#     Strict`, `PR Validator`, `PhpCodeArcheology SARIF`. The ruleset's
+#     `code_quality` rule -- the one account-side step the retirement recipe
+#     missed, removed with PR #622 -- is NOT re-added: that rule reads
+#     SonarCloud analysis and blocks merges without one, so re-adding it
+#     would hand every future merge to the new account's plan horizon (the
+#     retirement's own trigger). A lapsed analyzer must never deadlock the
+#     queue; the local gates keep the blocking verdicts.
+#   * NO `merge_group` TRIGGER, NO QUEUE-PATH BRANCH RESOLUTION. Those served
+#     the required-check contract on merge groups; the watchdog's post-merge
+#     `main` dispatch (ci-main-watchdog.yml, this lane is its LAST entry so
+#     the coverage bridge finds the CI Coverage artifact) keeps `main`
+#     analysed at its final sha instead -- the same metrics, no queue
+#     latency, no short-lived `merge-queue/pr-N` branches in SonarCloud.
+#   * NO CHANGELOG-LANE DISPATCH WIRES. `changelog.yml` /
+#     `changelog-official.yml` used to `workflow_dispatch` this file with a
+#     `pr_number` for their bot-authored update PRs, purely so the
+#     `code_quality` rule had an analysis to read. The rule is gone; the
+#     `pr_number` input below remains for MANUAL runs (see the input's
+#     description) but nothing dispatches it automatically anymore.
+#   * THE COVERAGE BRIDGE STAYS. The quality gate on the new account
+#     ("ZEF", named by the owner) is expected to carry coverage-on-new-code
+#     conditions like the one the old project's gate carried, so the scanner
+#     still bridges the CI Coverage lane's `coverage-reports` artifact
+#     (clover + JUnit) for the same commit -- never installing dependencies
+#     or rerunning the suite itself.
+#
+# The account this restoration talks to (all values verified against the
+# owner's own report of the freshly created project):
+#   - Organization key `zefl` (the retired organization was `zeflous`; the
+#     new account's organization is a different SonarCloud tenant, so the
+#     old org's history and quality-gate configuration did NOT carry over).
+#   - Project key `zefl_zeflous`, project name "ZEF Framework".
+#   - Quality gate "ZEF" (the owner's chosen gate name), selected on the
+#     project side; `sonar.qualitygate.wait=true` in sonar-project.properties
+#     makes this job's verdict follow it.
+#   - `SONAR_TOKEN` lives at the ORGANIZATION secret level (visibility: all
+#     -- same shape the retired lane verified with the 2026-10-10
+#     `probe/secret-visibility` investigation), so this repository reads it
+#     without carrying a repository-level secret.
+# A SonarCloud organization can only decorate pull requests of GitHub
+# repositories owned by the GitHub account/org it is bound to, so the ALM
+# binding + SonarQube Cloud GitHub App grant for `Zeflous/zeflous` are the
+# account-side steps that decide whether decoration appears; the setup
+# checklist (OSS plan -- the Free plan ships no PHP analyzer -- Automatic
+# Analysis disabled, the app grant) is docs/security/sonarcloud.md's
+# resurrection section.
+#
+# DOCTRINE CARRIED OVER FROM THE LANE'S FIRST LIFE (still load-bearing):
+#   - Scope is an explicit EXCLUSION allow-list in sonar-project.properties
+#     (SonarCloud's analysis-scope UX analyses the whole project and ignores
+#     `sonar.sources`/`sonar.tests`); a new top-level directory enters the
+#     scope only when someone removes its pattern -- fail-closed, never
+#     silent. The "Analysis scope (diagnostic)" step prints the analysed
+#     file counts so scope drift is visible.
+#   - PR decoration is delivered by the SonarCloud GitHub App
+#     (`sonarqubecloud`), NOT by this workflow: the analysis and the gate
+#     verdict are correct regardless; the bot comment and the app's
+#     `SonarCloud Code Analysis` check-run follow the moment the app is
+#     granted the repository (the 2026-10-07 investigation, preserved in
+#     docs/security/sonarcloud.md).
+#   - The scanner action is `SonarSource/sonarqube-scan-action` pinned to
+#     the full commit SHA of tag v8.2.2 (the direct-engine action the
+#     reference repository `Zeflous/zef-framework` uses), and checkout is
+#     pinned to the Node 24 runtime line (v7.0.1) -- `githubactions:S7637`
+#     is the reason every action in this repository carries a full SHA.
+#
+# CONTRACT (unchanged in shape from the first life): this job ALWAYS runs
+# and concludes, and the uncredentialed outcome still depends on WHERE the
+# credential is missing. In a context where GitHub itself withholds
+# repository secrets -- a `pull_request` event whose head is from a fork, or
+# whose author is `dependabot[bot]` or `renovate[bot]` -- it reports GREEN
+# WITH A NOTICE (step summary + `::notice::`): a context that cannot be
+# credentialed must not hold up the pull request. In every other context --
+# a same-repository pull request, a push to `main`, a manual run -- the
+# `SONAR_TOKEN` secret is always injectable, so its absence is a
+# misconfiguration, and the job FAILS CLOSED instead of certifying an
+# analysis that never ran: this check is advisory now, but an advisory
+# check that reports green without an analysis is still a false signal,
+# and the signal is the entire reason the lane was brought back. Never
+# work around the secret withholding with `pull_request_target`.
+
+name: SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  # Manual runs: `pr_number` lets a human analyse a pull request whose
+  # `pull_request` event never fired (a PR opened by the built-in
+  # `GITHUB_TOKEN` does not trigger workflows -- GitHub's recursion guard).
+  # Nothing dispatches this automatically anymore (the changelog lanes'
+  # dispatch wires existed to feed the ruleset's `code_quality` rule, which
+  # the resurrection deliberately does not re-add).
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "Pull request number to analyse (optional)"
+        required: false
+        type: string
+
+permissions:
+  actions: read       # Read the CI Coverage workflow run and its artifact.
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: sonarcloud-${{ github.event_name }}-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  sonarcloud:
+    # The job NAME is a public contract: it is the status-check context this
+    # lane reported under for its whole first life. Keep it exactly
+    # "SonarCloud analysis".
+    name: SonarCloud analysis
+    runs-on: ubuntu-latest
+    # The scan takes a few minutes; the bound keeps a hung docker pull or scanner
+    # from holding the lane open forever (the bridge's own wait is bounded at
+    # 20 minutes inside this budget).
+    timeout-minutes: 30
+    env:
+      # Job-scoped so no unrelated job can receive it. Never echo or print this.
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: https://sonarcloud.io
+    steps:
+      # The credential check decides between the two uncredentialed outcomes
+      # BEFORE anything else runs: a context where GitHub itself withholds
+      # repository secrets keeps the green-with-notice path; every other
+      # context fails CLOSED, because a check that certifies an analysis
+      # must never be green without one -- advisory or not, that is a false
+      # signal, and the signal is why this lane exists.
+      - name: Check SONAR_TOKEN availability
+        id: sonar_guard
+        run: |
+          withheld=false
+          withheld_reason=""
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
+            # A same-repository pull request always carries
+            # .pull_request.head.repo.full_name == GITHUB_REPOSITORY; anything
+            # else (a fork head, or a head whose repository was deleted) is a
+            # context GitHub withholds repository secrets from.
+            head_repo=$(jq -r '.pull_request.head.repo.full_name // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null || true)
+            if [ "${head_repo}" != "${GITHUB_REPOSITORY}" ]; then
+              withheld=true
+              withheld_reason="the pull-request head is outside this repository (${head_repo:-head repository unavailable})"
+            else
+              author=$(jq -r '.pull_request.user.login // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null || true)
+              # The bot logins contain literal brackets: quote them, or the
+              # case pattern reads [bot] as a character class and never matches.
+              case "${author}" in
+                'dependabot[bot]'|'renovate[bot]')
+                  withheld=true
+                  withheld_reason="the pull request is authored by ${author}"
+                  ;;
+              esac
+            fi
+          fi
+          echo "withheld=${withheld}" >> "$GITHUB_OUTPUT"
+          if [ -n "${SONAR_TOKEN}" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          elif [ "${withheld}" = "true" ]; then
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "reason=${withheld_reason}" >> "$GITHUB_OUTPUT"
+          else
+            {
+              echo "### SonarCloud analysis — failed closed (no credentials in a context that must have them)"
+              echo ""
+              echo "The \`SONAR_TOKEN\` secret is absent in a context where it is always injectable"
+              echo "(a same-repository pull request, a push to \`main\`, or a manual run)."
+              echo "This check is advisory, but reporting green here would still certify an"
+              echo "analysis that never ran. Restore the secret (it lives at the ORGANIZATION"
+              echo "level, visibility all: Settings → Actions Secrets → Organization secrets;"
+              echo "setup checklist: docs/security/sonarcloud.md) and re-run this job."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::SONAR_TOKEN is absent in a context that must have it — failing closed instead of certifying an analysis that never ran (docs/security/sonarcloud.md)."
+            exit 1
+          fi
+      # Checkout runs on the credentialed path and the withheld-credentials
+      # path, so the unconfigured-state step below can still write a step
+      # summary and the job keeps a deterministic conclusion. (On the
+      # fail-closed path the guard has already concluded the job red before
+      # any checkout was needed.)
+      - name: Checkout
+        # actions/checkout v7.0.1 -- the Node.js 24 runtime line, and the pin the
+        # reference repository `Zeflous/zef-framework` uses for this same lane.
+        # v4.4.0 was tried first and is NOT enough: every v4 release (and v5's
+        # predecessor line) declares `using: node20` in its action.yml, so GitHub
+        # forced it onto Node.js 24 and the run still logged
+        # `##[warning]Node.js 20 is deprecated ... actions/checkout@<sha>`
+        # (runs 37724920801 with v4.3.1 and 37727041126 with v4.4.0). v7.0.1
+        # declares `using: node24`, so the warning is gone with the full
+        # 40-character SHA pin intact.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Report unconfigured state (credentials withheld in this context)
+        if: steps.sonar_guard.outputs.available != 'true' && steps.sonar_guard.outputs.withheld == 'true'
+        env:
+          WITHHELD_REASON: ${{ steps.sonar_guard.outputs.reason }}
+        run: |
+          {
+            echo "### SonarCloud analysis — skipped (no credentials in this context)"
+            echo ""
+            echo "No credentialed SonarCloud analysis ran for this commit: GitHub withholds"
+            echo "repository secrets in this context (${WITHHELD_REASON}). The check"
+            echo "reports green so a context that cannot be credentialed cannot block the"
+            echo "pull request queue. In every other context (a same-repository pull"
+            echo "request, a push to \`main\`, a manual run) an absent \`SONAR_TOKEN\`"
+            echo "fails closed — see docs/security/sonarcloud.md."
+            echo ""
+            echo "Setup checklist: docs/security/sonarcloud.md."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice::SONAR_TOKEN withheld in this context (${WITHHELD_REASON}) — SonarCloud analysis skipped (setup: docs/security/sonarcloud.md)."
+      # COVERAGE BRIDGE v2. This job installs NO dependencies and runs NO
+      # tests. The analysis needs SOURCE plus a coverage report, and
+      # sonar-project.properties derives no path from vendor/ (it is excluded
+      # from the analysis scope). The report is taken from the CI Coverage lane
+      # (`ci-coverage.yml`), which publishes the `coverage-reports` artifact
+      # (clover + JUnit) for the same commit -- the same `checkout -> download
+      # artifact -> sonar-scanner` shape as the reference repository
+      # `Zeflous/zef-framework`.
+      #
+      # The artifact is produced by the coverage GATE itself in this
+      # resurrection (the leaner bridge the retirement's investigation paid
+      # for: `composer coverage:gate` writes build/clover.xml AND
+      # build/junit.xml, so the retired lane's separate report-regeneration
+      # step -- a full second suite run -- and its two composer-script
+      # indirections were NOT restored; ci-coverage.yml only re-learns how to
+      # UPLOAD the two files the gate already wrote).
+      - name: Wait for the CI Coverage lane and fetch its coverage artifact (bridge)
+        # Runs on EVERY credentialed event. The check must never certify a scan
+        # without the coverage evidence its quality gate expects: a
+        # missing/failed lane, missing artifact, failed download, or invalid
+        # Clover report is a hard failure, never a global exclusion.
+        if: steps.sonar_guard.outputs.available == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          # Resolve the commit whose CI Coverage run publishes the artifact.
+          # pull_request workflows are reported on the PR HEAD. Manual runs
+          # resolve the ref.
+          sha="${GITHUB_SHA}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ] && [ -f "${GITHUB_EVENT_PATH}" ]; then
+            pr_head=$(jq -r '.pull_request.head.sha // empty' "${GITHUB_EVENT_PATH}" 2>/dev/null || true)
+            if [ -n "${pr_head}" ]; then sha="${pr_head}"; fi
+          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            api_sha=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_REF_NAME}" \
+              | jq -r '.sha // empty' 2>/dev/null || true)
+            if [ -n "${api_sha}" ]; then sha="${api_sha}"; fi
+          fi
+          echo "Bridging coverage for reported head sha ${sha:0:8} (event: ${GITHUB_EVENT_NAME})."
+          # CI Coverage has a 20-minute timeout. Wait only within that bound;
+          # failure to observe a successful completed run is missing evidence.
+          #
+          # One head sha can carry SEVERAL CI Coverage runs -- a human push
+          # and a watchdog re-dispatch both target the same commit. The
+          # bridge therefore accepts ANY completed successful run for the
+          # sha -- the newest successful one wins -- because the sha pins the
+          # content: an artifact produced for this head sha is valid coverage
+          # evidence no matter which event produced it. It still fails closed
+          # when no run for the sha completes successfully within the bound.
+          deadline=$(( $(date +%s) + 20 * 60 ))
+          run_id=""
+          while [ "$(date +%s)" -lt "${deadline}" ]; do
+            runs_json=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/ci-coverage.yml/runs?head_sha=${sha}&per_page=20" \
+              2>/dev/null) || runs_json=""
+            # The newest COMPLETED SUCCESSFUL run for the sha, if any.
+            run_id=$(printf '%s' "${runs_json}" \
+              | jq -r '[.workflow_runs[]? | select(.status == "completed" and .conclusion == "success")][0].id // empty' 2>/dev/null) || run_id=""
+            if [ -n "${run_id}" ]; then
+              echo "CI Coverage run ${run_id} completed successfully for ${sha:0:8}; bridging its artifact."
+              break
+            fi
+            newest=$(printf '%s' "${runs_json}" \
+              | jq -r '.workflow_runs[0]? | "run \(.id) is \(.status)"' 2>/dev/null) || newest=""
+            if [ -n "${newest}" ]; then
+              echo "CI Coverage ${newest} for ${sha:0:8}; polling again in 20s..."
+            else
+              echo "No CI Coverage run visible yet for ${sha:0:8}; polling again in 20s..."
+            fi
+            sleep 20
+          done
+          if [ -z "${run_id}" ]; then
+            echo "::error::No CI Coverage run for ${sha:0:8} completed successfully within 20 minutes; refusing to run SonarCloud without coverage evidence."
+            exit 1
+          fi
+          # Artifact listing can briefly lag the run's completed state. Retry
+          # for at most two minutes (inside this job's 30-minute budget), then
+          # fail visibly rather than excluding coverage.
+          artifact_deadline=$(( $(date +%s) + 2 * 60 ))
+          findings="[]"
+          while [ "$(date +%s)" -lt "${artifact_deadline}" ]; do
+            findings=$(curl -fsSL \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${run_id}/artifacts" \
+              | jq -c '[.artifacts[] | select(.name == "coverage-reports" and .expired == false)]' 2>/dev/null) || findings="[]"
+            if [ "${findings}" != "[]" ] && [ -n "${findings}" ]; then break; fi
+            echo "coverage-reports artifact for run ${run_id} is not visible yet; retrying in 10s..."
+            sleep 10
+          done
+          if [ "${findings}" = "[]" ] || [ -z "${findings}" ]; then
+            echo "::error::CI Coverage run ${run_id} succeeded but no unexpired coverage-reports artifact appeared within two minutes; refusing to bypass SonarCloud coverage."
+            exit 1
+          fi
+          artifact_id=$(printf '%s' "${findings}" | jq -r '.[0].id // empty')
+          if [ -z "${artifact_id}" ]; then
+            echo "::error::Could not resolve the coverage-reports artifact ID for run ${run_id}."
+            exit 1
+          fi
+          rm -rf build && mkdir -p build
+          if ! curl -fsSL \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -o build/coverage-reports.zip \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip"; then
+            echo "::error::Could not download coverage-reports artifact ${artifact_id}; refusing to bypass SonarCloud coverage."
+            exit 1
+          fi
+          if ! unzip -o -q build/coverage-reports.zip -d build; then
+            echo "::error::coverage-reports artifact ${artifact_id} is not a readable ZIP archive."
+            exit 1
+          fi
+          if [ ! -s build/clover.xml ] || ! grep -q '<coverage' build/clover.xml 2>/dev/null; then
+            echo "::error::coverage-reports artifact ${artifact_id} has no valid build/clover.xml report."
+            exit 1
+          fi
+          args="-Dsonar.php.coverage.reportPaths=build/clover.xml"
+          [ ! -s build/junit.xml ] || args="${args} -Dsonar.php.tests.reportPaths=build/junit.xml"
+          {
+            echo "### Coverage bridge"
+            echo ""
+            echo "- verdict: **bridged**"
+            echo "- Consumed the successful CI Coverage run ${run_id}'s coverage-reports artifact; the SonarCloud coverage-on-new-code condition is evaluated against real Clover data."
+          } >> "${GITHUB_STEP_SUMMARY}"
+          echo "COVERAGE_ARGS=${args}" >> "${GITHUB_ENV}"
+      - name: Analysis scope (diagnostic)
+        if: steps.sonar_guard.outputs.available == 'true'
+        run: |
+          {
+            echo "### Analysis scope (diagnostic)"
+            echo ""
+            echo "- tracked files in the checkout: $(git ls-files | wc -l)"
+            echo "- src/ PHP files: $(git ls-files 'src/*.php' | wc -l)"
+            echo "- tests/ PHP files: $(git ls-files 'tests/*.php' | wc -l)"
+            echo ""
+            echo "If a scan reports coverage or new-code counts far outside the src/"
+            echo "figures above, the exclusion allow-list in sonar-project.properties"
+            echo "has drifted — see docs/security/sonarcloud.md."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Resolve the manual-run pull-request arguments (validated)
+        # The `pr_number` input and the dispatching branch name reach the
+        # scanner through its `args:` only after validation: a number that is
+        # not digits-only is refused outright (it names no pull request), and
+        # the branch name is percent-encoded before it crosses into the
+        # argument list -- a git branch name may legally carry characters an
+        # argument parser would treat as separators. Both rejections fail
+        # closed: a manual scan that cannot name its pull request honestly
+        # must not fall back to scanning as something else. The validated
+        # arguments cross to the scan step through the environment, never
+        # through direct interpolation of an input into the `args:` line.
+        if: inputs.pr_number != '' && steps.sonar_guard.outputs.available == 'true'
+        env:
+          INPUT_PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          set -euo pipefail
+          if ! [[ "${INPUT_PR_NUMBER}" =~ ^[0-9]+$ ]]; then
+            echo "::error::The pr_number input must be digits-only; '${INPUT_PR_NUMBER}' does not name a pull request."
+            exit 1
+          fi
+          encoded_branch=$(printf '%s' "${GITHUB_REF_NAME}" | jq -Rr '@uri')
+          echo "SONAR_PR_ARGS=-Dsonar.pullrequest.key=${INPUT_PR_NUMBER} -Dsonar.pullrequest.branch=${encoded_branch} -Dsonar.pullrequest.base=main" >> "$GITHUB_ENV"
+      - name: SonarCloud scan
+        if: steps.sonar_guard.outputs.available == 'true'
+        uses: SonarSource/sonarqube-scan-action@ba9859eae8dd6bd29e412f25ddbbef3d032000f4 # v8.2.2
+        with:
+          # Pass the base dir explicitly (parity with the reference repository);
+          # the properties file restates it so a local `sonar-scanner` run
+          # behaves identically. When a `pr_number` input is supplied (a manual
+          # run for a PR whose `pull_request` event never fired), pass the
+          # pull-request context explicitly so the analysis is attached to that
+          # PR and decoration follows. `sonar.qualitygate.wait=true`
+          # (sonar-project.properties) makes the job wait for the server-side
+          # verdict, so this lane's check-run mirrors the "ZEF" quality gate
+          # honestly -- advisory, but never green-by-omission.
+          args: >-
+            -Dsonar.projectBaseDir=.
+            ${{ env.COVERAGE_ARGS }}
+            ${{ env.SONAR_PR_ARGS }}
+        env:
+          # Reported to SonarCloud for the SCM/CI sensor. Decoration itself is
+          # delivered by the SonarCloud GitHub App, not by this workflow.
+          # The built-in workflow token is sufficient — no PAT is required.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          COVERAGE_ARGS: ${{ env.COVERAGE_ARGS }}

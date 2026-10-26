@@ -8,7 +8,8 @@
 # -------------------------
 #   * Setiap `uses:` dipin ke commit SHA penuh 40 karakter dengan tag asli
 #     sebagai komentar. Ref tag/branch adalah yang dahulu ditandai lane
-#     SonarCloud (pensiun) sebagai `githubactions:S7637`; pinning tetap
+#     SonarCloud (pensiun 2026-10-26, kembali hari yang sama) sebagai
+#     `githubactions:S7637`; pinning tetap
 #     menjadi disiplin supply-chain, temuan tetap nol.
 #   * Tidak memerlukan secret eksternal: memakai `github.token` bawaan.
 #   * Idempotent: menjalankan ulang hanya memperbarui draft yang sama, tidak
