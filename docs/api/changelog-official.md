@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- chore\(sonar\): drop the no-effect sonar.sources and sonar.tests keys [\#631](https://github.com/Zeflous/zeflous/pull/631) ([mbetixz](https://github.com/mbetixz))
 - ci\(qa\): resurrect the SonarCloud lane on the new account [\#628](https://github.com/Zeflous/zeflous/pull/628) ([mbetixz](https://github.com/mbetixz))
 - feat\(event\): the deferred delivery arm with retry, dead letters and quarantine [\#623](https://github.com/Zeflous/zeflous/pull/623) ([mbetixz](https://github.com/mbetixz))
 - ci\(qa\): retire the SonarCloud lane [\#622](https://github.com/Zeflous/zeflous/pull/622) ([mbetixz](https://github.com/mbetixz))
