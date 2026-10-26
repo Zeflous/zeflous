@@ -86,6 +86,24 @@ final class WildcardMatchesTest extends TestCase
         self::assertCount(0, $wildcardMatches->matchedBy(new EventName('user')));
     }
 
+    public function testTheWalkContinuesPastANonMatchingPattern(): void
+    {
+        $listenerRegistry = new ListenerRegistry();
+        $listenerRegistry->add(
+            new ListenerSubscription(new RecordingListener(new EventLog(), 'order'), new ListenerPriority(0)),
+        );
+
+        $wildcardMatches = new WildcardMatches(
+            ['user.*' => new EventPattern('user.*'), 'order.*' => new EventPattern('order.*')],
+            ['user.*' => new ListenerRegistry(), 'order.*' => $listenerRegistry],
+        );
+
+        // 'order.paid' skips the declared-first user.* pattern and still
+        // reaches the order.* one: the walk continues past a non-match,
+        // never breaks out of it.
+        self::assertCount(1, $wildcardMatches->matchedBy(new EventName('order.paid')));
+    }
+
     public function testAnEmptyBookWalksToNothing(): void
     {
         $wildcardMatches = new WildcardMatches([], []);
