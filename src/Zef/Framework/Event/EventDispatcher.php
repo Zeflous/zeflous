@@ -8,11 +8,14 @@ use InvalidArgumentException;
 use Throwable;
 
 /**
- * The event dispatcher's public face: the five-verb vocabulary a
+ * The event dispatcher's public face: the synchronous vocabulary a
  * host application spells -- define an event, subscribe a listener,
- * dispatch a payload, and the wildcard pair the roadmap's advanced
- * listener management demands -- plus the unsubscribes the
- * runtime-modification doctrine demands.
+ * dispatch a payload, the wildcard pair the roadmap's advanced
+ * listener management demands, and the unsubscribes the
+ * runtime-modification doctrine demands. The deferred pair the
+ * async regime runs on is its own composed vocabulary: ask this
+ * dispatcher for it with {@see deferredDelivery()} and the engine
+ * the host spells.
  *
  * The whole registry is fail-closed on the event's name: the
  * {@see EventBook} refuses a subscription, an unsubscribe and a
@@ -21,17 +24,19 @@ use Throwable;
  * A wildcard subscription is its own contract -- the pattern is
  * the address, and the events it matches are the events the
  * application defines, each carrying each definition's own
- * validated shape. Payload validation is the dispatch boundary's
+ * validated shape. Payload validation is the delivery boundary's
  * own job: the shape's check runs before the first listener is
  * invoked, so a mis-shaped payload never reaches a listener's
- * body, exact or wildcard alike.
+ * body, exact or wildcard alike -- and the SAME boundary owns the
+ * deferred defer (KDD-EA10): the producer's mistake surfaces at
+ * the producer's call, never at a drain.
  *
- * Execution is synchronous by declaration: listeners run in the
- * dispatch caller's own failure regime -- a listener's exception
- * bubbles to the caller, and the later listeners of that dispatch
- * do not run. The retry/dead-letter/async regime the roadmap's
- * enterprise phases demand is deliberately a named follow-up, not
- * a silent policy hidden inside this fold.
+ * Synchronous execution is unchanged by declaration: listeners run
+ * in the dispatch caller's own failure regime -- a listener's
+ * exception bubbles to the caller, and the later listeners of that
+ * dispatch do not run. The freeze and the pool-walk every delivery
+ * reads live in the {@see DeliveryPlan} fold -- the EventBook
+ * precedent's shape, the dispatcher staying the vocabulary.
  */
 final readonly class EventDispatcher
 {
@@ -39,10 +44,13 @@ final readonly class EventDispatcher
 
     private WildcardSubscriptions $wildcardSubscriptions;
 
+    private DeliveryPlan $deliveryPlan;
+
     public function __construct()
     {
         $this->eventBook = new EventBook();
         $this->wildcardSubscriptions = new WildcardSubscriptions();
+        $this->deliveryPlan = new DeliveryPlan($this->eventBook, $this->wildcardSubscriptions);
     }
 
     /**
@@ -120,15 +128,15 @@ final readonly class EventDispatcher
     }
 
     /**
-     * Dispatches an event: validates the payload against the
-     * event's shape, freezes it into the {@see Event} every
-     * listener receives, and hands the event to the dispatch pool's
-     * listeners in order -- the exact-name subscribers and the
-     * matching wildcard subscribers sorted as one pool, priority
-     * first; among equals, the exact-name listener stands before the
-     * wildcard (the targeted answer before the general observation,
-     * the one tie the pool itself must break), and each kind keeps
-     * its own registration/declaration order.
+     * Dispatches an event: validates the payload against the event's
+     * shape, freezes it into the {@see Event} every listener
+     * receives, and hands the event to the delivery pool's listeners
+     * in order -- the exact-name subscribers and the matching
+     * wildcard subscribers sorted as one pool, priority first; among
+     * equals, the exact-name listener stands before the wildcard (the
+     * targeted answer before the general observation, the one tie the
+     * pool itself must break), and each kind keeps its own
+     * registration/declaration order.
      *
      * @param array<array-key, mixed> $values the producer's payload
      *
@@ -139,28 +147,25 @@ final readonly class EventDispatcher
      */
     public function dispatch(EventName $eventName, array $values): DispatchOutcome
     {
-        $event = new Event(
-            $eventName,
-            $this->eventBook->shapeFor($eventName)->validate($values),
-        );
-
-        $listenerSubscriptions = [
-            ...$this->eventBook->registryFor($eventName)->ordered(),
-            ...$this->wildcardSubscriptions->matching($eventName),
-        ];
-
-        usort(
-            $listenerSubscriptions,
-            static fn (
-                ListenerSubscription $left,
-                ListenerSubscription $right,
-            ): int => $right->priority()->standing() <=> $left->priority()->standing(),
-        );
+        $preparedDelivery = $this->deliveryPlan->prepare($eventName, $values);
+        $listenerSubscriptions = $preparedDelivery->pool();
 
         foreach ($listenerSubscriptions as $listenerSubscription) {
-            $listenerSubscription->listener()->handle($event);
+            $listenerSubscription->listener()->handle($preparedDelivery->event());
         }
 
         return new DispatchOutcome($eventName, \count($listenerSubscriptions));
+    }
+
+    /**
+     * The deferred vocabulary over this dispatcher's own plan: the
+     * defer/drain pair composed one-way with the engine the host
+     * spells. A dispatcher that was never asked for one simply has
+     * no deferred verbs to call -- the sync-only shape, answered
+     * structurally instead of by a refusal.
+     */
+    public function deferredDelivery(AsyncDelivery $asyncDelivery): DeferredEventDispatcher
+    {
+        return new DeferredEventDispatcher($this->deliveryPlan, $asyncDelivery);
     }
 }
