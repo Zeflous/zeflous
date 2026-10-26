@@ -519,6 +519,21 @@
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",
+                // The event pattern's two tail cuts sit in zones the guards
+                // above them have already proven ASCII: the constructor's
+                // -2 cut runs only behind the str_ends_with '.*' check (the
+                // last two characters ARE the dot and the star, two bytes
+                // either way), and the match-side -1 cut stands behind the
+                // same grammar (the star is the pattern's last byte), so
+                // mb_substr and substr answer the identical prefix for
+                // every input the lines can ever see -- the same
+                // byte-agreement class the nullable-prefix entry above
+                // spelled. The constructor's own mb_strlen ceiling stays
+                // fully under the mutator: the multibyte pattern tests kill
+                // its rewrites through the refusal message's character
+                // count.
+                "\\$prefix = mb_substr\\(\\$pattern, 0, -2\\);",
+                "return mb_substr\\(\\$this->pattern, 0, -1\\);",
                 // The four lines below carry the same ASCII-only zone, each
                 // verified against the engine by running the owning suite
                 // under the manually applied mutation (the complete battery
