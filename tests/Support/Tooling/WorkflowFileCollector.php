@@ -35,7 +35,10 @@ final readonly class WorkflowFileCollector
     }
 
     /**
-     * @return array<string, string> map of file name => file contents, sorted by file name
+     * @return array<string, string> map of file name => file contents, sorted
+     *                               by file name ({@see SortedWorkflowMap} owns
+     *                               the order -- the walk's own iteration order
+     *                               belongs to the filesystem)
      */
     public function collect(): array
     {
@@ -70,8 +73,6 @@ final readonly class WorkflowFileCollector
             $workflows[$file->getFilename()] = $contents;
         }
 
-        ksort($workflows);
-
-        return $workflows;
+        return SortedWorkflowMap::over($workflows);
     }
 }
