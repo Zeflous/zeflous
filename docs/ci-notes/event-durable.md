@@ -318,3 +318,50 @@ count up and its repetition down, the file at difficulty 16.76
 with the S1142 ceiling satisfied (3/3/3/3/2 returns). The
 float arm keeps its single-`if` spelling: `is_finite` first,
 then NAN and both infinities, each phrase with the path.
+
+**The second round: a discipline the docblock promises is a test
+the escapes will demand.** The four Concat escapes on the staging
+spelling line shared one shape: every mutant was a writable path
+the filesystem accepts (the destination itself when the dot is
+dropped, a sibling of the store directory when the separator
+moves, a trailing-dot record inside it when the operands flip)
+that no green assertion could distinguish, because the crash
+window the fold's docblock promises -- a refused finalise strands
+the record under its leading-dot name, the scans ignore the
+orphan -- had never been asserted. The observation test is that
+sentence turned into four assertions: the finalise refusal
+message, the destination absent, the dot-file present beside it,
+the scan blind. The lesson generalises the round's first one (an
+assertion that names only the outcome lets the acts go
+unobserved): a discipline a docblock documents but no test pins
+is a mutation escape waiting for its spelling line.
+
+**The equivalence the vocabulary closes.** The write-length
+guard's `mb_strlen` escaped for the plainest reason: the record
+is ASCII-by-construction -- the encoder escapes every non-ASCII
+codepoint (`JSON_THROW_ON_ERROR | JSON_PRESERVE_ZERO_FRACTION`
+and no `JSON_UNESCAPED_UNICODE` anywhere in the lane), so
+`mb_strlen` and `strlen` agree on every string the fold's single
+call site can ever see; the full suite passes under the manually
+applied mutation (5743 tests, 14052 assertions). The ledger
+already owns this class (`RedactionCandidate`'s credential
+grammar), and the entry's essay names both direct fixes and
+their costs rather than pretending a killer test exists: a
+multibyte-armed one would have to bypass the encoder and pin
+the false refusal (bytes written !== character count) the guard
+would answer for a record the vocabulary can never produce, and
+the route-cache family's `=== false` spelling would trade the
+partial-write refusal the slice landed with its own pinning test
+for a consistency three folds bought by never measuring a
+length.
+
+**S3358 under the S1142 ceiling.** The nested ternary the Sonar
+lane refused could not simply become a fourth return in
+`leafKind` (the S1142 ceiling this same file already navigates),
+and the wider spellings the difficulty ceiling refused are not a
+direction to walk back into. The exit is the doctrine the file
+already spells: the non-finite spelling is now its own fold
+(`nonFiniteSpelling` -- NAN first, then both infinities by
+sign), `leafKind` keeps its three returns, and the single
+ternary that remains is not a nested one. The third seam, not a
+wider method.
