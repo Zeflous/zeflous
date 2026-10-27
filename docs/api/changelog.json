@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-26T17:17:40Z",
+  "as_of": "2026-10-27T21:59:50Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 267,
+  "unreleased_count": 269,
   "versions": [
     {
       "version": "Unreleased",
@@ -3667,6 +3667,47 @@
                 "subject": "Merge branch 'main' into feat/event-async-delivery"
               }
             ]
+          },
+          {
+            "pr": 634,
+            "title": "feat(event): the durable delivery store with its file adapter",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-27T18:52:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/634",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5bd544eb6c4f83d65965cbdc3738f209045eab5d",
+                "short_sha": "5bd544e",
+                "subject": "feat(event): the durable delivery store with its file adapter"
+              },
+              {
+                "sha": "291002f415210a21953fdcc0749076a57c741230",
+                "short_sha": "291002f",
+                "subject": "docs(roadmap): record the durable delivery store and refresh the pin"
+              },
+              {
+                "sha": "36c17cc31e9c9a1d6e5f0ffe55715f3ef1cd963e",
+                "short_sha": "36c17cc",
+                "subject": "fix(event): honest attribution and observation for the durable store"
+              },
+              {
+                "sha": "1483a03f602b6ae5261d304ccb28b8852ceb4699",
+                "short_sha": "1483a03",
+                "subject": "docs(roadmap): record the gate round's hardening and refresh the pin"
+              },
+              {
+                "sha": "68a300794d126158ea97a28af40388ab411c320f",
+                "short_sha": "68a3007",
+                "subject": "fix(event): observe the stranded staging orphan and unfold the non-finite spelling"
+              },
+              {
+                "sha": "338610b369d14d4067c326bbd283601a9ada024c",
+                "short_sha": "338610b",
+                "subject": "docs(roadmap): record the second gate round and refresh the pin"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -5495,6 +5536,27 @@
                 "sha": "2f3db871d3d5609006af9b234264adbe60d4d437",
                 "short_sha": "2f3db87",
                 "subject": "docs(roadmap): record the round-3 audit remediation landing (#599)"
+              }
+            ]
+          },
+          {
+            "pr": 635,
+            "title": "fix: give the five runner-dependent mutants their deterministic observation",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-10-27T21:59:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/635",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b821ed17d6712f21880478fc4755a57f2670c2ac",
+                "short_sha": "b821ed1",
+                "subject": "fix: give the five runner-dependent mutants their deterministic observation"
+              },
+              {
+                "sha": "b4b68865bb1eb21d4ff15b63046a9e5753f03d3e",
+                "short_sha": "b4b6886",
+                "subject": "docs(roadmap): record the runner-dependent kill repair and refresh the pin"
               }
             ]
           }
@@ -17137,6 +17199,68 @@
               "sha": "d631e7bb4d6f7243220fbb2845e935c096dee728",
               "short_sha": "d631e7b",
               "subject": "docs(roadmap): record the sonar scope-keys hygiene and refresh the pin"
+            }
+          ]
+        },
+        {
+          "pr": 634,
+          "title": "feat(event): the durable delivery store with its file adapter",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-27T18:52:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/634",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5bd544eb6c4f83d65965cbdc3738f209045eab5d",
+              "short_sha": "5bd544e",
+              "subject": "feat(event): the durable delivery store with its file adapter"
+            },
+            {
+              "sha": "291002f415210a21953fdcc0749076a57c741230",
+              "short_sha": "291002f",
+              "subject": "docs(roadmap): record the durable delivery store and refresh the pin"
+            },
+            {
+              "sha": "36c17cc31e9c9a1d6e5f0ffe55715f3ef1cd963e",
+              "short_sha": "36c17cc",
+              "subject": "fix(event): honest attribution and observation for the durable store"
+            },
+            {
+              "sha": "1483a03f602b6ae5261d304ccb28b8852ceb4699",
+              "short_sha": "1483a03",
+              "subject": "docs(roadmap): record the gate round's hardening and refresh the pin"
+            },
+            {
+              "sha": "68a300794d126158ea97a28af40388ab411c320f",
+              "short_sha": "68a3007",
+              "subject": "fix(event): observe the stranded staging orphan and unfold the non-finite spelling"
+            },
+            {
+              "sha": "338610b369d14d4067c326bbd283601a9ada024c",
+              "short_sha": "338610b",
+              "subject": "docs(roadmap): record the second gate round and refresh the pin"
+            }
+          ]
+        },
+        {
+          "pr": 635,
+          "title": "fix: give the five runner-dependent mutants their deterministic observation",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-10-27T21:59:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/635",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b821ed17d6712f21880478fc4755a57f2670c2ac",
+              "short_sha": "b821ed1",
+              "subject": "fix: give the five runner-dependent mutants their deterministic observation"
+            },
+            {
+              "sha": "b4b68865bb1eb21d4ff15b63046a9e5753f03d3e",
+              "short_sha": "b4b6886",
+              "subject": "docs(roadmap): record the runner-dependent kill repair and refresh the pin"
             }
           ]
         }
