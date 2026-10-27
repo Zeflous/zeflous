@@ -94,6 +94,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(qa): the local duplication and mess gates over the tooling engine [#616](https://github.com/Zeflous/zeflous/pull/616) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the wildcard listener support over the one-pool dispatch [#619](https://github.com/Zeflous/zeflous/pull/619) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the deferred delivery arm with retry, dead letters and quarantine [#623](https://github.com/Zeflous/zeflous/pull/623) ([mbetixz](https://github.com/mbetixz))
+- feat(event): the durable delivery store with its file adapter [#634](https://github.com/Zeflous/zeflous/pull/634) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -145,6 +146,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(container): answer the psalm baseline's Container findings honestly [#586](https://github.com/Zeflous/zeflous/pull/586) ([mbetixz](https://github.com/mbetixz))
 - fix(baseline): answer the psalm baseline's remaining findings honestly [#594](https://github.com/Zeflous/zeflous/pull/594) ([mbetixz](https://github.com/mbetixz))
 - fix: close the round-3 audit's four core-logic holes (q-OWS, br fold honesty, lazy captive guard, session amplification) [#599](https://github.com/Zeflous/zeflous/pull/599) ([mbetixz](https://github.com/mbetixz))
+- fix: give the five runner-dependent mutants their deterministic observation [#635](https://github.com/Zeflous/zeflous/pull/635) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
