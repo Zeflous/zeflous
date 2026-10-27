@@ -233,6 +233,31 @@ final class FileDeliveryStoreTest extends TestCase
         self::assertSame(0, $fileDeliveryStore->pendingCount());
     }
 
+    public function testARefusedFinaliseStrandsTheStagedRecordUnderItsLeadingDotName(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        DeliveryFileDoubleState::$renameAnswers = [false];
+
+        try {
+            $fileDeliveryStore->save($this->envelope('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['amount' => 12]));
+            self::fail('The refused finalise was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery store cannot finalise the record'
+                . " 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json'.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+
+        self::assertFileDoesNotExist(
+            $this->directory . '/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+        );
+        self::assertFileExists(
+            $this->directory . '/.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+        );
+        self::assertSame(0, $fileDeliveryStore->pendingCount());
+    }
+
     public function testARequeueIsNotAnAdmission(): void
     {
         $fileDeliveryStore = new FileDeliveryStore($this->directory, 1);

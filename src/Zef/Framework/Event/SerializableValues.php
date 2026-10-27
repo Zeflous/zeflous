@@ -115,10 +115,26 @@ final class SerializableValues
         }
 
         if (\is_float($value)) {
-            return is_nan($value) ? 'NAN' : ($value === \INF ? 'INF' : '-INF');
+            return self::nonFiniteSpelling($value);
         }
 
         return get_debug_type($value);
+    }
+
+    /**
+     * The non-finite float's own spelling -- NAN first, then both
+     * infinities by sign: three phrases, one per arithmetic misfit
+     * the JSON grammar cannot carry, each spelled as its own
+     * statement so the kind the boundary names is the kind the
+     * producer reads.
+     */
+    private static function nonFiniteSpelling(float $value): string
+    {
+        if (is_nan($value)) {
+            return 'NAN';
+        }
+
+        return $value === \INF ? 'INF' : '-INF';
     }
 
     /**
