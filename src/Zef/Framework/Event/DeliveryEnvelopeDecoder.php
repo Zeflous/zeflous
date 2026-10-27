@@ -22,6 +22,13 @@ use JsonException;
  */
 final readonly class DeliveryEnvelopeDecoder
 {
+    /**
+     * The refusal messages' shared kind-comparison phrase -- one
+     * vocabulary, spelled once (the five field extractors read it
+     * so their refusals agree).
+     */
+    private const string GOT = ' got ';
+
     public function __construct(
         private DeliveryRecordShape $deliveryRecordShape = new DeliveryRecordShape(),
         private DeliveryRecordValues $deliveryRecordValues = new DeliveryRecordValues(),
@@ -73,7 +80,7 @@ final readonly class DeliveryEnvelopeDecoder
         if (!\is_string($entryId)) {
             throw new InvalidArgumentException(
                 "The durable delivery record's entry id must be a string,"
-                . ' got ' . get_debug_type($entryId) . '.',
+                . self::GOT . get_debug_type($entryId) . '.',
             );
         }
 
@@ -90,7 +97,7 @@ final readonly class DeliveryEnvelopeDecoder
         if (!\is_string($eventName)) {
             throw new InvalidArgumentException(
                 "The durable delivery record's event name must be a string,"
-                . ' got ' . get_debug_type($eventName) . '.',
+                . self::GOT . get_debug_type($eventName) . '.',
             );
         }
 
@@ -124,7 +131,7 @@ final readonly class DeliveryEnvelopeDecoder
         if (!\is_int($attempt)) {
             throw new InvalidArgumentException(
                 "The durable delivery record's attempt must be an integer,"
-                . ' got ' . get_debug_type($attempt) . '.',
+                . self::GOT . get_debug_type($attempt) . '.',
             );
         }
 
@@ -148,14 +155,14 @@ final readonly class DeliveryEnvelopeDecoder
         if (!\is_int($readyAt)) {
             throw new InvalidArgumentException(
                 "The durable delivery record's ready-at must be an integer,"
-                . ' got ' . get_debug_type($readyAt) . '.',
+                . self::GOT . get_debug_type($readyAt) . '.',
             );
         }
 
         if ($readyAt < 0) {
             throw new InvalidArgumentException(
                 "The durable delivery record's ready-at cannot be negative,"
-                . ' got ' . $readyAt . '.',
+                . self::GOT . $readyAt . '.',
             );
         }
 

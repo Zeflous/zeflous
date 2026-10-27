@@ -50,7 +50,7 @@ final readonly class DurableEntrySoundness
     {
         $eventListener = $this->eventListenerResolver->resolve($deliveryEnvelope->listenerIdentity());
 
-        if (!$eventListener instanceof \Zef\Framework\Event\EventListener) {
+        if (!$eventListener instanceof EventListener) {
             $this->durableSettlement->dead(
                 $deliveryEnvelope,
                 self::UNRESOLVED_LISTENER,
@@ -68,7 +68,12 @@ final readonly class DurableEntrySoundness
                 $this->eventBook->shapeFor($deliveryEnvelope->eventName())->validate($deliveryEnvelope->values()),
             );
         } catch (InvalidArgumentException $invalidArgumentException) {
-            $this->durableSettlement->dead($deliveryEnvelope, self::STALE_SHAPE, $invalidArgumentException->getMessage(), $now);
+            $this->durableSettlement->dead(
+                $deliveryEnvelope,
+                self::STALE_SHAPE,
+                $invalidArgumentException->getMessage(),
+                $now,
+            );
 
             return null;
         }

@@ -21,7 +21,7 @@ final class DeliveryFileDoubleState
     /** @var null|bool the armed chmod answer */
     public static ?bool $chmodAnswer = null;
 
-    /** @var list<bool> the armed rename answers, consumed in call order */
+    /** @var list<null|bool> the armed rename answers, consumed in call order (null = the engine's own answer, so a successfully finalised entry is real on disk) */
     public static array $renameAnswers = [];
 
     /** @var null|bool the armed unlink answer */
@@ -36,6 +36,9 @@ final class DeliveryFileDoubleState
     /** @var null|false|string the armed file_get_contents answer */
     public static false|string|null $fileGetContentsAnswer = null;
 
+    /** @var null|false|string the armed realpath answer (false arms the unresolvable-directory refusal) */
+    public static false|string|null $realpathAnswer = null;
+
     /**
      * Clears every armed answer -- the between-tests reset.
      */
@@ -48,5 +51,6 @@ final class DeliveryFileDoubleState
         self::$mkdirAnswer = null;
         self::$scandirAnswer = null;
         self::$fileGetContentsAnswer = null;
+        self::$realpathAnswer = null;
     }
 }

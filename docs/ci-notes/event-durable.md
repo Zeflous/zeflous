@@ -247,3 +247,74 @@ in-process and across the boundary alike.
 - **A drain-scheduling policy** stays deliberately absent: the
   host owns time (EA4 carried over) and therefore owns the
   schedule.
+
+## KDD-DU13 — The gate round's own lessons (the review hardening)
+
+The slice's first CI round failed four lanes, and every failure
+taught a lesson this section records -- the same honesty the
+slice's own doctrine demands, turned on the slice itself.
+
+**The vacuous-green hazard (the covers-attribution doctrine).**
+The folds the adapter composes executed under
+`FileDeliveryStoreTest`, but the clover report read them at 0%:
+`requireCoverageMetadata` filters each test's line attribution to
+its `CoversClass` list, so deep-call collaborators without their
+own covering entry read as uncovered -- SonarCloud's new-code
+coverage (61.6% against a 95% condition) was the honest signal,
+while the 90% whole-tree gate and the mutation score both stayed
+green. The mutation lane's green was worse than honest: with no
+attribution, Infection generated ZERO mutants for the folds
+(the branch measured `DeliveryBatchWrite` at 35 total, the
+branch-with-attribution at 48) -- a vacuous MSI 100 that
+certified nothing. The fix names every exercised collaborator in
+the covering tests' `CoversClass` lists (the #439/#589 lesson
+applied to this slice), and the mutants the attribution woke
+were then killed for real: the drain pass's `continue`-past-a-
+death, the verdict answer's book append and quarantine act, the
+batch write's compensation and its stranded count, the scan's
+wrap code and chain, the record values' two-field completeness.
+
+**The observation tests the mutants demanded.** An assertion
+that names only the outcome counts lets the acts that produced it
+go unobserved: the quarantined COUNT was asserted while the
+quarantine ACT was not, so removing the act escaped. The round's
+answer: the dead-letter book's attribution, the quarantine
+verdict's act (both polarities -- quarantined and NOT), the
+stranded count spelled in the refusal, the entry behind a death
+still draining (`continue`, not `break`), the directory named
+like a record skipped without ending the scan, and the wrap's
+code-and-previous chain pinned on the corrupt record. Each is a
+behaviour the slice's own doctrine already promised; the mutants
+only demanded the tests say so.
+
+**A double's armed success must be a real success.** The rename
+double's armed `true` answered without calling the engine -- the
+"finalised" entry never existed on disk, so the compensation's
+removal had nothing to remove and the test's assertions passed
+with the compensation deleted outright: the double hid the very
+effect the test claimed to observe. The armed answers now carry
+`null` as the engine-passthrough arm (a successfully finalised
+entry is REAL on disk), and the mid-write refusal spells its
+sequence as `[null, false]` -- the first entry finalises for
+real, the second refuses, and the compensation's work is
+observable enough that its deletion fails the test.
+
+**The two-seam spelling under two ceilings.** SonarCloud's
+S1142 ceiling (three returns per method) and the
+code-archaeology difficulty ceiling (20) pull the same method in
+opposite directions: every ≤3-return spelling measured ABOVE the
+difficulty ceiling (20.21, 21.00, 21.67 across three restructure
+attempts -- more methods duplicate the operand pool; nested
+ternaries trip Psalm's narrowing), while the 7-return spelling
+sat at 19.67 with 0.33 of headroom. The exit is the seam the
+slice already spells everywhere: `SerializableValues` now asks
+the survival question (`survives()` -- a bool predicate) and the
+refusing-kind question (`leafKind()` -- the phrase) as two folds
+over the same value, the kind phrase composed once at the tail;
+the pass-set arm reads through the engine's own kind names
+(`in_array(get_debug_type($value), ['null', 'bool', 'int'])`)
+-- no new operator vocabulary, the operand pool's distinct
+count up and its repetition down, the file at difficulty 16.76
+with the S1142 ceiling satisfied (3/3/3/3/2 returns). The
+float arm keeps its single-`if` spelling: `is_finite` first,
+then NAN and both infinities, each phrase with the path.

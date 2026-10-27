@@ -64,7 +64,7 @@ final readonly class DurableDrainPass
         foreach ($this->deferredDeliveryStore->takeDue($now) as $deliveryEnvelope) {
             $deferredDelivery = $this->durableEntrySoundness->sound($deliveryEnvelope, $now);
 
-            if (!$deferredDelivery instanceof \Zef\Framework\Event\DeferredDelivery) {
+            if (!$deferredDelivery instanceof DeferredDelivery) {
                 ++$deadLettered;
 
                 continue;
@@ -80,7 +80,13 @@ final readonly class DurableDrainPass
             }
 
             $failureVerdict = $this->deliveryFailure->resolve($deferredDelivery, $deliveryFailure, $now);
-            $this->durableVerdictAnswer->answer($deliveryEnvelope, $deferredDelivery, $failureVerdict, $deliveryFailure, $now);
+            $this->durableVerdictAnswer->answer(
+                $deliveryEnvelope,
+                $deferredDelivery,
+                $failureVerdict,
+                $deliveryFailure,
+                $now,
+            );
 
             if ($failureVerdict->isRetry()) {
                 ++$retried;

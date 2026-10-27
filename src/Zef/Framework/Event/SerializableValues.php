@@ -58,37 +58,67 @@ final class SerializableValues
     }
 
     /**
+     * One value's own answer -- the array arm recurses, and a
+     * leaf answers the survival question first: the kinds JSON
+     * carries answer null, every other kind answers its own
+     * phrase with the path. Three returns, one per honest
+     * answer: the recursion, the survival pass, and the phrase.
+     *
      * @param mixed $value one field's value
      */
     private static function valueOffense(mixed $value, string $path): ?string
     {
-        if ($value === null || \is_bool($value) || \is_int($value)) {
-            return null;
-        }
-
-        if (\is_float($value)) {
-            if (is_finite($value)) {
-                return null;
-            }
-
-            if (is_nan($value)) {
-                return 'NAN at ' . $path;
-            }
-
-            return ($value === \INF ? 'INF' : '-INF') . ' at ' . $path;
-        }
-
-        if (\is_string($value)) {
-            return preg_match('//u', $value) === 1
-                ? null
-                : 'a string that is not valid UTF-8 at ' . $path;
-        }
-
         if (\is_array($value)) {
             return self::arrayOffense($value, $path);
         }
 
-        return get_debug_type($value) . ' at ' . $path;
+        if (self::survives($value)) {
+            return null;
+        }
+
+        return self::leafKind($value) . ' at ' . $path;
+    }
+
+    /**
+     * The survival question -- whether the value's own kind can
+     * cross the JSON grammar: null, booleans, integers and
+     * finite floats cross untouched, and a string crosses only
+     * when it is valid UTF-8.
+     *
+     * @param mixed $value one leaf value
+     */
+    private static function survives(mixed $value): bool
+    {
+        if (\is_string($value)) {
+            return preg_match('//u', $value) === 1;
+        }
+
+        if (\is_float($value)) {
+            return is_finite($value);
+        }
+
+        return \in_array(get_debug_type($value), ['null', 'bool', 'int'], true);
+    }
+
+    /**
+     * The refusing phrase's own kind -- what the boundary embeds
+     * before the path: a string that is not valid UTF-8, NAN and
+     * both infinities, or the engine's own name for any other
+     * kind (an object or resource inside a list).
+     *
+     * @param mixed $value one leaf value the survival question refused
+     */
+    private static function leafKind(mixed $value): string
+    {
+        if (\is_string($value)) {
+            return 'a string that is not valid UTF-8';
+        }
+
+        if (\is_float($value)) {
+            return is_nan($value) ? 'NAN' : ($value === \INF ? 'INF' : '-INF');
+        }
+
+        return get_debug_type($value);
     }
 
     /**

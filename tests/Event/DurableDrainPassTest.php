@@ -34,6 +34,9 @@ use Zef\Framework\Event\RetryPolicy;
  * @internal
  */
 #[CoversClass(DurableDrainPass::class)]
+#[CoversClass(DurableEntrySoundness::class)]
+#[CoversClass(DurableVerdictAnswer::class)]
+#[CoversClass(DurableSettlement::class)]
 final class DurableDrainPassTest extends TestCase
 {
     public function testADueEnvelopeIsDeliveredAndSettled(): void
@@ -99,7 +102,16 @@ final class DurableDrainPassTest extends TestCase
     {
         $durableFailingListener = new DurableFailingListener('app.orders.audit', 'the audit exploded');
         $inMemoryDeliveryStore = new InMemoryDeliveryStore();
-        $pass = $this->pass($inMemoryDeliveryStore, [$durableFailingListener], new RetryPolicy(1, 10));
+        $deadLetterBook = new DeadLetterBook();
+        $listenerQuarantine = new ListenerQuarantine();
+        $pass = $this->pass(
+            $inMemoryDeliveryStore,
+            [$durableFailingListener],
+            new RetryPolicy(1, 10),
+            1,
+            $deadLetterBook,
+            $listenerQuarantine,
+        );
         $envelope = $this->envelope('app.orders.audit', ['amount' => 12]);
         $inMemoryDeliveryStore->save($envelope);
 
@@ -109,6 +121,49 @@ final class DurableDrainPassTest extends TestCase
         self::assertSame(1, $outcome->deadLettered());
         self::assertSame(1, $outcome->quarantined());
         self::assertSame(0, $outcome->pending());
+        self::assertSame(1, $deadLetterBook->attributedTo($durableFailingListener));
+        self::assertTrue($listenerQuarantine->isQuarantined($durableFailingListener));
+
+        $deadIndex = $this->actionIndex(
+            $inMemoryDeliveryStore,
+            'dead:' . $envelope->entryId()->spelling()
+                . ':RuntimeException:the audit exploded:100',
+        );
+        $settleIndex = $this->actionIndex($inMemoryDeliveryStore, 'settle:' . $envelope->entryId()->spelling());
+
+        self::assertGreaterThan($deadIndex, $settleIndex);
+    }
+
+    public function testAnExhaustedDeliveryBelowTheQuarantineThresholdIsDeadLetteredWithoutQuarantine(): void
+    {
+        $eventLog = new EventLog();
+        $durableFailingListener = new DurableFailingListener('app.orders.audit', 'the audit exploded');
+        $durableRecordingListener = new DurableRecordingListener($eventLog, 'late', 'app.orders.late');
+        $inMemoryDeliveryStore = new InMemoryDeliveryStore();
+        $deadLetterBook = new DeadLetterBook();
+        $listenerQuarantine = new ListenerQuarantine();
+        $pass = $this->pass(
+            $inMemoryDeliveryStore,
+            [$durableFailingListener, $durableRecordingListener],
+            new RetryPolicy(1, 10),
+            3,
+            $deadLetterBook,
+            $listenerQuarantine,
+        );
+        $envelope = $this->envelope('app.orders.audit', ['amount' => 12], 1, 0);
+        $inMemoryDeliveryStore->save($envelope);
+        $inMemoryDeliveryStore->save($this->envelope('app.orders.late', ['amount' => 12], 1, 1));
+
+        $outcome = $pass->run(100);
+
+        self::assertSame(1, $outcome->delivered());
+        self::assertSame(0, $outcome->retried());
+        self::assertSame(1, $outcome->deadLettered());
+        self::assertSame(0, $outcome->quarantined());
+        self::assertSame(0, $outcome->pending());
+        self::assertSame(['late'], $eventLog->tags());
+        self::assertSame(1, $deadLetterBook->attributedTo($durableFailingListener));
+        self::assertFalse($listenerQuarantine->isQuarantined($durableFailingListener));
 
         $deadIndex = $this->actionIndex(
             $inMemoryDeliveryStore,
@@ -252,12 +307,15 @@ final class DurableDrainPassTest extends TestCase
         InMemoryDeliveryStore $inMemoryDeliveryStore,
         array $listeners,
         ?RetryPolicy $retryPolicy = null,
+        int $quarantineThreshold = 1,
+        ?DeadLetterBook $deadLetterBook = null,
+        ?ListenerQuarantine $listenerQuarantine = null,
     ): DurableDrainPass {
         $eventBook = new EventBook();
         $eventBook->define(new EventName('order.paid'), new EventShape(['amount' => 'int']));
 
-        $deadLetterBook = new DeadLetterBook();
-        $listenerQuarantine = new ListenerQuarantine();
+        $deadLetterBook ??= new DeadLetterBook();
+        $listenerQuarantine ??= new ListenerQuarantine();
 
         $table = [];
 
@@ -275,7 +333,7 @@ final class DurableDrainPassTest extends TestCase
                 $retryPolicy ?? new RetryPolicy(3, 10),
                 $deadLetterBook,
                 $listenerQuarantine,
-                1,
+                $quarantineThreshold,
             ),
             new DurableVerdictAnswer($deadLetterBook, $listenerQuarantine, $durableSettlement),
             $durableSettlement,

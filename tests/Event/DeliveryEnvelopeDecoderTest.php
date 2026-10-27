@@ -8,6 +8,8 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Event\DeliveryEnvelopeDecoder;
+use Zef\Framework\Event\DeliveryRecordShape;
+use Zef\Framework\Event\DeliveryRecordValues;
 
 /**
  * Pins the durable spelling's reading half: every decode refusal
@@ -19,6 +21,8 @@ use Zef\Framework\Event\DeliveryEnvelopeDecoder;
  * @internal
  */
 #[CoversClass(DeliveryEnvelopeDecoder::class)]
+#[CoversClass(DeliveryRecordShape::class)]
+#[CoversClass(DeliveryRecordValues::class)]
 final class DeliveryEnvelopeDecoderTest extends TestCase
 {
     public function testARecordThatIsNotValidJsonIsRefused(): void
@@ -41,11 +45,13 @@ final class DeliveryEnvelopeDecoderTest extends TestCase
     {
         $deliveryEnvelopeDecoder = new DeliveryEnvelopeDecoder();
 
-        $envelope = $deliveryEnvelopeDecoder->decode($this->recordJson([]));
+        $envelope = $deliveryEnvelopeDecoder->decode(
+            $this->recordJson(['values' => ['amount' => 12, 'memo' => 'paid']]),
+        );
 
         self::assertSame('0123456789abcdef0123456789abcdef', $envelope->entryId()->spelling());
         self::assertSame('order.paid', $envelope->eventName()->spelling());
-        self::assertSame(['amount' => 12], $envelope->values());
+        self::assertSame(['amount' => 12, 'memo' => 'paid'], $envelope->values());
         self::assertSame('app.orders.audit', $envelope->listenerIdentity()->spelling());
         self::assertSame(1, $envelope->attempt());
         self::assertSame(0, $envelope->readyAt());
@@ -298,9 +304,9 @@ final class DeliveryEnvelopeDecoderTest extends TestCase
      */
     private function nested(int $depth): array
     {
-        $nested = 'leaf';
+        $nested = ['k' => 'leaf'];
 
-        for ($level = 0; $level < $depth; ++$level) {
+        for ($level = 1; $level < $depth; ++$level) {
             $nested = ['k' => $nested];
         }
 

@@ -9,6 +9,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Event\DeliveryStoreDirectory;
+use Zef\Test\Support\Adapters\Event\DeliveryFileDoubleState;
 
 /**
  * Pins the queue store's own directory posture: the geometry
@@ -38,6 +39,8 @@ final class DeliveryStoreDirectoryTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
+        DeliveryFileDoubleState::reset();
+
         $this->restoreDocumentRoot();
 
         if (is_link($this->directory . '-link')) {
@@ -134,6 +137,21 @@ final class DeliveryStoreDirectoryTest extends TestCase
             );
         } finally {
             chmod($this->directory, 0o700);
+        }
+    }
+
+    public function testAnUnresolvableDirectoryIsRefused(): void
+    {
+        DeliveryFileDoubleState::$realpathAnswer = false;
+
+        try {
+            DeliveryStoreDirectory::resolve($this->directory);
+            self::fail('The unresolvable directory was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The durable delivery store directory cannot be resolved.',
+                $invalidArgumentException->getMessage(),
+            );
         }
     }
 

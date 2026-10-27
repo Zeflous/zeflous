@@ -4,12 +4,23 @@
  * The file delivery boundary's function doubles, loaded once into the
  * adapter's own namespace for the whole suite: the file fold calls
  * file_put_contents, chmod, rename, unlink, mkdir, scandir and
- * file_get_contents unqualified, so PHP resolves them in the namespace
- * first -- these doubles shadow the global calls, answer the engine's
- * own result by default, and expose the failure arms the tests arm
- * explicitly (a failed write, an unremovable entry, an unscannable
- * root, an unreadable record), without the PHP warnings the engine's
- * own failure answers would otherwise emit.
+ * file_get_contents unqualified, and the directory fold calls realpath,
+ * so PHP resolves them in the namespace first -- these doubles shadow
+ * the global calls, answer the engine's own result by default, and
+ * expose the failure arms the tests arm explicitly (a failed write, an
+ * unremovable entry, an unscannable root, an unreadable record, an
+ * unresolvable directory), without the PHP warnings the engine's own
+ * failure answers would otherwise emit.
+ *
+ * The rename double's armed answers carry one rule the compensation
+ * test's honesty depends on: `null` is the ENGINE-PASSTHROUGH arm (the
+ * rename really happens, so a successfully finalised entry is real on
+ * disk), while `true` and `false` answer WITHOUT the engine call. An
+ * armed `true` is therefore never what a test means when it wants an
+ * entry finalised -- it would lie that the rename happened while the
+ * destination stayed absent, and the compensation's removal would have
+ * nothing to remove. Spell a finalised-then-refused sequence as
+ * `[null, false]`.
  *
  * This is a real, analysed file rather than an eval'd string, for the
  * same reasons the replay snapshot boundary's doubles are (see
@@ -34,6 +45,7 @@ use function chmod as engine_chmod;
 use function file_get_contents as engine_file_get_contents;
 use function file_put_contents as engine_file_put_contents;
 use function mkdir as engine_mkdir;
+use function realpath as engine_realpath;
 use function rename as engine_rename;
 use function scandir as engine_scandir;
 use function unlink as engine_unlink;
@@ -63,7 +75,11 @@ function chmod(string $filename, int $permissions): bool
 function rename(string $from, string $to): bool
 {
     if (DeliveryFileDoubleState::$renameAnswers !== []) {
-        return array_shift(DeliveryFileDoubleState::$renameAnswers);
+        $answer = array_shift(DeliveryFileDoubleState::$renameAnswers);
+
+        if ($answer !== null) {
+            return $answer;
+        }
     }
 
     return engine_rename($from, $to);
@@ -108,4 +124,18 @@ function file_get_contents(string $filename): false|string
     }
 
     return engine_file_get_contents($filename);
+}
+
+/**
+ * The store directory's own resolution: the engine answers false
+ * only for a path it cannot resolve, so the armed answer is the
+ * fail-closed refusal arm the geometry's own test names.
+ */
+function realpath(string $path): false|string
+{
+    if (DeliveryFileDoubleState::$realpathAnswer !== null) {
+        return DeliveryFileDoubleState::$realpathAnswer;
+    }
+
+    return engine_realpath($path);
 }

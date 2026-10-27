@@ -8,6 +8,12 @@ use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Adapters\Event\DeliveryBatchWrite;
+use Zef\Framework\Adapters\Event\DeliveryDeadLane;
+use Zef\Framework\Adapters\Event\DeliveryDueScan;
+use Zef\Framework\Adapters\Event\DeliveryFiles;
+use Zef\Framework\Adapters\Event\DeliveryStaging;
+use Zef\Framework\Adapters\Event\DeliveryStoreDirectory;
 use Zef\Framework\Adapters\Event\FileDeliveryStore;
 use Zef\Framework\Event\DeliveryEntryId;
 use Zef\Framework\Event\DeliveryEnvelope;
@@ -31,6 +37,12 @@ use Zef\Test\Support\Adapters\Event\DeliveryFileDoubleState;
  * @internal
  */
 #[CoversClass(FileDeliveryStore::class)]
+#[CoversClass(DeliveryBatchWrite::class)]
+#[CoversClass(DeliveryDeadLane::class)]
+#[CoversClass(DeliveryDueScan::class)]
+#[CoversClass(DeliveryFiles::class)]
+#[CoversClass(DeliveryStaging::class)]
+#[CoversClass(DeliveryStoreDirectory::class)]
 final class FileDeliveryStoreTest extends TestCase
 {
     private string $directory;
@@ -109,7 +121,7 @@ final class FileDeliveryStoreTest extends TestCase
         $written = $this->envelope('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['amount' => 12]);
         $refused = $this->envelope('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', ['amount' => 1]);
 
-        DeliveryFileDoubleState::$renameAnswers = [true, false];
+        DeliveryFileDoubleState::$renameAnswers = [null, false];
 
         try {
             $fileDeliveryStore->save($written, $refused);
@@ -126,6 +138,40 @@ final class FileDeliveryStoreTest extends TestCase
         self::assertFileDoesNotExist(
             $this->directory . '/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
         );
+    }
+
+    public function testARefusedBatchThatCannotBeCompensatedWholeNamesTheStrandedEntries(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        $written = $this->envelope('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['amount' => 12]);
+        $refused = $this->envelope('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', ['amount' => 1]);
+
+        DeliveryFileDoubleState::$renameAnswers = [null, false];
+        DeliveryFileDoubleState::$unlinkAnswer = false;
+
+        try {
+            $fileDeliveryStore->save($written, $refused);
+            self::fail('The uncompensable batch was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The refused durable delivery batch could not be compensated'
+                . ' whole: 1 written entries stay in the store and will drain'
+                . ' -- remove them deliberately, or let the drain answer them.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+
+        self::assertSame(1, $fileDeliveryStore->pendingCount());
+    }
+
+    public function testADirectoryNamedLikeARecordIsSkippedNotScannedPast(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        mkdir($this->directory . '/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json', 0o700);
+        $fileDeliveryStore->save($this->envelope('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', ['amount' => 12]));
+
+        self::assertSame(1, $fileDeliveryStore->pendingCount());
     }
 
     public function testARefusedWriteLeavesTheStoreUnchanged(): void
@@ -396,6 +442,13 @@ final class FileDeliveryStoreTest extends TestCase
                 . " 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json' is refused: The"
                 . ' durable delivery record is not valid JSON:',
                 $invalidArgumentException->getMessage(),
+            );
+            self::assertSame(0, $invalidArgumentException->getCode());
+            $previous = $invalidArgumentException->getPrevious();
+            self::assertInstanceOf(InvalidArgumentException::class, $previous);
+            self::assertStringStartsWith(
+                'The durable delivery record is not valid JSON:',
+                $previous->getMessage(),
             );
         }
     }

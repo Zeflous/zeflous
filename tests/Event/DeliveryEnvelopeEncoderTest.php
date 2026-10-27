@@ -109,7 +109,9 @@ final class DeliveryEnvelopeEncoderTest extends TestCase
         );
 
         self::assertIsArray($record);
-        self::assertSame(1.0, $record['values']['ratio']);
+        $values = $record['values'];
+        self::assertIsArray($values);
+        self::assertSame(1.0, $values['ratio']);
     }
 
     public function testTheDeadLetterRecordCarriesTheStoryKeys(): void

@@ -27,6 +27,7 @@ use Zef\Framework\Event\PreparedDelivery;
  * @internal
  */
 #[CoversClass(DurableAdmission::class)]
+#[CoversClass(EventPayload::class)]
 final class DurableAdmissionTest extends TestCase
 {
     public function testEachPoolListenerBecomesOneEntryInPoolOrder(): void
