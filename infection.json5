@@ -515,7 +515,39 @@
                 // stays fully under the mutator -- its character
                 // semantics are load-bearing and the multibyte name
                 // tests kill both of its rewrites.
-                "Zef\\Framework\\Event\\EventShapeField::__construct"
+                "Zef\\Framework\\Event\\EventShapeField::__construct",
+                // The delivery staging fold's write-length measurement
+                // is the ASCII-by-construction class the
+                // RedactionCandidate entry owns for the credential
+                // grammar: the only string this fold's single call
+                // site can ever hand it is a delivery record's JSON,
+                // and the encoder spells every record with
+                // json_encode under JSON_THROW_ON_ERROR |
+                // JSON_PRESERVE_ZERO_FRACTION and NO
+                // JSON_UNESCAPED_UNICODE -- every non-ASCII codepoint
+                // leaves the encoder as a \\uXXXX escape, so the
+                // record is pure ASCII by construction and
+                // mb_strlen and strlen agree on every value the
+                // guard can ever see (verified by running the full
+                // suite under the manually applied mutation -- 5743
+                // tests, 14052 assertions, the complete suite
+                // passes). The direct fixes were reasoned through and
+                // named their costs: a multibyte-armed killer test
+                // would have to bypass the encoder to smuggle
+                // non-ASCII into the fold's open parameter, pinning
+                // the very false refusal (bytes written !== character
+                // count) the guard would answer for a record the
+                // vocabulary can never produce; and spelling the
+                // guard `=== false` like the route-cache family would
+                // trade away the partial-write refusal the slice
+                // landed with its own pinning test. The mb_ spelling
+                // itself is the house's own formatter doctrine
+                // (MbStrFunctions rewrites every strlen to its mb_
+                // twin), so the byte-level spelling is not a
+                // source-level option. This ignore is scoped to that
+                // single method; the neighbouring mb_strlen ceilings
+                // in the Event lane stay fully under the mutator.
+                "Zef\\Framework\\Adapters\\Event\\DeliveryStaging::write"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",

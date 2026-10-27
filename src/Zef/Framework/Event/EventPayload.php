@@ -53,4 +53,18 @@ final class EventPayload
     {
         return array_keys($this->values);
     }
+
+    /**
+     * The whole validated map, the shape's own declaration order
+     * held -- the spelling a durable defer serializes into its
+     * entry record. A copy by PHP's own value semantics, so a
+     * caller reading the map can never rewrite what the frozen
+     * event carries.
+     *
+     * @return array<string, null|array<mixed>|bool|float|int|string>
+     */
+    public function values(): array
+    {
+        return $this->values;
+    }
 }
