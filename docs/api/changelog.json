@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-27T21:59:50Z",
+  "as_of": "2026-10-28T02:16:40Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 269,
+  "unreleased_count": 270,
   "versions": [
     {
       "version": "Unreleased",
@@ -3706,6 +3706,42 @@
                 "sha": "338610b369d14d4067c326bbd283601a9ada024c",
                 "short_sha": "338610b",
                 "subject": "docs(roadmap): record the second gate round and refresh the pin"
+              }
+            ]
+          },
+          {
+            "pr": 638,
+            "title": "feat(http): the worker context adapter over the payload vocabulary",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-28T02:16:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/638",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "08092b5f632c2aaed55c899731067e90a93d5ee2",
+                "short_sha": "08092b5",
+                "subject": "feat(http): the worker context adapter over the payload vocabulary"
+              },
+              {
+                "sha": "4f62f73c5991908e1b68a07359cb6de5efc5cbd7",
+                "short_sha": "4f62f73",
+                "subject": "docs(roadmap): record the worker context adapter slice and pin the lane"
+              },
+              {
+                "sha": "0222d39bb3c1a0a18773e30c0baef3e758233cdf",
+                "short_sha": "0222d39",
+                "subject": "docs(roadmap): join the worker context row to the lane's table"
+              },
+              {
+                "sha": "4159ebd76cfd1df76a3661bc16daac2c56201f2e",
+                "short_sha": "4159ebd",
+                "subject": "docs(sonar): scope the S5332 scheme literal to the worker URI join"
+              },
+              {
+                "sha": "7d8a76bdaca6e1647bb159a01525c6c96f427e31",
+                "short_sha": "7d8a76b",
+                "subject": "docs(roadmap): refresh the pin past the sonar exclusion record"
               }
             ]
           }
@@ -17261,6 +17297,42 @@
               "sha": "b4b68865bb1eb21d4ff15b63046a9e5753f03d3e",
               "short_sha": "b4b6886",
               "subject": "docs(roadmap): record the runner-dependent kill repair and refresh the pin"
+            }
+          ]
+        },
+        {
+          "pr": 638,
+          "title": "feat(http): the worker context adapter over the payload vocabulary",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-28T02:16:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/638",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "08092b5f632c2aaed55c899731067e90a93d5ee2",
+              "short_sha": "08092b5",
+              "subject": "feat(http): the worker context adapter over the payload vocabulary"
+            },
+            {
+              "sha": "4f62f73c5991908e1b68a07359cb6de5efc5cbd7",
+              "short_sha": "4f62f73",
+              "subject": "docs(roadmap): record the worker context adapter slice and pin the lane"
+            },
+            {
+              "sha": "0222d39bb3c1a0a18773e30c0baef3e758233cdf",
+              "short_sha": "0222d39",
+              "subject": "docs(roadmap): join the worker context row to the lane's table"
+            },
+            {
+              "sha": "4159ebd76cfd1df76a3661bc16daac2c56201f2e",
+              "short_sha": "4159ebd",
+              "subject": "docs(sonar): scope the S5332 scheme literal to the worker URI join"
+            },
+            {
+              "sha": "7d8a76bdaca6e1647bb159a01525c6c96f427e31",
+              "short_sha": "7d8a76b",
+              "subject": "docs(roadmap): refresh the pin past the sonar exclusion record"
             }
           ]
         }
