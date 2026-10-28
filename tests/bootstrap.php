@@ -29,6 +29,8 @@ require __DIR__ . '/Support/Http/replay_snapshot_function_doubles.php';
 
 require __DIR__ . '/Support/Adapters/Event/delivery_file_function_doubles.php';
 
+require __DIR__ . '/Support/Adapters/Redis/resp_socket_function_doubles.php';
+
 require __DIR__ . '/Support/Logging/json_line_function_doubles.php';
 
 require __DIR__ . '/Support/Middleware/hrtime_double.php';

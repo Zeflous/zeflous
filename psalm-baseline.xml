@@ -207,6 +207,16 @@
       <code><![CDATA[FileDeliveryStore]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Adapters/Event/RedisDeliveryStore.php">
+    <UnusedClass>
+      <code><![CDATA[RedisDeliveryStore]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Adapters/Redis/RespConnection.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Event/DurableDelivery.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[deadLetters]]></code>
