@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-28T11:36:27Z",
+  "as_of": "2026-10-28T22:39:33Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 271,
+  "unreleased_count": 272,
   "versions": [
     {
       "version": "Unreleased",
@@ -3763,6 +3763,27 @@
                 "sha": "f31f3278679ee657862e03ba7054abbf53eb2bfb",
                 "short_sha": "f31f327",
                 "subject": "docs(roadmap): record the worker drain loop slice and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 644,
+            "title": "feat(event): the redis delivery store with its resp wire",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-28T22:39:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/644",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1371bf32103f59584c348d438845a1103f0f4d67",
+                "short_sha": "1371bf3",
+                "subject": "feat(event): the redis delivery store with its resp wire"
+              },
+              {
+                "sha": "425954f2c182450275b1e3a293f64a287ad8a365",
+                "short_sha": "425954f",
+                "subject": "docs(roadmap): record the redis delivery store slice and pin the lane"
               }
             ]
           }
@@ -17375,6 +17396,27 @@
               "sha": "f31f3278679ee657862e03ba7054abbf53eb2bfb",
               "short_sha": "f31f327",
               "subject": "docs(roadmap): record the worker drain loop slice and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 644,
+          "title": "feat(event): the redis delivery store with its resp wire",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-28T22:39:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/644",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1371bf32103f59584c348d438845a1103f0f4d67",
+              "short_sha": "1371bf3",
+              "subject": "feat(event): the redis delivery store with its resp wire"
+            },
+            {
+              "sha": "425954f2c182450275b1e3a293f64a287ad8a365",
+              "short_sha": "425954f",
+              "subject": "docs(roadmap): record the redis delivery store slice and pin the lane"
             }
           ]
         }
