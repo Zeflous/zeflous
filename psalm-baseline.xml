@@ -72,7 +72,6 @@
   </file>
   <file src="src/Contracts/Psr/Http/Message/UriInterface.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[getAuthority]]></code>
       <code><![CDATA[getFragment]]></code>
       <code><![CDATA[getUserInfo]]></code>
       <code><![CDATA[withFragment]]></code>
@@ -425,6 +424,11 @@
       <code><![CDATA[$downgraded[$key]]]></code>
       <code><![CDATA[$leafError]]></code>
       <code><![CDATA[$spec['error']]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Http/WorkerHeaders.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Kernel.php">

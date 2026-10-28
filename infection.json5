@@ -412,6 +412,35 @@
                 // construction, now stated once for both knob surfaces.
                 "Zef\\Framework\\Http\\SameSiteVocabulary::read",
                 "Zef\\Framework\\Http\\StrictToggles::read",
+                // The worker body fold's byte-length measurement spells
+                // the same class the BodyBudget entry above proved:
+                // mb_strlen($payload, '8bit') and strlen($payload)
+                // answer the exact byte count for every possible input
+                // (the '8bit' encoding IS byte semantics), and the
+                // budget it feeds is a byte budget -- the character
+                // fold would admit a multibyte payload half again over
+                // the policy, and the boundary test pins exactly that
+                // divergence on the character-count side, so only the
+                // byte-equivalence survives the mutator. The
+                // neighbouring php://memory open stays under its own
+                // mutators: the wrapper spelling is pinned by the
+                // metadata assertion. This ignore is scoped to that
+                // single method.
+                "Zef\\Framework\\Http\\WorkerBody::bounded",
+                // The peer-address fold's two character-map calls are
+                // ASCII by their own construction, the RedactionCandidate
+                // measurement argument: the bracket strip only runs on a
+                // bracketed literal whose content must then survive the
+                // engine's IP-literal judgement (IPv4 and IPv6 literals
+                // carry ASCII bytes only -- a multibyte bracketed input
+                // fails the judgement identically under both strip
+                // spellings, the same refusal with the same message),
+                // and the lowercase fold runs only on a literal that
+                // already survived the judgement, so the fold never
+                // meets a character whose Unicode case map diverges from
+                // the ASCII one. This ignore is scoped to that single
+                // method.
+                "Zef\\Framework\\Http\\WorkerPeerAddress::judged",
                 // The toolbar eligibility's two case folds are the same
                 // construction over their own closed vocabularies: the
                 // method arm folds against the literal HEAD (and the only
@@ -735,6 +764,21 @@
                 "\\$matchStart = \\$match\\[0\\]\\[1\\];",
                 "\\[\\$body, \\$signature\\] = array_pad\\(\\$parts, 2, ''\\);",
                 "\\[\\$key, \\$value\\] = array_pad\\(explode\\('=', mb_trim\\(\\$pair\\), 2\\), 2, ''\\);",
+                // The cookie bag fold's pair split now spells its two
+                // literals on two lines so each carries its own
+                // verdict: the array_pad size is the value-equivalent
+                // one (padding a two-arm list to three appends an arm
+                // the destructuring never reads, for every pair shape
+                // the explode above can hand it), while the explode
+                // limit on its own line stays UNDER the mutator -- the
+                // bag's values can legally carry '=' (pinned by the
+                // value-with-equals test), so raising that limit to
+                // three would truncate "token=b=c" at the second '='
+                // and change the bag, and the kill is owned. The
+                // decrement directions stay under the mutator on both
+                // lines for the same reasons the CSRF entry spells.
+                // This ignore is scoped to that single source line.
+                "\\[\\$name, \\$value\\] = array_pad\\(\\$parts, 2, ''\\);",
                 // The concurrency flag's comment-split explode limit: the
                 // read takes element [0], which is the substring before the
                 // first '#' for every limit of two or more -- the same
