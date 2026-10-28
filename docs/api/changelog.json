@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-28T02:16:40Z",
+  "as_of": "2026-10-28T11:36:27Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 270,
+  "unreleased_count": 271,
   "versions": [
     {
       "version": "Unreleased",
@@ -3742,6 +3742,27 @@
                 "sha": "7d8a76bdaca6e1647bb159a01525c6c96f427e31",
                 "short_sha": "7d8a76b",
                 "subject": "docs(roadmap): refresh the pin past the sonar exclusion record"
+              }
+            ]
+          },
+          {
+            "pr": 641,
+            "title": "feat(event): the worker drain loop with its shutdown sentinel",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-28T11:36:27Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/641",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a42caf550dba942c2c6ff175136b79f96cb6a7c7",
+                "short_sha": "a42caf5",
+                "subject": "feat(event): the worker drain loop with its shutdown sentinel"
+              },
+              {
+                "sha": "f31f3278679ee657862e03ba7054abbf53eb2bfb",
+                "short_sha": "f31f327",
+                "subject": "docs(roadmap): record the worker drain loop slice and pin the lane"
               }
             ]
           }
@@ -17333,6 +17354,27 @@
               "sha": "7d8a76bdaca6e1647bb159a01525c6c96f427e31",
               "short_sha": "7d8a76b",
               "subject": "docs(roadmap): refresh the pin past the sonar exclusion record"
+            }
+          ]
+        },
+        {
+          "pr": 641,
+          "title": "feat(event): the worker drain loop with its shutdown sentinel",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-28T11:36:27Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/641",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a42caf550dba942c2c6ff175136b79f96cb6a7c7",
+              "short_sha": "a42caf5",
+              "subject": "feat(event): the worker drain loop with its shutdown sentinel"
+            },
+            {
+              "sha": "f31f3278679ee657862e03ba7054abbf53eb2bfb",
+              "short_sha": "f31f327",
+              "subject": "docs(roadmap): record the worker drain loop slice and pin the lane"
             }
           ]
         }
