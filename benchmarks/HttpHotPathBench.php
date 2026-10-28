@@ -41,6 +41,8 @@ use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\TimingMiddleware;
 use Zef\Framework\Http\TimingPolicy;
 use Zef\Framework\Http\Uri;
+use Zef\Framework\Http\WorkerRequest;
+use Zef\Framework\Http\WorkerRequestFactory;
 use Zef\Framework\Middleware\MetricsMiddleware;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\PrometheusRenderer;
@@ -121,6 +123,8 @@ final readonly class HttpHotPathBench
 
     /** @var array<string, string> */
     private array $serverBag;
+
+    private WorkerRequest $workerRequest;
 
     public function __construct()
     {
@@ -282,6 +286,24 @@ final readonly class HttpHotPathBench
             'CONTENT_TYPE' => 'application/json',
             'CONTENT_LENGTH' => '0',
         ];
+
+        $this->workerRequest = new WorkerRequest(
+            'GET',
+            '/v1/users?page=2&sort=name',
+            [
+                'Host' => 'api.example.com',
+                'Accept' => 'application/json',
+                'Accept-Encoding' => 'gzip, deflate, br',
+                'Cookie' => 'zef_session=AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                'X-Request-Id' => 'req-bench-123',
+                'Content-Type' => 'application/json',
+                'Content-Length' => '18',
+            ],
+            '{"page":2,"sort":"name"}',
+            '1.1',
+            '192.0.2.10',
+            54123,
+        );
     }
 
     #[Revs(500)]
@@ -494,6 +516,23 @@ final readonly class HttpHotPathBench
         if ($response->getStatusCode() !== 200) {
             throw new InvariantViolationException(
                 'The slow-request boundary must answer the measured request untouched.',
+            );
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchAWorkerPayloadBecomesTheInboundRequest(): void
+    {
+        $serverRequest = WorkerRequestFactory::fromWorker($this->workerRequest);
+
+        if (
+            $serverRequest->getMethod() !== 'GET'
+            || (string) $serverRequest->getUri() !== 'http://api.example.com/v1/users?page=2&sort=name'
+            || ($serverRequest->getQueryParams()['page'] ?? null) !== '2'
+            || $serverRequest->getBody()->getContents() === ''
+        ) {
+            throw new InvariantViolationException(
+                'The worker factory must build the request the wire shape describes.',
             );
         }
     }
