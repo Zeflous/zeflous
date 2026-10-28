@@ -95,6 +95,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(event): the wildcard listener support over the one-pool dispatch [#619](https://github.com/Zeflous/zeflous/pull/619) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the deferred delivery arm with retry, dead letters and quarantine [#623](https://github.com/Zeflous/zeflous/pull/623) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the durable delivery store with its file adapter [#634](https://github.com/Zeflous/zeflous/pull/634) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the worker context adapter over the payload vocabulary [#638](https://github.com/Zeflous/zeflous/pull/638) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
