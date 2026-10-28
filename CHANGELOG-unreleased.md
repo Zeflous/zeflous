@@ -97,6 +97,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(event): the durable delivery store with its file adapter [#634](https://github.com/Zeflous/zeflous/pull/634) ([mbetixz](https://github.com/mbetixz))
 - feat(http): the worker context adapter over the payload vocabulary [#638](https://github.com/Zeflous/zeflous/pull/638) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the worker drain loop with its shutdown sentinel [#641](https://github.com/Zeflous/zeflous/pull/641) ([mbetixz](https://github.com/mbetixz))
+- feat(event): the redis delivery store with its resp wire [#644](https://github.com/Zeflous/zeflous/pull/644) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
