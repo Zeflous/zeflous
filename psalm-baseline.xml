@@ -217,7 +217,6 @@
   <file src="src/Zef/Framework/Event/DurableEventDispatcher.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[defer]]></code>
-      <code><![CDATA[drain]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/AsyncDelivery.php">
