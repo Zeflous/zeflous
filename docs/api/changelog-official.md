@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(http\): the worker context adapter over the payload vocabulary [\#638](https://github.com/Zeflous/zeflous/pull/638) ([mbetixz](https://github.com/mbetixz))
 - fix: give the five runner-dependent mutants their deterministic observation [\#635](https://github.com/Zeflous/zeflous/pull/635) ([mbetixz](https://github.com/mbetixz))
 - feat\(event\): the durable delivery store with its file adapter [\#634](https://github.com/Zeflous/zeflous/pull/634) ([mbetixz](https://github.com/mbetixz))
 - chore\(sonar\): drop the no-effect sonar.sources and sonar.tests keys [\#631](https://github.com/Zeflous/zeflous/pull/631) ([mbetixz](https://github.com/mbetixz))
