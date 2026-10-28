@@ -43,9 +43,15 @@ same change.
   analysis-scope diagnostic, the validated manual-run `pr_number` arguments,
   and the full-SHA-pinned actions (checkout v7.0.1, scanner action v8.2.2).
 - `sonar-project.properties` — the exclusion allow-list scope doctrine, the
-  coverage/cpd exclusions, and the three earned issue exclusions
+  coverage/cpd exclusions, and the earned issue exclusions
   (`php:S1066` on `MeterCount.php`, `php:S4790` on `PostmanCollection.php`,
-  `php:S1142` on `OpenApiUiMiddleware.php`), all unchanged.
+  `php:S1142` on `OpenApiUiMiddleware.php` — the three carried over from the
+  first life unchanged — plus `php:S5332` on `WorkerUri.php`, the resurrected
+  lane's first addition: the worker URI join's scheme literal is the rule's
+  own false-positive class, the S4790 posture — the literal is the inbound
+  request's own self-description, never a communication endpoint, and the
+  forwarded-proto decision the rule wants made is the trusted-proxy lane's,
+  never an extraction default).
 - The CI Coverage lane's `coverage-reports` artifact upload (clover + JUnit),
   and the main-validation watchdog's dispatch entry for `sonarcloud` — it is
   the LAST lane in the dispatch list so its coverage bridge can find the CI
@@ -118,8 +124,10 @@ tell:
   the mutation gate (`infection.json5`, the MeterCount cast records) still
   owns the reasoning.
 - **Exclusions are gate-conflict answers, never style preferences.** The
-  lane's whole exclusion history holds exactly three issue-level entries,
-  each documenting a mechanical conflict between two gates. That bar is the
+  lane's whole exclusion history holds four issue-level entries — three
+  documenting a mechanical conflict between two gates, and one (the S5332
+  worker-URI entry) carrying the S4790 false-positive-class argument: the
+  rule's own documentation does not cover the shape it flagged. That bar is the
   repository's standing doctrine for ANY analyzer, local or cloud (see
   CONTRIBUTING.md, "Analyzer-clean logic"): an exclusion must name the two
   gates that conflict and prove the conflict is mechanical, or it does not
