@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-28T22:39:33Z",
+  "as_of": "2026-10-29T16:40:45Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 272,
+  "unreleased_count": 273,
   "versions": [
     {
       "version": "Unreleased",
@@ -3784,6 +3784,47 @@
                 "sha": "425954f2c182450275b1e3a293f64a287ad8a365",
                 "short_sha": "425954f",
                 "subject": "docs(roadmap): record the redis delivery store slice and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 647,
+            "title": "feat(event): the durable quarantine books with the drain journal",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-29T16:40:45Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/647",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "fc4227dfd3c88d3ff89af67e16dd754736990fc2",
+                "short_sha": "fc4227d",
+                "subject": "feat(event): the durable quarantine books with the drain journal"
+              },
+              {
+                "sha": "f8be86628feed40b90f5cd9de61c422ed353df2e",
+                "short_sha": "f8be866",
+                "subject": "feat(event): the durable quarantine books with the drain journal"
+              },
+              {
+                "sha": "8ddae43590801b4939e50ef551a38f441225f148",
+                "short_sha": "8ddae43",
+                "subject": "docs(roadmap): record the durable quarantine slice and pin the lane"
+              },
+              {
+                "sha": "efe0ccceeccadcf7ff5d1aa7791b07df583fea68",
+                "short_sha": "efe0ccc",
+                "subject": "chore(event): requeue after the transient merge-group validator failure"
+              },
+              {
+                "sha": "08ea9521513841267638498b3dc0c384280e30cc",
+                "short_sha": "08ea952",
+                "subject": "docs(roadmap): refresh the pin over the requeue commit"
+              },
+              {
+                "sha": "ab0d670d736761f5e7cb019c65b89eda5f417a3f",
+                "short_sha": "ab0d670",
+                "subject": "docs(roadmap): refresh the row's cell to the requeued head"
               }
             ]
           }
@@ -17417,6 +17458,47 @@
               "sha": "425954f2c182450275b1e3a293f64a287ad8a365",
               "short_sha": "425954f",
               "subject": "docs(roadmap): record the redis delivery store slice and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 647,
+          "title": "feat(event): the durable quarantine books with the drain journal",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-29T16:40:45Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/647",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "fc4227dfd3c88d3ff89af67e16dd754736990fc2",
+              "short_sha": "fc4227d",
+              "subject": "feat(event): the durable quarantine books with the drain journal"
+            },
+            {
+              "sha": "f8be86628feed40b90f5cd9de61c422ed353df2e",
+              "short_sha": "f8be866",
+              "subject": "feat(event): the durable quarantine books with the drain journal"
+            },
+            {
+              "sha": "8ddae43590801b4939e50ef551a38f441225f148",
+              "short_sha": "8ddae43",
+              "subject": "docs(roadmap): record the durable quarantine slice and pin the lane"
+            },
+            {
+              "sha": "efe0ccceeccadcf7ff5d1aa7791b07df583fea68",
+              "short_sha": "efe0ccc",
+              "subject": "chore(event): requeue after the transient merge-group validator failure"
+            },
+            {
+              "sha": "08ea9521513841267638498b3dc0c384280e30cc",
+              "short_sha": "08ea952",
+              "subject": "docs(roadmap): refresh the pin over the requeue commit"
+            },
+            {
+              "sha": "ab0d670d736761f5e7cb019c65b89eda5f417a3f",
+              "short_sha": "ab0d670",
+              "subject": "docs(roadmap): refresh the row's cell to the requeued head"
             }
           ]
         }
