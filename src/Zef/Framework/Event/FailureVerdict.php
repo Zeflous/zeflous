@@ -9,17 +9,23 @@ use LogicException;
 /**
  * What the failure regime decided about one failed delivery: either
  * the retry entry it becomes (with its backoff ready-at already
- * answered), or the dead letter it earned -- and, when the letter
- * earns it, the quarantine verdict for the listener that failed. The
- * two shapes are pinned by the two named constructors; a verdict is
- * read through the predicate the drain spells, never guessed at.
+ * answered), or the dead letter it earned. The two shapes are pinned
+ * by the two named constructors; a verdict is read through the
+ * predicate the drain spells, never guessed at.
+ *
+ * The verdict deliberately carries no quarantine verdict: the
+ * crossing is the BOOK's own read, taken after the letter is
+ * appended (or attributed) -- a judgment that guessed at state it
+ * had not yet written would count a letter the book may already
+ * hold, and the at-least-once re-drain of a crashed pass would
+ * cross the threshold one death early. The judgment owns the
+ * arithmetic; the book owns the count.
  */
 final readonly class FailureVerdict
 {
     private function __construct(
         private ?DeferredDelivery $deferredDelivery,
         private ?DeadLetter $deadLetter,
-        private bool $quarantines,
     ) {
     }
 
@@ -29,17 +35,16 @@ final readonly class FailureVerdict
      */
     public static function retry(DeferredDelivery $deferredDelivery): self
     {
-        return new self($deferredDelivery, null, false);
+        return new self($deferredDelivery, null);
     }
 
     /**
      * The verdict of a delivery that spent its last attempt: the dead
-     * letter it earned, and whether the listener's attribution just
-     * reached the quarantine threshold.
+     * letter it earned.
      */
-    public static function death(DeadLetter $deadLetter, bool $quarantines): self
+    public static function death(DeadLetter $deadLetter): self
     {
-        return new self(null, $deadLetter, $quarantines);
+        return new self(null, $deadLetter);
     }
 
     /**
@@ -68,14 +73,5 @@ final readonly class FailureVerdict
         return $this->deadLetter ?? throw new LogicException(
             'The verdict is not a death; read it through isRetry().',
         );
-    }
-
-    /**
-     * Whether the listener's attributed dead letters just reached the
-     * quarantine threshold -- the drain quarantines the listener.
-     */
-    public function quarantines(): bool
-    {
-        return $this->quarantines;
     }
 }

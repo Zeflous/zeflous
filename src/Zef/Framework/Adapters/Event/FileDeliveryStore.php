@@ -7,9 +7,12 @@ namespace Zef\Framework\Adapters\Event;
 use InvalidArgumentException;
 use Override;
 use Zef\Framework\Event\DeferredDeliveryStore;
+use Zef\Framework\Event\DeliveryEntryId;
 use Zef\Framework\Event\DeliveryEnvelope;
 use Zef\Framework\Event\DeliveryEnvelopeDecoder;
 use Zef\Framework\Event\DeliveryEnvelopeEncoder;
+use Zef\Framework\Event\DrainTrace;
+use Zef\Framework\Event\ListenerIdentity;
 
 /**
  * The deferred delivery store's first adapter: the local
@@ -37,7 +40,12 @@ use Zef\Framework\Event\DeliveryEnvelopeEncoder;
  * ({@see DeliveryDueScan}), the file layout ({@see DeliveryFiles}),
  * the dead-letter lane ({@see DeliveryDeadLane}), the write
  * discipline ({@see DeliveryStaging}) and the directory posture
- * ({@see DeliveryStoreDirectory}).
+ * ({@see DeliveryStoreDirectory}) -- with the regime's BOOKS and
+ * JOURNAL spelled by their own lanes: the attribution lane
+ * ({@see DeliveryAttributionLane}), the quarantine lane
+ * ({@see DeliveryQuarantineLane}) and the drain journal
+ * ({@see DeliveryDrainJournal}), each one owner-only record per
+ * entry, identity or completed pass.
  */
 final readonly class FileDeliveryStore implements DeferredDeliveryStore
 {
@@ -50,6 +58,14 @@ final readonly class FileDeliveryStore implements DeferredDeliveryStore
     private DeliveryBatchWrite $deliveryBatchWrite;
 
     private DeliveryDeadLane $deliveryDeadLane;
+
+    private DeliveryAttributionLane $deliveryAttributionLane;
+
+    private DeliveryAttributionScan $deliveryAttributionScan;
+
+    private DeliveryQuarantineLane $deliveryQuarantineLane;
+
+    private DeliveryDrainJournal $deliveryDrainJournal;
 
     /**
      * @param string $directory the store's root directory (validated
@@ -79,6 +95,22 @@ final readonly class FileDeliveryStore implements DeferredDeliveryStore
             $capacity,
         );
         $this->deliveryDeadLane = new DeliveryDeadLane(
+            $resolvedDirectory,
+            new DeliveryStaging(),
+        );
+        $this->deliveryAttributionLane = new DeliveryAttributionLane(
+            $resolvedDirectory,
+            new DeliveryStaging(),
+        );
+        $this->deliveryAttributionScan = new DeliveryAttributionScan(
+            $this->deliveryAttributionLane,
+            new DeliveryAttributionDecoder(),
+        );
+        $this->deliveryQuarantineLane = new DeliveryQuarantineLane(
+            $resolvedDirectory,
+            new DeliveryStaging(),
+        );
+        $this->deliveryDrainJournal = new DeliveryDrainJournal(
             $resolvedDirectory,
             new DeliveryStaging(),
         );
@@ -135,5 +167,47 @@ final readonly class FileDeliveryStore implements DeferredDeliveryStore
     public function pendingCount(): int
     {
         return \count($this->deliveryFiles->entryFilenames());
+    }
+
+    #[Override]
+    public function recordAttributedDeath(
+        DeliveryEntryId $deliveryEntryId,
+        ListenerIdentity $listenerIdentity,
+        int $attributedAt,
+    ): void {
+        $this->deliveryAttributionLane->recordAttributedDeath(
+            $deliveryEntryId->spelling(),
+            $listenerIdentity->spelling(),
+            $attributedAt,
+        );
+    }
+
+    #[Override]
+    public function deadLettersAttributedTo(ListenerIdentity $listenerIdentity): int
+    {
+        return $this->deliveryAttributionScan->deadLettersAttributedTo($listenerIdentity);
+    }
+
+    #[Override]
+    public function quarantineListener(
+        ListenerIdentity $listenerIdentity,
+        int $quarantinedAt,
+    ): void {
+        $this->deliveryQuarantineLane->quarantineListener(
+            $listenerIdentity->spelling(),
+            $quarantinedAt,
+        );
+    }
+
+    #[Override]
+    public function isListenerQuarantined(ListenerIdentity $listenerIdentity): bool
+    {
+        return $this->deliveryQuarantineLane->isListenerQuarantined($listenerIdentity);
+    }
+
+    #[Override]
+    public function recordDrainOutcome(DrainTrace $drainTrace): void
+    {
+        $this->deliveryDrainJournal->recordDrainOutcome($drainTrace);
     }
 }

@@ -1059,10 +1059,24 @@
         // the invalid-UTF-8 fixtures included: the broken bytes surface
         // as question marks upstream of both writers). These ignores are
         // scoped to those two methods.
+        //
+        // The durable books' and journal's own records join the same
+        // class: the attribution record, the quarantine record and the
+        // drain trace are integers and grammar-bound ASCII by
+        // construction (the hex entry identity, the letter-first
+        // listener identity, and the five integer counts), so
+        // JSON_PRESERVE_ZERO_FRACTION has no float to preserve and
+        // JSON_THROW_ON_ERROR has no failure to throw -- the bitwise
+        // rewrite answers byte-identical records for every value the
+        // vocabularies can ever hand the encoders. These ignores are
+        // scoped to those three methods.
         "BitwiseOr": {
             "ignore": [
                 "Zef\\Framework\\Http\\ErrorFaultLogWriter::write",
-                "Zef\\Framework\\Http\\ProblemDetailsJsonResponseFactory::create"
+                "Zef\\Framework\\Http\\ProblemDetailsJsonResponseFactory::create",
+                "Zef\\Framework\\Adapters\\Event\\DeliveryAttributionEncoder::encode",
+                "Zef\\Framework\\Adapters\\Event\\DeliveryQuarantineLane::quarantineListener",
+                "Zef\\Framework\\Event\\DrainTraceEncoder::encode"
             ]
         },
         // The correlation pair's tolerant extraction is a chain of

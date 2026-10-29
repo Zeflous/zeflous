@@ -17,6 +17,12 @@ use Throwable;
  * {@see DeliveryAttempt} boundary wraps one entry's listener call,
  * the {@see DeliveryFailure} fold judges what the failure becomes,
  * and neither ever stops the entries behind.
+ *
+ * The pass composes the books' own crossing read: the letter is
+ * APPENDED first, and the threshold is then asked of the book that
+ * holds it -- a listener at threshold-minus-one quarantines on the
+ * death that arrives, never one earlier, because the count the
+ * crossing reads already includes the letter this pass just wrote.
  */
 final readonly class DrainPass
 {
@@ -26,6 +32,7 @@ final readonly class DrainPass
         private DeliveryFailure $deliveryFailure,
         private DeadLetterBook $deadLetterBook,
         private ListenerQuarantine $listenerQuarantine,
+        private int $quarantineThreshold,
     ) {
     }
 
@@ -66,14 +73,31 @@ final readonly class DrainPass
             $this->deadLetterBook->append($verdict->deadLetter());
             ++$deadLettered;
 
-            if (!$verdict->quarantines()) {
+            $eventListener = $deferredDelivery->listener();
+
+            if (!$this->crossesTheThreshold($eventListener)) {
                 continue;
             }
 
-            $this->listenerQuarantine->quarantine($deferredDelivery->listener());
+            $this->listenerQuarantine->quarantine($eventListener);
             ++$quarantined;
         }
 
         return new DrainOutcome($delivered, $retried, $deadLettered, $quarantined, $this->asyncDeliveryQueue->count());
+    }
+
+    /**
+     * Whether the letter the pass just appended crossed the
+     * quarantine threshold -- the BOOK's own read, taken after the
+     * append: the count it asks already includes the death this
+     * pass just wrote, so a listener at threshold-minus-one
+     * quarantines on the death that arrives, never one earlier. A
+     * listener already quarantined crosses nothing: the containment
+     * is already recorded, and the pass counts it once.
+     */
+    private function crossesTheThreshold(EventListener $eventListener): bool
+    {
+        return !$this->listenerQuarantine->isQuarantined($eventListener)
+            && $this->deadLetterBook->attributedTo($eventListener) >= $this->quarantineThreshold;
     }
 }

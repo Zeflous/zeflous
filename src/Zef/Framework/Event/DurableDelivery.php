@@ -7,30 +7,29 @@ namespace Zef\Framework\Event;
 use InvalidArgumentException;
 
 /**
- * The durable regime's composition root: the folds and books of
- * the durable arm, built at construction and wired together over
- * the store and the resolver the host spells, so a host that
- * spells the policy and the persistence gets the whole regime in
- * one object. The mirror of the in-process {@see AsyncDelivery},
- * with the persistence question answered by a port instead of an
- * in-process book.
+ * The durable regime's composition root: the folds of the durable
+ * arm, built at construction and wired together over the store and
+ * the resolver the host spells, so a host that spells the policy
+ * and the persistence gets the whole regime in one object. The
+ * mirror of the in-process {@see AsyncDelivery}, with the
+ * persistence question answered by a port instead of an in-process
+ * book -- and with the regime's BOOKS spelled by the same store:
+ * the attribution and the quarantine the in-process arm keeps in
+ * memory are re-spelled over the identity that survives the
+ * boundary, so the quarantine a previous process earned is the
+ * quarantine a fresh process starts with.
  *
  * The regime owns no clock and sleeps never (KDD-EA4, carried
  * over): "now" arrives as the drain's own parameter. Its failure
  * discipline is per-delivery (KDD-EA2, carried over), judged by
  * the SAME {@see DeliveryFailure} fold the in-process arm judges
- * with -- one arithmetic, two books. The quarantine and the
- * dead-letter book this engine keeps are process-local by
- * declaration (the durable answers are the named follow-ups the
- * decision record spells); the store's own dead-letter records are
- * the durable story an operator reads.
+ * with -- one arithmetic, two books. The durable story an operator
+ * reads lives in the store's own records: the dead-letter lane,
+ * the attribution lane, the quarantine lane and the drain journal
+ * are the store's own answer, never an in-process echo.
  */
 final readonly class DurableDelivery
 {
-    private DeadLetterBook $deadLetterBook;
-
-    private ListenerQuarantine $listenerQuarantine;
-
     private DurableAdmission $durableAdmission;
 
     private DurableDrainPass $durableDrainPass;
@@ -54,20 +53,16 @@ final readonly class DurableDelivery
             );
         }
 
-        $this->deadLetterBook = new DeadLetterBook();
-        $this->listenerQuarantine = new ListenerQuarantine();
-        $this->durableAdmission = new DurableAdmission(
-            $this->deferredDeliveryStore,
-            $this->listenerQuarantine,
-        );
+        $this->durableAdmission = new DurableAdmission($this->deferredDeliveryStore);
         $durableSettlement = new DurableSettlement($this->deferredDeliveryStore);
         $this->durableDrainPass = new DurableDrainPass(
             $this->deferredDeliveryStore,
             new DurableEntrySoundness($eventListenerResolver, $eventBook, $durableSettlement),
             new DeliveryAttempt(),
-            new DeliveryFailure($retryPolicy, $this->deadLetterBook, $this->listenerQuarantine, $quarantineThreshold),
-            new DurableVerdictAnswer($this->deadLetterBook, $this->listenerQuarantine, $durableSettlement),
+            new DeliveryFailure($retryPolicy),
+            new DurableVerdictAnswer($this->deferredDeliveryStore, $durableSettlement, $quarantineThreshold),
             $durableSettlement,
+            new DurableDrainJournal($this->deferredDeliveryStore),
         );
     }
 
@@ -82,7 +77,8 @@ final readonly class DurableDelivery
 
     /**
      * One drain pass over the store's due entries at the given now
-     * -- the {@see DurableDrainPass} fold's own run.
+     * -- the {@see DurableDrainPass} fold's own run, journalling
+     * the pass's trace as its own last act.
      */
     public function drain(int $now): DrainOutcome
     {
@@ -90,27 +86,27 @@ final readonly class DurableDelivery
     }
 
     /**
-     * The dead letters this process's drains wrote, in drain order
-     * -- the in-process inspection seam over the failure record.
-     * The durable story lives in the store's own dead-letter
-     * records; this book is the judgment's attribution state.
-     *
-     * @return list<DeadLetter>
+     * How many attributed deaths the store holds for the listener's
+     * identity -- the count the quarantine threshold reads, the
+     * durable re-spelling of the in-process book's attribution. The
+     * dead letters' whole stories live in the store's own
+     * dead-letter records; this count is the book the threshold
+     * reads.
      */
-    public function deadLetters(): array
+    public function deadLettersAttributedTo(ListenerIdentity $listenerIdentity): int
     {
-        return $this->deadLetterBook->all();
+        return $this->deferredDeliveryStore->deadLettersAttributedTo($listenerIdentity);
     }
 
     /**
-     * Whether the listener is quarantined -- the admission filter
-     * the next defer will read. Process-local by declaration: a
-     * fresh process starts quarantine-free and re-learns by
-     * attributing fresh letters.
+     * Whether the listener's identity is quarantined -- the filter
+     * the next defer will read, spelled by the store: the quarantine
+     * a previous process earned survives the boundary, and a fresh
+     * process reads the store's own answer.
      */
-    public function isListenerQuarantined(EventListener $eventListener): bool
+    public function isListenerQuarantined(ListenerIdentity $listenerIdentity): bool
     {
-        return $this->listenerQuarantine->isQuarantined($eventListener);
+        return $this->deferredDeliveryStore->isListenerQuarantined($listenerIdentity);
     }
 
     /**

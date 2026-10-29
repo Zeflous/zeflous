@@ -26,16 +26,18 @@ use InvalidArgumentException;
  * The pool is the dispatcher's own snapshot (KDD-EA3, carried
  * over): this fold never re-reads the subscription state, so a
  * late subscriber cannot join and an unsubscribe cannot retract.
- * The quarantine filter is forward-looking containment
- * (KDD-EA7), process-local by declaration -- the durable
- * quarantine is the named follow-up this count is the seam for.
+ * The quarantine filter is forward-looking containment (KDD-EA7)
+ * read from the STORE's own book -- the durable re-spelling of the
+ * process-local filter: the quarantine a previous process earned
+ * survives the boundary, so a fresh process skips the identity the
+ * store holds quarantined, and the identity demand comes FIRST
+ * because the filter is keyed by the declaration it reads. The
+ * skipped count is the seam the outcome reports.
  */
 final readonly class DurableAdmission
 {
-    public function __construct(
-        private DeferredDeliveryStore $deferredDeliveryStore,
-        private ListenerQuarantine $listenerQuarantine,
-    ) {
+    public function __construct(private DeferredDeliveryStore $deferredDeliveryStore)
+    {
     }
 
     /**
@@ -54,12 +56,6 @@ final readonly class DurableAdmission
         foreach ($preparedDelivery->pool() as $listenerSubscription) {
             $eventListener = $listenerSubscription->listener();
 
-            if ($this->listenerQuarantine->isQuarantined($eventListener)) {
-                ++$skippedQuarantined;
-
-                continue;
-            }
-
             if (!$eventListener instanceof DurableEventListener) {
                 throw new InvalidArgumentException(
                     'The delivery pool carries a listener without a durable'
@@ -68,6 +64,12 @@ final readonly class DurableAdmission
                     . ' defer can never promise a delivery no later process'
                     . ' could resolve.',
                 );
+            }
+
+            if ($this->deferredDeliveryStore->isListenerQuarantined($eventListener->listenerIdentity())) {
+                ++$skippedQuarantined;
+
+                continue;
             }
 
             $envelopes[] = new DeliveryEnvelope(

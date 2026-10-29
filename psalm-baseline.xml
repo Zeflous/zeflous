@@ -219,7 +219,7 @@
   </file>
   <file src="src/Zef/Framework/Event/DurableDelivery.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[deadLetters]]></code>
+      <code><![CDATA[deadLettersAttributedTo]]></code>
       <code><![CDATA[isListenerQuarantined]]></code>
       <code><![CDATA[pendingCount]]></code>
     </PossiblyUnusedMethod>
@@ -268,15 +268,6 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[deliveredTo]]></code>
       <code><![CDATA[name]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Zef/Framework/Event/DrainOutcome.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[deadLettered]]></code>
-      <code><![CDATA[delivered]]></code>
-      <code><![CDATA[pending]]></code>
-      <code><![CDATA[quarantined]]></code>
-      <code><![CDATA[retried]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/EventDispatcher.php">

@@ -56,9 +56,10 @@ final readonly class AsyncDelivery
         $this->drainPass = new DrainPass(
             $this->asyncDeliveryQueue,
             new DeliveryAttempt(),
-            new DeliveryFailure($retryPolicy, $this->deadLetterBook, $this->listenerQuarantine, $quarantineThreshold),
+            new DeliveryFailure($retryPolicy),
             $this->deadLetterBook,
             $this->listenerQuarantine,
+            $quarantineThreshold,
         );
     }
 

@@ -6,30 +6,38 @@ namespace Zef\Test\Event;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Zef\Framework\Event\DeadLetterBook;
+use RuntimeException;
+use Zef\Framework\Event\DeferredDelivery;
 use Zef\Framework\Event\DeliveryAttempt;
 use Zef\Framework\Event\DeliveryEntryId;
 use Zef\Framework\Event\DeliveryEnvelope;
 use Zef\Framework\Event\DeliveryFailure;
+use Zef\Framework\Event\DurableDrainJournal;
 use Zef\Framework\Event\DurableDrainPass;
 use Zef\Framework\Event\DurableEntrySoundness;
 use Zef\Framework\Event\DurableEventListener;
 use Zef\Framework\Event\DurableSettlement;
 use Zef\Framework\Event\DurableVerdictAnswer;
+use Zef\Framework\Event\Event;
 use Zef\Framework\Event\EventBook;
 use Zef\Framework\Event\EventName;
+use Zef\Framework\Event\EventPayload;
 use Zef\Framework\Event\EventShape;
+use Zef\Framework\Event\FailureVerdict;
 use Zef\Framework\Event\ListenerIdentity;
-use Zef\Framework\Event\ListenerQuarantine;
 use Zef\Framework\Event\RetryPolicy;
 
 /**
  * Pins the durable drain pass: the delivery and settle, the
  * retry's write-the-answer-then-settle-the-question ORDER, the
  * dead letter's three causes (listener failure with the real
- * class, the unresolved identity, the stale shape), the
- * quarantine act, the due ordering, and the counts the outcome
- * answers with.
+ * class, the unresolved identity, the stale shape), the durable
+ * books' own crossing (the attribution written before the story,
+ * the quarantine act before the settle, the threshold asked of
+ * the book that HOLDS the letter), the attribution's idempotency
+ * under the at-least-once redelivery, the unsound causes never
+ * entering the book, the pass's trace journalled as its own last
+ * act, the due ordering, and the counts the outcome answers with.
  *
  * @internal
  */
@@ -37,6 +45,7 @@ use Zef\Framework\Event\RetryPolicy;
 #[CoversClass(DurableEntrySoundness::class)]
 #[CoversClass(DurableVerdictAnswer::class)]
 #[CoversClass(DurableSettlement::class)]
+#[CoversClass(DeliveryFailure::class)]
 final class DurableDrainPassTest extends TestCase
 {
     public function testADueEnvelopeIsDeliveredAndSettled(): void
@@ -57,6 +66,8 @@ final class DurableDrainPassTest extends TestCase
         self::assertSame(['audit'], $eventLog->tags());
         self::assertCount(1, $durableRecordingListener->received());
         self::assertSame(12, $durableRecordingListener->received()[0]->payload()->value('amount'));
+        self::assertSame([], $inMemoryDeliveryStore->attributed());
+        self::assertSame([], $inMemoryDeliveryStore->quarantined());
     }
 
     public function testANotYetDueEnvelopeIsNotTaken(): void
@@ -96,22 +107,14 @@ final class DurableDrainPassTest extends TestCase
         $settleIndex = $this->actionIndex($inMemoryDeliveryStore, 'settle:' . $envelope->entryId()->spelling());
 
         self::assertGreaterThan($requeueIndex, $settleIndex);
+        self::assertSame([], $inMemoryDeliveryStore->attributed());
     }
 
-    public function testAnExhaustedDeliveryIsDeadLetteredWithTheRealClassAndSettled(): void
+    public function testAnExhaustedDeliveryIsDeadLetteredAttributedAndQuarantined(): void
     {
         $durableFailingListener = new DurableFailingListener('app.orders.audit', 'the audit exploded');
         $inMemoryDeliveryStore = new InMemoryDeliveryStore();
-        $deadLetterBook = new DeadLetterBook();
-        $listenerQuarantine = new ListenerQuarantine();
-        $pass = $this->pass(
-            $inMemoryDeliveryStore,
-            [$durableFailingListener],
-            new RetryPolicy(1, 10),
-            1,
-            $deadLetterBook,
-            $listenerQuarantine,
-        );
+        $pass = $this->pass($inMemoryDeliveryStore, [$durableFailingListener], new RetryPolicy(1, 10), 1);
         $envelope = $this->envelope('app.orders.audit', ['amount' => 12]);
         $inMemoryDeliveryStore->save($envelope);
 
@@ -121,9 +124,18 @@ final class DurableDrainPassTest extends TestCase
         self::assertSame(1, $outcome->deadLettered());
         self::assertSame(1, $outcome->quarantined());
         self::assertSame(0, $outcome->pending());
-        self::assertSame(1, $deadLetterBook->attributedTo($durableFailingListener));
-        self::assertTrue($listenerQuarantine->isQuarantined($durableFailingListener));
+        self::assertSame(
+            ['app.orders.audit'],
+            array_keys($inMemoryDeliveryStore->quarantined()),
+        );
+        self::assertSame(100, $inMemoryDeliveryStore->quarantined()['app.orders.audit']);
+        self::assertSame(1, $inMemoryDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
 
+        $attributedIndex = $this->actionIndex(
+            $inMemoryDeliveryStore,
+            'attributed:' . $envelope->entryId()->spelling() . ':app.orders.audit:100',
+        );
+        $quarantineIndex = $this->actionIndex($inMemoryDeliveryStore, 'quarantine:app.orders.audit:100');
         $deadIndex = $this->actionIndex(
             $inMemoryDeliveryStore,
             'dead:' . $envelope->entryId()->spelling()
@@ -131,24 +143,22 @@ final class DurableDrainPassTest extends TestCase
         );
         $settleIndex = $this->actionIndex($inMemoryDeliveryStore, 'settle:' . $envelope->entryId()->spelling());
 
+        self::assertGreaterThan($attributedIndex, $quarantineIndex);
+        self::assertGreaterThan($quarantineIndex, $deadIndex);
         self::assertGreaterThan($deadIndex, $settleIndex);
     }
 
-    public function testAnExhaustedDeliveryBelowTheQuarantineThresholdIsDeadLetteredWithoutQuarantine(): void
+    public function testAnExhaustedDeliveryBelowTheQuarantineThresholdIsAttributedWithoutQuarantine(): void
     {
         $eventLog = new EventLog();
         $durableFailingListener = new DurableFailingListener('app.orders.audit', 'the audit exploded');
         $durableRecordingListener = new DurableRecordingListener($eventLog, 'late', 'app.orders.late');
         $inMemoryDeliveryStore = new InMemoryDeliveryStore();
-        $deadLetterBook = new DeadLetterBook();
-        $listenerQuarantine = new ListenerQuarantine();
         $pass = $this->pass(
             $inMemoryDeliveryStore,
             [$durableFailingListener, $durableRecordingListener],
             new RetryPolicy(1, 10),
             3,
-            $deadLetterBook,
-            $listenerQuarantine,
         );
         $envelope = $this->envelope('app.orders.audit', ['amount' => 12], 1, 0);
         $inMemoryDeliveryStore->save($envelope);
@@ -162,9 +172,13 @@ final class DurableDrainPassTest extends TestCase
         self::assertSame(0, $outcome->quarantined());
         self::assertSame(0, $outcome->pending());
         self::assertSame(['late'], $eventLog->tags());
-        self::assertSame(1, $deadLetterBook->attributedTo($durableFailingListener));
-        self::assertFalse($listenerQuarantine->isQuarantined($durableFailingListener));
+        self::assertSame(1, $inMemoryDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+        self::assertSame([], $inMemoryDeliveryStore->quarantined());
 
+        $attributedIndex = $this->actionIndex(
+            $inMemoryDeliveryStore,
+            'attributed:' . $envelope->entryId()->spelling() . ':app.orders.audit:100',
+        );
         $deadIndex = $this->actionIndex(
             $inMemoryDeliveryStore,
             'dead:' . $envelope->entryId()->spelling()
@@ -172,10 +186,32 @@ final class DurableDrainPassTest extends TestCase
         );
         $settleIndex = $this->actionIndex($inMemoryDeliveryStore, 'settle:' . $envelope->entryId()->spelling());
 
+        self::assertGreaterThan($attributedIndex, $deadIndex);
         self::assertGreaterThan($deadIndex, $settleIndex);
     }
 
-    public function testAnIdentityNoListenerResolvesToIsDeadLetteredUnresolvedAndSettled(): void
+    public function testARedrainedDeathIsAttributedOnceAndNeverQuarantinedTwice(): void
+    {
+        $durableFailingListener = new DurableFailingListener('app.orders.audit', 'the audit exploded');
+        $inMemoryDeliveryStore = new InMemoryDeliveryStore();
+        $pass = $this->pass($inMemoryDeliveryStore, [$durableFailingListener], new RetryPolicy(1, 10), 1);
+        $envelope = $this->envelope('app.orders.audit', ['amount' => 12]);
+        $inMemoryDeliveryStore->save($envelope);
+
+        $pass->run(100);
+
+        $inMemoryDeliveryStore->save($envelope);
+
+        $outcome = $pass->run(200);
+
+        self::assertSame(1, $outcome->deadLettered());
+        self::assertSame(0, $outcome->quarantined());
+        self::assertSame(1, $inMemoryDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+        self::assertSame(['app.orders.audit'], array_keys($inMemoryDeliveryStore->quarantined()));
+        self::assertCount(1, $inMemoryDeliveryStore->attributed());
+    }
+
+    public function testAnIdentityNoListenerResolvesToIsDeadLetteredUnresolvedAndNeverAttributed(): void
     {
         $inMemoryDeliveryStore = new InMemoryDeliveryStore();
         $pass = $this->pass($inMemoryDeliveryStore, []);
@@ -188,13 +224,15 @@ final class DurableDrainPassTest extends TestCase
         self::assertSame(1, $outcome->deadLettered());
         self::assertSame(0, $outcome->quarantined());
         self::assertSame(0, $outcome->pending());
+        self::assertSame([], $inMemoryDeliveryStore->attributed());
+        self::assertSame([], $inMemoryDeliveryStore->quarantined());
 
         self::assertContains('dead:' . $envelope->entryId()->spelling()
             . ':unresolved-listener:No listener answers the listener'
             . " identity 'app.orders.retired'.:100", $inMemoryDeliveryStore->actions());
     }
 
-    public function testARecordWhoseEventIsNoLongerDefinedIsDeadLetteredStale(): void
+    public function testARecordWhoseEventIsNoLongerDefinedIsDeadLetteredStaleAndNeverAttributed(): void
     {
         $eventLog = new EventLog();
         $durableRecordingListener = new DurableRecordingListener($eventLog, 'audit', 'app.orders.audit');
@@ -210,6 +248,7 @@ final class DurableDrainPassTest extends TestCase
         self::assertSame(0, $outcome->quarantined());
         self::assertSame(0, $outcome->pending());
         self::assertSame([], $eventLog->tags());
+        self::assertSame([], $inMemoryDeliveryStore->attributed());
 
         self::assertContains('dead:' . $envelope->entryId()->spelling()
             . ":stale-shape:The event 'order.cancelled' is not defined;"
@@ -217,7 +256,7 @@ final class DurableDrainPassTest extends TestCase
             . ' silently deliver nothing.:100', $inMemoryDeliveryStore->actions());
     }
 
-    public function testARecordWhosePayloadNoLongerAnswersTheShapeIsDeadLetteredStale(): void
+    public function testARecordWhosePayloadNoLongerAnswersTheShapeIsDeadLetteredStaleAndNeverAttributed(): void
     {
         $eventLog = new EventLog();
         $durableRecordingListener = new DurableRecordingListener($eventLog, 'audit', 'app.orders.audit');
@@ -231,7 +270,9 @@ final class DurableDrainPassTest extends TestCase
         self::assertSame(0, $outcome->delivered());
         self::assertSame(1, $outcome->deadLettered());
         self::assertSame(0, $outcome->quarantined());
+        self::assertSame(0, $outcome->pending());
         self::assertSame([], $eventLog->tags());
+        self::assertSame([], $inMemoryDeliveryStore->attributed());
 
         self::assertContains('dead:' . $envelope->entryId()->spelling()
             . ":stale-shape:The payload field 'amount' must answer int,"
@@ -300,6 +341,65 @@ final class DurableDrainPassTest extends TestCase
         self::assertSame($due, $dueAgain);
     }
 
+    public function testEveryPassJournalsItsTraceAsItsOwnLastAct(): void
+    {
+        $eventLog = new EventLog();
+        $durableRecordingListener = new DurableRecordingListener($eventLog, 'audit', 'app.orders.audit');
+        $inMemoryDeliveryStore = new InMemoryDeliveryStore();
+        $pass = $this->pass($inMemoryDeliveryStore, [$durableRecordingListener]);
+        $inMemoryDeliveryStore->save($this->envelope('app.orders.audit', ['amount' => 12]));
+
+        $outcome = $pass->run(100);
+
+        $drainTraces = $inMemoryDeliveryStore->drainTraces();
+
+        self::assertCount(1, $drainTraces);
+        self::assertSame(100, $drainTraces[0]->drainedAt());
+        self::assertSame($outcome->delivered(), $drainTraces[0]->delivered());
+        self::assertSame($outcome->retried(), $drainTraces[0]->retried());
+        self::assertSame($outcome->deadLettered(), $drainTraces[0]->deadLettered());
+        self::assertSame($outcome->quarantined(), $drainTraces[0]->quarantined());
+        self::assertSame($outcome->pending(), $drainTraces[0]->pending());
+
+        $actions = $inMemoryDeliveryStore->actions();
+
+        self::assertSame('drain:100:1/0/0/0/0', end($actions));
+
+        $pass->run(200);
+
+        self::assertCount(2, $inMemoryDeliveryStore->drainTraces());
+        $actions = $inMemoryDeliveryStore->actions();
+
+        self::assertSame('drain:200:0/0/0/0/0', end($actions));
+    }
+
+    public function testARetryVerdictAnswersNoNewQuarantineAndTouchesNoBook(): void
+    {
+        $inMemoryDeliveryStore = new InMemoryDeliveryStore();
+        $durableSettlement = new DurableSettlement($inMemoryDeliveryStore);
+        $durableVerdictAnswer = new DurableVerdictAnswer($inMemoryDeliveryStore, $durableSettlement, 1);
+        $envelope = $this->envelope('app.orders.audit', ['amount' => 12]);
+        $deferredDelivery = new DeferredDelivery(
+            new Event(new EventName('order.paid'), new EventPayload(['amount' => 12])),
+            new DurableRecordingListener(new EventLog(), 'audit', 'app.orders.audit'),
+            1,
+            0,
+        );
+        $retryVerdict = FailureVerdict::retry($deferredDelivery->withNextAttempt(2, 110));
+
+        $newlyQuarantined = $durableVerdictAnswer->answer(
+            $envelope,
+            $retryVerdict,
+            new RuntimeException('the audit exploded'),
+            100,
+        );
+
+        self::assertFalse($newlyQuarantined);
+        self::assertSame([], $inMemoryDeliveryStore->attributed());
+        self::assertSame([], $inMemoryDeliveryStore->quarantined());
+        self::assertStringStartsWith('requeue:', $inMemoryDeliveryStore->actions()[0]);
+    }
+
     /**
      * @param list<DurableEventListener> $listeners
      */
@@ -308,14 +408,9 @@ final class DurableDrainPassTest extends TestCase
         array $listeners,
         ?RetryPolicy $retryPolicy = null,
         int $quarantineThreshold = 1,
-        ?DeadLetterBook $deadLetterBook = null,
-        ?ListenerQuarantine $listenerQuarantine = null,
     ): DurableDrainPass {
         $eventBook = new EventBook();
         $eventBook->define(new EventName('order.paid'), new EventShape(['amount' => 'int']));
-
-        $deadLetterBook ??= new DeadLetterBook();
-        $listenerQuarantine ??= new ListenerQuarantine();
 
         $table = [];
 
@@ -329,14 +424,14 @@ final class DurableDrainPassTest extends TestCase
             $inMemoryDeliveryStore,
             new DurableEntrySoundness(new FixedResolver($table), $eventBook, $durableSettlement),
             new DeliveryAttempt(),
-            new DeliveryFailure(
-                $retryPolicy ?? new RetryPolicy(3, 10),
-                $deadLetterBook,
-                $listenerQuarantine,
+            new DeliveryFailure($retryPolicy ?? new RetryPolicy(3, 10)),
+            new DurableVerdictAnswer(
+                $inMemoryDeliveryStore,
+                $durableSettlement,
                 $quarantineThreshold,
             ),
-            new DurableVerdictAnswer($deadLetterBook, $listenerQuarantine, $durableSettlement),
             $durableSettlement,
+            new DurableDrainJournal($inMemoryDeliveryStore),
         );
     }
 

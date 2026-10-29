@@ -22,15 +22,25 @@ use Throwable;
  *
  * The arithmetic is byte-identical to the in-process regime by
  * construction -- one {@see DeliveryAttempt} boundary, one
- * {@see DeliveryFailure} judgment, one dead-letter book and one
+ * {@see DeliveryFailure} judgment, one attribution book and one
  * quarantine, over the {@see DeferredDelivery} the soundness fold
- * composed from the record and the resolved listener. Unsound
- * letters (the unresolved identity, the stale shape) are NOT
- * attributed to a listener (the definition moved, the service
- * retired -- neither is the listener's death to answer for), so
- * they never cross the quarantine threshold: the in-process books
- * stay the listener-failure attribution, exactly as the in-process
- * arm keeps them.
+ * composed from the record and the resolved listener. The books
+ * are the STORE's own (the identity-keyed re-spelling the
+ * process-local arm keeps in memory): the verdict-answer fold
+ * attributes each death, reads the threshold's crossing from the
+ * book that holds it, and records the containment the crossing
+ * earned, answering whether the containment is newly this pass's
+ * to count. Unsound letters (the unresolved identity, the stale
+ * shape) are NOT attributed to a listener (the definition moved,
+ * the service retired -- neither is the listener's death to
+ * answer for), so they never cross the quarantine threshold.
+ *
+ * The pass's own last act is its trace: the five counts it
+ * answered with, at the now it was drained at, journalled through
+ * the {@see DurableDrainJournal} fold (KDD-EA12's seam -- the
+ * counts are the traceability). A pass that did not complete
+ * writes no trace; a completed pass's trace is the record an
+ * operator reads the regime's history from.
  */
 final readonly class DurableDrainPass
 {
@@ -41,6 +51,7 @@ final readonly class DurableDrainPass
         private DeliveryFailure $deliveryFailure,
         private DurableVerdictAnswer $durableVerdictAnswer,
         private DurableSettlement $durableSettlement,
+        private DurableDrainJournal $durableDrainJournal,
     ) {
     }
 
@@ -48,11 +59,12 @@ final readonly class DurableDrainPass
      * One drain pass over the store's due entries at the given
      * now: judges each entry sound, delivers the sound ones in
      * their own failure regimes, requeues the retries with their
-     * backoff ready-at, records and settles the spent, and
-     * quarantines the listener whose attributed letters just
-     * reached the threshold. Entries saved during the pass are
-     * next-pass material -- the due list is the store's own
-     * snapshot, so no self-feeding loop can keep a drain alive.
+     * backoff ready-at, records and settles the spent, quarantines
+     * the listener whose attributed deaths just reached the
+     * threshold, and journals the pass's five counts at its own
+     * now. Entries saved during the pass are next-pass material --
+     * the due list is the store's own snapshot, so no self-feeding
+     * loop can keep a drain alive.
      */
     public function run(int $now): DrainOutcome
     {
@@ -80,9 +92,8 @@ final readonly class DurableDrainPass
             }
 
             $failureVerdict = $this->deliveryFailure->resolve($deferredDelivery, $deliveryFailure, $now);
-            $this->durableVerdictAnswer->answer(
+            $newlyQuarantined = $this->durableVerdictAnswer->answer(
                 $deliveryEnvelope,
-                $deferredDelivery,
                 $failureVerdict,
                 $deliveryFailure,
                 $now,
@@ -96,19 +107,13 @@ final readonly class DurableDrainPass
 
             ++$deadLettered;
 
-            if (!$failureVerdict->quarantines()) {
+            if (!$newlyQuarantined) {
                 continue;
             }
 
             ++$quarantined;
         }
 
-        return new DrainOutcome(
-            $delivered,
-            $retried,
-            $deadLettered,
-            $quarantined,
-            $this->deferredDeliveryStore->pendingCount(),
-        );
+        return $this->durableDrainJournal->journal($now, $delivered, $retried, $deadLettered, $quarantined);
     }
 }

@@ -19,7 +19,10 @@ use Zef\Framework\Event\FailureVerdict;
  * Pins the failure verdict's own shape: the two named constructors,
  * the predicate-gated readers, and the misuse guards -- reading a
  * verdict against its own shape is the caller's bug, and the guards
- * say so loudly instead of answering a null.
+ * say so loudly instead of answering a null. The verdict carries no
+ * quarantine verdict of its own: the crossing is the book's own
+ * read, taken after the letter is appended (or attributed), so
+ * nothing here pins one.
  *
  * @internal
  */
@@ -33,29 +36,20 @@ final class FailureVerdictTest extends TestCase
 
         self::assertTrue($verdict->isRetry());
         self::assertSame($retryEntry, $verdict->retryEntry());
-        self::assertFalse($verdict->quarantines());
     }
 
-    public function testADeathVerdictReadsBackItsLetterAndQuarantine(): void
+    public function testADeathVerdictReadsBackItsLetter(): void
     {
         $deadLetter = $this->deadLetter();
-        $verdict = FailureVerdict::death($deadLetter, true);
+        $verdict = FailureVerdict::death($deadLetter);
 
         self::assertFalse($verdict->isRetry());
         self::assertSame($deadLetter, $verdict->deadLetter());
-        self::assertTrue($verdict->quarantines());
-    }
-
-    public function testADeathVerdictMayCarryNoQuarantine(): void
-    {
-        $verdict = FailureVerdict::death($this->deadLetter(), false);
-
-        self::assertFalse($verdict->quarantines());
     }
 
     public function testReadingTheRetryEntryOfADeathVerdictIsRefused(): void
     {
-        $verdict = FailureVerdict::death($this->deadLetter(), true);
+        $verdict = FailureVerdict::death($this->deadLetter());
 
         try {
             $verdict->retryEntry();
@@ -81,15 +75,6 @@ final class FailureVerdictTest extends TestCase
                 $logicException->getMessage(),
             );
         }
-    }
-
-    public function testTheRetryVerdictNeverQuarantines(): void
-    {
-        // The drain never reads the quarantine flag on a retry path
-        // (it continues past the verdict first); the pin is the VO's
-        // own contract, stated here so a mutation of the flag cannot
-        // hide behind the drain's control flow.
-        self::assertFalse(FailureVerdict::retry($this->retryEntry())->quarantines());
     }
 
     private function retryEntry(): DeferredDelivery

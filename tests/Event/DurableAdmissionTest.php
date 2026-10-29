@@ -12,17 +12,20 @@ use Zef\Framework\Event\Event;
 use Zef\Framework\Event\EventListener;
 use Zef\Framework\Event\EventName;
 use Zef\Framework\Event\EventPayload;
+use Zef\Framework\Event\ListenerIdentity;
 use Zef\Framework\Event\ListenerPriority;
-use Zef\Framework\Event\ListenerQuarantine;
 use Zef\Framework\Event\ListenerSubscription;
 use Zef\Framework\Event\PreparedDelivery;
 
 /**
  * Pins the durable admission fold: one serialized entry per
  * surviving pool listener in pool order (identity spelled,
- * attempt one, ready-at zero), the quarantine skip counted, the
- * anonymous-listener refusal with the class named, and the
- * backpressure the store itself answers.
+ * attempt one, ready-at zero), the quarantine skip counted -- read
+ * from the STORE's own book, the quarantine a previous process
+ * earned -- the anonymous-listener refusal with the class named
+ * (demanded BEFORE the filter, because the filter is keyed by the
+ * declaration it reads), and the backpressure the store itself
+ * answers.
  *
  * @internal
  */
@@ -60,23 +63,55 @@ final class DurableAdmissionTest extends TestCase
         self::assertSame(['app.first', 'app.second'], $identities);
     }
 
-    public function testAQuarantinedListenerIsSkippedAndCounted(): void
+    public function testAStoreQuarantinedIdentityIsSkippedAndCounted(): void
     {
         $inMemoryDeliveryStore = new InMemoryDeliveryStore();
         $eventLog = new EventLog();
-        $quarantined = new DurableRecordingListener($eventLog, 'gone', 'app.gone');
+        $gone = new DurableRecordingListener($eventLog, 'gone', 'app.gone');
         $standing = new DurableRecordingListener($eventLog, 'stay', 'app.stay');
 
-        $listenerQuarantine = new ListenerQuarantine();
-        $listenerQuarantine->quarantine($quarantined);
+        $inMemoryDeliveryStore->quarantineListener(new ListenerIdentity('app.gone'), 50);
 
-        $outcome = new DurableAdmission($inMemoryDeliveryStore, $listenerQuarantine)->admit(
-            $this->prepared(['amount' => 12], [$quarantined, $standing]),
+        $outcome = $this->admission($inMemoryDeliveryStore)->admit(
+            $this->prepared(['amount' => 12], [$gone, $standing]),
         );
 
         self::assertSame(1, $outcome->admitted());
         self::assertSame(1, $outcome->skippedQuarantined());
         self::assertSame(1, $inMemoryDeliveryStore->pendingCount());
+        self::assertSame(
+            'app.stay',
+            array_values($inMemoryDeliveryStore->pending())[0]->listenerIdentity()->spelling(),
+        );
+    }
+
+    public function testAnAnonymousListenerIsRefusedBeforeTheQuarantineFilterIsRead(): void
+    {
+        $inMemoryDeliveryStore = new InMemoryDeliveryStore();
+        $eventLog = new EventLog();
+        $recordingListener = new RecordingListener($eventLog, 'anonymous');
+        $durableRecordingListener = new DurableRecordingListener($eventLog, 'gone', 'app.gone');
+
+        $inMemoryDeliveryStore->quarantineListener(new ListenerIdentity('app.gone'), 50);
+
+        try {
+            $this->admission($inMemoryDeliveryStore)->admit(
+                $this->prepared(['amount' => 12], [$durableRecordingListener, $recordingListener]),
+            );
+            self::fail('The anonymous pool listener was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery pool carries a listener without a durable'
+                . ' identity: Zef\Test\Event\RecordingListener -- defer it'
+                . ' in-process, or spell its identity, but a durable defer'
+                . ' can never promise a delivery no later process could'
+                . ' resolve.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+
+        self::assertSame(0, $inMemoryDeliveryStore->pendingCount());
+        self::assertNotContains('save:0', $inMemoryDeliveryStore->actions());
     }
 
     public function testAPoolListenerWithoutADurableIdentityIsRefusedByClass(): void
@@ -142,7 +177,7 @@ final class DurableAdmissionTest extends TestCase
 
     private function admission(InMemoryDeliveryStore $inMemoryDeliveryStore): DurableAdmission
     {
-        return new DurableAdmission($inMemoryDeliveryStore, new ListenerQuarantine());
+        return new DurableAdmission($inMemoryDeliveryStore);
     }
 
     /**

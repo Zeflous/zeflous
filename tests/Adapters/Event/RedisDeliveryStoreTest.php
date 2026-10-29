@@ -9,6 +9,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Event\RedisDeliveryAdmission;
+use Zef\Framework\Adapters\Event\RedisDeliveryBooks;
 use Zef\Framework\Adapters\Event\RedisDeliveryClaim;
 use Zef\Framework\Adapters\Event\RedisDeliveryClaimedRecords;
 use Zef\Framework\Adapters\Event\RedisDeliveryKeys;
@@ -20,6 +21,9 @@ use Zef\Framework\Adapters\Redis\RespReplyShape;
 use Zef\Framework\Event\DeliveryEntryId;
 use Zef\Framework\Event\DeliveryEnvelope;
 use Zef\Framework\Event\DeliveryEnvelopeEncoder;
+use Zef\Framework\Event\DrainOutcome;
+use Zef\Framework\Event\DrainTrace;
+use Zef\Framework\Event\DrainTraceEncoder;
 use Zef\Framework\Event\EventName;
 use Zef\Framework\Event\ListenerIdentity;
 use Zef\Test\Support\Adapters\Redis\RespSocketDoubleState;
@@ -41,6 +45,7 @@ use Zef\Test\Support\Adapters\Redis\RespSocketDoubleState;
  * @internal
  */
 #[CoversClass(RedisDeliveryAdmission::class)]
+#[CoversClass(RedisDeliveryBooks::class)]
 #[CoversClass(RedisDeliveryClaim::class)]
 #[CoversClass(RedisDeliveryClaimedRecords::class)]
 #[CoversClass(RedisDeliveryKeys::class)]
@@ -48,6 +53,7 @@ use Zef\Test\Support\Adapters\Redis\RespSocketDoubleState;
 #[CoversClass(RespReplyListShape::class)]
 #[CoversClass(RespReplyRefusal::class)]
 #[CoversClass(RespReplyShape::class)]
+#[CoversClass(DrainTraceEncoder::class)]
 final class RedisDeliveryStoreTest extends TestCase
 {
     private DeliveryEnvelopeEncoder $deliveryEnvelopeEncoder;
@@ -625,6 +631,124 @@ final class RedisDeliveryStoreTest extends TestCase
             self::assertSame(
                 "The Redis reply for 'ZRANGEBYSCORE' is refused: the command answers an array"
                 . ' of bulk strings, the reply decoded into the integer 0.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnAttributedDeathWritesTheAttributionField(): void
+    {
+        $this->replies(':1');
+
+        $this->store()->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        self::assertSame(
+            [
+                $this->wire(
+                    'HSET',
+                    'zef:test:attributed',
+                    'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                    'app.orders.audit',
+                ),
+            ],
+            RespSocketDoubleState::$writtenCommands,
+        );
+    }
+
+    public function testDeadLettersAttributedToCountsTheMatchingIdentities(): void
+    {
+        $this->replies(
+            "*3\r\n\$16\r\napp.orders.audit\r\n\$16\r\napp.orders.audit\r\n\$16\r\napp.orders.other\r\n",
+        );
+
+        $attributed = $this->store()->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+
+        self::assertSame(2, $attributed);
+        self::assertSame(
+            [$this->wire('HVALS', 'zef:test:attributed')],
+            RespSocketDoubleState::$writtenCommands,
+        );
+    }
+
+    public function testAnEmptyAttributionIndexCountsNothing(): void
+    {
+        $this->replies('*0');
+
+        self::assertSame(0, $this->store()->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+    }
+
+    public function testAQuarantineActAddsTheIdentityToTheSet(): void
+    {
+        $this->replies(':1');
+
+        $this->store()->quarantineListener(new ListenerIdentity('app.orders.audit'), 100);
+
+        self::assertSame(
+            [
+                $this->wire(
+                    'SADD',
+                    'zef:test:quarantine',
+                    'app.orders.audit',
+                ),
+            ],
+            RespSocketDoubleState::$writtenCommands,
+        );
+    }
+
+    public function testTheQuarantineFilterReadsTheSetMembership(): void
+    {
+        $this->replies(':1', ':0');
+        $listenerIdentity = new ListenerIdentity('app.orders.audit');
+        $redisDeliveryStore = $this->store();
+
+        self::assertTrue($redisDeliveryStore->isListenerQuarantined($listenerIdentity));
+        self::assertFalse($redisDeliveryStore->isListenerQuarantined($listenerIdentity));
+
+        self::assertSame(
+            [
+                $this->wire('SISMEMBER', 'zef:test:quarantine', 'app.orders.audit'),
+                $this->wire('SISMEMBER', 'zef:test:quarantine', 'app.orders.audit'),
+            ],
+            RespSocketDoubleState::$writtenCommands,
+        );
+    }
+
+    public function testACompletedPassAppendsItsTraceToTheJournal(): void
+    {
+        $drainTraceEncoder = new DrainTraceEncoder();
+        $drainTrace = DrainTrace::fromOutcome(100, new DrainOutcome(1, 0, 0, 0, 0));
+
+        $this->replies(':1');
+
+        $this->store()->recordDrainOutcome($drainTrace);
+
+        self::assertSame(
+            [
+                $this->wire(
+                    'RPUSH',
+                    'zef:test:drains',
+                    $drainTraceEncoder->encode($drainTrace),
+                ),
+            ],
+            RespSocketDoubleState::$writtenCommands,
+        );
+    }
+
+    public function testAnAttributionValuesReplyOfTheWrongShapeIsRefused(): void
+    {
+        $this->replies('+OK');
+
+        try {
+            $this->store()->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The status values reply was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The Redis reply for 'HVALS' is refused: the command answers an array"
+                . " of bulk strings, the reply decoded into the string 'OK'.",
                 $invalidArgumentException->getMessage(),
             );
         }
