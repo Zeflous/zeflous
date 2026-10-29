@@ -284,6 +284,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(contributing): require error-system and configuration-system integration [#537](https://github.com/Zeflous/zeflous/pull/537) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): heal the status pin over the contributing integration rule [#541](https://github.com/Zeflous/zeflous/pull/541) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the router deprecation lifecycle and pin the lane [#544](https://github.com/Zeflous/zeflous/pull/544) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the durable quarantine landing in the status rows [#648](https://github.com/Zeflous/zeflous/pull/648) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

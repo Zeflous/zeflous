@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-29T16:40:45Z",
+  "as_of": "2026-10-29T17:54:34Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 273,
+  "unreleased_count": 274,
   "versions": [
     {
       "version": "Unreleased",
@@ -8587,6 +8587,22 @@
                 "sha": "f038c6e0e61bfb76fa56d117e58d97b80f46ed5a",
                 "short_sha": "f038c6e",
                 "subject": "docs(roadmap): record the router deprecation lifecycle and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 648,
+            "title": "docs(roadmap): record the durable quarantine landing in the status rows",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-10-29T17:54:34Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/648",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a7ef03e81ccffdfe73c7ad2da640d4a3894965ef",
+                "short_sha": "a7ef03e",
+                "subject": "docs(roadmap): record the durable quarantine landing in the status rows"
               }
             ]
           }
@@ -17499,6 +17515,22 @@
               "sha": "ab0d670d736761f5e7cb019c65b89eda5f417a3f",
               "short_sha": "ab0d670",
               "subject": "docs(roadmap): refresh the row's cell to the requeued head"
+            }
+          ]
+        },
+        {
+          "pr": 648,
+          "title": "docs(roadmap): record the durable quarantine landing in the status rows",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-10-29T17:54:34Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/648",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a7ef03e81ccffdfe73c7ad2da640d4a3894965ef",
+              "short_sha": "a7ef03e",
+              "subject": "docs(roadmap): record the durable quarantine landing in the status rows"
             }
           ]
         }
