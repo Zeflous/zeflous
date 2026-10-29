@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Zef\Test\Support\Adapters\Redis;
 
 /**
- * The Redis mock server's command state machine: the eight commands
+ * The Redis mock server's command state machine: the commands
  * the delivery store's wire speaks plus the protocol's own health
  * verb, answered over real in-memory state -- strings with their PX
  * expiries checked lazily against the wall clock, sorted sets
  * carrying the (score, member) order the real server's index
- * answers. The reply is bytes: the mock speaks the grammar from the
+ * answers, hashes carrying the field-value book the attribution
+ * index spells, sets carrying the membership the quarantine book
+ * spells, and lists carrying the append order the drain journal
+ * spells. The reply is bytes: the mock speaks the grammar from the
  * server's own side, implemented independently of the client's
  * encoder and decoder on purpose -- an oracle, not a mirror, so a
  * grammar mistake on either side meets its contradiction instead of
@@ -36,6 +39,27 @@ final class RedisMockCommands
     private array $sortedSets = [];
 
     /**
+     * The hashes the mock holds, each field with its string value.
+     *
+     * @var array<string, array<string, string>>
+     */
+    private array $hashes = [];
+
+    /**
+     * The sets the mock holds, each member present once.
+     *
+     * @var array<string, array<string, true>>
+     */
+    private array $sets = [];
+
+    /**
+     * The lists the mock holds, each element in its push order.
+     *
+     * @var array<string, list<string>>
+     */
+    private array $lists = [];
+
+    /**
      * Applies one command and answers its reply bytes.
      *
      * @param list<string> $arguments the verb first, its arguments after
@@ -59,6 +83,14 @@ final class RedisMockCommands
             'ZREM' => $this->zrem($arguments),
             'ZCARD' => $this->integer(\count($this->sortedSets[$arguments[1] ?? ''] ?? [])),
             'ZRANGEBYSCORE' => $this->zrangebyscore($arguments),
+            'HSET' => $this->hset($arguments),
+            'HVALS' => $this->hvals($arguments[1] ?? ''),
+            'SADD' => $this->sadd($arguments),
+            'SISMEMBER' => $this->integer(
+                isset($this->sets[$arguments[1] ?? ''][$arguments[2] ?? '']) ? 1 : 0,
+            ),
+            'RPUSH' => $this->rpush($arguments),
+            'LRANGE' => $this->lrange($arguments),
             default => $this->error("ERR unknown command '" . $arguments[0] . "'"),
         };
     }
@@ -241,6 +273,115 @@ final class RedisMockCommands
         }
 
         return '*' . \count($scored) . "\r\n" . $elements;
+    }
+
+    /**
+     * HSET: one field written into its hash, the reply counting the
+     * fields newly added -- the same field rewritten answers zero,
+     * never doubling the book the hash spells.
+     *
+     * @param list<string> $arguments
+     */
+    private function hset(array $arguments): string
+    {
+        $key = $arguments[1] ?? '';
+        $field = $arguments[2] ?? '';
+        $value = $arguments[3] ?? '';
+        $hash = $this->hashes[$key] ?? [];
+        $added = !\array_key_exists($field, $hash);
+
+        $hash[$field] = $value;
+        $this->hashes[$key] = $hash;
+
+        return $this->integer($added ? 1 : 0);
+    }
+
+    /**
+     * HVALS: the hash's own values, in the hash's own order -- the
+     * empty array the hash no key spells.
+     */
+    private function hvals(string $key): string
+    {
+        $values = $this->hashes[$key] ?? [];
+        $elements = '';
+
+        foreach ($values as $value) {
+            $elements .= $this->bulk($value);
+        }
+
+        return '*' . \count($values) . "\r\n" . $elements;
+    }
+
+    /**
+     * SADD: one member joined to its set, the reply counting the
+     * members newly added -- the idempotency the set's own semantics
+     * spell.
+     *
+     * @param list<string> $arguments
+     */
+    private function sadd(array $arguments): string
+    {
+        $key = $arguments[1] ?? '';
+        $member = $arguments[2] ?? '';
+        $set = $this->sets[$key] ?? [];
+        $added = !\array_key_exists($member, $set);
+
+        $set[$member] = true;
+        $this->sets[$key] = $set;
+
+        return $this->integer($added ? 1 : 0);
+    }
+
+    /**
+     * RPUSH: one element appended to its list's tail, the reply the
+     * list's own length after the append.
+     *
+     * @param list<string> $arguments
+     */
+    private function rpush(array $arguments): string
+    {
+        $key = $arguments[1] ?? '';
+        $value = $arguments[2] ?? '';
+
+        $this->lists[$key][] = $value;
+
+        return $this->integer(\count($this->lists[$key]));
+    }
+
+    /**
+     * LRANGE: the list's own elements over the range -- the negative
+     * bounds the real server's own from-the-tail spelling answers.
+     *
+     * @param list<string> $arguments
+     */
+    private function lrange(array $arguments): string
+    {
+        $key = $arguments[1] ?? '';
+        $list = $this->lists[$key] ?? [];
+        $length = \count($list);
+        $start = (int) ($arguments[2] ?? '0');
+        $stop = (int) ($arguments[3] ?? '-1');
+
+        if ($start < 0) {
+            $start += $length;
+        }
+
+        if ($stop < 0) {
+            $stop += $length;
+        }
+
+        $start = max(0, $start);
+        $stop = min($length - 1, $stop);
+
+        $elements = '';
+        $count = 0;
+
+        for ($index = $start; $index <= $stop; ++$index) {
+            $elements .= $this->bulk($list[$index]);
+            ++$count;
+        }
+
+        return '*' . $count . "\r\n" . $elements;
     }
 
     /**

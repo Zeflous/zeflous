@@ -14,6 +14,8 @@ use Zef\Framework\Event\DeliveryEntryId;
 use Zef\Framework\Event\DeliveryEnvelope;
 use Zef\Framework\Event\DeliveryEnvelopeDecoder;
 use Zef\Framework\Event\DeliveryEnvelopeEncoder;
+use Zef\Framework\Event\DrainTrace;
+use Zef\Framework\Event\ListenerIdentity;
 
 /**
  * The deferred delivery store's cross-process answer: the Redis
@@ -41,7 +43,11 @@ use Zef\Framework\Event\DeliveryEnvelopeEncoder;
  * {@see requeue()} writes the retry's record before its index member
  * (the crash between the two strands an orphan record no verb reads
  * -- inert by construction, the index is the only door -- never a
- * half-admitted entry a drain would have to guess at).
+ * half-admitted entry a drain would have to guess at) -- with the
+ * regime's BOOKS and JOURNAL answered by their own fold
+ * ({@see RedisDeliveryBooks}): the attribution hash, the
+ * quarantine set and the drain list, the same wire discipline
+ * carried onto their commands.
  */
 final readonly class RedisDeliveryStore implements DeferredDeliveryStore
 {
@@ -56,6 +62,8 @@ final readonly class RedisDeliveryStore implements DeferredDeliveryStore
     private RedisDeliveryClaim $redisDeliveryClaim;
 
     private RedisDeliveryClaimedRecords $redisDeliveryClaimedRecords;
+
+    private RedisDeliveryBooks $redisDeliveryBooks;
 
     private string $drainerToken;
 
@@ -84,6 +92,7 @@ final readonly class RedisDeliveryStore implements DeferredDeliveryStore
         $this->deliveryEnvelopeEncoder = new DeliveryEnvelopeEncoder();
         $this->drainerToken = DeliveryEntryId::mint()->spelling();
         $this->redisDeliveryKeys = new RedisDeliveryKeys($prefix);
+        $this->redisDeliveryBooks = new RedisDeliveryBooks($respConnection, $this->redisDeliveryKeys);
         $this->redisDeliveryAdmission = new RedisDeliveryAdmission(
             $respConnection,
             $this->redisDeliveryKeys,
@@ -201,5 +210,40 @@ final readonly class RedisDeliveryStore implements DeferredDeliveryStore
             ),
             'ZCARD',
         );
+    }
+
+    #[Override]
+    public function recordAttributedDeath(
+        DeliveryEntryId $deliveryEntryId,
+        ListenerIdentity $listenerIdentity,
+        int $attributedAt,
+    ): void {
+        $this->redisDeliveryBooks->recordAttributedDeath($deliveryEntryId, $listenerIdentity);
+    }
+
+    #[Override]
+    public function deadLettersAttributedTo(ListenerIdentity $listenerIdentity): int
+    {
+        return $this->redisDeliveryBooks->deadLettersAttributedTo($listenerIdentity);
+    }
+
+    #[Override]
+    public function quarantineListener(
+        ListenerIdentity $listenerIdentity,
+        int $quarantinedAt,
+    ): void {
+        $this->redisDeliveryBooks->quarantineListener($listenerIdentity);
+    }
+
+    #[Override]
+    public function isListenerQuarantined(ListenerIdentity $listenerIdentity): bool
+    {
+        return $this->redisDeliveryBooks->isListenerQuarantined($listenerIdentity);
+    }
+
+    #[Override]
+    public function recordDrainOutcome(DrainTrace $drainTrace): void
+    {
+        $this->redisDeliveryBooks->recordDrainOutcome($drainTrace);
     }
 }

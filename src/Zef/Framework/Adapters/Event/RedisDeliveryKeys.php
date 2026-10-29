@@ -9,15 +9,20 @@ use InvalidArgumentException;
 /**
  * The Redis-backed delivery store's key vocabulary: one prefix --
  * the store's own namespace inside a server the deployment shares
- * with everything else it runs -- and the four key spellings the
- * whole store hangs from it: the entry record keyed by the entry's
- * own identity, the pending index (the sorted set whose members ARE
+ * with everything else it runs -- and the key spellings the whole
+ * store hangs from it: the entry record keyed by the entry's own
+ * identity, the pending index (the sorted set whose members ARE
  * the entries and whose scores ARE their ready-at moments), the
- * claim key the exclusivity arms with its own expiry, and the dead
- * record keyed by the spent entry's identity. The grammar is the
- * operator's: printable ASCII without spaces, one to one hundred
- * twenty-eight characters -- a prefix an operator can type at the
- * server's own console, because the operator is the one who will.
+ * claim key the exclusivity arms with its own expiry, the dead
+ * record keyed by the spent entry's identity, the attribution
+ * index (the hash whose fields ARE the attributed entries and
+ * whose values ARE the identities their deaths belong to), the
+ * quarantine set (whose members ARE the quarantined identities)
+ * and the drain journal (the list the completed passes append
+ * their traces to). The grammar is the operator's: printable ASCII
+ * without spaces, one to one hundred twenty-eight characters -- a
+ * prefix an operator can type at the server's own console,
+ * because the operator is the one who will.
  */
 final readonly class RedisDeliveryKeys
 {
@@ -83,5 +88,36 @@ final readonly class RedisDeliveryKeys
     public function deadKey(string $entryId): string
     {
         return $this->prefix . ':dead:' . $entryId;
+    }
+
+    /**
+     * The attribution index -- the hash whose fields are the
+     * attributed entries' own identities and whose values are the
+     * listener identities their deaths belong to, so the same entry
+     * attributed twice (the at-least-once duplicate) rewrites the
+     * same field, never doubles the book.
+     */
+    public function attributedKey(): string
+    {
+        return $this->prefix . ':attributed';
+    }
+
+    /**
+     * The quarantine set -- the identities the store holds
+     * quarantined, each member one containment a previous drain
+     * earned, idempotent by the set's own semantics.
+     */
+    public function quarantineKey(): string
+    {
+        return $this->prefix . ':quarantine';
+    }
+
+    /**
+     * The drain journal -- the list the completed passes append
+     * their traces to, in the order the passes completed.
+     */
+    public function drainsKey(): string
+    {
+        return $this->prefix . ':drains';
     }
 }

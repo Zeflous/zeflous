@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Event\DurableDelivery;
+use Zef\Framework\Event\DurableDrainJournal;
 use Zef\Framework\Event\DurableEventListener;
 use Zef\Framework\Event\Event;
 use Zef\Framework\Event\EventBook;
@@ -15,6 +16,7 @@ use Zef\Framework\Event\EventListener;
 use Zef\Framework\Event\EventName;
 use Zef\Framework\Event\EventPayload;
 use Zef\Framework\Event\EventShape;
+use Zef\Framework\Event\ListenerIdentity;
 use Zef\Framework\Event\ListenerPriority;
 use Zef\Framework\Event\ListenerSubscription;
 use Zef\Framework\Event\PreparedDelivery;
@@ -23,12 +25,16 @@ use Zef\Framework\Event\RetryPolicy;
 /**
  * Pins the durable engine's own seams: the threshold refusal, the
  * composition of defer and drain over the store and resolver the
- * host spelled, the in-process dead-letter book and quarantine the
- * judgment keeps, and the pending-count seam over the store.
+ * host spelled, the BOOKS the store owns (the attribution count
+ * and the quarantine the threshold reads), the pending-count seam
+ * over the store, and the boundary crossing the durable books
+ * exist for -- a fresh engine over the same store starts with the
+ * quarantine the previous engine earned, never quarantine-free.
  *
  * @internal
  */
 #[CoversClass(DurableDelivery::class)]
+#[CoversClass(DurableDrainJournal::class)]
 final class DurableDeliveryTest extends TestCase
 {
     public function testAQuarantineThresholdBelowOneIsRefused(): void
@@ -59,11 +65,12 @@ final class DurableDeliveryTest extends TestCase
 
         self::assertSame(1, $outcome->delivered());
         self::assertSame(0, $engine->pendingCount());
-        self::assertSame([], $engine->deadLetters());
+        self::assertSame([], $inMemoryDeliveryStore->attributed());
+        self::assertSame([], $inMemoryDeliveryStore->quarantined());
         self::assertSame(['audit'], $eventLog->tags());
     }
 
-    public function testAListenersDeathsAreKeptInTheInProcessBookAndQuarantine(): void
+    public function testAListenersDeathsAreKeptInTheStoresBooks(): void
     {
         $inMemoryDeliveryStore = new InMemoryDeliveryStore();
         $durableFailingListener = new DurableFailingListener('app.orders.audit', 'the audit exploded');
@@ -72,12 +79,84 @@ final class DurableDeliveryTest extends TestCase
         $engine->defer($this->prepared(['amount' => 12], [$durableFailingListener]));
         $engine->drain(100);
 
-        $deadLetters = $engine->deadLetters();
+        $listenerIdentity = new ListenerIdentity('app.orders.audit');
 
-        self::assertCount(1, $deadLetters);
-        self::assertSame('the audit exploded', $deadLetters[0]->failureMessage());
-        self::assertSame($durableFailingListener, $deadLetters[0]->eventListener());
-        self::assertTrue($engine->isListenerQuarantined($durableFailingListener));
+        self::assertSame(1, $engine->deadLettersAttributedTo($listenerIdentity));
+        self::assertTrue($engine->isListenerQuarantined($listenerIdentity));
+        self::assertSame(
+            ['app.orders.audit'],
+            array_keys($inMemoryDeliveryStore->quarantined()),
+        );
+        self::assertSame(
+            1,
+            $this->deadRecordCount($inMemoryDeliveryStore, 'RuntimeException', 'the audit exploded', 100),
+        );
+    }
+
+    public function testAFreshEngineOverTheSameStoreStartsWithTheEarnedQuarantine(): void
+    {
+        $inMemoryDeliveryStore = new InMemoryDeliveryStore();
+        $eventLog = new EventLog();
+        $durableFailingListener = new DurableFailingListener('app.orders.audit', 'the audit exploded');
+        $durableRecordingListener = new DurableRecordingListener($eventLog, 'healthy', 'app.orders.healthy');
+        $listenerIdentity = new ListenerIdentity('app.orders.audit');
+
+        $firstEngine = $this->engine(
+            $inMemoryDeliveryStore,
+            [$durableFailingListener, $durableRecordingListener],
+            1,
+            new RetryPolicy(1, 10),
+        );
+        $firstEngine->defer($this->prepared(['amount' => 12], [$durableFailingListener, $durableRecordingListener]));
+        $firstEngine->drain(100);
+
+        self::assertSame(1, $firstEngine->deadLettersAttributedTo($listenerIdentity));
+        self::assertTrue($firstEngine->isListenerQuarantined($listenerIdentity));
+
+        $freshEngine = $this->engine(
+            $inMemoryDeliveryStore,
+            [$durableFailingListener, $durableRecordingListener],
+            1,
+            new RetryPolicy(1, 10),
+        );
+
+        self::assertTrue($freshEngine->isListenerQuarantined($listenerIdentity));
+        self::assertSame(1, $freshEngine->deadLettersAttributedTo($listenerIdentity));
+
+        $deferralOutcome = $freshEngine->defer(
+            $this->prepared(['amount' => 12], [$durableFailingListener, $durableRecordingListener]),
+        );
+
+        self::assertSame(1, $deferralOutcome->admitted());
+        self::assertSame(1, $deferralOutcome->skippedQuarantined());
+        self::assertSame(1, $freshEngine->pendingCount());
+        self::assertSame(['healthy'], $eventLog->tags());
+    }
+
+    /**
+     * How many dead-record actions the store answered carrying the
+     * failure's own class, message and dead-at -- the durable story
+     * an operator reads, counted over the minted entry identities.
+     */
+    private function deadRecordCount(
+        InMemoryDeliveryStore $inMemoryDeliveryStore,
+        string $failureClass,
+        string $failureMessage,
+        int $deadAt,
+    ): int {
+        $deadRecordCount = 0;
+        $pattern = '/^dead:[0-9a-f]{32}:' . preg_quote($failureClass, '/')
+            . ':' . preg_quote($failureMessage, '/') . ':' . $deadAt . '$/';
+
+        foreach ($inMemoryDeliveryStore->actions() as $action) {
+            if (preg_match($pattern, $action) !== 1) {
+                continue;
+            }
+
+            ++$deadRecordCount;
+        }
+
+        return $deadRecordCount;
     }
 
     /**

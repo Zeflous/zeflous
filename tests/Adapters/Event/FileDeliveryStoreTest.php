@@ -5,18 +5,28 @@ declare(strict_types=1);
 namespace Zef\Test\Adapters\Event;
 
 use InvalidArgumentException;
+use JsonException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Adapters\Event\DeliveryAttributionDecoder;
+use Zef\Framework\Adapters\Event\DeliveryAttributionEncoder;
+use Zef\Framework\Adapters\Event\DeliveryAttributionLane;
+use Zef\Framework\Adapters\Event\DeliveryAttributionScan;
 use Zef\Framework\Adapters\Event\DeliveryBatchWrite;
 use Zef\Framework\Adapters\Event\DeliveryDeadLane;
+use Zef\Framework\Adapters\Event\DeliveryDrainJournal;
 use Zef\Framework\Adapters\Event\DeliveryDueScan;
 use Zef\Framework\Adapters\Event\DeliveryFiles;
+use Zef\Framework\Adapters\Event\DeliveryQuarantineLane;
 use Zef\Framework\Adapters\Event\DeliveryStaging;
 use Zef\Framework\Adapters\Event\DeliveryStoreDirectory;
 use Zef\Framework\Adapters\Event\FileDeliveryStore;
 use Zef\Framework\Event\DeliveryEntryId;
 use Zef\Framework\Event\DeliveryEnvelope;
+use Zef\Framework\Event\DrainOutcome;
+use Zef\Framework\Event\DrainTrace;
+use Zef\Framework\Event\DrainTraceEncoder;
 use Zef\Framework\Event\EventName;
 use Zef\Framework\Event\ListenerIdentity;
 use Zef\Test\Support\Adapters\Event\DeliveryFileDoubleState;
@@ -29,20 +39,30 @@ use Zef\Test\Support\Adapters\Event\DeliveryFileDoubleState;
  * mid-write compensation that leaves a refused batch
  * unanswerable-by-the-store, the dead-letter lane an operator
  * reads, and the fail-closed decode of a corrupt or hand-edited
- * record. The engine's own failure arms (the refused write, the
- * unremovable entry, the unscannable root) are exercised through
- * the namespace's function doubles, armed per test and reset in
- * the tear-down.
+ * record -- with the regime's BOOKS and JOURNAL the same answer
+ * owns: the attribution lane keyed by the entry, the quarantine
+ * lane keyed by the identity, and the drain journal's one record
+ * per completed pass. The engine's own failure arms (the refused
+ * write, the unremovable entry, the unscannable root) are
+ * exercised through the namespace's function doubles, armed per
+ * test and reset in the tear-down.
  *
  * @internal
  */
 #[CoversClass(FileDeliveryStore::class)]
+#[CoversClass(DeliveryAttributionDecoder::class)]
+#[CoversClass(DeliveryAttributionEncoder::class)]
+#[CoversClass(DeliveryAttributionLane::class)]
+#[CoversClass(DeliveryAttributionScan::class)]
 #[CoversClass(DeliveryBatchWrite::class)]
 #[CoversClass(DeliveryDeadLane::class)]
+#[CoversClass(DeliveryDrainJournal::class)]
 #[CoversClass(DeliveryDueScan::class)]
 #[CoversClass(DeliveryFiles::class)]
+#[CoversClass(DeliveryQuarantineLane::class)]
 #[CoversClass(DeliveryStaging::class)]
 #[CoversClass(DeliveryStoreDirectory::class)]
+#[CoversClass(DrainTraceEncoder::class)]
 final class FileDeliveryStoreTest extends TestCase
 {
     private string $directory;
@@ -533,6 +553,484 @@ final class FileDeliveryStoreTest extends TestCase
         $this->assertEnvelopeMatches($envelope, $decoded[0]);
         self::assertSame(1.0, $decoded[0]->values()['ratio']);
         self::assertSame(\PHP_INT_MAX, $decoded[0]->readyAt());
+    }
+
+    public function testAnAttributedDeathIsOneOwnerOnlyRecordKeyedByTheEntry(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        $path = $this->directory . '/attribution/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json';
+
+        self::assertFileExists($path);
+        self::assertSame(0o700, fileperms($this->directory . '/attribution') & 0o777);
+        self::assertSame(0o600, fileperms($path) & 0o777);
+        self::assertSame(1, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+        self::assertSame(0, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.other')));
+
+        $decoded = json_decode((string) file_get_contents($path), true);
+
+        self::assertSame(
+            [
+                'entry_id' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                'listener_identity' => 'app.orders.audit',
+                'attributed_at' => 100,
+            ],
+            $decoded,
+        );
+    }
+
+    public function testTheSameEntryAttributedTwiceIsCountedOnce(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        $deliveryEntryId = new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+        $fileDeliveryStore->recordAttributedDeath($deliveryEntryId, new ListenerIdentity('app.orders.audit'), 100);
+        $fileDeliveryStore->recordAttributedDeath($deliveryEntryId, new ListenerIdentity('app.orders.audit'), 200);
+
+        self::assertSame(1, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+
+        $scanned = scandir($this->directory . '/attribution');
+        $records = array_values(
+            array_filter(
+                \is_array($scanned) ? $scanned : [],
+                static fn (string $filename): bool => str_ends_with($filename, '.json'),
+            ),
+        );
+
+        self::assertCount(1, $records);
+    }
+
+    public function testDeadLettersAttributedToCountsOnlyTheMatchingIdentity(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'),
+            new ListenerIdentity('app.orders.audit'),
+            110,
+        );
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('cccccccccccccccccccccccccccccccc'),
+            new ListenerIdentity('app.orders.other'),
+            120,
+        );
+
+        self::assertSame(2, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+        self::assertSame(1, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.other')));
+    }
+
+    public function testADotFileInTheAttributionLaneIsInvisibleToTheCount(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        mkdir($this->directory . '/attribution', 0o700);
+        file_put_contents($this->directory . '/attribution/.tmp.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.json', '{}');
+        file_put_contents($this->directory . '/attribution/operator-notes.txt', 'sweep me');
+
+        self::assertSame(0, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+    }
+
+    public function testACorruptAttributionRecordIsRefusedNamingTheFile(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        file_put_contents(
+            $this->directory . '/attribution/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+            '{"entry_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}',
+        );
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The corrupt attribution record was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The attribution record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json' is refused:"
+                . ' it is not an attribution record the store could have written.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testARecordWhoseEntryIdIsNotAStringIsRefused(): void
+    {
+        $this->expectShapeRefusal(
+            '{"entry_id":5,"listener_identity":"app.orders.audit","attributed_at":100}',
+        );
+    }
+
+    public function testARecordWhoseListenerIdentityIsNotAStringIsRefused(): void
+    {
+        $this->expectShapeRefusal(
+            '{"entry_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","listener_identity":false,"attributed_at":100}',
+        );
+    }
+
+    public function testARecordWhoseAttributedAtIsNotAnIntegerIsRefused(): void
+    {
+        $this->expectShapeRefusal(
+            '{"entry_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"'
+            . ',"listener_identity":"app.orders.audit","attributed_at":"soon"}',
+        );
+    }
+
+    public function testARecordBeyondTheEngineDepthCeilingIsRefusedWithTheEnginesOwnReason(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        file_put_contents(
+            $this->directory . '/attribution/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+            '{' . $this->recordWithANestedValue(511) . '}',
+        );
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The beyond-ceiling record was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The attribution record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json' is not valid JSON:"
+                . ' Maximum stack depth exceeded.',
+                $invalidArgumentException->getMessage(),
+            );
+            self::assertSame(0, $invalidArgumentException->getCode());
+            self::assertInstanceOf(JsonException::class, $invalidArgumentException->getPrevious());
+        }
+    }
+
+    public function testARecordWithANestedValueWithinTheCeilingIsRefusedByTheShapeNotTheDepth(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        file_put_contents(
+            $this->directory . '/attribution/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+            '{' . $this->recordWithANestedValue(509) . '}',
+        );
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The nested-value record was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The attribution record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json' is refused:"
+                . ' it is not an attribution record the store could have written.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAQuarantinedIdentityIsOneRecordWhoseExistenceIsTheFilter(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        $listenerIdentity = new ListenerIdentity('app.orders.audit');
+
+        self::assertFalse($fileDeliveryStore->isListenerQuarantined($listenerIdentity));
+
+        $fileDeliveryStore->quarantineListener($listenerIdentity, 100);
+
+        $path = $this->directory . '/quarantine/app.orders.audit.json';
+
+        self::assertTrue($fileDeliveryStore->isListenerQuarantined($listenerIdentity));
+        self::assertFileExists($path);
+        self::assertSame(0o700, fileperms($this->directory . '/quarantine') & 0o777);
+        self::assertSame(0o600, fileperms($path) & 0o777);
+        self::assertFalse($fileDeliveryStore->isListenerQuarantined(new ListenerIdentity('app.orders.other')));
+
+        $decoded = json_decode((string) file_get_contents($path), true);
+
+        self::assertSame(
+            [
+                'listener_identity' => 'app.orders.audit',
+                'quarantined_at' => 100,
+            ],
+            $decoded,
+        );
+    }
+
+    public function testQuarantiningTwiceRewritesTheSameRecord(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        $listenerIdentity = new ListenerIdentity('app.orders.audit');
+
+        $fileDeliveryStore->quarantineListener($listenerIdentity, 100);
+        $fileDeliveryStore->quarantineListener($listenerIdentity, 200);
+
+        $scanned = scandir($this->directory . '/quarantine');
+        $records = array_values(
+            array_filter(
+                \is_array($scanned) ? $scanned : [],
+                static fn (string $filename): bool => str_ends_with($filename, '.json'),
+            ),
+        );
+
+        self::assertCount(1, $records);
+        self::assertTrue($fileDeliveryStore->isListenerQuarantined($listenerIdentity));
+    }
+
+    public function testACompletedPassIsOneJournalledRecord(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        $drainTraceEncoder = new DrainTraceEncoder();
+
+        $fileDeliveryStore->recordDrainOutcome(DrainTrace::fromOutcome(100, new DrainOutcome(1, 0, 0, 0, 0)));
+        $fileDeliveryStore->recordDrainOutcome(DrainTrace::fromOutcome(200, new DrainOutcome(0, 1, 2, 3, 4)));
+
+        $scanned = scandir($this->directory . '/drains');
+        $records = array_values(
+            array_filter(
+                \is_array($scanned) ? $scanned : [],
+                static fn (string $filename): bool => str_ends_with($filename, '.json'),
+            ),
+        );
+
+        self::assertCount(2, $records);
+        self::assertSame(0o700, fileperms($this->directory . '/drains') & 0o777);
+
+        $decoded = [];
+
+        foreach ($records as $record) {
+            self::assertSame(0o600, fileperms($this->directory . '/drains/' . $record) & 0o777);
+            $decoded[] = (string) file_get_contents($this->directory . '/drains/' . $record);
+        }
+
+        self::assertContains(
+            $drainTraceEncoder->encode(DrainTrace::fromOutcome(100, new DrainOutcome(1, 0, 0, 0, 0))),
+            $decoded,
+        );
+        self::assertContains(
+            $drainTraceEncoder->encode(DrainTrace::fromOutcome(200, new DrainOutcome(0, 1, 2, 3, 4))),
+            $decoded,
+        );
+    }
+
+    public function testTheBooksAndJournalLanesAreInvisibleToThePendingCount(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+        $fileDeliveryStore->quarantineListener(new ListenerIdentity('app.orders.audit'), 100);
+        $fileDeliveryStore->recordDrainOutcome(DrainTrace::fromOutcome(100, new DrainOutcome(0, 0, 0, 0, 0)));
+
+        self::assertSame(0, $fileDeliveryStore->pendingCount());
+        self::assertSame([], $fileDeliveryStore->takeDue(\PHP_INT_MAX));
+    }
+
+    public function testAnEmptyAttributionLaneCountsNothingBeforeAnyWrite(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        self::assertSame(0, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+    }
+
+    public function testADirectoryNamedLikeAnAttributionRecordIsSkippedWithoutEndingTheScan(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+        mkdir($this->directory . '/attribution/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json', 0o700);
+
+        self::assertSame(1, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+    }
+
+    public function testAnUncreatableAttributionLaneIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        DeliveryFileDoubleState::$mkdirAnswer = false;
+
+        try {
+            $fileDeliveryStore->recordAttributedDeath(
+                new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+                new ListenerIdentity('app.orders.audit'),
+                100,
+            );
+            self::fail('The uncreatable attribution lane was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery store cannot create its attribution lane.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUncreatableQuarantineLaneIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        DeliveryFileDoubleState::$mkdirAnswer = false;
+
+        try {
+            $fileDeliveryStore->quarantineListener(new ListenerIdentity('app.orders.audit'), 100);
+            self::fail('The uncreatable quarantine lane was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery store cannot create its quarantine lane.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUncreatableDrainJournalLaneIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        DeliveryFileDoubleState::$mkdirAnswer = false;
+
+        try {
+            $fileDeliveryStore->recordDrainOutcome(DrainTrace::fromOutcome(100, new DrainOutcome(0, 0, 0, 0, 0)));
+            self::fail('The uncreatable drain journal lane was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery store cannot create its drain journal lane.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnscannableAttributionLaneIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        DeliveryFileDoubleState::$scandirAnswer = false;
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The unscannable attribution lane was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery store cannot scan its attribution lane.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnreadableAttributionRecordIsRefusedNamingTheFile(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        DeliveryFileDoubleState::$fileGetContentsAnswer = false;
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The unreadable attribution record was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The attribution record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json' cannot be read.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testARecordThatIsNotAnObjectIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        file_put_contents(
+            $this->directory . '/attribution/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+            '5',
+        );
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The non-object record was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The attribution record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json' is refused: it is not"
+                . ' the JSON object an attribution record is.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * Expects the shape refusal for a hand-edited record written
+     * into the lane's first record file.
+     */
+    private function expectShapeRefusal(string $record): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        file_put_contents(
+            $this->directory . '/attribution/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+            $record,
+        );
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The mis-shaped record was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The attribution record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json' is refused:"
+                . ' it is not an attribution record the store could have written.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * A record whose attributed-at value is nested the given depth
+     * -- the hand-edited arm the decode's own ceiling answers.
+     */
+    private function recordWithANestedValue(int $depth): string
+    {
+        return '"entry_id":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","listener_identity":"app.orders.audit",'
+            . '"attributed_at":' . str_repeat('{"nest":', $depth) . '1' . str_repeat('}', $depth);
     }
 
     /**

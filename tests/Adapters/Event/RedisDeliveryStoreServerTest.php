@@ -9,14 +9,18 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Event\RedisDeliveryAdmission;
+use Zef\Framework\Adapters\Event\RedisDeliveryBooks;
 use Zef\Framework\Adapters\Event\RedisDeliveryClaim;
 use Zef\Framework\Adapters\Event\RedisDeliveryClaimedRecords;
 use Zef\Framework\Adapters\Event\RedisDeliveryKeys;
 use Zef\Framework\Adapters\Event\RedisDeliveryStore;
 use Zef\Framework\Adapters\Redis\RespConnection;
+use Zef\Framework\Adapters\Redis\RespReplyListShape;
 use Zef\Framework\Adapters\Redis\RespReplyShape;
 use Zef\Framework\Event\DeliveryEntryId;
 use Zef\Framework\Event\DeliveryEnvelope;
+use Zef\Framework\Event\DrainOutcome;
+use Zef\Framework\Event\DrainTrace;
 use Zef\Framework\Event\EventName;
 use Zef\Framework\Event\ListenerIdentity;
 use Zef\Test\Support\Adapters\Redis\RedisMockServer;
@@ -32,7 +36,11 @@ use Zef\Test\Support\Adapters\Redis\RespSocketDoubleState;
  * already holds, the visibility timeout that hands a crashed
  * drainer's entries to the next one, the zombie member a crashed
  * settle left completed quietly, and the dead-letter record an
- * operator reads, rewritten never doubled. Each test names its own
+ * operator reads, rewritten never doubled -- with the BOOKS and
+ * the JOURNAL the same shared server answers: the attribution a
+ * second store reads (the cross-process book), the quarantine a
+ * fresh connection filters by, and the drain journal an operator
+ * reads in the order the passes completed. Each test names its own
  * key prefix -- one server, one state, every test its own namespace
  * inside it, the same isolation discipline the deployment's own
  * prefixes spell.
@@ -40,6 +48,7 @@ use Zef\Test\Support\Adapters\Redis\RespSocketDoubleState;
  * @internal
  */
 #[CoversClass(RedisDeliveryAdmission::class)]
+#[CoversClass(RedisDeliveryBooks::class)]
 #[CoversClass(RedisDeliveryClaim::class)]
 #[CoversClass(RedisDeliveryClaimedRecords::class)]
 #[CoversClass(RedisDeliveryKeys::class)]
@@ -312,6 +321,74 @@ final class RedisDeliveryStoreServerTest extends TestCase
         }
 
         self::assertSame(1, $store->pendingCount());
+    }
+
+    public function testTheBooksRoundTripAcrossTwoStoresOnTheSharedServer(): void
+    {
+        $firstStore = $this->store();
+        $listenerIdentity = new ListenerIdentity('app.orders.audit');
+        $deliveryEntryId = new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+
+        self::assertSame(0, $firstStore->deadLettersAttributedTo($listenerIdentity));
+        self::assertFalse($firstStore->isListenerQuarantined($listenerIdentity));
+
+        $firstStore->recordAttributedDeath($deliveryEntryId, $listenerIdentity, 100);
+        $firstStore->recordAttributedDeath($deliveryEntryId, $listenerIdentity, 200);
+        $firstStore->recordAttributedDeath(
+            new DeliveryEntryId('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'),
+            $listenerIdentity,
+            300,
+        );
+        $firstStore->quarantineListener($listenerIdentity, 400);
+
+        $secondStore = $this->store();
+
+        self::assertSame(2, $secondStore->deadLettersAttributedTo($listenerIdentity));
+        self::assertSame(0, $secondStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.other')));
+        self::assertTrue($secondStore->isListenerQuarantined($listenerIdentity));
+        self::assertFalse($secondStore->isListenerQuarantined(new ListenerIdentity('app.orders.other')));
+    }
+
+    public function testTheDrainJournalAppendsThePassesTracesInOrder(): void
+    {
+        $store = $this->store();
+        $operator = $this->connection();
+
+        $store->recordDrainOutcome(DrainTrace::fromOutcome(100, new DrainOutcome(1, 0, 0, 0, 0)));
+        $store->recordDrainOutcome(DrainTrace::fromOutcome(200, new DrainOutcome(0, 2, 3, 4, 5)));
+
+        $journal = new RespReplyListShape()->bulkList(
+            $operator->command('LRANGE', $this->prefix . ':drains', 0, -1),
+            'LRANGE',
+        );
+
+        self::assertCount(2, $journal);
+
+        $first = json_decode($journal[0], true, 512, \JSON_THROW_ON_ERROR);
+        $second = json_decode($journal[1], true, 512, \JSON_THROW_ON_ERROR);
+
+        self::assertSame(
+            [
+                'drained_at' => 100,
+                'delivered' => 1,
+                'retried' => 0,
+                'dead_lettered' => 0,
+                'quarantined' => 0,
+                'pending' => 0,
+            ],
+            $first,
+        );
+        self::assertSame(
+            [
+                'drained_at' => 200,
+                'delivered' => 0,
+                'retried' => 2,
+                'dead_lettered' => 3,
+                'quarantined' => 4,
+                'pending' => 5,
+            ],
+            $second,
+        );
     }
 
     private function store(
