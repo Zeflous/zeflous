@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): record the durable quarantine landing in the status rows [\#648](https://github.com/Zeflous/zeflous/pull/648) ([mbetixz](https://github.com/mbetixz))
 - feat\(event\): the durable quarantine books with the drain journal [\#647](https://github.com/Zeflous/zeflous/pull/647) ([mbetixz](https://github.com/mbetixz))
 - feat\(event\): the redis delivery store with its resp wire [\#644](https://github.com/Zeflous/zeflous/pull/644) ([mbetixz](https://github.com/mbetixz))
 - feat\(event\): the worker drain loop with its shutdown sentinel [\#641](https://github.com/Zeflous/zeflous/pull/641) ([mbetixz](https://github.com/mbetixz))
