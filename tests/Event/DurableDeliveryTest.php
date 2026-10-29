@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Event\DurableDelivery;
+use Zef\Framework\Event\DurableDrainJournal;
 use Zef\Framework\Event\DurableEventListener;
 use Zef\Framework\Event\Event;
 use Zef\Framework\Event\EventBook;
@@ -33,6 +34,7 @@ use Zef\Framework\Event\RetryPolicy;
  * @internal
  */
 #[CoversClass(DurableDelivery::class)]
+#[CoversClass(DurableDrainJournal::class)]
 final class DurableDeliveryTest extends TestCase
 {
     public function testAQuarantineThresholdBelowOneIsRefused(): void

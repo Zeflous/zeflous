@@ -846,6 +846,152 @@ final class FileDeliveryStoreTest extends TestCase
         self::assertSame([], $fileDeliveryStore->takeDue(\PHP_INT_MAX));
     }
 
+    public function testAnEmptyAttributionLaneCountsNothingBeforeAnyWrite(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        self::assertSame(0, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+    }
+
+    public function testADirectoryNamedLikeAnAttributionRecordIsSkippedWithoutEndingTheScan(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+        mkdir($this->directory . '/attribution/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json', 0o700);
+
+        self::assertSame(1, $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit')));
+    }
+
+    public function testAnUncreatableAttributionLaneIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        DeliveryFileDoubleState::$mkdirAnswer = false;
+
+        try {
+            $fileDeliveryStore->recordAttributedDeath(
+                new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+                new ListenerIdentity('app.orders.audit'),
+                100,
+            );
+            self::fail('The uncreatable attribution lane was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery store cannot create its attribution lane.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUncreatableQuarantineLaneIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        DeliveryFileDoubleState::$mkdirAnswer = false;
+
+        try {
+            $fileDeliveryStore->quarantineListener(new ListenerIdentity('app.orders.audit'), 100);
+            self::fail('The uncreatable quarantine lane was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery store cannot create its quarantine lane.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUncreatableDrainJournalLaneIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+        DeliveryFileDoubleState::$mkdirAnswer = false;
+
+        try {
+            $fileDeliveryStore->recordDrainOutcome(DrainTrace::fromOutcome(100, new DrainOutcome(0, 0, 0, 0, 0)));
+            self::fail('The uncreatable drain journal lane was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery store cannot create its drain journal lane.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnscannableAttributionLaneIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        DeliveryFileDoubleState::$scandirAnswer = false;
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The unscannable attribution lane was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The delivery store cannot scan its attribution lane.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnreadableAttributionRecordIsRefusedNamingTheFile(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        DeliveryFileDoubleState::$fileGetContentsAnswer = false;
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The unreadable attribution record was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The attribution record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json' cannot be read.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testARecordThatIsNotAnObjectIsRefused(): void
+    {
+        $fileDeliveryStore = new FileDeliveryStore($this->directory, 8);
+
+        $fileDeliveryStore->recordAttributedDeath(
+            new DeliveryEntryId('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'),
+            new ListenerIdentity('app.orders.audit'),
+            100,
+        );
+
+        file_put_contents(
+            $this->directory . '/attribution/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json',
+            '5',
+        );
+
+        try {
+            $fileDeliveryStore->deadLettersAttributedTo(new ListenerIdentity('app.orders.audit'));
+            self::fail('The non-object record was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The attribution record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.json' is refused: it is not"
+                . ' the JSON object an attribution record is.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
     /**
      * Expects the shape refusal for a hand-edited record written
      * into the lane's first record file.

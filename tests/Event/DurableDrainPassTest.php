@@ -42,6 +42,7 @@ use Zef\Framework\Event\RetryPolicy;
  * @internal
  */
 #[CoversClass(DurableDrainPass::class)]
+#[CoversClass(DurableDrainJournal::class)]
 #[CoversClass(DurableEntrySoundness::class)]
 #[CoversClass(DurableVerdictAnswer::class)]
 #[CoversClass(DurableSettlement::class)]

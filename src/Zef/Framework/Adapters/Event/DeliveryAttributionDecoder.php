@@ -51,7 +51,7 @@ final class DeliveryAttributionDecoder
         if (!\is_array($decoded)) {
             throw new InvalidArgumentException(
                 "The attribution record '{$filename}' is refused: it is not"
-                . ' an attribution record the store could have written.',
+                . ' the JSON object an attribution record is.',
             );
         }
 
