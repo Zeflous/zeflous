@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(kernel\): the compiled caches derive their addresses from the storage layout [\#659](https://github.com/Zeflous/zeflous/pull/659) ([mbetixz](https://github.com/mbetixz))
 - feat\(session\): the file store driver over the sessions lane [\#656](https://github.com/Zeflous/zeflous/pull/656) ([mbetixz](https://github.com/mbetixz))
 - feat\(middleware\): the error family derives its log and replay addresses from the storage layout [\#653](https://github.com/Zeflous/zeflous/pull/653) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the durable quarantine landing in the status rows [\#648](https://github.com/Zeflous/zeflous/pull/648) ([mbetixz](https://github.com/mbetixz))
