@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-30T01:40:06Z",
+  "as_of": "2026-10-30T18:25:19Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 275,
+  "unreleased_count": 276,
   "versions": [
     {
       "version": "Unreleased",
@@ -3856,6 +3856,27 @@
                 "sha": "249855eef36e21407759ed4a05cbb30921a66aef",
                 "short_sha": "249855e",
                 "subject": "docs(roadmap): refresh the pin over the ceiling answer"
+              }
+            ]
+          },
+          {
+            "pr": 656,
+            "title": "feat(session): the file store driver over the sessions lane",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-30T18:25:19Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/656",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "19cd84b0b8bd0bb1455e0679f73e74bddca8decf",
+                "short_sha": "19cd84b",
+                "subject": "feat(session): the file store driver over the sessions lane"
+              },
+              {
+                "sha": "fddc060a2f3afb309ed1350e6e165f8f4f75fe07",
+                "short_sha": "fddc060",
+                "subject": "docs(roadmap): record the sessions lane slice and pin the lane"
               }
             ]
           }
@@ -17593,6 +17614,27 @@
               "sha": "249855eef36e21407759ed4a05cbb30921a66aef",
               "short_sha": "249855e",
               "subject": "docs(roadmap): refresh the pin over the ceiling answer"
+            }
+          ]
+        },
+        {
+          "pr": 656,
+          "title": "feat(session): the file store driver over the sessions lane",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-30T18:25:19Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/656",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "19cd84b0b8bd0bb1455e0679f73e74bddca8decf",
+              "short_sha": "19cd84b",
+              "subject": "feat(session): the file store driver over the sessions lane"
+            },
+            {
+              "sha": "fddc060a2f3afb309ed1350e6e165f8f4f75fe07",
+              "short_sha": "fddc060",
+              "subject": "docs(roadmap): record the sessions lane slice and pin the lane"
             }
           ]
         }
