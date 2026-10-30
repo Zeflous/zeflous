@@ -452,11 +452,6 @@
       <code><![CDATA[restore]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Storage/StorageLayout.php">
-    <UnusedClass>
-      <code><![CDATA[StorageLayout]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/Zef/Framework/Telemetry/BatchSpanProcessor.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[shutdown]]></code>

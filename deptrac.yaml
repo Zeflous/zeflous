@@ -151,7 +151,13 @@ deptrac:
     # router lane's closing slice) widens the lane to `Export` the same way:
     # it is the one PSR-15 middleware whose answers flow from the export
     # family's document rendering, so the composition lane -- not the export
-    # family's own layer -- is where the disclosure's face lives.
+    # family's own layer -- is where the disclosure's face lives. The error
+    # family's storage wiring (`ErrorStorageWiring`) widens the lane to
+    # `Storage` the same one-way way: it is the fold that answers the
+    # family's on-disk addresses from the frozen configuration by walking
+    # the `files/**` route map's pure value component, so the composition
+    # lane -- not the route map's own layer -- is where the derivation's
+    # face lives, and the map stays blind to who is asking it to resolve.
     Middleware:
       - Exception
       - Container
@@ -161,6 +167,7 @@ deptrac:
       - Telemetry
       - Health
       - Export
+      - Storage
     # The export family is the ecosystem bridge: the route table's own
     # rendering into the interchange documents the wider PHP and tooling
     # ecosystem reads (OpenAPI 3.1, Postman Collection v2.1.0). It reads the

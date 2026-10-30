@@ -15,10 +15,15 @@ declare(strict_types=1);
  * Leave debug=false in production.
  *
  * log_path is optional. An empty path writes structured JSON to PHP's SAPI
- * error log. A non-empty path writes JSONL to an existing, writable directory
- * outside the public document root; the directory is never created for you.
+ * error log unless the storage map declares a root, in which case it derives
+ * to the `logs` lane joined with the family's canonical file name -- an
+ * explicitly spelled path always wins over the derivation. A non-empty path
+ * writes JSONL to an existing, writable directory outside the public
+ * document root; the directory is never created for you.
  * Replay is opt-in and also requires debug=true plus a local APP_ENV. Its
- * storage directory must exist and remain outside the public document root.
+ * storage directory must exist and remain outside the public document root;
+ * an empty replay_path stays refused while no storage root is declared, and
+ * derives to the `replay` lane when one is (see storage.php).
  *
  * process_boundary is opt-in: the boot seam installs the process-level error
  * face -- the engine's own diagnostics (warnings, notices, deprecations), the

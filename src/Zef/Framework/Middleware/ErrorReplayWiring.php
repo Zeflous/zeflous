@@ -22,7 +22,12 @@ use Zef\Framework\Http\ErrorReplayStore;
  * bound each refuse their own malformed shape, and the combination check
  * keeps the lane's own security posture -- replay demands debug=true, a
  * local APP_ENV, and a configured path, because the snapshots are sanitized
- * but still sensitive development data.
+ * but still sensitive development data. An empty path falls back to the
+ * storage layout's `replay` lane when the host declared a root ({@see
+ * ErrorStorageWiring}, the default the layout provisions), and the old
+ * refusal stands when no root is declared: the derivation widens the
+ * honest ways to say where snapshots land, it never lowers the security
+ * gate they answer to.
  */
 final class ErrorReplayWiring
 {
@@ -43,6 +48,10 @@ final class ErrorReplayWiring
         $replayPath = $config->get('http.error_handling.replay_path', '');
         if (!\is_string($replayPath)) {
             throw new ConfigException('http.error_handling.replay_path must be a string.');
+        }
+
+        if ($replayPath === '') {
+            $replayPath = ErrorStorageWiring::replayDirectory($config);
         }
 
         $replayMaxSnapshots = $config->get(

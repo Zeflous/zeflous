@@ -30,10 +30,7 @@ final class ErrorMappingFactory
             throw new ConfigException('http.error_handling.debug must be a boolean.');
         }
 
-        $logPath = $config->get('http.error_handling.log_path', '');
-        if (!\is_string($logPath)) {
-            throw new ConfigException('http.error_handling.log_path must be a string.');
-        }
+        $logAddress = ErrorStorageWiring::logAddress($config);
 
         $metricsEnabled = $config->get('observability.metrics.enabled', false);
         if (!\is_bool($metricsEnabled)) {
@@ -42,7 +39,7 @@ final class ErrorMappingFactory
 
         $debugAllowed = AppEnvironment::isDevelopment();
 
-        $logger = $logPath === '' ? null : new JsonLineLogger($logPath);
+        $logger = $logAddress === '' ? null : new JsonLineLogger($logAddress);
         $replayStore = ErrorReplayWiring::store($config, $debug, $debugAllowed);
 
         return new ErrorMappingMiddleware(
