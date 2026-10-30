@@ -19,14 +19,19 @@ audit 0 advisories) · coverage 98.50% against the 90% floor · psalm
 EXIT-0 with the baseline SHRINKING one entry — `StorageLayout`'s
 `UnusedClass` line left the baseline the moment this slice consumed it
 from inside `src/`, the fold's whole point made measurable · progpilot
-`[]` · scoped infection over the six touched Middleware files, 114
+`[]` · scoped infection over the six touched Middleware files, 110
 mutants MSI 100/100, 0 escapes, no new ignore entry · archeology 0
 error-level findings — the wiring's first single-class spelling answered
 the difficulty ceiling at 26.50 against the house limit of 20, and the
 fold split answered it the house way: the strict census moved out into
-`StorageRootDeclaration` (difficulty 17.50) and the wiring fell to
-18.60, the same fold-split discipline `StorageDocumentRoot` and
-`EventBook` already carry.
+`StorageRootDeclaration` (difficulty 17.50), and after the type-control
+rector re-spelled the leftover nullable-object hand-off as `!instanceof`
+(20.15 -- the gate judges the committed code, not the working tree the
+toolchain had not yet rewritten), the resolve walk inlined into the two
+verbs themselves removed the hand-off entirely and the wiring fell to
+16.67 — the same fold-split discipline `StorageDocumentRoot` and
+`EventBook` already carry, plus the lesson that the difficulty verdict
+is only final on the post-rector spelling.
 
 ## The map
 
@@ -35,7 +40,7 @@ fold split answered it the house way: the strict census moved out into
 | `ErrorStorageWiring::logAddress()` | the deployment's ONE structured log address: explicit knob verbatim, else the `logs` lane + the canonical file name, else the empty no-sink posture |
 | `ErrorStorageWiring::replayDirectory()` | the replay lane's offer: the `replay` lane's address, or the empty string when no root is declared |
 | `StorageRootDeclaration::root()` | the storage map's strict census: the declared root, or null when the map stays silent, every malformed shape refused by name |
-| `ErrorStorageWiring::paths()` (private) | the walk over the declared root — the layout's own whole five-lane resolve |
+| the two verbs' inline resolve | each verb's own walk over the declared root — the layout's whole five-lane resolve, never a shared nullable-object hand-off |
 | `app/configs/storage.php` | the shipped profile's declaration of the family's one knob, silent by default |
 | `bin/zef` errors arm | the CLI's default log address: positional path, then `ZEF_ERROR_LOG`, then the layout's `logs` lane |
 
@@ -88,8 +93,10 @@ future family can share) versus WHERE the family's artifacts land (the
 wiring's precedence and walk) — and because the single-class spelling
 answered the architecture gate's difficulty ceiling at 26.50 against
 the house limit of 20: the split leaves the declaration at 17.50 and
-the wiring at 18.60, the same fold-split answer `StorageDocumentRoot`
-and `EventBook` already carry.
+the wiring at 16.67 (the resolve walk inlined into the two verbs after
+the rector-mandated `!instanceof` re-spelling of the nullable-object
+hand-off had pushed the intermediate helper shape to 20.15), the same
+fold-split answer `StorageDocumentRoot` and `EventBook` already carry.
 
 ## KDD-ES4 — the walk is the layout's own whole five-lane walk, never a two-lane mini-walk
 
