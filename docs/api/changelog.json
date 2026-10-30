@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-29T17:54:34Z",
+  "as_of": "2026-10-30T01:40:06Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 274,
+  "unreleased_count": 275,
   "versions": [
     {
       "version": "Unreleased",
@@ -3825,6 +3825,37 @@
                 "sha": "ab0d670d736761f5e7cb019c65b89eda5f417a3f",
                 "short_sha": "ab0d670",
                 "subject": "docs(roadmap): refresh the row's cell to the requeued head"
+              }
+            ]
+          },
+          {
+            "pr": 653,
+            "title": "feat(middleware): the error family derives its log and replay addresses from the storage layout",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-30T01:40:06Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/653",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e23985aa840e58d5acf3c651b3f152448281a1b5",
+                "short_sha": "e23985a",
+                "subject": "feat(middleware): the error family derives its log and replay addresses from the storage layout"
+              },
+              {
+                "sha": "57baabf3024b030fb4b705f0d96f020189369695",
+                "short_sha": "57baabf",
+                "subject": "docs(roadmap): record the error family's storage wiring and pin the lane"
+              },
+              {
+                "sha": "cda733beb91fb7a5428e3284010f712e6fbd2769",
+                "short_sha": "cda733b",
+                "subject": "refactor(middleware): inline the resolve walk into the family's two verbs"
+              },
+              {
+                "sha": "249855eef36e21407759ed4a05cbb30921a66aef",
+                "short_sha": "249855e",
+                "subject": "docs(roadmap): refresh the pin over the ceiling answer"
               }
             ]
           }
@@ -17531,6 +17562,37 @@
               "sha": "a7ef03e81ccffdfe73c7ad2da640d4a3894965ef",
               "short_sha": "a7ef03e",
               "subject": "docs(roadmap): record the durable quarantine landing in the status rows"
+            }
+          ]
+        },
+        {
+          "pr": 653,
+          "title": "feat(middleware): the error family derives its log and replay addresses from the storage layout",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-30T01:40:06Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/653",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e23985aa840e58d5acf3c651b3f152448281a1b5",
+              "short_sha": "e23985a",
+              "subject": "feat(middleware): the error family derives its log and replay addresses from the storage layout"
+            },
+            {
+              "sha": "57baabf3024b030fb4b705f0d96f020189369695",
+              "short_sha": "57baabf",
+              "subject": "docs(roadmap): record the error family's storage wiring and pin the lane"
+            },
+            {
+              "sha": "cda733beb91fb7a5428e3284010f712e6fbd2769",
+              "short_sha": "cda733b",
+              "subject": "refactor(middleware): inline the resolve walk into the family's two verbs"
+            },
+            {
+              "sha": "249855eef36e21407759ed4a05cbb30921a66aef",
+              "short_sha": "249855e",
+              "subject": "docs(roadmap): refresh the pin over the ceiling answer"
             }
           ]
         }
