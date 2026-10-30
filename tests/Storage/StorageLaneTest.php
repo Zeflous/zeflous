@@ -20,10 +20,10 @@ use Zef\Framework\Storage\StorageLane;
 #[CoversClass(StorageLane::class)]
 final class StorageLaneTest extends TestCase
 {
-    public function testTheVocabularySpellsFiveLanesInItsDeclarationOrder(): void
+    public function testTheVocabularySpellsSixLanesInItsDeclarationOrder(): void
     {
         self::assertSame(
-            ['logs', 'cache', 'temp', 'uploads', 'replay'],
+            ['logs', 'cache', 'temp', 'uploads', 'replay', 'sessions'],
             array_map(static fn (StorageLane $storageLane): string => $storageLane->spelling(), StorageLane::cases()),
         );
     }
@@ -35,6 +35,7 @@ final class StorageLaneTest extends TestCase
         self::assertSame('temp', StorageLane::Temp->spelling());
         self::assertSame('uploads', StorageLane::Uploads->spelling());
         self::assertSame('replay', StorageLane::Replay->spelling());
+        self::assertSame('sessions', StorageLane::Sessions->spelling());
     }
 
     public function testEveryLaneCarriesItsOwnOneLinePurpose(): void
@@ -58,6 +59,10 @@ final class StorageLaneTest extends TestCase
         self::assertSame(
             "the error lane's private request snapshots",
             StorageLane::Replay->purpose(),
+        );
+        self::assertSame(
+            "the session file driver's identifier-keyed bags",
+            StorageLane::Sessions->purpose(),
         );
     }
 

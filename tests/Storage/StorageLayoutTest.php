@@ -75,7 +75,7 @@ final class StorageLayoutTest extends TestCase
     public function testTheMapHoldsTheVocabularysDeclarationOrder(): void
     {
         self::assertSame(
-            ['logs', 'cache', 'temp', 'uploads', 'replay'],
+            ['logs', 'cache', 'temp', 'uploads', 'replay', 'sessions'],
             array_keys(StorageLayout::resolve($this->root)->lanes()),
         );
     }

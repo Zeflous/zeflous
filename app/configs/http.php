@@ -133,11 +133,31 @@ declare(strict_types=1);
  *       contract forces), and SameSite=Lax. same_site 'None'
  *       requires cookie_secure, refused at validation.
  *
+ *   'store'                     (string, default 'memory')
+ *       The storage driver the composition wires over the session
+ *       adapter port: 'memory' (the zero-dependency in-process
+ *       driver, whose honest scope is the single worker, the test
+ *       suite and the local bootstrap) or 'file' (the filesystem
+ *       driver over the storage layout's `sessions` lane -- every
+ *       worker that can read the directory shares the sessions).
+ *       The word is read through a closed vocabulary: a typo is a
+ *       named halt, never a silently defaulted driver.
+ *
+ *   'path'                      (string, default '')
+ *       The file driver's directory: an explicitly spelled address
+ *       always wins, and an empty string derives from the storage
+ *       layout's `sessions` lane when `storage.root` declares one
+ *       (the same one-way precedence the error family's addresses
+ *       keep). The `file` store word with neither an address nor a
+ *       declared root is a named halt at boot -- a directory the
+ *       host never asked for is never silently defaulted.
+ *
  * The storage behind the family is the session adapter port; the
- * shipped driver is the in-memory one (single-worker, test, and
- * local scope). A deployment preferring another storage composes the
- * middleware over its own driver implementing the port -- a
- * constructor write, never an application change.
+ * shipped drivers are the in-memory one (single-worker, test, and
+ * local scope) and the file one (the `sessions` lane). A
+ * deployment preferring another storage composes the middleware
+ * over its own driver implementing the port -- a constructor
+ * write, never an application change.
  */
 
 return [
@@ -166,5 +186,7 @@ return [
         'cookie_secure' => true,
         'cookie_http_only' => true,
         'same_site' => 'Lax',
+        'store' => 'memory',
+        'path' => '',
     ],
 ];

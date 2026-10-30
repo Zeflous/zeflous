@@ -14,6 +14,7 @@ use Zef\Framework\Http\SessionBounds;
 use Zef\Framework\Http\SessionCookieName;
 use Zef\Framework\Http\SessionKnobs;
 use Zef\Framework\Http\SessionPolicy;
+use Zef\Framework\Http\SessionStores;
 use Zef\Framework\Http\StrictIntegers;
 use Zef\Framework\Http\StrictKnobs;
 use Zef\Framework\Http\StrictToggles;
@@ -30,6 +31,7 @@ use Zef\Framework\Http\StrictToggles;
  */
 #[CoversClass(SessionPolicy::class)]
 #[CoversClass(SessionKnobs::class)]
+#[CoversClass(SessionStores::class)]
 #[CoversClass(SameSiteVocabulary::class)]
 #[CoversClass(SessionBounds::class)]
 #[CoversClass(SessionCookieName::class)]
@@ -50,6 +52,8 @@ final class SessionPolicyTest extends TestCase
         self::assertTrue($sessionPolicy->cookieSecure, 'the roadmap promised Secure armed by default');
         self::assertTrue($sessionPolicy->cookieHttpOnly, 'the roadmap promised HttpOnly by default');
         self::assertSame('Lax', $sessionPolicy->sameSite, 'the roadmap promised SameSite=Lax by default');
+        self::assertSame('memory', $sessionPolicy->store, 'the in-process driver is the armed default');
+        self::assertSame('', $sessionPolicy->path, 'no directory is declared by default');
     }
 
     public function testTheFullKnobMapReads(): void
@@ -62,6 +66,8 @@ final class SessionPolicyTest extends TestCase
             'cookie_secure' => false,
             'cookie_http_only' => false,
             'same_site' => 'Strict',
+            'store' => 'file',
+            'path' => '/var/lib/shop/sessions',
         ]);
 
         self::assertFalse($sessionPolicy->enabled);
@@ -71,6 +77,8 @@ final class SessionPolicyTest extends TestCase
         self::assertFalse($sessionPolicy->cookieSecure);
         self::assertFalse($sessionPolicy->cookieHttpOnly);
         self::assertSame('Strict', $sessionPolicy->sameSite);
+        self::assertSame('file', $sessionPolicy->store);
+        self::assertSame('/var/lib/shop/sessions', $sessionPolicy->path);
     }
 
     public function testTheEnvironmentStringSpellingsFold(): void
@@ -115,7 +123,7 @@ final class SessionPolicyTest extends TestCase
         $this->expectExceptionMessageIsOrContains(
             "The http.session configuration carries the unknown knob 'same_sitee'"
             . ' (known knobs: enabled, cookie_name, idle_timeout, id_bytes, cookie_secure,'
-            . ' cookie_http_only, same_site).',
+            . ' cookie_http_only, same_site, store, path).',
         );
 
         SessionPolicy::fromMap(['same_sitee' => 'Strict']);
@@ -341,9 +349,48 @@ final class SessionPolicyTest extends TestCase
                 'cookie_secure' => true,
                 'cookie_http_only' => true,
                 'same_site' => 'Lax',
+                'store' => 'memory',
+                'path' => '',
             ],
             $profile['session'],
             "the shipped profile spells the policy's own default posture, so the two cannot drift",
         );
+    }
+
+    public function testTheStoreVocabularyFoldsCaseInsensitively(): void
+    {
+        $sessionPolicy = SessionPolicy::fromMap(['store' => 'FILE']);
+
+        self::assertSame('file', $sessionPolicy->store, 'the environment spelling folds');
+    }
+
+    public function testTheStoreVocabularyRejectsAnUnknownWord(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessageIsOrContains(
+            "The http.session store knob must be one of the known stores (memory, file), 'fle' given.",
+        );
+
+        SessionPolicy::fromMap(['store' => 'fle']);
+    }
+
+    public function testTheStoreVocabularyRejectsANonString(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The http.session store knob must be one of the known stores (memory, file), int given.',
+        );
+
+        SessionPolicy::fromMap(['store' => 7]);
+    }
+
+    public function testThePathKnobRejectsANonString(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The http.session path knob must be a string, int given.',
+        );
+
+        SessionPolicy::fromMap(['path' => 7]);
     }
 }
