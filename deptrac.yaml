@@ -158,6 +158,13 @@ deptrac:
     # the `files/**` route map's pure value component, so the composition
     # lane -- not the route map's own layer -- is where the derivation's
     # face lives, and the map stays blind to who is asking it to resolve.
+    # The session family's driver composition (`SessionFactory` over the
+    # `store` knob) widens the lane to `Adapters` the same one-way way:
+    # the session port's own promise spells that only the composition
+    # names the driver, and the factory is that composition -- the `file`
+    # word wires the filesystem adapter the Adapters lane owns over the
+    # port, while the engine-blind layers below keep answering the
+    # `memory` default without ever knowing an adapter exists.
     Middleware:
       - Exception
       - Container
@@ -168,6 +175,7 @@ deptrac:
       - Health
       - Export
       - Storage
+      - Adapters
     # The export family is the ecosystem bridge: the route table's own
     # rendering into the interchange documents the wider PHP and tooling
     # ecosystem reads (OpenAPI 3.1, Postman Collection v2.1.0). It reads the
@@ -209,10 +217,19 @@ deptrac:
     # disclosed tree" the whole tree already shares), so the lane depends
     # on Storage one-way too. Every future adapter (the view engine, the
     # database layer, the cross-process transports the roadmap names) joins
-    # here, over its own port, in its own slice.
+    # here, over its own port, in its own slice. The session file adapter
+    # (`Adapters\Session\FileSessionAdapter` over the HTTP lane's
+    # `SessionAdapterInterface` port) widens the lane to `Http`: the same
+    # hexagonal direction the first pair planted -- the port depends on
+    # nothing, the adapter depends on the port -- with the adapter
+    # additionally reaching the Event lane one-way for the JSON-round-trip
+    # walk (`SerializableValues`, the one spelling of "values that survive
+    # the record" the tree already shares, composed here exactly as the
+    # directory fold composes the document-root judgment).
     Adapters:
       - Event
       - Storage
+      - Http
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the

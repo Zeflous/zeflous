@@ -27,13 +27,14 @@ final class StorageMapTest extends TestCase
     public function testTheTableSpellsTheRootHeaderAndEveryLaneLine(): void
     {
         self::assertSame(
-            "Storage map -- 5 lanes under /srv/app/files\n"
+            "Storage map -- 6 lanes under /srv/app/files\n"
             . "  logs     /srv/app/files/logs -- the structured JSONL records the error and slow-request lanes write\n"
             . '  cache    /srv/app/files/cache -- the compiled configuration and container'
             . " artifacts a fast boot reads\n"
             . "  temp     /srv/app/files/temp -- the transient scratch a process may leave between requests\n"
             . "  uploads  /srv/app/files/uploads -- the inbound files the uploaded-file moves land in\n"
-            . "  replay   /srv/app/files/replay -- the error lane's private request snapshots\n",
+            . "  replay   /srv/app/files/replay -- the error lane's private request snapshots\n"
+            . "  sessions /srv/app/files/sessions -- the session file driver's identifier-keyed bags\n",
             StorageMapText::table($this->paths()),
         );
     }
@@ -44,7 +45,7 @@ final class StorageMapTest extends TestCase
 
         self::assertIsArray($document);
         self::assertSame('/srv/app/files', $document['root']);
-        self::assertSame(5, $document['count']);
+        self::assertSame(6, $document['count']);
 
         $lanes = $document['lanes'] ?? null;
         self::assertIsArray($lanes);
@@ -58,7 +59,7 @@ final class StorageMapTest extends TestCase
         }
 
         self::assertSame(
-            ['logs', 'cache', 'temp', 'uploads', 'replay'],
+            ['logs', 'cache', 'temp', 'uploads', 'replay', 'sessions'],
             array_keys($records),
             "The JSON lanes hold the vocabulary's declaration order.",
         );
@@ -93,6 +94,7 @@ final class StorageMapTest extends TestCase
             'temp' => '/srv/app/files/temp',
             'uploads' => '/srv/app/files/uploads',
             'replay' => '/srv/app/files/replay',
+            'sessions' => '/srv/app/files/sessions',
         ]);
     }
 }

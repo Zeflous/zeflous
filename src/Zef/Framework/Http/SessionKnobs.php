@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Http;
 
 /**
- * The session family's knob census: the seven knobs the family owns, and
+ * The session family's knob census: the nine knobs the family owns, and
  * the rejection an unknown key in the family map answers with -- following
  * the body-parser family's own {@see BodyParserKnobs} lineage over the
  * shared {@see StrictKnobs} census the whole config-driven lineage reads.
@@ -30,6 +30,8 @@ final class SessionKnobs
         'cookie_secure',
         'cookie_http_only',
         'same_site',
+        'store',
+        'path',
     ];
 
     /**

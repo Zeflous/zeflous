@@ -394,6 +394,23 @@
                 "Zef\\Framework\\Http\\HttpWireBody::rendered",
                 "Zef\\Framework\\Http\\RedactionCandidate::edit",
                 "Zef\\Framework\\Http\\RateLimitStores::read",
+                // The session store-vocabulary fold in
+                // SessionStores::read() is the same argument over its
+                // own two-word vocabulary: the words memory/file
+                // contain no ASCII `k`, and the only single-character
+                // lower-case landing from non-ASCII into ASCII in the
+                // Unicode case map is the Kelvin sign's landing on
+                // `k` (U+0130 lands on `i` plus a combining dot, a
+                // two-character mapping), so no store word folds to
+                // memory or file under mb_strtolower() without being
+                // the same ASCII spelling that folds to it under
+                // strtolower() -- every fold-divergent value misses
+                // the closed set under both spellings and is rejected
+                // with the value spelled out. The neighbouring
+                // in_array call stays under the mutator: it is not an
+                // MBString target. This ignore is scoped to that
+                // single method.
+                "Zef\\Framework\\Http\\SessionStores::read",
                 // The cookie builder's construction fold carries the
                 // SameSite-vocabulary argument the CSRF fold below it
                 // already spelled: the words strict/lax/none contain no
@@ -576,7 +593,39 @@
                 // source-level option. This ignore is scoped to that
                 // single method; the neighbouring mb_strlen ceilings
                 // in the Event lane stay fully under the mutator.
-                "Zef\\Framework\\Adapters\\Event\\DeliveryStaging::write"
+                "Zef\\Framework\\Adapters\\Event\\DeliveryStaging::write",
+                // The session staging fold's write-length measurement
+                // joins the delivery staging entry's own class, over
+                // the same construction: the only string this fold's
+                // single call site can ever hand it is a session
+                // record's JSON, and the encoder spells every record
+                // with json_encode under JSON_THROW_ON_ERROR |
+                // JSON_PRESERVE_ZERO_FRACTION and NO
+                // JSON_UNESCAPED_UNICODE -- every non-ASCII codepoint
+                // leaves the encoder as a \\uXXXX escape, so the record
+                // is pure ASCII by construction and mb_strlen and
+                // strlen agree on every value the guard can ever see
+                // (verified by running the family suite under the
+                // manually applied mutation). The direct fixes were
+                // reasoned through and carry the same costs the
+                // delivery entry named. This ignore is scoped to that
+                // single method.
+                "Zef\\Framework\\Adapters\\Session\\SessionRecordStaging::write",
+                // The session layout fold's extension cut joins the
+                // same class from the suffix side: the extension is
+                // five ASCII bytes, and every filename the fold can
+                // ever cut ends in those bytes, so the string's last
+                // five characters and its last five bytes are the same
+                // five ASCII bytes -- the character-wise cut and the
+                // byte-wise cut answer the same prefix for every
+                // reachable input (a foreign multibyte name included:
+                // its refusal is the codec's own business, never this
+                // fold's). The mb_ spelling itself is the house's own
+                // formatter doctrine (MbStrFunctions rewrites every
+                // strlen to its mb_ twin), so the byte-level spelling
+                // is not a source-level option. This ignore is scoped
+                // to that single method.
+                "Zef\\Framework\\Adapters\\Session\\SessionRecordFiles::recordIdOf"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",

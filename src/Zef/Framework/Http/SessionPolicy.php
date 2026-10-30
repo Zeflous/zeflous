@@ -20,7 +20,13 @@ namespace Zef\Framework\Http;
  * SessionCookieName}), and the SameSite posture
  * through the family's vocabulary ({@see SameSiteVocabulary}): a wrong
  * type, an out-of-corridor bound, an unknown word or an unknown key
- * halts the boot with the knob named.
+ * halts the boot with the knob named. The storage-driver word reads
+ * through the family's store vocabulary ({@see SessionStores}) and the
+ * file driver's declared directory is any string the host spelled
+ * (the empty string the derive posture, an explicit address always
+ * the deployment's own word) -- the two composition knobs the factory
+ * seam consumes, validated here so the census and the reading can
+ * never disagree.
  *
  * A `null` map is the absent family and reads as the constructor
  * defaults, which mirror the framework profile's own declaration
@@ -53,7 +59,26 @@ final readonly class SessionPolicy
      * message spells it. */
     private const string GIVEN_SUFFIX = ' given.';
 
+    /** The knob map's own defaults, the merge that fills the absent knobs
+     * before the strict readers read -- one spelling of the default
+     * posture the constructor's own signature also spells (the empty-map
+     * test pins the two together). */
+    private const array KNOB_DEFAULTS = [
+        'enabled' => true,
+        'cookie_name' => 'zef_session',
+        'idle_timeout' => 1800,
+        'id_bytes' => 32,
+        'cookie_secure' => true,
+        'cookie_http_only' => true,
+        'same_site' => SameSiteVocabulary::LAX,
+        'store' => SessionStores::MEMORY,
+        'path' => '',
+    ];
+
     public string $cookieName;
+
+    /** The storage driver the composition seam wires over the port ({@see SessionStores}). */
+    public string $store;
 
     /**
      * @param bool   $enabled        the family's arm: a disabled family is a
@@ -70,6 +95,14 @@ final readonly class SessionPolicy
      * @param bool   $cookieHttpOnly whether the cookie carries HttpOnly
      * @param string $sameSite       the SameSite posture: one of the
      *                               {@see SameSiteVocabulary} words
+     * @param string $store          the storage driver the composition seam
+     *                               wires over the port: one of the
+     *                               {@see SessionStores} words
+     * @param string $path           the file driver's declared directory --
+     *                               empty derives from the storage layout's
+     *                               `sessions` lane when the composition
+     *                               asks ({@see \Zef\Framework\Middleware\SessionStorageWiring}),
+     *                               an explicitly spelled address always wins
      */
     public function __construct(
         public bool $enabled = true,
@@ -79,8 +112,11 @@ final readonly class SessionPolicy
         public bool $cookieSecure = true,
         public bool $cookieHttpOnly = true,
         public string $sameSite = SameSiteVocabulary::LAX,
+        string $store = SessionStores::MEMORY,
+        public string $path = '',
     ) {
         $this->cookieName = SessionCookieName::read($cookieName);
+        $this->store = SessionStores::read($store);
         SessionBounds::assertIdleTimeout($this->idleTimeout);
         SessionBounds::assertIdBytes($this->idBytes);
 
@@ -117,14 +153,38 @@ final readonly class SessionPolicy
 
         SessionKnobs::rejectUnknown($map);
 
+        $map += self::KNOB_DEFAULTS;
+
         return new self(
-            enabled: StrictToggles::read($map['enabled'] ?? true, 'http.session enabled'),
-            cookieName: SessionCookieName::read($map['cookie_name'] ?? 'zef_session'),
-            idleTimeout: StrictIntegers::read($map['idle_timeout'] ?? 1800, 'http.session idle_timeout'),
-            idBytes: StrictIntegers::read($map['id_bytes'] ?? 32, 'http.session id_bytes'),
-            cookieSecure: StrictToggles::read($map['cookie_secure'] ?? true, 'http.session cookie_secure'),
-            cookieHttpOnly: StrictToggles::read($map['cookie_http_only'] ?? true, 'http.session cookie_http_only'),
-            sameSite: SameSiteVocabulary::read($map['same_site'] ?? SameSiteVocabulary::LAX, 'http.session'),
+            enabled: StrictToggles::read($map['enabled'], 'http.session enabled'),
+            cookieName: SessionCookieName::read($map['cookie_name']),
+            idleTimeout: StrictIntegers::read($map['idle_timeout'], 'http.session idle_timeout'),
+            idBytes: StrictIntegers::read($map['id_bytes'], 'http.session id_bytes'),
+            cookieSecure: StrictToggles::read($map['cookie_secure'], 'http.session cookie_secure'),
+            cookieHttpOnly: StrictToggles::read($map['cookie_http_only'], 'http.session cookie_http_only'),
+            sameSite: SameSiteVocabulary::read($map['same_site'], 'http.session'),
+            store: SessionStores::read($map['store']),
+            path: self::readPath($map['path']),
+        );
+    }
+
+    /**
+     * Reads the file driver's declared directory: any address string,
+     * the empty string included (the derive posture the wiring answers).
+     *
+     * @param mixed $path the raw knob value, the empty string when absent
+     *
+     * @throws HttpException when the knob is not a string
+     */
+    private static function readPath(mixed $path): string
+    {
+        if (\is_string($path)) {
+            return $path;
+        }
+
+        throw new HttpException(
+            'The http.session path knob must be a string, '
+            . get_debug_type($path) . self::GIVEN_SUFFIX,
         );
     }
 }

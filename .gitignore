@@ -36,3 +36,5 @@ htmlcov/
 !/files/uploads/.gitkeep
 /files/replay/*
 !/files/replay/.gitkeep
+/files/sessions/*
+!/files/sessions/.gitkeep
