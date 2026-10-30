@@ -3,8 +3,6 @@
 
 declare(strict_types=1);
 
-const DEFAULT_ERROR_LOG = __DIR__ . '/../var/log/zef-errors.jsonl';
-
 $command = $argv[1] ?? '';
 
 if ($command === 'errors:replay') {
@@ -654,8 +652,8 @@ if (in_array($command, ['http:dump', 'http:headers'], true)) {
     }
 }
 
-$path = getenv('ZEF_ERROR_LOG') ?: DEFAULT_ERROR_LOG;
 $requestIdFilter = null;
+$positionalPath = null;
 foreach (array_slice($argv, 2) as $argument) {
     if (str_starts_with($argument, '--request-id=')) {
         $candidate = substr($argument, strlen('--request-id='));
@@ -668,7 +666,7 @@ foreach (array_slice($argv, 2) as $argument) {
     }
 
     if ($argument !== '--confirm') {
-        $path = $argument;
+        $positionalPath = $argument;
     }
 }
 $confirm = in_array('--confirm', $argv, true);
@@ -678,6 +676,50 @@ if (!in_array($command, ['errors:report', 'errors:clear'], true)) {
         . "       bin/zef errors:clear [jsonl-path] --confirm\n"
         . "       bin/zef errors:replay <id> <replay-directory> <http://127.0.0.1:port>\n");
     exit(2);
+}
+
+if (is_string($positionalPath)) {
+    $path = $positionalPath;
+} else {
+    $environmentErrorLog = getenv('ZEF_ERROR_LOG');
+    if (is_string($environmentErrorLog) && $environmentErrorLog !== '') {
+        $path = $environmentErrorLog;
+    } else {
+        $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+        if (is_file($autoload)) {
+            require_once $autoload;
+        } else {
+            spl_autoload_register(static function (string $class): void {
+                $bases = [
+                    'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+                    'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+                ];
+                foreach ($bases as $prefix => $base) {
+                    if (str_starts_with($class, $prefix)) {
+                        $file = $base
+                            . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                        if (is_file($file)) {
+                            require $file;
+                        }
+                    }
+                }
+            });
+        }
+
+        $environmentStorageRoot = getenv('ZEF_STORAGE_ROOT');
+        $storageRoot = is_string($environmentStorageRoot) && $environmentStorageRoot !== ''
+            ? $environmentStorageRoot
+            : dirname(__DIR__) . '/files';
+
+        try {
+            $path = Zef\Framework\Storage\StorageLayout::resolve($storageRoot)
+                ->path(Zef\Framework\Storage\StorageLane::Logs)
+                . '/' . Zef\Framework\Middleware\ErrorStorageWiring::LOG_FILE_NAME;
+        } catch (InvalidArgumentException $layoutRefusal) {
+            fwrite(STDERR, 'The error log storage layout refused: ' . $layoutRefusal->getMessage() . "\n");
+            exit(1);
+        }
+    }
 }
 
 if (is_link($path)) {

@@ -59,10 +59,7 @@ final class ProcessErrorBoundaryFactory
             throw new ConfigException('http.error_handling.debug must be a boolean.');
         }
 
-        $logPath = $config->get('http.error_handling.log_path', '');
-        if (!\is_string($logPath)) {
-            throw new ConfigException('http.error_handling.log_path must be a string.');
-        }
+        $logPath = ErrorStorageWiring::logAddress($config);
 
         $metricsEnabled = $config->get('observability.metrics.enabled', false);
         if (!\is_bool($metricsEnabled)) {
