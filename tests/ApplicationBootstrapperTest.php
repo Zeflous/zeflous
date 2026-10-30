@@ -16,6 +16,7 @@ use Zef\Framework\Config\Loader\DirectoryInventory;
 use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\Container\Aot\ContainerAotCache;
+use Zef\Framework\EventStorageWiring;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Http\BodyParserMiddleware;
@@ -182,6 +183,13 @@ final class ApplicationBootstrapperTest extends TestCase
                     'arguments' => [
                         ['service' => FrameworkDefaults::CONFIG_SERVICE],
                     ],
+                ],
+                'events.deferred.store' => [
+                    'factory' => EventStorageWiring::class . '::store',
+                    'arguments' => [
+                        ['service' => FrameworkDefaults::CONFIG_SERVICE],
+                    ],
+                    'lifetime' => 'transient',
                 ],
             ],
             $kernel->config()->get('framework.services'),
@@ -672,7 +680,7 @@ final class ApplicationBootstrapperTest extends TestCase
     /**
      * Lays a boot environment down under the temporary root: a
      * configuration directory (one file per entry) beside a provisioned
-     * storage tree (all six lanes), and answers the parent that holds
+     * storage tree (all seven lanes), and answers the parent that holds
      * both -- the boot's input under `configs/`, the declared layout
      * root under `storage/`.
      *

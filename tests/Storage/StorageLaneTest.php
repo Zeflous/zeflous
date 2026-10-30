@@ -10,20 +10,20 @@ use Zef\Framework\Storage\StorageLane;
 
 /**
  * Pins the lane vocabulary the whole `files/**` route map hangs
- * from: the five canonical spellings, the one-line purpose each
- * lane's inspector line prints, and the declaration order every
- * walk and renderer holds -- the order IS the contract the JSON
- * record shape and the text table both spell.
+ * from: the canonical spellings, the one-line purpose each lane's
+ * inspector line prints, and the declaration order every walk and
+ * renderer holds -- the order IS the contract the JSON record
+ * shape and the text table both spell.
  *
  * @internal
  */
 #[CoversClass(StorageLane::class)]
 final class StorageLaneTest extends TestCase
 {
-    public function testTheVocabularySpellsSixLanesInItsDeclarationOrder(): void
+    public function testTheVocabularySpellsSevenLanesInItsDeclarationOrder(): void
     {
         self::assertSame(
-            ['logs', 'cache', 'temp', 'uploads', 'replay', 'sessions'],
+            ['logs', 'cache', 'temp', 'uploads', 'replay', 'sessions', 'queue'],
             array_map(static fn (StorageLane $storageLane): string => $storageLane->spelling(), StorageLane::cases()),
         );
     }
@@ -36,6 +36,7 @@ final class StorageLaneTest extends TestCase
         self::assertSame('uploads', StorageLane::Uploads->spelling());
         self::assertSame('replay', StorageLane::Replay->spelling());
         self::assertSame('sessions', StorageLane::Sessions->spelling());
+        self::assertSame('queue', StorageLane::Queue->spelling());
     }
 
     public function testEveryLaneCarriesItsOwnOneLinePurpose(): void
@@ -63,6 +64,10 @@ final class StorageLaneTest extends TestCase
         self::assertSame(
             "the session file driver's identifier-keyed bags",
             StorageLane::Sessions->purpose(),
+        );
+        self::assertSame(
+            "the durable event delivery store's entries and books",
+            StorageLane::Queue->purpose(),
         );
     }
 
