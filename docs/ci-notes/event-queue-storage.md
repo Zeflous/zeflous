@@ -200,21 +200,30 @@ lineage) -- each under the ceiling on its own terms (12.00, 7.73,
 question split, never a metric dodge: each fold owns exactly one
 question the family's grammar asks.
 
-The mutation ledger taught the second lesson: the drift pin that
-holds the Default layer's `events` block and the shipped
-`events.php` to the same knobs ESCAPED two `ArrayItemRemoval`
-mutants on its first run, and the manual reproduction proved the
-test kills them -- the pin was simply invisible to the ledger,
-because the suite runs with `requireCoverageMetadata` and the pin's
-home carried `CoversClass(EventDeliveryDeclaration)` alone. The
+The mutation ledger taught the second lesson, and the SonarCloud
+round taught its twin. The drift pin that holds the Default layer's
+`events` block and the shipped `events.php` to the same knobs
+ESCAPED two `ArrayItemRemoval` mutants on its first run, and the
+manual reproduction proved the test kills them -- the pin was
+simply invisible to the ledger, because the suite runs with
+`requireCoverageMetadata` and the pin's home carried
+`CoversClass(EventDeliveryDeclaration)` alone. The SonarCloud
+new-code gate then failed the SAME slice at 54.4% coverage for the
+same reason wearing the same costume: the four reading folds
+(`EventFamilies`, `EventDeliveryKnobs`, `EventDeliveryStores`,
+`EventDeliveryCapacity`) executed under the declaration's tests but
+read at 0% in the clover report, because their attribution was
+filtered to the class the metadata named -- #589's lesson, replayed
+on a family that should have known it by heart. The
 covers-attribution doctrine KDD-DU13 spelled first (the folds that
-executed under `FileDeliveryStoreTest` read at 0% because their
-attribution was filtered to the class the metadata named) has a
-second face: a pin whose kill depends on lines OUTSIDE its named
-coverage is a pin the ledger cannot see, however hard it kills by
-hand. The fix is the `AotMapTest` shape -- the pin's home names
-`FrameworkDefaults::class` beside its own fold, because the pin
-exercises both: the declaration's default constant and the Default
-layer's block. Two mutants died, the ledger read 225/225, and the
-lesson stays here for the next family that ships a profile drift
-pin.
+executed under `FileDeliveryStoreTest` read at 0%) has two faces:
+a pin whose kill depends on lines OUTSIDE its named coverage is a
+pin the ledger cannot see, however hard it kills by hand; and a
+fold whose reading home does not name it is a fold NO coverage
+consumer can see. The fix is the `AotMapTest` shape both times --
+the test's home names every class its tests actually exercise: the
+declaration's own family of folds and, for the drift pin,
+`FrameworkDefaults::class` beside them. Two mutants died, the
+ledger read 225/225, the new-code gate went green, and the lesson
+stays here for the next family that ships a reading fold or a
+profile drift pin.

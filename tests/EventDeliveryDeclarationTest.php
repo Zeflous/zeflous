@@ -8,7 +8,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\EventDeliveryCapacity;
 use Zef\Framework\EventDeliveryDeclaration;
+use Zef\Framework\EventDeliveryKnobs;
+use Zef\Framework\EventDeliveryStores;
+use Zef\Framework\EventFamilies;
 use Zef\Framework\FrameworkDefaults;
 
 /**
@@ -19,17 +23,25 @@ use Zef\Framework\FrameworkDefaults;
  * integer seam with its environment-overlay fold), and the drift
  * pin that holds the framework profile's own declaration and the
  * shipped configuration file to the same knobs -- the two cannot
- * disagree without a test naming it. The covers list names both
- * classes the drift pin exercises (the declaration's own default
- * constant and the Default layer's block): the suite runs with
- * requireCoverageMetadata, so a pin whose coverage of
- * FrameworkDefaults is not named would be invisible to the
- * mutation ledger -- the covers-attribution doctrine KDD-DU13
- * spelled first.
+ * disagree without a test naming it. The covers list names the
+ * whole reading family this class exercises -- the declaration and
+ * the four folds its grammar reads through (`EventFamilies`,
+ * `EventDeliveryKnobs`, `EventDeliveryStores`,
+ * `EventDeliveryCapacity`) plus the Default layer the drift pin
+ * reads: the suite runs with requireCoverageMetadata, so coverage
+ * of a fold whose home does not name it is filtered out of the
+ * clover report -- invisible to the mutation ledger AND to
+ * SonarCloud's new-code gate alike, the covers-attribution
+ * doctrine KDD-DU13 spelled first and the Sonar round of this very
+ * slice replayed (#589's lesson, the second face).
  *
  * @internal
  */
 #[CoversClass(EventDeliveryDeclaration::class)]
+#[CoversClass(EventDeliveryCapacity::class)]
+#[CoversClass(EventDeliveryKnobs::class)]
+#[CoversClass(EventDeliveryStores::class)]
+#[CoversClass(EventFamilies::class)]
 #[CoversClass(FrameworkDefaults::class)]
 final class EventDeliveryDeclarationTest extends TestCase
 {
