@@ -8,7 +8,6 @@ use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Storage\StorageLane;
 use Zef\Framework\Storage\StorageLayout;
-use Zef\Framework\Storage\StoragePaths;
 
 /**
  * The error family's wiring onto the `files/**` route map: the fold
@@ -41,7 +40,10 @@ use Zef\Framework\Storage\StoragePaths;
  * unnoticed -- and the walk is the layout's own over the WHOLE
  * five-lane tree, fail-closed with the refusing seam named: the error
  * family answers to the same map the inspector prints, not a
- * two-lane mini-walk that could drift from it. The privacy posture
+ * two-lane mini-walk that could drift from it. Each verb resolves its
+ * own walk inline over the declared root (never a shared nullable
+ * object hand-off) because the two questions deserve two straight
+ * lines, not a null-check dance between them. The privacy posture
  * stays where it already lives -- the JSON log destination's own file
  * checks, the replay directory's own owner-only requirement --
  * because this fold answers WHERE, never HOW PRIVATE (two questions,
@@ -77,12 +79,13 @@ final class ErrorStorageWiring
             return $logPath;
         }
 
-        $paths = self::paths($config);
-        if (!$paths instanceof StoragePaths) {
+        $root = StorageRootDeclaration::root($config);
+        if ($root === null) {
             return '';
         }
 
-        return $paths->path(StorageLane::Logs) . \DIRECTORY_SEPARATOR . self::LOG_FILE_NAME;
+        return StorageLayout::resolve($root)->path(StorageLane::Logs)
+            . \DIRECTORY_SEPARATOR . self::LOG_FILE_NAME;
     }
 
     /**
@@ -99,30 +102,11 @@ final class ErrorStorageWiring
      */
     public static function replayDirectory(Config $config): string
     {
-        $paths = self::paths($config);
-        if (!$paths instanceof StoragePaths) {
+        $root = StorageRootDeclaration::root($config);
+        if ($root === null) {
             return '';
         }
 
-        return $paths->path(StorageLane::Replay);
-    }
-
-    /**
-     * The walked layout over the declared root, or null when the
-     * declaration answers silent (no root declared -- the family keeps
-     * its ad-hoc posture and every explicit knob semantics is
-     * unchanged).
-     *
-     * @throws ConfigException when the storage map is malformed or
-     *                         carries an unknown knob
-     */
-    private static function paths(Config $config): ?StoragePaths
-    {
-        $root = StorageRootDeclaration::root($config);
-        if ($root === null) {
-            return null;
-        }
-
-        return StorageLayout::resolve($root);
+        return StorageLayout::resolve($root)->path(StorageLane::Replay);
     }
 }
