@@ -68,7 +68,7 @@ deptrac:
     - name: Kernel
       collectors:
         - type: classNameRegex
-          value: '#^Zef\\Framework\\(Kernel|Version|ContainerBootstrapper|ApplicationBootstrapper|FrameworkDefaults)$#'
+          value: '#^Zef\\Framework\\(Kernel|Version|ContainerBootstrapper|ApplicationBootstrapper|CacheStorageWiring|FrameworkDefaults)$#'
     - name: Tooling
       collectors:
         - type: classNameRegex
@@ -237,6 +237,14 @@ deptrac:
     # and the framework's code-declared defaults profile (FrameworkDefaults,
     # pure data). Each widening is additive: the orchestrator composes units
     # the layers below already own.
+    # The compiled caches' storage wiring (CacheStorageWiring) widens the
+    # lane to `Storage` the same one-way way the error family's wiring
+    # widened the middleware lane: it is the fold that answers the boot's
+    # two acceleration artifacts (the configuration cache and the container
+    # AOT cache) from the composition-declared root by walking the
+    # `files/**` route map's pure value component, so the composition lane
+    # -- not the route map's own layer -- is where the derivation's face
+    # lives, and the map stays blind to who is asking it to resolve.
     Kernel:
       - Container
       - Health
@@ -245,6 +253,7 @@ deptrac:
       - Contracts
       - Exception
       - Middleware
+      - Storage
     # Tooling gates are developer/CI utilities: they may use the kernel and the
     # exception root, but no other domain layer. The widening to Container is
     # the analysis CLI lane's own: the container inventory report renders the
