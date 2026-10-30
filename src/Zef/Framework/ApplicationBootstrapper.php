@@ -49,6 +49,15 @@ use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
  * - **Env layer** is the caller's {@see EnvSource}, when one is handed
  *   over: the highest-precedence overlay, opt-in by naming a prefix
  *   (`EnvSource::fromEnvironment('APP_')`).
+ * - **Storage root** is the caller's declared `storageRoot`, the
+ *   composition-time word that provisions the boot's two compiled-cache
+ *   defaults ({@see CacheStorageWiring}): a seam left unset derives its
+ *   artifact address from the layout's `cache` lane -- the configuration
+ *   cache and the container AOT cache -- while a seam already answered
+ *   explicitly keeps the host's own instance verbatim. A null or empty
+ *   root derives nothing, exactly the posture before the layout existed;
+ *   a declared root whose tree fails the layout's walk refuses the boot
+ *   before a single configuration file is read.
  * - **Validate + cache** is the {@see ConfigBootstrapper}: the route table
  *   is schema-validated, and an optional {@see ConfigCache} short-circuits
  *   the whole load when an artifact is present (KDD-6: rebuild is explicit,
@@ -98,6 +107,7 @@ final readonly class ApplicationBootstrapper
         private ?ConfigCache $configCache = null,
         private DefinitionCompiler $definitionCompiler = new DefinitionCompiler(),
         private ?ContainerAotCache $containerAotCache = null,
+        private ?string $storageRoot = null,
     ) {
     }
 
@@ -112,6 +122,12 @@ final readonly class ApplicationBootstrapper
      */
     public function boot(string $configDirectory, ?EnvSource $envSource = null): Kernel
     {
+        $configCache = CacheStorageWiring::configCache($this->configCache, $this->storageRoot);
+        $containerAotCache = CacheStorageWiring::containerAotCache(
+            $this->containerAotCache,
+            $this->storageRoot,
+        );
+
         $builder = LayeredConfigBuilder::create()
             ->withDefaults(FrameworkDefaults::profile())
         ;
@@ -126,7 +142,7 @@ final readonly class ApplicationBootstrapper
             $builder = $builder->withEnvironment($envSource);
         }
 
-        $config = new ConfigBootstrapper($this->configCache)->boot($builder);
+        $config = new ConfigBootstrapper($configCache)->boot($builder);
 
         $container = new Container();
         $container->set(
@@ -138,7 +154,7 @@ final readonly class ApplicationBootstrapper
             containerCompileLane: new ContainerCompileLane(
                 containerInstalls: new ContainerInstalls($this->definitionCompiler),
             ),
-            containerAotCache: $this->containerAotCache,
+            containerAotCache: $containerAotCache,
         )
             ->bootstrap($config, $container)
         ;

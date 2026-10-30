@@ -33,6 +33,16 @@ declare(strict_types=1);
  *       refused at construction with the failing seam named
  *       (`bin/zef storage:map` answers the same verdict from the
  *       shell), and the framework never creates the tree for you.
+ *
+ *       This knob provisions the request-time families (the log
+ *       address, the replay directory, the session directory). The
+ *       boot's two compiled caches -- the configuration cache and
+ *       the container AOT artifact -- derive from the root declared
+ *       at the composition seam instead (`ApplicationBootstrapper`'s
+ *       `storageRoot` word), because a cache address read from the
+ *       repository it short-circuits would demand the very load the
+ *       cache exists to skip. A deployment wanting one word behind
+ *       both seams spells this knob from its own environment.
  */
 
 return [

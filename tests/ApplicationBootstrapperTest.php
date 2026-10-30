@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace Zef\Test;
 
+use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\ApplicationBootstrapper;
+use Zef\Framework\CacheStorageWiring;
 use Zef\Framework\Config\Cache\ConfigCache;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Loader\DirectoryInventory;
 use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Routing\RoutingRuntime;
+use Zef\Framework\Container\Aot\ContainerAotCache;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Http\BodyParserMiddleware;
@@ -42,6 +45,7 @@ use Zef\Framework\Middleware\SessionFactory;
 use Zef\Framework\Middleware\SlowRequestFactory;
 use Zef\Framework\Middleware\TimingFactory;
 use Zef\Framework\Middleware\TracingFactory;
+use Zef\Framework\Storage\StorageLane;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\NoopSpan;
 use Zef\Framework\Telemetry\Tracer;
@@ -63,6 +67,7 @@ use Zef\Test\Support\Middleware\MiddlewareTrace;
  */
 #[CoversClass(ApplicationBootstrapper::class)]
 #[CoversClass(BodyParserFactory::class)]
+#[CoversClass(CacheStorageWiring::class)]
 #[CoversClass(DirectoryInventory::class)]
 #[CoversClass(FrameworkDefaults::class)]
 final class ApplicationBootstrapperTest extends TestCase
@@ -430,6 +435,143 @@ final class ApplicationBootstrapperTest extends TestCase
         self::assertSame(['interfaces' => []], FrameworkDefaults::profile()['tags']);
     }
 
+    public function testADeclaredStorageRootDumpsTheConfigurationArtifactIntoTheCacheLane(): void
+    {
+        $root = $this->temporaryBootTree([
+            'services.php' => '<?php return ["marker" => ["value" => "cold"]];',
+        ]);
+
+        $booted = new ApplicationBootstrapper(storageRoot: $root . '/storage')
+            ->boot($root . '/configs')
+        ;
+
+        self::assertSame('cold', $booted->config()->get('services.marker.value'));
+        self::assertFileExists(
+            $root . '/storage/cache/zef-config.php',
+            'the declared root derives the configuration artifact into the cache lane',
+        );
+        self::assertFileDoesNotExist(
+            $root . '/storage/cache/zef-container-aot.php',
+            'the knob, not the layout, decides what the boot accelerates: AOT stays off',
+        );
+    }
+
+    public function testASecondBootOverADeclaredRootLoadsTheArtifactFromTheCacheLane(): void
+    {
+        $root = $this->temporaryBootTree([
+            'services.php' => '<?php return ["marker" => ["value" => "cold"]];',
+        ]);
+        $configs = $root . '/configs';
+        $applicationBootstrapper = new ApplicationBootstrapper(storageRoot: $root . '/storage');
+
+        $applicationBootstrapper->boot($configs);
+        file_put_contents(
+            $configs . '/services.php',
+            '<?php return ["marker" => ["value" => "changed"]];',
+        );
+
+        $cached = $applicationBootstrapper->boot($configs)->config();
+        self::assertSame(
+            'cold',
+            $cached->get('services.marker.value'),
+            'the derived artifact is loaded on the second boot, never rebuilt -- KDD-6 rides the layout unchanged',
+        );
+    }
+
+    public function testADeclaredStorageRootLaysTheContainerAotArtifactIntoTheCacheLane(): void
+    {
+        $root = $this->temporaryBootTree([
+            'services.php' => '<?php return ["answer" => ["value" => "derived"]];',
+            'aot.php' => '<?php return ["enabled" => true];',
+            'container.php' => '<?php return ["mode" => "production"];',
+        ]);
+
+        new ApplicationBootstrapper(storageRoot: $root . '/storage')->boot($root . '/configs');
+
+        self::assertFileExists(
+            $root . '/storage/cache/zef-container-aot.php',
+            'the declared root derives the container AOT artifact into the cache lane',
+        );
+    }
+
+    public function testAnExplicitCacheKeepsItsOwnAddressOverTheDeclaredRoot(): void
+    {
+        $root = $this->temporaryBootTree([
+            'services.php' => '<?php return ["marker" => ["value" => "explicit"]];',
+        ]);
+        mkdir($root . '/elsewhere', 0o777, true);
+
+        $booted = new ApplicationBootstrapper(
+            configCache: new ConfigCache($root . '/elsewhere/config.php'),
+            storageRoot: $root . '/storage',
+        )->boot($root . '/configs');
+
+        self::assertSame('explicit', $booted->config()->get('services.marker.value'));
+        self::assertFileExists(
+            $root . '/elsewhere/config.php',
+            "an explicitly spelled cache keeps the host's own address",
+        );
+        self::assertFileDoesNotExist(
+            $root . '/storage/cache/zef-config.php',
+            "the derivation fills the seams the host left unset, never overrides the host's own words",
+        );
+    }
+
+    public function testABootWithoutADeclaredRootWritesNoArtifacts(): void
+    {
+        $root = $this->temporaryBootTree([
+            'services.php' => '<?php return ["marker" => ["value" => "unprovisioned"]];',
+        ]);
+
+        new ApplicationBootstrapper()->boot($root . '/configs');
+
+        self::assertFileDoesNotExist(
+            $root . '/storage/cache/zef-config.php',
+            "a boot that declares no root derives nothing -- the migration story's honest no-op",
+        );
+        self::assertFileDoesNotExist($root . '/storage/cache/zef-container-aot.php');
+    }
+
+    public function testAMisprovisionedTreeRefusesTheBootBeforeTheConfigurationIsRead(): void
+    {
+        $root = $this->temporaryBootTree([]);
+        rmdir($root . '/storage/cache');
+
+        try {
+            new ApplicationBootstrapper(storageRoot: $root . '/storage')
+                ->boot($root . '/configs-absent')
+            ;
+            self::fail('A declared root with a missing cache lane must refuse the boot.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The storage lane 'cache' must be an existing writable non-symlink directory.",
+                $invalidArgumentException->getMessage(),
+                'the tree is refused before the configuration directory is ever read',
+            );
+        }
+    }
+
+    public function testBothCachesExplicitBootOverAnUnusableRoot(): void
+    {
+        $root = $this->temporaryBootTree([
+            'services.php' => '<?php return ["answer" => ["value" => "explicit"]];',
+        ]);
+        mkdir($root . '/elsewhere', 0o777, true);
+
+        $booted = new ApplicationBootstrapper(
+            configCache: new ConfigCache($root . '/elsewhere/config.php'),
+            containerAotCache: new ContainerAotCache($root . '/elsewhere/aot.php'),
+            storageRoot: $root . '/storage-never-created',
+        )->boot($root . '/configs');
+
+        self::assertSame(
+            'explicit',
+            $booted->config()->get('services.answer.value'),
+            "the root is the derivation's input, not a promise to validate something nobody consumes",
+        );
+        self::assertFileExists($root . '/elsewhere/config.php');
+    }
+
     public function testTheDefaultProfileShipsTheUngovernedNamespacesKnob(): void
     {
         // The absent namespace lane boots ungoverned: an empty scope
@@ -522,6 +664,37 @@ final class ApplicationBootstrapperTest extends TestCase
 
         foreach ($files as $name => $content) {
             file_put_contents($root . '/' . $name, $content);
+        }
+
+        return $root;
+    }
+
+    /**
+     * Lays a boot environment down under the temporary root: a
+     * configuration directory (one file per entry) beside a provisioned
+     * storage tree (all six lanes), and answers the parent that holds
+     * both -- the boot's input under `configs/`, the declared layout
+     * root under `storage/`.
+     *
+     * @param array<string, string> $files the configuration files to write,
+     *                                     keyed by basename
+     *
+     * @return non-empty-string the parent directory holding the pair
+     */
+    private function temporaryBootTree(array $files): string
+    {
+        $root = sys_get_temp_dir() . '/zef-appboot-' . uniqid('', false);
+        $this->temporaryRoot = $root;
+
+        mkdir($root . '/configs', 0o777, true);
+        mkdir($root . '/storage', 0o700, true);
+
+        foreach (StorageLane::cases() as $lane) {
+            mkdir($root . '/storage/' . $lane->spelling(), 0o700);
+        }
+
+        foreach ($files as $name => $content) {
+            file_put_contents($root . '/configs/' . $name, $content);
         }
 
         return $root;
