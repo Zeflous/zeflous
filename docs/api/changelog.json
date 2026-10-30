@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-30T18:25:19Z",
+  "as_of": "2026-10-30T21:18:37Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 276,
+  "unreleased_count": 277,
   "versions": [
     {
       "version": "Unreleased",
@@ -3877,6 +3877,27 @@
                 "sha": "fddc060a2f3afb309ed1350e6e165f8f4f75fe07",
                 "short_sha": "fddc060",
                 "subject": "docs(roadmap): record the sessions lane slice and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 659,
+            "title": "feat(kernel): the compiled caches derive their addresses from the storage layout",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-30T21:18:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/659",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cdb5d277cb9638dccdce34ac3dfe5a0bd28d76e7",
+                "short_sha": "cdb5d27",
+                "subject": "feat(kernel): the compiled caches derive their addresses from the storage layout"
+              },
+              {
+                "sha": "e23ad02143385291eb89d3a122339589e729259d",
+                "short_sha": "e23ad02",
+                "subject": "docs(roadmap): record the compiled caches' storage wiring and pin the lane"
               }
             ]
           }
@@ -17635,6 +17656,27 @@
               "sha": "fddc060a2f3afb309ed1350e6e165f8f4f75fe07",
               "short_sha": "fddc060",
               "subject": "docs(roadmap): record the sessions lane slice and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 659,
+          "title": "feat(kernel): the compiled caches derive their addresses from the storage layout",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-30T21:18:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/659",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cdb5d277cb9638dccdce34ac3dfe5a0bd28d76e7",
+              "short_sha": "cdb5d27",
+              "subject": "feat(kernel): the compiled caches derive their addresses from the storage layout"
+            },
+            {
+              "sha": "e23ad02143385291eb89d3a122339589e729259d",
+              "short_sha": "e23ad02",
+              "subject": "docs(roadmap): record the compiled caches' storage wiring and pin the lane"
             }
           ]
         }
