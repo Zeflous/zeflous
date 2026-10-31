@@ -237,7 +237,6 @@
   <file src="src/Zef/Framework/Database/QueryBuilder.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[allowUnbounded]]></code>
-      <code><![CDATA[count]]></code>
       <code><![CDATA[delete]]></code>
       <code><![CDATA[distinct]]></code>
       <code><![CDATA[groupBy]]></code>
@@ -247,6 +246,7 @@
       <code><![CDATA[limit]]></code>
       <code><![CDATA[orWhere]]></code>
       <code><![CDATA[orderBy]]></code>
+      <code><![CDATA[select]]></code>
       <code><![CDATA[table]]></code>
       <code><![CDATA[update]]></code>
       <code><![CDATA[where]]></code>
@@ -259,6 +259,11 @@
   <file src="src/Zef/Framework/Database/QueryHaving.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[isEmpty]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Database/SqlExpression.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/SqlQuery.php">

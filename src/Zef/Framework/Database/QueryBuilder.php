@@ -38,9 +38,9 @@ namespace Zef\Framework\Database;
  * {@see QueryPredicate} over the shared {@see QueryValues} vocabulary,
  * the fragment state in {@see QueryWhere}, the column-list renderings
  * in {@see QueryColumns}, the paging guards in {@see QueryPaging}, the
- * aggregate sugar in {@see QueryAggregate}, the join and order spellings
- * in {@see QueryJoin} / {@see QueryOrder}, the write-payload validation
- * in {@see QueryRows}, and the statement assembly in
+ * join and order spellings in {@see QueryJoin} / {@see QueryOrder}, the
+ * write-payload validation in
+ * {@see QueryRows}, and the statement assembly in
  * {@see QuerySelectAssembly} / {@see QueryWriteAssembly} over the
  * {@see QuerySnapshot} this facade collects -- each fold owns one
  * question, the facade owns the verbs. {@see self::table()} is the only
@@ -120,15 +120,6 @@ final class QueryBuilder
         $this->distinct = $on;
 
         return $this;
-    }
-
-    /**
-     * Aggregate sugar producing `SELECT COUNT(col) AS aggregate FROM ...`;
-     * every other aggregate travels as an explicit SqlExpression.
-     */
-    public function count(string $column = '*'): self
-    {
-        return $this->select(QueryAggregate::expression($this->sqlIdentifier, 'COUNT', $column));
     }
 
     /**

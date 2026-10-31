@@ -49,7 +49,7 @@ shapes (select 21.6μs, insert 6.7μs, update 8.1μs per build).
 | `SqlColumn` | the column-list spelling: `col`, `table.col`, `path AS alias` (anchored both sides), or a raw expression verbatim |
 | `QueryBuilder` | the fluent facade: the verb surface, one delegation per verb over the folds below |
 | `QueryPhase` | the phase vocabulary and its three guards -- select-side verbs refused on write queries, write types never mixed, WHERE refused on an insert |
-| `QueryColumns` / `QueryAggregate` / `QueryPaging` / `QueryJoin` / `QueryOrder` | the select-side renderings and their closed vocabularies |
+| `QueryColumns` / `QueryPaging` / `QueryJoin` / `QueryOrder` | the select-side renderings and their closed vocabularies |
 | `QueryValues` / `QueryPredicate` | the bound-value answer set and the predicate grammar answering one `QueryFragment` each |
 | `QueryWhereState` / `QueryWhere` | the fragment list with its AND/OR joining, and the verb fold recording predicates onto it |
 | `QueryHaving` | the aggregate-filter state, its params kept SEPARATE so the compiled statement binds in textual order (the reference's call-order binding KDD-DB2 records) |
@@ -86,24 +86,27 @@ place they were not, and the divergence is the fix.
 
 The facade ships the core verbs -- table (the only entry; the constructor
 is private and the tableless refusals the assemblies once carried are
-unreachable by construction), select, distinct, count, join, groupBy,
+unreachable by construction), select, distinct, join, groupBy,
 having, orderBy, limit (with the offset that cannot stand without one
 riding its parameter), the where family (with the NOT-polarity riding
 the same negated flag the predicate folds carry), insertRows, update,
 delete, allowUnbounded, build. The sugar the reference carried --
-`selectRaw`, `aggregate` beyond COUNT, `leftJoin`, single-row `insert`,
-`whereColumn`, `whereNested`, and the separate `toSql`/`getBindings`
-accessors duplicating `build()->sql`/`build()->params` -- is expressible
-through the SqlExpression escape hatch, the join type parameter, or the
-one-row list (`insertRows([[$row]])`), and whereNested's group form
-returns with the condition-object API the Domain-Driven direction
-eventually wants (a named follow-up, not a loss: the reference's tests
-for the sugar became this tree's tests for the escape hatch that
-replaces it). The ROADMAP's own "query builder sederhana" is the
-mandate; KDD-DB6 is the ceiling that enforced it, and KDD-DB9 records
-the closing cut -- php:S1448's 20-method ceiling was the one bar the
-26-method first spelling crossed, the only class in the whole tree
-that did.
+`selectRaw`, `aggregate` beyond COUNT, COUNT itself (the second S1448
+cut, its `AS aggregate` alias pinned through the escape hatch it always
+had), `leftJoin`, single-row `insert`, `whereColumn`, `whereNested`,
+and the separate `toSql`/`getBindings` accessors duplicating
+`build()->sql`/`build()->params` -- is expressible through the
+SqlExpression escape hatch, the join type parameter, or the one-row
+list (`insertRows([[$row]])`), and whereNested's group form returns
+with the condition-object API the Domain-Driven direction eventually
+wants (a named follow-up, not a loss: the reference's tests for the
+sugar became this tree's tests for the escape hatch that replaces it).
+The ROADMAP's own "query builder sederhana" is the mandate; KDD-DB6 is
+the ceiling that enforced it, and KDD-DB9 records the closing cuts --
+php:S1448's 20-method ceiling was the one bar the 26-method first
+spelling crossed, the only class in the whole tree that did, and the
+second count landed the constructor's own method slot at exactly
+twenty (the private constructor counts).
 
 ## KDD-DB4: the engine contracts are enforced, never assumed
 
@@ -224,15 +227,20 @@ unseen stack this settle round had to burn down one gate at a time.
 - **php:S1448 -- the only >20-method class in the tree.** The facade's
   first spelling carried 26 public methods; every other class in src/
   sits at 20 or under. The closing cut (KDD-DB3): `toSql()` and
-  `getBindings()` duplicated `build()->sql`/`build()->params`, `count`'s
+  `getBindings()` duplicated `build()->sql`/`build()->params`, the
   NOT-polarity folded into the predicate folds' own negated flag, the
   offset that cannot stand without a limit rides `limit()`'s parameter
   (the paging fold's own guard demanded the pairing), and the
   constructor went private -- `table()` is the entry the tableless
   refusals' own messages used to beg for, so the untabled state is
   unreachable and the assemblies' null-table guards died with it.
-  Twenty public methods exactly: the S1448 bar met by design, not by
-  exclusion.
+  SonarCloud counts the private constructor as a method too, so the
+  first closing landed at twenty-one and demanded one more: `count()`
+  rode out with its own doctrine -- every aggregate travels as an
+  explicit SqlExpression, the `AS aggregate` alias spelling pinned
+  through the escape hatch, and `QueryAggregate` (the sugar's only
+  consumer) retired with it. Nineteen public methods plus the private
+  constructor: the S1448 bar met by design, not by exclusion.
 - **Three archeology rounds on PdoTransactions.** The depth fold
   (counter + ceiling + level-zero guard out of the verb class) did not
   lower the difficulty -- it RAISED it: every `$this->pdoTransactionDepth`
@@ -268,11 +276,11 @@ unseen stack this settle round had to burn down one gate at a time.
   produces; the exact-message and exact-code assertions over them kill
   the mapping folds' concat and literal mutants.
 
-The settled battery: `ci:static` EXIT-0 (6330 tests / 15131 assertions;
+The settled battery: `ci:static` EXIT-0 (6328 tests / 15127 assertions;
 smoke 2760B/20000 iterations; concurrency 23; audit 0), psalm EXIT-0,
 progpilot `[]`, archeology 0 error-level findings (the lane's biggest
 class: the facade at 18.23, every fold under 20), coverage 98.44%
 (the Database lane's own aggregate 96.9%), scoped infection over both
-new directories MSI 100/100 (871 mutants, 868 killed, 3 documented
+new directories MSI 100/100 (856 mutants, 853 killed, 3 documented
 ignores, 0 escapes), and the bench subjects hold their first-push
 economics (select 21.8us, insert 7.0us, update 8.3us per build).

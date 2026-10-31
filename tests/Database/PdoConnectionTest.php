@@ -34,6 +34,7 @@ use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\IsolationLevel;
 use Zef\Framework\Database\QueryBuilder;
 use Zef\Framework\Database\QueryException;
+use Zef\Framework\Database\SqlExpression;
 use Zef\Framework\Database\SqlQuery;
 use Zef\Framework\Database\TransactionException;
 use Zef\Test\Support\Database\RecordingPdo;
@@ -694,12 +695,15 @@ final class PdoConnectionTest extends TestCase
     // ------------------------------------------------------------------
 
     /**
-     * The count() aggregate over the fixture table, narrowed to an int
-     * the assertions read.
+     * The COUNT aggregate over the fixture table, narrowed to an int
+     * the assertions read -- spelled through the SqlExpression escape
+     * hatch the facade's own doctrine carries.
      */
     private function countRows(): int
     {
-        $row = $this->connection->fetchOne(QueryBuilder::table('t')->count()->build());
+        $row = $this->connection->fetchOne(
+            QueryBuilder::table('t')->select(new SqlExpression('COUNT(*) AS aggregate'))->build(),
+        );
         self::assertIsArray($row);
         $aggregate = $row['aggregate'] ?? null;
         if (!\is_int($aggregate) && !\is_float($aggregate) && !\is_string($aggregate)) {

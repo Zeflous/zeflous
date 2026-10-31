@@ -9,7 +9,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use Zef\Framework\Database\DatabaseException;
-use Zef\Framework\Database\QueryAggregate;
 use Zef\Framework\Database\QueryBuild;
 use Zef\Framework\Database\QueryBuilder;
 use Zef\Framework\Database\QueryColumns;
@@ -52,7 +51,6 @@ use Zef\Framework\Database\SqlQuery;
 #[CoversClass(DatabaseException::class)]
 #[CoversClass(QueryPhase::class)]
 #[CoversClass(QueryColumns::class)]
-#[CoversClass(QueryAggregate::class)]
 #[CoversClass(QueryPaging::class)]
 #[CoversClass(QueryJoin::class)]
 #[CoversClass(QueryOrder::class)]
@@ -165,43 +163,18 @@ final class QueryBuilderTest extends TestCase
         QueryBuilder::table('users')->select();
     }
 
-    public function testAggregateSugarSpellsTheAliasedFunction(): void
+    public function testTheAggregateSpellingTravelsAsAnExplicitExpression(): void
     {
+        // The aggregate's `AS aggregate` alias spelling is the escape
+        // hatch's own (the sugar verb rode out with the S1448 closing
+        // cut -- every aggregate travels as an explicit SqlExpression).
         self::assertSame(
             'SELECT COUNT(*) AS aggregate FROM "users"',
-            QueryBuilder::table('users')->count()->build()->sql,
-        );
-        self::assertSame(
-            'SELECT COUNT("age") AS aggregate FROM "users"',
-            QueryBuilder::table('users')->count('age')->build()->sql,
+            QueryBuilder::table('users')->select(new SqlExpression('COUNT(*) AS aggregate'))->build()->sql,
         );
         self::assertSame(
             'SELECT SUM("age") AS aggregate FROM "users"',
             QueryBuilder::table('users')->select(new SqlExpression('SUM("age") AS aggregate'))->build()->sql,
-        );
-    }
-
-    public function testTheAggregateVocabularyIsClosed(): void
-    {
-        // The facade's sugar fixes the function word to COUNT; the fold
-        // the wider vocabulary flows through still refuses the unknown
-        // function with the allowed list spelled.
-        $this->expectException(QueryException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "Unknown aggregate function 'MEDIAN' (allowed: COUNT, SUM, AVG, MIN, MAX).",
-        );
-
-        QueryAggregate::expression(new SqlIdentifier(), 'MEDIAN', 'age');
-    }
-
-    public function testTheAggregateVocabularyFoldsMultibyteCaseSpellings(): void
-    {
-        // The long-s spelling folds onto SUM under the character map
-        // (mb) while the byte map leaves it unrecognised -- the fold's
-        // own vocabulary answers the folded word.
-        self::assertSame(
-            'SUM("age") AS aggregate',
-            (string) QueryAggregate::expression(new SqlIdentifier(), 'ſum', 'age'),
         );
     }
 
