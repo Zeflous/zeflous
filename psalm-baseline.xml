@@ -95,6 +95,26 @@
       <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Adapters/Database/ConnectionConfig.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[fromArray]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Adapters/Database/PdoConnection.php">
+    <UnusedClass>
+      <code><![CDATA[PdoConnection]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Adapters/Event/RedisDeliveryStore.php">
+    <UnusedClass>
+      <code><![CDATA[RedisDeliveryStore]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Adapters/Redis/RespConnection.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Container/Aot/AotClosureEntry.php">
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$closure]]></code>
@@ -202,27 +222,57 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
-  <file src="src/Zef/Framework/Adapters/Event/RedisDeliveryStore.php">
-    <UnusedClass>
-      <code><![CDATA[RedisDeliveryStore]]></code>
-    </UnusedClass>
+  <file src="src/Zef/Framework/Database/ConnectionInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[beginTransaction]]></code>
+      <code><![CDATA[commit]]></code>
+      <code><![CDATA[execute]]></code>
+      <code><![CDATA[fetchOne]]></code>
+      <code><![CDATA[lastInsertId]]></code>
+      <code><![CDATA[rollBack]]></code>
+      <code><![CDATA[transaction]]></code>
+      <code><![CDATA[transactionLevel]]></code>
+    </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Adapters/Redis/RespConnection.php">
+  <file src="src/Zef/Framework/Database/QueryBuilder.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[allowUnbounded]]></code>
+      <code><![CDATA[delete]]></code>
+      <code><![CDATA[distinct]]></code>
+      <code><![CDATA[groupBy]]></code>
+      <code><![CDATA[having]]></code>
+      <code><![CDATA[insertRows]]></code>
+      <code><![CDATA[join]]></code>
+      <code><![CDATA[limit]]></code>
+      <code><![CDATA[orWhere]]></code>
+      <code><![CDATA[orderBy]]></code>
+      <code><![CDATA[select]]></code>
+      <code><![CDATA[table]]></code>
+      <code><![CDATA[update]]></code>
+      <code><![CDATA[where]]></code>
+      <code><![CDATA[whereBetween]]></code>
+      <code><![CDATA[whereIn]]></code>
+      <code><![CDATA[whereLike]]></code>
+      <code><![CDATA[whereNull]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Database/QueryHaving.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[isEmpty]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Database/SqlExpression.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Event/DurableDelivery.php">
+  <file src="src/Zef/Framework/Database/SqlQuery.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[deadLettersAttributedTo]]></code>
-      <code><![CDATA[isListenerQuarantined]]></code>
-      <code><![CDATA[pendingCount]]></code>
+      <code><![CDATA[raw]]></code>
     </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Zef/Framework/Event/DurableEventDispatcher.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[defer]]></code>
-    </PossiblyUnusedMethod>
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$unbounded]]></code>
+    </PossiblyUnusedProperty>
   </file>
   <file src="src/Zef/Framework/Event/AsyncDelivery.php">
     <PossiblyUnusedMethod>
@@ -263,6 +313,18 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[deliveredTo]]></code>
       <code><![CDATA[name]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/DurableDelivery.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[deadLettersAttributedTo]]></code>
+      <code><![CDATA[isListenerQuarantined]]></code>
+      <code><![CDATA[pendingCount]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/DurableEventDispatcher.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[defer]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/EventDispatcher.php">
