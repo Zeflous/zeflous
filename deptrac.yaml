@@ -61,6 +61,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Event\\#'
+    - name: Database
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Database\\#'
     - name: Adapters
       collectors:
         - type: classNameRegex
@@ -76,6 +80,21 @@ deptrac:
   ruleset:
     # Exception is the innermost layer: it may not depend on any other ZEF layer.
     Exception: ~
+    # The database layer is the persistence lane's own port side: the
+    # connection contract with its nested-transaction and isolation
+    # semantics, the query builder over the identifier grammar, and the
+    # value vocabulary the queries travel as -- a self-contained foundation
+    # the same way the Telemetry and Health layers are. Its failures are
+    # the lane's whole story (grammar refusal, driver mapping, transaction
+    # misuse), so it owns one typed family over the exception root
+    # (the `ConfigException` posture, not the Event lane's pure-SPL one)
+    # and depends on nothing else: no configuration reading (the
+    # composition seam that wires a `database` family reads the frozen
+    # knob block through the adapter's own fromArray fold), no container,
+    # no observability (the unbounded-statement audit emission is the
+    # wiring slice's named follow-up).
+    Database:
+      - Exception
     # Contracts may only depend on the exception root.
     Contracts:
       - Exception
@@ -230,6 +249,7 @@ deptrac:
       - Event
       - Storage
       - Http
+      - Database
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the
