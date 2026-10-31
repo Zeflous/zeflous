@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(database\): the connection port with its query builder and PDO adapter [\#665](https://github.com/Zeflous/zeflous/pull/665) ([mbetixz](https://github.com/mbetixz))
 - feat\(event\): the durable delivery store's wired default over the queue lane [\#662](https://github.com/Zeflous/zeflous/pull/662) ([mbetixz](https://github.com/mbetixz))
 - feat\(kernel\): the compiled caches derive their addresses from the storage layout [\#659](https://github.com/Zeflous/zeflous/pull/659) ([mbetixz](https://github.com/mbetixz))
 - feat\(session\): the file store driver over the sessions lane [\#656](https://github.com/Zeflous/zeflous/pull/656) ([mbetixz](https://github.com/mbetixz))
