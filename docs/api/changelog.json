@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-30T21:18:37Z",
+  "as_of": "2026-10-31T02:24:44Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 277,
+  "unreleased_count": 278,
   "versions": [
     {
       "version": "Unreleased",
@@ -3898,6 +3898,42 @@
                 "sha": "e23ad02143385291eb89d3a122339589e729259d",
                 "short_sha": "e23ad02",
                 "subject": "docs(roadmap): record the compiled caches' storage wiring and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 662,
+            "title": "feat(event): the durable delivery store's wired default over the queue lane",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-31T02:24:44Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/662",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "72b0a0ff6355935eaa0294053ee9465ae9bfc208",
+                "short_sha": "72b0a0f",
+                "subject": "feat(event): the durable delivery store's wired default over the queue lane"
+              },
+              {
+                "sha": "50a274505689d7a6e9b816ef5a125126faf44607",
+                "short_sha": "50a2745",
+                "subject": "docs(roadmap): record the wired default's queue lane slice and pin the lane"
+              },
+              {
+                "sha": "364f96e2ce7b756e855683512e1cd74a9abc3f3f",
+                "short_sha": "364f96e",
+                "subject": "test(event): name the reading family in the declaration pin's covers list"
+              },
+              {
+                "sha": "971733e4ecbf95ccad9125dfb6aef462ddff55ac",
+                "short_sha": "971733e",
+                "subject": "fix(event): settle the CI infection round's two escapes"
+              },
+              {
+                "sha": "7afc84afa2d52f8bf345e8703561df7ef9b5da00",
+                "short_sha": "7afc84a",
+                "subject": "docs(roadmap): refresh the pin over the settle commits"
               }
             ]
           }
@@ -17677,6 +17713,42 @@
               "sha": "e23ad02143385291eb89d3a122339589e729259d",
               "short_sha": "e23ad02",
               "subject": "docs(roadmap): record the compiled caches' storage wiring and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 662,
+          "title": "feat(event): the durable delivery store's wired default over the queue lane",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-31T02:24:44Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/662",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "72b0a0ff6355935eaa0294053ee9465ae9bfc208",
+              "short_sha": "72b0a0f",
+              "subject": "feat(event): the durable delivery store's wired default over the queue lane"
+            },
+            {
+              "sha": "50a274505689d7a6e9b816ef5a125126faf44607",
+              "short_sha": "50a2745",
+              "subject": "docs(roadmap): record the wired default's queue lane slice and pin the lane"
+            },
+            {
+              "sha": "364f96e2ce7b756e855683512e1cd74a9abc3f3f",
+              "short_sha": "364f96e",
+              "subject": "test(event): name the reading family in the declaration pin's covers list"
+            },
+            {
+              "sha": "971733e4ecbf95ccad9125dfb6aef462ddff55ac",
+              "short_sha": "971733e",
+              "subject": "fix(event): settle the CI infection round's two escapes"
+            },
+            {
+              "sha": "7afc84afa2d52f8bf345e8703561df7ef9b5da00",
+              "short_sha": "7afc84a",
+              "subject": "docs(roadmap): refresh the pin over the settle commits"
             }
           ]
         }

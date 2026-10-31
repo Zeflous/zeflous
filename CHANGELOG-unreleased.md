@@ -102,6 +102,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(middleware): the error family derives its log and replay addresses from the storage layout [#653](https://github.com/Zeflous/zeflous/pull/653) ([mbetixz](https://github.com/mbetixz))
 - feat(session): the file store driver over the sessions lane [#656](https://github.com/Zeflous/zeflous/pull/656) ([mbetixz](https://github.com/mbetixz))
 - feat(kernel): the compiled caches derive their addresses from the storage layout [#659](https://github.com/Zeflous/zeflous/pull/659) ([mbetixz](https://github.com/mbetixz))
+- feat(event): the durable delivery store's wired default over the queue lane [#662](https://github.com/Zeflous/zeflous/pull/662) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
