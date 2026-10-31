@@ -71,6 +71,15 @@ use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
  *   reflection, an absent one is dumped by the first boot that wires
  *   the seam, a proven-stale one is never run).
  *
+ * The composition's next stage is the **module engine** ({@see
+ * ModuleBootstrapper}, the `modules` knob's two-phase boot): the knob's
+ * entries are discovered, dependency-ordered and registered on the
+ * container BEFORE the definitions install (a configuration definition may
+ * already depend on a module's registration), and their boot phase runs
+ * AFTER the definitions settle, each module receiving its own namespaced,
+ * schema-validated context. The empty knob -- the shipped default -- is
+ * the honest no-op: no entries, no discovery, an empty roster.
+ *
  * The composition's last stage is the **process error boundary**
  * ({@see Middleware\ProcessErrorBoundary}, the `http.error_handling.process_boundary`
  * knob's seam): the one-call boot installs the process-level error face
@@ -150,6 +159,8 @@ final readonly class ApplicationBootstrapper
             static fn (): Config => $config,
         );
 
+        $moduleRoster = new ModuleBootstrapper()->register($config, $container);
+
         $container = new ContainerBootstrapper(
             containerCompileLane: new ContainerCompileLane(
                 containerInstalls: new ContainerInstalls($this->definitionCompiler),
@@ -158,6 +169,8 @@ final readonly class ApplicationBootstrapper
         )
             ->bootstrap($config, $container)
         ;
+
+        $moduleRoster->boot();
 
         ProcessErrorBoundaryFactory::resolveForInstallation($config, $container)?->install();
 

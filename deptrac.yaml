@@ -65,6 +65,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Database\\#'
+    - name: Modules
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Modules\\#'
     - name: Adapters
       collectors:
         - type: classNameRegex
@@ -72,7 +76,7 @@ deptrac:
     - name: Kernel
       collectors:
         - type: classNameRegex
-          value: '#^Zef\\Framework\\(Kernel|Version|ContainerBootstrapper|ApplicationBootstrapper|CacheStorageWiring|FrameworkDefaults)$#'
+          value: '#^Zef\\Framework\\(Kernel|Version|ContainerBootstrapper|ApplicationBootstrapper|CacheStorageWiring|FrameworkDefaults|ModuleBootstrapper|ModuleRoster|ModuleResolver|ModuleManifestLoader|ModuleContextFactory|ModuleClaims|ContainerModuleRegistrar)$#'
     - name: Tooling
       collectors:
         - type: classNameRegex
@@ -250,6 +254,24 @@ deptrac:
       - Storage
       - Http
       - Database
+    # The modules layer is the module system's own lane: the contract the
+    # module author implements (ModuleInterface over the ModuleRegistrar
+    # port), the identity/context value objects, the manifest and knob
+    # grammars and the boot-order fold -- the vocabulary the ROADMAP's
+    # "Module Integration System (Hexagonal Plug-n-Play)" spells. Its
+    # failures are the lane's whole story (grammar refusal, claim refusal,
+    # schema refusal), so it owns one typed family over the exception root
+    # (the ConfigException posture, not the Event lane's pure-SPL one). The
+    # one widening is `Config`: the manifest and module-configuration
+    # schemas reuse the configuration layer's own schema engine
+    # (ConfigSchema) exactly as that class's docblock anticipated, and the
+    # context assembler wraps the configuration verdicts with the module
+    # named first. The container stays behind the ModuleRegistrar port: the
+    # engine never imports the container, and the composition lane answers
+    # the port over it.
+    Modules:
+      - Exception
+      - Config
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the
@@ -285,6 +307,7 @@ deptrac:
       - Middleware
       - Storage
       - Event
+      - Modules
       - Adapters
     # Tooling gates are developer/CI utilities: they may use the kernel and the
     # exception root, but no other domain layer. The widening to Container is

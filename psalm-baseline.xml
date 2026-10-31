@@ -493,6 +493,18 @@
       <code><![CDATA[version]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/ModuleContextFactory.php">
+    <MixedAssignment>
+      <code><![CDATA[$block]]></code>
+      <code><![CDATA[$validated[$field]]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Modules/ModuleConfigSchema.php">
+    <MixedAssignment>
+      <code><![CDATA[$rule]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Message/Message.php">
     <UnusedClass>
       <code><![CDATA[Message]]></code>
