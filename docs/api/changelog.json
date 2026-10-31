@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-31T02:24:44Z",
+  "as_of": "2026-10-31T21:28:33Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 278,
+  "unreleased_count": 279,
   "versions": [
     {
       "version": "Unreleased",
@@ -3934,6 +3934,47 @@
                 "sha": "7afc84afa2d52f8bf345e8703561df7ef9b5da00",
                 "short_sha": "7afc84a",
                 "subject": "docs(roadmap): refresh the pin over the settle commits"
+              }
+            ]
+          },
+          {
+            "pr": 665,
+            "title": "feat(database): the connection port with its query builder and PDO adapter",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-10-31T21:28:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/665",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a158c2bbeedad73fd0420bbcab2a4516a4897818",
+                "short_sha": "a158c2b",
+                "subject": "feat(database): the connection port with its query builder and PDO adapter"
+              },
+              {
+                "sha": "7a1bee20662833a504dbe4546b30d6ada1699bda",
+                "short_sha": "7a1bee2",
+                "subject": "docs(roadmap): record the database core slice and pin the lane"
+              },
+              {
+                "sha": "74bb6a8ffea856ee8988cccb015c2f8cec7ef4e4",
+                "short_sha": "74bb6a8",
+                "subject": "fix(database): settle the CI round's five reddened gates"
+              },
+              {
+                "sha": "d735bde8b2fa6b9bcfa0a8b34b73bbd266933cdd",
+                "short_sha": "d735bde",
+                "subject": "docs(roadmap): refresh the pin over the database settle commits"
+              },
+              {
+                "sha": "b2e0ad20d0e60cb21247ace403cd7049a7223858",
+                "short_sha": "b2e0ad2",
+                "subject": "fix(database): close the facade at the S1448 bar the constructor counts"
+              },
+              {
+                "sha": "4b5bb693c3241052c3e52f04aad2945822590634",
+                "short_sha": "4b5bb69",
+                "subject": "docs(roadmap): refresh the pin over the S1448 closing commit"
               }
             ]
           }
@@ -17749,6 +17790,47 @@
               "sha": "7afc84afa2d52f8bf345e8703561df7ef9b5da00",
               "short_sha": "7afc84a",
               "subject": "docs(roadmap): refresh the pin over the settle commits"
+            }
+          ]
+        },
+        {
+          "pr": 665,
+          "title": "feat(database): the connection port with its query builder and PDO adapter",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-10-31T21:28:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/665",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a158c2bbeedad73fd0420bbcab2a4516a4897818",
+              "short_sha": "a158c2b",
+              "subject": "feat(database): the connection port with its query builder and PDO adapter"
+            },
+            {
+              "sha": "7a1bee20662833a504dbe4546b30d6ada1699bda",
+              "short_sha": "7a1bee2",
+              "subject": "docs(roadmap): record the database core slice and pin the lane"
+            },
+            {
+              "sha": "74bb6a8ffea856ee8988cccb015c2f8cec7ef4e4",
+              "short_sha": "74bb6a8",
+              "subject": "fix(database): settle the CI round's five reddened gates"
+            },
+            {
+              "sha": "d735bde8b2fa6b9bcfa0a8b34b73bbd266933cdd",
+              "short_sha": "d735bde",
+              "subject": "docs(roadmap): refresh the pin over the database settle commits"
+            },
+            {
+              "sha": "b2e0ad20d0e60cb21247ace403cd7049a7223858",
+              "short_sha": "b2e0ad2",
+              "subject": "fix(database): close the facade at the S1448 bar the constructor counts"
+            },
+            {
+              "sha": "4b5bb693c3241052c3e52f04aad2945822590634",
+              "short_sha": "4b5bb69",
+              "subject": "docs(roadmap): refresh the pin over the S1448 closing commit"
             }
           ]
         }
