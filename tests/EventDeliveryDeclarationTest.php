@@ -178,6 +178,27 @@ final class EventDeliveryDeclarationTest extends TestCase
         }
     }
 
+    public function testAnUnknownKnobAfterAKnownOneStillRefuses(): void
+    {
+        try {
+            EventDeliveryDeclaration::fromConfig(new Config([
+                'events' => [
+                    'deferred' => [
+                        'store' => 'file',
+                        'capcity' => 2048,
+                    ],
+                ],
+            ]));
+            self::fail('An unknown knob behind a known one must still refuse -- the census walks the whole map.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                "The events.deferred configuration carries the unknown knob 'capcity'"
+                . ' (known knobs: store, path, capacity).',
+                $configException->getMessage(),
+            );
+        }
+    }
+
     public function testAWrongTypedStoreWordRefuses(): void
     {
         try {

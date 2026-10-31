@@ -21,11 +21,24 @@ workflows; roadmap:gate pass; audit 0 advisories) · coverage
 SHRINKING -- `FileDeliveryStore`'s `UnusedClass` entry left the
 ledger the day the wiring became its first in-src consumer ·
 progpilot `[]` · archeology 0 error-level findings (the gate's
-own ceiling split the reading family -- see EQ9) · scoped
-infection over the eight touched source files, 225 mutants, MSI
-100/100, 0 escapes, 0 ignores, no new ignore entry · deptrac 0
-violations over the `Kernel += Event, Adapters` widening ·
-zero-deps PASSED (`require` still `{"php":"^8.4"}`, lock `[]`).
+own ceiling split the reading family -- see EQ9) · infection: the
+CI's own full round over 16569 mutants answered 16441 killed with
+TWO escapes the first local scoped round missed (its kills were
+contaminated by `/tmp` staging debris the mutant experiments
+stranded -- a false green the clean CI runner exposed); both were
+settled honestly -- the `Continue_` escape (the census's loop-shape:
+a `break` would stop at the first known knob and wave a later
+unknown one through) killed by the order-aware census test, and the
+`MBString` escape settled by the ledger: the store-vocabulary fold
+joined the documented no-`k` equivalence class (the `SessionStores`
+twin's own argument -- `file` carries no ASCII `k`, the Kelvin sign
+is the only single-character non-ASCII landing into ASCII, so every
+fold-divergent value misses the closed set under both spellings),
+verified by the complete declaration battery passing under the
+manually applied mutation, the ignore scoped to that single method
+with the in-config essay the ledger demands · deptrac 0 violations
+over the `Kernel += Event, Adapters` widening · zero-deps PASSED
+(`require` still `{"php":"^8.4"}`, lock `[]`).
 
 ## The map
 
