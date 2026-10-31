@@ -84,7 +84,15 @@ use Zef\Framework\Middleware\TracingFactory;
  * same way the timing family did: the `observability.slow_request`
  * registration over the config service, its records travelling to
  * the error lane's own structured log address rather than a sink of
- * the family's own. The remaining growth follows the
+ * the family's own. The events family joins the catalogue the same
+ * way every family did -- the durable delivery store's wired default
+ * (`events.deferred.store`, the registration over the
+ * `EventStorageWiring` fold, its knobs under the family's own
+ * `events` key) -- with the one posture no other family carries: the
+ * registration is deliberately TRANSIENT, because the singleton
+ * warmer would eagerly resolve a shared lifetime and the wired
+ * default's silent knob is the refusal that must fire only at the
+ * host's own ask, never at the boot. The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
  * `http.trusted_hosts`, ...) migrate with their wiring, and the
  * container's `aot` switch has arrived with the compile/dump area
@@ -273,6 +281,13 @@ final readonly class FrameworkDefaults
             'listeners' => [],
             'namespaces' => ['scopes' => [], 'max_cross_scope_refs' => 0],
             'parameters' => [],
+            'events' => [
+                'deferred' => [
+                    'store' => '',
+                    'path' => '',
+                    'capacity' => EventDeliveryDeclaration::DEFAULT_CAPACITY,
+                ],
+            ],
             'aot' => [
                 'enabled' => false,
                 'warm' => false,
@@ -397,6 +412,13 @@ final readonly class FrameworkDefaults
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],
+            ],
+            'events.deferred.store' => [
+                'factory' => EventStorageWiring::class . '::store',
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+                'lifetime' => 'transient',
             ],
         ];
     }

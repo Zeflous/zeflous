@@ -13,7 +13,7 @@ namespace Zef\Framework\Storage;
  * A lane names a KIND of on-disk artifact the framework or its host
  * writes, never a specific file: the layout answers where a lane's
  * directory is, the writer that owns the artifact names the file
- * inside it. The vocabulary ships the six lanes with a live writer
+ * inside it. The vocabulary ships the seven lanes with a live writer
  * or a named reservation today:
  *
  * - `logs` -- the structured JSONL records the error and
@@ -26,6 +26,8 @@ namespace Zef\Framework\Storage;
  *   land in, the lane `UploadedTarget` answers for.
  * - `replay` -- the error lane's private request snapshots.
  * - `sessions` -- the session file driver's identifier-keyed bags.
+ * - `queue` -- the durable event delivery store's entries and
+ *   books (the wired default the `events.deferred` knob spells).
  *
  * The `sessions` lane joined the vocabulary in the pull request
  * that landed its first writer ({@see \Zef\Framework\Adapters\Session\FileSessionAdapter})
@@ -33,7 +35,11 @@ namespace Zef\Framework\Storage;
  * first, honoured here by its own answer: the vocabulary carried no
  * `sessions` lane while the driver was a named reservation, and the
  * lane and the writer landed together, so no directory exists that
- * nobody provisions and nobody checks.
+ * nobody provisions and nobody checks. The `queue` lane answers the
+ * same doctrine with the same shape ({@see \Zef\Framework\EventStorageWiring}):
+ * the file delivery store kept its own directory posture while the
+ * wired default was a named reservation, and the lane, the knob and
+ * the reader landed together.
  */
 enum StorageLane: string
 {
@@ -43,6 +49,7 @@ enum StorageLane: string
     case Uploads = 'uploads';
     case Replay = 'replay';
     case Sessions = 'sessions';
+    case Queue = 'queue';
 
     /**
      * The lane's canonical directory spelling under the storage
@@ -70,6 +77,7 @@ enum StorageLane: string
             self::Uploads => 'the inbound files the uploaded-file moves land in',
             self::Replay => "the error lane's private request snapshots",
             self::Sessions => "the session file driver's identifier-keyed bags",
+            self::Queue => "the durable event delivery store's entries and books",
         };
     }
 }

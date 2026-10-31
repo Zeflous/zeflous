@@ -11,7 +11,7 @@ declare(strict_types=1);
  *   'root'                      (string, default '')
  *       The deployment's declared storage root: the one directory
  *       every lane (`logs/`, `cache/`, `temp/`, `uploads/`,
- *       `replay/`, `sessions/`) joins onto. It is the only
+ *       `replay/`, `sessions/`, `queue/`) joins onto. It is the only
  *       per-environment variable in the whole layout doctrine --
  *       sandbox, development and production differ in this one
  *       address and in nothing else.
@@ -22,20 +22,23 @@ declare(strict_types=1);
  *       fallback, an empty `replay_path` keeps refusing an enabled
  *       replay lane). A declared root provisions the family's
  *       defaults: the structured log address derives to the `logs`
- *       lane, the replay directory to the `replay` lane, and the
- *       file session driver's directory to the `sessions` lane, each
- *       only when its own knob is left empty -- an explicitly
- *       spelled address always wins.
+ *       lane, the replay directory to the `replay` lane, the file
+ *       session driver's directory to the `sessions` lane, and the
+ *       durable event delivery store's wired default (the
+ *       `events.deferred.store` knob's 'file' word) to the `queue`
+ *       lane, each only when its own knob is left empty -- an
+ *       explicitly spelled address always wins.
  *
  *       The tree under a declared root must be provisioned before
- *       boot: all six lanes, existing, writable, non-symlink,
+ *       boot: all seven lanes, existing, writable, non-symlink,
  *       outside the public document root. A misprovisioned tree is
  *       refused at construction with the failing seam named
  *       (`bin/zef storage:map` answers the same verdict from the
  *       shell), and the framework never creates the tree for you.
  *
  *       This knob provisions the request-time families (the log
- *       address, the replay directory, the session directory). The
+ *       address, the replay directory, the session directory, the
+ *       durable event delivery store's directory). The
  *       boot's two compiled caches -- the configuration cache and
  *       the container AOT artifact -- derive from the root declared
  *       at the composition seam instead (`ApplicationBootstrapper`'s

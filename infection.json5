@@ -361,6 +361,29 @@
                 // mutator through its own entry above. This ignore is
                 // scoped to that single method.
                 "Zef\\Framework\\ContainerModeSpellings::verdict",
+                // The events family's store-vocabulary fold in
+                // EventDeliveryStores::read() carries the same
+                // argument over its own two-word vocabulary that the
+                // session family's twin below spells: the words
+                // (the empty string and file) contain no ASCII `k`,
+                // and the only single-character lower-case landing
+                // from non-ASCII into ASCII in the Unicode case map
+                // is the Kelvin sign's landing on `k` (U+0130 lands
+                // on `i` plus a combining dot, a two-character
+                // mapping, not a pure ASCII landing), so no store
+                // word folds to file under mb_strtolower() without
+                // being the same ASCII spelling that folds to it
+                // under strtolower() -- every fold-divergent value
+                // misses the closed set under both spellings and is
+                // rejected with the value spelled out (verified by
+                // running the declaration battery under the manually
+                // applied mutation -- the complete battery passes,
+                // the environment's fold-divergent spellings
+                // included). The neighbouring is_string guard and
+                // comparison arms stay under the mutator where
+                // applicable: they are not MBString targets. This
+                // ignore is scoped to that single method.
+                "Zef\\Framework\\EventDeliveryStores::read",
                 // The version selection's re-wraps are key-only
                 // refinements: every consumer of its results walks
                 // them with foreach (first-match-wins) and unions

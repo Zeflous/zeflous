@@ -245,6 +245,16 @@ deptrac:
     # `files/**` route map's pure value component, so the composition lane
     # -- not the route map's own layer -- is where the derivation's face
     # lives, and the map stays blind to who is asking it to resolve.
+    # The events family's wired default (EventStorageWiring over the
+    # `events.deferred` knob) widens the lane the same one-way way,
+    # twice over: the fold's answer is typed against the Event
+    # layer's `DeferredDeliveryStore` port (the question the lane
+    # owns, reached one-way exactly as the Adapters lane's own
+    # ruleset spells it), and the composition itself constructs the
+    # file answer the Adapters lane owns (`FileDeliveryStore`, the
+    # `queue` lane's first writer) -- the composition layer joins
+    # the port to its adapter from above, never the adapter lane
+    # learning that a configuration exists.
     Kernel:
       - Container
       - Health
@@ -254,6 +264,8 @@ deptrac:
       - Exception
       - Middleware
       - Storage
+      - Event
+      - Adapters
     # Tooling gates are developer/CI utilities: they may use the kernel and the
     # exception root, but no other domain layer. The widening to Container is
     # the analysis CLI lane's own: the container inventory report renders the

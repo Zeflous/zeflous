@@ -202,11 +202,6 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
-  <file src="src/Zef/Framework/Adapters/Event/FileDeliveryStore.php">
-    <UnusedClass>
-      <code><![CDATA[FileDeliveryStore]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/Zef/Framework/Adapters/Event/RedisDeliveryStore.php">
     <UnusedClass>
       <code><![CDATA[RedisDeliveryStore]]></code>
