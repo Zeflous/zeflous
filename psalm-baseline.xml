@@ -240,24 +240,19 @@
       <code><![CDATA[count]]></code>
       <code><![CDATA[delete]]></code>
       <code><![CDATA[distinct]]></code>
-      <code><![CDATA[getBindings]]></code>
       <code><![CDATA[groupBy]]></code>
       <code><![CDATA[having]]></code>
       <code><![CDATA[insertRows]]></code>
       <code><![CDATA[join]]></code>
       <code><![CDATA[limit]]></code>
-      <code><![CDATA[offset]]></code>
       <code><![CDATA[orWhere]]></code>
       <code><![CDATA[orderBy]]></code>
       <code><![CDATA[table]]></code>
-      <code><![CDATA[toSql]]></code>
       <code><![CDATA[update]]></code>
       <code><![CDATA[where]]></code>
       <code><![CDATA[whereBetween]]></code>
       <code><![CDATA[whereIn]]></code>
       <code><![CDATA[whereLike]]></code>
-      <code><![CDATA[whereNotIn]]></code>
-      <code><![CDATA[whereNotNull]]></code>
       <code><![CDATA[whereNull]]></code>
     </PossiblyUnusedMethod>
   </file>

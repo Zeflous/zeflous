@@ -22,10 +22,6 @@ final readonly class QueryUpdateAssembly
 
     public function compileUpdate(QuerySnapshot $querySnapshot, QueryWhere $queryWhere): SqlQuery
     {
-        if ($querySnapshot->table === null) {
-            throw new QueryException('Update query requires a table (call QueryBuilder::table() first).');
-        }
-
         if ($querySnapshot->updatePairs === []) {
             throw new QueryException('Update query requires data (call update() first).');
         }
@@ -38,16 +34,15 @@ final readonly class QueryUpdateAssembly
 
         $sets = [];
 
-        /** @var list<mixed> $params the positional values the SET pairs spell */
+        /** @var list<null|bool|float|int|SqlExpression|string> $params the positional values the SET pairs spell */
         $params = [];
 
-        /** @var mixed $value one pair's value, an expression or a bound value */
         foreach ($querySnapshot->updatePairs as $column => $value) {
             if ($value instanceof SqlExpression) {
-                $sets[] = $this->sqlIdentifier->quote($column, 'column') . ' = ' . $value;
+                $expression = (string) $value;
+                $sets[] = $this->sqlIdentifier->quote($column, 'column') . ' = ' . $expression;
             } else {
                 $sets[] = $this->sqlIdentifier->quote($column, 'column') . ' = ?';
-                /** @var null|bool|int|float|string $value the bound spelling of a validated pair */
                 $params[] = $value;
             }
         }
@@ -63,10 +58,6 @@ final readonly class QueryUpdateAssembly
 
     public function compileDelete(QuerySnapshot $querySnapshot, QueryWhere $queryWhere): SqlQuery
     {
-        if ($querySnapshot->table === null) {
-            throw new QueryException('Delete query requires a table (call QueryBuilder::table() first).');
-        }
-
         if ($queryWhere->isEmpty() && !$querySnapshot->unboundedAllowed) {
             throw new QueryException(
                 'Refusing unbounded DELETE without WHERE; call allowUnbounded() to confirm a full-table delete.',

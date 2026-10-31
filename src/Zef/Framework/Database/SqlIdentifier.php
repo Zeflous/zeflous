@@ -30,7 +30,11 @@ final class SqlIdentifier
             throw new QueryException("{$context} must not be empty.");
         }
 
-        $bytes = strlen($identifier);
+        // The '8bit' encoding IS byte semantics (the BodyBudget
+        // doctrine): the ceiling counts BYTES over an
+        // ASCII-by-construction grammar, and the spelling is the one
+        // the automated mb_str migration cannot silently widen.
+        $bytes = mb_strlen($identifier, '8bit');
         if ($bytes > self::MAX_IDENTIFIER_BYTES) {
             throw new QueryException(
                 "{$context} exceeds the " . self::MAX_IDENTIFIER_BYTES . "-byte limit (got {$bytes}).",
@@ -45,8 +49,8 @@ final class SqlIdentifier
             if (preg_match('/[\s()*,<>=]/', $identifier) === 1) {
                 $message .= ' Identifiers must match [A-Za-z_][A-Za-z0-9_]{0,63}'
                     . ' (optionally table.column or column AS alias); for raw SQL pass an'
-                    . ' explicit SqlExpression instead — e.g. new SqlExpression(...),'
-                    . ' selectRaw(...), or SqlQuery::raw(...).';
+                    . ' explicit SqlExpression instead — e.g. new SqlExpression(...) as a'
+                    . ' column argument, or SqlQuery::raw(...) for whole statements.';
             }
 
             throw new QueryException($message);

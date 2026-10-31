@@ -16,15 +16,15 @@ namespace Zef\Framework\Database;
 final readonly class QuerySnapshot
 {
     /**
-     * @param list<string>               $columns     the rendered select columns
-     * @param list<string>               $joins       the rendered join clauses
-     * @param list<string>               $groupBy     the rendered group-by columns
-     * @param list<string>               $orderBy     the rendered order-by clauses
-     * @param list<array<string, mixed>> $insertRows  the validated insert rows
-     * @param array<string, mixed>       $updatePairs the validated update pairs
+     * @param list<string>                                                  $columns     the rendered select columns
+     * @param list<string>                                                  $joins       the rendered join clauses
+     * @param list<string>                                                  $groupBy     the rendered group-by columns
+     * @param list<string>                                                  $orderBy     the rendered order-by clauses
+     * @param list<array<string, null|bool|float|int|SqlExpression|string>> $insertRows  the validated insert rows
+     * @param array<string, null|bool|float|int|SqlExpression|string>       $updatePairs the validated update pairs
      */
     public function __construct(
-        public ?string $table,
+        public string $table,
         public ?string $tableAlias,
         public array $columns,
         public bool $distinct,

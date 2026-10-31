@@ -21,10 +21,6 @@ final readonly class QuerySelectAssembly
 
     public function compile(QuerySnapshot $querySnapshot, QueryWhere $queryWhere): SqlQuery
     {
-        if ($querySnapshot->table === null) {
-            throw new QueryException('Select query requires a table (call QueryBuilder::table() first).');
-        }
-
         $columns = $querySnapshot->columns === [] ? ['*'] : $querySnapshot->columns;
         $sql = 'SELECT ' . ($querySnapshot->distinct ? 'DISTINCT ' : '') . implode(', ', $columns)
             . ' FROM ' . $querySnapshot->table;

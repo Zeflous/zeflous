@@ -34,13 +34,19 @@ final class PdoRows
                 throw new QueryException('The driver answered a non-array row under FETCH_ASSOC.');
             }
 
-            /** @var array<string, null|bool|float|int|string> $row the row's string-keyed scalar cells */
             $row = [];
 
-            /** @var null|bool|int|float|string $value one fetched value, the scalar answer set */
+            /** @var mixed $value one fetched cell, judged by the scalar guard below */
             foreach ($fetchedRow as $column => $value) {
                 if (!\is_string($column)) {
                     throw new QueryException('The driver answered a non-string column key under FETCH_ASSOC.');
+                }
+
+                if (
+                    $value !== null && !\is_bool($value) && !\is_float($value)
+                    && !\is_int($value) && !\is_string($value)
+                ) {
+                    throw new QueryException('The driver answered a non-scalar cell value under FETCH_ASSOC.');
                 }
 
                 $row[$column] = $value;

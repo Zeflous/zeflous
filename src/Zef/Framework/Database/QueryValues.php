@@ -34,6 +34,8 @@ final class QueryValues
 
     /**
      * Validates one bound value against the scalar answer set.
+     *
+     * @psalm-assert null|bool|int|float|string|SqlExpression $value
      */
     public static function assertScalar(mixed $value, string $context): void
     {

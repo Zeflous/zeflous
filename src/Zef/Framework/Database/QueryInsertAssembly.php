@@ -21,10 +21,6 @@ final readonly class QueryInsertAssembly
 
     public function compile(QuerySnapshot $querySnapshot): SqlQuery
     {
-        if ($querySnapshot->table === null) {
-            throw new QueryException('Insert query requires a table (call QueryBuilder::table() first).');
-        }
-
         if ($querySnapshot->insertRows === []) {
             throw new QueryException('Insert query requires data (call insertRows() first).');
         }
@@ -36,18 +32,16 @@ final readonly class QueryInsertAssembly
 
         $rowSql = [];
 
-        /** @var list<mixed> $params the positional values every row spells */
+        /** @var list<null|bool|float|int|SqlExpression|string> $params the positional values every row spells */
         $params = [];
         foreach ($querySnapshot->insertRows as $insertRow) {
             $rowParams = [];
 
-            /** @var mixed $value one cell of the row, an expression or a bound value */
             foreach ($insertRow as $value) {
                 if ($value instanceof SqlExpression) {
                     $rowParams[] = (string) $value;
                 } else {
                     $rowParams[] = '?';
-                    /** @var null|bool|int|float|string $value the bound spelling of a validated cell */
                     $params[] = $value;
                 }
             }

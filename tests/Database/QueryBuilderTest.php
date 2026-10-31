@@ -7,9 +7,30 @@ namespace Zef\Test\Database;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
+use Zef\Framework\Database\DatabaseException;
 use Zef\Framework\Database\QueryAggregate;
+use Zef\Framework\Database\QueryBuild;
 use Zef\Framework\Database\QueryBuilder;
+use Zef\Framework\Database\QueryColumns;
 use Zef\Framework\Database\QueryException;
+use Zef\Framework\Database\QueryFragment;
+use Zef\Framework\Database\QueryHaving;
+use Zef\Framework\Database\QueryInsertAssembly;
+use Zef\Framework\Database\QueryInsertRows;
+use Zef\Framework\Database\QueryJoin;
+use Zef\Framework\Database\QueryOrder;
+use Zef\Framework\Database\QueryPaging;
+use Zef\Framework\Database\QueryPhase;
+use Zef\Framework\Database\QueryPredicate;
+use Zef\Framework\Database\QuerySelectAssembly;
+use Zef\Framework\Database\QuerySnapshot;
+use Zef\Framework\Database\QueryUpdateAssembly;
+use Zef\Framework\Database\QueryUpdatePairs;
+use Zef\Framework\Database\QueryValues;
+use Zef\Framework\Database\QueryWhere;
+use Zef\Framework\Database\QueryWhereState;
+use Zef\Framework\Database\SqlColumn;
 use Zef\Framework\Database\SqlExpression;
 use Zef\Framework\Database\SqlIdentifier;
 use Zef\Framework\Database\SqlQuery;
@@ -19,77 +40,121 @@ use Zef\Framework\Database\SqlQuery;
  * exactness (SQL string AND binding order), the verb-phase guards (a
  * select verb on a write query, mixed write types), the where family's
  * parameter discipline (subquery merge order, nested groups, IN lists),
- * the unbounded-write refusal both ways, and determinism -- the same
- * builder state always answers the same SQL.
+ * the unbounded-write refusal both ways, the negated polarity the
+ * predicate folds carry, and determinism -- the same builder state
+ * always answers the same SQL.
  *
  * @internal
  */
 #[CoversClass(QueryBuilder::class)]
 #[CoversClass(SqlQuery::class)]
 #[CoversClass(QueryException::class)]
+#[CoversClass(DatabaseException::class)]
+#[CoversClass(QueryPhase::class)]
+#[CoversClass(QueryColumns::class)]
+#[CoversClass(QueryAggregate::class)]
+#[CoversClass(QueryPaging::class)]
+#[CoversClass(QueryJoin::class)]
+#[CoversClass(QueryOrder::class)]
+#[CoversClass(QueryValues::class)]
+#[CoversClass(QueryPredicate::class)]
+#[CoversClass(QueryFragment::class)]
+#[CoversClass(QueryWhere::class)]
+#[CoversClass(QueryWhereState::class)]
+#[CoversClass(QueryHaving::class)]
+#[CoversClass(QueryInsertRows::class)]
+#[CoversClass(QueryUpdatePairs::class)]
+#[CoversClass(QuerySnapshot::class)]
+#[CoversClass(QueryBuild::class)]
+#[CoversClass(QuerySelectAssembly::class)]
+#[CoversClass(QueryInsertAssembly::class)]
+#[CoversClass(QueryUpdateAssembly::class)]
+#[CoversClass(SqlIdentifier::class)]
+#[CoversClass(SqlColumn::class)]
+#[CoversClass(SqlExpression::class)]
 final class QueryBuilderTest extends TestCase
 {
+    // ------------------------------------------------------------------
+    // The facade's entry
+    // ------------------------------------------------------------------
+
+    public function testTableIsTheOnlyEntryTheConstructorIsPrivate(): void
+    {
+        // The tableless refusals the assemblies once carried are gone:
+        // a query without its table is a state the construction itself
+        // refuses, so the pin is the constructor's own visibility.
+        self::assertTrue(new ReflectionMethod(QueryBuilder::class, '__construct')->isPrivate());
+    }
+
+    public function testTableQuotesTheNameAndCarriesTheAlias(): void
+    {
+        $query = QueryBuilder::table('users', 'u')->select('u.id')->build();
+
+        self::assertSame('SELECT "u"."id" FROM "users" AS "u"', $query->sql);
+        self::assertSame([], $query->params);
+    }
+
     // ------------------------------------------------------------------
     // SELECT exactness
     // ------------------------------------------------------------------
 
     public function testSelectStarMinimal(): void
     {
-        self::assertSame('SELECT * FROM "users"', QueryBuilder::table('users')->toSql());
+        self::assertSame('SELECT * FROM "users"', QueryBuilder::table('users')->build()->sql);
     }
 
     public function testSelectColumnsWithAliasAndParams(): void
     {
-        $q = QueryBuilder::table('users', 'u')
+        $query = QueryBuilder::table('users', 'u')
             ->select('name AS n', 'u.age', 'email')
             ->where('age', '>', 18)
             ->where('name', '=', 'Ari')
             ->orderBy('name', 'DESC')
-            ->limit(10)
-            ->offset(20)
+            ->limit(10, 20)
+            ->build()
         ;
 
         self::assertSame(
             'SELECT "name" AS "n", "u"."age", "email" FROM "users" AS "u"'
             . ' WHERE "age" > ? AND "name" = ? ORDER BY "name" DESC LIMIT 10 OFFSET 20',
-            $q->toSql(),
+            $query->sql,
         );
-        self::assertSame([18, 'Ari'], $q->getBindings());
+        self::assertSame([18, 'Ari'], $query->params);
     }
 
     public function testSelectColumnAliasCaseInsensitiveAs(): void
     {
-        $q = QueryBuilder::table('users')->select('name as n');
+        $query = QueryBuilder::table('users')->select('name as n')->build();
 
-        self::assertSame('SELECT "name" AS "n" FROM "users"', $q->toSql());
+        self::assertSame('SELECT "name" AS "n" FROM "users"', $query->sql);
     }
 
     public function testAnExpressionColumnEmbedsVerbatim(): void
     {
-        $q = QueryBuilder::table('users')->select(new SqlExpression('COUNT(*) AS total'));
+        $query = QueryBuilder::table('users')->select(new SqlExpression('COUNT(*) AS total'))->build();
 
-        self::assertSame('SELECT COUNT(*) AS total FROM "users"', $q->toSql());
+        self::assertSame('SELECT COUNT(*) AS total FROM "users"', $query->sql);
     }
 
     public function testDistinctSpellsTheKeyword(): void
     {
-        $q = QueryBuilder::table('users')->select('email')->distinct();
+        $query = QueryBuilder::table('users')->select('email')->distinct()->build();
 
-        self::assertSame('SELECT DISTINCT "email" FROM "users"', $q->toSql());
+        self::assertSame('SELECT DISTINCT "email" FROM "users"', $query->sql);
     }
 
     public function testDistinctOffAnswersThePlainSelect(): void
     {
-        $q = QueryBuilder::table('users')->select('email')->distinct()->distinct(false);
+        $query = QueryBuilder::table('users')->select('email')->distinct()->distinct(false)->build();
 
-        self::assertSame('SELECT "email" FROM "users"', $q->toSql());
+        self::assertSame('SELECT "email" FROM "users"', $query->sql);
     }
 
     public function testSelectReplacesTheColumnSet(): void
     {
-        $q = QueryBuilder::table('users')->select('a')->select('b', 'c');
+        $query = QueryBuilder::table('users')->select('a')->select('b', 'c')->build();
 
-        self::assertSame('SELECT "b", "c" FROM "users"', $q->toSql());
+        self::assertSame('SELECT "b", "c" FROM "users"', $query->sql);
     }
 
     public function testSelectRequiresAColumn(): void
@@ -104,15 +169,15 @@ final class QueryBuilderTest extends TestCase
     {
         self::assertSame(
             'SELECT COUNT(*) AS aggregate FROM "users"',
-            QueryBuilder::table('users')->count()->toSql(),
+            QueryBuilder::table('users')->count()->build()->sql,
         );
         self::assertSame(
             'SELECT COUNT("age") AS aggregate FROM "users"',
-            QueryBuilder::table('users')->count('age')->toSql(),
+            QueryBuilder::table('users')->count('age')->build()->sql,
         );
         self::assertSame(
             'SELECT SUM("age") AS aggregate FROM "users"',
-            QueryBuilder::table('users')->select(new SqlExpression('SUM("age") AS aggregate'))->toSql(),
+            QueryBuilder::table('users')->select(new SqlExpression('SUM("age") AS aggregate'))->build()->sql,
         );
     }
 
@@ -129,33 +194,59 @@ final class QueryBuilderTest extends TestCase
         QueryAggregate::expression(new SqlIdentifier(), 'MEDIAN', 'age');
     }
 
+    public function testTheAggregateVocabularyFoldsMultibyteCaseSpellings(): void
+    {
+        // The long-s spelling folds onto SUM under the character map
+        // (mb) while the byte map leaves it unrecognised -- the fold's
+        // own vocabulary answers the folded word.
+        self::assertSame(
+            'SUM("age") AS aggregate',
+            (string) QueryAggregate::expression(new SqlIdentifier(), 'ſum', 'age'),
+        );
+    }
+
     // ------------------------------------------------------------------
     // Joins
     // ------------------------------------------------------------------
 
+    public function testTheUnknownJoinTypeIsNamedInItsFoldedSpelling(): void
+    {
+        // The refusal echoes the case-folded type, not the raw input:
+        // the full-width spelling folds under the character map while
+        // the byte map would leave it untouched.
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessageIsOrContains(
+            "Unknown join type 'ｌｅｆｔ' (allowed: inner, left, right, cross).",
+        );
+
+        QueryBuilder::table('users')->select('id')->join('orders', 'o.user_id', '=', 'u.id', 'ＬＥＦＴ');
+    }
+
     public function testJoinSpellsTheOnClauseWithQuotedSides(): void
     {
-        $q = QueryBuilder::table('users', 'u')
+        $query = QueryBuilder::table('users', 'u')
             ->select('u.id')
             ->join('orders', 'o.user_id', '=', 'u.id')
+            ->build()
         ;
 
         self::assertSame(
             'SELECT "u"."id" FROM "users" AS "u" INNER JOIN "orders" ON "o"."user_id" = "u"."id"',
-            $q->toSql(),
+            $query->sql,
         );
     }
 
     public function testJoinTypeCaseNormalised(): void
     {
-        $q = QueryBuilder::table('users', 'u')
+        $query = QueryBuilder::table('users', 'u')
             ->select('u.id')
             ->join('orders', 'o.user_id', '=', 'u.id', 'LEFT')
+            ->build()
         ;
 
         self::assertSame(
             'SELECT "u"."id" FROM "users" AS "u" LEFT JOIN "orders" ON "o"."user_id" = "u"."id"',
-            $q->toSql(),
+            $query->sql,
         );
     }
 
@@ -173,13 +264,14 @@ final class QueryBuilderTest extends TestCase
 
     public function testWhereAndOrWhereChainWithConnectors(): void
     {
-        $q = QueryBuilder::table('users')
+        $query = QueryBuilder::table('users')
             ->where('age', '>', 18)
             ->orWhere('age', '<', 13)
+            ->build()
         ;
 
-        self::assertSame('SELECT * FROM "users" WHERE "age" > ? OR "age" < ?', $q->toSql());
-        self::assertSame([18, 13], $q->getBindings());
+        self::assertSame('SELECT * FROM "users" WHERE "age" > ? OR "age" < ?', $query->sql);
+        self::assertSame([18, 13], $query->params);
     }
 
     public function testTheUnknownComparisonOperatorIsRefused(): void
@@ -193,53 +285,80 @@ final class QueryBuilderTest extends TestCase
     public function testEqualityWithNullIsRefusedTowardTheNullVerbs(): void
     {
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessageIsOrContains('Use whereNull()/whereNotNull() instead');
+        $this->expectExceptionMessageIsOrContains('Use whereNull() with its negated flag instead');
 
         QueryBuilder::table('users')->where('deleted_at', '=', null);
     }
 
     public function testNullOnNonEqualityOperatorsBinds(): void
     {
-        $q = QueryBuilder::table('users')->where('age', '<', null);
+        $query = QueryBuilder::table('users')->where('age', '<', null)->build();
 
-        self::assertSame('SELECT * FROM "users" WHERE "age" < ?', $q->toSql());
-        self::assertSame([null], $q->getBindings());
+        self::assertSame('SELECT * FROM "users" WHERE "age" < ?', $query->sql);
+        self::assertSame([null], $query->params);
     }
 
-    public function testWhereNullAndNotNullSpellThePredicates(): void
+    public function testWhereNullSpellsBothPolaritiesThroughTheNegatedFlag(): void
     {
+        // The NOT-polarity travels as the same negated flag the
+        // predicate fold carries -- one verb, both spellings.
         self::assertSame(
             'SELECT * FROM "users" WHERE "deleted_at" IS NULL',
-            QueryBuilder::table('users')->whereNull('deleted_at')->toSql(),
+            QueryBuilder::table('users')->whereNull('deleted_at')->build()->sql,
         );
         self::assertSame(
             'SELECT * FROM "users" WHERE "deleted_at" IS NOT NULL',
-            QueryBuilder::table('users')->whereNotNull('deleted_at')->toSql(),
+            QueryBuilder::table('users')->whereNull('deleted_at', negated: true)->build()->sql,
         );
     }
 
-    public function testWhereInSpellsThePlaceholderList(): void
+    public function testWhereInSpellsBothPolaritiesThroughTheNegatedFlag(): void
     {
-        $q = QueryBuilder::table('users')->whereIn('id', [1, 2, 3]);
+        $plain = QueryBuilder::table('users')->whereIn('id', [1, 2, 3])->build();
+        self::assertSame('SELECT * FROM "users" WHERE "id" IN (?, ?, ?)', $plain->sql);
+        self::assertSame([1, 2, 3], $plain->params);
 
-        self::assertSame('SELECT * FROM "users" WHERE "id" IN (?, ?, ?)', $q->toSql());
-        self::assertSame([1, 2, 3], $q->getBindings());
+        $negated = QueryBuilder::table('users')->whereIn('id', [1, 2, 3], negated: true)->build();
+        self::assertSame('SELECT * FROM "users" WHERE "id" NOT IN (?, ?, ?)', $negated->sql);
+        self::assertSame([1, 2, 3], $negated->params);
+    }
+
+    public function testWhereInSubqueryMergesParamsAfterOuterParams(): void
+    {
+        $query = QueryBuilder::table('users', 'u')
+            ->select('u.id')
+            ->where('u.age', '>', 18)
+            ->whereIn('u.id', QueryBuilder::table('bans')->select('user_id')->where('reason', '=', 'abuse'))
+            ->build()
+        ;
+
+        self::assertSame(
+            'SELECT "u"."id" FROM "users" AS "u" WHERE "u"."age" > ? AND "u"."id" IN'
+            . ' (SELECT "user_id" FROM "bans" WHERE "reason" = ?)',
+            $query->sql,
+        );
+        self::assertSame([18, 'abuse'], $query->params);
     }
 
     public function testWhereNotInSubqueryMergesParamsAfterOuterParams(): void
     {
-        $q = QueryBuilder::table('users', 'u')
+        $query = QueryBuilder::table('users', 'u')
             ->select('u.id')
             ->where('u.age', '>', 18)
-            ->whereNotIn('u.id', QueryBuilder::table('bans')->select('user_id')->where('reason', '=', 'abuse'))
+            ->whereIn(
+                'u.id',
+                QueryBuilder::table('bans')->select('user_id')->where('reason', '=', 'abuse'),
+                negated: true,
+            )
+            ->build()
         ;
 
         self::assertSame(
             'SELECT "u"."id" FROM "users" AS "u" WHERE "u"."age" > ? AND "u"."id" NOT IN'
             . ' (SELECT "user_id" FROM "bans" WHERE "reason" = ?)',
-            $q->toSql(),
+            $query->sql,
         );
-        self::assertSame([18, 'abuse'], $q->getBindings());
+        self::assertSame([18, 'abuse'], $query->params);
     }
 
     public function testWhereInWithTheEmptyListIsRefused(): void
@@ -252,10 +371,10 @@ final class QueryBuilderTest extends TestCase
 
     public function testWhereBetweenBindsLowThenHigh(): void
     {
-        $q = QueryBuilder::table('users')->whereBetween('age', 13, 19);
+        $query = QueryBuilder::table('users')->whereBetween('age', 13, 19)->build();
 
-        self::assertSame('SELECT * FROM "users" WHERE "age" BETWEEN ? AND ?', $q->toSql());
-        self::assertSame([13, 19], $q->getBindings());
+        self::assertSame('SELECT * FROM "users" WHERE "age" BETWEEN ? AND ?', $query->sql);
+        self::assertSame([13, 19], $query->params);
     }
 
     public function testWhereBetweenRejectsNonScalars(): void
@@ -268,20 +387,50 @@ final class QueryBuilderTest extends TestCase
         QueryBuilder::table('users')->whereBetween('age', [], 19);
     }
 
+    public function testWhereBetweenRejectsANonScalarHighBound(): void
+    {
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'whereBetween() high must be null, bool, int, float, string or SqlExpression (got array).',
+        );
+
+        QueryBuilder::table('users')->whereBetween('age', 13, []);
+    }
+
+    public function testWhereRejectsANonScalarValue(): void
+    {
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessageIsOrContains(
+            "condition value for 'age' must be null, bool, int, float, string or SqlExpression (got array).",
+        );
+
+        QueryBuilder::table('users')->where('age', '>', []);
+    }
+
+    public function testWhereInRejectsANonScalarMember(): void
+    {
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'whereIn() value must be null, bool, int, float, string or SqlExpression (got array).',
+        );
+
+        QueryBuilder::table('users')->whereIn('id', [['nested']]);
+    }
+
     public function testWhereLikeBindsThePattern(): void
     {
-        $q = QueryBuilder::table('users')->whereLike('name', 'Ar%');
+        $query = QueryBuilder::table('users')->whereLike('name', 'Ar%')->build();
 
-        self::assertSame('SELECT * FROM "users" WHERE "name" LIKE ?', $q->toSql());
-        self::assertSame(['Ar%'], $q->getBindings());
+        self::assertSame('SELECT * FROM "users" WHERE "name" LIKE ?', $query->sql);
+        self::assertSame(['Ar%'], $query->params);
     }
 
     public function testWhereLikeEscapesTheWildcards(): void
     {
-        $q = QueryBuilder::table('users')->whereLike('name', 'Ar\%ry_an%', true);
+        $query = QueryBuilder::table('users')->whereLike('name', 'Ar\%ry_an%', true)->build();
 
-        self::assertSame("SELECT * FROM \"users\" WHERE \"name\" LIKE ? ESCAPE '\\'", $q->toSql());
-        self::assertSame(['Ar\\\\\%ry\_an\%'], $q->getBindings());
+        self::assertSame("SELECT * FROM \"users\" WHERE \"name\" LIKE ? ESCAPE '\\'", $query->sql);
+        self::assertSame(['Ar\\\\\%ry\_an\%'], $query->params);
     }
 
     public function testWhereLikeWithTheEmptyPatternIsRefused(): void
@@ -294,9 +443,10 @@ final class QueryBuilderTest extends TestCase
 
     public function testASqlExpressionColumnPassesThroughInTheCondition(): void
     {
-        $q = QueryBuilder::table('users')->where(new SqlExpression('LOWER(name)'), '=', 'ari');
+        $query = QueryBuilder::table('users')->where(new SqlExpression('LOWER(name)'), '=', 'ari')->build();
 
-        self::assertSame('SELECT * FROM "users" WHERE LOWER(name) = ?', $q->toSql());
+        self::assertSame('SELECT * FROM "users" WHERE LOWER(name) = ?', $query->sql);
+        self::assertSame(['ari'], $query->params);
     }
 
     // ------------------------------------------------------------------
@@ -305,18 +455,43 @@ final class QueryBuilderTest extends TestCase
 
     public function testGroupByHavingOrderBySpellTheirClauses(): void
     {
-        $q = QueryBuilder::table('users')
+        $query = QueryBuilder::table('users')
             ->select('city')
             ->groupBy('city')
             ->having('city', '!=', 'Jakarta')
             ->orderBy('city')
+            ->build()
         ;
 
         self::assertSame(
             'SELECT "city" FROM "users" GROUP BY "city" HAVING "city" != ? ORDER BY "city" ASC',
-            $q->toSql(),
+            $query->sql,
         );
-        self::assertSame(['Jakarta'], $q->getBindings());
+        self::assertSame(['Jakarta'], $query->params);
+    }
+
+    public function testGroupBySpellsEveryColumnGiven(): void
+    {
+        $query = QueryBuilder::table('users')->select('city')->groupBy('city', 'region')->build();
+
+        self::assertSame('SELECT "city" FROM "users" GROUP BY "city", "region"', $query->sql);
+    }
+
+    public function testTwoHavingClausesBindInTheirCallOrder(): void
+    {
+        $query = QueryBuilder::table('users')
+            ->select('city')
+            ->groupBy('city')
+            ->having('city', '!=', 'Jakarta')
+            ->having('region', '=', 'Bali')
+            ->build()
+        ;
+
+        self::assertSame(
+            'SELECT "city" FROM "users" GROUP BY "city" HAVING "city" != ? AND "region" = ?',
+            $query->sql,
+        );
+        self::assertSame(['Jakarta', 'Bali'], $query->params);
     }
 
     public function testGroupByRequiresAColumn(): void
@@ -329,9 +504,19 @@ final class QueryBuilderTest extends TestCase
 
     public function testOrderByDirectionLowercaseIsNormalised(): void
     {
-        $q = QueryBuilder::table('users')->orderBy('name', 'desc');
+        $query = QueryBuilder::table('users')->orderBy('name', 'desc')->build();
 
-        self::assertSame('SELECT * FROM "users" ORDER BY "name" DESC', $q->toSql());
+        self::assertSame('SELECT * FROM "users" ORDER BY "name" DESC', $query->sql);
+    }
+
+    public function testOrderByDirectionFoldsMultibyteCaseSpellings(): void
+    {
+        // The long-s spelling folds onto DESC under the character map
+        // while the byte map would leave it unrecognised -- the fold's
+        // own vocabulary answers the folded word.
+        $query = QueryBuilder::table('users')->orderBy('name', 'deſc')->build();
+
+        self::assertSame('SELECT * FROM "users" ORDER BY "name" DESC', $query->sql);
     }
 
     public function testTheUnknownOrderDirectionIsRefused(): void
@@ -346,11 +531,15 @@ final class QueryBuilderTest extends TestCase
     {
         self::assertSame(
             'SELECT * FROM "users" LIMIT 0',
-            QueryBuilder::table('users')->limit(0)->toSql(),
+            QueryBuilder::table('users')->limit(0)->build()->sql,
         );
         self::assertSame(
             'SELECT * FROM "users" LIMIT 1 OFFSET 0',
-            QueryBuilder::table('users')->limit(1)->offset(0)->toSql(),
+            QueryBuilder::table('users')->limit(1, 0)->build()->sql,
+        );
+        self::assertSame(
+            'SELECT * FROM "users" LIMIT 2',
+            QueryBuilder::table('users')->limit(2)->build()->sql,
         );
     }
 
@@ -362,20 +551,12 @@ final class QueryBuilderTest extends TestCase
         QueryBuilder::table('users')->limit(-1);
     }
 
-    public function testOffsetWithoutLimitIsRefused(): void
-    {
-        $this->expectException(QueryException::class);
-        $this->expectExceptionMessageIsOrContains('offset() requires limit() to be set first.');
-
-        QueryBuilder::table('users')->offset(10);
-    }
-
     public function testNegativeOffsetIsRefused(): void
     {
         $this->expectException(QueryException::class);
         $this->expectExceptionMessageIsOrContains('offset() must be >= 0.');
 
-        QueryBuilder::table('users')->limit(1)->offset(-1);
+        QueryBuilder::table('users')->limit(1, -1);
     }
 
     // ------------------------------------------------------------------
@@ -384,29 +565,32 @@ final class QueryBuilderTest extends TestCase
 
     public function testInsertSpellsColumnsAndValues(): void
     {
-        $q = QueryBuilder::table('users')->insertRows([['name' => 'Ari', 'age' => 20]]);
+        $query = QueryBuilder::table('users')->insertRows([['name' => 'Ari', 'age' => 20]])->build();
 
-        self::assertSame('INSERT INTO "users" ("name", "age") VALUES (?, ?)', $q->toSql());
-        self::assertSame(['Ari', 20], $q->getBindings());
+        self::assertSame('INSERT INTO "users" ("name", "age") VALUES (?, ?)', $query->sql);
+        self::assertSame(['Ari', 20], $query->params);
     }
 
     public function testInsertRowsSpellsEveryRow(): void
     {
-        $q = QueryBuilder::table('users')->insertRows([
+        $query = QueryBuilder::table('users')->insertRows([
             ['name' => 'Ari', 'age' => 20],
             ['name' => 'Budi', 'age' => 17],
-        ]);
+        ])->build();
 
-        self::assertSame('INSERT INTO "users" ("name", "age") VALUES (?, ?), (?, ?)', $q->toSql());
-        self::assertSame(['Ari', 20, 'Budi', 17], $q->getBindings());
+        self::assertSame('INSERT INTO "users" ("name", "age") VALUES (?, ?), (?, ?)', $query->sql);
+        self::assertSame(['Ari', 20, 'Budi', 17], $query->params);
     }
 
     public function testInsertExpressionValuesAreEmbeddedVerbatim(): void
     {
-        $q = QueryBuilder::table('users')->insertRows([['name' => 'Ari', 'created_at' => new SqlExpression('NOW()')]]);
+        $query = QueryBuilder::table('users')
+            ->insertRows([['name' => 'Ari', 'created_at' => new SqlExpression('NOW()')]])
+            ->build()
+        ;
 
-        self::assertSame('INSERT INTO "users" ("name", "created_at") VALUES (?, NOW())', $q->toSql());
-        self::assertSame(['Ari'], $q->getBindings());
+        self::assertSame('INSERT INTO "users" ("name", "created_at") VALUES (?, NOW())', $query->sql);
+        self::assertSame(['Ari'], $query->params);
     }
 
     public function testInsertRowsWithTheEmptyListIsRefused(): void
@@ -446,26 +630,39 @@ final class QueryBuilderTest extends TestCase
         QueryBuilder::table('users')->insertRows([['name' => ['nested']]]);
     }
 
+    public function testInsertRowsValidatesEveryColumnNameAgainstTheGrammar(): void
+    {
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessageIsOrContains("Invalid column 'na me'.");
+
+        QueryBuilder::table('users')->insertRows([['na me' => 'Ari']]);
+    }
+
     // ------------------------------------------------------------------
     // UPDATE / DELETE
     // ------------------------------------------------------------------
 
     public function testUpdateSpellsTheSetPairsThenWhereParams(): void
     {
-        $q = QueryBuilder::table('users')
+        $query = QueryBuilder::table('users')
             ->update(['name' => 'Ari', 'age' => 21])
             ->where('id', '=', 1)
+            ->build()
         ;
 
-        self::assertSame('UPDATE "users" SET "name" = ?, "age" = ? WHERE "id" = ?', $q->toSql());
-        self::assertSame(['Ari', 21, 1], $q->getBindings());
+        self::assertSame('UPDATE "users" SET "name" = ?, "age" = ? WHERE "id" = ?', $query->sql);
+        self::assertSame(['Ari', 21, 1], $query->params);
     }
 
     public function testUpdateExpressionValuesAreEmbeddedVerbatim(): void
     {
-        $q = QueryBuilder::table('users')->update(['seen_at' => new SqlExpression('NOW()')])->where('id', '=', 1);
+        $query = QueryBuilder::table('users')
+            ->update(['seen_at' => new SqlExpression('NOW()')])
+            ->where('id', '=', 1)
+            ->build()
+        ;
 
-        self::assertSame('UPDATE "users" SET "seen_at" = NOW() WHERE "id" = ?', $q->toSql());
+        self::assertSame('UPDATE "users" SET "seen_at" = NOW() WHERE "id" = ?', $query->sql);
     }
 
     public function testUpdateWithNoPairsIsRefused(): void
@@ -486,12 +683,20 @@ final class QueryBuilderTest extends TestCase
         QueryBuilder::table('users')->update(['name' => (object) []]);
     }
 
+    public function testUpdateValidatesEveryColumnNameAgainstTheGrammar(): void
+    {
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessageIsOrContains("Invalid column 'na me'.");
+
+        QueryBuilder::table('users')->update(['na me' => 'Ari']);
+    }
+
     public function testDeleteSpellsTheWhereSuffix(): void
     {
-        $q = QueryBuilder::table('users')->delete()->where('id', '=', 1);
+        $query = QueryBuilder::table('users')->delete()->where('id', '=', 1)->build();
 
-        self::assertSame('DELETE FROM "users" WHERE "id" = ?', $q->toSql());
-        self::assertSame([1], $q->getBindings());
+        self::assertSame('DELETE FROM "users" WHERE "id" = ?', $query->sql);
+        self::assertSame([1], $query->params);
     }
 
     // ------------------------------------------------------------------
@@ -564,35 +769,32 @@ final class QueryBuilderTest extends TestCase
         QueryBuilder::table('users')->delete()->update(['name' => 'Ari']);
     }
 
-    public function testTheTablelessSelectIsRefusedAtBuildTime(): void
+    public function testTheBuildDispatchRefusesThePhaseTheBuilderNeverLetsThrough(): void
     {
+        // The facade's phase vocabulary is closed by QueryPhase, so the
+        // dispatch's own default arm is only reachable by calling the
+        // fold directly -- the refusal is pinned where it lives.
+        $sqlIdentifier = new SqlIdentifier();
+        $querySnapshot = new QuerySnapshot(
+            'users',
+            null,
+            ['*'],
+            false,
+            [],
+            [],
+            new QueryHaving($sqlIdentifier),
+            [],
+            null,
+            null,
+            [],
+            [],
+            false,
+        );
+
         $this->expectException(QueryException::class);
-        $this->expectExceptionMessageIsOrContains('Select query requires a table (call QueryBuilder::table() first).');
+        $this->expectExceptionMessageIsOrContains("Unknown query type 'bogus'.");
 
-        new QueryBuilder()->build();
-    }
-
-    public function testMissingTableAndDataAreNamedPerType(): void
-    {
-        try {
-            new QueryBuilder()->insertRows([['a' => 1]])->build();
-            self::fail('The tableless insert must refuse.');
-        } catch (QueryException $queryException) {
-            self::assertSame(
-                'Insert query requires a table (call QueryBuilder::table() first).',
-                $queryException->getMessage(),
-            );
-        }
-
-        try {
-            new QueryBuilder()->update(['a' => 1])->build();
-            self::fail('The tableless update must refuse.');
-        } catch (QueryException $queryException) {
-            self::assertSame(
-                'Update query requires a table (call QueryBuilder::table() first).',
-                $queryException->getMessage(),
-            );
-        }
+        QueryBuild::statement('bogus', $querySnapshot, new QueryWhere($sqlIdentifier));
     }
 
     // ------------------------------------------------------------------
@@ -607,19 +809,22 @@ final class QueryBuilderTest extends TestCase
             ->where('u.age', '>', 18)
             ->orderBy('u.name', 'ASC')
             ->limit(5)
-            ->toSql()
+            ->build()->sql
         ;
 
         self::assertSame($build(), $build());
     }
 
-    public function testBuildToSqlAndGetBindingsAgree(): void
+    /**
+     * @param callable(QueryBuilder): QueryBuilder $verb
+     */
+    #[DataProvider('provideEverySelectSideVerbRefusesTheWritePhasesCases')]
+    public function testEverySelectSideVerbRefusesTheWritePhases(string $method, callable $verb): void
     {
-        $builder = QueryBuilder::table('users')->where('id', '>', 3)->limit(2);
-        $built = $builder->build();
+        $this->expectException(QueryException::class);
+        $this->expectExceptionMessageIsOrContains("{$method} is not available on a delete query.");
 
-        self::assertSame($built->sql, $builder->toSql());
-        self::assertSame($built->params, $builder->getBindings());
+        $verb(QueryBuilder::table('users')->delete());
     }
 
     // ------------------------------------------------------------------
@@ -629,48 +834,91 @@ final class QueryBuilderTest extends TestCase
     /**
      * @return iterable<non-empty-string, array{non-empty-string, callable(QueryBuilder): QueryBuilder}>
      */
-    public static function provideSelectSideVerbs(): iterable
+    public static function provideEverySelectSideVerbRefusesTheWritePhasesCases(): iterable
     {
-        yield 'select' => ['select()', static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->select('id')];
-        yield 'distinct' => ['distinct()', static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->distinct()];
-        yield 'join' => ['join()', static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->join('o', 'o.i', '=', 'u.i')];
-        yield 'groupBy' => ['groupBy()', static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->groupBy('city')];
-        yield 'having' => ['having()', static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->having('city', '!=', 'x')];
-        yield 'orderBy' => ['orderBy()', static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->orderBy('name')];
+        yield 'select' => [
+            'select()',
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->select('id'),
+        ];
+
+        yield 'distinct' => [
+            'distinct()',
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->distinct(),
+        ];
+
+        yield 'join' => [
+            'join()',
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->join('o', 'o.i', '=', 'u.i'),
+        ];
+
+        yield 'groupBy' => [
+            'groupBy()',
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->groupBy('city'),
+        ];
+
+        yield 'having' => [
+            'having()',
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->having('city', '!=', 'x'),
+        ];
+
+        yield 'orderBy' => [
+            'orderBy()',
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->orderBy('name'),
+        ];
+
         yield 'limit' => ['limit()', static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->limit(1)];
-        yield 'offset' => ['offset()', static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->offset(1)];
-    }
 
-    #[DataProvider('provideSelectSideVerbs')]
-    public function testEverySelectSideVerbRefusesTheWritePhases(string $method, callable $verb): void
-    {
-        $this->expectException(QueryException::class);
-        $this->expectExceptionMessageIsOrContains("{$method} is not available on a delete query.");
-
-        $verb(QueryBuilder::table('users')->delete());
+        yield 'limitWithOffset' => [
+            'limit()',
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->limit(1, 1),
+        ];
     }
 
     /**
-     * @return iterable<non-empty-string, array{callable(QueryBuilder): QueryBuilder}>
+     * @param callable(QueryBuilder): QueryBuilder $verb
      */
-    public static function provideWhereFamilyVerbs(): iterable
-    {
-        yield 'where' => [static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->where('id', '=', 1)];
-        yield 'orWhere' => [static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->orWhere('id', '=', 1)];
-        yield 'whereIn' => [static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereIn('id', [1])];
-        yield 'whereNotIn' => [static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereNotIn('id', [1])];
-        yield 'whereNull' => [static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereNull('gone')];
-        yield 'whereNotNull' => [static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereNotNull('gone')];
-        yield 'whereBetween' => [static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereBetween('age', 1, 2)];
-        yield 'whereLike' => [static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereLike('name', 'A%')];
-    }
-
-    #[DataProvider('provideWhereFamilyVerbs')]
+    #[DataProvider('provideEveryWhereVerbRefusesTheInsertPhaseCases')]
     public function testEveryWhereVerbRefusesTheInsertPhase(callable $verb): void
     {
         $this->expectException(QueryException::class);
         $this->expectExceptionMessageIsOrContains('WHERE clauses are not available on an insert query.');
 
         $verb(QueryBuilder::table('users')->insertRows([['name' => 'Ari']]));
+    }
+
+    /**
+     * @return iterable<non-empty-string, array{callable(QueryBuilder): QueryBuilder}>
+     */
+    public static function provideEveryWhereVerbRefusesTheInsertPhaseCases(): iterable
+    {
+        yield 'where' => [static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->where('id', '=', 1)];
+
+        yield 'orWhere' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->orWhere('id', '=', 1),
+        ];
+
+        yield 'whereIn' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereIn('id', [1]),
+        ];
+
+        yield 'whereNegatedIn' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereIn('id', [1], negated: true),
+        ];
+
+        yield 'whereNull' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereNull('gone'),
+        ];
+
+        yield 'whereNegatedNull' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereNull('gone', negated: true),
+        ];
+
+        yield 'whereBetween' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereBetween('age', 1, 2),
+        ];
+
+        yield 'whereLike' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereLike('name', 'A%'),
+        ];
     }
 }

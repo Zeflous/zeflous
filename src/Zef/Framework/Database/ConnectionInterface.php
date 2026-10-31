@@ -58,20 +58,29 @@ interface ConnectionInterface
      *   ignoring the request;
      * - SQLite rejects isolation levels outright ({@see ConnectionException}).
      *
-     * @throws TransactionException when nested and $isolation requested
+     * @throws TransactionException when nested and $isolation requested, the
+     *                              nesting ceiling exceeded, or the driver refuses
      * @throws ConnectionException  on SQLite with $isolation requested
+     * @throws QueryException       when the driver refuses an administrative
+     *                              statement (the savepoint walk's)
      */
     public function beginTransaction(?IsolationLevel $isolationLevel = null): void;
 
     /**
      * Commit the current level -- releases a savepoint when nested,
      * commits for real at the outermost level.
+     *
+     * @throws TransactionException when no transaction is open or the driver refuses
+     * @throws QueryException       when the driver refuses the savepoint release
      */
     public function commit(): void;
 
     /**
      * Roll the current level back -- restores a savepoint when nested,
      * rolls back for real at the outermost level.
+     *
+     * @throws TransactionException when no transaction is open or the driver refuses
+     * @throws QueryException       when the driver refuses the savepoint restore
      */
     public function rollBack(): void;
 

@@ -26,9 +26,12 @@ namespace Zef\Framework\Database;
  * selectRaw, aggregate beyond COUNT, leftJoin, single-row insert,
  * whereColumn and whereNested -- are expressible through the
  * SqlExpression escape hatch ({@see SqlExpression}), the join type
- * parameter, the one-row insertRows list, or await the condition-object
- * API the Domain-Driven direction eventually wants; keeping the facade
- * small is what keeps it under the architecture ceiling.
+ * parameter, or the one-row insertRows list; the where family's
+ * NOT-polarity travels as the same negated flag the predicate folds
+ * carry ({@see QueryPredicate}), and offset rides limit()'s parameter
+ * because an offset cannot stand without one ({@see QueryPaging});
+ * keeping the facade small is what keeps it under the architecture
+ * ceiling.
  *
  * The builder is the fluent facade over the lane's folds: the phase
  * guards in {@see QueryPhase}, the predicate grammar in
@@ -40,21 +43,16 @@ namespace Zef\Framework\Database;
  * in {@see QueryRows}, and the statement assembly in
  * {@see QuerySelectAssembly} / {@see QueryWriteAssembly} over the
  * {@see QuerySnapshot} this facade collects -- each fold owns one
- * question, the facade owns the verbs.
+ * question, the facade owns the verbs. {@see self::table()} is the only
+ * entry: a query without its table is a state the construction itself
+ * refuses, so the tableless refusals the assemblies once carried are
+ * unreachable by construction.
  */
 final class QueryBuilder
 {
-    private readonly SqlIdentifier $sqlIdentifier;
-
-    private readonly QueryWhere $queryWhere;
-
-    private readonly QueryHaving $queryHaving;
+    private ?string $tableAlias = null;
 
     private string $type = QueryPhase::SELECT;
-
-    private ?string $table = null;
-
-    private ?string $tableAlias = null;
 
     private bool $distinct = false;
 
@@ -76,26 +74,32 @@ final class QueryBuilder
 
     private ?int $offset = null;
 
-    /** @var list<array<string, mixed>> */
+    /** @var list<array<string, null|bool|float|int|SqlExpression|string>> */
     private array $insertRows = [];
 
-    /** @var array<string, mixed> */
+    /** @var array<string, null|bool|float|int|SqlExpression|string> */
     private array $updatePairs = [];
 
-    public function __construct()
-    {
-        $this->sqlIdentifier = new SqlIdentifier();
-        $this->queryWhere = new QueryWhere($this->sqlIdentifier);
-        $this->queryHaving = new QueryHaving($this->sqlIdentifier);
+    private function __construct(
+        private readonly SqlIdentifier $sqlIdentifier,
+        private readonly QueryWhere $queryWhere,
+        private readonly QueryHaving $queryHaving,
+        private readonly string $table,
+    ) {
     }
 
     public static function table(SqlExpression|string $table, ?string $alias = null): self
     {
-        $qb = new self();
-        $qb->table = $qb->sqlIdentifier->table($table);
-        $qb->tableAlias = $alias;
+        $sqlIdentifier = new SqlIdentifier();
+        $builder = new self(
+            $sqlIdentifier,
+            new QueryWhere($sqlIdentifier),
+            new QueryHaving($sqlIdentifier),
+            $sqlIdentifier->table($table),
+        );
+        $builder->tableAlias = $alias;
 
-        return $qb;
+        return $builder;
     }
 
     // ------------------------------------------------------------------
@@ -167,18 +171,18 @@ final class QueryBuilder
         return $this;
     }
 
-    public function limit(int $limit): self
+    /**
+     * Paging in one verb: the limit, with the offset that pages against
+     * it -- an offset cannot stand without a limit, so the parameter
+     * carries the pair the guard once had to demand.
+     */
+    public function limit(int $limit, ?int $offset = null): self
     {
         QueryPhase::assertSelect($this->type, 'limit()');
         $this->limit = QueryPaging::limit($limit);
-
-        return $this;
-    }
-
-    public function offset(int $offset): self
-    {
-        QueryPhase::assertSelect($this->type, 'offset()');
-        $this->offset = QueryPaging::offset($offset, $this->limit);
+        if ($offset !== null) {
+            $this->offset = QueryPaging::offset($offset);
+        }
 
         return $this;
     }
@@ -210,38 +214,23 @@ final class QueryBuilder
 
     /**
      * @param list<mixed>|QueryBuilder $values
+     * @param bool                     $negated the NOT polarity the predicate fold carries
      */
-    public function whereIn(string $column, array|self $values): self
+    public function whereIn(string $column, array|self $values, bool $negated = false): self
     {
         QueryPhase::assertWhereAllowed($this->type);
-        $this->queryWhere->inList($column, $values, false);
+        $this->queryWhere->inList($column, $values, $negated);
 
         return $this;
     }
 
     /**
-     * @param list<mixed>|QueryBuilder $values
+     * @param bool $negated the NOT polarity the predicate fold carries
      */
-    public function whereNotIn(string $column, array|self $values): self
+    public function whereNull(string $column, bool $negated = false): self
     {
         QueryPhase::assertWhereAllowed($this->type);
-        $this->queryWhere->inList($column, $values, true);
-
-        return $this;
-    }
-
-    public function whereNull(string $column): self
-    {
-        QueryPhase::assertWhereAllowed($this->type);
-        $this->queryWhere->nullPredicate($column, false);
-
-        return $this;
-    }
-
-    public function whereNotNull(string $column): self
-    {
-        QueryPhase::assertWhereAllowed($this->type);
-        $this->queryWhere->nullPredicate($column, true);
+        $this->queryWhere->nullPredicate($column, $negated);
 
         return $this;
     }
@@ -337,18 +326,5 @@ final class QueryBuilder
             ),
             $this->queryWhere,
         );
-    }
-
-    public function toSql(): string
-    {
-        return $this->build()->sql;
-    }
-
-    /**
-     * @return list<mixed>
-     */
-    public function getBindings(): array
-    {
-        return $this->build()->params;
     }
 }

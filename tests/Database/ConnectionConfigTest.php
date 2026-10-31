@@ -7,6 +7,12 @@ namespace Zef\Test\Database;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
+use Zef\Framework\Adapters\Database\ConnectionDsn;
+use Zef\Framework\Adapters\Database\ConnectionFields;
+use Zef\Framework\Adapters\Database\ConnectionHost;
+use Zef\Framework\Adapters\Database\ConnectionOptionKeys;
+use Zef\Framework\Adapters\Database\ConnectionOptions;
+use Zef\Framework\Adapters\Database\ConnectionPort;
 use Zef\Framework\Database\ConnectionException;
 
 /**
@@ -21,6 +27,12 @@ use Zef\Framework\Database\ConnectionException;
  * @internal
  */
 #[CoversClass(ConnectionConfig::class)]
+#[CoversClass(ConnectionDsn::class)]
+#[CoversClass(ConnectionFields::class)]
+#[CoversClass(ConnectionHost::class)]
+#[CoversClass(ConnectionPort::class)]
+#[CoversClass(ConnectionOptions::class)]
+#[CoversClass(ConnectionOptionKeys::class)]
 #[CoversClass(ConnectionException::class)]
 final class ConnectionConfigTest extends TestCase
 {
@@ -73,6 +85,52 @@ final class ConnectionConfigTest extends TestCase
     // ------------------------------------------------------------------
     // Driver refusal
     // ------------------------------------------------------------------
+
+    public function testTheDsnFoldRefusesTheDriverTheConfigNeverLetsThrough(): void
+    {
+        // The reading fold validates the driver first, so the DSN's own
+        // default arm is only reachable by calling the fold directly --
+        // the refusal is pinned where it lives.
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessageIsOrContains("Unsupported database driver 'oracle'.");
+
+        ConnectionDsn::of('oracle', 'db.local', 3306, 'app', null);
+    }
+
+    public function testTheDsnFoldRefusesTheMissingNetworkHost(): void
+    {
+        // fromArray guarantees the network drivers their host; the DSN's
+        // own narrowing is pinned where it lives.
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessageIsOrContains('The mysql DSN requires a host.');
+
+        ConnectionDsn::of('mysql', null, 3306, 'app', null);
+    }
+
+    public function testTheDsnFoldRefusesTheMissingNetworkPort(): void
+    {
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessageIsOrContains('The pgsql DSN requires a port.');
+
+        ConnectionDsn::of('pgsql', 'db.local', null, 'app', null);
+    }
+
+    public function testANetworkDriverDbnameIsNotHeldToTheSqlitePrintableRule(): void
+    {
+        // The printable-ASCII path rule is SQLite's (its DSN IS the
+        // path); the network drivers' dbname travels inside the DSN
+        // string the server validates -- the lanes own their own
+        // rules, and the boundary between them is pinned here.
+        $config = ConnectionConfig::fromArray([
+            'driver' => 'mysql',
+            'host' => 'db.local',
+            'dbname' => "\x01app",
+            'user' => 'app',
+            'password' => 'secret',
+        ]);
+
+        self::assertSame("mysql:host=db.local;port=3306;dbname=\x01app;charset=utf8mb4", $config->dsn());
+    }
 
     public function testUnknownDriverRejected(): void
     {
@@ -218,6 +276,26 @@ final class ConnectionConfigTest extends TestCase
         ConnectionConfig::fromArray(['driver' => 'mysql', 'host' => 'h', 'dbname' => 'app', 'port' => 'http']);
     }
 
+    public function testATrailingNonNumericTailOnThePortIsRejected(): void
+    {
+        // The numeric-string grammar is anchored both sides: a numeric
+        // prefix alone must not pass as a port.
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessageIsOrContains('Port must be an int or a numeric string (1-65535).');
+
+        ConnectionConfig::fromArray(['driver' => 'mysql', 'host' => 'h', 'dbname' => 'app', 'port' => '3306x']);
+    }
+
+    public function testALeadingNonNumericHeadOnThePortIsRejected(): void
+    {
+        // The anchor's other side: a numeric suffix alone must not pass
+        // as a port either.
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessageIsOrContains('Port must be an int or a numeric string (1-65535).');
+
+        ConnectionConfig::fromArray(['driver' => 'mysql', 'host' => 'h', 'dbname' => 'app', 'port' => 'x3306']);
+    }
+
     // ------------------------------------------------------------------
     // Credentials, charset, options
     // ------------------------------------------------------------------
@@ -266,6 +344,23 @@ final class ConnectionConfigTest extends TestCase
             'host' => 'h',
             'dbname' => 'app',
             'options' => ['pooling' => true],
+        ]);
+    }
+
+    public function testUnknownOptionKeyAfterAWhitelistedKeyIsRejected(): void
+    {
+        // The walk continues past every whitelisted key it meets: an
+        // unknown key hiding behind a valid one still refuses.
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessageIsOrContains(
+            "Unknown connection option 'verbose' (allowed: persistent, timeout).",
+        );
+
+        ConnectionConfig::fromArray([
+            'driver' => 'mysql',
+            'host' => 'h',
+            'dbname' => 'app',
+            'options' => ['persistent' => true, 'verbose' => 1],
         ]);
     }
 

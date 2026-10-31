@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Zef\Framework\Database;
 
 /**
- * The paging guards: a non-negative limit, and an offset that refuses
- * to stand without one.
+ * The paging guards: a non-negative limit, and a non-negative offset
+ * riding limit's parameter -- an offset cannot stand without one, so
+ * the pair travels as one verb and the ordering precondition is an
+ * invariant of the signature instead of a runtime refusal.
  *
  * @internal
  */
@@ -25,17 +27,12 @@ final class QueryPaging
     }
 
     /**
-     * Answers the validated offset, requiring the limit it pages
-     * against.
+     * Answers the validated offset.
      */
-    public static function offset(int $offset, ?int $limit): int
+    public static function offset(int $offset): int
     {
         if ($offset < 0) {
             throw new QueryException('offset() must be >= 0.');
-        }
-
-        if ($limit === null) {
-            throw new QueryException('offset() requires limit() to be set first.');
         }
 
         return $offset;

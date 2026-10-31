@@ -28,7 +28,7 @@ final class SqlColumn
             throw new QueryException('Column must not be empty.');
         }
 
-        if (preg_match('/^([A-Za-z0-9_.]+)\s+AS\s+([A-Za-z_][A-Za-z0-9_]{0,63})$/i', $trimmed, $m) === 1) {
+        if (preg_match('/^([\w.]+)\s+AS\s+([A-Z_]\w{0,63})$/i', $trimmed, $m) === 1) {
             return $sqlIdentifier->columnPath($m[1]) . ' AS ' . $sqlIdentifier->quote($m[2], 'alias');
         }
 

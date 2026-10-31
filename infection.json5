@@ -395,6 +395,19 @@
                 // running the engine battery under all four unwraps
                 // -- the complete battery passes).
                 "Zef\\Framework\\Config\\Routing\\RouteVersionSelection::select",
+                // The identifier grammar's byte ceiling carries the
+                // BodyBudget doctrine over its own measurement: the
+                // '8bit' encoding IS byte semantics, so mb_strlen and
+                // strlen answer the exact byte count of any identifier
+                // under both spellings (the multibyte boundary test
+                // pins the 66-byte refusal either way -- the KDD-DB5
+                // ledger's own record). The spelling keeps the '8bit'
+                // argument precisely because the automated mb_str
+                // migration rewrites the strlen form: the argument is
+                // the load-bearing difference between the byte ceiling
+                // the grammar promises and the character count it must
+                // never see. Scoped to that single method.
+                "Zef\\Framework\\Database\\SqlIdentifier::quote",
                 "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
                 "Zef\\Framework\\Http\\AuthCredential::fromBearerLine",
                 "Zef\\Framework\\Http\\BodyBudget::refuses",
@@ -733,7 +746,19 @@
                 // manually applied mutation -- the complete suite passes,
                 // the parameterised and multibyte header paths included).
                 // This ignore is scoped to that single source line.
-                "\\$contentType = mb_strtolower\\(\\$serverRequest->getHeaderLine\\('Content-Type'\\)\\);"
+                "\\$contentType = mb_strtolower\\(\\$serverRequest->getHeaderLine\\('Content-Type'\\)\\);",
+                // The join keyword's upper-case fold runs over an operand
+                // that is ASCII by construction: the join-type reading on
+                // the line before it case-folds the caller's spelling and
+                // refuses every value outside the closed vocabulary, so
+                // the $type the keyword line concatenates is always one
+                // of the four ASCII words the vocabulary spelled --
+                // mb_strtoupper and strtoupper agree on every value the
+                // line can ever see (the type fold's own divergence IS
+                // observable, and its killer pins the folded spelling
+                // the refusal echoes). This ignore is scoped to that
+                // single source line.
+                "\\$keyword = \\$type === 'inner' \\? 'INNER JOIN' : mb_strtoupper.*"
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is
@@ -1296,11 +1321,37 @@
             // round-2 audit, and the cast's equivalence is the doctrine's
             // own, not the file's.
             "ignore": [
+                // The driver word's scalar cast: the refusal message
+                // concatenates the operand PHP would coerce itself, so
+                // removing the cast answers the identical message for
+                // every scalar the reading can name (int 5, float 5.0,
+                // bool -- the concat and the cast spell the same bytes;
+                // the non-scalar arm answers get_debug_type under both).
+                // The driver grammar itself stays fully under its
+                // mutators: the battery pins the accepted word, the
+                // unknown word, the int and the missing spellings.
+                // Scoped to that single reading fold, the staging
+                // doctrine's own equivalence.
+                "Zef\\Framework\\Adapters\\Database\\ConnectionFields::readDriver",
                 "Zef\\Framework\\Config\\Cache\\ConfigCache::stagingName",
                 "Zef\\Framework\\Config\\Routing\\RouteTreeCache::stagingName"
             ],
             "ignoreSourceCodeByRegex": [
-                "\\$shortName = \\(string\\) preg_replace\\('/Exception\\$/'.*"
+                "\\$shortName = \\(string\\) preg_replace\\('/Exception\\$/'.*",
+                // The insert row's and the update pair's expression cells
+                // carry the same cast: each result only ever reaches
+                // implode() or concat, and both coerce a Stringable
+                // object with the identical bytes the explicit cast
+                // spells, so removing the cast answers the same
+                // statement for every expression cell the payload
+                // validation can pass (SqlExpression is Stringable by
+                // its own contract). The casts are the analyser's
+                // narrowing over what rector's concat-autocast removal
+                // and psalm's implicit-cast refusal both accept -- the
+                // assignment spelling is the one intersection. This
+                // ignore is scoped to those source lines.
+                "\\$rowParams\\[\\] = \\(string\\) \\$value;",
+                "\\$expression = \\(string\\) \\$value;"
             ]
         },
         // The two anchored quality grammars in AcceptHeaderParser carry
@@ -1627,6 +1678,25 @@
         "ArrayOneItem": {
             "ignore": [
                 "Zef\\Test\\Support\\Tooling\\WorkflowFileCollector::collect"
+            ]
+        },
+        // The having fold's param accumulation spreads a fragment whose
+        // grammar answers exactly one value: QueryPredicate::comparison
+        // -- the one fragment constructor QueryHaving::comparison() ever
+        // calls -- wraps its single bound value, so the spread's second
+        // and later items never exist and taking only the first element
+        // answers the identical param list for every reachable state
+        // (the accumulation itself IS observable and killed: the
+        // two-having battery pins both params in call order). The
+        // spread stays because the fragment contract carries a list,
+        // and the between/like forms the having family eventually
+        // wants will hand it more than one -- the mutator's slice is
+        // the shape that would silently drop them, which is exactly why
+        // the spelling keeps the full spread. This ignore is scoped to
+        // that single method.
+        "SpreadOneItem": {
+            "ignore": [
+                "Zef\\Framework\\Database\\QueryHaving::comparison"
             ]
         }
     },

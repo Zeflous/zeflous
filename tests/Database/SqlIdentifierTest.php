@@ -25,6 +25,7 @@ use Zef\Framework\Database\SqlIdentifier;
  */
 #[CoversClass(SqlIdentifier::class)]
 #[CoversClass(SqlColumn::class)]
+#[CoversClass(SqlExpression::class)]
 #[CoversClass(QueryException::class)]
 final class SqlIdentifierTest extends TestCase
 {
@@ -216,6 +217,7 @@ final class SqlIdentifierTest extends TestCase
     public function testTheRawFragmentRefusalSpellsTheWholeHint(): void
     {
         $caught = null;
+
         try {
             $this->sqlIdentifier->quote('COUNT(*)');
         } catch (QueryException $queryException) {
@@ -226,8 +228,8 @@ final class SqlIdentifierTest extends TestCase
         self::assertSame(
             "Invalid identifier 'COUNT(*)'. Identifiers must match [A-Za-z_][A-Za-z0-9_]{0,63}"
             . ' (optionally table.column or column AS alias); for raw SQL pass an'
-            . ' explicit SqlExpression instead — e.g. new SqlExpression(...),'
-            . ' selectRaw(...), or SqlQuery::raw(...).',
+            . ' explicit SqlExpression instead — e.g. new SqlExpression(...) as a'
+            . ' column argument, or SqlQuery::raw(...) for whole statements.',
             $caught->getMessage(),
         );
     }

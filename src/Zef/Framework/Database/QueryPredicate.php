@@ -30,7 +30,7 @@ final class QueryPredicate
         $op = QueryValues::assertComparisonOperator($operator);
         if ($value === null && \in_array($op, ['=', '<>'], true)) {
             throw new QueryException(
-                "Use whereNull()/whereNotNull() instead of comparing '{$column}' with {$op} null.",
+                "Use whereNull() with its negated flag instead of comparing '{$column}' with {$op} null.",
             );
         }
 
@@ -79,7 +79,6 @@ final class QueryPredicate
         /** @var mixed $value one member of the list, judged by the scalar guard below */
         foreach ($values as $value) {
             QueryValues::assertScalar($value, 'whereIn() value');
-            /** @var null|bool|int|float|string|SqlExpression $value one validated member's bound spelling */
             $params[] = $value;
             $placeholders[] = '?';
         }
