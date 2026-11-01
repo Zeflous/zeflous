@@ -7,8 +7,12 @@ namespace Zef\Test\Modules;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Config\Schema\ConfigSchema;
+use Zef\Framework\Config\Schema\SchemaValueRules;
+use Zef\Framework\Config\Schema\SchemaViolation;
 use Zef\Framework\Modules\ModuleDeclaration;
 use Zef\Framework\Modules\ModuleException;
+use Zef\Framework\Modules\ModuleExceptionSpelling;
 use Zef\Framework\Modules\ModuleManifest;
 use Zef\Framework\Modules\ModuleMetadata;
 use Zef\Framework\Modules\ModuleName;
@@ -26,7 +30,13 @@ use Zef\Framework\Modules\ModuleRouteRefusals;
 #[CoversClass(ModuleDeclaration::class)]
 #[CoversClass(ModuleMetadata::class)]
 #[CoversClass(ModuleName::class)]
+#[CoversClass(ModuleExceptionSpelling::class)]
 #[CoversClass(ModuleRouteRefusals::class)]
+#[CoversClass(ConfigSchema::class)]
+#[CoversClass(SchemaValueRules::class)]
+#[CoversClass(SchemaViolation::class)]
+#[CoversClass(ConfigException::class)]
+#[CoversClass(ModuleException::class)]
 final class ModuleRouteExtensionTest extends TestCase
 {
     public function testTheRoutesKeyRidesTheSchemaAndResolvesAgainstTheManifestDirectory(): void

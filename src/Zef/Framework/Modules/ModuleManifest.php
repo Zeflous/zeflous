@@ -41,6 +41,11 @@ final readonly class ModuleManifest
 
     private const string FIELD_ROUTES = 'routes';
 
+    /** The shared field rules: the identity trio's required string, the two optional manifest paths' optional string. */
+    private const array REQUIRED_STRING = ['required' => true, 'kind' => 'string'];
+
+    private const array OPTIONAL_STRING = ['required' => false, 'kind' => 'string'];
+
     /**
      * Parses and validates a manifest payload into its declaration. The
      * declaration arrives carrying the manifest's raw `config_schema`
@@ -61,6 +66,15 @@ final readonly class ModuleManifest
             );
         }
 
+        /**
+         * The schema's verdict is the payload's own shape proof -- the
+         * annotation carries the field kinds the payload's reads below
+         * trust.
+         *
+         * @var array{name: string, version: string, class: string,
+         *     requires?: list<string>, config_schema?: string,
+         *     routes?: string} $payload
+         */
         $violations = self::schema()->validate($payload);
 
         if ($violations !== []) {
@@ -69,11 +83,6 @@ final readonly class ModuleManifest
             );
         }
 
-        /*
-         * @var array{name: string, version: string, class: string,
-         *     requires?: list<string>, config_schema?: string,
-         *     routes?: string} $payload
-         */
         return new ModuleDeclaration(
             $payload[self::FIELD_CLASS],
             new ModuleMetadata(
@@ -95,22 +104,19 @@ final readonly class ModuleManifest
     public static function parsed(mixed $payload, string $manifest): ModuleDeclaration
     {
         $moduleDeclaration = self::parse($payload);
-        $routes = $moduleDeclaration->routes;
 
-        if ($routes !== null) {
+        if ($moduleDeclaration->routes !== null) {
             $moduleDeclaration = $moduleDeclaration->withRoutes(
-                self::resolvedPath($routes, $manifest),
+                self::resolvedPath($moduleDeclaration->routes, $manifest),
             );
         }
 
-        $schema = $moduleDeclaration->configSchema;
-
-        if ($schema === null) {
+        if ($moduleDeclaration->configSchema === null) {
             return $moduleDeclaration;
         }
 
         return $moduleDeclaration->withConfigSchema(
-            self::resolvedPath($schema, $manifest),
+            self::resolvedPath($moduleDeclaration->configSchema, $manifest),
         );
     }
 
@@ -136,12 +142,12 @@ final readonly class ModuleManifest
     private static function schema(): ConfigSchema
     {
         return new ConfigSchema([
-            self::FIELD_NAME => ['required' => true, 'kind' => 'string'],
-            self::FIELD_VERSION => ['required' => true, 'kind' => 'string'],
+            self::FIELD_NAME => self::REQUIRED_STRING,
+            self::FIELD_VERSION => self::REQUIRED_STRING,
             self::FIELD_REQUIRES => ['required' => false, 'kind' => 'strings'],
-            self::FIELD_CLASS => ['required' => true, 'kind' => 'string'],
-            self::FIELD_SCHEMA => ['required' => false, 'kind' => 'string'],
-            self::FIELD_ROUTES => ['required' => false, 'kind' => 'string'],
+            self::FIELD_CLASS => self::REQUIRED_STRING,
+            self::FIELD_SCHEMA => self::OPTIONAL_STRING,
+            self::FIELD_ROUTES => self::OPTIONAL_STRING,
         ]);
     }
 }

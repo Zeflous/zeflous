@@ -8,12 +8,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Config\Schema\RouteSchema;
 use Zef\Framework\ModuleManifestLoader;
 use Zef\Framework\ModuleRoster;
+use Zef\Framework\ModuleRouteEntries;
 use Zef\Framework\ModuleRouteTable;
 use Zef\Framework\Modules\ModuleDeclaration;
 use Zef\Framework\Modules\ModuleException;
 use Zef\Framework\Modules\ModuleMetadata;
+use Zef\Framework\Modules\ModuleName;
+use Zef\Framework\Modules\ModuleRouteRefusals;
 use Zef\Test\Modules\Fixtures\RoutesModule;
 
 /**
@@ -24,10 +28,16 @@ use Zef\Test\Modules\Fixtures\RoutesModule;
  * @internal
  */
 #[CoversClass(ModuleRouteTable::class)]
+#[CoversClass(ModuleRouteEntries::class)]
+#[CoversClass(ModuleRouteRefusals::class)]
 #[CoversClass(ModuleRoster::class)]
 #[CoversClass(ModuleManifestLoader::class)]
 #[CoversClass(ModuleDeclaration::class)]
 #[CoversClass(ModuleMetadata::class)]
+#[CoversClass(ModuleName::class)]
+#[CoversClass(RouteSchema::class)]
+#[CoversClass(ConfigException::class)]
+#[CoversClass(ModuleException::class)]
 #[CoversClass(RoutesModule::class)]
 final class ModuleRouteTableTest extends TestCase
 {

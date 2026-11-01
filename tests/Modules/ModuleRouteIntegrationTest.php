@@ -8,8 +8,33 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
+use Zef\Framework\ContainerModuleRegistrar;
 use Zef\Framework\FrameworkDefaults;
+use Zef\Framework\ModuleBootstrapper;
+use Zef\Framework\ModuleClaims;
+use Zef\Framework\ModuleContextFactory;
+use Zef\Framework\ModuleManifestLoader;
+use Zef\Framework\ModuleResolver;
+use Zef\Framework\ModuleRoster;
+use Zef\Framework\ModuleRouteEntries;
 use Zef\Framework\ModuleRouteTable;
+use Zef\Framework\Modules\ModuleConfigRefusals;
+use Zef\Framework\Modules\ModuleConfigSchema;
+use Zef\Framework\Modules\ModuleConstructions;
+use Zef\Framework\Modules\ModuleContext;
+use Zef\Framework\Modules\ModuleDeclaration;
+use Zef\Framework\Modules\ModuleEntries;
+use Zef\Framework\Modules\ModuleException;
+use Zef\Framework\Modules\ModuleManifest;
+use Zef\Framework\Modules\ModuleMetadata;
+use Zef\Framework\Modules\ModuleName;
+use Zef\Framework\Modules\ModuleOrder;
+use Zef\Framework\Modules\ModuleOrderBook;
+use Zef\Framework\Modules\ModuleOrderRefusals;
+use Zef\Framework\Modules\ModuleRequires;
+use Zef\Framework\Modules\ModuleRouteRefusals;
+use Zef\Framework\Modules\ModuleSchemaRules;
+use Zef\Framework\Modules\ModuleVersion;
 use Zef\Test\Modules\Fixtures\RoutesModule;
 
 /**
@@ -22,7 +47,32 @@ use Zef\Test\Modules\Fixtures\RoutesModule;
  * @internal
  */
 #[CoversClass(ApplicationBootstrapper::class)]
+#[CoversClass(ModuleBootstrapper::class)]
+#[CoversClass(ModuleRoster::class)]
+#[CoversClass(ModuleResolver::class)]
+#[CoversClass(ModuleManifestLoader::class)]
+#[CoversClass(ModuleManifest::class)]
+#[CoversClass(ModuleDeclaration::class)]
+#[CoversClass(ModuleMetadata::class)]
+#[CoversClass(ModuleName::class)]
+#[CoversClass(ModuleVersion::class)]
+#[CoversClass(ModuleRequires::class)]
+#[CoversClass(ModuleEntries::class)]
+#[CoversClass(ModuleOrder::class)]
+#[CoversClass(ModuleOrderBook::class)]
+#[CoversClass(ModuleOrderRefusals::class)]
+#[CoversClass(ModuleConstructions::class)]
+#[CoversClass(ContainerModuleRegistrar::class)]
+#[CoversClass(ModuleClaims::class)]
+#[CoversClass(ModuleContextFactory::class)]
+#[CoversClass(ModuleConfigSchema::class)]
+#[CoversClass(ModuleSchemaRules::class)]
+#[CoversClass(ModuleConfigRefusals::class)]
+#[CoversClass(ModuleContext::class)]
 #[CoversClass(ModuleRouteTable::class)]
+#[CoversClass(ModuleRouteEntries::class)]
+#[CoversClass(ModuleRouteRefusals::class)]
+#[CoversClass(ModuleException::class)]
 #[CoversClass(RoutesModule::class)]
 final class ModuleRouteIntegrationTest extends TestCase
 {
