@@ -12,6 +12,7 @@ use Zef\Framework\Config\Schema\SchemaValueRules;
 use Zef\Framework\Config\Schema\SchemaViolation;
 use Zef\Framework\Modules\ModuleConfigSchema;
 use Zef\Framework\Modules\ModuleException;
+use Zef\Framework\Modules\ModuleSchemaRules;
 
 /**
  * The module configuration schema's own map: the module-authored rule file
@@ -25,6 +26,7 @@ use Zef\Framework\Modules\ModuleException;
  * @internal
  */
 #[CoversClass(ModuleConfigSchema::class)]
+#[CoversClass(ModuleSchemaRules::class)]
 #[CoversClass(ConfigSchema::class)]
 #[CoversClass(SchemaValueRules::class)]
 #[CoversClass(SchemaViolation::class)]

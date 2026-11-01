@@ -10,6 +10,8 @@ use Zef\Framework\Modules\ModuleDeclaration;
 use Zef\Framework\Modules\ModuleException;
 use Zef\Framework\Modules\ModuleMetadata;
 use Zef\Framework\Modules\ModuleOrder;
+use Zef\Framework\Modules\ModuleOrderBook;
+use Zef\Framework\Modules\ModuleOrderRefusals;
 
 /**
  * The boot-order fold: requirements before requirers, the declaration
@@ -21,6 +23,8 @@ use Zef\Framework\Modules\ModuleOrder;
  * @internal
  */
 #[CoversClass(ModuleOrder::class)]
+#[CoversClass(ModuleOrderBook::class)]
+#[CoversClass(ModuleOrderRefusals::class)]
 #[CoversClass(ModuleDeclaration::class)]
 #[CoversClass(ModuleMetadata::class)]
 #[CoversClass(ModuleException::class)]

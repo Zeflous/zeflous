@@ -7,8 +7,10 @@ namespace Zef\Test\Modules;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\ModuleConstructions;
 use Zef\Framework\ModuleManifestLoader;
 use Zef\Framework\ModuleResolver;
+use Zef\Framework\Modules\ModuleBootRefusals;
 use Zef\Framework\Modules\ModuleDeclaration;
 use Zef\Framework\Modules\ModuleException;
 use Zef\Framework\Modules\ModuleExceptionSpelling;
@@ -33,6 +35,8 @@ use Zef\Test\Modules\Fixtures\NotModule;
  * @internal
  */
 #[CoversClass(ModuleResolver::class)]
+#[CoversClass(ModuleConstructions::class)]
+#[CoversClass(ModuleBootRefusals::class)]
 #[CoversClass(ModuleManifestLoader::class)]
 #[CoversClass(ModuleManifest::class)]
 #[CoversClass(ModuleDeclaration::class)]

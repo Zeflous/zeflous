@@ -14,6 +14,7 @@ use Zef\Framework\Config\Schema\SchemaValueRules;
 use Zef\Framework\Config\Schema\SchemaViolation;
 use Zef\Framework\ModuleContextFactory;
 use Zef\Framework\ModuleManifestLoader;
+use Zef\Framework\Modules\ModuleConfigRefusals;
 use Zef\Framework\Modules\ModuleConfigSchema;
 use Zef\Framework\Modules\ModuleContext;
 use Zef\Framework\Modules\ModuleDeclaration;
@@ -30,6 +31,7 @@ use Zef\Framework\Modules\ModuleMetadata;
  * @internal
  */
 #[CoversClass(ModuleContextFactory::class)]
+#[CoversClass(ModuleConfigRefusals::class)]
 #[CoversClass(ModuleManifestLoader::class)]
 #[CoversClass(ModuleConfigSchema::class)]
 #[CoversClass(ModuleContext::class)]

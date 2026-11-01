@@ -200,6 +200,13 @@ the settle rounds replayed KDD-DB6's lessons with two new ones:
    seams: the construction guard and the rule-shape judgment are one-fold
    answers the orchestrators now compose, each under the bar because each
    owns one question.
+6. The covers-filter root fired again (KDD-DB9's own): the settled
+   spelling's first CI round reddened the SonarCloud quality gate because
+   the order and integration tests executed folds they did not name --
+   `ModuleOrderBook`, the refusal folds, `ModuleConstructions`,
+   `ModuleSchemaRules` -- and an unnamed fold's execution answers 0% in
+   the filtered Clover no matter how green the assertions were. Every
+   test now names every fold it executes.
 
 The settled battery: `ci:static` EXIT-0 (6460 tests / 15387 assertions;
 smoke 2760B/20000 iterations; concurrency 23; roadmap:gate pass; audit
