@@ -17,6 +17,9 @@ namespace Zef\Framework\Modules;
  * normalised -- the module's name appears in refusals, in configuration
  * keys and in the manifest's `requires` list, and one canonical spelling
  * is the only way all three agree.
+ *
+ * @api the module author's own identity spelling -- `metadata()` builds
+ *      this object from module code that lives outside this repository
  */
 final readonly class ModuleName
 {
@@ -31,22 +34,9 @@ final readonly class ModuleName
     public function __construct(
         public string $name,
     ) {
-        $segments = explode('/', $this->name);
-
-        if (\count($segments) !== 2) {
-            throw ModuleExceptionSpelling::notTwoSegments($this->name);
-        }
-
-        foreach ($segments as $segment) {
-            $this->assertSegment($segment);
-        }
+        self::asserted($this->name);
     }
 
-    /**
-     * The module's configuration namespace: the name's single `/` spelled
-     * as a `.` -- the key the module's own configuration block lives
-     * under, and the only address the engine reads for it.
-     */
     /**
      * The grammar's own assertion for an already-typed spelling -- the
      * callers that hold a string and need it refused-or-carried use this
@@ -56,7 +46,15 @@ final readonly class ModuleName
      */
     public static function asserted(string $spelling): void
     {
-        new self($spelling);
+        $segments = explode('/', $spelling);
+
+        if (\count($segments) !== 2) {
+            throw ModuleExceptionSpelling::notTwoSegments($spelling);
+        }
+
+        foreach ($segments as $segment) {
+            self::assertSegment($spelling, $segment);
+        }
     }
 
     /**
@@ -69,14 +67,14 @@ final readonly class ModuleName
         return str_replace('/', '.', $name);
     }
 
-    private function assertSegment(string $segment): void
+    private static function assertSegment(string $name, string $segment): void
     {
         if ($segment === '' || mb_strlen($segment) > self::SEGMENT_CEILING) {
-            throw ModuleExceptionSpelling::segmentCeiling($segment, $this->name);
+            throw ModuleExceptionSpelling::segmentCeiling($segment, $name);
         }
 
         if (preg_match(self::PATTERN, $segment) !== 1) {
-            throw ModuleExceptionSpelling::segmentGrammar($segment, $this->name);
+            throw ModuleExceptionSpelling::segmentGrammar($segment, $name);
         }
     }
 }

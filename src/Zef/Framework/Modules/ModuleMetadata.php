@@ -33,8 +33,8 @@ final readonly class ModuleMetadata
         public string $version,
         array $requires = [],
     ) {
-        new ModuleName($this->name);
-        new ModuleVersion($this->version);
+        ModuleName::asserted($this->name);
+        ModuleVersion::asserted($this->version);
         $this->requires = ModuleRequires::validated($requires, $this->name);
     }
 }

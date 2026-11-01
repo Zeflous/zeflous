@@ -16,6 +16,9 @@ namespace Zef\Framework\Modules;
  * the version is identity metadata the inspector and the manifests spell,
  * not a solver -- so the grammar's whole job is to keep one canonical
  * shape in every record that carries one.
+ *
+ * @api the module author's own version spelling -- `metadata()` builds
+ *      this object from module code that lives outside this repository
  */
 final readonly class ModuleVersion
 {
@@ -30,8 +33,19 @@ final readonly class ModuleVersion
     public function __construct(
         public string $version,
     ) {
-        if (mb_strlen($this->version) > self::CEILING || preg_match(self::PATTERN, $this->version) !== 1) {
-            throw ModuleExceptionSpelling::versionGrammar($this->version);
+        self::asserted($this->version);
+    }
+
+    /**
+     * The grammar's own assertion for an already-typed spelling -- the
+     * metadata's construction-time validation without the instance.
+     *
+     * @throws ModuleException when the spelling breaks the grammar
+     */
+    public static function asserted(string $spelling): void
+    {
+        if (mb_strlen($spelling) > self::CEILING || preg_match(self::PATTERN, $spelling) !== 1) {
+            throw ModuleExceptionSpelling::versionGrammar($spelling);
         }
     }
 }
