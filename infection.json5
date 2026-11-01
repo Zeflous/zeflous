@@ -661,6 +661,7 @@
                 // strlen to its mb_ twin), so the byte-level spelling
                 // is not a source-level option. This ignore is scoped
                 // to that single method.
+                "Zef\\Framework\\Adapters\\Session\\SessionRecordFiles::recordIdOf",
                 // The module lane's two byte-agreement zones, each behind
                 // an ASCII-only gate of its own grammar:
                 //

@@ -88,12 +88,26 @@ final class ModuleOrderTest extends TestCase
     public function testAnUnknownRequirementIsRefusedWithTheDeclaredSet(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
+        $this->expectExceptionMessageIs(
             "The module 'test/beta' requires 'test/ghost', which no declared module answers (declared: test/beta).",
         );
 
         ModuleOrder::ordered([
             $this->declaration('test/beta', ['test/ghost']),
+        ]);
+    }
+
+    public function testAnUnknownRequirementBehindAKnownOneIsStillRefused(): void
+    {
+        $this->expectException(ModuleException::class);
+        $this->expectExceptionMessageIs(
+            "The module 'test/beta' requires 'test/ghost', which no declared module answers "
+            . '(declared: test/beta, test/alpha).',
+        );
+
+        ModuleOrder::ordered([
+            $this->declaration('test/beta', ['test/alpha', 'test/ghost']),
+            $this->declaration('test/alpha'),
         ]);
     }
 
