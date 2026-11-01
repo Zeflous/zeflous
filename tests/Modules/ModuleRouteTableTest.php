@@ -38,7 +38,6 @@ use Zef\Test\Modules\Fixtures\RoutesModule;
 #[CoversClass(RouteSchema::class)]
 #[CoversClass(ConfigException::class)]
 #[CoversClass(ModuleException::class)]
-#[CoversClass(RoutesModule::class)]
 final class ModuleRouteTableTest extends TestCase
 {
     public function testARosterWithoutDeclaredRoutesLeavesTheRepositoryVerbatim(): void

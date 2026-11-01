@@ -35,7 +35,6 @@ use Zef\Framework\Modules\ModuleRequires;
 use Zef\Framework\Modules\ModuleRouteRefusals;
 use Zef\Framework\Modules\ModuleSchemaRules;
 use Zef\Framework\Modules\ModuleVersion;
-use Zef\Test\Modules\Fixtures\RoutesModule;
 
 /**
  * The route extension point riding the one-call boot: a module's declared
@@ -73,7 +72,6 @@ use Zef\Test\Modules\Fixtures\RoutesModule;
 #[CoversClass(ModuleRouteEntries::class)]
 #[CoversClass(ModuleRouteRefusals::class)]
 #[CoversClass(ModuleException::class)]
-#[CoversClass(RoutesModule::class)]
 final class ModuleRouteIntegrationTest extends TestCase
 {
     private const string FIXTURE_MANIFESTS = __DIR__ . '/fixtures';
