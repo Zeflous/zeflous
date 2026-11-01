@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-11-01 · `main` @ `fd18542`
+**Last updated:** 2026-11-01 · `main` @ `68cab2e`
 
 **How to read this file**
 
@@ -360,7 +360,7 @@ The `files/**` route map — the cross-cutting substrate every file-writing fami
 
 | Work item | PR | Merged | Commit |
 |---|---|---|---|
-| feat(modules): the core module engine with its two-phase boot over declarative manifests (the lane's Fase 1 slice — the roadmap's own priority matrix: `ModuleInterface` the one contract over the `ModuleRegistrar` port, the identity/entry/manifest grammars through the configuration layer's own `ConfigSchema`, `ModuleOrder` the Kahn walk with the declaration-order tiebreak, the two-phase boot wired into the one-call boot (register BEFORE the definitions install — a host definition resolves through a module registration — boot AFTER, each module its namespaced schema-validated `ModuleContext`), the claim-policing registrar over the boot's shared ledger, deptrac `Modules: [Exception, Config]` + `Kernel += Modules`; KDD-MO1..MO8 in `docs/ci-notes/modules.md` | #668 | 2026-11-01 | `fd18542` |
+| feat(modules): the core module engine with its two-phase boot over declarative manifests (the lane's Fase 1 slice — the roadmap's own priority matrix: `ModuleInterface` the one contract over the `ModuleRegistrar` port, the identity/entry/manifest grammars through the configuration layer's own `ConfigSchema`, `ModuleOrder` the Kahn walk with the declaration-order tiebreak, the two-phase boot wired into the one-call boot (register BEFORE the definitions install — a host definition resolves through a module registration — boot AFTER, each module its namespaced schema-validated `ModuleContext`), the claim-policing registrar over the boot's shared ledger, deptrac `Modules: [Exception, Config]` + `Kernel += Modules`; KDD-MO1..MO8 in `docs/ci-notes/modules.md` | #668 | 2026-11-01 | `68cab2e` |
 
 
 ## Not yet done
