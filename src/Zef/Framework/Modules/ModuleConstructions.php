@@ -24,13 +24,13 @@ final class ModuleConstructions
     public static function answered(string $class): ModuleInterface
     {
         if (!is_a($class, ModuleInterface::class, true)) {
-            throw ModuleBootRefusals::contractMissing($class);
+            ModuleBootRefusals::contractMissing($class);
         }
 
         try {
             $module = new $class();
         } catch (Throwable $throwable) {
-            throw ModuleBootRefusals::constructionRefused($class, $throwable);
+            ModuleBootRefusals::constructionRefused($class, $throwable);
         }
 
         return $module;

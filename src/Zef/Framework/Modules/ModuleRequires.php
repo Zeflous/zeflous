@@ -29,27 +29,27 @@ final class ModuleRequires
     public static function validated(mixed $requires, string $self): array
     {
         if (!\is_array($requires) || !array_is_list($requires)) {
-            throw ModuleExceptionSpelling::requirementNotAList($requires);
+            ModuleExceptionSpelling::requirementNotAList($requires);
         }
 
         $names = [];
 
         foreach ($requires as $at => $entry) {
             if (!\is_string($entry)) {
-                throw ModuleExceptionSpelling::requirementNotAName($at, $entry);
+                ModuleExceptionSpelling::requirementNotAName($at, $entry);
             }
 
             ModuleName::asserted($entry);
 
             if ($entry === $self) {
-                throw ModuleExceptionSpelling::requirementSelf($self);
+                ModuleExceptionSpelling::requirementSelf($self);
             }
 
             if (isset($names[$entry])) {
-                throw ModuleExceptionSpelling::requirementDuplicated($entry);
+                ModuleExceptionSpelling::requirementDuplicated($entry);
             }
 
-            $names[$entry] = true;
+            $names[$entry] = $entry;
         }
 
         return array_keys($names);

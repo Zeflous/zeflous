@@ -44,8 +44,10 @@ final readonly class ModuleVersion
      */
     public static function asserted(string $spelling): void
     {
-        if (mb_strlen($spelling) > self::CEILING || preg_match(self::PATTERN, $spelling) !== 1) {
-            throw ModuleExceptionSpelling::versionGrammar($spelling);
+        if (mb_strlen($spelling) <= self::CEILING && preg_match(self::PATTERN, $spelling) === 1) {
+            return;
         }
+
+        ModuleExceptionSpelling::versionGrammar($spelling);
     }
 }

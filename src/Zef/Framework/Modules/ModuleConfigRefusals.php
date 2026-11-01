@@ -126,7 +126,7 @@ final class ModuleConfigRefusals
     /**
      * @throws ModuleException always
      */
-    public static function schemaRefused(string $name, Throwable $throwable): never
+    private static function schemaRefused(string $name, Throwable $throwable): never
     {
         throw new ModuleException(
             "The module '{$name}' failed its configuration schema: "

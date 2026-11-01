@@ -33,20 +33,20 @@ final class ModuleConfigSchema
     public static function validated(mixed $payload, string $module, string $path): ConfigSchema
     {
         if (!\is_array($payload) || $payload === []) {
-            throw ModuleConfigRefusals::schemaNotAMap($payload, $module, $path);
+            ModuleConfigRefusals::schemaNotAMap($payload, $module, $path);
         }
 
         $fields = [];
 
         foreach ($payload as $field => $rule) {
             if (!\is_string($field) || $field === '') {
-                throw ModuleConfigRefusals::schemaFieldNotAName($module, $path, $field);
+                ModuleConfigRefusals::schemaFieldNotAName($module, $path, $field);
             }
 
             $shape = ModuleSchemaRules::shape($rule);
 
             if ($shape === null) {
-                throw ModuleConfigRefusals::schemaRuleMalformed($module, $path, $field);
+                ModuleConfigRefusals::schemaRuleMalformed($module, $path, $field);
             }
 
             $fields[$field] = $shape;

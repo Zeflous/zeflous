@@ -98,7 +98,11 @@ final class ModuleEntriesTest extends TestCase
     public function testANeitherShapeEntryIsRefusedWithBothSpellingsNamed(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains("The module entry 'payment/module.php' is neither");
+        $this->expectExceptionMessageIs(
+            "The module entry 'payment/module.php' is neither a qualified class name nor "
+            . 'an absolute module.php path (a class spelling carries the '
+            . "namespace separator; a manifest spelling is a rooted '.php' path).",
+        );
 
         ModuleEntries::classify('payment/module.php');
     }
@@ -106,7 +110,11 @@ final class ModuleEntriesTest extends TestCase
     public function testARelativePhpPathIsRefused(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains("The module entry 'module.php' is neither");
+        $this->expectExceptionMessageIs(
+            "The module entry 'module.php' is neither a qualified class name nor "
+            . 'an absolute module.php path (a class spelling carries the '
+            . "namespace separator; a manifest spelling is a rooted '.php' path).",
+        );
 
         ModuleEntries::classify('module.php');
     }

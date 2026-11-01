@@ -36,8 +36,9 @@ final class ModuleManifestLoaderTest extends TestCase
     public function testAMissingPathIsRefusedNamingIt(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "The module manifest '" . self::FIXTURES . "/nowhere/module.php' does not exist",
+        $this->expectExceptionMessageIs(
+            "The module manifest '" . self::FIXTURES . "/nowhere/module.php' does not exist "
+            . '(a module-side path is spelled absolute, rooted at its own directory).',
         );
 
         new ModuleManifestLoader()->load(self::FIXTURES . '/nowhere/module.php', 'module manifest');
@@ -53,13 +54,22 @@ final class ModuleManifestLoaderTest extends TestCase
 
     public function testAFileThatThrowsIsRefusedWithTheReasonChained(): void
     {
-        $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "The module manifest '" . self::FIXTURES
-            . "/throwing/module.php' failed to load: the fixture file refuses to load.",
-        );
+        try {
+            new ModuleManifestLoader()->load(self::FIXTURES . '/throwing/module.php', 'module manifest');
 
-        new ModuleManifestLoader()->load(self::FIXTURES . '/throwing/module.php', 'module manifest');
+            self::fail('the throwing fixture file was loaded');
+        } catch (ModuleException $moduleException) {
+            self::assertSame(
+                "The module manifest '" . self::FIXTURES
+                . "/throwing/module.php' failed to load: the fixture file refuses to load.",
+                $moduleException->getMessage(),
+            );
+            self::assertSame(0, $moduleException->getCode());
+            self::assertSame(
+                'the fixture file refuses to load',
+                $moduleException->getPrevious()?->getMessage(),
+            );
+        }
     }
 
     public function testANonArrayPayloadIsRefusedWithItsType(): void

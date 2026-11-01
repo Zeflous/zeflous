@@ -49,7 +49,7 @@ final readonly class ModuleName
         $segments = explode('/', $spelling);
 
         if (\count($segments) !== 2) {
-            throw ModuleExceptionSpelling::notTwoSegments($spelling);
+            ModuleExceptionSpelling::notTwoSegments($spelling);
         }
 
         foreach ($segments as $segment) {
@@ -70,11 +70,13 @@ final readonly class ModuleName
     private static function assertSegment(string $name, string $segment): void
     {
         if ($segment === '' || mb_strlen($segment) > self::SEGMENT_CEILING) {
-            throw ModuleExceptionSpelling::segmentCeiling($segment, $name);
+            ModuleExceptionSpelling::segmentCeiling($segment, $name);
         }
 
-        if (preg_match(self::PATTERN, $segment) !== 1) {
-            throw ModuleExceptionSpelling::segmentGrammar($segment, $name);
+        if (preg_match(self::PATTERN, $segment) === 1) {
+            return;
         }
+
+        ModuleExceptionSpelling::segmentGrammar($segment, $name);
     }
 }

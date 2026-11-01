@@ -57,7 +57,7 @@ final class ModuleOrderRefusals
         $current = array_key_first($remaining);
 
         while ($current !== null && !isset($seen[$current])) {
-            $seen[$current] = true;
+            $seen[$current] = $current;
             $walked[] = $current;
 
             $next = null;

@@ -67,9 +67,10 @@ final class ContainerModuleRegistrarTest extends TestCase
         $containerModuleRegistrar = new ContainerModuleRegistrar($this->container, 'test/greedy', $this->moduleClaims);
 
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
+        $this->expectExceptionMessageIs(
             "The module 'test/greedy' registers '" . FrameworkDefaults::TAGS_SERVICE
-            . "', which the framework reserves",
+            . "', which the framework reserves; a module never claims the framework's "
+            . 'own namespace.',
         );
 
         $containerModuleRegistrar->set(FrameworkDefaults::TAGS_SERVICE, static fn (): array => []);

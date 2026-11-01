@@ -59,32 +59,77 @@ final class ModuleNameTest extends TestCase
     public function testRefusedNamesNameTheRule(string $name, string $message): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains($message);
+        $this->expectExceptionMessageIs($message);
 
         new ModuleName($name);
     }
 
     /**
+     * Every refusal is pinned to its whole sentence -- the grammar's
+     * contract with its reader -- including the two multibyte arms where
+     * the character-wise ceiling and the byte-wise ceiling disagree: a
+     * segment that passes the ceiling as characters but fails it as bytes
+     * must still be refused by the GRAMMAR arm (not swapped onto the
+     * ceiling arm), and a segment beyond the ceiling in characters
+     * spells its own character count.
+     *
      * @return iterable<non-empty-string, array{string, non-empty-string}>
      */
     public static function provideRefusedNamesNameTheRuleCases(): iterable
     {
-        yield 'one segment' => ['payment', "must be exactly two '/'-joined segments"];
+        $twoSegments = "The module name '%s' must be exactly two '/'-joined segments "
+            . "(the 'vendor/name' spelling, e.g. 'zef/payment').";
+        $ceiling = "The module name segment '%s' is %d bytes; a segment "
+            . "spans 1-32 bytes (name: '%s').";
+        $grammar = "The module name segment '%s' breaks the grammar: 1-32 bytes, "
+            . "starting and ending with [a-z0-9], with '-' and '_' allowed inside "
+            . "(name: '%s').";
 
-        yield 'three segments' => ['zef/payment/extra', "must be exactly two '/'-joined segments"];
+        $tooLong = str_repeat('a', 33);
+        $byteBoundary = str_repeat('a', 30) . 'éé';
+        $wideOverflow = str_repeat('é', 33);
 
-        yield 'empty spelling' => ['', "must be exactly two '/'-joined segments"];
+        yield 'one segment' => ['payment', \sprintf($twoSegments, 'payment')];
 
-        yield 'uppercase is refused, not normalised' => ['Zef/Payment', 'breaks the grammar'];
+        yield 'three segments' => ['zef/payment/extra', \sprintf($twoSegments, 'zef/payment/extra')];
 
-        yield 'dot inside a segment' => ['zef/pay.ment', 'breaks the grammar'];
+        yield 'empty spelling' => ['', \sprintf($twoSegments, '')];
 
-        yield 'segment starting with a dash' => ['zef/-payment', 'breaks the grammar'];
+        yield 'uppercase is refused, not normalised' => [
+            'Zef/Payment',
+            \sprintf($grammar, 'Zef', 'Zef/Payment'),
+        ];
 
-        yield 'segment ending with a dash' => ['zef/payment-', 'breaks the grammar'];
+        yield 'dot inside a segment' => [
+            'zef/pay.ment',
+            \sprintf($grammar, 'pay.ment', 'zef/pay.ment'),
+        ];
 
-        yield 'thirty-three byte segment' => [str_repeat('a', 33) . '/b', 'spans 1-32 bytes'];
+        yield 'segment starting with a dash' => [
+            'zef/-payment',
+            \sprintf($grammar, '-payment', 'zef/-payment'),
+        ];
 
-        yield 'empty segment' => ['zef/', 'spans 1-32 bytes'];
+        yield 'segment ending with a dash' => [
+            'zef/payment-',
+            \sprintf($grammar, 'payment-', 'zef/payment-'),
+        ];
+
+        yield 'thirty-three byte segment' => [
+            "{$tooLong}/b",
+            \sprintf($ceiling, $tooLong, 33, "{$tooLong}/b"),
+        ];
+
+        yield 'empty segment' => ['zef/', \sprintf($ceiling, '', 0, 'zef/')];
+
+        yield 'thirty-two characters but thirty-four bytes is refused by the grammar' => [
+            "zef/{$byteBoundary}",
+            \sprintf($grammar, $byteBoundary, "zef/{$byteBoundary}"),
+        ];
+
+        yield 'a wide segment beyond the ceiling spells its character count' => [
+            "x/{$wideOverflow}",
+            \sprintf($ceiling, $wideOverflow, 33, "x/{$wideOverflow}"),
+        ];
     }
 }

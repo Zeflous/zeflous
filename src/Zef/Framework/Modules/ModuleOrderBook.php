@@ -28,7 +28,7 @@ final class ModuleOrderBook
             $name = $declaration->metadata->name;
 
             if (isset($remaining[$name])) {
-                throw ModuleOrderRefusals::duplicateName($name, $remaining[$name], $at);
+                ModuleOrderRefusals::duplicateName($name, $remaining[$name], $at);
             }
 
             $remaining[$name] = $at;
@@ -37,13 +37,15 @@ final class ModuleOrderBook
 
         foreach ($requires as $name => $list) {
             foreach ($list as $required) {
-                if (!isset($remaining[$required])) {
-                    throw ModuleOrderRefusals::requirementUnknown(
-                        $name,
-                        $required,
-                        array_keys($remaining),
-                    );
+                if (isset($remaining[$required])) {
+                    continue;
                 }
+
+                ModuleOrderRefusals::requirementUnknown(
+                    $name,
+                    $required,
+                    array_keys($remaining),
+                );
             }
         }
 

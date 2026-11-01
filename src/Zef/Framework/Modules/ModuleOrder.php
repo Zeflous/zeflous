@@ -51,7 +51,7 @@ final class ModuleOrder
             $picked = \is_string($found) ? $found : null;
 
             if ($picked === null) {
-                throw ModuleOrderRefusals::dependencyCycleFrom($remaining, $requires);
+                ModuleOrderRefusals::dependencyCycleFrom($remaining, $requires);
             }
 
             $ordered[] = $declarations[$remaining[$picked]];

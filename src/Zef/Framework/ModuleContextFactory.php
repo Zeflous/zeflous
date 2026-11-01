@@ -54,14 +54,14 @@ final readonly class ModuleContextFactory
         $block = $config->get($key, []);
 
         if (!\is_array($block)) {
-            throw ModuleConfigRefusals::blockNotAnArray($key, $name, $block);
+            ModuleConfigRefusals::blockNotAnArray($key, $name, $block);
         }
 
         $validated = [];
 
         foreach ($block as $field => $value) {
             if (!\is_string($field)) {
-                throw ModuleConfigRefusals::blockFieldNotAName($key, $name, $field);
+                ModuleConfigRefusals::blockFieldNotAName($key, $name, $field);
             }
 
             $validated[$field] = $value;
@@ -76,7 +76,7 @@ final readonly class ModuleContextFactory
 
             ModuleConfigRefusals::asserted($engine, $validated, $name);
         } elseif ($validated !== []) {
-            throw ModuleConfigRefusals::blockWithoutSchema($name, $key);
+            ModuleConfigRefusals::blockWithoutSchema($name, $key);
         }
 
         return new ModuleContext($name, $version, $validated);

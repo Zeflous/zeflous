@@ -138,6 +138,20 @@ final class ModuleOrderTest extends TestCase
         ]);
     }
 
+    public function testACycleWalksTheFirstOutstandingRequirementOfARequirer(): void
+    {
+        $this->expectException(ModuleException::class);
+        $this->expectExceptionMessageIs(
+            'The module declarations close a dependency cycle: test/a -> test/b -> test/a.',
+        );
+
+        ModuleOrder::ordered([
+            $this->declaration('test/a', ['test/b', 'test/c']),
+            $this->declaration('test/b', ['test/a']),
+            $this->declaration('test/c', ['test/a']),
+        ]);
+    }
+
     /**
      * @param list<string> $requires
      */

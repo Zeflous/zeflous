@@ -53,18 +53,29 @@ final class ModuleVersionTest extends TestCase
         yield 'pre-release suffix' => ['1.0.0-beta.1'];
 
         yield 'build suffix' => ['1.0.0+build.7'];
+
+        yield 'exactly the thirty-two byte ceiling' => ['1.2.3-alpha+build.12345678901234'];
     }
 
     #[DataProvider('provideRefusedVersionsSpellTheGrammarCases')]
     public function testRefusedVersionsSpellTheGrammar(string $version): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains("The module version '{$version}' breaks the grammar");
+        $this->expectExceptionMessageIs(
+            "The module version '{$version}' breaks the grammar: an optional "
+            . 'constraint operator (^, ~, >=, >, <=, <, =), then two or three '
+            . 'dot-separated numbers, then an optional pre-release or build '
+            . 'suffix, spanning at most 32 bytes.',
+        );
 
         new ModuleVersion($version);
     }
 
     /**
+     * The ceiling's own boundary is the accepted neighbour: a spelling of
+     * exactly the ceiling's 32 bytes is a version, the byte past it is
+     * not.
+     *
      * @return iterable<non-empty-string, array{string}>
      */
     public static function provideRefusedVersionsSpellTheGrammarCases(): iterable
@@ -83,6 +94,8 @@ final class ModuleVersionTest extends TestCase
 
         yield 'letters in the numbers' => ['one.point'];
 
-        yield 'thirty-three bytes' => ['^' . str_repeat('1.2', 11)];
+        yield 'thirty-four bytes' => ['^' . str_repeat('1.2', 11)];
+
+        yield 'thirty-three bytes' => ['1.2.3-alpha+build.123456789012345'];
     }
 }

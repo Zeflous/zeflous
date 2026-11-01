@@ -89,7 +89,9 @@ final class ModuleMetadataTest extends TestCase
     public function testADuplicatedRequirementIsRefused(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains("names 'zef/events' twice");
+        $this->expectExceptionMessageIs(
+            "The module requires list names 'zef/events' twice; a requirement is declared once.",
+        );
 
         new ModuleMetadata('zef/payment', '^1.0', ['zef/events', 'zef/events']);
     }
@@ -97,7 +99,9 @@ final class ModuleMetadataTest extends TestCase
     public function testASelfRequirementIsRefusedAsTheCycleOfOne(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains("'zef/payment' cannot require itself");
+        $this->expectExceptionMessageIs(
+            "The module 'zef/payment' cannot require itself; a self-requirement is a cycle of one.",
+        );
 
         new ModuleMetadata('zef/payment', '^1.0', ['zef/payment']);
     }

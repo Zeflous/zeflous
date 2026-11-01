@@ -35,7 +35,10 @@ final class ModuleDeclarationTest extends TestCase
     public function testAnUnqualifiedClassSpellingIsRefused(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains("The module class spelling 'PaymentModule' must be a qualified");
+        $this->expectExceptionMessageIs(
+            "The module class spelling 'PaymentModule' must be a qualified "
+            . 'class name (the namespace separator is part of the spelling).',
+        );
 
         new ModuleDeclaration('PaymentModule', new ModuleMetadata('zef/payment', '^1.0'));
     }
@@ -43,7 +46,10 @@ final class ModuleDeclarationTest extends TestCase
     public function testAnEmptyClassSpellingIsRefused(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains("The module class spelling '' must be a qualified");
+        $this->expectExceptionMessageIs(
+            "The module class spelling '' must be a qualified "
+            . 'class name (the namespace separator is part of the spelling).',
+        );
 
         new ModuleDeclaration('', new ModuleMetadata('zef/payment', '^1.0'));
     }

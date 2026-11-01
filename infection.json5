@@ -661,7 +661,33 @@
                 // strlen to its mb_ twin), so the byte-level spelling
                 // is not a source-level option. This ignore is scoped
                 // to that single method.
-                "Zef\\Framework\\Adapters\\Session\\SessionRecordFiles::recordIdOf"
+                // The module lane's two byte-agreement zones, each behind
+                // an ASCII-only gate of its own grammar:
+                //
+                // ModuleVersion::asserted() measures the version spelling
+                // against a 32-byte ceiling whose pattern
+                // ([0-9A-Za-z.-] plus the ASCII constraint operators) is
+                // pure ASCII by construction, so a spelling where
+                // mb_strlen and strlen disagree must carry a non-ASCII
+                // character, and every such spelling fails the pattern
+                // under both measurements -- the versionGrammar refusal
+                // fires with the same message either way. The multibyte
+                // tests elsewhere in the lane keep the neighbouring
+                // ModuleName measurements under the mutator: their
+                // refusals name the ceiling's own character count, and
+                // the rewrites are killed through that count.
+                //
+                // ModuleManifest::parsed() strips the './' prefix behind
+                // the str_starts_with './' check, so the two units the
+                // character-wise cut and the byte-wise cut remove are the
+                // dot and the slash -- two single-byte characters that are
+                // also two bytes, and every remainder starts at the same
+                // offset under both cuts. The house's own formatter
+                // doctrine (MbStrFunctions rewrites every substr to its
+                // mb_ twin) makes the byte-level spelling not a
+                // source-level option.
+                "Zef\\Framework\\Modules\\ModuleVersion::asserted",
+                "Zef\\Framework\\Modules\\ModuleManifest::parsed"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",

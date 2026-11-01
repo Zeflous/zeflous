@@ -71,8 +71,9 @@ final class ModuleResolverTest extends TestCase
     public function testAnUnknownClassIsRefusedNamingIt(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "The module class 'Zef\\Test\\Modules\\Fixtures\\MissingClass' does not exist",
+        $this->expectExceptionMessageIs(
+            "The module class 'Zef\\Test\\Modules\\Fixtures\\MissingClass' does not exist "
+            . '(is the autoloader aware of it?).',
         );
 
         $this->moduleResolver->resolve('Zef\Test\Modules\Fixtures\MissingClass');
@@ -81,20 +82,32 @@ final class ModuleResolverTest extends TestCase
     public function testAClassWithoutTheContractIsRefused(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains('does not implement the module contract');
+        $this->expectExceptionMessageIs(
+            "The module class '" . NotModule::class . "' does not implement the module "
+            . 'contract (Zef\Framework\Modules\ModuleInterface).',
+        );
 
         $this->moduleResolver->resolve(NotModule::class);
     }
 
     public function testAConstructorThatThrowsIsRefusedWithTheReason(): void
     {
-        $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "The module class '" . ExplodingModule::class . "' could not be constructed: "
-            . 'the fixture module refuses to exist.',
-        );
+        try {
+            $this->moduleResolver->resolve(ExplodingModule::class);
 
-        $this->moduleResolver->resolve(ExplodingModule::class);
+            self::fail('the exploding fixture module was constructed');
+        } catch (ModuleException $moduleException) {
+            self::assertSame(
+                "The module class '" . ExplodingModule::class
+                . "' could not be constructed: the fixture module refuses to exist.",
+                $moduleException->getMessage(),
+            );
+            self::assertSame(0, $moduleException->getCode());
+            self::assertSame(
+                'the fixture module refuses to exist',
+                $moduleException->getPrevious()?->getMessage(),
+            );
+        }
     }
 
     public function testTheManifestSpellingParsesAndAgrees(): void
@@ -140,20 +153,36 @@ final class ModuleResolverTest extends TestCase
     public function testAListeningManifestAndClassIdentityIsRefusedWithBothSpellings(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "answers the identity 'test/other' at '2.0.0' requiring [] while its manifest '"
-            . self::FIXTURES . "/mismatched/module.php' declares 'test/wrong' at '1.0.0'",
+        $this->expectExceptionMessageIs(
+            "The module class 'test/other' answers the identity 'test/other' at '2.0.0' "
+            . "requiring [] while its manifest '" . self::FIXTURES
+            . "/mismatched/module.php' declares 'test/wrong' at '1.0.0' requiring []; "
+            . 'one module is one identity.',
         );
 
         $this->moduleResolver->resolve(self::FIXTURES . '/mismatched/module.php');
     }
 
+    public function testAPartiallyDisagreeingIdentityIsStillRefused(): void
+    {
+        $this->expectException(ModuleException::class);
+        $this->expectExceptionMessageIs(
+            "The module class 'test/demanding' answers the identity 'test/demanding' "
+            . "at '2.0.0' requiring [zef/alpha, zef/beta] while its manifest '"
+            . self::FIXTURES . "/partial-mismatch/module.php' declares 'test/demanding' "
+            . "at '1.5.0' requiring [zef/alpha, zef/beta]; one module is one identity.",
+        );
+
+        $this->moduleResolver->resolve(self::FIXTURES . '/partial-mismatch/module.php');
+    }
+
     public function testAManifestWhoseClassDoesNotExistIsRefusedNamingTheManifest(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "The module class 'Zef\\Test\\Modules\\Fixtures\\MissingModule' (declared by the manifest '"
-            . self::FIXTURES . "/missing-class/module.php') does not exist",
+        $this->expectExceptionMessageIs(
+            "The module class 'Zef\\Test\\Modules\\Fixtures\\MissingModule' (declared by "
+            . "the manifest '" . self::FIXTURES
+            . "/missing-class/module.php') does not exist (is the autoloader aware of it?).",
         );
 
         $this->moduleResolver->resolve(self::FIXTURES . '/missing-class/module.php');

@@ -74,18 +74,52 @@ final class ModuleManifestTest extends TestCase
         ModuleManifest::parse('not-an-array');
     }
 
-    public function testMissingRequiredFieldsAreRefusedByField(): void
+    public function testAMissingNameIsRefusedByField(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains('The module manifest carries violations');
+        $this->expectExceptionMessageIs(
+            'The module manifest carries violations: name: expected a non-empty string, got missing.',
+        );
 
-        ModuleManifest::parse(['name' => 'zef/payment']);
+        ModuleManifest::parse([
+            'version' => '^1.0',
+            'class' => 'Zef\Modules\Payment\PaymentModule',
+        ]);
+    }
+
+    public function testAMissingVersionIsRefusedByField(): void
+    {
+        $this->expectException(ModuleException::class);
+        $this->expectExceptionMessageIs(
+            'The module manifest carries violations: version: expected a non-empty string, got missing.',
+        );
+
+        ModuleManifest::parse([
+            'name' => 'zef/payment',
+            'class' => 'Zef\Modules\Payment\PaymentModule',
+        ]);
+    }
+
+    public function testAMissingClassIsRefusedByField(): void
+    {
+        $this->expectException(ModuleException::class);
+        $this->expectExceptionMessageIs(
+            'The module manifest carries violations: class: expected a non-empty string, got missing.',
+        );
+
+        ModuleManifest::parse([
+            'name' => 'zef/payment',
+            'version' => '^1.0',
+        ]);
     }
 
     public function testAnUnknownKeyIsRefusedWithTheKnownList(): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains('got an unexpected key');
+        $this->expectExceptionMessageIs(
+            'The module manifest carries violations: routes: expected one of '
+            . 'name, version, requires, class, config_schema, got an unexpected key.',
+        );
 
         ModuleManifest::parse([
             'name' => 'zef/payment',

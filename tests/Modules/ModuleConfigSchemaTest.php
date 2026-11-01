@@ -89,8 +89,11 @@ final class ModuleConfigSchemaTest extends TestCase
     public function testAMalformedRuleIsRefusedNamingTheField(mixed $rule): void
     {
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "carries the malformed rule for the field 'endpoint'",
+        $this->expectExceptionMessageIs(
+            "The configuration schema of the module 'test/echo' at '/x/schema.php' "
+            . "carries the malformed rule for the field 'endpoint': a rule is exactly "
+            . "['required' => bool, 'kind' => one of 'string', 'string-map', "
+            . "'strings', 'values'].",
         );
 
         ModuleConfigSchema::validated(

@@ -49,11 +49,6 @@ final readonly class ModuleBootstrapper
     {
         $moduleRoster = new ModuleRoster($config);
         $entries = ModuleEntries::parse($config->get('modules', []));
-
-        if ($entries === []) {
-            return $moduleRoster;
-        }
-
         $declarations = [];
         $modules = [];
 

@@ -52,7 +52,7 @@ final readonly class ModuleResolver
         }
 
         if (!class_exists($entry)) {
-            throw ModuleBootRefusals::classMissing($entry);
+            ModuleBootRefusals::classMissing($entry);
         }
 
         $module = ModuleConstructions::answered($entry);
@@ -70,7 +70,7 @@ final readonly class ModuleResolver
         $class = $moduleDeclaration->class;
 
         if (!class_exists($class)) {
-            throw ModuleBootRefusals::manifestClassMissing($class, $entry);
+            ModuleBootRefusals::manifestClassMissing($class, $entry);
         }
 
         $module = ModuleConstructions::answered($class);

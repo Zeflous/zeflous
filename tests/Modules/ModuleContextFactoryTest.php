@@ -20,6 +20,7 @@ use Zef\Framework\Modules\ModuleContext;
 use Zef\Framework\Modules\ModuleDeclaration;
 use Zef\Framework\Modules\ModuleException;
 use Zef\Framework\Modules\ModuleMetadata;
+use Zef\Framework\Modules\ModuleSchemaRules;
 
 /**
  * The context assembler: the block the module's dotted name derives is the
@@ -34,6 +35,7 @@ use Zef\Framework\Modules\ModuleMetadata;
 #[CoversClass(ModuleConfigRefusals::class)]
 #[CoversClass(ModuleManifestLoader::class)]
 #[CoversClass(ModuleConfigSchema::class)]
+#[CoversClass(ModuleSchemaRules::class)]
 #[CoversClass(ModuleContext::class)]
 #[CoversClass(ConfigSchema::class)]
 #[CoversClass(SchemaValueRules::class)]
@@ -66,9 +68,10 @@ final class ModuleContextFactoryTest extends TestCase
         $config = new Config(['test' => ['plain' => ['endpoint' => 'http://x']]]);
 
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
+        $this->expectExceptionMessageIs(
             "The module 'test/plain' carries the configuration block 'test.plain' "
-            . 'but declares no config_schema',
+            . 'but declares no config_schema; a block arrives only with the schema '
+            . 'that validates it.',
         );
 
         $this->moduleContextFactory->context($this->declaration('test/plain'), $config);
@@ -104,12 +107,19 @@ final class ModuleContextFactoryTest extends TestCase
         $config = new Config(['test' => ['echo' => ['retries' => ['one']]]]);
         $declaration = $this->declaration('test/echo', self::FIXTURES . '/with-schema/config/schema.php');
 
-        $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "The module 'test/echo' failed its configuration schema",
-        );
+        try {
+            $this->moduleContextFactory->context($declaration, $config);
 
-        $this->moduleContextFactory->context($declaration, $config);
+            self::fail('the schemaless endpoint block was accepted');
+        } catch (ModuleException $moduleException) {
+            self::assertSame(
+                "The module 'test/echo' failed its configuration schema: Configuration failed "
+                . 'schema validation: endpoint: expected a non-empty string, got missing.',
+                $moduleException->getMessage(),
+            );
+            self::assertSame(0, $moduleException->getCode());
+            self::assertInstanceOf(ConfigException::class, $moduleException->getPrevious());
+        }
     }
 
     public function testANonArrayBlockIsRefusedWithItsType(): void
@@ -152,10 +162,11 @@ final class ModuleContextFactoryTest extends TestCase
         $declaration = $this->declaration('test/echo', self::FIXTURES . '/ugly-schema/config/schema.php');
 
         $this->expectException(ModuleException::class);
-        $this->expectExceptionMessageIsOrContains(
+        $this->expectExceptionMessageIs(
             "The configuration schema of the module 'test/echo' at '"
             . self::FIXTURES . "/ugly-schema/config/schema.php' carries the malformed rule "
-            . "for the field 'endpoint'",
+            . "for the field 'endpoint': a rule is exactly ['required' => bool, 'kind' "
+            . "=> one of 'string', 'string-map', 'strings', 'values'].",
         );
 
         $this->moduleContextFactory->context($declaration, new Config([]));
