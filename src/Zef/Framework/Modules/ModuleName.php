@@ -47,9 +47,26 @@ final readonly class ModuleName
      * as a `.` -- the key the module's own configuration block lives
      * under, and the only address the engine reads for it.
      */
-    public function toConfigKey(): string
+    /**
+     * The grammar's own assertion for an already-typed spelling -- the
+     * callers that hold a string and need it refused-or-carried use this
+     * spelling, the constructor's validation without the instance.
+     *
+     * @throws ModuleException when the spelling breaks the grammar
+     */
+    public static function asserted(string $spelling): void
     {
-        return str_replace('/', '.', $this->name);
+        new self($spelling);
+    }
+
+    /**
+     * The dotted key an already-validated name derives -- the boot's own
+     * reads use this spelling, the name's grammar having already answered
+     * for the spelling they carry.
+     */
+    public static function configKey(string $name): string
+    {
+        return str_replace('/', '.', $name);
     }
 
     private function assertSegment(string $segment): void

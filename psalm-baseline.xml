@@ -493,18 +493,6 @@
       <code><![CDATA[version]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/ModuleContextFactory.php">
-    <MixedAssignment>
-      <code><![CDATA[$block]]></code>
-      <code><![CDATA[$validated[$field]]]></code>
-      <code><![CDATA[$value]]></code>
-    </MixedAssignment>
-  </file>
-  <file src="src/Zef/Framework/Modules/ModuleConfigSchema.php">
-    <MixedAssignment>
-      <code><![CDATA[$rule]]></code>
-    </MixedAssignment>
-  </file>
   <file src="src/Zef/Framework/Message/Message.php">
     <UnusedClass>
       <code><![CDATA[Message]]></code>
@@ -520,6 +508,23 @@
       <code><![CDATA[installed]]></code>
       <code><![CDATA[restore]]></code>
     </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/ModuleContextFactory.php">
+    <MixedAssignment>
+      <code><![CDATA[$validated[$field]]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Modules/ModuleConfigSchema.php">
+    <MixedAssignment>
+      <code><![CDATA[$rule]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Modules/ModuleSchemaRules.php">
+    <MixedAssignment>
+      <code><![CDATA[$kind]]></code>
+      <code><![CDATA[$required]]></code>
+    </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Telemetry/BatchSpanProcessor.php">
     <PossiblyUnusedMethod>

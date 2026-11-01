@@ -32,28 +32,26 @@ final class ModuleRequires
             throw ModuleExceptionSpelling::requirementNotAList($requires);
         }
 
-        $validated = [];
-        $seen = [];
+        $names = [];
 
-        foreach ($requires as $index => $entry) {
+        foreach ($requires as $at => $entry) {
             if (!\is_string($entry)) {
-                throw ModuleExceptionSpelling::requirementNotAName($index, $entry);
+                throw ModuleExceptionSpelling::requirementNotAName($at, $entry);
             }
 
-            new ModuleName($entry);
-
-            if (isset($seen[$entry])) {
-                throw ModuleExceptionSpelling::requirementDuplicated($entry);
-            }
+            ModuleName::asserted($entry);
 
             if ($entry === $self) {
                 throw ModuleExceptionSpelling::requirementSelf($self);
             }
 
-            $seen[$entry] = true;
-            $validated[] = $entry;
+            if (isset($names[$entry])) {
+                throw ModuleExceptionSpelling::requirementDuplicated($entry);
+            }
+
+            $names[$entry] = true;
         }
 
-        return $validated;
+        return array_keys($names);
     }
 }

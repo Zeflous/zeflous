@@ -25,13 +25,13 @@ mixed into this one.
 **Verified locally before the PR:** `ci:static` EXIT-0 (6460 tests /
 15387 assertions, +131 over the base; smoke 2760B/20000 iterations;
 workflow concurrency 23; roadmap:gate pass; audit 0 advisories) · psalm
-EXIT-0 (the baseline grew only the four module-authored-payload
+EXIT-0 (the baseline grew only the module-authored-payload
 MixedAssignment entries the lane's grammars read by design; the
 `ModuleContext`/`ModuleRegistrar` surfaces carry the `@api` mark the
 Kernel's own config accessor precedent carries) · deptrac 0 violations
 over the two widenings · PHPStan max + ratchet clean with no baseline
-file · the full battery re-run to EXIT-0 after the settle rounds the
-entries below record.
+file · archeology 0 error-level findings after the settle rounds
+KDD-MO9 records · the full battery re-run to EXIT-0 after each round.
 
 ## The map
 
@@ -41,7 +41,8 @@ entries below record.
 | `ModuleRegistrar` | the PSR-11 read side narrowed by the one declaration verb -- `set()` -- the lifetime deliberately absent (the container's own singleton default) |
 | `ModuleMetadata` | the validated identity: name, version, requires |
 | `ModuleName` / `ModuleVersion` / `ModuleRequires` | the grammars: two `/`-joined lowercase segments with the 32-byte ceiling, the constraint spellings, the once-only non-self list |
-| `ModuleException` + `ModuleExceptionSpelling` | the lane's typed family over the framework root and the shared refusal sentences |
+| `ModuleException` | the lane's typed family over the framework root |
+| `ModuleExceptionSpelling` / `ModuleBootRefusals` / `ModuleConfigRefusals` / `ModuleOrderRefusals` | the shared refusal sentences, one fold per phase -- grammars, discovery, configuration, ordering |
 | `ModuleDeclaration` | the normalized unit: class spelling, identity, the schema path the discovery fold resolved |
 | `ModuleManifest` | the `module.php` payload through the configuration layer's own `ConfigSchema` -- five fields, unknown keys refused with the known list |
 | `ModuleEntries` | the knob's whitelist grammar and the two entry spellings' classification (namespace separator = class, rooted `.php` = manifest) |
@@ -51,6 +52,9 @@ entries below record.
 | `ModuleRoster` | the carry between the phases; the boot phase; the boots-once guard |
 | `ModuleResolver` | the discovery fold: both spellings to one answer, the identity agreement check, the schema path's resolution |
 | `ModuleManifestLoader` | the module side's file loader: exists, loads, returns an array -- named in every refusal |
+| `ModuleConstructions` | the module class's construction guard: contract-carrying, no-arg constructible, the failure's reason chained |
+| `ModuleOrderBook` | the walk's prepared state: the name index and the requires map, built once (the `EventBook` pattern) |
+| `ModuleSchemaRules` | the rule-shape judgment beside the vocabulary and the refusal that names the malformed rule |
 | `ModuleContextFactory` | the context assembler: the block derived, rebuilt cell-by-cell, asserted, wrapped |
 | `ContainerModuleRegistrar` | the port's container-backed answer with the three claim refusals |
 | `ModuleClaims` | the registration phase's shared claim ledger |
@@ -164,3 +168,43 @@ contract supersedes it as the registration unit, and its removal is a
 separate decision; the `events` knob's reader lives with the event lane
 as recorded (#662), and a module's own knobs arrive with their readers
 in their own slices.
+
+## KDD-MO9: the difficulty ceiling's own curriculum, replayed
+
+The archeology gate reddened the first spelling fourteen times -- five
+classes and their fattest folds over the difficulty-20 ceiling -- and
+the settle rounds replayed KDD-DB6's lessons with two new ones:
+
+1. The message folds concentrate the flood: every concat is an operator
+   and every literal an operand, so the lane's refusals split per phase
+   (`ModuleExceptionSpelling` the grammars, `ModuleBootRefusals` the
+   discovery, `ModuleConfigRefusals` the configuration,
+   `ModuleOrderRefusals` the ordering) -- the same fold-per-concern the
+   container's own refusal family carries.
+2. Fold-splitting is NOT a difficulty cure at the class level: small
+   methods passing the same maps re-mention the same operands, and
+   Halstead's repetition ratio puns exactly that. The cure is the opposite
+   direction -- merge the fragments (`ModuleContextFactory` fell from
+   41.59 to 19.20 by folding its arms into one context method) and move
+   the messages OUT.
+3. The operand flood's true source is the metadata chain: every
+   `$declaration->metadata->requires` read is three operands. The walk's
+   prepared state (`ModuleOrderBook`, the `EventBook` pattern) builds the
+   requires map ONCE, so the Kahn loop reads plain arrays.
+4. The tiebreak rode for free all along: the prepared map's insertion
+   order IS the declaration order and an unset preserves the survivors'
+   relative order, so the scan needs no sort of its own -- `asort` was
+   five rounds of redundancy the `array_intersect_key` spelling finally
+   named.
+5. `ModuleConstructions` and `ModuleSchemaRules` are the ceiling's own
+   seams: the construction guard and the rule-shape judgment are one-fold
+   answers the orchestrators now compose, each under the bar because each
+   owns one question.
+
+The settled battery: `ci:static` EXIT-0 (6460 tests / 15387 assertions;
+smoke 2760B/20000 iterations; concurrency 23; roadmap:gate pass; audit
+0), psalm EXIT-0 (the baseline's only lane entries the four
+module-authored-payload MixedAssignment reads), archeology 0 error-level
+findings (the lane's biggest class: `ModuleConfigRefusals` at 19.62,
+every unit at or under 20), and the full battery re-run to EXIT-0 after
+each settle round.

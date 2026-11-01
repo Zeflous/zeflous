@@ -87,6 +87,32 @@ final readonly class ModuleManifest
         return $moduleDeclaration;
     }
 
+    /**
+     * Parses the manifest the given file carried and resolves its
+     * `config_schema` path against that file's own directory -- the one
+     * spelling that knows where a relative path is relative to. A rooted
+     * spelling rides verbatim.
+     */
+    public static function parsed(mixed $payload, string $manifest): ModuleDeclaration
+    {
+        $moduleDeclaration = self::parse($payload);
+        $schema = $moduleDeclaration->configSchema;
+
+        if ($schema === null) {
+            return $moduleDeclaration;
+        }
+
+        if (str_starts_with($schema, './')) {
+            $schema = mb_substr($schema, 2);
+        }
+
+        if (str_starts_with($schema, '/')) {
+            return $moduleDeclaration->withConfigSchema($schema);
+        }
+
+        return $moduleDeclaration->withConfigSchema(\dirname($manifest) . '/' . $schema);
+    }
+
     private static function schema(): ConfigSchema
     {
         return new ConfigSchema([

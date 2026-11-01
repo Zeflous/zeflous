@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework;
 
 use Zef\Framework\Config\Config;
-use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Modules\ModuleConfigRefusals;
 use Zef\Framework\Modules\ModuleConfigSchema;
 use Zef\Framework\Modules\ModuleContext;
 use Zef\Framework\Modules\ModuleDeclaration;
@@ -47,81 +47,38 @@ final readonly class ModuleContextFactory
     public function context(ModuleDeclaration $moduleDeclaration, Config $config): ModuleContext
     {
         $name = $moduleDeclaration->metadata->name;
-        $key = new ModuleName($name)->toConfigKey();
+        $version = $moduleDeclaration->metadata->version;
+        $key = ModuleName::configKey($name);
+        $schema = $moduleDeclaration->configSchema;
 
-        $block = [];
+        $block = $config->get($key, []);
 
-        if ($config->has($key)) {
-            $block = $config->get($key);
-
-            if (!\is_array($block)) {
-                throw new ModuleException(
-                    "The configuration block '{$key}' of the module '{$name}' "
-                    . 'must be an array; ' . get_debug_type($block) . ' arrived.',
-                );
-            }
+        if (!\is_array($block)) {
+            throw ModuleConfigRefusals::blockNotAnArray($key, $name, $block);
         }
 
-        $validated = $this->validatedMap($block, $key, $name);
-
-        if ($moduleDeclaration->configSchema === null) {
-            if ($validated !== []) {
-                throw new ModuleException(
-                    "The module '{$name}' carries the configuration block "
-                    . "'{$key}' but declares no config_schema; a block arrives "
-                    . 'only with the schema that validates it.',
-                );
-            }
-
-            return new ModuleContext($name, $moduleDeclaration->metadata->version, $validated);
-        }
-
-        $configSchema = ModuleConfigSchema::validated(
-            $this->moduleManifestLoader->load($moduleDeclaration->configSchema, 'module schema'),
-            $name,
-            $moduleDeclaration->configSchema,
-        );
-
-        try {
-            $configSchema->assert($validated);
-        } catch (ConfigException $configException) {
-            throw new ModuleException(
-                "The module '{$name}' failed its configuration schema: "
-                . $configException->getMessage(),
-                0,
-                $configException,
-            );
-        }
-
-        return new ModuleContext($name, $moduleDeclaration->metadata->version, $validated);
-    }
-
-    /**
-     * Rebuilds the block cell-by-cell as it validates -- the payload the
-     * context hands over is a record the analyser can check, not a promise
-     * it must trust: every field is proven a string key here, so the
-     * declared schema asserts an already-honest map.
-     *
-     * @param array<array-key, mixed> $block
-     *
-     * @return array<string, mixed>
-     */
-    private function validatedMap(array $block, string $key, string $name): array
-    {
         $validated = [];
 
         foreach ($block as $field => $value) {
             if (!\is_string($field)) {
-                throw new ModuleException(
-                    "The configuration block '{$key}' of the module '{$name}' "
-                    . 'must be a map of string fields; an ' . get_debug_type($field)
-                    . ' field arrived.',
-                );
+                throw ModuleConfigRefusals::blockFieldNotAName($key, $name, $field);
             }
 
             $validated[$field] = $value;
         }
 
-        return $validated;
+        if (\is_string($schema)) {
+            $engine = ModuleConfigSchema::validated(
+                $this->moduleManifestLoader->load($schema, 'module schema'),
+                $name,
+                $schema,
+            );
+
+            ModuleConfigRefusals::asserted($engine, $validated, $name);
+        } elseif ($validated !== []) {
+            throw ModuleConfigRefusals::blockWithoutSchema($name, $key);
+        }
+
+        return new ModuleContext($name, $version, $validated);
     }
 }

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Zef\Framework;
 
-use Throwable;
+use Zef\Framework\Modules\ModuleBootRefusals;
+use Zef\Framework\Modules\ModuleConstructions;
 use Zef\Framework\Modules\ModuleDeclaration;
 use Zef\Framework\Modules\ModuleEntries;
-use Zef\Framework\Modules\ModuleException;
 use Zef\Framework\Modules\ModuleInterface;
 use Zef\Framework\Modules\ModuleManifest;
 
@@ -41,31 +41,21 @@ final readonly class ModuleResolver
     /**
      * @return array{0: ModuleDeclaration, 1: ModuleInterface}
      *
-     * @throws ModuleException when the entry's spelling, its class, its
-     *                         manifest or the manifest/class identity
-     *                         agreement fails
+     * @throws Modules\ModuleException when the entry's spelling, its class, its
+     *                                 manifest or the manifest/class identity
+     *                                 agreement fails
      */
     public function resolve(string $entry): array
     {
-        return match (ModuleEntries::classify($entry)) {
-            ModuleEntries::KIND_CLASS => $this->fromClass($entry),
-            ModuleEntries::KIND_MANIFEST => $this->fromManifest($entry),
-        };
-    }
-
-    /**
-     * @return array{0: ModuleDeclaration, 1: ModuleInterface}
-     */
-    private function fromClass(string $entry): array
-    {
-        if (!class_exists($entry)) {
-            throw new ModuleException(
-                "The module class '{$entry}' does not exist (is the autoloader "
-                . 'aware of it?).',
-            );
+        if (ModuleEntries::classify($entry) === ModuleEntries::KIND_MANIFEST) {
+            return $this->fromManifest($entry);
         }
 
-        $module = $this->instantiate($entry);
+        if (!class_exists($entry)) {
+            throw ModuleBootRefusals::classMissing($entry);
+        }
+
+        $module = ModuleConstructions::answered($entry);
 
         return [new ModuleDeclaration($entry, $module->metadata()), $module];
     }
@@ -76,79 +66,21 @@ final readonly class ModuleResolver
     private function fromManifest(string $entry): array
     {
         $payload = $this->moduleManifestLoader->load($entry, 'module manifest');
-        $declaration = ModuleManifest::parse($payload);
-
-        if ($declaration->configSchema !== null) {
-            $declaration = $declaration->withConfigSchema(
-                $this->absoluteSchema($declaration->configSchema, $entry),
-            );
-        }
-
-        $class = $declaration->class;
+        $moduleDeclaration = ModuleManifest::parsed($payload, $entry);
+        $class = $moduleDeclaration->class;
 
         if (!class_exists($class)) {
-            throw new ModuleException(
-                "The module class '{$class}' (declared by the manifest "
-                . "'{$entry}') does not exist (is the autoloader aware of it?).",
-            );
+            throw ModuleBootRefusals::manifestClassMissing($class, $entry);
         }
 
-        $module = $this->instantiate($class);
-        $moduleMetadata = $module->metadata();
-        $declared = $declaration->metadata;
+        $module = ModuleConstructions::answered($class);
 
-        if (
-            $moduleMetadata->name !== $declared->name
-            || $moduleMetadata->version !== $declared->version
-            || $moduleMetadata->requires !== $declared->requires
-        ) {
-            throw new ModuleException(
-                "The module class '{$class}' answers the identity "
-                . "'{$moduleMetadata->name}' at '{$moduleMetadata->version}' requiring ["
-                . implode(', ', $moduleMetadata->requires) . '] while its manifest '
-                . "'{$entry}' declares '{$declared->name}' at "
-                . "'{$declared->version}' requiring ["
-                . implode(', ', $declared->requires) . ']; one module is one '
-                . 'identity.',
-            );
-        }
+        ModuleBootRefusals::assertedIdentityAgreement(
+            $module->metadata(),
+            $moduleDeclaration->metadata,
+            $entry,
+        );
 
-        return [$declaration, $module];
-    }
-
-    private function instantiate(string $class): ModuleInterface
-    {
-        if (!is_a($class, ModuleInterface::class, true)) {
-            throw new ModuleException(
-                "The module class '{$class}' does not implement the module "
-                . 'contract (' . ModuleInterface::class . ').',
-            );
-        }
-
-        try {
-            $module = new $class();
-        } catch (Throwable $throwable) {
-            throw new ModuleException(
-                "The module class '{$class}' could not be constructed: "
-                . $throwable->getMessage() . '.',
-                0,
-                $throwable,
-            );
-        }
-
-        return $module;
-    }
-
-    private function absoluteSchema(string $schema, string $manifest): string
-    {
-        if (str_starts_with($schema, './')) {
-            $schema = mb_substr($schema, 2);
-        }
-
-        if (str_starts_with($schema, '/')) {
-            return $schema;
-        }
-
-        return \dirname($manifest) . '/' . $schema;
+        return [$moduleDeclaration, $module];
     }
 }

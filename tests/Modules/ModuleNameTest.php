@@ -32,7 +32,7 @@ final class ModuleNameTest extends TestCase
         $moduleName = new ModuleName($name);
 
         self::assertSame($name, $moduleName->name);
-        self::assertSame($configKey, $moduleName->toConfigKey());
+        self::assertSame($configKey, ModuleName::configKey($name));
     }
 
     /**
