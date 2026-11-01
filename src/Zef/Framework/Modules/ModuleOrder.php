@@ -41,11 +41,15 @@ final class ModuleOrder
         $ordered = [];
 
         while ($remaining !== []) {
-            $found = array_find_key(array_intersect_key($requires, $remaining), static fn (array $list): bool => array_all(
-                $list,
-                static fn (string $required): bool => !isset($remaining[$required]),
-            ));
+            $found = array_find_key(
+                array_intersect_key($requires, $remaining),
+                static fn (array $list): bool => array_all(
+                    $list,
+                    static fn (string $required): bool => !isset($remaining[$required]),
+                ),
+            );
             $picked = \is_string($found) ? $found : null;
+
             if ($picked === null) {
                 throw ModuleOrderRefusals::dependencyCycleFrom($remaining, $requires);
             }
