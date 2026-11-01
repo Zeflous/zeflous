@@ -515,6 +515,11 @@
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
+  <file src="src/Zef/Framework/ModuleRouteTable.php">
+    <MixedAssignment>
+      <code><![CDATA[$entry]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Modules/ModuleConfigSchema.php">
     <MixedAssignment>
       <code><![CDATA[$rule]]></code>

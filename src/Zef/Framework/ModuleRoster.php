@@ -46,6 +46,24 @@ final class ModuleRoster
     }
 
     /**
+     * Answers the roster's declarations in the boot order they were filed
+     * -- the extension-point folds' read side, which walk the same order
+     * the boot phase will and carry nothing but the declarations.
+     *
+     * @return list<ModuleDeclaration>
+     */
+    public function declarations(): array
+    {
+        $declarations = [];
+
+        foreach ($this->entries as $entry) {
+            $declarations[] = $entry['declaration'];
+        }
+
+        return $declarations;
+    }
+
+    /**
      * Runs the boot phase: every module receives its own readonly context,
      * in the roster's order.
      *

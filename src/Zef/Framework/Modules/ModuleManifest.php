@@ -13,15 +13,15 @@ use Zef\Framework\Config\Schema\ConfigSchema;
  *
  * The engine reuses {@see ConfigSchema} exactly as that class's docblock
  * anticipated -- a manifest is a configuration entry, so its validation
- * needs no engine of its own: the five fields (name, version, requires,
- * class, config_schema) ride the field-rule map, and an unknown key or a
- * wrong kind is a violation the schema renders, not a silent skip. The
- * kinds the schema answers are then refined by the engine's own grammars:
- * the name and version through {@see ModuleMetadata}, the class through
- * {@see ModuleDeclaration}'s qualified-spelling refusal, the optional
- * `config_schema` kept raw for the discovery fold -- only the fold that
- * read the manifest knows the directory a relative schema path resolves
- * against.
+ * needs no engine of its own: the fields (name, version, requires,
+ * class, config_schema, routes) ride the field-rule map, and an unknown
+ * key or a wrong kind is a violation the schema renders, not a silent
+ * skip. The kinds the schema answers are then refined by the engine's own
+ * grammars: the name and version through {@see ModuleMetadata}, the class
+ * through {@see ModuleDeclaration}'s qualified-spelling refusal, the
+ * optional `config_schema` and `routes` paths kept raw for the discovery
+ * fold -- only the fold that read the manifest knows the directory a
+ * relative path resolves against.
  *
  * A manifest carries no behaviour: it declares which class implements the
  * contract and the identity the boot orders by, so discovery stays free
@@ -38,6 +38,8 @@ final readonly class ModuleManifest
     private const string FIELD_CLASS = 'class';
 
     private const string FIELD_SCHEMA = 'config_schema';
+
+    private const string FIELD_ROUTES = 'routes';
 
     /**
      * Parses and validates a manifest payload into its declaration. The
@@ -67,50 +69,68 @@ final readonly class ModuleManifest
             );
         }
 
-        /**
+        /*
          * @var array{name: string, version: string, class: string,
-         *     requires?: list<string>, config_schema?: string} $payload
+         *     requires?: list<string>, config_schema?: string,
+         *     routes?: string} $payload
          */
-        $moduleDeclaration = new ModuleDeclaration(
+        return new ModuleDeclaration(
             $payload[self::FIELD_CLASS],
             new ModuleMetadata(
                 $payload[self::FIELD_NAME],
                 $payload[self::FIELD_VERSION],
                 $payload[self::FIELD_REQUIRES] ?? [],
             ),
+            $payload[self::FIELD_SCHEMA] ?? null,
+            $payload[self::FIELD_ROUTES] ?? null,
         );
-
-        if (isset($payload[self::FIELD_SCHEMA])) {
-            return $moduleDeclaration->withConfigSchema($payload[self::FIELD_SCHEMA]);
-        }
-
-        return $moduleDeclaration;
     }
 
     /**
      * Parses the manifest the given file carried and resolves its
-     * `config_schema` path against that file's own directory -- the one
-     * spelling that knows where a relative path is relative to. A rooted
-     * spelling rides verbatim.
+     * `config_schema` and `routes` paths against that file's own
+     * directory -- the one spelling that knows where a relative path is
+     * relative to. A rooted spelling rides verbatim.
      */
     public static function parsed(mixed $payload, string $manifest): ModuleDeclaration
     {
         $moduleDeclaration = self::parse($payload);
+        $routes = $moduleDeclaration->routes;
+
+        if ($routes !== null) {
+            $moduleDeclaration = $moduleDeclaration->withRoutes(
+                self::resolvedPath($routes, $manifest),
+            );
+        }
+
         $schema = $moduleDeclaration->configSchema;
 
         if ($schema === null) {
             return $moduleDeclaration;
         }
 
-        if (str_starts_with($schema, './')) {
-            $schema = mb_substr($schema, 2);
+        return $moduleDeclaration->withConfigSchema(
+            self::resolvedPath($schema, $manifest),
+        );
+    }
+
+    /**
+     * Resolves one manifest path spelling against the manifest file's own
+     * directory -- the one spelling that knows where a relative path is
+     * relative to. A rooted spelling rides verbatim; the `./` prefix is
+     * the same-directory sugar.
+     */
+    private static function resolvedPath(string $path, string $manifest): string
+    {
+        if (str_starts_with($path, './')) {
+            $path = mb_substr($path, 2);
         }
 
-        if (str_starts_with($schema, '/')) {
-            return $moduleDeclaration->withConfigSchema($schema);
+        if (str_starts_with($path, '/')) {
+            return $path;
         }
 
-        return $moduleDeclaration->withConfigSchema(\dirname($manifest) . '/' . $schema);
+        return \dirname($manifest) . '/' . $path;
     }
 
     private static function schema(): ConfigSchema
@@ -121,6 +141,7 @@ final readonly class ModuleManifest
             self::FIELD_REQUIRES => ['required' => false, 'kind' => 'strings'],
             self::FIELD_CLASS => ['required' => true, 'kind' => 'string'],
             self::FIELD_SCHEMA => ['required' => false, 'kind' => 'string'],
+            self::FIELD_ROUTES => ['required' => false, 'kind' => 'string'],
         ]);
     }
 }

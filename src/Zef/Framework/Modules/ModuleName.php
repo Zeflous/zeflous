@@ -67,6 +67,26 @@ final readonly class ModuleName
         return str_replace('/', '.', $name);
     }
 
+    /**
+     * The name's own second segment -- the URL prefix word the route
+     * extension point serves a module's routes under (`zef/payment`
+     * answers `payment`), derived through the grammar's own two-segment
+     * guarantee: the same explode the assertion runs, so a spelling that
+     * reached here cannot miss its `/`.
+     *
+     * @throws ModuleException when the spelling breaks the grammar
+     */
+    public static function suffix(string $name): string
+    {
+        self::asserted($name);
+
+        /** @var list{string, string} $segments the assertion above
+         *        guarantees the two-segment spelling this read trusts */
+        $segments = explode('/', $name);
+
+        return $segments[1];
+    }
+
     private static function assertSegment(string $name, string $segment): void
     {
         if ($segment === '' || mb_strlen($segment) > self::SEGMENT_CEILING) {

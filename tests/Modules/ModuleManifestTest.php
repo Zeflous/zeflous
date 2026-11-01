@@ -117,16 +117,29 @@ final class ModuleManifestTest extends TestCase
     {
         $this->expectException(ModuleException::class);
         $this->expectExceptionMessageIs(
-            'The module manifest carries violations: routes: expected one of '
-            . 'name, version, requires, class, config_schema, got an unexpected key.',
+            'The module manifest carries violations: routess: expected one of '
+            . 'name, version, requires, class, config_schema, routes, got an unexpected key.',
         );
 
         ModuleManifest::parse([
             'name' => 'zef/payment',
             'version' => '^1.0',
             'class' => 'Zef\Modules\Payment\PaymentModule',
-            'routes' => [],
+            'routess' => [],
         ]);
+    }
+
+    public function testTheRoutesKeyRidesTheSchemaAsAnOptionalString(): void
+    {
+        $declaration = ModuleManifest::parse([
+            'name' => 'zef/payment',
+            'version' => '^1.0',
+            'class' => 'Zef\Modules\Payment\PaymentModule',
+            'routes' => './config/routes.php',
+        ]);
+
+        self::assertSame('./config/routes.php', $declaration->routes);
+        self::assertNull($declaration->configSchema);
     }
 
     public function testARequiresValueThatIsNotAListIsRefusedByKind(): void
