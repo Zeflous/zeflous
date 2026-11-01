@@ -17,17 +17,17 @@ use Zef\Framework\Config\Schema\ConfigSchema;
 final class ModuleConfigRefusals
 {
     /**
-     * The refusal sentences' shared tail: the spelling that arrived is the
-     * sentence's last word, and one constant keeps the tail spelled once.
-     */
-    private const string ARRIVED = ' arrived.';
-
-    /**
      * The module configuration schema's own closed kind vocabulary -- the
      * schema engine's four value kinds, owned here so the checks and the
      * refusal that spells them can never disagree.
      */
     public const array SCHEMA_KINDS = ['string', 'string-map', 'strings', 'values'];
+
+    /**
+     * The refusal sentences' shared tail: the spelling that arrived is the
+     * sentence's last word, and one constant keeps the tail spelled once.
+     */
+    private const string ARRIVED = ' arrived.';
 
     /**
      * @throws ModuleException always
