@@ -123,6 +123,19 @@ final class ModuleRouteTableTest extends TestCase
         );
     }
 
+    public function testAModuleWithoutRoutesDoesNotStopTheDeclarationsBehindIt(): void
+    {
+        $augmented = new ModuleRouteTable()->augmented(new Config(), $this->roster([
+            new ModuleDeclaration(RoutesModule::class, new ModuleMetadata('test/silent', '1.0.0')),
+            $this->stagedRoutes([['path' => '/orders', 'method' => ['GET'], 'handler' => 'S@i']]),
+        ]));
+
+        self::assertSame(
+            [['path' => '/shop/orders', 'method' => ['GET'], 'handler' => 'S@i']],
+            $augmented->get('routes'),
+        );
+    }
+
     public function testAHostRoutesTableThatIsNotAnArrayRefusesTheFold(): void
     {
         $config = new Config(['routes' => 'nope']);
