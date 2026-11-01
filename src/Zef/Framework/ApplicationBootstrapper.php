@@ -77,8 +77,14 @@ use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
  * container BEFORE the definitions install (a configuration definition may
  * already depend on a module's registration), and their boot phase runs
  * AFTER the definitions settle, each module receiving its own namespaced,
- * schema-validated context. The empty knob -- the shipped default -- is
- * the honest no-op: no entries, no discovery, an empty roster.
+ * schema-validated context. The route extension point's fold ({@see
+ * ModuleRouteTable}) rides the same seam: a module's declared routes file
+ * joins the frozen repository's `routes` table before the definitions
+ * install, so the router the host builds over the booted kernel serves
+ * the merged table -- one `routes` key, never a second source of truth.
+ * The empty knob -- the shipped default -- is
+ * the honest no-op: no entries, no discovery, an empty roster, and a
+ * repository that rides verbatim.
  *
  * The composition's last stage is the **process error boundary**
  * ({@see Middleware\ProcessErrorBoundary}, the `http.error_handling.process_boundary`
@@ -160,6 +166,21 @@ final readonly class ApplicationBootstrapper
         );
 
         $moduleRoster = new ModuleBootstrapper()->register($config, $container);
+
+        // The route extension point's seam: a module's declared routes file
+        // joins the frozen repository's `routes` table here -- after the
+        // registration phase, before the definitions install -- so the
+        // definitions, the process boundary and the booted kernel all ride
+        // the one merged repository. The composition root re-freezes its
+        // own `framework.config` word over the augmented repository (the
+        // store's set overwrites by identifier and forgets the memoised
+        // singleton), so the service the profile and the host definitions
+        // resolve answers the same table the kernel carries.
+        $config = new ModuleRouteTable()->augmented($config, $moduleRoster);
+        $container->set(
+            FrameworkDefaults::CONFIG_SERVICE,
+            static fn (): Config => $config,
+        );
 
         $container = new ContainerBootstrapper(
             containerCompileLane: new ContainerCompileLane(

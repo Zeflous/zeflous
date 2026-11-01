@@ -27,6 +27,7 @@ final readonly class ModuleDeclaration
         public string $class,
         public ModuleMetadata $metadata,
         public ?string $configSchema = null,
+        public ?string $routes = null,
     ) {
         if ($this->class === '' || !str_contains($this->class, '\\')) {
             throw new ModuleException(
@@ -43,6 +44,16 @@ final readonly class ModuleDeclaration
      */
     public function withConfigSchema(?string $configSchema): self
     {
-        return new self($this->class, $this->metadata, $configSchema);
+        return new self($this->class, $this->metadata, $configSchema, $this->routes);
+    }
+
+    /**
+     * Answers the declaration with the routes path resolved to its absolute
+     * spelling -- the same discovery refinement the schema path rides, for
+     * the manifest's optional route-extension declaration.
+     */
+    public function withRoutes(?string $routes): self
+    {
+        return new self($this->class, $this->metadata, $this->configSchema, $routes);
     }
 }
