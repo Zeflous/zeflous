@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-10-31T21:28:33Z",
+  "as_of": "2026-11-01T13:36:24Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 279,
+  "unreleased_count": 280,
   "versions": [
     {
       "version": "Unreleased",
@@ -3975,6 +3975,82 @@
                 "sha": "4b5bb693c3241052c3e52f04aad2945822590634",
                 "short_sha": "4b5bb69",
                 "subject": "docs(roadmap): refresh the pin over the S1448 closing commit"
+              }
+            ]
+          },
+          {
+            "pr": 668,
+            "title": "feat(modules): the core module engine with its two-phase boot over declarative manifests",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-01T13:36:24Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/668",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "fd1854241f9f0daad52ac753da0f442f53cf9a35",
+                "short_sha": "fd18542",
+                "subject": "feat(modules): the core module engine with its two-phase boot over declarative manifests"
+              },
+              {
+                "sha": "3f0ab969adebca9d62f2aff3a0753783006f111f",
+                "short_sha": "3f0ab96",
+                "subject": "docs(roadmap): record the module engine over its closing commit"
+              },
+              {
+                "sha": "e2174159209ed09c6191c7f111ee72d82ead5a53",
+                "short_sha": "e217415",
+                "subject": "fix(modules): settle the lane under the architecture ceiling"
+              },
+              {
+                "sha": "91735177c8157b14330f94306952288ae502ec0c",
+                "short_sha": "9173517",
+                "subject": "fix(modules): the pick's spelling under the line ceiling"
+              },
+              {
+                "sha": "46da08abd0dd6d934043ec9c3370ae0282cf505b",
+                "short_sha": "46da08a",
+                "subject": "test(modules): every test names every fold it executes"
+              },
+              {
+                "sha": "cf620593e59bd6b7cb473ebf143ac291e82b99f4",
+                "short_sha": "cf62059",
+                "subject": "test(modules): the integration's own import block, spelled whole"
+              },
+              {
+                "sha": "5c9a07ce1ad6a92583fe2e56586609d467564450",
+                "short_sha": "5c9a07c",
+                "subject": "fix(modules): the grammar's assertion without the discarded instance"
+              },
+              {
+                "sha": "e8b50d2e19dd61b812b36f7963f37362b6a9f0b6",
+                "short_sha": "e8b50d2",
+                "subject": "fix(modules): the refusal tail spelled once"
+              },
+              {
+                "sha": "5a4497dee761468bb382cc7ffcf56be301bf0bf7",
+                "short_sha": "5a4497d",
+                "subject": "style(modules): the tail's own reflow"
+              },
+              {
+                "sha": "c90a6db127f9018fbc5671f500cd0a4fedc3b8ba",
+                "short_sha": "c90a6db",
+                "subject": "fix(modules): settle the CI infection round's escapes"
+              },
+              {
+                "sha": "68cab2ec7b069235c9c84ec884b18787ef73ba73",
+                "short_sha": "68cab2e",
+                "subject": "fix(modules): close the CI round's three remaining escapes"
+              },
+              {
+                "sha": "fa38b331a7e9ad7085a810530d5973958f431fe1",
+                "short_sha": "fa38b33",
+                "subject": "docs(roadmap): refresh the pin over the modules settle commits"
+              },
+              {
+                "sha": "af538a54155ec6428e7050e408ec3a0f9c0bf621",
+                "short_sha": "af538a5",
+                "subject": "Merge branch 'main' into feat/modules-core"
               }
             ]
           }
@@ -17831,6 +17907,82 @@
               "sha": "4b5bb693c3241052c3e52f04aad2945822590634",
               "short_sha": "4b5bb69",
               "subject": "docs(roadmap): refresh the pin over the S1448 closing commit"
+            }
+          ]
+        },
+        {
+          "pr": 668,
+          "title": "feat(modules): the core module engine with its two-phase boot over declarative manifests",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-01T13:36:24Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/668",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "fd1854241f9f0daad52ac753da0f442f53cf9a35",
+              "short_sha": "fd18542",
+              "subject": "feat(modules): the core module engine with its two-phase boot over declarative manifests"
+            },
+            {
+              "sha": "3f0ab969adebca9d62f2aff3a0753783006f111f",
+              "short_sha": "3f0ab96",
+              "subject": "docs(roadmap): record the module engine over its closing commit"
+            },
+            {
+              "sha": "e2174159209ed09c6191c7f111ee72d82ead5a53",
+              "short_sha": "e217415",
+              "subject": "fix(modules): settle the lane under the architecture ceiling"
+            },
+            {
+              "sha": "91735177c8157b14330f94306952288ae502ec0c",
+              "short_sha": "9173517",
+              "subject": "fix(modules): the pick's spelling under the line ceiling"
+            },
+            {
+              "sha": "46da08abd0dd6d934043ec9c3370ae0282cf505b",
+              "short_sha": "46da08a",
+              "subject": "test(modules): every test names every fold it executes"
+            },
+            {
+              "sha": "cf620593e59bd6b7cb473ebf143ac291e82b99f4",
+              "short_sha": "cf62059",
+              "subject": "test(modules): the integration's own import block, spelled whole"
+            },
+            {
+              "sha": "5c9a07ce1ad6a92583fe2e56586609d467564450",
+              "short_sha": "5c9a07c",
+              "subject": "fix(modules): the grammar's assertion without the discarded instance"
+            },
+            {
+              "sha": "e8b50d2e19dd61b812b36f7963f37362b6a9f0b6",
+              "short_sha": "e8b50d2",
+              "subject": "fix(modules): the refusal tail spelled once"
+            },
+            {
+              "sha": "5a4497dee761468bb382cc7ffcf56be301bf0bf7",
+              "short_sha": "5a4497d",
+              "subject": "style(modules): the tail's own reflow"
+            },
+            {
+              "sha": "c90a6db127f9018fbc5671f500cd0a4fedc3b8ba",
+              "short_sha": "c90a6db",
+              "subject": "fix(modules): settle the CI infection round's escapes"
+            },
+            {
+              "sha": "68cab2ec7b069235c9c84ec884b18787ef73ba73",
+              "short_sha": "68cab2e",
+              "subject": "fix(modules): close the CI round's three remaining escapes"
+            },
+            {
+              "sha": "fa38b331a7e9ad7085a810530d5973958f431fe1",
+              "short_sha": "fa38b33",
+              "subject": "docs(roadmap): refresh the pin over the modules settle commits"
+            },
+            {
+              "sha": "af538a54155ec6428e7050e408ec3a0f9c0bf621",
+              "short_sha": "af538a5",
+              "subject": "Merge branch 'main' into feat/modules-core"
             }
           ]
         }
