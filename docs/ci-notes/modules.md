@@ -10,6 +10,9 @@ composition machinery at the Kernel lane (`ModuleBootstrapper`,
 `ModuleContextFactory`, `ModuleClaims`, `ContainerModuleRegistrar`), the
 `modules` knob declared in the shipped default profile, deptrac gaining
 the `Modules` layer and `Kernel += Modules`, branch `feat/modules-core`.
+The Fase 2 route extension point's slice (the manifest's optional
+`routes` key and its kernel consumption, branch `feat/modules-ext-points`)
+appends KDD-MO10 below.
 
 **Attribution:** the ROADMAP's own sketch (the self-registering module,
 the `module.php` manifest, the registry that reads the module list from
@@ -40,11 +43,11 @@ KDD-MO9 records · the full battery re-run to EXIT-0 after each round.
 | `ModuleInterface` | the ONE contract a module author implements: `metadata()`, `register(ModuleRegistrar)`, `boot(ModuleContext)` |
 | `ModuleRegistrar` | the PSR-11 read side narrowed by the one declaration verb -- `set()` -- the lifetime deliberately absent (the container's own singleton default) |
 | `ModuleMetadata` | the validated identity: name, version, requires |
-| `ModuleName` / `ModuleVersion` / `ModuleRequires` | the grammars: two `/`-joined lowercase segments with the 32-byte ceiling, the constraint spellings, the once-only non-self list |
+| `ModuleName` / `ModuleVersion` / `ModuleRequires` | the grammars: two `/`-joined lowercase segments with the 32-byte ceiling, the constraint spellings, the once-only non-self list, the suffix read the route prefix derives |
 | `ModuleException` | the lane's typed family over the framework root |
 | `ModuleExceptionSpelling` / `ModuleBootRefusals` / `ModuleConfigRefusals` / `ModuleOrderRefusals` | the shared refusal sentences, one fold per phase -- grammars, discovery, configuration, ordering |
-| `ModuleDeclaration` | the normalized unit: class spelling, identity, the schema path the discovery fold resolved |
-| `ModuleManifest` | the `module.php` payload through the configuration layer's own `ConfigSchema` -- five fields, unknown keys refused with the known list |
+| `ModuleDeclaration` | the normalized unit: class spelling, identity, the schema and routes paths the discovery fold resolved |
+| `ModuleManifest` | the `module.php` payload through the configuration layer's own `ConfigSchema` -- six fields, unknown keys refused with the known list |
 | `ModuleEntries` | the knob's whitelist grammar and the two entry spellings' classification (namespace separator = class, rooted `.php` = manifest) |
 | `ModuleOrder` | the Kahn walk with the declaration-order tiebreak; duplicate, unknown-requirement and cycle refusals, the cycle spelled as the chain the walk closed |
 | `ModuleContext` | the module's readonly window: identity plus its own namespaced, schema-validated block -- the extension-point carrier the later slices grow |
@@ -58,6 +61,9 @@ KDD-MO9 records · the full battery re-run to EXIT-0 after each round.
 | `ModuleContextFactory` | the context assembler: the block derived, rebuilt cell-by-cell, asserted, wrapped |
 | `ContainerModuleRegistrar` | the port's container-backed answer with the three claim refusals |
 | `ModuleClaims` | the registration phase's shared claim ledger |
+| `ModuleRouteTable` | the route extension point's join fold: the roster walk in boot order, the host table's read, the merge under the one `routes` key |
+| `ModuleRouteEntries` | the route extension point's entry fold: one module's table loaded, schema-asserted and prefixed -- the whole table or nothing |
+| `ModuleRouteRefusals` | the route declaration's refusal sentences: unloadable, schema-invalid -- the module named first |
 
 ## KDD-MO1: the port-first split the tree's lanes already spell
 
@@ -215,3 +221,59 @@ module-authored-payload MixedAssignment reads), archeology 0 error-level
 findings (the lane's biggest class: `ModuleConfigRefusals` at 19.62,
 every unit at or under 20), and the full battery re-run to EXIT-0 after
 each settle round.
+
+## KDD-MO10: the route extension point's one seam, one key
+
+The manifest's optional `routes` key joins the schema's field map --
+KDD-MO3's promise honored for the routes half ("a fail-closed grammar
+cannot accept-and-ignore -- they join when their slices do"). The
+consumption is one fold at one deterministic seam: after the
+registration phase, before the container's definitions install
+(`ApplicationBootstrapper` composing `ModuleRouteTable::augmented()`).
+The seam is the feature -- a configuration-cached boot and a freshly
+loaded one answer the same merged table, and every downstream consumer
+(the declarative definitions, the process error boundary, the booted
+kernel, the compiled route tree cache) reads the one repository the
+boot carries. The composition root re-freezes its own
+`framework.config` word over the augmented repository (the store's set
+overwrites by identifier and forgets the memoised singleton), so the
+service the host definitions resolve answers the same table the kernel
+carries -- one `routes` key, never a second source of truth.
+
+The fold is split the lane's own way: `ModuleRouteTable` owns the join
+(the roster walk in boot order, the host table's read, the merge
+appended after the host's entries), `ModuleRouteEntries` owns the
+per-module table's consumption (loaded through the module side's file
+loader, asserted entry by entry through the Standard Route Schema -- a
+module's routes file is a configuration entry, so its validation needs
+no engine of its own -- and prefixed with the module name's own
+segment, `zef/payment` serving under `/payment` through
+`ModuleName::suffix`'s read of the grammar's own two-segment
+guarantee). Nothing else is rewritten: a route's `name` stays the
+module author's own spelling, and a name collision with the host's or
+another module's routes is the routing engine's own compile-time
+conflict detection, fail-closed, not a silent rewrite here. The
+failures are the lane's fifth refusal family (`ModuleRouteRefusals`):
+the loader's verdict and the schema's violations wrapped with the
+module named first, the context assembler's KDD-MO6 doctrine replayed.
+The empty posture is the honest identity: no module declares routes,
+the repository rides verbatim -- no re-freeze, no rewrite.
+
+What the slice deliberately does not carry: the `events` manifest
+key's consumption (the event lane's own reader, as recorded #662), the
+CLI registry and per-module migrations (the Fase 2 folds beside this
+one), the Fase 3 governance and the Fase 4 DX. The ceiling's
+curriculum fired once more and was paid by the doctrine's own seams:
+the first spelling reddened archeology (`ModuleRouteTable` at 25.13,
+the manifest at 20.28) and the settle split the per-module fold out
+(the join at 15.40, the entries fold at 15.20 -- one question each,
+the construction-guard pattern) and de-duplicated the manifest's
+field-rule map into shared rule constants (17.60). The battery:
+`ci:static` EXIT-0 (6491 tests / 15443 assertions, +31 over the Fase 1
+settle; smoke 2760B/20000 iterations; workflow concurrency 23;
+roadmap:gate pass; audit 0 advisories), psalm EXIT-0 (the baseline's
+one new lane entry the module-authored route payload's MixedAssignment
+read -- the same by-design posture the lane's manifest-payload reads
+carry), deptrac 0 violations over the untouched layer set, PHPStan max
++ ratchet clean with no baseline file, archeology 0 error-level
+findings.
