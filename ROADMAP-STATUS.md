@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-10-31 · `main` @ `b2e0ad2`
+**Last updated:** 2026-11-01 · `main` @ `68cab2e`
 
 ---
 
@@ -82,7 +82,7 @@ see how far the code has moved against the roadmap.
 
 | Area | Status | Evidence |
 |------|--------|----------|
-| Core module engine, extension points, isolation, DX | 🟡 Partial | `src/Zef/Framework/Contracts/ServiceProviderInterface.php` — the provider contract exists; the module engine is not started. |
+| Core module engine, extension points, isolation, DX | 🟡 Partial | `src/Zef/Framework/Modules/` (#668) — the Fase 1 core engine: `ModuleInterface` the one contract (metadata / register / boot) over the `ModuleRegistrar` port (the PSR-11 read side narrowed by `set()`), the identity grammars (`ModuleName` the two-segment `vendor/name` spelling with its byte ceiling, `ModuleVersion`, `ModuleRequires`), `ModuleManifest` the `module.php` payload through the configuration layer's own `ConfigSchema` (the reuse that class's docblock anticipated), `ModuleOrder` the Kahn walk with the declaration-order tiebreak (duplicate, unknown-requirement and cycle refusals, the cycle spelled as the chain it closed), `ModuleContext` the readonly window (identity plus the namespaced, schema-validated block — the extension-point carrier the later slices grow); the composition at the Kernel lane: `ModuleBootstrapper` the registration phase (the `modules` knob's whitelist through `ModuleEntries`, discovery through `ModuleResolver` — both entry spellings converging, the manifest/class identity disagreement refused with both spellings named), `ContainerModuleRegistrar` the claim-policing registrar over the shared `ModuleClaims` ledger (reserved, claimed, carried — each refusal naming both sides; the host's own definitions installed AFTER the phase ride the reserved-services precedent so a host rebind wins), and `ModuleRoster::boot()` the second phase after the definitions settle (each module's context built by `ModuleContextFactory`: the block at the dotted module name, a block without a declared schema refused, a declared schema without a block asserting the empty block, the block rebuilt cell-by-cell as it validates); `ApplicationBootstrapper` wires both phases into the one-call boot; deptrac `Modules: [Exception, Config]` and `Kernel += Modules` (the container stays behind the port); the empty knob the honest no-op; KDD-MO1..MO8 in `docs/ci-notes/modules.md`. The Fase 2 extension points, the Fase 3 governance and the Fase 4 DX (generator, `module:list`/`module:doctor`, hot reload) each remain their own slice. |
 
 ## Adapters Layer
 

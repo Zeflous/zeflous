@@ -509,6 +509,23 @@
       <code><![CDATA[restore]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/ModuleContextFactory.php">
+    <MixedAssignment>
+      <code><![CDATA[$validated[$field]]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Modules/ModuleConfigSchema.php">
+    <MixedAssignment>
+      <code><![CDATA[$rule]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Modules/ModuleSchemaRules.php">
+    <MixedAssignment>
+      <code><![CDATA[$kind]]></code>
+      <code><![CDATA[$required]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Telemetry/BatchSpanProcessor.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[shutdown]]></code>

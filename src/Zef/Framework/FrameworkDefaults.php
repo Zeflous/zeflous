@@ -279,6 +279,7 @@ final readonly class FrameworkDefaults
             'decorators' => [],
             'interceptors' => [],
             'listeners' => [],
+            'modules' => [],
             'namespaces' => ['scopes' => [], 'max_cross_scope_refs' => 0],
             'parameters' => [],
             'events' => [
