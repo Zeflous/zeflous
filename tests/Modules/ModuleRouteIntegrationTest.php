@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Modules;
 
+use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\ApplicationBootstrapper;
@@ -35,6 +36,7 @@ use Zef\Framework\Modules\ModuleRequires;
 use Zef\Framework\Modules\ModuleRouteRefusals;
 use Zef\Framework\Modules\ModuleSchemaRules;
 use Zef\Framework\Modules\ModuleVersion;
+use Zef\Test\Modules\Fixtures\FixtureLog;
 
 /**
  * The route extension point riding the one-call boot: a module's declared
@@ -76,6 +78,12 @@ final class ModuleRouteIntegrationTest extends TestCase
 {
     private const string FIXTURE_MANIFESTS = __DIR__ . '/fixtures';
 
+    #[Override]
+    protected function setUp(): void
+    {
+        FixtureLog::reset();
+    }
+
     public function testAModuleRoutesFileJoinsTheBootedRepositoryUnderItsOwnPrefix(): void
     {
         $root = $this->stageConfigs([
@@ -114,6 +122,33 @@ final class ModuleRouteIntegrationTest extends TestCase
         $kernel = new ApplicationBootstrapper()->boot($root);
 
         self::assertSame($host, $kernel->config()->get('routes'));
+    }
+
+    public function testTheRegistrationPhaseAnswersTheBootConfigService(): void
+    {
+        $root = $this->stageConfigs([
+            'modules.php' => [
+                self::FIXTURE_MANIFESTS . '/with-reader/module.php',
+                self::FIXTURE_MANIFESTS . '/with-routes/module.php',
+            ],
+            'routes.php' => [['path' => '/host', 'method' => ['GET'], 'handler' => 'H@h']],
+        ]);
+
+        new ApplicationBootstrapper()->boot($root);
+
+        // The registration phase's own read: the service exists ahead of
+        // the phase and answers the boot's word -- the host's routes
+        // table, no module entry joined yet.
+        self::assertSame(
+            [
+                'config-service:test/reader@true@'
+                . json_encode(
+                    [['path' => '/host', 'method' => ['GET'], 'handler' => 'H@h']],
+                    \JSON_UNESCAPED_SLASHES,
+                ),
+            ],
+            FixtureLog::events(),
+        );
     }
 
     /**
