@@ -17,6 +17,12 @@ use Zef\Framework\Config\Schema\ConfigSchema;
 final class ModuleConfigRefusals
 {
     /**
+     * The refusal sentences' shared tail: the spelling that arrived is the
+     * sentence's last word, and one constant keeps the tail spelled once.
+     */
+    private const string ARRIVED = ' arrived.';
+
+    /**
      * The module configuration schema's own closed kind vocabulary -- the
      * schema engine's four value kinds, owned here so the checks and the
      * refusal that spells them can never disagree.
@@ -32,7 +38,7 @@ final class ModuleConfigRefusals
             "The configuration schema of the module '{$module}' at "
             . "'{$path}' must be a non-empty field-rule map; "
             . (\is_array($payload) ? 'an empty map' : get_debug_type($payload))
-            . ' arrived.',
+            . self::ARRIVED,
         );
     }
 
@@ -45,7 +51,7 @@ final class ModuleConfigRefusals
             "The configuration schema of the module '{$module}' at "
             . "'{$path}' carries a field whose name is not a non-empty "
             . 'string: ' . (\is_string($field) ? "''" : get_debug_type($field))
-            . ' arrived.',
+            . self::ARRIVED,
         );
     }
 
@@ -83,7 +89,7 @@ final class ModuleConfigRefusals
     {
         throw new ModuleException(
             "The configuration block '{$key}' of the module '{$name}' "
-            . 'must be an array; ' . get_debug_type($block) . ' arrived.',
+            . 'must be an array; ' . get_debug_type($block) . self::ARRIVED,
         );
     }
 
