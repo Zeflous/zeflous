@@ -104,6 +104,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(kernel): the compiled caches derive their addresses from the storage layout [#659](https://github.com/Zeflous/zeflous/pull/659) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the durable delivery store's wired default over the queue lane [#662](https://github.com/Zeflous/zeflous/pull/662) ([mbetixz](https://github.com/mbetixz))
 - feat(database): the connection port with its query builder and PDO adapter [#665](https://github.com/Zeflous/zeflous/pull/665) ([mbetixz](https://github.com/mbetixz))
+- feat(modules): the core module engine with its two-phase boot over declarative manifests [#668](https://github.com/Zeflous/zeflous/pull/668) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
