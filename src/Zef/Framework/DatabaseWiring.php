@@ -86,20 +86,20 @@ final readonly class DatabaseWiring
      */
     public static function connection(Config $config, ?MeterInterface $meter = null): PdoConnection
     {
-        $declaration = DatabaseDeclaration::fromConfig($config);
+        $databaseDeclaration = DatabaseDeclaration::fromConfig($config);
 
-        if (!$declaration->wantsWiredConnection()) {
+        if (!$databaseDeclaration->wantsWiredConnection()) {
             throw new ConfigException(
                 'The database.connection wired default is not declared:'
-                . " spell a connection (database.connections plus database.default)"
+                . ' spell a connection (database.connections plus database.default)'
                 . ' or compose the family over your own ConnectionInterface.',
             );
         }
 
         return self::pdoConnection(
             $config,
-            $declaration->connections,
-            $declaration->default,
+            $databaseDeclaration->connections,
+            $databaseDeclaration->default,
             'default',
             $meter,
         );
@@ -123,8 +123,8 @@ final readonly class DatabaseWiring
      */
     public static function migrator(Config $config, ?MeterInterface $meter = null): Migrator
     {
-        $declaration = DatabaseDeclaration::fromConfig($config);
-        $migrationsName = $declaration->migrationsName();
+        $databaseDeclaration = DatabaseDeclaration::fromConfig($config);
+        $migrationsName = $databaseDeclaration->migrationsName();
 
         if ($migrationsName === '') {
             throw new ConfigException(
@@ -138,9 +138,9 @@ final readonly class DatabaseWiring
         return new Migrator(
             self::pdoConnection(
                 $config,
-                $declaration->connections,
+                $databaseDeclaration->connections,
                 $migrationsName,
-                $declaration->migrations !== '' ? 'migrations' : 'default',
+                $databaseDeclaration->migrations !== '' ? 'migrations' : 'default',
                 $meter,
             ),
         );
@@ -188,9 +188,9 @@ final readonly class DatabaseWiring
      * derivation -- or the silent posture's null seam).
      *
      * @param array<string, array<string, mixed>> $connections the declared connections
-     * @param string                               $name        the connection name the ask spelled
-     * @param string                               $knob        the knob that spelled it
-     * @param null|MeterInterface                  $meter       the audit counter seam
+     * @param string                              $name        the connection name the ask spelled
+     * @param string                              $knob        the knob that spelled it
+     * @param null|MeterInterface                 $meter       the audit counter seam
      *
      * @throws ConfigException when the name carries no declared
      *                         connection, or any connection field the adapter's

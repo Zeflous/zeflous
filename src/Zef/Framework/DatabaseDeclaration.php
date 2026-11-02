@@ -44,9 +44,9 @@ final readonly class DatabaseDeclaration
 {
     /**
      * @param array<string, array<string, mixed>> $connections the named
-     *                                                          connection declarations, name to config map
-     * @param string                               $migrations  the migration runner's per-purpose
-     *                                                          connection name ('' the default connection)
+     *                                                         connection declarations, name to config map
+     * @param string                              $migrations  the migration runner's per-purpose
+     *                                                         connection name ('' the default connection)
      */
     public function __construct(
         public string $default,
@@ -106,22 +106,12 @@ final readonly class DatabaseDeclaration
      */
     private static function fromMap(mixed $database): self
     {
-        if ($database === null) {
-            return new self('', [], '');
-        }
-
-        if (!\is_array($database)) {
-            throw new ConfigException(
-                'The database configuration must be a map, ' . get_debug_type($database) . ' given.',
-            );
-        }
-
-        DatabaseKnobs::rejectUnknown($database);
+        $map = DatabaseKnobs::familyMap($database);
 
         return new self(
-            self::readName($database['default'] ?? '', 'default'),
-            DatabaseConnections::read($database['connections'] ?? null),
-            self::readName($database['migrations'] ?? '', 'migrations'),
+            self::readName($map['default'] ?? '', 'default'),
+            DatabaseConnections::read($map['connections'] ?? null),
+            self::readName($map['migrations'] ?? '', 'migrations'),
         );
     }
 

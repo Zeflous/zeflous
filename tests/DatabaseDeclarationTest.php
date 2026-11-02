@@ -64,38 +64,39 @@ final class DatabaseDeclarationTest extends TestCase
 
     public function testAMalformedDatabaseBlockHalts(): void
     {
-        $configException = self::readMalformed(['database' => 'nope']);
+        $configException = $this->readMalformed(['database' => 'nope']);
 
         self::assertSame('The database configuration must be a map, string given.', $configException->getMessage());
     }
 
     public function testAnUnknownKnobHaltsWithTheKnownListSpelled(): void
     {
-        $configException = self::readMalformed(['database' => ['conections' => []]]);
+        $configException = $this->readMalformed(['database' => ['conections' => []]]);
 
         self::assertSame(
-            "The database configuration carries the unknown knob 'conections' (known knobs: default, connections, migrations).",
+            "The database configuration carries the unknown knob 'conections'"
+                . ' (known knobs: default, connections, migrations).',
             $configException->getMessage(),
         );
     }
 
     public function testAWrongTypedDefaultNameHalts(): void
     {
-        $configException = self::readMalformed(['database' => ['default' => 7]]);
+        $configException = $this->readMalformed(['database' => ['default' => 7]]);
 
         self::assertSame('database.default must be a connection name string.', $configException->getMessage());
     }
 
     public function testAWrongTypedMigrationsNameHalts(): void
     {
-        $configException = self::readMalformed(['database' => ['migrations' => false]]);
+        $configException = $this->readMalformed(['database' => ['migrations' => false]]);
 
         self::assertSame('database.migrations must be a connection name string.', $configException->getMessage());
     }
 
     public function testAMalformedConnectionsMapHalts(): void
     {
-        $configException = self::readMalformed(['database' => ['connections' => 'app']]);
+        $configException = $this->readMalformed(['database' => ['connections' => 'app']]);
 
         self::assertSame(
             'The database.connections configuration must be a map, string given.',
@@ -105,7 +106,7 @@ final class DatabaseDeclarationTest extends TestCase
 
     public function testANonStringConnectionNameHalts(): void
     {
-        $configException = self::readMalformed(['database' => ['connections' => [0 => []]]]);
+        $configException = $this->readMalformed(['database' => ['connections' => [0 => []]]]);
 
         self::assertSame(
             'The database.connections names must be non-empty strings, int given.',
@@ -115,7 +116,7 @@ final class DatabaseDeclarationTest extends TestCase
 
     public function testAnEmptyConnectionNameHalts(): void
     {
-        $configException = self::readMalformed(['database' => ['connections' => ['' => []]]]);
+        $configException = $this->readMalformed(['database' => ['connections' => ['' => []]]]);
 
         self::assertSame(
             'The database.connections names must be non-empty strings, an empty string given.',
@@ -125,10 +126,20 @@ final class DatabaseDeclarationTest extends TestCase
 
     public function testANonMapConnectionDeclarationHalts(): void
     {
-        $configException = self::readMalformed(['database' => ['connections' => ['app' => 'sqlite']]]);
+        $configException = $this->readMalformed(['database' => ['connections' => ['app' => 'sqlite']]]);
 
         self::assertSame(
             'The database.connections.app declaration must be a map, string given.',
+            $configException->getMessage(),
+        );
+    }
+
+    public function testANonWordKeyInsideAConnectionDeclarationHalts(): void
+    {
+        $configException = $this->readMalformed(['database' => ['connections' => ['app' => [0 => 'sqlite']]]]);
+
+        self::assertSame(
+            'The database.connections.app knobs must be word keys, int given.',
             $configException->getMessage(),
         );
     }
@@ -185,11 +196,8 @@ final class DatabaseDeclarationTest extends TestCase
 
     public function testOneRefusesAnUndeclaredNameWithTheAskingKnobAndKnownList(): void
     {
-        $configException = self::haltOn(
-            ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
-            'ops',
-            'migrations',
-        );
+        $connections = ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']];
+        $configException = $this->haltOn($connections, 'ops', 'migrations');
 
         self::assertSame(
             "The database.migrations connection 'ops' is not declared (database.connections: app).",
@@ -199,7 +207,7 @@ final class DatabaseDeclarationTest extends TestCase
 
     public function testOneRefusesWithNoneDeclaredWhenTheMapIsEmpty(): void
     {
-        $configException = self::haltOn([], 'app', 'default');
+        $configException = $this->haltOn([], 'app', 'default');
 
         self::assertSame(
             "The database.default connection 'app' is not declared (database.connections: none declared).",
@@ -219,7 +227,10 @@ final class DatabaseDeclarationTest extends TestCase
         );
     }
 
-    private static function readMalformed(array $config): ConfigException
+    /**
+     * @param array<string, mixed> $config
+     */
+    private function readMalformed(array $config): ConfigException
     {
         try {
             DatabaseDeclaration::fromConfig(new Config($config));
@@ -233,7 +244,7 @@ final class DatabaseDeclarationTest extends TestCase
     /**
      * @param array<string, array<string, mixed>> $connections
      */
-    private static function haltOn(array $connections, string $name, string $knob): ConfigException
+    private function haltOn(array $connections, string $name, string $knob): ConfigException
     {
         try {
             DatabaseConnections::one($connections, $name, $knob);

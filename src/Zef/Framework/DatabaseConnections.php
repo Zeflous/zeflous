@@ -34,9 +34,10 @@ final class DatabaseConnections
 {
     /**
      * Reads the connections map strictly: absent answers the empty
-     * map (the silent posture -- no connection declared), a map of
-     * non-empty-string names to map values answers itself, and every
-     * other shape halts with the knob named.
+     * map (the silent posture -- no connection declared), and a map
+     * of non-empty-string names to knob maps answers itself, every
+     * connection map's own keys narrowed to the word keys a
+     * connection's knobs spell.
      *
      * @param mixed $connections the `database.connections` value as the
      *                           frozen repository carries it
@@ -46,7 +47,8 @@ final class DatabaseConnections
      *
      * @throws ConfigException when the value is neither a map nor null,
      *                         or carries a non-string or empty name, or a
-     *                         value that is not a map
+     *                         value that is not a map or carries a
+     *                         non-word key
      */
     public static function read(mixed $connections): array
     {
@@ -61,6 +63,8 @@ final class DatabaseConnections
             );
         }
 
+        $declared = [];
+
         foreach ($connections as $name => $connection) {
             if (!\is_string($name) || $name === '') {
                 throw new ConfigException(
@@ -69,15 +73,10 @@ final class DatabaseConnections
                 );
             }
 
-            if (!\is_array($connection)) {
-                throw new ConfigException(
-                    "The database.connections.{$name} declaration must be a map, "
-                    . get_debug_type($connection) . ' given.',
-                );
-            }
+            $declared[$name] = DatabaseConnectionKnobs::map($connection, $name);
         }
 
-        return $connections;
+        return $declared;
     }
 
     /**
@@ -86,9 +85,9 @@ final class DatabaseConnections
      * name the knob carries was never declared.
      *
      * @param array<string, array<string, mixed>> $connections the declared connections
-     * @param string                               $name      the connection name a knob spelled
-     * @param string                               $knob      the knob that spelled it
-     *                                                            ('default' or 'migrations')
+     * @param string                              $name        the connection name a knob spelled
+     * @param string                              $knob        the knob that spelled it
+     *                                                         ('default' or 'migrations')
      *
      * @return array<string, mixed> the named connection's declaration map
      *

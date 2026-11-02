@@ -35,7 +35,7 @@ final class PdoUnboundedAuditTest extends TestCase
     {
         $recordingMeter = new RecordingMeter();
         $recordingLogger = new RecordingLogger();
-        $connection = self::auditedConnection($recordingMeter, $recordingLogger);
+        $connection = $this->auditedConnection($recordingMeter, $recordingLogger);
 
         $affected = $connection->execute(new SqlQuery('UPDATE audit_rows SET v = ?', ['y'], true));
 
@@ -62,7 +62,7 @@ final class PdoUnboundedAuditTest extends TestCase
     {
         $recordingMeter = new RecordingMeter();
         $recordingLogger = new RecordingLogger();
-        $connection = self::auditedConnection($recordingMeter, $recordingLogger);
+        $connection = $this->auditedConnection($recordingMeter, $recordingLogger);
 
         $connection->execute(new SqlQuery('DELETE FROM audit_rows', unbounded: true));
 
@@ -94,7 +94,7 @@ final class PdoUnboundedAuditTest extends TestCase
     {
         $recordingMeter = new RecordingMeter();
         $recordingLogger = new RecordingLogger();
-        $connection = self::auditedConnection($recordingMeter, $recordingLogger);
+        $connection = $this->auditedConnection($recordingMeter, $recordingLogger);
 
         $connection->execute(new SqlQuery('UPDATE audit_rows SET v = ? WHERE id = ?', ['y', 1]));
 
@@ -104,7 +104,7 @@ final class PdoUnboundedAuditTest extends TestCase
 
     public function testTheEmissionSurvivesItsNullSeams(): void
     {
-        $connection = self::auditedConnection(null, null);
+        $connection = $this->auditedConnection(null, null);
 
         $affected = $connection->execute(new SqlQuery('DELETE FROM audit_rows', unbounded: true));
 
@@ -115,7 +115,7 @@ final class PdoUnboundedAuditTest extends TestCase
     {
         $recordingMeter = new RecordingMeter();
         $recordingLogger = new RecordingLogger();
-        $connection = self::auditedConnection($recordingMeter, $recordingLogger);
+        $connection = $this->auditedConnection($recordingMeter, $recordingLogger);
 
         $connection->fetchAll(new SqlQuery('SELECT * FROM audit_rows'));
 
@@ -123,12 +123,19 @@ final class PdoUnboundedAuditTest extends TestCase
         self::assertSame([], $recordingLogger->calls);
     }
 
-    private static function auditedConnection(?RecordingMeter $meter, ?RecordingLogger $logger): PdoConnection
-    {
-        $connection = new PdoConnection(ConnectionConfig::fromArray(self::SQLITE), null, $meter, $logger);
-        $connection->execute(new SqlQuery('CREATE TABLE audit_rows (id INTEGER PRIMARY KEY, v TEXT)'));
-        $connection->execute(new SqlQuery('INSERT INTO audit_rows (v) VALUES (?)', ['x']));
+    private function auditedConnection(
+        ?RecordingMeter $recordingMeter,
+        ?RecordingLogger $recordingLogger,
+    ): PdoConnection {
+        $pdoConnection = new PdoConnection(
+            ConnectionConfig::fromArray(self::SQLITE),
+            null,
+            $recordingMeter,
+            $recordingLogger,
+        );
+        $pdoConnection->execute(new SqlQuery('CREATE TABLE audit_rows (id INTEGER PRIMARY KEY, v TEXT)'));
+        $pdoConnection->execute(new SqlQuery('INSERT INTO audit_rows (v) VALUES (?)', ['x']));
 
-        return $connection;
+        return $pdoConnection;
     }
 }

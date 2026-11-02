@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Adapters\Database;
 
-use Psr\Log\LoggerInterface;
 use Override;
 use PDO;
+use Psr\Log\LoggerInterface;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\IsolationLevel;
 use Zef\Framework\Database\SqlQuery;
@@ -41,21 +41,15 @@ final readonly class PdoConnection implements ConnectionInterface
 
     private string $driver;
 
-    private ?MeterInterface $meter;
-
-    private ?LoggerInterface $auditLogger;
-
     public function __construct(
         ConnectionConfig $connectionConfig,
         ?PDO $pdo = null,
-        ?MeterInterface $meter = null,
-        ?LoggerInterface $auditLogger = null,
+        private ?MeterInterface $meter = null,
+        private ?LoggerInterface $auditLogger = null,
     ) {
         $this->pdoHandle = new PdoHandle($connectionConfig, $pdo);
         $this->pdoTransactions = new PdoTransactions();
         $this->driver = $connectionConfig->driver;
-        $this->meter = $meter;
-        $this->auditLogger = $auditLogger;
     }
 
     #[Override]

@@ -6,10 +6,10 @@ namespace Zef\Test;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
-use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Database\ConnectionException;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\Migrator;
@@ -57,13 +57,15 @@ final class DatabaseWiringTest extends TestCase
     protected function tearDown(): void
     {
         foreach ([$this->temporaryConfigs, $this->temporaryDatabase] as $path) {
-            if ($path !== null && str_starts_with($path, sys_get_temp_dir()) && is_file($path)) {
-                unlink($path);
+            if ($path === null || !str_starts_with($path, sys_get_temp_dir()) || !is_file($path)) {
+                continue;
             }
+
+            unlink($path);
         }
 
-        if ($this->temporaryConfigs !== null && is_dir(dirname($this->temporaryConfigs))) {
-            rmdir(dirname($this->temporaryConfigs));
+        if ($this->temporaryConfigs !== null && is_dir(\dirname($this->temporaryConfigs))) {
+            rmdir(\dirname($this->temporaryConfigs));
         }
 
         $this->temporaryConfigs = null;
@@ -72,7 +74,8 @@ final class DatabaseWiringTest extends TestCase
 
     public function testTheSilentDeclarationRefusesWithTheKnobGrammarSpelled(): void
     {
-        $configException = self::refusingConfig(new Config([]));
+        $configException = $this->refusingConfig(new Config([]));
+        self::assertInstanceOf(ConfigException::class, $configException);
 
         self::assertSame(
             'The database.connection wired default is not declared: spell a connection'
@@ -84,7 +87,7 @@ final class DatabaseWiringTest extends TestCase
 
     public function testASilentFamilyWithConnectionsDeclaredStillRefuses(): void
     {
-        $configException = self::refusingConfig(new Config([
+        $configException = $this->refusingConfig(new Config([
             'database' => ['connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']]],
         ]));
 
@@ -93,7 +96,7 @@ final class DatabaseWiringTest extends TestCase
 
     public function testTheDefaultConnectionComposesOverTheAdaptersOwnFolds(): void
     {
-        $connection = DatabaseWiring::connection(self::declaredConfig());
+        $connection = DatabaseWiring::connection($this->declaredConfig());
 
         $connection->execute(new SqlQuery('CREATE TABLE wired (id INTEGER PRIMARY KEY, v TEXT)'));
         $connection->execute(new SqlQuery('INSERT INTO wired (v) VALUES (?)', ['hello']));
@@ -107,10 +110,11 @@ final class DatabaseWiringTest extends TestCase
     public function testTheAuditCounterSeamRidesTheWiredConnection(): void
     {
         $recordingMeter = new RecordingMeter();
-        $connection = DatabaseWiring::connection(self::declaredConfig(), $recordingMeter);
+        $connection = DatabaseWiring::connection($this->declaredConfig(), $recordingMeter);
 
         $connection->execute(new SqlQuery('CREATE TABLE audited (id INTEGER PRIMARY KEY, v TEXT)'));
         $connection->execute(new SqlQuery('INSERT INTO audited (v) VALUES (?)', ['x']));
+
         $affected = $connection->execute(new SqlQuery('UPDATE audited SET v = ?', ['y'], true));
 
         self::assertSame(1, $affected);
@@ -120,12 +124,13 @@ final class DatabaseWiringTest extends TestCase
 
     public function testAnUndeclaredDefaultNameHaltsWithTheKnownList(): void
     {
-        $configException = self::refusingConfig(new Config([
+        $configException = $this->refusingConfig(new Config([
             'database' => [
                 'default' => 'app',
                 'connections' => ['ops' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
             ],
         ]));
+        self::assertInstanceOf(ConfigException::class, $configException);
 
         self::assertSame(
             "The database.default connection 'app' is not declared (database.connections: ops).",
@@ -150,7 +155,7 @@ final class DatabaseWiringTest extends TestCase
 
     public function testTheMigratorRidesThePerPurposeConnection(): void
     {
-        $migrator = DatabaseWiring::migrator(self::declaredConfig());
+        $migrator = DatabaseWiring::migrator($this->declaredConfig());
 
         self::assertInstanceOf(Migrator::class, $migrator);
 
@@ -175,7 +180,8 @@ final class DatabaseWiringTest extends TestCase
 
     public function testTheSilentMigratorRefusesWithItsOwnGrammar(): void
     {
-        $configException = self::refusingMigrator(new Config([]));
+        $configException = $this->refusingMigrator(new Config([]));
+        self::assertInstanceOf(ConfigException::class, $configException);
 
         self::assertSame(
             'The database.migrator wired default is not declared: spell the migration'
@@ -187,13 +193,14 @@ final class DatabaseWiringTest extends TestCase
 
     public function testAnUndeclaredPurposeNameHaltsNamingThePurposeKnob(): void
     {
-        $configException = self::refusingMigrator(new Config([
+        $configException = $this->refusingMigrator(new Config([
             'database' => [
                 'default' => 'app',
                 'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
                 'migrations' => 'ops',
             ],
         ]));
+        self::assertInstanceOf(ConfigException::class, $configException);
 
         self::assertSame(
             "The database.migrations connection 'ops' is not declared (database.connections: app).",
@@ -203,7 +210,7 @@ final class DatabaseWiringTest extends TestCase
 
     public function testTheTransactionsFoldAnswersTheManagerOverTheHandedConnection(): void
     {
-        $connection = DatabaseWiring::connection(self::declaredConfig());
+        $connection = DatabaseWiring::connection($this->declaredConfig());
         $connection->execute(new SqlQuery('CREATE TABLE scoped (id INTEGER PRIMARY KEY, v TEXT)'));
 
         $transactionManager = DatabaseWiring::transactions($connection);
@@ -223,7 +230,7 @@ final class DatabaseWiringTest extends TestCase
 
     public function testTheRepositoryFoldAnswersTheGenericGateway(): void
     {
-        $connection = DatabaseWiring::connection(self::declaredConfig());
+        $connection = DatabaseWiring::connection($this->declaredConfig());
         $gateway = DatabaseWiring::repository($connection, 'things');
 
         self::assertInstanceOf(TableGateway::class, $gateway);
@@ -270,8 +277,9 @@ final class DatabaseWiringTest extends TestCase
             ['id' => 1, 'v' => 'booted'],
             $connection->fetchOne(new SqlQuery('SELECT * FROM booted WHERE id = 1')),
         );
-        self::assertTrue(
-            $connection === $kernel->container()->get('database.connection'),
+        self::assertSame(
+            $kernel->container()->get('database.connection'),
+            $connection,
             'a lazy singleton materialises once: every later ask answers the one instance',
         );
     }
@@ -312,7 +320,7 @@ final class DatabaseWiringTest extends TestCase
         self::assertArrayHasKey('zef.db.unbounded_statement|{"op":"update"}', $series);
     }
 
-    private static function declaredConfig(): Config
+    private function declaredConfig(): Config
     {
         return new Config([
             'database' => [
@@ -326,7 +334,7 @@ final class DatabaseWiringTest extends TestCase
         ]);
     }
 
-    private static function refusingConfig(Config $config): ?ConfigException
+    private function refusingConfig(Config $config): ?ConfigException
     {
         try {
             DatabaseWiring::connection($config);
@@ -337,7 +345,7 @@ final class DatabaseWiringTest extends TestCase
         return null;
     }
 
-    private static function refusingMigrator(Config $config): ?ConfigException
+    private function refusingMigrator(Config $config): ?ConfigException
     {
         try {
             DatabaseWiring::migrator($config);
@@ -354,16 +362,16 @@ final class DatabaseWiringTest extends TestCase
         $this->temporaryConfigs = $directory . '/database.php';
         $this->temporaryDatabase = $directory . '/wiring.sqlite';
 
-        mkdir($directory, 0777, true);
+        mkdir($directory, 0o777, true);
 
-        file_put_contents($this->temporaryConfigs, '<?php return [' . PHP_EOL
-            . "    'default' => 'app'," . PHP_EOL
+        file_put_contents($this->temporaryConfigs, '<?php return [' . \PHP_EOL
+            . "    'default' => 'app'," . \PHP_EOL
             . "    'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => " . var_export(
                 $this->temporaryDatabase,
                 true,
-            ) . ']],' . PHP_EOL
+            ) . ']],' . \PHP_EOL
             . '];');
 
-        return (new ApplicationBootstrapper())->boot($directory);
+        return new ApplicationBootstrapper()->boot($directory);
     }
 }

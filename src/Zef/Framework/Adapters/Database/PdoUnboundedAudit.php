@@ -79,6 +79,6 @@ final class PdoUnboundedAudit
      */
     private static function operation(string $sql): string
     {
-        return str_starts_with(strtoupper(ltrim($sql)), 'UPDATE') ? 'update' : 'delete';
+        return str_starts_with(mb_strtoupper(mb_ltrim($sql)), 'UPDATE') ? 'update' : 'delete';
     }
 }

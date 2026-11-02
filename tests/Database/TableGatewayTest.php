@@ -24,38 +24,38 @@ use Zef\Framework\Database\TableGateway;
 #[CoversClass(TableGateway::class)]
 final class TableGatewayTest extends TestCase
 {
-    private PdoConnection $connection;
+    private PdoConnection $pdoConnection;
 
     protected function setUp(): void
     {
-        $this->connection = new PdoConnection(
+        $this->pdoConnection = new PdoConnection(
             ConnectionConfig::fromArray(['driver' => 'sqlite', 'dbname' => ':memory:']),
         );
-        $this->connection->execute(
+        $this->pdoConnection->execute(
             new SqlQuery('CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age INTEGER)'),
         );
     }
 
     public function testTheGenericGatewayCarriesTheBaseVerbs(): void
     {
-        $users = new TableGateway($this->connection, 'users');
+        $tableGateway = new TableGateway($this->pdoConnection, 'users');
 
-        self::assertSame(1, $users->insert(['name' => 'Ari', 'age' => 30]));
-        self::assertSame(1, $users->insert(['name' => 'Budi', 'age' => 17]));
+        self::assertSame(1, $tableGateway->insert(['name' => 'Ari', 'age' => 30]));
+        self::assertSame(1, $tableGateway->insert(['name' => 'Budi', 'age' => 17]));
 
-        $ari = $users->find(1);
+        $ari = $tableGateway->find(1);
         self::assertSame(['id' => 1, 'name' => 'Ari', 'age' => 30], $ari);
 
-        self::assertNull($users->find(999), 'an absent row answers null, never a failure');
+        self::assertNull($tableGateway->find(999), 'an absent row answers null, never a failure');
 
-        self::assertSame(1, $users->update(['age' => 31], ['name' => 'Ari']));
-        self::assertSame(31, $users->find(1)['age']);
+        self::assertSame(1, $tableGateway->update(['age' => 31], ['name' => 'Ari']));
+        self::assertSame(31, $tableGateway->find(1)['age']);
 
-        self::assertSame(1, $users->delete(['name' => 'Budi']));
-        self::assertNull($users->find(2));
+        self::assertSame(1, $tableGateway->delete(['name' => 'Budi']));
+        self::assertNull($tableGateway->find(2));
 
-        self::assertSame(1, $users->count());
-        self::assertTrue($users->exists(['name' => 'Ari']));
+        self::assertSame(1, $tableGateway->count());
+        self::assertTrue($tableGateway->exists(['name' => 'Ari']));
     }
 
     public function testTheBaseConstructorRunsEagerlyForTheGenericToo(): void
@@ -63,6 +63,6 @@ final class TableGatewayTest extends TestCase
         $this->expectException(QueryException::class);
         $this->expectExceptionMessageIsOrContains("Invalid table 'users; DROP'.");
 
-        new TableGateway($this->connection, 'users; DROP');
+        new TableGateway($this->pdoConnection, 'users; DROP');
     }
 }

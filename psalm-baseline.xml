@@ -91,18 +91,7 @@
       <code><![CDATA[error]]></code>
       <code><![CDATA[info]]></code>
       <code><![CDATA[notice]]></code>
-      <code><![CDATA[warning]]></code>
     </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Zef/Framework/Adapters/Database/ConnectionConfig.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[fromArray]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Zef/Framework/Adapters/Database/PdoConnection.php">
-    <UnusedClass>
-      <code><![CDATA[PdoConnection]]></code>
-    </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Adapters/Event/RedisDeliveryStore.php">
     <UnusedClass>
@@ -231,9 +220,15 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/Migrator.php">
-    <UnusedClass>
-      <code><![CDATA[Migrator]]></code>
-    </UnusedClass>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[migrate]]></code>
+      <code><![CDATA[plan]]></code>
+      <code><![CDATA[register]]></code>
+      <code><![CDATA[rollback]]></code>
+    </PossiblyUnusedMethod>
+    <UnusedProperty>
+      <code><![CDATA[$lockTtlSeconds]]></code>
+    </UnusedProperty>
   </file>
   <file src="src/Zef/Framework/Database/QueryBuilder.php">
     <PossiblyUnusedMethod>
@@ -254,19 +249,15 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/Repository.php">
-    <UnusedClass>
-      <code><![CDATA[Repository]]></code>
-    </UnusedClass>
-  </file>
-  <file src="src/Zef/Framework/Database/SqlQuery.php">
-    <PossiblyUnusedProperty>
-      <code><![CDATA[$unbounded]]></code>
-    </PossiblyUnusedProperty>
-  </file>
-  <file src="src/Zef/Framework/Database/TransactionManager.php">
-    <UnusedClass>
-      <code><![CDATA[TransactionManager]]></code>
-    </UnusedClass>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[delete]]></code>
+      <code><![CDATA[exists]]></code>
+      <code><![CDATA[find]]></code>
+      <code><![CDATA[findBy]]></code>
+      <code><![CDATA[findOneBy]]></code>
+      <code><![CDATA[insert]]></code>
+      <code><![CDATA[update]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/TransactionManagerInterface.php">
     <PossiblyUnusedMethod>
@@ -277,14 +268,31 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/UnitOfWork.php">
-    <UnusedClass>
-      <code><![CDATA[UnitOfWork]]></code>
-    </UnusedClass>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+      <code><![CDATA[discard]]></code>
+      <code><![CDATA[flush]]></code>
+      <code><![CDATA[flushRetrying]]></code>
+      <code><![CDATA[pending]]></code>
+      <code><![CDATA[record]]></code>
+      <code><![CDATA[recordQuery]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/UnitOfWorkRetryPolicy.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/DatabaseConnectionKnobs.php">
+    <MixedAssignment>
+      <code><![CDATA[$knobs[$key]]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/DatabaseConnections.php">
+    <MixedAssignment>
+      <code><![CDATA[$connection]]></code>
+    </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Event/AsyncDelivery.php">
     <PossiblyUnusedMethod>
