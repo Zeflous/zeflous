@@ -6,6 +6,7 @@ namespace Zef\Framework\Config;
 
 use Zef\Framework\Config\Cache\ConfigCache;
 use Zef\Framework\Config\Merge\LayeredConfigBuilder;
+use Zef\Framework\Config\Schema\EventSchema;
 use Zef\Framework\Config\Schema\RouteSchema;
 
 /**
@@ -27,7 +28,14 @@ use Zef\Framework\Config\Schema\RouteSchema;
  *   malformed route table halts the bootstrap with its full path context
  *   instead of surfacing as a mis-route at request time. A repository
  *   without a `routes` key boots too -- a route-less configuration is
- *   valid zero-routing, the same way an empty routes file is.
+ *   valid zero-routing, the same way an empty routes file is. The
+ *   {@see EventSchema} over the repository's `events.listen` key rides
+ *   the same validation: every entry under it must satisfy the Standard
+ *   Events Schema (`name`/`fields` required, the optional `listeners`
+ *   typed), so a malformed listen table halts the bootstrap the same way,
+ *   and a repository without the key boots too -- a listen-less
+ *   configuration is valid zero-listening, the module system's event
+ *   extension point joining its declarations under the same key.
  * - **Cache** is the optional {@see ConfigCache}: when a cache artifact is
  *   present, the bootstrapper reads it and the builder -- its loaders and
  *   its merge -- is never touched at all (the fast path a persistent
@@ -54,6 +62,7 @@ final readonly class ConfigBootstrapper
     public function __construct(
         private ?ConfigCache $configCache = null,
         private RouteSchema $routeSchema = new RouteSchema(),
+        private EventSchema $eventSchema = new EventSchema(),
     ) {
     }
 
@@ -76,11 +85,13 @@ final readonly class ConfigBootstrapper
     }
 
     /**
-     * Validates the repository's route entries and returns it as booted.
+     * Validates the repository's route and event-listen entries and
+     * returns it as booted.
      */
     private function validated(Config $config): Config
     {
         $this->assertRouteEntries($config);
+        $this->assertEventEntries($config);
 
         return $config;
     }
@@ -92,6 +103,7 @@ final readonly class ConfigBootstrapper
     private function compiled(Config $config, ConfigCache $configCache): Config
     {
         $this->assertRouteEntries($config);
+        $this->assertEventEntries($config);
         $configCache->dump($config->toArray());
 
         return $config;
@@ -110,5 +122,24 @@ final readonly class ConfigBootstrapper
         }
 
         $this->routeSchema->assertList($config->get('routes'));
+    }
+
+    /**
+     * A repository without an `events.listen` key boots too: a
+     * listen-less configuration is valid zero-listening, not an error.
+     * When the key is present, every entry under it must satisfy the
+     * Standard Events Schema (the list-level contract {@see
+     * EventSchema::assertList()} owns) -- the same boot-time posture the
+     * route table carries, so a malformed declaration halts the bootstrap
+     * with its full path context instead of surfacing at the wired
+     * dispatcher's first resolution.
+     */
+    private function assertEventEntries(Config $config): void
+    {
+        if (!$config->has('events.listen')) {
+            return;
+        }
+
+        $this->eventSchema->assertList($config->get('events.listen'));
     }
 }
