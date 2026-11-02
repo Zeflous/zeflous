@@ -32,7 +32,7 @@ final class QueryHaving
      */
     public function comparison(SqlExpression|string $column, string $operator, mixed $value): void
     {
-        $queryFragment = QueryPredicate::comparison($this->sqlIdentifier, $column, $operator, $value);
+        $queryFragment = QueryComparison::comparison($this->sqlIdentifier, $column, $operator, $value);
         $this->fragments[] = $queryFragment->fragment;
         $this->params = [...$this->params, ...$queryFragment->params];
     }

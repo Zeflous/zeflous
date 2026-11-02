@@ -210,6 +210,47 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Database/ConditionBetween.php">
+    <UnusedClass>
+      <code><![CDATA[ConditionBetween]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Database/ConditionColumnComparison.php">
+    <UnusedClass>
+      <code><![CDATA[ConditionColumnComparison]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Database/ConditionComparison.php">
+    <UnusedClass>
+      <code><![CDATA[ConditionComparison]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Database/ConditionGroup.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[all]]></code>
+      <code><![CDATA[any]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Database/ConditionIn.php">
+    <UnusedClass>
+      <code><![CDATA[ConditionIn]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Database/ConditionLike.php">
+    <UnusedClass>
+      <code><![CDATA[ConditionLike]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Database/ConditionNot.php">
+    <UnusedClass>
+      <code><![CDATA[ConditionNot]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Database/ConditionNull.php">
+    <UnusedClass>
+      <code><![CDATA[ConditionNull]]></code>
+    </UnusedClass>
+  </file>
   <file src="src/Zef/Framework/Database/ConnectionInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[beginTransaction]]></code>

@@ -18,10 +18,13 @@ final class RepositoryAggregate
     /**
      * Answers the criteria-qualified row count.
      *
-     * @param array<string, mixed> $criteria
+     * @param array<string, mixed>|Condition $criteria
      */
-    public static function count(ConnectionInterface $connection, QueryBuilder $queryBuilder, array $criteria): int
-    {
+    public static function count(
+        ConnectionInterface $connection,
+        QueryBuilder $queryBuilder,
+        array|Condition $criteria,
+    ): int {
         $row = $connection->fetchOne(
             RepositoryCriteria::apply($queryBuilder, $criteria)
                 ->select(new SqlExpression('COUNT(*) AS aggregate'))->build(),

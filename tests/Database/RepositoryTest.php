@@ -9,6 +9,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
+use Zef\Framework\Database\ConditionBetween;
+use Zef\Framework\Database\ConditionColumnComparison;
+use Zef\Framework\Database\ConditionComparison;
+use Zef\Framework\Database\ConditionGroup;
+use Zef\Framework\Database\ConditionNot;
+use Zef\Framework\Database\ConditionNull;
 use Zef\Framework\Database\QueryException;
 use Zef\Framework\Database\Repository;
 use Zef\Framework\Database\RepositoryAggregate;
@@ -123,6 +129,105 @@ final class RepositoryTest extends TestCase
         $this->expectException(QueryException::class);
         $this->expectExceptionMessageIs('offset() requires a limit.');
         $this->repository->findBy([], null, null, 5);
+    }
+
+    // ------------------------------------------------------------------
+    // The composed lane -- one Condition tree as the criteria
+    // ------------------------------------------------------------------
+
+    public function testFindByWalksAConditionTree(): void
+    {
+        $this->repository->insert(['name' => 'Ari', 'age' => 30, 'email' => 'a@x.id']);
+        $this->repository->insert(['name' => 'Budi', 'age' => 17, 'email' => 'b@x.id']);
+        $this->repository->insert(['name' => 'Citra', 'age' => 70, 'email' => null]);
+
+        // An OR group over BETWEEN ranges -- the shape the AND-equality
+        // map lane cannot spell -- with the page wiring riding after.
+        $names = array_column($this->repository->findBy(
+            ConditionGroup::any(
+                new ConditionBetween('age', 13, 19),
+                new ConditionBetween('age', 65, 90),
+            ),
+            ['id' => 'ASC'],
+        ), 'name');
+
+        self::assertSame(['Budi', 'Citra'], $names);
+
+        $limited = $this->repository->findBy(
+            ConditionGroup::any(
+                new ConditionBetween('age', 13, 19),
+                new ConditionBetween('age', 65, 90),
+            ),
+            ['id' => 'ASC'],
+            1,
+        );
+
+        self::assertSame(['Budi'], array_column($limited, 'name'));
+    }
+
+    public function testFindByWalksAColumnComparison(): void
+    {
+        // ages chosen so the column-vs-column form discriminates: only
+        // row 3 carries age greater than its own id.
+        $this->repository->insert(['name' => 'Ari', 'age' => 1, 'email' => null]);
+        $this->repository->insert(['name' => 'Budi', 'age' => 2, 'email' => null]);
+        $this->repository->insert(['name' => 'Citra', 'age' => 5, 'email' => null]);
+
+        $names = array_column(
+            $this->repository->findBy(new ConditionColumnComparison('age', '>', 'id')),
+            'name',
+        );
+
+        self::assertSame(['Citra'], $names);
+    }
+
+    public function testFindOneByCountAndExistsWalkTheConditionTree(): void
+    {
+        $this->repository->insert(['name' => 'Ari', 'age' => 30, 'email' => 'a@x.id']);
+        $this->repository->insert(['name' => 'Budi', 'age' => 17, 'email' => 'b@x.id']);
+        $this->repository->insert(['name' => 'Citra', 'age' => 70, 'email' => null]);
+
+        $one = $this->repository->findOneBy(ConditionGroup::any(
+            new ConditionComparison('name', '=', 'Budi'),
+            new ConditionComparison('name', '=', 'Nobody'),
+        ));
+        self::assertNotNull($one);
+        self::assertSame('Budi', $one['name']);
+
+        self::assertSame(2, $this->repository->count(ConditionGroup::any(
+            new ConditionBetween('age', 13, 19),
+            new ConditionBetween('age', 65, 90),
+        )));
+        self::assertSame(1, $this->repository->count(new ConditionNull('email')));
+        self::assertTrue($this->repository->exists(new ConditionNull('email')));
+        self::assertTrue($this->repository->exists(ConditionGroup::all(
+            new ConditionNull('email'),
+            new ConditionComparison('age', '>', 65),
+        )));
+        self::assertFalse($this->repository->exists(new ConditionComparison('name', '=', 'Nobody')));
+    }
+
+    public function testUpdateAndDeleteWalkTheConditionTree(): void
+    {
+        $this->repository->insert(['name' => 'Ari', 'age' => 30, 'email' => 'a@x.id']);
+        $this->repository->insert(['name' => 'Budi', 'age' => 17, 'email' => 'b@x.id']);
+        $this->repository->insert(['name' => 'Citra', 'age' => 70, 'email' => null]);
+
+        // The never-empty-by-construction tree: the unbounded guard only
+        // bites on the empty MAP, and the negated group answers 30 and 70.
+        self::assertSame(2, $this->repository->update(
+            ['age' => 31],
+            new ConditionNot(new ConditionBetween('age', 13, 19)),
+        ));
+
+        self::assertSame(2, $this->repository->delete(ConditionGroup::any(
+            new ConditionComparison('name', '=', 'Ari'),
+            new ConditionComparison('name', '=', 'Budi'),
+        )));
+
+        $survivors = $this->repository->findBy([], ['id' => 'ASC']);
+        self::assertSame(['Citra'], array_column($survivors, 'name'));
+        self::assertSame(31, $survivors[0]['age']);
     }
 
     public function testAZeroOffsetWithoutALimitAnswersEveryRow(): void

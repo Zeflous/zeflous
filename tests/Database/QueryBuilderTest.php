@@ -8,16 +8,21 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use Zef\Framework\Database\ConditionComparison;
+use Zef\Framework\Database\ConditionGroup;
+use Zef\Framework\Database\ConditionNull;
 use Zef\Framework\Database\DatabaseException;
 use Zef\Framework\Database\QueryBuild;
 use Zef\Framework\Database\QueryBuilder;
 use Zef\Framework\Database\QueryColumns;
+use Zef\Framework\Database\QueryComparison;
 use Zef\Framework\Database\QueryException;
 use Zef\Framework\Database\QueryFragment;
 use Zef\Framework\Database\QueryHaving;
 use Zef\Framework\Database\QueryInsertAssembly;
 use Zef\Framework\Database\QueryInsertRows;
 use Zef\Framework\Database\QueryJoin;
+use Zef\Framework\Database\QueryOperand;
 use Zef\Framework\Database\QueryOrder;
 use Zef\Framework\Database\QueryPaging;
 use Zef\Framework\Database\QueryPhase;
@@ -55,6 +60,8 @@ use Zef\Framework\Database\SqlQuery;
 #[CoversClass(QueryJoin::class)]
 #[CoversClass(QueryOrder::class)]
 #[CoversClass(QueryValues::class)]
+#[CoversClass(QueryComparison::class)]
+#[CoversClass(QueryOperand::class)]
 #[CoversClass(QueryPredicate::class)]
 #[CoversClass(QueryFragment::class)]
 #[CoversClass(QueryWhere::class)]
@@ -260,12 +267,12 @@ final class QueryBuilderTest extends TestCase
         $this->expectException(QueryException::class);
         $this->expectExceptionMessageIsOrContains('Use whereNull() with its negated flag instead');
 
-        QueryBuilder::table('users')->where('deleted_at', '=', null);
+        QueryBuilder::table('users')->where('deleted_at', '=');
     }
 
     public function testNullOnNonEqualityOperatorsBinds(): void
     {
-        $query = QueryBuilder::table('users')->where('age', '<', null)->build();
+        $query = QueryBuilder::table('users')->where('age', '<')->build();
 
         self::assertSame('SELECT * FROM "users" WHERE "age" < ?', $query->sql);
         self::assertSame([null], $query->params);
@@ -892,6 +899,20 @@ final class QueryBuilderTest extends TestCase
 
         yield 'whereLike' => [
             static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereLike('name', 'A%'),
+        ];
+
+        yield 'whereConditionObject' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->where(
+                new ConditionNull('gone'),
+            ),
+        ];
+
+        yield 'orWhereConditionObject' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->orWhere(
+                ConditionGroup::any(
+                    new ConditionComparison('age', '>', 1),
+                ),
+            ),
         ];
     }
 }
