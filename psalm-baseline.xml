@@ -87,7 +87,6 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[alert]]></code>
       <code><![CDATA[critical]]></code>
-      <code><![CDATA[debug]]></code>
       <code><![CDATA[emergency]]></code>
       <code><![CDATA[error]]></code>
       <code><![CDATA[info]]></code>
@@ -226,34 +225,27 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[beginTransaction]]></code>
       <code><![CDATA[commit]]></code>
-      <code><![CDATA[execute]]></code>
-      <code><![CDATA[fetchOne]]></code>
       <code><![CDATA[lastInsertId]]></code>
       <code><![CDATA[rollBack]]></code>
-      <code><![CDATA[transaction]]></code>
       <code><![CDATA[transactionLevel]]></code>
     </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Database/Migrator.php">
+    <UnusedClass>
+      <code><![CDATA[Migrator]]></code>
+    </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Database/QueryBuilder.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[allowUnbounded]]></code>
-      <code><![CDATA[delete]]></code>
       <code><![CDATA[distinct]]></code>
       <code><![CDATA[groupBy]]></code>
       <code><![CDATA[having]]></code>
-      <code><![CDATA[insertRows]]></code>
       <code><![CDATA[join]]></code>
-      <code><![CDATA[limit]]></code>
       <code><![CDATA[orWhere]]></code>
-      <code><![CDATA[orderBy]]></code>
-      <code><![CDATA[select]]></code>
-      <code><![CDATA[table]]></code>
-      <code><![CDATA[update]]></code>
-      <code><![CDATA[where]]></code>
       <code><![CDATA[whereBetween]]></code>
       <code><![CDATA[whereIn]]></code>
       <code><![CDATA[whereLike]]></code>
-      <code><![CDATA[whereNull]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/QueryHaving.php">
@@ -261,18 +253,38 @@
       <code><![CDATA[isEmpty]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Database/SqlExpression.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-    </PossiblyUnusedMethod>
+  <file src="src/Zef/Framework/Database/Repository.php">
+    <UnusedClass>
+      <code><![CDATA[Repository]]></code>
+    </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Database/SqlQuery.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[raw]]></code>
-    </PossiblyUnusedMethod>
     <PossiblyUnusedProperty>
       <code><![CDATA[$unbounded]]></code>
     </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Database/TransactionManager.php">
+    <UnusedClass>
+      <code><![CDATA[TransactionManager]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Database/TransactionManagerInterface.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[afterCommit]]></code>
+      <code><![CDATA[inTransaction]]></code>
+      <code><![CDATA[level]]></code>
+      <code><![CDATA[withTransaction]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Database/UnitOfWork.php">
+    <UnusedClass>
+      <code><![CDATA[UnitOfWork]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Database/UnitOfWorkRetryPolicy.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[__construct]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/AsyncDelivery.php">
     <PossiblyUnusedMethod>
