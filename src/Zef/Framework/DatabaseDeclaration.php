@@ -130,14 +130,10 @@ final readonly class DatabaseDeclaration
      * is the deployment's own word (the empty string the silent
      * posture), and every other type halts with the knob named.
      *
-     * @param array<array-key, mixed> $map the family's knob map
-     *
      * @throws ConfigException when the value is not a string
      */
-    private static function readName(array $map, string $knob): string
+    private static function readName(mixed $name, string $knob): string
     {
-        $name = $map[$knob];
-
         if (!\is_string($name)) {
             throw new ConfigException("database.{$knob} must be a connection name string.");
         }

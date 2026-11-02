@@ -249,11 +249,22 @@ deptrac:
     # walk (`SerializableValues`, the one spelling of "values that survive
     # the record" the tree already shares, composed here exactly as the
     # directory fold composes the document-root judgment).
+    # The database family's PDO adapter widens the lane to `Telemetry`
+    # the same one-way way the middleware lane's composition seams
+    # widened theirs: the unbounded-statement audit emission the
+    # adapter carries over its two optional seams counts through the
+    # metrics lane's own counter contract (MeterInterface -- the
+    # shared `observability.meter` engine the wiring hands in), so
+    # the adapter -- the only place the affected-row count the audit
+    # records is visible -- reaches the contract one-way, and the
+    # engine never learns a statement audited. The WARN record rides
+    # the vendored PSR-3 shim, which deptrac already excludes.
     Adapters:
       - Event
       - Storage
       - Http
       - Database
+      - Telemetry
     # The modules layer is the module system's own lane: the contract the
     # module author implements (ModuleInterface over the ModuleRegistrar
     # port), the identity/context value objects, the manifest and knob
