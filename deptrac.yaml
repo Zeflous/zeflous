@@ -308,6 +308,17 @@ deptrac:
     # `queue` lane's first writer) -- the composition layer joins
     # the port to its adapter from above, never the adapter lane
     # learning that a configuration exists.
+    # The database family's wiring slice widens the lane to `Database`
+    # the same one-way way the events family's wired default widened
+    # it: the profile's `database.unit_of_work` registration names the
+    # queue's own class (the `observability.health` class-shape
+    # precedent -- a stateful engine a service identity names), so
+    # the composition layer -- never the engine's own layer -- joins
+    # the registration to the queue, and the queue stays blind to the
+    # fact that a configuration exists. The wiring folds themselves
+    # (DatabaseWiring and the census/declaration folds) live outside
+    # every collector, the same uncatalogued posture the events
+    # family's own EventStorageWiring carries.
     Kernel:
       - Container
       - Health
@@ -320,6 +331,7 @@ deptrac:
       - Event
       - Modules
       - Adapters
+      - Database
     # Tooling gates are developer/CI utilities: they may use the kernel and the
     # exception root, but no other domain layer. The widening to Container is
     # the analysis CLI lane's own: the container inventory report renders the

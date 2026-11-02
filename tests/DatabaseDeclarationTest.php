@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\DatabaseConnectionKnobs;
 use Zef\Framework\DatabaseConnections;
 use Zef\Framework\DatabaseDeclaration;
 use Zef\Framework\DatabaseKnobs;
@@ -34,6 +35,7 @@ use Zef\Framework\FrameworkDefaults;
 #[CoversClass(DatabaseDeclaration::class)]
 #[CoversClass(DatabaseKnobs::class)]
 #[CoversClass(DatabaseConnections::class)]
+#[CoversClass(DatabaseConnectionKnobs::class)]
 #[CoversClass(FrameworkDefaults::class)]
 final class DatabaseDeclarationTest extends TestCase
 {

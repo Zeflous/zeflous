@@ -192,6 +192,32 @@ guard's seam stays available for a host's own composition, and the day a
 deployment asks, the knob arrives with its census entry the way every opt-in
 family's did.
 
+## KDD-DW8: the CI round -- two skipped gates, one attribution miss
+
+The first push reddened CI Static twice, and both roots were gates the local
+round had not actually run -- the exact lesson KDD-DB9 recorded for the core
+slice, replayed: a green local battery is only the battery you RAN. PHPStan
+at max level found 23 errors in the wiring pins (mixed reads off
+`Container::get()` and `json_decode`, three redundant type asserts on the
+wiring folds' own return types -- `alreadyNarrowedType`, the honest fix
+being behavioural asserts, never deletions), and deptrac found the one
+widening the local round had missed entirely: `FrameworkDefaults` -- the
+Kernel layer's own collected class -- names `UnitOfWork` in its
+`database.unit_of_work` registration, so `Kernel += Database` rides beside
+the adapter's `Adapters += Telemetry` (the registration-to-engine join the
+events family's wired default spelled first). The third finding was
+SonarCloud's new-coverage gate at 91.3% against 95: the settle round's
+`DatabaseConnectionKnobs` extraction had left the fold out of every covers
+list, so its fourteen lines -- fully exercised at runtime -- were filtered
+out of the clover by the suite's `requireCoverageMetadata`, invisible to
+exactly the consumers the covers-attribution doctrine names (KDD-DU13,
+#589's lesson, the third replay). The fix is one attribute on the
+declaration test that already walks every branch. The round also re-learned
+the pin dance the queue teaches: a fix commit above the docs commit leaves
+the pin naming a commit the walk can no longer see as its tip, so the
+refresh rides with every substantive follow-up -- the #674 incident's
+mechanics, applied pre-emptively this time.
+
 ## Verification
 
 The full local battery: `ci:static` core green (6674 tests / 16165
