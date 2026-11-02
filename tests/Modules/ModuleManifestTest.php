@@ -118,7 +118,7 @@ final class ModuleManifestTest extends TestCase
         $this->expectException(ModuleException::class);
         $this->expectExceptionMessageIs(
             'The module manifest carries violations: routess: expected one of '
-            . 'name, version, requires, class, config_schema, routes, got an unexpected key.',
+            . 'name, version, requires, class, config_schema, routes, events, got an unexpected key.',
         );
 
         ModuleManifest::parse([

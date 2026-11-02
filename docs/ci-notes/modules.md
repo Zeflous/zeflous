@@ -277,3 +277,94 @@ read -- the same by-design posture the lane's manifest-payload reads
 carry), deptrac 0 violations over the untouched layer set, PHPStan max
 + ratchet clean with no baseline file, archeology 0 error-level
 findings.
+
+## KDD-MO11: the event extension point's one seam, one key, one dispatcher
+
+The manifest's optional `events` key joins the schema's field map --
+KDD-MO3's promise honored for the events half, KDD-MO10's recorded
+"deliberately does not carry" closed. The consumption is one fold at
+the same deterministic seam the routes half rides: after the
+registration phase, before the container's definitions install
+(`ApplicationBootstrapper` composing `ModuleEventsTable::augmented()`),
+and the composition root re-freezes its own `framework.config` word
+over the augmented repository -- one `events.listen` key, never a
+second source of truth, so a configuration-cached boot and a freshly
+loaded one answer the same joined table.
+
+The fold is split the lane's own way, the routes half's shape replayed
+without the prefix: `ModuleEventsTable` owns the join (the roster walk
+in boot order, the host table's read, the merge appended after the
+host's entries), `ModuleEventsEntries` owns the per-module table's
+consumption (loaded through the module side's file loader, asserted
+entry by entry through the Standard Events Schema --
+`Config/Schema/EventSchema`, the three-field rule map over the generic
+`ConfigSchema` engine the routes half's own schema is). Nothing is
+rewritten and nothing is prefixed: an event's `name` is the module
+author's own declared contract -- the whole application addresses the
+event by it, so a prefix would be a lie -- and a name joined behind
+another declaration's is the reader's own already-defined refusal,
+fail-closed, never a silent rewrite. The failures are the lane's sixth
+refusal family (`ModuleEventsRefusals`): the loader's verdict and the
+schema's violations wrapped with the module named first, KDD-MO6's
+doctrine replayed. The empty posture is the honest identity: no module
+declares events, the repository rides verbatim.
+
+The half the routes fold could not carry: the joined table's own
+reader. `EventWiring::dispatcher()` composes the wired
+`EventDispatcher` from the repository -- every entry asserted through
+the Standard Events Schema at the reader (the direct composition keeps
+the validation with the reading, never assuming the boot's seam ran),
+every declared listener resolved through the PSR-11 container
+fail-closed (the pipeline factory's doctrine: a listener that is not
+registered, or does not answer `EventListener`, aborts the
+composition -- a dispatcher that silently skipped a declared listener
+would be a lie with a delivery count), every subscription at the
+declaration-order standing -- the standing the integration suite's own
+tape asserts: several declared listeners answer in the order the
+declarations spell (never the tags' or the service identifiers' own
+order), and a runtime subscription's own priority meets them on the one
+recording, above them all, below them all, and at the standing itself
+behind the wired, the registration-order tiebreak the wiring's earlier
+subscription owns. The one-call boot installs the reader
+under the reserved `events.dispatcher` identifier ahead of the
+definitions (a host's same-identifier rebind wins, the
+reserved-services precedent), and the container's own laziness defers
+the factory to the host's first resolution -- the never-at-the-boot
+discipline the events family's transient registration planted. The
+`listen` family joins `EventFamilies`' known list, and
+`ConfigBootstrapper` asserts the repository's own `events.listen`
+table at the boot beside the route table's assertion -- a listen-less
+repository is valid zero-listening, the same posture a route-less one
+carries.
+
+What the slice deliberately does not carry: the CLI registry and
+per-module migrations (the Fase 2 folds beside this one), the Fase 3
+governance and the Fase 4 DX, and the async arms' module declarations
+(the joined table serves the synchronous dispatcher; the deferred and
+durable vocabularies remain the host's own composition through the
+dispatcher's own verbs). The CI round the fold's own head closed: the
+mutation lane's three escapes -- the wired standing's zero lifted or
+dropped an integer, and the compile fold's event assertion removed
+whole -- are answered by the same battery. The meeting tape kills both
+integer mutants: the runtime `+1` that must stand above everything ties
+into the declared order when the zero becomes one (the wiring
+subscribed first, so a tie falls behind the declarations), and the
+runtime `0` that must stand behind the declarations stands ahead of
+them when the zero becomes minus one. The compile fold's killer -- an
+invalid listen table never reaching the artifact -- kills the removal:
+the guard gone, the malformed repository would compile into the cache
+and the boot would not halt. The battery: `ci:static`'s lanes green over
+the sandbox's static PHP (6769 tests / 16356 assertions, +95 over the
+database wiring settle -- the merged main's migration CLI family and
+the three killers riding between; smoke 2760B/20000 iterations; workflow
+concurrency 23; roadmap:gate pass; audit 0 advisories; duplication +
+mess clean; archeology 0 error-level findings; PHPBench full suite
+green), psalm EXIT-0 over the adjusted ledger -- the `EventDispatcher`
+`UnusedClass` pin the wiring's live reader retired LEAVES, the
+class-level suppression becoming the six host-facing verb entries the
+event family's every other class already carries (a net shrink: the
+class is alive, `define`/`subscribe` are called, `EventShape`'s and
+`ListenerPriority`'s construction entries leave with them), plus the
+one `MixedAssignment` lane entry the module-authored listen payload's
+read carries (the routes half's own by-design posture), PHPStan max
+clean, php-cs-fixer and Rector clean.

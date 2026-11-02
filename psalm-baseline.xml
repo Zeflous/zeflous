@@ -383,9 +383,14 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/EventDispatcher.php">
-    <UnusedClass>
-      <code><![CDATA[EventDispatcher]]></code>
-    </UnusedClass>
+    <PossiblyUnusedMethod>
+      <code><![CDATA[subscribeWildcard]]></code>
+      <code><![CDATA[unsubscribeWildcard]]></code>
+      <code><![CDATA[unsubscribe]]></code>
+      <code><![CDATA[dispatch]]></code>
+      <code><![CDATA[deferredDelivery]]></code>
+      <code><![CDATA[durableDelivery]]></code>
+    </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/EventPattern.php">
     <PossiblyUnusedMethod>
@@ -400,13 +405,7 @@
   </file>
   <file src="src/Zef/Framework/Event/EventShape.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
       <code><![CDATA[fields]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Zef/Framework/Event/ListenerPriority.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/ListenerQuarantine.php">
@@ -430,6 +429,11 @@
     <PossiblyUnusedMethod>
       <code><![CDATA[isEmpty]]></code>
     </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/EventWiring.php">
+    <MixedAssignment>
+      <code><![CDATA[$entry]]></code>
+    </MixedAssignment>
   </file>
   <file src="src/Zef/Framework/Exception/AuthenticationException.php">
     <UnusedClass>

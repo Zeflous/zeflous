@@ -6,8 +6,9 @@ namespace Zef\Framework\Modules;
 
 /**
  * One module's normalized declaration: the class that implements the
- * contract, the identity it answers, and the absolute address of its
- * configuration schema when a manifest declared one.
+ * contract, the identity it answers, and the absolute addresses of its
+ * configuration schema and its extension-point files when a manifest
+ * declared them.
  *
  * The declaration is the unit the whole engine passes around -- the
  * discovery fold builds it (from a class-string entry or a parsed
@@ -16,6 +17,9 @@ namespace Zef\Framework\Modules;
  * discovery fold, because only that fold knows the file the manifest came
  * from; a class-string entry carries no schema of its own, which is what
  * makes the "a block without a schema is refused" posture enforceable.
+ * The `routes` and `events` paths ride the same resolution: the manifest's
+ * own optional extension-point declarations, consumed by the boot's join
+ * folds -- not by the module's own phases.
  */
 final readonly class ModuleDeclaration
 {
@@ -28,6 +32,7 @@ final readonly class ModuleDeclaration
         public ModuleMetadata $metadata,
         public ?string $configSchema = null,
         public ?string $routes = null,
+        public ?string $events = null,
     ) {
         if ($this->class === '' || !str_contains($this->class, '\\')) {
             throw new ModuleException(
@@ -44,7 +49,7 @@ final readonly class ModuleDeclaration
      */
     public function withConfigSchema(?string $configSchema): self
     {
-        return new self($this->class, $this->metadata, $configSchema, $this->routes);
+        return new self($this->class, $this->metadata, $configSchema, $this->routes, $this->events);
     }
 
     /**
@@ -54,6 +59,16 @@ final readonly class ModuleDeclaration
      */
     public function withRoutes(?string $routes): self
     {
-        return new self($this->class, $this->metadata, $this->configSchema, $routes);
+        return new self($this->class, $this->metadata, $this->configSchema, $routes, $this->events);
+    }
+
+    /**
+     * Answers the declaration with the events path resolved to its absolute
+     * spelling -- the same discovery refinement the schema and routes paths
+     * ride, for the manifest's optional event-extension declaration.
+     */
+    public function withEvents(?string $events): self
+    {
+        return new self($this->class, $this->metadata, $this->configSchema, $this->routes, $events);
     }
 }
