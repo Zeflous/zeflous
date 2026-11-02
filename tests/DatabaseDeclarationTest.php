@@ -80,6 +80,25 @@ final class DatabaseDeclarationTest extends TestCase
         );
     }
 
+    public function testAnUnknownKnobBehindAKnownOneStillHalts(): void
+    {
+        $configException = $this->readMalformed([
+            'database' => [
+                'default' => 'app',
+                'connections' => [],
+                'migrations' => '',
+                'conections' => [],
+            ],
+        ]);
+
+        self::assertSame(
+            "The database configuration carries the unknown knob 'conections'"
+                . ' (known knobs: default, connections, migrations).',
+            $configException->getMessage(),
+            'the census walks every child: a known knob never hides an unknown sibling',
+        );
+    }
+
     public function testAWrongTypedDefaultNameHalts(): void
     {
         $configException = $this->readMalformed(['database' => ['default' => 7]]);

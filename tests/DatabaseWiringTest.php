@@ -320,6 +320,40 @@ final class DatabaseWiringTest extends TestCase
         self::assertArrayHasKey('zef.db.unbounded_statement|{"op":"update"}', $series);
     }
 
+    public function testADeclaredLogAddressAnswersTheAuditRecordSink(): void
+    {
+        $logPath = sys_get_temp_dir() . '/zef-database-audit-' . uniqid() . '.jsonl';
+        $connection = DatabaseWiring::connection(new Config([
+            'http' => [
+                'error_handling' => [
+                    'log_path' => $logPath,
+                ],
+            ],
+            'database' => [
+                'default' => 'app',
+                'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+            ],
+        ]));
+
+        $connection->execute(new SqlQuery('CREATE TABLE audited (id INTEGER PRIMARY KEY, v TEXT)'));
+        $connection->execute(new SqlQuery('INSERT INTO audited (v) VALUES (?)', ['x']));
+        $connection->execute(new SqlQuery('UPDATE audited SET v = ?', ['y'], true));
+
+        self::assertFileExists($logPath, "the audit record landed in the deployment's one structured log address");
+
+        $record = json_decode((string) file_get_contents($logPath), true, 4, \JSON_THROW_ON_ERROR);
+        self::assertSame('warning', $record['level'] ?? null);
+        self::assertSame(
+            'Unbounded update executed (allowUnbounded): 1 row(s) affected',
+            $record['message'] ?? null,
+        );
+        self::assertSame('UPDATE audited SET v = ?', $record['context']['sql'] ?? null);
+        self::assertSame(1, $record['context']['rows'] ?? null);
+        self::assertSame('update', $record['context']['op'] ?? null);
+
+        unlink($logPath);
+    }
+
     private function declaredConfig(): Config
     {
         return new Config([
