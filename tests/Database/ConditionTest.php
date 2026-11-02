@@ -40,7 +40,6 @@ use Zef\Framework\Database\SqlQuery;
  *
  * @internal
  */
-#[CoversClass(Condition::class)]
 #[CoversClass(ConditionComparison::class)]
 #[CoversClass(ConditionColumnComparison::class)]
 #[CoversClass(ConditionIn::class)]

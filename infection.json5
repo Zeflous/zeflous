@@ -1721,7 +1721,26 @@
                 // never an observable distinction (verified by
                 // running the engine battery under all four unwraps
                 // -- the complete battery passes).
-                "Zef\\Framework\\Config\\Routing\\RouteVersionSelection::select"
+                "Zef\\Framework\\Config\\Routing\\RouteVersionSelection::select",
+                // The group constructors' variadic rewrap is
+                // value-equivalent under every spelling a host can
+                // reach: positional arguments already answer a list,
+                // and NAMED arguments -- the one caller form that
+                // hands the variadic string keys -- are walked by the
+                // rendering fold's own foreach without keys, its
+                // fragment list and param accumulation rebuilt as
+                // lists by construction, so the re-indexing answers
+                // the same SQL and the same binding order either way
+                // (verified by running the complete suite under both
+                // unwraps manually applied -- 6733 tests pass). The
+                // rewrap exists for the static contract: psalm models
+                // the variadic as array<array-key, Condition> exactly
+                // because named arguments are legal, while the
+                // composite's member property promises list<Condition>
+                // -- the analysers hold both ends to it. These ignores
+                // are scoped to the two named constructors.
+                "Zef\\Framework\\Database\\ConditionGroup::all",
+                "Zef\\Framework\\Database\\ConditionGroup::any"
             ]
         },
         // The version selection's no-versioned branch filter is the
