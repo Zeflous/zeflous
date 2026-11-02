@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-02T16:11:16Z",
+  "as_of": "2026-11-02T19:23:42Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 283,
+  "unreleased_count": 284,
   "versions": [
     {
       "version": "Unreleased",
@@ -4199,6 +4199,37 @@
                 "sha": "a0e331510daf850a08bbdca58c762c05f74917ea",
                 "short_sha": "a0e3315",
                 "subject": "docs(roadmap): refresh the pin over the database wiring slice's closing commit"
+              }
+            ]
+          },
+          {
+            "pr": 680,
+            "title": "feat(database): the migrations command family over the wired runner",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-02T19:23:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/680",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a7c750d527f80a2012f43d182478e40fda2d6a75",
+                "short_sha": "a7c750d",
+                "subject": "feat(database): the migration files' discovery fold over the operator's directory"
+              },
+              {
+                "sha": "a2631aca26afc3539d6a0ab16f7c14e6af9cf5e3",
+                "short_sha": "a2631ac",
+                "subject": "feat(database): the migrations command family over the wired runner"
+              },
+              {
+                "sha": "0a42be0ad500b2c5eb55ee041c83a52704460a24",
+                "short_sha": "0a42be0",
+                "subject": "fix(database): settle the migrations CLI family under every gate"
+              },
+              {
+                "sha": "c7dd9ce96947ab8b1c4bfa21193b47283757826a",
+                "short_sha": "c7dd9ce",
+                "subject": "docs(roadmap): record the migrations CLI slice and pin the lane"
               }
             ]
           }
@@ -18279,6 +18310,37 @@
               "sha": "a0e331510daf850a08bbdca58c762c05f74917ea",
               "short_sha": "a0e3315",
               "subject": "docs(roadmap): refresh the pin over the database wiring slice's closing commit"
+            }
+          ]
+        },
+        {
+          "pr": 680,
+          "title": "feat(database): the migrations command family over the wired runner",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-02T19:23:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/680",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a7c750d527f80a2012f43d182478e40fda2d6a75",
+              "short_sha": "a7c750d",
+              "subject": "feat(database): the migration files' discovery fold over the operator's directory"
+            },
+            {
+              "sha": "a2631aca26afc3539d6a0ab16f7c14e6af9cf5e3",
+              "short_sha": "a2631ac",
+              "subject": "feat(database): the migrations command family over the wired runner"
+            },
+            {
+              "sha": "0a42be0ad500b2c5eb55ee041c83a52704460a24",
+              "short_sha": "0a42be0",
+              "subject": "fix(database): settle the migrations CLI family under every gate"
+            },
+            {
+              "sha": "c7dd9ce96947ab8b1c4bfa21193b47283757826a",
+              "short_sha": "c7dd9ce",
+              "subject": "docs(roadmap): record the migrations CLI slice and pin the lane"
             }
           ]
         }
