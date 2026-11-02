@@ -205,6 +205,28 @@ final class ConfigBootstrapperTest extends TestCase
         self::assertFalse($configCache->exists());
     }
 
+    public function testAnInvalidEventsConfigurationIsNeverCompiledIntoTheCache(): void
+    {
+        $configCache = new ConfigCache($this->cacheFile);
+
+        try {
+            new ConfigBootstrapper($configCache)->boot(
+                LayeredConfigBuilder::create()->withDefaults(['events' => ['listen' => 'not-a-list']]),
+            );
+            self::fail('An invalid events configuration must halt the bootstrap.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The "events.listen" configuration must be a list of event declarations.',
+                $configException->getMessage(),
+            );
+        }
+
+        // The compile fold's own ordering: the events assertion runs
+        // before the dump, so a malformed listen table never reaches the
+        // artifact -- the cache stays absent, not wrong.
+        self::assertFalse($configCache->exists());
+    }
+
     public function testACorruptCacheHaltsTheBootstrap(): void
     {
         $configCache = new ConfigCache(__DIR__ . '/Cache/fixtures/returns-int.php');

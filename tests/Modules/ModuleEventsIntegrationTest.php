@@ -17,6 +17,7 @@ use Zef\Framework\Container\NotFoundException;
 use Zef\Framework\ContainerModuleRegistrar;
 use Zef\Framework\Event\EventDispatcher;
 use Zef\Framework\Event\EventName;
+use Zef\Framework\Event\ListenerPriority;
 use Zef\Framework\EventWiring;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\ModuleBootstrapper;
@@ -46,6 +47,7 @@ use Zef\Framework\Modules\ModuleSchemaRules;
 use Zef\Framework\Modules\ModuleVersion;
 use Zef\Test\Modules\Fixtures\EventsModule;
 use Zef\Test\Modules\Fixtures\FixtureLog;
+use Zef\Test\Modules\Fixtures\StandingListener;
 use Zef\Test\Support\Events\HostComposedDispatcherFactory;
 
 /**
@@ -54,8 +56,10 @@ use Zef\Test\Support\Events\HostComposedDispatcherFactory;
  * (appended after the host's own, the names verbatim), the
  * `framework.config` service answers the same merged repository the
  * kernel carries, the wired dispatcher's reserved registration answers
- * the joined declarations at its first resolution, and a module-less
- * boot rides verbatim.
+ * the joined declarations at its first resolution -- several declared
+ * listeners standing in their declaration order, a runtime
+ * subscription's own priority meeting them on the same tape -- and a
+ * module-less boot rides verbatim.
  *
  * @internal
  */
@@ -169,6 +173,75 @@ final class ModuleEventsIntegrationTest extends TestCase
         $second = $kernel->container()->get(EventWiring::DISPATCHER_SERVICE);
 
         self::assertSame($first, $second);
+    }
+
+    public function testSeveralDeclaredListenersStandInTheirDeclarationOrder(): void
+    {
+        $root = $this->stageConfigs([
+            'modules.php' => [self::FIXTURE_MANIFESTS . '/with-standing-events/module.php'],
+        ]);
+
+        $kernel = new ApplicationBootstrapper()->boot($root);
+        $eventDispatcher = $kernel->container()->get(EventWiring::DISPATCHER_SERVICE);
+        self::assertInstanceOf(EventDispatcher::class, $eventDispatcher);
+
+        $outcome = $eventDispatcher->dispatch(new EventName('shop.order.audited'), ['orderId' => 7]);
+
+        // The declaration order is the standing: the third-tagged
+        // listener is declared first, so it runs first -- never the
+        // tags' own order, never the service identifiers'.
+        self::assertSame(3, $outcome->deliveredTo());
+        self::assertSame(
+            ['listener:third', 'listener:first', 'listener:second'],
+            FixtureLog::events(),
+        );
+    }
+
+    public function testTheWiredStandingMeetsARuntimeSubscriptionsOwnPriority(): void
+    {
+        $root = $this->stageConfigs([
+            'modules.php' => [self::FIXTURE_MANIFESTS . '/with-standing-events/module.php'],
+        ]);
+
+        $kernel = new ApplicationBootstrapper()->boot($root);
+        $eventDispatcher = $kernel->container()->get(EventWiring::DISPATCHER_SERVICE);
+        self::assertInstanceOf(EventDispatcher::class, $eventDispatcher);
+
+        $eventDispatcher->subscribe(
+            new EventName('shop.order.audited'),
+            new StandingListener('early'),
+            new ListenerPriority(1),
+        );
+        $eventDispatcher->subscribe(
+            new EventName('shop.order.audited'),
+            new StandingListener('mid'),
+            new ListenerPriority(0),
+        );
+        $eventDispatcher->subscribe(
+            new EventName('shop.order.audited'),
+            new StandingListener('late'),
+            new ListenerPriority(-1),
+        );
+
+        $outcome = $eventDispatcher->dispatch(new EventName('shop.order.audited'), ['orderId' => 7]);
+
+        // The meeting on one tape: a runtime subscription's own priority
+        // stands around the wired declarations' declaration-order
+        // standing -- 'early' above them all, 'late' below them all, and
+        // 'mid' at the declarations' own standing, behind them only
+        // because the wiring subscribed first.
+        self::assertSame(6, $outcome->deliveredTo());
+        self::assertSame(
+            [
+                'listener:early',
+                'listener:third',
+                'listener:first',
+                'listener:second',
+                'listener:mid',
+                'listener:late',
+            ],
+            FixtureLog::events(),
+        );
     }
 
     public function testADefinitionOnlyModuleEventAnswersZeroDeliveries(): void
