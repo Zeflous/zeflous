@@ -6,7 +6,8 @@ namespace Zef\Framework\Database;
 
 /**
  * The where-family's verb fold: each facade verb renders its predicate
- * through {@see QueryPredicate} and records the fragment on the
+ * through the {@see QueryComparison} and {@see QueryPredicate} folds and
+ * records the fragment on the
  * {@see QueryWhereState} the compilers read -- AND the default
  * connector, OR the one alternative.
  *
@@ -27,7 +28,7 @@ final readonly class QueryWhere
      */
     public function condition(SqlExpression|string $column, string $operator, mixed $value, string $connector): void
     {
-        $queryFragment = QueryPredicate::comparison($this->sqlIdentifier, $column, $operator, $value);
+        $queryFragment = QueryComparison::comparison($this->sqlIdentifier, $column, $operator, $value);
         $this->queryWhereState->add($queryFragment->fragment, $queryFragment->params, $connector);
     }
 

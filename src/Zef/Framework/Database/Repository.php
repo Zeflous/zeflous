@@ -65,14 +65,18 @@ abstract class Repository
 
     /**
      * @param array<string, mixed>|Condition $criteria
-     * @param null|array<string, string>       $orderBy  column => ASC|DESC
+     * @param null|array<string, string>     $orderBy  column => ASC|DESC
      *
      * @return list<array<string, mixed>>
      *
      * @throws QueryException when an offset is requested without a limit
      */
-    public function findBy(array|Condition $criteria = [], ?array $orderBy = null, ?int $limit = null, int $offset = 0): array
-    {
+    public function findBy(
+        array|Condition $criteria = [],
+        ?array $orderBy = null,
+        ?int $limit = null,
+        int $offset = 0,
+    ): array {
         $queryBuilder = RepositoryPage::apply(
             RepositoryCriteria::apply($this->qb(), $criteria),
             $orderBy,
@@ -100,7 +104,7 @@ abstract class Repository
     }
 
     /**
-     * @param array<string, mixed> $pairs
+     * @param array<string, mixed>           $pairs
      * @param array<string, mixed>|Condition $criteria
      *
      * @throws QueryException when the map criteria is empty (the update

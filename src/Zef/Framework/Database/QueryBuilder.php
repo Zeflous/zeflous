@@ -193,29 +193,10 @@ final class QueryBuilder
      * the same verb so the facade's method count never grows. Spelling
      * both is refused: a Condition carries its own operands.
      */
-    public function where(SqlExpression|string|Condition $column, ?string $operator = null, mixed $value = null): self
+    public function where(Condition|SqlExpression|string $column, ?string $operator = null, mixed $value = null): self
     {
         QueryPhase::assertWhereAllowed($this->type);
-
-        if ($column instanceof Condition) {
-            if ($operator !== null || $value !== null) {
-                throw new QueryException(
-                    'where() takes one Condition object or the column/operator/value triple, not both.',
-                );
-            }
-
-            $this->queryWhere->apply($column, 'AND');
-
-            return $this;
-        }
-
-        if ($operator === null) {
-            throw new QueryException(
-                'where() requires an operator for the column form (equality is spelled where(\'col\', \'=\', $value)).',
-            );
-        }
-
-        $this->queryWhere->condition($column, $operator, $value, 'AND');
+        QueryOperand::record($this->queryWhere, $column, $operator, $value, 'AND', 'where');
 
         return $this;
     }
@@ -225,29 +206,10 @@ final class QueryBuilder
      * spelling -- the condition-object tree ORed with the chain the
      * same way the triple is.
      */
-    public function orWhere(SqlExpression|string|Condition $column, ?string $operator = null, mixed $value = null): self
+    public function orWhere(Condition|SqlExpression|string $column, ?string $operator = null, mixed $value = null): self
     {
         QueryPhase::assertWhereAllowed($this->type);
-
-        if ($column instanceof Condition) {
-            if ($operator !== null || $value !== null) {
-                throw new QueryException(
-                    'orWhere() takes one Condition object or the column/operator/value triple, not both.',
-                );
-            }
-
-            $this->queryWhere->apply($column, 'OR');
-
-            return $this;
-        }
-
-        if ($operator === null) {
-            throw new QueryException(
-                'orWhere() requires an operator for the column form (equality is spelled orWhere(\'col\', \'=\', $value)).',
-            );
-        }
-
-        $this->queryWhere->condition($column, $operator, $value, 'OR');
+        QueryOperand::record($this->queryWhere, $column, $operator, $value, 'OR', 'orWhere');
 
         return $this;
     }

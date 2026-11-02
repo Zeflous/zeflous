@@ -5,64 +5,21 @@ declare(strict_types=1);
 namespace Zef\Framework\Database;
 
 /**
- * The where-family's predicate grammar: the pure folds that turn one
- * column/operator/value triple (or an IN list, a BETWEEN pair, a LIKE
- * pattern) into a rendered {@see QueryFragment}.
+ * The where-family's shaped predicates: the pure folds that turn a
+ * membership list, a bounded range, a NULL state, or a LIKE pattern
+ * into a rendered {@see QueryFragment}.
  *
- * Every fold is branch-pure over its inputs -- the operator and scalar
- * guards live in {@see QueryValues}, the identifier quoting in
- * {@see SqlIdentifier}, and the fragment list that joins the answers
- * lives in {@see QueryWhereState}.
+ * The value-bound comparison lives in its own fold ({@see QueryComparison},
+ * the operator grammar's unit) and the column-bound shape inlines in its
+ * leaf ({@see ConditionColumnComparison}); every fold here is branch-pure
+ * over its inputs -- the scalar guards live in {@see QueryValues}, the
+ * identifier quoting in {@see SqlIdentifier}, and the fragment list that
+ * joins the answers lives in {@see QueryWhereState}.
  *
  * @internal
  */
 final class QueryPredicate
 {
-    /**
-     * Renders `column <op> ?` with the value bound after it.
-     */
-    public static function comparison(
-        SqlIdentifier $sqlIdentifier,
-        SqlExpression|string $column,
-        string $operator,
-        mixed $value,
-    ): QueryFragment {
-        $op = QueryValues::assertComparisonOperator($operator);
-        if ($value === null && \in_array($op, ['=', '<>'], true)) {
-            throw new QueryException(
-                "Use whereNull() with its negated flag instead of comparing '{$column}' with {$op} null.",
-            );
-        }
-
-        QueryValues::assertScalar($value, "condition value for '{$column}'");
-
-        if ($column instanceof SqlExpression) {
-            return new QueryFragment($column->__toString() . ' ' . $op . ' ?', [$value]);
-        }
-
-        return new QueryFragment($sqlIdentifier->columnPath($column) . ' ' . $op . ' ?', [$value]);
-    }
-
-    /**
-     * Renders `first <op> second` -- one comparison between two columns
-     * of the same row, both operands quoted through the identifier
-     * grammar, no bound values. The condition-object lane's spelling of
-     * the column-vs-column form ({@see ConditionColumnComparison}); the
-     * operator rides the same closed list every comparison answers.
-     */
-    public static function columnComparison(
-        SqlIdentifier $sqlIdentifier,
-        string $first,
-        string $operator,
-        string $second,
-    ): QueryFragment {
-        $op = QueryValues::assertComparisonOperator($operator);
-
-        return new QueryFragment(
-            $sqlIdentifier->columnPath($first) . ' ' . $op . ' ' . $sqlIdentifier->columnPath($second),
-        );
-    }
-
     /**
      * Renders `column [NOT] IN (...)` -- a placeholder per list member,
      * or a subquery's SQL with its bindings merged after ours.

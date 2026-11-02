@@ -27,8 +27,8 @@ final readonly class ConditionNot implements Condition
     #[Override]
     public function fragment(SqlIdentifier $sqlIdentifier): QueryFragment
     {
-        $inner = $this->condition->fragment($sqlIdentifier);
+        $queryFragment = $this->condition->fragment($sqlIdentifier);
 
-        return new QueryFragment('NOT (' . $inner->fragment . ')', $inner->params);
+        return new QueryFragment('NOT (' . $queryFragment->fragment . ')', $queryFragment->params);
     }
 }

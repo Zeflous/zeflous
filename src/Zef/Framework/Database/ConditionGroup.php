@@ -26,20 +26,14 @@ use Override;
  */
 final readonly class ConditionGroup implements Condition
 {
-    /** @var list<Condition> */
-    private array $members;
-
-    /** @var 'AND'|'OR' */
-    private string $connector;
-
     /**
      * @param list<Condition> $members
      * @param 'AND'|'OR'      $connector
      */
-    private function __construct(array $members, string $connector)
-    {
-        $this->members = $members;
-        $this->connector = $connector;
+    private function __construct(
+        private array $members,
+        private string $connector,
+    ) {
     }
 
     /**
@@ -47,7 +41,7 @@ final readonly class ConditionGroup implements Condition
      */
     public static function all(Condition ...$conditions): self
     {
-        return new self(self::assertMembers('all()', $conditions), 'AND');
+        return new self(self::assertMembers('all()', array_values($conditions)), 'AND');
     }
 
     /**
@@ -55,7 +49,7 @@ final readonly class ConditionGroup implements Condition
      */
     public static function any(Condition ...$conditions): self
     {
-        return new self(self::assertMembers('any()', $conditions), 'OR');
+        return new self(self::assertMembers('any()', array_values($conditions)), 'OR');
     }
 
     #[Override]

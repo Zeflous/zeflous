@@ -10,7 +10,10 @@ use Override;
  * The column-vs-column leaf: one comparison between two columns of
  * the same row, the exotic form the reference carried as the
  * `whereColumn` sugar verb. No bound values -- both operands are
- * identifiers the grammar quotes, never parameters.
+ * identifiers the quoting grammar answers, and the operator rides
+ * the same closed list every comparison shares, so the leaf owns its
+ * own trivial assembly the way the trivial composites ({@see ConditionNot},
+ * {@see ConditionGroup}) own theirs.
  */
 final readonly class ConditionColumnComparison implements Condition
 {
@@ -24,6 +27,10 @@ final readonly class ConditionColumnComparison implements Condition
     #[Override]
     public function fragment(SqlIdentifier $sqlIdentifier): QueryFragment
     {
-        return QueryPredicate::columnComparison($sqlIdentifier, $this->first, $this->operator, $this->second);
+        $op = QueryValues::assertComparisonOperator($this->operator);
+
+        return new QueryFragment(
+            $sqlIdentifier->columnPath($this->first) . ' ' . $op . ' ' . $sqlIdentifier->columnPath($this->second),
+        );
     }
 }

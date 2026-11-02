@@ -18,8 +18,10 @@ use Zef\Framework\Database\ConditionNot;
 use Zef\Framework\Database\ConditionNull;
 use Zef\Framework\Database\DatabaseException;
 use Zef\Framework\Database\QueryBuilder;
+use Zef\Framework\Database\QueryComparison;
 use Zef\Framework\Database\QueryException;
 use Zef\Framework\Database\QueryFragment;
+use Zef\Framework\Database\QueryOperand;
 use Zef\Framework\Database\QueryPredicate;
 use Zef\Framework\Database\QueryWhere;
 use Zef\Framework\Database\SqlExpression;
@@ -49,6 +51,8 @@ use Zef\Framework\Database\SqlQuery;
 #[CoversClass(ConditionNot::class)]
 #[CoversClass(QueryBuilder::class)]
 #[CoversClass(QueryWhere::class)]
+#[CoversClass(QueryComparison::class)]
+#[CoversClass(QueryOperand::class)]
 #[CoversClass(QueryPredicate::class)]
 #[CoversClass(QueryFragment::class)]
 #[CoversClass(SqlIdentifier::class)]
@@ -66,7 +70,8 @@ final class ConditionTest extends TestCase
     {
         $query = QueryBuilder::table('users')
             ->where(new ConditionComparison('age', '>', 18))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE "age" > ?', $query->sql);
         self::assertSame([18], $query->params);
@@ -76,7 +81,8 @@ final class ConditionTest extends TestCase
     {
         $query = QueryBuilder::table('users')
             ->where(new ConditionComparison(new SqlExpression('LOWER(name)'), '=', 'ari'))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE LOWER(name) = ?', $query->sql);
         self::assertSame(['ari'], $query->params);
@@ -86,7 +92,8 @@ final class ConditionTest extends TestCase
     {
         $query = QueryBuilder::table('bookings')
             ->where(new ConditionColumnComparison('ended_at', '>', 'started_at'))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "bookings" WHERE "ended_at" > "started_at"', $query->sql);
         self::assertSame([], $query->params);
@@ -106,7 +113,8 @@ final class ConditionTest extends TestCase
     {
         $query = QueryBuilder::table('users')
             ->where(new ConditionIn('status', ['open', 'held']))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE "status" IN (?, ?)', $query->sql);
         self::assertSame(['open', 'held'], $query->params);
@@ -116,7 +124,8 @@ final class ConditionTest extends TestCase
     {
         $query = QueryBuilder::table('users')
             ->where(new ConditionIn('status', ['open', 'held'], negated: true))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE "status" NOT IN (?, ?)', $query->sql);
         self::assertSame(['open', 'held'], $query->params);
@@ -129,7 +138,8 @@ final class ConditionTest extends TestCase
         $query = QueryBuilder::table('users')
             ->where('tenant', '=', 9)
             ->where(new ConditionIn('role_id', $subquery))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame(
             'SELECT * FROM "users" WHERE "tenant" = ? AND "role_id" IN (SELECT "id" FROM "roles" WHERE "active" = ?)',
@@ -160,7 +170,8 @@ final class ConditionTest extends TestCase
     {
         $query = QueryBuilder::table('users')
             ->where(new ConditionBetween('age', 13, 19))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE "age" BETWEEN ? AND ?', $query->sql);
         self::assertSame([13, 19], $query->params);
@@ -169,12 +180,15 @@ final class ConditionTest extends TestCase
     public function testTheLikeLeafBindsThePatternAndEscapesWhenAsked(): void
     {
         $bare = QueryBuilder::table('users')->where(new ConditionLike('name', 'Ar%'))->build();
-        $escaped = QueryBuilder::table('users')->where(new ConditionLike('name', 'Ar%', escapeWildcards: true))->build();
+        $escaped = QueryBuilder::table('users')
+            ->where(new ConditionLike('name', 'Ar%', escapeWildcards: true))
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE "name" LIKE ?', $bare->sql);
         self::assertSame(['Ar%'], $bare->params);
         self::assertSame("SELECT * FROM \"users\" WHERE \"name\" LIKE ? ESCAPE '\\'", $escaped->sql);
-        self::assertSame(['Ar\\%'], $escaped->params);
+        self::assertSame(['Ar\%'], $escaped->params);
     }
 
     // ------------------------------------------------------------------
@@ -188,7 +202,8 @@ final class ConditionTest extends TestCase
                 new ConditionComparison('status', '=', 'open'),
                 new ConditionComparison('age', '>', 18),
             ))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE ("status" = ? AND "age" > ?)', $query->sql);
         self::assertSame(['open', 18], $query->params);
@@ -201,7 +216,8 @@ final class ConditionTest extends TestCase
                 new ConditionComparison('name', '=', 'Ari'),
                 new ConditionComparison('name', '=', 'Budi'),
             ))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE ("name" = ? OR "name" = ?)', $query->sql);
         self::assertSame(['Ari', 'Budi'], $query->params);
@@ -219,7 +235,8 @@ final class ConditionTest extends TestCase
                     new ConditionComparison('age', '>', 65),
                 ),
             ))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame(
             'SELECT * FROM "users" WHERE ("active" = ? AND ("age" < ? OR "age" > ?))',
@@ -232,13 +249,15 @@ final class ConditionTest extends TestCase
     {
         $overLeaf = QueryBuilder::table('users')
             ->where(new ConditionNot(new ConditionNull('deleted_at')))
-            ->build();
+            ->build()
+        ;
         $overGroup = QueryBuilder::table('users')
             ->where(new ConditionNot(ConditionGroup::any(
                 new ConditionComparison('age', '<', 18),
                 new ConditionComparison('age', '>', 65),
             )))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE NOT ("deleted_at" IS NULL)', $overLeaf->sql);
         self::assertSame([], $overLeaf->params);
@@ -256,10 +275,12 @@ final class ConditionTest extends TestCase
             ))
             ->where('active', '=', 1)
             ->orWhere(new ConditionNull('deleted_at'))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame(
-            'SELECT * FROM "users" WHERE "tenant" = ? AND ("name" = ? OR "name" = ?) AND "active" = ? OR "deleted_at" IS NULL',
+            'SELECT * FROM "users" WHERE "tenant" = ? '
+            . 'AND ("name" = ? OR "name" = ?) AND "active" = ? OR "deleted_at" IS NULL',
             $query->sql,
         );
         self::assertSame([9, 'Ari', 'Budi', 1], $query->params);
@@ -270,7 +291,8 @@ final class ConditionTest extends TestCase
         $query = QueryBuilder::table('users')
             ->where('age', '>', 65)
             ->orWhere(new ConditionIn('status', ['retired', 'emeritus']))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame('SELECT * FROM "users" WHERE "age" > ? OR "status" IN (?, ?)', $query->sql);
         self::assertSame([65, 'retired', 'emeritus'], $query->params);
@@ -286,7 +308,8 @@ final class ConditionTest extends TestCase
                 ),
                 new ConditionNot(new ConditionNull('email')),
             ))
-            ->build();
+            ->build()
+        ;
 
         self::assertSame(
             'SELECT * FROM "users" WHERE (("age" BETWEEN ? AND ? OR "age" BETWEEN ? AND ?) AND NOT ("email" IS NULL))',
@@ -299,7 +322,10 @@ final class ConditionTest extends TestCase
     // The structural refusals -- by construction, not by rendering
     // ------------------------------------------------------------------
 
-    #[DataProvider('emptyGroupProviders')]
+    /**
+     * @param callable(): Condition $constructor
+     */
+    #[DataProvider('provideTheGroupRefusesZeroMembersAtConstructionCases')]
     public function testTheGroupRefusesZeroMembersAtConstruction(callable $constructor): void
     {
         $this->expectException(QueryException::class);
@@ -309,11 +335,12 @@ final class ConditionTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{callable}>
+     * @return iterable<string, array{callable(): Condition}>
      */
-    public static function emptyGroupProviders(): iterable
+    public static function provideTheGroupRefusesZeroMembersAtConstructionCases(): iterable
     {
         yield 'all' => [static fn (): Condition => ConditionGroup::all()];
+
         yield 'any' => [static fn (): Condition => ConditionGroup::any()];
     }
 
@@ -357,26 +384,26 @@ final class ConditionTest extends TestCase
         // fluent verb's own bad operator surfaces: at the where call.
         try {
             QueryBuilder::table('users')->where(new ConditionComparison('age', '~~', 5));
-            self::fail('The comparison leaf\'s operator guard did not fire.');
-        } catch (QueryException $exception) {
-            self::assertStringContainsString("Unknown comparison operator '~~'", $exception->getMessage());
+            self::fail("The comparison leaf's operator guard did not fire.");
+        } catch (QueryException $queryException) {
+            self::assertStringContainsString("Unknown comparison operator '~~'", $queryException->getMessage());
         }
 
         try {
             QueryBuilder::table('users')->where(new ConditionComparison('age', '>', []));
-            self::fail('The comparison leaf\'s scalar guard did not fire.');
-        } catch (QueryException $exception) {
+            self::fail("The comparison leaf's scalar guard did not fire.");
+        } catch (QueryException $queryException) {
             self::assertStringContainsString(
                 "condition value for 'age' must be null, bool, int, float, string or SqlExpression (got array)",
-                $exception->getMessage(),
+                $queryException->getMessage(),
             );
         }
 
         try {
             QueryBuilder::table('users')->where(new ConditionLike('name', ''));
-            self::fail('The like leaf\'s pattern guard did not fire.');
-        } catch (QueryException $exception) {
-            self::assertStringContainsString('whereLike() pattern must not be empty.', $exception->getMessage());
+            self::fail("The like leaf's pattern guard did not fire.");
+        } catch (QueryException $queryException) {
+            self::assertStringContainsString('whereLike() pattern must not be empty.', $queryException->getMessage());
         }
     }
 

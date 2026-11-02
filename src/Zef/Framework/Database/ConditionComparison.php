@@ -8,7 +8,7 @@ use Override;
 
 /**
  * The where verb's own leaf: one column/operator/value comparison as
- * a value object, rendering through the same {@see QueryPredicate::comparison()}
+ * a value object, rendering through the same {@see QueryComparison::comparison()}
  * fold the fluent verb rides -- the grammar fires at the composition
  * boundary, exactly where `where()` has always fired it.
  */
@@ -24,6 +24,6 @@ final readonly class ConditionComparison implements Condition
     #[Override]
     public function fragment(SqlIdentifier $sqlIdentifier): QueryFragment
     {
-        return QueryPredicate::comparison($sqlIdentifier, $this->column, $this->operator, $this->value);
+        return QueryComparison::comparison($sqlIdentifier, $this->column, $this->operator, $this->value);
     }
 }
