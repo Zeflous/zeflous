@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(modules\): the event extension point with its manifest fold over the standard events schema [\#681](https://github.com/Zeflous/zeflous/pull/681) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the migrations command family over the wired runner [\#680](https://github.com/Zeflous/zeflous/pull/680) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the wiring knob block over the connection port [\#677](https://github.com/Zeflous/zeflous/pull/677) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the orchestration family over the connection port [\#674](https://github.com/Zeflous/zeflous/pull/674) ([mbetixz](https://github.com/mbetixz))
