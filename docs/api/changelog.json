@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-02T12:41:47Z",
+  "as_of": "2026-11-02T16:11:16Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 282,
+  "unreleased_count": 283,
   "versions": [
     {
       "version": "Unreleased",
@@ -4138,6 +4138,67 @@
                 "sha": "4d60248d3bb778184088a5e37d950f064f50d23b",
                 "short_sha": "4d60248",
                 "subject": "docs(roadmap): refresh the pin over the database orchestration slice's closing commit"
+              }
+            ]
+          },
+          {
+            "pr": 677,
+            "title": "feat(database): the wiring knob block over the connection port",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-02T16:11:16Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/677",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3436315ba4ddc170f347e8ff82b85db9b8110f4f",
+                "short_sha": "3436315",
+                "subject": "feat(database): the wiring knob block's census and declaration folds"
+              },
+              {
+                "sha": "64c34d82b2752ea82a14866b601974dde7050c5e",
+                "short_sha": "64c34d8",
+                "subject": "feat(database): the wiring folds, audit emission, generic gateway, and profile registration"
+              },
+              {
+                "sha": "9d8b9784c5d1fbee5a235b8c8f9927e0399cfb26",
+                "short_sha": "9d8b978",
+                "subject": "test(database): the wiring, audit, gateway, declaration, and boot pins"
+              },
+              {
+                "sha": "203b44e52b40e5b40a579b5b93d1dddadd1de8fe",
+                "short_sha": "203b44e",
+                "subject": "refactor(database): settle the wiring folds under the archeology ceiling and regenerate the psalm ledger"
+              },
+              {
+                "sha": "35fc4e9e0019aa5f24c156a07eb2beb82192d48e",
+                "short_sha": "35fc4e9",
+                "subject": "test(database): kill the census continue mutant and pin the audit record's one-sink landing"
+              },
+              {
+                "sha": "e77537bb3c137127e2a6c92165d5c9fc57a8d8f8",
+                "short_sha": "e77537b",
+                "subject": "docs(roadmap): record the database wiring slice and pin the lane"
+              },
+              {
+                "sha": "953ef348b7b310a27137fc8cdab63438826dd658",
+                "short_sha": "953ef34",
+                "subject": "fix(database): narrow the wiring pins' mixed reads for the max-level static pass"
+              },
+              {
+                "sha": "d805e7515a4486ea47a736ea1ddf6b3e06f6545f",
+                "short_sha": "d805e75",
+                "subject": "docs(roadmap): refresh the pin over the database wiring slice's closing commit"
+              },
+              {
+                "sha": "f86206f2a90fc7dcdeac9e3212b1b1a20fe91e54",
+                "short_sha": "f86206f",
+                "subject": "fix(database): attribute the settle fold's coverage and record the CI round's lessons"
+              },
+              {
+                "sha": "a0e331510daf850a08bbdca58c762c05f74917ea",
+                "short_sha": "a0e3315",
+                "subject": "docs(roadmap): refresh the pin over the database wiring slice's closing commit"
               }
             ]
           }
@@ -18157,6 +18218,67 @@
               "sha": "4d60248d3bb778184088a5e37d950f064f50d23b",
               "short_sha": "4d60248",
               "subject": "docs(roadmap): refresh the pin over the database orchestration slice's closing commit"
+            }
+          ]
+        },
+        {
+          "pr": 677,
+          "title": "feat(database): the wiring knob block over the connection port",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-02T16:11:16Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/677",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3436315ba4ddc170f347e8ff82b85db9b8110f4f",
+              "short_sha": "3436315",
+              "subject": "feat(database): the wiring knob block's census and declaration folds"
+            },
+            {
+              "sha": "64c34d82b2752ea82a14866b601974dde7050c5e",
+              "short_sha": "64c34d8",
+              "subject": "feat(database): the wiring folds, audit emission, generic gateway, and profile registration"
+            },
+            {
+              "sha": "9d8b9784c5d1fbee5a235b8c8f9927e0399cfb26",
+              "short_sha": "9d8b978",
+              "subject": "test(database): the wiring, audit, gateway, declaration, and boot pins"
+            },
+            {
+              "sha": "203b44e52b40e5b40a579b5b93d1dddadd1de8fe",
+              "short_sha": "203b44e",
+              "subject": "refactor(database): settle the wiring folds under the archeology ceiling and regenerate the psalm ledger"
+            },
+            {
+              "sha": "35fc4e9e0019aa5f24c156a07eb2beb82192d48e",
+              "short_sha": "35fc4e9",
+              "subject": "test(database): kill the census continue mutant and pin the audit record's one-sink landing"
+            },
+            {
+              "sha": "e77537bb3c137127e2a6c92165d5c9fc57a8d8f8",
+              "short_sha": "e77537b",
+              "subject": "docs(roadmap): record the database wiring slice and pin the lane"
+            },
+            {
+              "sha": "953ef348b7b310a27137fc8cdab63438826dd658",
+              "short_sha": "953ef34",
+              "subject": "fix(database): narrow the wiring pins' mixed reads for the max-level static pass"
+            },
+            {
+              "sha": "d805e7515a4486ea47a736ea1ddf6b3e06f6545f",
+              "short_sha": "d805e75",
+              "subject": "docs(roadmap): refresh the pin over the database wiring slice's closing commit"
+            },
+            {
+              "sha": "f86206f2a90fc7dcdeac9e3212b1b1a20fe91e54",
+              "short_sha": "f86206f",
+              "subject": "fix(database): attribute the settle fold's coverage and record the CI round's lessons"
+            },
+            {
+              "sha": "a0e331510daf850a08bbdca58c762c05f74917ea",
+              "short_sha": "a0e3315",
+              "subject": "docs(roadmap): refresh the pin over the database wiring slice's closing commit"
             }
           ]
         }
