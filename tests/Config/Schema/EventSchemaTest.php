@@ -326,7 +326,8 @@ final class EventSchemaTest extends TestCase
             self::fail('A listen list with a violating entry must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(
-                'Configuration failed schema validation: fields: expected a non-empty map of non-empty strings, got missing.',
+                'Configuration failed schema validation: fields: '
+                . 'expected a non-empty map of non-empty strings, got missing.',
                 $configException->getMessage(),
             );
         }

@@ -64,11 +64,13 @@ final readonly class ModuleEventsEntries
             }
 
             /*
-             * @var array<array-key, mixed> $entry the schema-asserted event
-             *                              declaration -- the assertion above
-             *                              checked the shape this reading
-             *                              trusts
+             * The schema's verdict is the entry's own shape proof -- the
+             * assertion above checked the map this reading trusts, and the
+             * assert re-states the invariant the static readers ride (the
+             * same spelling the route entries fold carries for its path).
              */
+            \assert(\is_array($entry));
+
             $loaded[] = $entry;
         }
 

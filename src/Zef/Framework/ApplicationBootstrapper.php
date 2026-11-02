@@ -194,6 +194,7 @@ final readonly class ApplicationBootstrapper
         // reads.
         $config = new ModuleRouteTable()->augmented($config, $moduleRoster);
         $config = new ModuleEventsTable()->augmented($config, $moduleRoster);
+
         $container->set(
             FrameworkDefaults::CONFIG_SERVICE,
             static fn (): Config => $config,
