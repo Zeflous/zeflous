@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Database;
 
+use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
@@ -26,6 +27,7 @@ final class TableGatewayTest extends TestCase
 {
     private PdoConnection $pdoConnection;
 
+    #[Override]
     protected function setUp(): void
     {
         $this->pdoConnection = new PdoConnection(
@@ -49,7 +51,10 @@ final class TableGatewayTest extends TestCase
         self::assertNull($tableGateway->find(999), 'an absent row answers null, never a failure');
 
         self::assertSame(1, $tableGateway->update(['age' => 31], ['name' => 'Ari']));
-        self::assertSame(31, $tableGateway->find(1)['age']);
+
+        $grown = $tableGateway->find(1);
+        self::assertNotNull($grown);
+        self::assertSame(31, $grown['age']);
 
         self::assertSame(1, $tableGateway->delete(['name' => 'Budi']));
         self::assertNull($tableGateway->find(2));

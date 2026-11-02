@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test;
 
+use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Database\PdoConnection;
@@ -14,7 +15,6 @@ use Zef\Framework\Database\ConnectionException;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\Migrator;
 use Zef\Framework\Database\SqlQuery;
-use Zef\Framework\Database\TableGateway;
 use Zef\Framework\Database\TransactionManager;
 use Zef\Framework\Database\UnitOfWork;
 use Zef\Framework\DatabaseConnections;
@@ -22,6 +22,7 @@ use Zef\Framework\DatabaseDeclaration;
 use Zef\Framework\DatabaseKnobs;
 use Zef\Framework\DatabaseWiring;
 use Zef\Framework\Kernel;
+use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Test\Support\Database\ScriptedMigration;
 use Zef\Test\Support\Telemetry\RecordingMeter;
 
@@ -54,6 +55,7 @@ final class DatabaseWiringTest extends TestCase
 
     private ?string $temporaryDatabase = null;
 
+    #[Override]
     protected function tearDown(): void
     {
         foreach ([$this->temporaryConfigs, $this->temporaryDatabase] as $path) {
@@ -157,8 +159,6 @@ final class DatabaseWiringTest extends TestCase
     {
         $migrator = DatabaseWiring::migrator($this->declaredConfig());
 
-        self::assertInstanceOf(Migrator::class, $migrator);
-
         $migrator->register(new ScriptedMigration('20261102000001', 'create'));
 
         self::assertSame(['20261102000001'], $migrator->plan());
@@ -175,7 +175,13 @@ final class DatabaseWiringTest extends TestCase
             ],
         ]));
 
-        self::assertNotNull($migrator, 'the migrations purpose stands alone: no default required');
+        $migrator->register(new ScriptedMigration('20261102000001', 'create'));
+
+        self::assertSame(
+            ['20261102000001'],
+            $migrator->plan(),
+            "the migrations purpose stands alone: no default required, and the purpose's own connection answers",
+        );
     }
 
     public function testTheSilentMigratorRefusesWithItsOwnGrammar(): void
@@ -233,8 +239,6 @@ final class DatabaseWiringTest extends TestCase
         $connection = DatabaseWiring::connection($this->declaredConfig());
         $gateway = DatabaseWiring::repository($connection, 'things');
 
-        self::assertInstanceOf(TableGateway::class, $gateway);
-
         $connection->execute(new SqlQuery('CREATE TABLE things (id INTEGER PRIMARY KEY, v TEXT)'));
         self::assertSame(1, $gateway->insert(['v' => 'a-thing']));
         self::assertSame(['id' => 1, 'v' => 'a-thing'], $gateway->find(1));
@@ -257,6 +261,7 @@ final class DatabaseWiringTest extends TestCase
     {
         $kernel = new ApplicationBootstrapper()->boot(__DIR__ . '/../app/configs');
         $connection = $kernel->container()->get('database.connection');
+        self::assertInstanceOf(PdoConnection::class, $connection);
 
         $this->expectException(ConfigException::class);
         $this->expectExceptionMessageIsOrContains('The database.connection wired default is not declared');
@@ -269,6 +274,7 @@ final class DatabaseWiringTest extends TestCase
         $kernel = self::bootDeclared();
 
         $connection = $kernel->container()->get('database.connection');
+        self::assertInstanceOf(PdoConnection::class, $connection);
 
         $connection->execute(new SqlQuery('CREATE TABLE booted (id INTEGER PRIMARY KEY, v TEXT)'));
         $connection->execute(new SqlQuery('INSERT INTO booted (v) VALUES (?)', ['booted']));
@@ -310,14 +316,16 @@ final class DatabaseWiringTest extends TestCase
     {
         $kernel = self::bootDeclared();
         $connection = $kernel->container()->get('database.connection');
+        self::assertInstanceOf(PdoConnection::class, $connection);
 
         $connection->execute(new SqlQuery('CREATE TABLE metered (id INTEGER PRIMARY KEY, v TEXT)'));
         $connection->execute(new SqlQuery('INSERT INTO metered (v) VALUES (?)', ['x']));
         $connection->execute(new SqlQuery('UPDATE metered SET v = ?', ['y'], true));
 
-        $series = $kernel->container()->get('observability.meter')->snapshot();
+        $meter = $kernel->container()->get('observability.meter');
+        self::assertInstanceOf(MeterInterface::class, $meter);
 
-        self::assertArrayHasKey('zef.db.unbounded_statement|{"op":"update"}', $series);
+        self::assertArrayHasKey('zef.db.unbounded_statement|{"op":"update"}', $meter->snapshot());
     }
 
     public function testADeclaredLogAddressAnswersTheAuditRecordSink(): void
@@ -342,14 +350,18 @@ final class DatabaseWiringTest extends TestCase
         self::assertFileExists($logPath, "the audit record landed in the deployment's one structured log address");
 
         $record = json_decode((string) file_get_contents($logPath), true, 4, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
         self::assertSame('warning', $record['level'] ?? null);
         self::assertSame(
             'Unbounded update executed (allowUnbounded): 1 row(s) affected',
             $record['message'] ?? null,
         );
-        self::assertSame('UPDATE audited SET v = ?', $record['context']['sql'] ?? null);
-        self::assertSame(1, $record['context']['rows'] ?? null);
-        self::assertSame('update', $record['context']['op'] ?? null);
+
+        $context = $record['context'] ?? null;
+        self::assertIsArray($context);
+        self::assertSame('UPDATE audited SET v = ?', $context['sql'] ?? null);
+        self::assertSame(1, $context['rows'] ?? null);
+        self::assertSame('update', $context['op'] ?? null);
 
         unlink($logPath);
     }
