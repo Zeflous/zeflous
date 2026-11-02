@@ -11,7 +11,9 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigBootstrapper;
+use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Schema\EventSchema;
+use Zef\Framework\Container\NotFoundException;
 use Zef\Framework\ContainerModuleRegistrar;
 use Zef\Framework\Event\EventDispatcher;
 use Zef\Framework\Event\EventName;
@@ -44,6 +46,7 @@ use Zef\Framework\Modules\ModuleSchemaRules;
 use Zef\Framework\Modules\ModuleVersion;
 use Zef\Test\Modules\Fixtures\EventsModule;
 use Zef\Test\Modules\Fixtures\FixtureLog;
+use Zef\Test\Support\Events\HostComposedDispatcherFactory;
 
 /**
  * The event extension point riding the one-call boot: a module's declared
@@ -237,7 +240,7 @@ final class ModuleEventsIntegrationTest extends TestCase
             'modules.php' => [self::FIXTURE_MANIFESTS . '/with-events/module.php'],
             'services.php' => [
                 EventWiring::DISPATCHER_SERVICE => [
-                    'factory' => \Zef\Test\Support\Events\HostComposedDispatcherFactory::class . '::compose',
+                    'factory' => HostComposedDispatcherFactory::class . '::compose',
                     'arguments' => [],
                 ],
             ],
@@ -272,7 +275,7 @@ final class ModuleEventsIntegrationTest extends TestCase
             ],
         ]);
 
-        $this->expectException(\Zef\Framework\Config\ConfigException::class);
+        $this->expectException(ConfigException::class);
         $this->expectExceptionMessageIsOrContains('fieldss');
 
         new ApplicationBootstrapper()->boot($root);
@@ -284,7 +287,7 @@ final class ModuleEventsIntegrationTest extends TestCase
             'events.php' => ['listen' => 'nope'],
         ]);
 
-        $this->expectException(\Zef\Framework\Config\ConfigException::class);
+        $this->expectException(ConfigException::class);
         $this->expectExceptionMessageIsOrContains(
             'The "events.listen" configuration must be a list of event declarations.',
         );
@@ -323,7 +326,7 @@ final class ModuleEventsIntegrationTest extends TestCase
 
         $kernel = new ApplicationBootstrapper()->boot($root);
 
-        $this->expectException(\Zef\Framework\Container\NotFoundException::class);
+        $this->expectException(NotFoundException::class);
         $this->expectExceptionMessageIsOrContains('test/shop/never-registered');
 
         $kernel->container()->get(EventWiring::DISPATCHER_SERVICE);
