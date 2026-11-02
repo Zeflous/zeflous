@@ -8,13 +8,12 @@ namespace Zef\Framework\Database;
  * The migration files' discovery fold: the operator's migrations
  * directory as a source of declared migrations -- one `*.php` file,
  * one {@see MigrationInterface} instance, the file's own return the
- * declaration.
+ * declaration ({@see MigrationFile} the one-file fold).
  *
  * The directory is HOST content (the tree ships no migrations of its
  * own), so the fold owns only the directory's grammar and invents
  * nothing: a directory that does not exist or is not one refuses
- * naming it; a file whose return is not a migration instance refuses
- * naming the file; a version declared by two files refuses naming
+ * naming it, and a version declared by two files refuses naming
  * both -- the duplicate guard the runner's own registration grammar
  * ({@see MigrationRegistration}) would otherwise fire without the
  * file names an operator needs. The declaration's OWN corridor (the
@@ -30,12 +29,6 @@ namespace Zef\Framework\Database;
  * determinism, because the runner sorts by VERSION, never by file
  * name.
  *
- * Including a migration file executes host code; that is what a
- * migration file IS (the reference's own register verb hands over
- * instances the host composed by hand -- the directory only spells
- * where the operator's runner finds them without a bootstrap of
- * their own).
- *
  * @internal
  */
 final class MigrationFiles
@@ -47,8 +40,8 @@ final class MigrationFiles
      *                                           by their version stamps
      *
      * @throws MigrationException when the directory does not exist,
-     *                            a file returns a non-migration, or two
-     *                            files declare the same version
+     *                            a file refuses ({@see MigrationFile}),
+     *                            or two files declare the same version
      */
     public static function discover(string $directory): array
     {
@@ -64,14 +57,7 @@ final class MigrationFiles
         $files = glob(mb_rtrim($directory, '/\\') . '/*.php');
 
         foreach (\is_array($files) ? $files : [] as $file) {
-            $migration = include $file;
-
-            if (!$migration instanceof MigrationInterface) {
-                throw new MigrationException(
-                    "Migration file '{$file}' must return a MigrationInterface instance.",
-                );
-            }
-
+            $migration = MigrationFile::declaration($file);
             $version = $migration->version();
 
             if (isset($migrations[$version])) {

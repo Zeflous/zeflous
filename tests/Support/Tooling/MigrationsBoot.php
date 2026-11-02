@@ -72,10 +72,10 @@ final readonly class MigrationsBoot
      *                                              directory (one `*.php` file per
      *                                              declared migration)
      *
-     * @throws ConfigException      when the silent database
-     *                                                    profile refuses at the host's first use
+     * @throws ConfigException    when the silent database
+     *                            profile refuses at the host's first use
      * @throws MigrationException when the migrations directory
-     *                                                    or a declaration refuses
+     *                            or a declaration refuses
      */
     public static function booted(string $configDirectory, string $migrationsDirectory): self
     {

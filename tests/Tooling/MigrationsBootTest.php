@@ -187,6 +187,36 @@ final class MigrationsBootTest extends TestCase
         );
     }
 
+    /**
+     * The throwaway container artifact never outlives the boot: an
+     * AOT-enabled boot dumps the artifact the boot itself wired, and
+     * the boot's cleanup still removes it -- the finally runs after
+     * the answer, not before it (the analysis boots' own discipline,
+     * spelled for the migrations boot).
+     */
+    public function testTheThrowawayArtifactNeverOutlivesTheBoot(): void
+    {
+        $this->writeDeclaredConfiguration();
+        $this->writeCreateUsersMigration();
+        file_put_contents(
+            $this->configs() . '/aot.php',
+            '<?php return ["enabled" => true];',
+        );
+
+        $before = glob(sys_get_temp_dir() . '/zef-container-inventory-*');
+        self::assertIsArray($before);
+
+        MigrationsBoot::booted($this->configs(), $this->migrations())->migrate();
+
+        $after = glob(sys_get_temp_dir() . '/zef-container-inventory-*');
+        self::assertIsArray($after);
+        self::assertSame(
+            $before,
+            $after,
+            'the AOT artifact the boot dumped never outlives the boot that dumped it',
+        );
+    }
+
     public function testTheSilentProfileRefusesAtTheHostsFirstUse(): void
     {
         $this->writeCreateUsersMigration();
@@ -255,7 +285,7 @@ final class MigrationsBootTest extends TestCase
         $document = json_decode(
             MigrationsStatusJson::rendered(
                 $this->declaredNames(),
-                [self::FIRST_VERSION],
+                [self::FIRST_VERSION, self::SECOND_VERSION],
                 [self::SECOND_VERSION],
             ),
             true,
@@ -265,15 +295,24 @@ final class MigrationsBootTest extends TestCase
 
         $counts = $document['counts'] ?? null;
         self::assertIsArray($counts);
-        self::assertSame(1, $counts['applied']);
+        self::assertSame(2, $counts['applied']);
         self::assertSame(1, $counts['pending']);
         self::assertSame(2, $counts['declared']);
 
         $applied = $document['applied'] ?? null;
         self::assertIsArray($applied);
+        self::assertCount(
+            2,
+            $applied,
+            'every applied version carries its own record, never a truncated one',
+        );
         self::assertSame(
             ['version' => self::FIRST_VERSION, 'name' => 'create users'],
             $applied[0] ?? null,
+        );
+        self::assertSame(
+            ['version' => self::SECOND_VERSION, 'name' => 'create sessions'],
+            $applied[1] ?? null,
         );
 
         $pending = $document['pending'] ?? null;

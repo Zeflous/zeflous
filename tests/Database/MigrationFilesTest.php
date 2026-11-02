@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Zef\Framework\Database\MigrationException;
+use Zef\Framework\Database\MigrationFile;
 use Zef\Framework\Database\MigrationFiles;
 
 /**
@@ -17,12 +18,15 @@ use Zef\Framework\Database\MigrationFiles;
  * one-file-one-migration (dot-files invisible, no ordering contract),
  * and every refusal naming exactly what an operator needs to find the
  * defect: the missing directory, the file whose return is not a
- * migration, and the version two files both declare (BOTH files
- * named, the reason the duplicate guard lives here and not only at
- * the register verb).
+ * migration, the glob match that is not a regular file, and the
+ * version two files both declare (BOTH files named, the reason the
+ * duplicate guard lives here and not only at the register verb) --
+ * the one-file declaration fold ({@see MigrationFile}) walked through
+ * the discovery's own every branch.
  *
  * @internal
  */
+#[CoversClass(MigrationFile::class)]
 #[CoversClass(MigrationFiles::class)]
 final class MigrationFilesTest extends TestCase
 {
@@ -36,11 +40,11 @@ final class MigrationFilesTest extends TestCase
             $hidden = glob($this->directory . '/.*');
 
             foreach (array_merge(\is_array($entries) ? $entries : [], \is_array($hidden) ? $hidden : []) as $entry) {
-                if (!is_file($entry)) {
-                    continue;
+                if (is_file($entry)) {
+                    unlink($entry);
+                } elseif (is_dir($entry) && !str_ends_with($entry, '/.') && !str_ends_with($entry, '/..')) {
+                    rmdir($entry);
                 }
-
-                unlink($entry);
             }
 
             rmdir($this->directory);
@@ -107,6 +111,17 @@ final class MigrationFilesTest extends TestCase
 
         $this->expectExceptionObject(new MigrationException(
             "Migration file '" . $this->directory() . "/stray.php' must return a MigrationInterface instance.",
+        ));
+
+        MigrationFiles::discover($this->directory());
+    }
+
+    public function testAGlobMatchThatIsNotARegularFileRefusesNamingIt(): void
+    {
+        mkdir($this->directory() . '/stray.php');
+
+        $this->expectExceptionObject(new MigrationException(
+            "Migration file '" . $this->directory() . "/stray.php' is not a regular file.",
         ));
 
         MigrationFiles::discover($this->directory());
