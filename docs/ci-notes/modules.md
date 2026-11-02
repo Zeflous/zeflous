@@ -319,7 +319,13 @@ fail-closed (the pipeline factory's doctrine: a listener that is not
 registered, or does not answer `EventListener`, aborts the
 composition -- a dispatcher that silently skipped a declared listener
 would be a lie with a delivery count), every subscription at the
-declaration-order standing. The one-call boot installs the reader
+declaration-order standing -- the standing the integration suite's own
+tape asserts: several declared listeners answer in the order the
+declarations spell (never the tags' or the service identifiers' own
+order), and a runtime subscription's own priority meets them on the one
+recording, above them all, below them all, and at the standing itself
+behind the wired, the registration-order tiebreak the wiring's earlier
+subscription owns. The one-call boot installs the reader
 under the reserved `events.dispatcher` identifier ahead of the
 definitions (a host's same-identifier rebind wins, the
 reserved-services precedent), and the container's own laziness defers
@@ -336,9 +342,21 @@ per-module migrations (the Fase 2 folds beside this one), the Fase 3
 governance and the Fase 4 DX, and the async arms' module declarations
 (the joined table serves the synchronous dispatcher; the deferred and
 durable vocabularies remain the host's own composition through the
-dispatcher's own verbs). The battery: `ci:static`'s lanes green over
-the sandbox's static PHP (6742 tests / 16285 assertions, +68 over the
-database wiring settle; smoke 2760B/20000 iterations; workflow
+dispatcher's own verbs). The CI round the fold's own head closed: the
+mutation lane's three escapes -- the wired standing's zero lifted or
+dropped an integer, and the compile fold's event assertion removed
+whole -- are answered by the same battery. The meeting tape kills both
+integer mutants: the runtime `+1` that must stand above everything ties
+into the declared order when the zero becomes one (the wiring
+subscribed first, so a tie falls behind the declarations), and the
+runtime `0` that must stand behind the declarations stands ahead of
+them when the zero becomes minus one. The compile fold's killer -- an
+invalid listen table never reaching the artifact -- kills the removal:
+the guard gone, the malformed repository would compile into the cache
+and the boot would not halt. The battery: `ci:static`'s lanes green over
+the sandbox's static PHP (6769 tests / 16356 assertions, +95 over the
+database wiring settle -- the merged main's migration CLI family and
+the three killers riding between; smoke 2760B/20000 iterations; workflow
 concurrency 23; roadmap:gate pass; audit 0 advisories; duplication +
 mess clean; archeology 0 error-level findings; PHPBench full suite
 green), psalm EXIT-0 over the adjusted ledger -- the `EventDispatcher`
