@@ -6,9 +6,11 @@ namespace Zef\Framework\Adapters\Database;
 
 use Override;
 use PDO;
+use Psr\Log\LoggerInterface;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\IsolationLevel;
 use Zef\Framework\Database\SqlQuery;
+use Zef\Framework\Telemetry\MeterInterface;
 
 /**
  * PDO-backed {@see ConnectionInterface} adapter.
@@ -16,6 +18,12 @@ use Zef\Framework\Database\SqlQuery;
  * - connects lazily on first use (no socket touched for config errors);
  * - maps every \PDOException onto the typed family, chaining the
  *   original -- the caller never sees a driver type;
+ * - optionally audits `allowUnbounded()` executions: when a
+ *   deliberately unbounded UPDATE/DELETE (the `SqlQuery` flag) runs,
+ *   an optional {@see MeterInterface} counter increment and/or an
+ *   optional {@see LoggerInterface} WARN record is emitted through
+ *   {@see PdoUnboundedAudit} for security audit trails (both seams
+ *   default to null -- no observability, no cost);
  * - the nested-transaction SAVEPOINT walk and its isolation rules live
  *   in {@see PdoTransactions}, the FETCH_ASSOC answer's narrowing in
  *   {@see PdoRows}, the statement execution mapping in
@@ -36,6 +44,8 @@ final readonly class PdoConnection implements ConnectionInterface
     public function __construct(
         ConnectionConfig $connectionConfig,
         ?PDO $pdo = null,
+        private ?MeterInterface $meter = null,
+        private ?LoggerInterface $auditLogger = null,
     ) {
         $this->pdoHandle = new PdoHandle($connectionConfig, $pdo);
         $this->pdoTransactions = new PdoTransactions();
@@ -48,7 +58,13 @@ final readonly class PdoConnection implements ConnectionInterface
         $pdoStatement = PdoStatementRun::prepare($this->pdoHandle->pdo(), $sqlQuery);
         PdoStatementRun::execute($pdoStatement, $sqlQuery);
 
-        return $pdoStatement->rowCount();
+        $affected = $pdoStatement->rowCount();
+
+        if ($sqlQuery->unbounded) {
+            PdoUnboundedAudit::emit($this->meter, $this->auditLogger, $sqlQuery, $affected);
+        }
+
+        return $affected;
     }
 
     #[Override]

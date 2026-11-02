@@ -311,6 +311,25 @@
                 "Zef\\Framework\\Config\\Routing\\RouteAcceptRanges::quality",
                 "Zef\\Framework\\Middleware\\RouteDispatchHandler::varyOnAccept",
                 "Zef\\Framework\\Middleware\\ServerRequestMetadata::fromRequest",
+                // The unbounded audit's operation fold reads the SQL
+                // statement's own head against the pure-ASCII 'UPDATE'
+                // prefix: no non-ASCII character upper-cases into any
+                // of that prefix's six letters (the only single-
+                // character lower-case landings in ASCII the Unicode
+                // case map carries are the Kelvin sign's K and the
+                // long-s's S, neither of which the prefix spells), so
+                // a statement whose head diverges between the
+                // character map and the byte map misses the prefix
+                // under both spellings and audits as 'delete' either
+                // way -- while every ASCII-headed statement agrees
+                // between the maps outright (verified by running the
+                // changed-set under the escaped mutation -- the
+                // complete suite passes, the lowercase- and
+                // whitespace-led heads included). The spelling keeps
+                // the mb_ forms precisely because the automated mb_str
+                // migration rewrites the plain ones. This ignore is
+                // scoped to that single method.
+                "Zef\\Framework\\Adapters\\Database\\PdoUnboundedAudit::operation",
                 // The Postman collection's identifier formatting is the
                 // router lane's own RedactionCandidate measurement, spelled
                 // for the hash family: the SHA-1 hex digest hash() answers

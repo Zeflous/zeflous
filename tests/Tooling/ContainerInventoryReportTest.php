@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
+use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Test\Support\Container\Aot\CallsHouse;
 use Zef\Test\Support\Container\Aot\House;
 use Zef\Test\Support\Container\Aot\Roof;
@@ -152,8 +153,14 @@ final class ContainerInventoryReportTest extends TestCase
 
         $report = ContainerInventoryReport::rendering($this->configDirectory);
 
-        self::assertStringContainsString('lazy marks -- 1', $report);
+        self::assertStringContainsString('lazy marks -- 3', $report);
         self::assertStringContainsString("\n  app.window -> " . Window::class, $report);
+        self::assertStringContainsString(
+            "\n  database.connection -> " . PdoConnection::class,
+            $report,
+            'the wired default connection defers: the silent knob refuses at the ask, never at the boot',
+        );
+        self::assertStringContainsString("\n  database.migrator -> ", $report);
     }
 
     public function testAQueriedIdentifierTheBootDidNotDeclareRefuses(): void

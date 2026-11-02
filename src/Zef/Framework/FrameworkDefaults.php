@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework;
 
 use Zef\Framework\Container\ContainerServices;
+use Zef\Framework\Database\UnitOfWork;
 use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Middleware\AuthFactory;
 use Zef\Framework\Middleware\BodyParserFactory;
@@ -92,7 +93,29 @@ use Zef\Framework\Middleware\TracingFactory;
  * registration is deliberately TRANSIENT, because the singleton
  * warmer would eagerly resolve a shared lifetime and the wired
  * default's silent knob is the refusal that must fire only at the
- * host's own ask, never at the boot. The remaining growth follows the
+ * host's own ask, never at the boot. The database family joins
+ * the catalogue the same way every family did -- the wiring knob
+ * block's own registration set (`database.connection`,
+ * `database.transactions`, `database.unit_of_work` and
+ * `database.migrator` over the {@see DatabaseWiring} fold, the
+ * knob block's first live reader, its knobs under the family's own
+ * `database` key) -- with the same never-at-the-boot posture the
+ * events family planted, spelled the way a connection demands: the
+ * knobs ship SILENT (the framework ships no database of its own,
+ * so `database.default` stays the empty string until a host's own
+ * declaration spells one), and the connection and migrator
+ * registrations defer behind native lazy proxies so the boot's
+ * singleton warmer answers the proxy without running the factory
+ * -- the silent knob's refusal fires only at the host's own first
+ * ask -- while the connection's one materialised instance still
+ * answers every later ask, which a transient lifetime could never
+ * promise a connection. The transaction manager and the
+ * unit-of-work queue need no knob of their own: the manager
+ * composes over the shared connection identity the registration
+ * names, and the queue is the per-ask artifact its transient
+ * lifetime spells (a fresh queue per resolution -- the
+ * deferred-write queue's own nature, never a shared accumulating
+ * one). The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
  * `http.trusted_hosts`, ...) migrate with their wiring, and the
  * container's `aot` switch has arrived with the compile/dump area
@@ -289,6 +312,11 @@ final readonly class FrameworkDefaults
                     'capacity' => EventDeliveryDeclaration::DEFAULT_CAPACITY,
                 ],
             ],
+            'database' => [
+                'default' => '',
+                'connections' => [],
+                'migrations' => '',
+            ],
             'aot' => [
                 'enabled' => false,
                 'warm' => false,
@@ -420,6 +448,32 @@ final readonly class FrameworkDefaults
                     ['service' => self::CONFIG_SERVICE],
                 ],
                 'lifetime' => 'transient',
+            ],
+            'database.connection' => [
+                'factory' => DatabaseWiring::class . '::connection',
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                    ['service' => 'observability.meter'],
+                ],
+                'lazy' => true,
+            ],
+            'database.transactions' => [
+                'factory' => DatabaseWiring::class . '::transactions',
+                'arguments' => [
+                    ['service' => 'database.connection'],
+                ],
+            ],
+            'database.unit_of_work' => [
+                'class' => UnitOfWork::class,
+                'lifetime' => 'transient',
+            ],
+            'database.migrator' => [
+                'factory' => DatabaseWiring::class . '::migrator',
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                    ['service' => 'observability.meter'],
+                ],
+                'lazy' => true,
             ],
         ];
     }

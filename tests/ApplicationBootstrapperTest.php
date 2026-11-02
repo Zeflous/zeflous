@@ -16,6 +16,8 @@ use Zef\Framework\Config\Loader\DirectoryInventory;
 use Zef\Framework\Config\Merge\EnvSource;
 use Zef\Framework\Config\Routing\RoutingRuntime;
 use Zef\Framework\Container\Aot\ContainerAotCache;
+use Zef\Framework\Database\UnitOfWork;
+use Zef\Framework\DatabaseWiring;
 use Zef\Framework\EventStorageWiring;
 use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Health\HealthChecker;
@@ -190,6 +192,32 @@ final class ApplicationBootstrapperTest extends TestCase
                         ['service' => FrameworkDefaults::CONFIG_SERVICE],
                     ],
                     'lifetime' => 'transient',
+                ],
+                'database.connection' => [
+                    'factory' => DatabaseWiring::class . '::connection',
+                    'arguments' => [
+                        ['service' => FrameworkDefaults::CONFIG_SERVICE],
+                        ['service' => 'observability.meter'],
+                    ],
+                    'lazy' => true,
+                ],
+                'database.transactions' => [
+                    'factory' => DatabaseWiring::class . '::transactions',
+                    'arguments' => [
+                        ['service' => 'database.connection'],
+                    ],
+                ],
+                'database.unit_of_work' => [
+                    'class' => UnitOfWork::class,
+                    'lifetime' => 'transient',
+                ],
+                'database.migrator' => [
+                    'factory' => DatabaseWiring::class . '::migrator',
+                    'arguments' => [
+                        ['service' => FrameworkDefaults::CONFIG_SERVICE],
+                        ['service' => 'observability.meter'],
+                    ],
+                    'lazy' => true,
                 ],
             ],
             $kernel->config()->get('framework.services'),
