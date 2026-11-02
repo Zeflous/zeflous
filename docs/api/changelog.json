@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-02T00:33:33Z",
+  "as_of": "2026-11-02T12:41:47Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 281,
+  "unreleased_count": 282,
   "versions": [
     {
       "version": "Unreleased",
@@ -4107,6 +4107,37 @@
                 "sha": "ef5ac6bf819f4d5f018d343ae406f1669814a84b",
                 "short_sha": "ef5ac6b",
                 "subject": "docs(roadmap): refresh the pin over the route extension point's closing commit"
+              }
+            ]
+          },
+          {
+            "pr": 674,
+            "title": "feat(database): the orchestration family over the connection port",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-02T12:41:47Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/674",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "49046680d4c71927ee9d1abe335a518ac24f89a5",
+                "short_sha": "4904668",
+                "subject": "feat(database): the orchestration family over the connection port (TransactionManager with its managed scopes and after-commit hooks, UnitOfWork with its retrying replay, Migrator with its single-row lock machine, and the Repository gateway -- the reference's v2.22.x family adapted to the tree's lean verb doctrine and typed failure taxonomy, over twenty-nine folds the archeology ceiling forced out)"
+              },
+              {
+                "sha": "9d138dce932b8cb1207142fe62f5636a197f2b3b",
+                "short_sha": "9d138dc",
+                "subject": "docs(roadmap): record the database orchestration slice and pin the lane"
+              },
+              {
+                "sha": "3f1587f2e35307b4ceea133428ec3c2a48f346dc",
+                "short_sha": "3f1587f",
+                "subject": "fix(database): the cold-cache psalm baseline the local cache had masked"
+              },
+              {
+                "sha": "4d60248d3bb778184088a5e37d950f064f50d23b",
+                "short_sha": "4d60248",
+                "subject": "docs(roadmap): refresh the pin over the database orchestration slice's closing commit"
               }
             ]
           }
@@ -18095,6 +18126,37 @@
               "sha": "ef5ac6bf819f4d5f018d343ae406f1669814a84b",
               "short_sha": "ef5ac6b",
               "subject": "docs(roadmap): refresh the pin over the route extension point's closing commit"
+            }
+          ]
+        },
+        {
+          "pr": 674,
+          "title": "feat(database): the orchestration family over the connection port",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-02T12:41:47Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/674",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "49046680d4c71927ee9d1abe335a518ac24f89a5",
+              "short_sha": "4904668",
+              "subject": "feat(database): the orchestration family over the connection port (TransactionManager with its managed scopes and after-commit hooks, UnitOfWork with its retrying replay, Migrator with its single-row lock machine, and the Repository gateway -- the reference's v2.22.x family adapted to the tree's lean verb doctrine and typed failure taxonomy, over twenty-nine folds the archeology ceiling forced out)"
+            },
+            {
+              "sha": "9d138dce932b8cb1207142fe62f5636a197f2b3b",
+              "short_sha": "9d138dc",
+              "subject": "docs(roadmap): record the database orchestration slice and pin the lane"
+            },
+            {
+              "sha": "3f1587f2e35307b4ceea133428ec3c2a48f346dc",
+              "short_sha": "3f1587f",
+              "subject": "fix(database): the cold-cache psalm baseline the local cache had masked"
+            },
+            {
+              "sha": "4d60248d3bb778184088a5e37d950f064f50d23b",
+              "short_sha": "4d60248",
+              "subject": "docs(roadmap): refresh the pin over the database orchestration slice's closing commit"
             }
           ]
         }
