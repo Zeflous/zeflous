@@ -16,6 +16,7 @@ use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContainerCompileLane;
 use Zef\Framework\Container\ContainerInstalls;
 use Zef\Framework\Container\DefinitionCompiler;
+use Zef\Framework\Event\EventDispatcher;
 use Zef\Framework\Middleware\MiddlewarePipeline;
 use Zef\Framework\Middleware\PipelineFactory;
 use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
@@ -82,6 +83,14 @@ use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
  * joins the frozen repository's `routes` table before the definitions
  * install, so the router the host builds over the booted kernel serves
  * the merged table -- one `routes` key, never a second source of truth.
+ * The event extension point's fold ({@see ModuleEventsTable}) rides the
+ * same hinge: a module's declared events file joins the repository's
+ * `events.listen` table the same way, and the wired dispatcher's
+ * reserved registration ({@see EventWiring::DISPATCHER_SERVICE}, over
+ * the augmented repository and the container's own laziness) answers
+ * the joined declarations at the host's first resolution -- one
+ * `events.listen` key, one dispatcher, the module's events served
+ * exactly as if the host had declared them.
  * The empty knob -- the shipped default -- is
  * the honest no-op: no entries, no discovery, an empty roster, and a
  * repository that rides verbatim.
@@ -167,19 +176,35 @@ final readonly class ApplicationBootstrapper
 
         $moduleRoster = new ModuleBootstrapper()->register($config, $container);
 
-        // The route extension point's seam: a module's declared routes file
-        // joins the frozen repository's `routes` table here -- after the
-        // registration phase, before the definitions install -- so the
-        // definitions, the process boundary and the booted kernel all ride
-        // the one merged repository. The composition root re-freezes its
-        // own `framework.config` word over the augmented repository (the
+        // The route and event extension points' seam: a module's declared
+        // routes and events files join the frozen repository's `routes` and
+        // `events.listen` tables here -- after the registration phase,
+        // before the definitions install -- so the definitions, the process
+        // boundary and the booted kernel all ride the one merged
+        // repository. The composition root re-freezes its own
+        // `framework.config` word over the augmented repositories (the
         // store's set overwrites by identifier and forgets the memoised
         // singleton), so the service the profile and the host definitions
-        // resolve answers the same table the kernel carries.
+        // resolve answers the same tables the kernel carries -- and the
+        // wired dispatcher's reserved registration rides the same word:
+        // installed ahead of the definitions (a host's same-identifier
+        // rebind wins, the reserved-services precedent), answered only at
+        // the host's first resolution (the never-at-the-boot discipline),
+        // the joined `events.listen` table the only source of truth it
+        // reads.
         $config = new ModuleRouteTable()->augmented($config, $moduleRoster);
+        $config = new ModuleEventsTable()->augmented($config, $moduleRoster);
+
         $container->set(
             FrameworkDefaults::CONFIG_SERVICE,
             static fn (): Config => $config,
+        );
+        $container->set(
+            EventWiring::DISPATCHER_SERVICE,
+            static fn (Container $container): EventDispatcher => EventWiring::dispatcher(
+                $config,
+                $container,
+            ),
         );
 
         $container = new ContainerBootstrapper(

@@ -135,7 +135,7 @@ final class EventDeliveryDeclarationTest extends TestCase
             self::fail("A typo'd events knob must refuse, never fall through silently.");
         } catch (ConfigException $configException) {
             self::assertSame(
-                "The events configuration carries the unknown knob 'deffered' (known knobs: deferred).",
+                "The events configuration carries the unknown knob 'deffered' (known knobs: deferred, listen).",
                 $configException->getMessage(),
             );
         }

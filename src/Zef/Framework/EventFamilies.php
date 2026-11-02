@@ -24,7 +24,9 @@ use Zef\Framework\Config\ConfigException;
  * system's `events` reader (the named future three decision
  * records carry) joins its family here, and the known list it
  * finds already guards the map for every boot that resolves a
- * family through it.
+ * family through it -- the `listen` family (the wired dispatcher's
+ * declaration table, the module system's event extension point's
+ * joined key) is the family that joined.
  */
 final class EventFamilies
 {
@@ -32,7 +34,7 @@ final class EventFamilies
      * The legitimate children of the `events` map, in landing
      * order.
      */
-    private const array FAMILIES = ['deferred'];
+    private const array FAMILIES = ['deferred', 'listen'];
 
     /**
      * Reads one family's subtree out of the merged `events` map.

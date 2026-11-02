@@ -14,18 +14,22 @@ use Zef\Framework\Config\Schema\ConfigSchema;
  * The engine reuses {@see ConfigSchema} exactly as that class's docblock
  * anticipated -- a manifest is a configuration entry, so its validation
  * needs no engine of its own: the fields (name, version, requires,
- * class, config_schema, routes) ride the field-rule map, and an unknown
- * key or a wrong kind is a violation the schema renders, not a silent
- * skip. The kinds the schema answers are then refined by the engine's own
- * grammars: the name and version through {@see ModuleMetadata}, the class
- * through {@see ModuleDeclaration}'s qualified-spelling refusal, the
- * optional `config_schema` and `routes` paths kept raw for the discovery
- * fold -- only the fold that read the manifest knows the directory a
- * relative path resolves against.
+ * class, config_schema, routes, events) ride the field-rule map, and an
+ * unknown key or a wrong kind is a violation the schema renders, not a
+ * silent skip. The kinds the schema answers are then refined by the
+ * engine's own grammars: the name and version through
+ * {@see ModuleMetadata}, the class through {@see ModuleDeclaration}'s
+ * qualified-spelling refusal, the optional `config_schema`, `routes` and
+ * `events` paths kept raw for the discovery fold -- only the fold that
+ * read the manifest knows the directory a relative path resolves
+ * against.
  *
  * A manifest carries no behaviour: it declares which class implements the
  * contract and the identity the boot orders by, so discovery stays free
- * of instantiation until the resolution fold runs.
+ * of instantiation until the resolution fold runs. The optional `events`
+ * path rides the same rule the `routes` path rides: kept raw for the
+ * discovery fold, resolved against the manifest's own directory when
+ * that fold read the manifest.
  */
 final readonly class ModuleManifest
 {
@@ -41,7 +45,9 @@ final readonly class ModuleManifest
 
     private const string FIELD_ROUTES = 'routes';
 
-    /** The shared field rules: the identity trio's required string, the two optional manifest paths' optional string. */
+    private const string FIELD_EVENTS = 'events';
+
+    /** The shared field rules: the identity trio's required string, the three optional manifest paths' optional string. */
     private const array REQUIRED_STRING = ['required' => true, 'kind' => 'string'];
 
     private const array OPTIONAL_STRING = ['required' => false, 'kind' => 'string'];
@@ -73,7 +79,7 @@ final readonly class ModuleManifest
          *
          * @var array{name: string, version: string, class: string,
          *     requires?: list<string>, config_schema?: string,
-         *     routes?: string} $payload
+         *     routes?: string, events?: string} $payload
          */
         $violations = self::schema()->validate($payload);
 
@@ -92,12 +98,13 @@ final readonly class ModuleManifest
             ),
             $payload[self::FIELD_SCHEMA] ?? null,
             $payload[self::FIELD_ROUTES] ?? null,
+            $payload[self::FIELD_EVENTS] ?? null,
         );
     }
 
     /**
      * Parses the manifest the given file carried and resolves its
-     * `config_schema` and `routes` paths against that file's own
+     * `config_schema`, `routes` and `events` paths against that file's own
      * directory -- the one spelling that knows where a relative path is
      * relative to. A rooted spelling rides verbatim.
      */
@@ -108,6 +115,12 @@ final readonly class ModuleManifest
         if ($moduleDeclaration->routes !== null) {
             $moduleDeclaration = $moduleDeclaration->withRoutes(
                 self::resolvedPath($moduleDeclaration->routes, $manifest),
+            );
+        }
+
+        if ($moduleDeclaration->events !== null) {
+            $moduleDeclaration = $moduleDeclaration->withEvents(
+                self::resolvedPath($moduleDeclaration->events, $manifest),
             );
         }
 
@@ -148,6 +161,7 @@ final readonly class ModuleManifest
             self::FIELD_CLASS => self::REQUIRED_STRING,
             self::FIELD_SCHEMA => self::OPTIONAL_STRING,
             self::FIELD_ROUTES => self::OPTIONAL_STRING,
+            self::FIELD_EVENTS => self::OPTIONAL_STRING,
         ]);
     }
 }
