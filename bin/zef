@@ -504,6 +504,122 @@ if ($command === 'storage:map') {
     }
 }
 
+if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollback'], true)) {
+    $migrationsUsage = "Usage: bin/zef migrations:status <config-directory>"
+        . " [<migrations-directory>] [--json]\n"
+        . "       bin/zef migrations:run <config-directory> [<migrations-directory>]\n"
+        . "       bin/zef migrations:rollback <config-directory>"
+        . " [<migrations-directory>] [--steps=<n>]\n"
+        . "       (the migrations directory defaults to the configuration"
+        . " directory's sibling 'migrations')\n";
+
+    $configDirectoryArgument = $argv[2] ?? '';
+    $migrationsDirectoryArgument = null;
+    $statusAsJson = false;
+    $rollbackSteps = 1;
+
+    if ($configDirectoryArgument === '' || str_starts_with($configDirectoryArgument, '--')) {
+        fwrite(STDERR, $migrationsUsage);
+        exit(2);
+    }
+
+    foreach (array_slice($argv, 3) as $argument) {
+        if ($argument === '--json' && $command === 'migrations:status') {
+            $statusAsJson = true;
+        } elseif (str_starts_with($argument, '--steps=') && $command === 'migrations:rollback') {
+            $steps = substr($argument, strlen('--steps='));
+            if (preg_match('/^[1-9][0-9]{0,8}$/', $steps) !== 1) {
+                fwrite(STDERR, $migrationsUsage);
+                exit(2);
+            }
+            $rollbackSteps = (int) $steps;
+        } elseif (str_starts_with($argument, '--')) {
+            fwrite(STDERR, $migrationsUsage);
+            exit(2);
+        } elseif ($migrationsDirectoryArgument === null) {
+            $migrationsDirectoryArgument = $argument;
+        } else {
+            fwrite(STDERR, $migrationsUsage);
+            exit(2);
+        }
+    }
+
+    $resolvedConfigDirectory = realpath($configDirectoryArgument);
+    if ($resolvedConfigDirectory === false || !is_dir($resolvedConfigDirectory)) {
+        fwrite(STDERR, "Configuration directory does not exist: {$configDirectoryArgument}\n");
+        exit(2);
+    }
+
+    $migrationsDirectory = $migrationsDirectoryArgument
+        ?? dirname($resolvedConfigDirectory) . '/migrations';
+
+    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    if (is_file($autoload)) {
+        require_once $autoload;
+    } else {
+        spl_autoload_register(static function (string $class): void {
+            $bases = [
+                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+            ];
+            foreach ($bases as $prefix => $base) {
+                if (str_starts_with($class, $prefix)) {
+                    $file = $base
+                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                    if (is_file($file)) {
+                        require $file;
+                    }
+                }
+            }
+        });
+    }
+
+    try {
+        $migrationsBoot = Zef\Test\Support\Tooling\MigrationsBoot::booted(
+            $resolvedConfigDirectory,
+            $migrationsDirectory,
+        );
+
+        if ($command === 'migrations:status') {
+            fwrite(
+                STDOUT,
+                $statusAsJson
+                    ? Zef\Test\Support\Tooling\MigrationsStatusJson::rendered(
+                        $migrationsBoot->names(),
+                        $migrationsBoot->applied(),
+                        $migrationsBoot->plan(),
+                    ) . "\n"
+                    : Zef\Test\Support\Tooling\MigrationsStatusText::table(
+                        $migrationsBoot->names(),
+                        $migrationsBoot->applied(),
+                        $migrationsBoot->plan(),
+                    ),
+            );
+        } elseif ($command === 'migrations:run') {
+            fwrite(
+                STDOUT,
+                Zef\Test\Support\Tooling\MigrationsRunText::applied(
+                    $migrationsBoot->names(),
+                    $migrationsBoot->migrate(),
+                ),
+            );
+        } else {
+            fwrite(
+                STDOUT,
+                Zef\Test\Support\Tooling\MigrationsRunText::rolledBack(
+                    $migrationsBoot->names(),
+                    $migrationsBoot->rollback($rollbackSteps),
+                ),
+            );
+        }
+
+        exit(0);
+    } catch (Throwable $migrationsFailure) {
+        fwrite(STDERR, 'The migrations command refused: ' . $migrationsFailure->getMessage() . "\n");
+        exit(1);
+    }
+}
+
 if (in_array($command, ['http:dump', 'http:headers'], true)) {
     $httpUsage = "Usage: bin/zef http:dump <config-directory> <method> <path>"
         . " [--host=<host>] [--scheme=http|https] [--header=<Name: Value>]... [--body=<text>]\n"

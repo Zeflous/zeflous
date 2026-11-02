@@ -356,7 +356,14 @@ deptrac:
     # PSR-15 request handler inside the pipeline the kernel's orchestrator
     # builds (`Middleware`) -- and render it through the HTTP layer's own
     # wire folds and security-header audit (`Http`) -- execution-side
-    # composition over the same boot, the exchange never re-derived.
+    # composition over the same boot, the exchange never re-derived. The
+    # migrations commands widen it to the persistence lane's own port
+    # (`Database`): the boot resolves the wired `database.migrator` service
+    # identity the framework profile registers and registers the operator's
+    # discovered declarations through the runner's own verbs -- the same
+    # service-composition over the same boot, the migration steps never
+    # re-derived, the runner's lock and bookkeeping machinery never
+    # duplicated at the command line.
     Tooling:
       - Kernel
       - Exception
@@ -367,3 +374,4 @@ deptrac:
       - Storage
       - Http
       - Middleware
+      - Database
