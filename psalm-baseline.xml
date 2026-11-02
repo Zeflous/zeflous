@@ -231,13 +231,9 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/Migrator.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[__construct]]></code>
-      <code><![CDATA[migrate]]></code>
-      <code><![CDATA[plan]]></code>
-      <code><![CDATA[register]]></code>
-      <code><![CDATA[rollback]]></code>
-    </PossiblyUnusedMethod>
+    <UnusedClass>
+      <code><![CDATA[Migrator]]></code>
+    </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Database/QueryBuilder.php">
     <PossiblyUnusedMethod>
@@ -275,6 +271,7 @@
   <file src="src/Zef/Framework/Database/TransactionManagerInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[afterCommit]]></code>
+      <code><![CDATA[inTransaction]]></code>
       <code><![CDATA[level]]></code>
       <code><![CDATA[withTransaction]]></code>
     </PossiblyUnusedMethod>
