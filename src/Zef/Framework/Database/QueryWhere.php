@@ -47,8 +47,21 @@ final readonly class QueryWhere
      */
     public function nullPredicate(string $column, bool $negated): void
     {
-        $suffix = $negated ? ' IS NOT NULL' : ' IS NULL';
-        $this->queryWhereState->add($this->sqlIdentifier->columnPath($column) . $suffix, []);
+        $queryFragment = QueryPredicate::nullPredicate($this->sqlIdentifier, $column, $negated);
+        $this->queryWhereState->add($queryFragment->fragment, $queryFragment->params);
+    }
+
+    /**
+     * Renders and records one condition-object tree, ANDed or ORed
+     * with the chain -- the condition-object lane's entry into the
+     * state the compilers read, the leaf and composite family
+     * rendering itself through the same identifier grammar every
+     * fluent verb rides.
+     */
+    public function apply(Condition $condition, string $connector): void
+    {
+        $queryFragment = $condition->fragment($this->sqlIdentifier);
+        $this->queryWhereState->add($queryFragment->fragment, $queryFragment->params, $connector);
     }
 
     /**

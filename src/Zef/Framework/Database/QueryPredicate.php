@@ -44,6 +44,26 @@ final class QueryPredicate
     }
 
     /**
+     * Renders `first <op> second` -- one comparison between two columns
+     * of the same row, both operands quoted through the identifier
+     * grammar, no bound values. The condition-object lane's spelling of
+     * the column-vs-column form ({@see ConditionColumnComparison}); the
+     * operator rides the same closed list every comparison answers.
+     */
+    public static function columnComparison(
+        SqlIdentifier $sqlIdentifier,
+        string $first,
+        string $operator,
+        string $second,
+    ): QueryFragment {
+        $op = QueryValues::assertComparisonOperator($operator);
+
+        return new QueryFragment(
+            $sqlIdentifier->columnPath($first) . ' ' . $op . ' ' . $sqlIdentifier->columnPath($second),
+        );
+    }
+
+    /**
      * Renders `column [NOT] IN (...)` -- a placeholder per list member,
      * or a subquery's SQL with its bindings merged after ours.
      *
@@ -102,6 +122,22 @@ final class QueryPredicate
         QueryValues::assertScalar($high, 'whereBetween() high');
 
         return new QueryFragment($sqlIdentifier->columnPath($column) . ' BETWEEN ? AND ?', [$low, $high]);
+    }
+
+    /**
+     * Renders `column IS [NOT] NULL` -- the suffix spelling the NULL
+     * predicate has always carried, now the predicate grammar's own
+     * fold so the leaf ({@see ConditionNull}) and the verb
+     * ({@see QueryWhere::nullPredicate()}) share one spelling.
+     */
+    public static function nullPredicate(
+        SqlIdentifier $sqlIdentifier,
+        string $column,
+        bool $negated,
+    ): QueryFragment {
+        $suffix = $negated ? ' IS NOT NULL' : ' IS NULL';
+
+        return new QueryFragment($sqlIdentifier->columnPath($column) . $suffix);
     }
 
     /**
