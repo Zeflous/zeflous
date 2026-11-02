@@ -1,0 +1,246 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Zef\Test;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Zef\Framework\Config\Config;
+use Zef\Framework\Config\ConfigException;
+use Zef\Framework\DatabaseConnections;
+use Zef\Framework\DatabaseDeclaration;
+use Zef\Framework\DatabaseKnobs;
+use Zef\Framework\FrameworkDefaults;
+
+/**
+ * Pins the database family's declaration fold: the strict census of
+ * the one `database` knob block (the silent posture an absent block
+ * answers, the named halts a typo'd or wrong-typed knob earns, the
+ * connections map's own grammar, the per-purpose name's one-way
+ * fallback), and the drift pin that holds the framework profile's
+ * own declaration to the silent posture -- the two cannot disagree
+ * without a test naming it. The covers list names the whole reading
+ * family this class exercises -- the declaration and the two folds
+ * its grammar reads through (`DatabaseKnobs`, `DatabaseConnections`)
+ * plus the Default layer the drift pin reads: the suite runs with
+ * requireCoverageMetadata, so coverage of a fold whose home does not
+ * name it is filtered out of the clover report -- the
+ * covers-attribution doctrine the events family's own declaration
+ * test spelled first.
+ *
+ * @internal
+ */
+#[CoversClass(DatabaseDeclaration::class)]
+#[CoversClass(DatabaseKnobs::class)]
+#[CoversClass(DatabaseConnections::class)]
+#[CoversClass(FrameworkDefaults::class)]
+final class DatabaseDeclarationTest extends TestCase
+{
+    public function testAnAbsentDatabaseBlockAnswersTheSilentPosture(): void
+    {
+        $declaration = DatabaseDeclaration::fromConfig(new Config([]));
+
+        self::assertSame('', $declaration->default);
+        self::assertSame([], $declaration->connections);
+        self::assertSame('', $declaration->migrations);
+        self::assertFalse($declaration->wantsWiredConnection(), 'an absent family declares no wired default');
+        self::assertSame('', $declaration->migrationsName(), 'an absent family names no migrations purpose either');
+    }
+
+    public function testAnAbsentKnobAnswersTheSilentPostureForThatKnob(): void
+    {
+        $declaration = DatabaseDeclaration::fromConfig(new Config([
+            'database' => [
+                'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+            ],
+        ]));
+
+        self::assertSame('', $declaration->default);
+        self::assertSame(['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']], $declaration->connections);
+        self::assertSame('', $declaration->migrations);
+        self::assertFalse($declaration->wantsWiredConnection(), 'a connections map alone declares no default');
+    }
+
+    public function testAMalformedDatabaseBlockHalts(): void
+    {
+        $configException = self::readMalformed(['database' => 'nope']);
+
+        self::assertSame('The database configuration must be a map, string given.', $configException->getMessage());
+    }
+
+    public function testAnUnknownKnobHaltsWithTheKnownListSpelled(): void
+    {
+        $configException = self::readMalformed(['database' => ['conections' => []]]);
+
+        self::assertSame(
+            "The database configuration carries the unknown knob 'conections' (known knobs: default, connections, migrations).",
+            $configException->getMessage(),
+        );
+    }
+
+    public function testAWrongTypedDefaultNameHalts(): void
+    {
+        $configException = self::readMalformed(['database' => ['default' => 7]]);
+
+        self::assertSame('database.default must be a connection name string.', $configException->getMessage());
+    }
+
+    public function testAWrongTypedMigrationsNameHalts(): void
+    {
+        $configException = self::readMalformed(['database' => ['migrations' => false]]);
+
+        self::assertSame('database.migrations must be a connection name string.', $configException->getMessage());
+    }
+
+    public function testAMalformedConnectionsMapHalts(): void
+    {
+        $configException = self::readMalformed(['database' => ['connections' => 'app']]);
+
+        self::assertSame(
+            'The database.connections configuration must be a map, string given.',
+            $configException->getMessage(),
+        );
+    }
+
+    public function testANonStringConnectionNameHalts(): void
+    {
+        $configException = self::readMalformed(['database' => ['connections' => [0 => []]]]);
+
+        self::assertSame(
+            'The database.connections names must be non-empty strings, int given.',
+            $configException->getMessage(),
+        );
+    }
+
+    public function testAnEmptyConnectionNameHalts(): void
+    {
+        $configException = self::readMalformed(['database' => ['connections' => ['' => []]]]);
+
+        self::assertSame(
+            'The database.connections names must be non-empty strings, an empty string given.',
+            $configException->getMessage(),
+        );
+    }
+
+    public function testANonMapConnectionDeclarationHalts(): void
+    {
+        $configException = self::readMalformed(['database' => ['connections' => ['app' => 'sqlite']]]);
+
+        self::assertSame(
+            'The database.connections.app declaration must be a map, string given.',
+            $configException->getMessage(),
+        );
+    }
+
+    public function testThePerPurposeNameFallsBackToTheDefaultOneWay(): void
+    {
+        $ownPurpose = DatabaseDeclaration::fromConfig(new Config([
+            'database' => [
+                'default' => 'app',
+                'connections' => [
+                    'app' => ['driver' => 'sqlite', 'dbname' => ':memory:'],
+                    'ops' => ['driver' => 'sqlite', 'dbname' => ':memory:'],
+                ],
+                'migrations' => 'ops',
+            ],
+        ]));
+
+        self::assertTrue($ownPurpose->wantsWiredConnection());
+        self::assertSame('ops', $ownPurpose->migrationsName(), 'a spelled purpose keeps its own connection');
+
+        $fallback = DatabaseDeclaration::fromConfig(new Config([
+            'database' => [
+                'default' => 'app',
+                'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+            ],
+        ]));
+
+        self::assertSame('app', $fallback->migrationsName(), 'a silent purpose rides the default connection');
+    }
+
+    public function testASilentDefaultAndPurposeSpellNoPurposeConnection(): void
+    {
+        $declaration = DatabaseDeclaration::fromConfig(new Config([
+            'database' => [
+                'connections' => ['ops' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+            ],
+        ]));
+
+        self::assertSame('', $declaration->migrationsName(), 'no default and no purpose spell no effective name');
+    }
+
+    public function testOneAnswersTheNamedConnectionsDeclaration(): void
+    {
+        $connections = [
+            'app' => ['driver' => 'sqlite', 'dbname' => ':memory:'],
+            'ops' => ['driver' => 'sqlite', 'dbname' => ':memory:'],
+        ];
+
+        self::assertSame(
+            ['driver' => 'sqlite', 'dbname' => ':memory:'],
+            DatabaseConnections::one($connections, 'ops', 'migrations'),
+        );
+    }
+
+    public function testOneRefusesAnUndeclaredNameWithTheAskingKnobAndKnownList(): void
+    {
+        $configException = self::haltOn(
+            ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+            'ops',
+            'migrations',
+        );
+
+        self::assertSame(
+            "The database.migrations connection 'ops' is not declared (database.connections: app).",
+            $configException->getMessage(),
+        );
+    }
+
+    public function testOneRefusesWithNoneDeclaredWhenTheMapIsEmpty(): void
+    {
+        $configException = self::haltOn([], 'app', 'default');
+
+        self::assertSame(
+            "The database.default connection 'app' is not declared (database.connections: none declared).",
+            $configException->getMessage(),
+        );
+    }
+
+    public function testTheFrameworkProfileShipsTheSilentDatabasePosture(): void
+    {
+        $profile = FrameworkDefaults::profile();
+
+        self::assertSame(
+            ['default' => '', 'connections' => [], 'migrations' => ''],
+            $profile['database'],
+            'the framework ships no database of its own: the knob block lands silent,'
+                . ' and a host declaration is the only way one arrives',
+        );
+    }
+
+    private static function readMalformed(array $config): ConfigException
+    {
+        try {
+            DatabaseDeclaration::fromConfig(new Config($config));
+        } catch (ConfigException $configException) {
+            return $configException;
+        }
+
+        self::fail('The malformed database declaration must halt.');
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $connections
+     */
+    private static function haltOn(array $connections, string $name, string $knob): ConfigException
+    {
+        try {
+            DatabaseConnections::one($connections, $name, $knob);
+        } catch (ConfigException $configException) {
+            return $configException;
+        }
+
+        self::fail('The undeclared connection name must halt.');
+    }
+}
