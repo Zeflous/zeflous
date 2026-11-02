@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-01T13:36:24Z",
+  "as_of": "2026-11-02T00:33:33Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 280,
+  "unreleased_count": 281,
   "versions": [
     {
       "version": "Unreleased",
@@ -4051,6 +4051,62 @@
                 "sha": "af538a54155ec6428e7050e408ec3a0f9c0bf621",
                 "short_sha": "af538a5",
                 "subject": "Merge branch 'main' into feat/modules-core"
+              }
+            ]
+          },
+          {
+            "pr": 671,
+            "title": "feat(modules): the route extension point with its manifest fold over the standard route schema",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-02T00:33:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/671",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "917a41b3024366434cf420d4fb375c352870775c",
+                "short_sha": "917a41b",
+                "subject": "feat(modules): the route extension point with its manifest fold over the standard route schema"
+              },
+              {
+                "sha": "fa85b7ae398328c298a5c18fe458f039ae97bf89",
+                "short_sha": "fa85b7a",
+                "subject": "refactor(modules): the route entries fold split beside the join fold, the manifest's shared field rules"
+              },
+              {
+                "sha": "656766b9481fef627f9ca3e6b1fdea300ecb4dd8",
+                "short_sha": "656766b",
+                "subject": "docs(modules): the route extension point's decisions recorded as KDD-MO10"
+              },
+              {
+                "sha": "3f6b23c7f9960e027434c5a4f16e07f3a1e79c54",
+                "short_sha": "3f6b23c",
+                "subject": "Merge branch 'main' into feat/modules-ext-points"
+              },
+              {
+                "sha": "62a0c49bc5abd1e01fa956a83acf346a3a67c950",
+                "short_sha": "62a0c49",
+                "subject": "docs(roadmap): the route extension point's meter row, the history row and the pin over the Fase 2 settle"
+              },
+              {
+                "sha": "e6ba2b146b475ebe756110df7d73eb4aabeb16b5",
+                "short_sha": "e6ba2b1",
+                "subject": "test(modules): the route fixtures leave the covers list, the coverage target the source include can map"
+              },
+              {
+                "sha": "051b00c3fdd8297078794a6c10a28643b6609b23",
+                "short_sha": "051b00c",
+                "subject": "test(modules): the registration phase's config service read pinned, the manifest path fold's ignore moved with the seam"
+              },
+              {
+                "sha": "1905dfe16d3f1efca13d2ebc596e95de447faaa2",
+                "short_sha": "1905dfe",
+                "subject": "test(modules): the roster's silent module walked past, the declarations behind it still join the merged table"
+              },
+              {
+                "sha": "ef5ac6bf819f4d5f018d343ae406f1669814a84b",
+                "short_sha": "ef5ac6b",
+                "subject": "docs(roadmap): refresh the pin over the route extension point's closing commit"
               }
             ]
           }
@@ -17983,6 +18039,62 @@
               "sha": "af538a54155ec6428e7050e408ec3a0f9c0bf621",
               "short_sha": "af538a5",
               "subject": "Merge branch 'main' into feat/modules-core"
+            }
+          ]
+        },
+        {
+          "pr": 671,
+          "title": "feat(modules): the route extension point with its manifest fold over the standard route schema",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-02T00:33:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/671",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "917a41b3024366434cf420d4fb375c352870775c",
+              "short_sha": "917a41b",
+              "subject": "feat(modules): the route extension point with its manifest fold over the standard route schema"
+            },
+            {
+              "sha": "fa85b7ae398328c298a5c18fe458f039ae97bf89",
+              "short_sha": "fa85b7a",
+              "subject": "refactor(modules): the route entries fold split beside the join fold, the manifest's shared field rules"
+            },
+            {
+              "sha": "656766b9481fef627f9ca3e6b1fdea300ecb4dd8",
+              "short_sha": "656766b",
+              "subject": "docs(modules): the route extension point's decisions recorded as KDD-MO10"
+            },
+            {
+              "sha": "3f6b23c7f9960e027434c5a4f16e07f3a1e79c54",
+              "short_sha": "3f6b23c",
+              "subject": "Merge branch 'main' into feat/modules-ext-points"
+            },
+            {
+              "sha": "62a0c49bc5abd1e01fa956a83acf346a3a67c950",
+              "short_sha": "62a0c49",
+              "subject": "docs(roadmap): the route extension point's meter row, the history row and the pin over the Fase 2 settle"
+            },
+            {
+              "sha": "e6ba2b146b475ebe756110df7d73eb4aabeb16b5",
+              "short_sha": "e6ba2b1",
+              "subject": "test(modules): the route fixtures leave the covers list, the coverage target the source include can map"
+            },
+            {
+              "sha": "051b00c3fdd8297078794a6c10a28643b6609b23",
+              "short_sha": "051b00c",
+              "subject": "test(modules): the registration phase's config service read pinned, the manifest path fold's ignore moved with the seam"
+            },
+            {
+              "sha": "1905dfe16d3f1efca13d2ebc596e95de447faaa2",
+              "short_sha": "1905dfe",
+              "subject": "test(modules): the roster's silent module walked past, the declarations behind it still join the merged table"
+            },
+            {
+              "sha": "ef5ac6bf819f4d5f018d343ae406f1669814a84b",
+              "short_sha": "ef5ac6b",
+              "subject": "docs(roadmap): refresh the pin over the route extension point's closing commit"
             }
           ]
         }
