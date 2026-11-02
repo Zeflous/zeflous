@@ -9,6 +9,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use Zef\Framework\Database\DatabaseException;
+use Zef\Framework\Database\ConditionComparison;
+use Zef\Framework\Database\ConditionGroup;
+use Zef\Framework\Database\ConditionNull;
 use Zef\Framework\Database\QueryBuild;
 use Zef\Framework\Database\QueryBuilder;
 use Zef\Framework\Database\QueryColumns;
@@ -892,6 +895,20 @@ final class QueryBuilderTest extends TestCase
 
         yield 'whereLike' => [
             static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->whereLike('name', 'A%'),
+        ];
+
+        yield 'whereConditionObject' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->where(
+                new ConditionNull('gone'),
+            ),
+        ];
+
+        yield 'orWhereConditionObject' => [
+            static fn (QueryBuilder $queryBuilder): QueryBuilder => $queryBuilder->orWhere(
+                ConditionGroup::any(
+                    new ConditionComparison('age', '>', 1),
+                ),
+            ),
         ];
     }
 }
