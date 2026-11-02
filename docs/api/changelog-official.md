@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(database\): the orchestration family over the connection port [\#674](https://github.com/Zeflous/zeflous/pull/674) ([mbetixz](https://github.com/mbetixz))
 - feat\(modules\): the route extension point with its manifest fold over the standard route schema [\#671](https://github.com/Zeflous/zeflous/pull/671) ([mbetixz](https://github.com/mbetixz))
 - feat\(modules\): the core module engine with its two-phase boot over declarative manifests [\#668](https://github.com/Zeflous/zeflous/pull/668) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the connection port with its query builder and PDO adapter [\#665](https://github.com/Zeflous/zeflous/pull/665) ([mbetixz](https://github.com/mbetixz))
