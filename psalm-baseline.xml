@@ -220,12 +220,6 @@
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/Migrator.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[migrate]]></code>
-      <code><![CDATA[plan]]></code>
-      <code><![CDATA[register]]></code>
-      <code><![CDATA[rollback]]></code>
-    </PossiblyUnusedMethod>
     <UnusedProperty>
       <code><![CDATA[$lockTtlSeconds]]></code>
     </UnusedProperty>
@@ -669,6 +663,31 @@
     <MixedAssignment>
       <code><![CDATA[$fileViolation]]></code>
     </MixedAssignment>
+  </file>
+  <file src="tests/Support/Tooling/MigrationsBoot.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[applied]]></code>
+      <code><![CDATA[booted]]></code>
+      <code><![CDATA[migrate]]></code>
+      <code><![CDATA[names]]></code>
+      <code><![CDATA[plan]]></code>
+      <code><![CDATA[rollback]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="tests/Support/Tooling/MigrationsRunText.php">
+    <UnusedClass>
+      <code><![CDATA[MigrationsRunText]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/MigrationsStatusJson.php">
+    <UnusedClass>
+      <code><![CDATA[MigrationsStatusJson]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/MigrationsStatusText.php">
+    <UnusedClass>
+      <code><![CDATA[MigrationsStatusText]]></code>
+    </UnusedClass>
   </file>
   <file src="tests/Support/Tooling/ReviewThread.php">
     <PossiblyUnusedProperty>
