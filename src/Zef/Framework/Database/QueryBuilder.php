@@ -23,15 +23,19 @@ namespace Zef\Framework\Database;
  *
  * The verb surface is deliberately lean (the roadmap's own "query
  * builder sederhana"): the sugar forms the reference carried --
- * selectRaw, aggregate beyond COUNT, leftJoin, single-row insert,
- * whereColumn and whereNested -- are expressible through the
- * SqlExpression escape hatch ({@see SqlExpression}), the join type
- * parameter, or the one-row insertRows list; the where family's
- * NOT-polarity travels as the same negated flag the predicate folds
- * carry ({@see QueryPredicate}), and offset rides limit()'s parameter
- * because an offset cannot stand without one ({@see QueryPaging});
- * keeping the facade small is what keeps it under the architecture
- * ceiling.
+ * selectRaw, aggregate beyond COUNT, leftJoin, single-row insert --
+ * are expressible through the SqlExpression escape hatch
+ * ({@see SqlExpression}), the join type parameter, or the one-row
+ * insertRows list; the where family's exotic forms -- whereColumn and
+ * whereNested -- return as the condition-object lane instead
+ * ({@see Condition}: {@see ConditionColumnComparison} and
+ * {@see ConditionGroup} composed as values and applied through
+ * where()/orWhere()'s widened first parameter, never as new facade
+ * verbs), the where family's NOT-polarity travels as the same negated
+ * flag the predicate folds carry ({@see QueryPredicate}), and offset
+ * rides limit()'s parameter because an offset cannot stand without
+ * one ({@see QueryPaging}); keeping the facade small is what keeps it
+ * under the architecture ceiling.
  *
  * The builder is the fluent facade over the lane's folds: the phase
  * guards in {@see QueryPhase}, the predicate grammar in
@@ -183,21 +187,66 @@ final class QueryBuilder
     // ------------------------------------------------------------------
 
     /**
-     * AND condition. Two-argument form is rejected: equality is spelled
-     * `where('col', '=', $value)` and NULL checks use whereNull().
+     * AND condition, in either lane's spelling: the column/operator/value
+     * triple, or ONE {@see Condition} object -- the condition-object lane
+     * (a group, a column comparison, a composed tree) entering through
+     * the same verb so the facade's method count never grows. Spelling
+     * both is refused: a Condition carries its own operands.
      */
-    public function where(SqlExpression|string $column, string $operator, mixed $value): self
+    public function where(SqlExpression|string|Condition $column, ?string $operator = null, mixed $value = null): self
     {
         QueryPhase::assertWhereAllowed($this->type);
+
+        if ($column instanceof Condition) {
+            if ($operator !== null || $value !== null) {
+                throw new QueryException(
+                    'where() takes one Condition object or the column/operator/value triple, not both.',
+                );
+            }
+
+            $this->queryWhere->apply($column, 'AND');
+
+            return $this;
+        }
+
+        if ($operator === null) {
+            throw new QueryException(
+                'where() requires an operator for the column form (equality is spelled where(\'col\', \'=\', $value)).',
+            );
+        }
+
         $this->queryWhere->condition($column, $operator, $value, 'AND');
 
         return $this;
     }
 
-    /** OR condition against the previous condition. */
-    public function orWhere(SqlExpression|string $column, string $operator, mixed $value): self
+    /**
+     * OR condition against the previous condition, in either lane's
+     * spelling -- the condition-object tree ORed with the chain the
+     * same way the triple is.
+     */
+    public function orWhere(SqlExpression|string|Condition $column, ?string $operator = null, mixed $value = null): self
     {
         QueryPhase::assertWhereAllowed($this->type);
+
+        if ($column instanceof Condition) {
+            if ($operator !== null || $value !== null) {
+                throw new QueryException(
+                    'orWhere() takes one Condition object or the column/operator/value triple, not both.',
+                );
+            }
+
+            $this->queryWhere->apply($column, 'OR');
+
+            return $this;
+        }
+
+        if ($operator === null) {
+            throw new QueryException(
+                'orWhere() requires an operator for the column form (equality is spelled orWhere(\'col\', \'=\', $value)).',
+            );
+        }
+
         $this->queryWhere->condition($column, $operator, $value, 'OR');
 
         return $this;

@@ -12,7 +12,8 @@ namespace Zef\Framework\Database;
  * stay in the application layer while the domain stays persistence-agnostic.
  *
  * The gateway's three judgements live in their own folds: the criteria
- * walk ({@see RepositoryCriteria}), the aggregate spelling and decode
+ * walk ({@see RepositoryCriteria}, the AND-equality map or one
+ * condition-object tree), the aggregate spelling and decode
  * ({@see RepositoryAggregate}), and the page wiring
  * ({@see RepositoryPage}).
  */
@@ -48,13 +49,14 @@ abstract class Repository
     }
 
     /**
-     * AND-equality lookup; null values become IS NULL.
+     * AND-equality lookup (null cells become IS NULL) or one
+     * {@see Condition} tree -- the composed lane's finder.
      *
-     * @param array<string, mixed> $criteria
+     * @param array<string, mixed>|Condition $criteria
      *
      * @return null|array<string, mixed>
      */
-    public function findOneBy(array $criteria): ?array
+    public function findOneBy(array|Condition $criteria): ?array
     {
         return $this->connection->fetchOne(
             RepositoryCriteria::apply($this->qb(), $criteria)->limit(1)->build(),
@@ -62,14 +64,14 @@ abstract class Repository
     }
 
     /**
-     * @param array<string, mixed>       $criteria
-     * @param null|array<string, string> $orderBy  column => ASC|DESC
+     * @param array<string, mixed>|Condition $criteria
+     * @param null|array<string, string>       $orderBy  column => ASC|DESC
      *
      * @return list<array<string, mixed>>
      *
      * @throws QueryException when an offset is requested without a limit
      */
-    public function findBy(array $criteria = [], ?array $orderBy = null, ?int $limit = null, int $offset = 0): array
+    public function findBy(array|Condition $criteria = [], ?array $orderBy = null, ?int $limit = null, int $offset = 0): array
     {
         $queryBuilder = RepositoryPage::apply(
             RepositoryCriteria::apply($this->qb(), $criteria),
@@ -82,29 +84,31 @@ abstract class Repository
     }
 
     /**
-     * @param array<string, mixed> $criteria
+     * @param array<string, mixed>|Condition $criteria
      */
-    public function count(array $criteria = []): int
+    public function count(array|Condition $criteria = []): int
     {
         return RepositoryAggregate::count($this->connection, $this->qb(), $criteria);
     }
 
     /**
-     * @param array<string, mixed> $criteria
+     * @param array<string, mixed>|Condition $criteria
      */
-    public function exists(array $criteria = []): bool
+    public function exists(array|Condition $criteria = []): bool
     {
         return $this->count($criteria) > 0;
     }
 
     /**
      * @param array<string, mixed> $pairs
-     * @param array<string, mixed> $criteria
+     * @param array<string, mixed>|Condition $criteria
      *
-     * @throws QueryException when the criteria is empty (the update would
-     *                        be unbounded)
+     * @throws QueryException when the map criteria is empty (the update
+     *                        would be unbounded) -- a Condition tree is
+     *                        never empty by construction, so the guard
+     *                        only bites on the map lane
      */
-    public function update(array $pairs, array $criteria): int
+    public function update(array $pairs, array|Condition $criteria): int
     {
         if ($criteria === []) {
             throw new QueryException('update() requires at least one criterion.');
@@ -116,12 +120,14 @@ abstract class Repository
     }
 
     /**
-     * @param array<string, mixed> $criteria
+     * @param array<string, mixed>|Condition $criteria
      *
-     * @throws QueryException when the criteria is empty (the delete would
-     *                        be unbounded)
+     * @throws QueryException when the map criteria is empty (the delete
+     *                        would be unbounded) -- a Condition tree is
+     *                        never empty by construction, so the guard
+     *                        only bites on the map lane
      */
-    public function delete(array $criteria): int
+    public function delete(array|Condition $criteria): int
     {
         if ($criteria === []) {
             throw new QueryException('delete() requires at least one criterion.');
