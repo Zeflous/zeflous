@@ -408,6 +408,17 @@
                 // the grammar promises and the character count it must
                 // never see. Scoped to that single method.
                 "Zef\\Framework\\Database\\SqlIdentifier::quote",
+                // The migration name corridor's byte ceiling counts
+                // BYTES over names that may carry multibyte characters,
+                // and the settled spelling is mb_strlen($name, '8bit') --
+                // the encoding that IS byte semantics, so the mutator's
+                // strlen rewrite answers the identical count for every
+                // name the grammar can ever see (the SqlIdentifier twin
+                // above, replayed for the corridor; the multibyte
+                // boundary test -- 64 two-byte chars registered, 65
+                // refused -- pins the ceiling itself under every other
+                // spelling). Scoped to that single method.
+                "Zef\\Framework\\Database\\MigrationRegistration::accept",
                 "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
                 "Zef\\Framework\\Http\\AuthCredential::fromBearerLine",
                 "Zef\\Framework\\Http\\BodyBudget::refuses",
@@ -868,6 +879,19 @@
         // the default-bounds test kills those. This ignore is scoped
         // to that single source line.
         "IncrementInteger": {
+            "ignore": [
+                // The blocking wait's microsecond factor: the engine's
+                // own scheduler slack dwarfs the one-microsecond-per-
+                // millisecond the boundary rewrite moves (verified
+                // against the timing battery -- a 50 ms wait measured
+                // across the seam answers both spellings within the
+                // jitter any usleep guarantee carries), so the +1
+                // rewrite is value-equivalent through every wait the
+                // unit can spell. The removal of the usleep call
+                // itself stays fully under its mutator: the 50 ms
+                // elapsed floor kills it. Scoped to that single method.
+                "Zef\\Framework\\Database\\UnitOfWorkWait::block"
+            ],
             "ignoreSourceCodeByRegex": [
                 // The Accept-negotiation sentinel and the range-specificity
                 // weights are value-equivalent under the integer mutators:
@@ -967,7 +991,18 @@
             // default-ctor TTL test kills it. Scoped to that single
             // method.
             "ignore": [
-                "Zef\\Framework\\Http\\ApcuReplayProtector::__construct"
+                "Zef\\Framework\\Http\\ApcuReplayProtector::__construct",
+                // The blocking wait's microsecond factor: the engine's
+                // own scheduler slack dwarfs the one-microsecond-per-
+                // millisecond the boundary rewrite moves (verified
+                // against the timing battery -- a 50 ms wait measured
+                // across the seam answers both spellings within the
+                // jitter any usleep guarantee carries), so the ±1
+                // rewrites are value-equivalent through every wait the
+                // unit can spell. The removal of the usleep call
+                // itself stays fully under its mutator: the 50 ms
+                // elapsed floor kills it. Scoped to that single method.
+                "Zef\\Framework\\Database\\UnitOfWorkWait::block"
             ],
             "ignoreSourceCodeByRegex": [
                 // The Accept-negotiation sentinel and the range-specificity
@@ -1113,6 +1148,23 @@
         // injection test, though the engine no longer asks it here.
         "ReturnRemoval": {
             "ignore": [
+                // The hook drain's empty-queue early return: the fall-
+                // through toggles the flushing flag around a walk over
+                // zero hooks, and no observer exists inside that window
+                // (a hook registered after the drain reads the flag back
+                // at its own immediate execution, after the finally has
+                // restored it), so both spellings answer the identical
+                // scope lifecycle. Scoped to that single method.
+                "Zef\\Framework\\Database\\TransactionHooks::drain",
+                // The empty-arm early returns: the fall-through snapshots
+                // an empty queue, arms the flag, and answers the empty
+                // list the caller's own empty check then turns into the
+                // same zero -- the two spellings answer the identical
+                // flush outcome for an empty queue, and the re-entry
+                // refusal fires before either arm in both. Scoped to
+                // those two methods.
+                "Zef\\Framework\\Database\\UnitOfWorkQueue::armFlush",
+                "Zef\\Framework\\Database\\UnitOfWorkQueue::armReplay",
                 "Zef\\Framework\\Container\\DefinitionCycles::visit",
                 "Zef\\Framework\\Middleware\\DebugToolbarInjector::updatedBody",
                 "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed",
@@ -1266,7 +1318,16 @@
         "GreaterThan": {
             "ignore": [
                 "Zef\\Framework\\Telemetry\\CorrelationIdentity::__construct",
-                "Zef\\Framework\\Telemetry\\PrometheusNumbers::rendered"
+                "Zef\\Framework\\Telemetry\\PrometheusNumbers::rendered",
+                // The jitter gate's zero boundary: the corridor validates
+                // jitterMs >= 0, and random_int(0, 0) answers exactly the
+                // zero the closed boundary would add, so the > and >=
+                // spellings agree on every jitter the policy can carry.
+                // The negotiation mutant beside it stays fully under its
+                // mutator: the 300-draw corridor battery kills it by
+                // requiring both edges of the one-millisecond jitter.
+                // Scoped to that single method.
+                "Zef\\Framework\\Database\\RetryBackoff::delayMs"
             ],
             // The retry policy's final headroom check in
             // readyAtForNextAttempt() is value-equivalent under the
@@ -1324,7 +1385,18 @@
                 // mutation). The cast exists for Psalm's
                 // InvalidArrayOffset, which refuses a string offset on an
                 // integer-keyed map, not for runtime semantics.
-                "Zef\\Test\\Support\\Tooling\\RoadmapRecordedMerge::isAccepted"
+                "Zef\\Test\\Support\\Tooling\\RoadmapRecordedMerge::isAccepted",
+                // The slow-hook guard's two hrtime() landings in
+                // HookDrain::run(): the casts are the engine signature's
+                // own narrowing for the analysers (hrtime(true) answers
+                // int|float per the stub, int always at runtime), so
+                // removing them changes no value the fold ever sees --
+                // the TelemetryClock doctrine the fold's comment already
+                // spells. The neighbouring timing arithmetic stays fully
+                // under its mutators: the boundary battery pins the
+                // nanosecond fold and the strict threshold comparison at
+                // their exact edges. Scoped to that single method.
+                "Zef\\Framework\\Database\\HookDrain::run"
             ]
         },
         // The Exception suffix strip in ZefException::defaultErrorCode()
@@ -1351,6 +1423,18 @@
             // round-2 audit, and the cast's equivalence is the doctrine's
             // own, not the file's.
             "ignore": [
+                // The lock row's TTL spelling cast: the refusal message
+                // concatenates the operand PHP would coerce itself, so
+                // removing the cast answers the identical message for
+                // every float the decode can name (the concat and the
+                // cast spell the same bytes; the KDD-DB9 concat/rector
+                // intersection already recorded the doctrine this
+                // spelling resolves). The message's own composition stays
+                // fully under its mutators: the exact-message assertions
+                // over the steal refusal pin the age and TTL spellings
+                // against every rearrangement. Scoped to that single
+                // method.
+                "Zef\\Framework\\Database\\MigrationLockAge::assertStealable",
                 // The driver word's scalar cast: the refusal message
                 // concatenates the operand PHP would coerce itself, so
                 // removing the cast answers the identical message for
@@ -1547,11 +1631,33 @@
             // suite passes under each removed cast; the equivalence is
             // engine-level). The ignore is scoped to that single method.
             "ignoreSourceCodeByRegex": [
+                // The age comparison's operand cast: the strict-binary-
+                // operands policy refuses the int/float mix uncast, and
+                // PHP compares an int against a float numerically for
+                // every pair the fold can see, so removing the cast
+                // answers the identical steal verdict (the CoverageReport
+                // family's own argument, replayed for the lock row's age).
+                // The decode fold's own cast, one method down, stays
+                // fully under its mutator: the non-numeric-string TTL
+                // test kills the removal by the engine's string-
+                // comparison fallback -- which is why this ignore is
+                // line-scoped to the comparison, never the method.
+                ".*\\(float\\) \\$age < \\$rowTtl.*",
                 "\\$count = \\(float\\) \\$series\\['count'\\];"
             ],
             "ignore": [
                 "Zef\\Framework\\Telemetry\\MeterCount::advanced",
-                "Zef\\Test\\Support\\Tooling\\CoverageReport::percentage"
+                "Zef\\Test\\Support\\Tooling\\CoverageReport::percentage",
+                // The backoff's exponent operand cast: the multiplier's
+                // exponent meets the strict-binary-operands policy
+                // uncast, and PHP's ** operator coerces the int exponent
+                // to float for every input the corridor admits (attempt
+                // >= 1, multiplier >= 1.0), so removing the cast answers
+                // the identical delay. The arithmetic itself stays fully
+                // under its mutators: the fractional-rounding and the
+                // doubling-and-clamp batteries pin every other operator.
+                // Scoped to that single method.
+                "Zef\\Framework\\Database\\RetryBackoff::delayMs"
             ]
         },
         // The render's series ceiling in
