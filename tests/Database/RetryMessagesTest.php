@@ -116,6 +116,22 @@ final class RetryMessagesTest extends TestCase
         self::assertFalse(RetryMessages::matches('MySQL server has gone away', []));
     }
 
+    /**
+     * The containment folds per Unicode, not per ASCII byte map — the
+     * Kelvin sign (U+212A, the case-fold spelling of 'k') and the long
+     * s (U+017F, the case-fold spelling of 's') are case spellings
+     * ASCII-only folding cannot see. The mb_ spelling is load-bearing,
+     * pinned here by the two folds it alone answers.
+     */
+    public function testTheContainmentFoldsPerUnicodeNotAscii(): void
+    {
+        $kelvin = "NETWOR\u{212A} IS UNREACHABLE";
+        self::assertTrue(RetryMessages::matches($kelvin, ['network is unreachable']));
+
+        $longS = "\u{017F}ERVER HAS GONE AWAY";
+        self::assertTrue(RetryMessages::matches($longS, ['server has gone away']));
+    }
+
     public function testAnyOnePatternAnswersAlone(): void
     {
         // A host narrowing the knob to a single spelling keeps a

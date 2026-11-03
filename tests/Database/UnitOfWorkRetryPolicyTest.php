@@ -456,6 +456,21 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
     }
 
     /**
+     * The candidate fold's own surface, called directly: the
+     * normalisation the strict comparisons read (getCode()'s int
+     * spelling, the errorInfo slots) and the membership judgement the
+     * taxonomy composes — the fold's public posture, walked as itself
+     * and not only through the policy above it.
+     */
+    public function testTheCandidatesFoldAnswersItsOwnSurface(): void
+    {
+        $armedPdoException = new ArmedPdoException('deadlock', 1213, ['HY000', 1213, 'deadlock']);
+        self::assertSame(['1213', 'HY000', '1213'], RetryCandidates::sqlStates($armedPdoException));
+        self::assertTrue(RetryCandidates::carries($armedPdoException, ['40P01', '1213']));
+        self::assertFalse(RetryCandidates::carries($armedPdoException, ['42601']));
+    }
+
+    /**
      * Build a testable PDOException with a SQLSTATE string. Real
      * PDOExceptions are populated by PHP internals at runtime; the public
      * constructor only accepts an int $code, so we extend the class and
