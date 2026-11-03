@@ -163,6 +163,74 @@ deliberate-author posture `InternalException` spells -- and the
 error boundary renders the typed refusal as the server error it is,
 never a hand-built view-shaped response.
 
+## KDD-VW6: the first CI mutation round -- six kills, four byte-semantics equivalents
+
+The authoring sandbox carried no PHP runtime, so the slice's
+mutation verdict rode the pull request's own CI lanes -- and the
+first infection round answered with ten escapes over the slice's
+three mutated files. The round's record is the answer to each,
+every escape either killed by a new pin or carried on the
+documented-equivalent ledger:
+
+SIX KILLS:
+
+- **The wrap's zero code** (`PhpViewEngine::render()`'s
+  mid-render wrap): the pin now asserts `getCode() === 0`
+  explicitly -- the code lane is part of the family's contract
+  surface (the typed family's own default), not decoration the
+  integer mutators may invent.
+- **The miss wall's OR** (`ViewTemplateFile`'s is-file/is-readable
+  guard): a DIRECTORY wearing the extension (`trap.php`) is a miss
+  like any other non-file. The mutant's AND would wave a readable
+  directory through to the containment; the pin refuses it at the
+  wall the answer owns. The pre-existing directory arm (`users`)
+  pinned a miss whose candidate never existed -- a different
+  posture, which is why the mutant lived.
+- **The containment's inside boundary**: a resolved address EQUAL
+  to the root itself is ANSWERED (the slash-append idiom's one
+  deliberate acceptance: `$resolved . '/'` starts with
+  `$resolvedRoot . '/'` exactly when `$resolved === $root`). The
+  pin arms the realpath double with the root itself -- the only
+  posture that can spell it, because a real file whose realpath is
+  the root cannot exist (the root is a directory, and the is-file
+  wall would refuse the candidate first).
+- **The string-prefix sibling escape**: a symlink whose target
+  shares the root's own spelling as a string prefix
+  (`<root>-sibling/stolen.php`) is REFUSED -- the trailing slash
+  in the prefix idiom exists precisely for this boundary. The
+  original escape test's outside target (`zef-view-outside-*`)
+  never shared the root's spelling, which is why the
+  operand-removal mutant lived.
+- **The grammar's D flag** (`ViewName`'s segment pattern): a
+  trailing NEWLINE is the one byte whose refusal is the D flag's
+  own work -- PCRE's undollared `$` matches before a final
+  newline, while every other control character the class already
+  refuses wherever it sits. The interior-control arm (`a\x01b`)
+  pins the class; the trailing-newline arm (`about\n`) pins the
+  anchor.
+
+FOUR DOCUMENTED EQUIVALENTS: the byte ceilings' measurements
+(`mb_strlen($x, '8bit')`, both condition and message arms, name
+and segment alike) -- the `'8bit'` encoding IS byte semantics and
+never rejects a byte sequence, so `mb_strlen` and `strlen` agree
+on every string there is; the BodyBudget argument, unconditional
+here (no grammar gate ahead of the measurements can make a
+divergent input unreachable, and none is needed). Verified by
+running the full suite under the manually applied mutation:
+6918 tests, 16678 assertions, all green -- the multibyte
+over-ceiling refusals included, a multibyte name over the ceiling
+refusing with the same byte count in its message under both
+spellings. The ignore is method-scoped to `ViewName::__construct`
+(the `infection.json5` MBString ledger), and the spelling keeps
+the mb_ forms because the house's own formatter doctrine
+(MbStrFunctions rewrites every `strlen` to its mb_ twin) makes
+the byte-level spelling not a source-level option.
+
+The round's own verification battery: the scoped mutation round
+at MSI 100/100 (102 mutants over the three files, 98 killed, the
+four equivalents ignored), the full static battery green, psalm
+EXIT-0, archeology 0 error-level findings.
+
 ## The named follow-ups
 
 - The `views` configuration wiring family (the composition seam that
