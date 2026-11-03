@@ -8,6 +8,7 @@ use Psr\Container\ContainerInterface;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Schema\EventSchema;
+use Zef\Framework\Container\Container;
 use Zef\Framework\Event\EventDispatcher;
 use Zef\Framework\Event\EventListener;
 use Zef\Framework\Event\EventName;
@@ -68,6 +69,25 @@ final readonly class EventWiring
      * host's same-identifier entry is an explicit rebind that wins.
      */
     public const string DISPATCHER_SERVICE = 'events.dispatcher';
+
+    /**
+     * Installs the wired dispatcher's reserved service ahead of the
+     * definitions: the one-call boot composes this fold ({@see
+     * ApplicationBootstrapper}), a host's same-identifier rebind wins
+     * (the reserved-services precedence), and the factory defers behind
+     * the container's own laziness -- the dispatcher is answered at the
+     * host's first resolution, never at the boot.
+     */
+    public static function register(Container $container, Config $config): void
+    {
+        $container->set(
+            self::DISPATCHER_SERVICE,
+            static fn (Container $container): EventDispatcher => self::dispatcher(
+                $config,
+                $container,
+            ),
+        );
+    }
 
     /**
      * Answers the wired dispatcher from the frozen repository: every

@@ -69,6 +69,19 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Modules\\#'
+    # The console layer is the CLI family's own engine side: the command
+    # name grammar, the declared entry and the registry that judges the
+    # joined `console.commands` table, and the handler contract a declared
+    # service answers -- a self-contained lane the same way the storage
+    # lane is, whose composition seam (the wiring fold that reads the
+    # frozen knob block) lives in the unlayered root with its siblings.
+    # It judges its table through the configuration layer's own Standard
+    # CLI Schema (the events lane's exact posture), hence the one
+    # dependency below.
+    - name: Console
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\Console\\#'
     - name: Adapters
       collectors:
         - type: classNameRegex
@@ -283,6 +296,14 @@ deptrac:
     Modules:
       - Exception
       - Config
+    # The console layer judges its table through the configuration
+    # layer's Standard CLI Schema and owns nothing else: its failures are
+    # construction-time grammar refusals (the storage lane's SPL posture,
+    # not a typed family), so there is no exception-layer dependency to
+    # spell. The composition seam reading the frozen `console` map lives
+    # in the unlayered root beside its event and database siblings.
+    Console:
+      - Config
     # The kernel is the composition layer: it owns the container, the frozen
     # configuration, the config->container bootstrapper, the one-call
     # application boot orchestrator (ApplicationBootstrapper, over the
@@ -332,6 +353,7 @@ deptrac:
       - Modules
       - Adapters
       - Database
+      - Console
     # Tooling gates are developer/CI utilities: they may use the kernel and the
     # exception root, but no other domain layer. The widening to Container is
     # the analysis CLI lane's own: the container inventory report renders the
@@ -375,3 +397,4 @@ deptrac:
       - Http
       - Middleware
       - Database
+      - Console

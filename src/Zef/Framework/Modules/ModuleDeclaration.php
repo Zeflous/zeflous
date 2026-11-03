@@ -17,9 +17,9 @@ namespace Zef\Framework\Modules;
  * discovery fold, because only that fold knows the file the manifest came
  * from; a class-string entry carries no schema of its own, which is what
  * makes the "a block without a schema is refused" posture enforceable.
- * The `routes` and `events` paths ride the same resolution: the manifest's
- * own optional extension-point declarations, consumed by the boot's join
- * folds -- not by the module's own phases.
+ * The `routes`, `events` and `cli` paths ride the same resolution: the
+ * manifest's own optional extension-point declarations, consumed by the
+ * boot's join folds -- not by the module's own phases.
  */
 final readonly class ModuleDeclaration
 {
@@ -33,6 +33,7 @@ final readonly class ModuleDeclaration
         public ?string $configSchema = null,
         public ?string $routes = null,
         public ?string $events = null,
+        public ?string $cli = null,
     ) {
         if ($this->class === '' || !str_contains($this->class, '\\')) {
             throw new ModuleException(
@@ -49,7 +50,7 @@ final readonly class ModuleDeclaration
      */
     public function withConfigSchema(?string $configSchema): self
     {
-        return new self($this->class, $this->metadata, $configSchema, $this->routes, $this->events);
+        return new self($this->class, $this->metadata, $configSchema, $this->routes, $this->events, $this->cli);
     }
 
     /**
@@ -59,7 +60,7 @@ final readonly class ModuleDeclaration
      */
     public function withRoutes(?string $routes): self
     {
-        return new self($this->class, $this->metadata, $this->configSchema, $routes, $this->events);
+        return new self($this->class, $this->metadata, $this->configSchema, $routes, $this->events, $this->cli);
     }
 
     /**
@@ -69,6 +70,17 @@ final readonly class ModuleDeclaration
      */
     public function withEvents(?string $events): self
     {
-        return new self($this->class, $this->metadata, $this->configSchema, $this->routes, $events);
+        return new self($this->class, $this->metadata, $this->configSchema, $this->routes, $events, $this->cli);
+    }
+
+    /**
+     * Answers the declaration with the cli path resolved to its absolute
+     * spelling -- the same discovery refinement the schema, routes and
+     * events paths ride, for the manifest's optional CLI-extension
+     * declaration.
+     */
+    public function withCli(?string $cli): self
+    {
+        return new self($this->class, $this->metadata, $this->configSchema, $this->routes, $this->events, $cli);
     }
 }

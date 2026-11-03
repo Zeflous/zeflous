@@ -440,6 +440,66 @@ if (in_array($command, ['route:openapi', 'route:postman'], true)) {
     }
 }
 
+if ($command === 'list') {
+    $listUsage = "Usage: bin/zef list <config-directory> [--json]\n";
+
+    $configDirectory = $argv[2] ?? '';
+    $listAsJson = in_array('--json', array_slice($argv, 3), true);
+
+    if ($configDirectory === '' || str_starts_with($configDirectory, '--')) {
+        fwrite(STDERR, $listUsage);
+        exit(2);
+    }
+
+    $resolved = realpath($configDirectory);
+    if ($resolved === false || !is_dir($resolved)) {
+        fwrite(STDERR, "Configuration directory does not exist: {$configDirectory}\n");
+        exit(2);
+    }
+
+    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    if (is_file($autoload)) {
+        require_once $autoload;
+    } else {
+        // The zero-dependency spelling: the directory command rides the
+        // framework's own runtime tree plus the tooling support classes
+        // under tests/ (the gate engine's home since the src tree became
+        // runtime-only code), so a bare install loads both through
+        // minimal PSR-4 registrations instead of Composer.
+        spl_autoload_register(static function (string $class): void {
+            $bases = [
+                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+            ];
+            foreach ($bases as $prefix => $base) {
+                if (str_starts_with($class, $prefix)) {
+                    $file = $base
+                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                    if (is_file($file)) {
+                        require $file;
+                    }
+                }
+            }
+        });
+    }
+
+    try {
+        $kernel = Zef\Test\Support\Tooling\CliInspectionBoot::kernel($resolved);
+        $commands = Zef\Framework\ConsoleWiring::commands($kernel->config());
+
+        fwrite(
+            STDOUT,
+            $listAsJson
+                ? Zef\Test\Support\Tooling\CliListJson::rendered($commands) . "\n"
+                : Zef\Test\Support\Tooling\CliListText::table($commands),
+        );
+        exit(0);
+    } catch (Throwable $inspectionFailure) {
+        fwrite(STDERR, 'The CLI inspection refused: ' . $inspectionFailure->getMessage() . "\n");
+        exit(1);
+    }
+}
+
 if ($command === 'storage:map') {
     $storageUsage = "Usage: bin/zef storage:map [<storage-root>] [--json]\n";
 
@@ -765,6 +825,75 @@ if (in_array($command, ['http:dump', 'http:headers'], true)) {
     } catch (Throwable $inspectionFailure) {
         fwrite(STDERR, 'The HTTP inspection refused: ' . $inspectionFailure->getMessage() . "\n");
         exit(1);
+    }
+}
+
+// The declared-command dispatch: a verb none of the framework's own
+// branches answered may be one the host or an active module declared --
+// `bin/zef <command> <config-directory> [args...]`, the same
+// config-directory-first grammar every composition command carries. A
+// framework verb never dispatches through the registry: the CLI's own
+// branches own the framework's verbs (the positional-path commands
+// among them, which this seam must not intercept), and the registry
+// itself refuses a declaration that collides with one. The dispatch
+// resolves the ONE handler the operator's verb declared through the
+// booted container, fail-closed, and passes the handler's own exit code
+// through verbatim: the framework owns the boot and the resolution, the
+// handler owns everything after.
+$dispatchConfigDirectory = $argv[2] ?? '';
+
+if ($command !== '' && $dispatchConfigDirectory !== '' && !str_starts_with($dispatchConfigDirectory, '--')) {
+    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    if (is_file($autoload)) {
+        require_once $autoload;
+    } else {
+        // The zero-dependency spelling: the declared-command dispatch
+        // rides the same two trees the analysis commands load.
+        spl_autoload_register(static function (string $class): void {
+            $bases = [
+                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+            ];
+            foreach ($bases as $prefix => $base) {
+                if (str_starts_with($class, $prefix)) {
+                    $file = $base
+                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                    if (is_file($file)) {
+                        require $file;
+                    }
+                }
+            }
+        });
+    }
+
+    if (!isset(Zef\Framework\Console\FrameworkVerbs::all()[$command])) {
+        $resolved = realpath($dispatchConfigDirectory);
+        if ($resolved === false || !is_dir($resolved)) {
+            fwrite(STDERR, "Configuration directory does not exist: {$dispatchConfigDirectory}\n");
+            exit(2);
+        }
+
+        try {
+            $kernel = Zef\Test\Support\Tooling\CliInspectionBoot::kernel($resolved);
+            $commands = Zef\Framework\ConsoleWiring::commands($kernel->config());
+
+            $entry = $commands->named($command);
+
+            if ($entry === null) {
+                fwrite(
+                    STDERR,
+                    "Unknown command '{$command}'. Run 'bin/zef list <config-directory>' to see the declared commands.\n",
+                );
+                exit(2);
+            }
+
+            $handler = Zef\Framework\ConsoleWiring::handler($kernel->container(), $entry);
+
+            exit($handler->run(array_values(array_slice($argv, 3))));
+        } catch (Throwable $dispatchFailure) {
+            fwrite(STDERR, 'The command dispatch refused: ' . $dispatchFailure->getMessage() . "\n");
+            exit(1);
+        }
     }
 }
 
