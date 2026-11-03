@@ -215,8 +215,8 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
     public function testIsRetryableMatchesTheCodelessLostConnection(): void
     {
         $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
-        $goneAway = new PDOException('MySQL server has gone away', 0);
-        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($goneAway));
+        $pdoException = new PDOException('MySQL server has gone away', 0);
+        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($pdoException));
     }
 
     /**
@@ -227,12 +227,12 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
     public function testIsRetryableMatchesTheRefusedSocketByItsMessage(): void
     {
         $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
-        $refused = new ArmedPdoException(
+        $armedPdoException = new ArmedPdoException(
             'SQLSTATE[HY000] [2002] Connection refused',
             2002,
             ['HY000', 2002, 'SQLSTATE[HY000] [2002] Connection refused'],
         );
-        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($refused));
+        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($armedPdoException));
     }
 
     /**
@@ -244,12 +244,12 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
     public function testIsRetryableRefusesTheMissingSocketSpelling(): void
     {
         $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
-        $missingSocket = new ArmedPdoException(
+        $armedPdoException = new ArmedPdoException(
             'SQLSTATE[HY000] [2002] No such file or directory',
             2002,
             ['HY000', 2002, 'SQLSTATE[HY000] [2002] No such file or directory'],
         );
-        self::assertFalse($unitOfWorkRetryPolicy->isRetryable($missingSocket));
+        self::assertFalse($unitOfWorkRetryPolicy->isRetryable($armedPdoException));
     }
 
     /**
@@ -271,8 +271,8 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
     public function testAnEmptyPatternListLeavesTheCodeLaneAlone(): void
     {
         $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy(retryableMessagePatterns: []);
-        $goneAway = new PDOException('MySQL server has gone away', 0);
-        self::assertFalse($unitOfWorkRetryPolicy->isRetryable($goneAway));
+        $pdoException = new PDOException('MySQL server has gone away', 0);
+        self::assertFalse($unitOfWorkRetryPolicy->isRetryable($pdoException));
 
         $deadlock = $this->makePdoException('deadlock', '40P01');
         self::assertTrue($unitOfWorkRetryPolicy->isRetryable($deadlock));
@@ -285,8 +285,8 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
     public function testTheMessageLaneMatchesAcrossCaseSpellings(): void
     {
         $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
-        $wrapped = new PDOException('SQLSTATE[HY000]: General error: 2006 MySQL Server Has Gone Away', 0);
-        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($wrapped));
+        $pdoException = new PDOException('SQLSTATE[HY000]: General error: 2006 MySQL Server Has Gone Away', 0);
+        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($pdoException));
     }
 
     /**

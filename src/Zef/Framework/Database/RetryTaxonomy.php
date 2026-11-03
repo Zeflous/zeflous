@@ -7,13 +7,12 @@ namespace Zef\Framework\Database;
 use Throwable;
 
 /**
- * The transient-failure taxonomy's judgement: whether a thrown failure
- * matches the retryable class names (instanceof), and -- over a
- * non-empty $retryableSqlStates -- whether the SQLSTATE the driver
- * reported is one of the retryable codes OR the message carries one
- * of the retryable lost-connection patterns ({@see RetryMessages}:
- * the complement that answers the driver failures no informative
- * code accompanies).
+ * The transient-failure taxonomy's judgement: the verdict over a
+ * thrown failure — the class-name gate first, then (over a non-empty
+ * $retryableSqlStates) the code lane's membership
+ * ({@see RetryCandidates::carries()}) OR the message lane's containment
+ * ({@see RetryMessages::matches()}: the complement that answers the
+ * driver failures no informative code accompanies).
  *
  * @internal
  */
@@ -42,7 +41,7 @@ final class RetryTaxonomy
             return true;
         }
 
-        return self::matchesSqlState($throwable, $retryableSqlStates)
+        return RetryCandidates::carries($throwable, $retryableSqlStates)
             || RetryMessages::matches($throwable->getMessage(), $retryableMessagePatterns);
     }
 
@@ -50,16 +49,5 @@ final class RetryTaxonomy
     private static function matchesClassName(Throwable $throwable, array $retryableClassNames): bool
     {
         return array_any($retryableClassNames, static fn (string $fqcn): bool => $throwable instanceof $fqcn);
-    }
-
-    /** @param list<string> $retryableSqlStates */
-    private static function matchesSqlState(Throwable $throwable, array $retryableSqlStates): bool
-    {
-        $candidates = RetryCandidates::sqlStates($throwable);
-
-        return array_any(
-            $retryableSqlStates,
-            static fn (string $state): bool => \in_array($state, $candidates, true),
-        );
     }
 }

@@ -186,7 +186,7 @@ final readonly class UnitOfWorkRetryPolicy
             || $maxDelayMs < $initialDelayMs
             || $multiplier < 1.0
             || $jitterMs < 0
-            || self::carriesAnInvalidMessagePattern($retryableMessagePatterns)
+            || $this->carriesAnInvalidMessagePattern($retryableMessagePatterns)
         ) {
             throw new InvalidArgumentException('Invalid UnitOfWork retry policy.');
         }
@@ -257,15 +257,11 @@ final readonly class UnitOfWorkRetryPolicy
      *                                                    judged before the
      *                                                    list<string> contract is trusted
      */
-    private static function carriesAnInvalidMessagePattern(array $retryableMessagePatterns): bool
+    private function carriesAnInvalidMessagePattern(array $retryableMessagePatterns): bool
     {
-        foreach ($retryableMessagePatterns as $pattern) {
-            /** @var mixed $pattern the raw entry, judged by the guards below */
-            if (!\is_string($pattern) || $pattern === '') {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(
+            $retryableMessagePatterns,
+            static fn ($pattern): bool => !\is_string($pattern) || $pattern === '',
+        );
     }
 }
