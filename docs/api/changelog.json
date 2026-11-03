@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-02T22:05:58Z",
+  "as_of": "2026-11-02T23:38:48Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 285,
+  "unreleased_count": 286,
   "versions": [
     {
       "version": "Unreleased",
@@ -4291,6 +4291,62 @@
                 "sha": "ec1ed32545e9c67399788e9012d34f1d83429c07",
                 "short_sha": "ec1ed32",
                 "subject": "docs(roadmap): refresh the pin over the standing tape's closing commit"
+              }
+            ]
+          },
+          {
+            "pr": 684,
+            "title": "feat(database): the condition-object family over the widened where verbs",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-02T23:38:48Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/684",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "21a239e5f05702292f361b6fb89f95a624a3d123",
+                "short_sha": "21a239e",
+                "subject": "feat(database): the condition-object family's leaves and composites"
+              },
+              {
+                "sha": "5bc9e0ce27f5f0ac0e2583208023e82b2c546807",
+                "short_sha": "5bc9e0c",
+                "subject": "feat(database): the facade overload and the criteria lane's condition walk"
+              },
+              {
+                "sha": "a94f9f11dff9b58e352eccde4cb770893ea8bd9a",
+                "short_sha": "a94f9f1",
+                "subject": "test(database): the condition family's adversarial curriculum and the criteria lane's live pins"
+              },
+              {
+                "sha": "190ed21152977c3fbf3d048723b8a2617741e6b1",
+                "short_sha": "190ed21",
+                "subject": "fix(database): settle the condition family under every gate"
+              },
+              {
+                "sha": "086bd0a3d7132b6c043c768c24480f571d96b27c",
+                "short_sha": "086bd0a",
+                "subject": "fix(database): the condition family's mutation round and the ledger's two documented equivalents"
+              },
+              {
+                "sha": "3971c59027c2f98237903f6b4e04407b7e50c79d",
+                "short_sha": "3971c59",
+                "subject": "docs(roadmap): record the condition-object slice and pin the lane"
+              },
+              {
+                "sha": "7bb8ecd5b20fe217e074da16816bb5dc0e7607ca",
+                "short_sha": "7bb8ecd",
+                "subject": "Merge branch 'main' into feat/database-condition-objects"
+              },
+              {
+                "sha": "c98e494feaa5375dcb6f5e91cdede8cca3fc76ea",
+                "short_sha": "c98e494",
+                "subject": "Merge branch 'main' into feat/database-condition-objects"
+              },
+              {
+                "sha": "1e0bf298d43381153b1affd8450b26d779ecc227",
+                "short_sha": "1e0bf29",
+                "subject": "docs(roadmap): refresh the pin over the merged main"
               }
             ]
           }
@@ -18463,6 +18519,62 @@
               "sha": "ec1ed32545e9c67399788e9012d34f1d83429c07",
               "short_sha": "ec1ed32",
               "subject": "docs(roadmap): refresh the pin over the standing tape's closing commit"
+            }
+          ]
+        },
+        {
+          "pr": 684,
+          "title": "feat(database): the condition-object family over the widened where verbs",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-02T23:38:48Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/684",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "21a239e5f05702292f361b6fb89f95a624a3d123",
+              "short_sha": "21a239e",
+              "subject": "feat(database): the condition-object family's leaves and composites"
+            },
+            {
+              "sha": "5bc9e0ce27f5f0ac0e2583208023e82b2c546807",
+              "short_sha": "5bc9e0c",
+              "subject": "feat(database): the facade overload and the criteria lane's condition walk"
+            },
+            {
+              "sha": "a94f9f11dff9b58e352eccde4cb770893ea8bd9a",
+              "short_sha": "a94f9f1",
+              "subject": "test(database): the condition family's adversarial curriculum and the criteria lane's live pins"
+            },
+            {
+              "sha": "190ed21152977c3fbf3d048723b8a2617741e6b1",
+              "short_sha": "190ed21",
+              "subject": "fix(database): settle the condition family under every gate"
+            },
+            {
+              "sha": "086bd0a3d7132b6c043c768c24480f571d96b27c",
+              "short_sha": "086bd0a",
+              "subject": "fix(database): the condition family's mutation round and the ledger's two documented equivalents"
+            },
+            {
+              "sha": "3971c59027c2f98237903f6b4e04407b7e50c79d",
+              "short_sha": "3971c59",
+              "subject": "docs(roadmap): record the condition-object slice and pin the lane"
+            },
+            {
+              "sha": "7bb8ecd5b20fe217e074da16816bb5dc0e7607ca",
+              "short_sha": "7bb8ecd",
+              "subject": "Merge branch 'main' into feat/database-condition-objects"
+            },
+            {
+              "sha": "c98e494feaa5375dcb6f5e91cdede8cca3fc76ea",
+              "short_sha": "c98e494",
+              "subject": "Merge branch 'main' into feat/database-condition-objects"
+            },
+            {
+              "sha": "1e0bf298d43381153b1affd8450b26d779ecc227",
+              "short_sha": "1e0bf29",
+              "subject": "docs(roadmap): refresh the pin over the merged main"
             }
           ]
         }
