@@ -104,7 +104,7 @@ return RectorConfig::configure()
             // type-derived renaming would rename the carrier out from
             // under every template's own $_view spellings (the
             // corridor's documented reserved names, and the psalm
-            // baseline's UnresolvableInclude pin over `include $_file;`
+            // baseline's UnresolvableInclude pin over `include $_file`
             // with them). The method-level parameter names the gate
             // spelled ($templateFace, $viewName) are carried by hand in
             // the same commit; the skip is the closure carriers' own.

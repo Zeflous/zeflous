@@ -116,7 +116,7 @@
   </file>
   <file src="src/Zef/Framework/Adapters/View/ViewRenderScope.php">
     <UnresolvableInclude>
-      <code><![CDATA[include $_file;]]></code>
+      <code><![CDATA[include $_file]]></code>
     </UnresolvableInclude>
   </file>
   <file src="src/Zef/Framework/Container/Aot/AotClosureEntry.php">
