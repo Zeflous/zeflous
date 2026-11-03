@@ -82,6 +82,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^Zef\\Framework\\Console\\#'
+    - name: View
+      collectors:
+        - type: classNameRegex
+          value: '#^Zef\\Framework\\View\\#'
     - name: Adapters
       collectors:
         - type: classNameRegex
@@ -111,6 +115,21 @@ deptrac:
     # no observability (the unbounded-statement audit emission is the
     # wiring slice's named follow-up).
     Database:
+      - Exception
+    # The view layer is the presentation lane's own port side: the
+    # template engine's one render question over the extension-free
+    # name and the honest data bag -- a self-contained foundation
+    # the same way the Database and Telemetry layers are. Its
+    # failures are the lane's whole story (name grammar refusal,
+    # the miss, the escape, the scope refusal, the mid-render
+    # crash), so it owns one typed family over the exception root
+    # (the `ConfigException`/`DatabaseException` posture, not the
+    # Event lane's pure-SPL one) and depends on nothing else: no
+    # configuration reading (the composition seam that wires a
+    # `views` family is the lane's own named follow-up slice), no
+    # container, no filesystem (the root posture is the ADAPTER's
+    # own fold, because the port's question never touches a disk).
+    View:
       - Exception
     # Contracts may only depend on the exception root.
     Contracts:
@@ -272,12 +291,25 @@ deptrac:
     # records is visible -- reaches the contract one-way, and the
     # engine never learns a statement audited. The WARN record rides
     # the vendored PSR-3 shim, which deptrac already excludes.
+    # The view engine (`Adapters\View\PhpViewEngine` over the View
+    # lane's `ViewEngine` port) joins the lane the same way the first
+    # pair planted: the port depends on nothing, the adapter depends
+    # on the port -- the native PHP-template answer whose root
+    # posture fold composes the storage layer's document-root
+    # judgment exactly as the delivery and session directory folds
+    # compose it, so no new direction opens and the hexagonal line
+    # stays the one the lane has carried since #634. The Twig answer
+    # the owner's recorded direction names joins here too, over the
+    # same port, in its own future slice (the optional-extension
+    # posture the phpredis boundary spells -- never a composer
+    # `require`).
     Adapters:
       - Event
       - Storage
       - Http
       - Database
       - Telemetry
+      - View
     # The modules layer is the module system's own lane: the contract the
     # module author implements (ModuleInterface over the ModuleRegistrar
     # port), the identity/context value objects, the manifest and knob

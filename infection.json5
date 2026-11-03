@@ -723,7 +723,35 @@
                 // its own class for the CLI fold's arrival -- the ignore
                 // target moved with the fold both times.
                 "Zef\\Framework\\Modules\\ModuleVersion::asserted",
-                "Zef\\Framework\\Modules\\ModuleManifestPaths::resolvedPath"
+                "Zef\\Framework\\Modules\\ModuleManifestPaths::resolvedPath",
+                // The view name's four byte-ceiling measurements are the
+                // lane's own migrations spelling, and each is the one
+                // call the MBString mutator can rewrite without any
+                // observable difference: mb_strlen($name, '8bit') and
+                // strlen($name) -- and mb_strlen($segment, '8bit') and
+                // strlen($segment) -- both answer the exact byte count
+                // of their operand for every possible input, because
+                // the '8bit' encoding IS byte semantics and never
+                // rejects a byte sequence (the BodyBudget::refuses()
+                // argument, unconditional here where that zone's was:
+                // no grammar gate ahead of these measurements can make
+                // a divergent input unreachable, and none is needed --
+                // the two spellings agree on every string there is).
+                // The two condition arms and the two message arms of
+                // the same ceilings are the four sites, all in the one
+                // constructor. Verified by running the full suite under
+                // the manually applied mutation (the complete suite
+                // passes, the multibyte over-ceiling refusals included:
+                // a multibyte name over the ceiling refuses with the
+                // same byte count in its message under both spellings).
+                // The spelling keeps the mb_ forms because the house's
+                // own formatter doctrine (MbStrFunctions rewrites every
+                // strlen to its mb_ twin) makes the byte-level spelling
+                // not a source-level option. The neighbouring
+                // preg_match grammar fold is not an MBString target:
+                // its D-flag pin lives in the trailing-newline test.
+                // This ignore is scoped to that single method.
+                "Zef\\Framework\\View\\ViewName::__construct"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",
