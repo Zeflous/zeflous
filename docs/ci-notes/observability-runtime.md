@@ -562,7 +562,12 @@ comment), one data point per series carrying `asDouble` and the
 delivery's wall stamp as the protocol's string nanoseconds. The
 snapshot's `count` does not ship: the OTLP counter IS the total,
 and the tally is the meter's own bookkeeping -- the pull lane's
-Prometheus renderer makes the same division of labour.
+Prometheus renderer makes the same division of labour. The
+reference's narrowing cast on the sum is dropped as the dead guard
+it was under the shape's contract -- the first CI round's own
+verdict (`cast.useless`: the meter's snapshot answers a float sum
+by construction, `CounterMeter`'s accumulate advancing it by a
+float), the span lane's dropped-guard precedent replayed.
 
 **KDD-OB40 -- The log record's hygiene is a construction, not an
 encoding.** `LogRecord` carries the severity, the body, the

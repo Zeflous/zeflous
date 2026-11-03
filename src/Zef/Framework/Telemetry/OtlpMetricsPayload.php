@@ -34,7 +34,13 @@ namespace Zef\Framework\Telemetry;
  * and the data point's double spelling move verbatim -- the fold's
  * own deviation is the shape's home: the reference built the list
  * inline in the exporter, and this port carries it as the unit the
- * ceiling demands.
+ * ceiling demands. The reference's narrowing cast on the sum
+ * (`(float)` before the meter's own float) is dropped as the dead
+ * guard it was under the shape's contract -- the meter's snapshot
+ * answers a float sum by construction (`CounterMeter`'s accumulate
+ * advances it by a float), and the fold trusts the contract every
+ * other internal seam trusts, the span lane's own dropped-guard
+ * precedent.
  */
 final class OtlpMetricsPayload
 {
@@ -89,7 +95,7 @@ final class OtlpMetricsPayload
                     'isMonotonic' => true,
                     'dataPoints' => [
                         [
-                            'asDouble' => (float) $metric['sum'],
+                            'asDouble' => $metric['sum'],
                             'timeUnixNano' => (string) $timeUnixNano,
                             'attributes' => OtlpJsonPayloadEncoder::attributes($metric['attributes']),
                         ],

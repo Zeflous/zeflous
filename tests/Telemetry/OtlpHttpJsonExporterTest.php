@@ -356,7 +356,7 @@ final class OtlpHttpJsonExporterTest extends TestCase
 
         $otlpHttpJsonExporter->exportMetrics([
             'zef.http.errors.total' => ['count' => 3, 'sum' => 3.0, 'attributes' => ['route' => '/api']],
-            'zef.requests' => ['count' => 2, 'sum' => 7, 'attributes' => []],
+            'zef.requests' => ['count' => 2, 'sum' => 7.0, 'attributes' => []],
         ]);
 
         $bodies = $this->otlpMockServer->receivedBodies();
@@ -381,7 +381,7 @@ final class OtlpHttpJsonExporterTest extends TestCase
 
         $sum = $this->mapAt($first['sum']);
         self::assertSame(2, $sum['aggregationTemporality'], 'the cumulative aggregation the counter family spells');
-        self::assertSame(true, $sum['isMonotonic'], 'the meter series only ever grow');
+        self::assertTrue($this->boolAt($sum['isMonotonic']), 'the meter series only ever grow');
 
         $dataPoint = $this->mapAt($this->mapAt($sum['dataPoints'])[0]);
         self::assertSame(3.0, $dataPoint['asDouble']);
@@ -395,11 +395,7 @@ final class OtlpHttpJsonExporterTest extends TestCase
         self::assertSame('zef.requests', $second['name']);
 
         $secondPoint = $this->mapAt($this->mapAt($this->mapAt($second['sum'])['dataPoints'])[0]);
-        self::assertSame(
-            7.0,
-            $secondPoint['asDouble'],
-            'the integer-typed sum answers the protocols double',
-        );
+        self::assertSame(7.0, $secondPoint['asDouble']);
         self::assertSame([], $this->mapAt($secondPoint['attributes']));
     }
 
@@ -601,6 +597,20 @@ final class OtlpHttpJsonExporterTest extends TestCase
     {
         if (!\is_array($node)) {
             self::fail('The payload node the assertion read is not an object.');
+        }
+
+        return $node;
+    }
+
+    /**
+     * One payload node the boolean assertions read, shaped to the
+     * bool it must be before the assertion touches it -- the wire's
+     * own type, proven by the shaper's refusal.
+     */
+    private function boolAt(mixed $node): bool
+    {
+        if (!\is_bool($node)) {
+            self::fail('The payload node the assertion read is not a boolean.');
         }
 
         return $node;

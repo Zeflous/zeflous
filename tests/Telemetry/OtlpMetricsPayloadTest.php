@@ -43,7 +43,7 @@ final class OtlpMetricsPayloadTest extends TestCase
                 ],
                 'zef.requests' => [
                     'count' => 2,
-                    'sum' => 7,
+                    'sum' => 7.0,
                     'attributes' => [],
                 ],
             ],

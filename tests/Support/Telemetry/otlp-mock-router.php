@@ -33,6 +33,12 @@ namespace Zef\Test\Support\Telemetry;
  *   OTLP_DELAY_MS  the milliseconds every answer is held back for --
  *                  the slow collector the exchange's own timeout
  *                  bounds
+ *
+ * The router answers every signal path the exporter's three lanes
+ * address (`/v1/traces`, `/v1/metrics`, `/v1/logs`): a collector
+ * serves the whole protocol, and a mock that answered one signal
+ * while refusing the other two would fail the widened lanes'
+ * deliveries as permanent rejections the wire never spoke.
  */
 
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
@@ -41,7 +47,9 @@ $countFile = getenv('OTLP_COUNT');
 $countFile = $countFile === false ? '' : $countFile;
 $counter = 0;
 
-if ($uri !== '/v1/traces') {
+$signalPaths = ['/v1/traces', '/v1/metrics', '/v1/logs'];
+
+if (!\in_array($uri, $signalPaths, true)) {
     http_response_code(404);
 
     return;
