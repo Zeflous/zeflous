@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-03T09:39:37Z",
+  "as_of": "2026-11-03T20:31:33Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 287,
+  "unreleased_count": 288,
   "versions": [
     {
       "version": "Unreleased",
@@ -4378,6 +4378,107 @@
                 "sha": "ff37f82ba8f85a85da4e0875f3bad2fd31baf399",
                 "short_sha": "ff37f82",
                 "subject": "docs(roadmap): record the lost-connection message lane slice and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 693,
+            "title": "feat(view): the presentation port and the native PHP-template answer",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-03T20:31:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/693",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6fa9669b0034d5b275b7195bb3995965cd00ed14",
+                "short_sha": "6fa9669",
+                "subject": "feat(view): the presentation port and the native PHP-template answer"
+              },
+              {
+                "sha": "2c91cab01f82e648cc2846a51eb850ffee22faad",
+                "short_sha": "2c91cab",
+                "subject": "Merge branch 'main' into feat/view-engine-port"
+              },
+              {
+                "sha": "0e3ac9ef4ef6c22b8fe2eb973f0ba16b21cf6047",
+                "short_sha": "0e3ac9e",
+                "subject": "test(view): the presentation lane's adversarial curriculum"
+              },
+              {
+                "sha": "973c61de8853fedbecb216519a4f2a381965fd09",
+                "short_sha": "973c61d",
+                "subject": "docs(view): the presentation lane's decisions recorded as KDD-VW1..VW5, the roadmap row and meter"
+              },
+              {
+                "sha": "e216508c36c7c9299c1858e903cac54259d04e5c",
+                "short_sha": "e216508",
+                "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+              },
+              {
+                "sha": "b53523430b38e4dba397c51fb713ea526740f1ae",
+                "short_sha": "b535234",
+                "subject": "fix(view): the battery's int-key seam and the imports the analysers read"
+              },
+              {
+                "sha": "209209273f3e5a1c3ed4698a344c77bb30ef5900",
+                "short_sha": "2092092",
+                "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+              },
+              {
+                "sha": "eb78fb2c57f031351c9fa5acd7e735c0aab6323c",
+                "short_sha": "eb78fb2",
+                "subject": "fix(view): the first CI round's nine pins and the two battery bugs"
+              },
+              {
+                "sha": "0d4e4ae0b8fc435260f9984a59caa1246e568a07",
+                "short_sha": "0d4e4ae",
+                "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+              },
+              {
+                "sha": "57e1fadac236537ef525a9fef2fe18ec6f62dbc4",
+                "short_sha": "57e1fad",
+                "subject": "fix(view): the format gate's own six files, exactly as it spelled them"
+              },
+              {
+                "sha": "31e20f2ef3a78f61e20039aeb455878039e7461a",
+                "short_sha": "31e20f2",
+                "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+              },
+              {
+                "sha": "43f25c7bcc293e557f12fab5d7add77f2d559045",
+                "short_sha": "43f25c7",
+                "subject": "fix(view): rector's fourteen files, exactly as it spelled them"
+              },
+              {
+                "sha": "668537cef717266eed1fa83489a92773f8b8edbc",
+                "short_sha": "668537c",
+                "subject": "fix(view): the scope's own @param line under the phpcs soft limit"
+              },
+              {
+                "sha": "faa7075a31cde09fe8f16042fe708c7582b4fa02",
+                "short_sha": "faa7075",
+                "subject": "fix(view): the ledger test's own variable under the gate's spelling"
+              },
+              {
+                "sha": "60aa49fb7b0a44b871aa5b7ad63ede8712d6a13b",
+                "short_sha": "60aa49f",
+                "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+              },
+              {
+                "sha": "4d140abb7dee2652637630491777594e4c40a179",
+                "short_sha": "4d140ab",
+                "subject": "fix(view): the scope's psalm pin spelled as the analyser reads it"
+              },
+              {
+                "sha": "ac303773ea9fb8073df0623f78c4f46d9f2b3423",
+                "short_sha": "ac30377",
+                "subject": "fix(view): the first mutation round's six kills and the byte-semantics ledger entry"
+              },
+              {
+                "sha": "e20d9ec8764e632b32ccf11410637270987c2961",
+                "short_sha": "e20d9ec",
+                "subject": "docs(roadmap): the view lane's first mutation round recorded and the pin refreshed"
               }
             ]
           }
@@ -18637,6 +18738,107 @@
               "sha": "ff37f82ba8f85a85da4e0875f3bad2fd31baf399",
               "short_sha": "ff37f82",
               "subject": "docs(roadmap): record the lost-connection message lane slice and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 693,
+          "title": "feat(view): the presentation port and the native PHP-template answer",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-03T20:31:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/693",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6fa9669b0034d5b275b7195bb3995965cd00ed14",
+              "short_sha": "6fa9669",
+              "subject": "feat(view): the presentation port and the native PHP-template answer"
+            },
+            {
+              "sha": "2c91cab01f82e648cc2846a51eb850ffee22faad",
+              "short_sha": "2c91cab",
+              "subject": "Merge branch 'main' into feat/view-engine-port"
+            },
+            {
+              "sha": "0e3ac9ef4ef6c22b8fe2eb973f0ba16b21cf6047",
+              "short_sha": "0e3ac9e",
+              "subject": "test(view): the presentation lane's adversarial curriculum"
+            },
+            {
+              "sha": "973c61de8853fedbecb216519a4f2a381965fd09",
+              "short_sha": "973c61d",
+              "subject": "docs(view): the presentation lane's decisions recorded as KDD-VW1..VW5, the roadmap row and meter"
+            },
+            {
+              "sha": "e216508c36c7c9299c1858e903cac54259d04e5c",
+              "short_sha": "e216508",
+              "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+            },
+            {
+              "sha": "b53523430b38e4dba397c51fb713ea526740f1ae",
+              "short_sha": "b535234",
+              "subject": "fix(view): the battery's int-key seam and the imports the analysers read"
+            },
+            {
+              "sha": "209209273f3e5a1c3ed4698a344c77bb30ef5900",
+              "short_sha": "2092092",
+              "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+            },
+            {
+              "sha": "eb78fb2c57f031351c9fa5acd7e735c0aab6323c",
+              "short_sha": "eb78fb2",
+              "subject": "fix(view): the first CI round's nine pins and the two battery bugs"
+            },
+            {
+              "sha": "0d4e4ae0b8fc435260f9984a59caa1246e568a07",
+              "short_sha": "0d4e4ae",
+              "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+            },
+            {
+              "sha": "57e1fadac236537ef525a9fef2fe18ec6f62dbc4",
+              "short_sha": "57e1fad",
+              "subject": "fix(view): the format gate's own six files, exactly as it spelled them"
+            },
+            {
+              "sha": "31e20f2ef3a78f61e20039aeb455878039e7461a",
+              "short_sha": "31e20f2",
+              "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+            },
+            {
+              "sha": "43f25c7bcc293e557f12fab5d7add77f2d559045",
+              "short_sha": "43f25c7",
+              "subject": "fix(view): rector's fourteen files, exactly as it spelled them"
+            },
+            {
+              "sha": "668537cef717266eed1fa83489a92773f8b8edbc",
+              "short_sha": "668537c",
+              "subject": "fix(view): the scope's own @param line under the phpcs soft limit"
+            },
+            {
+              "sha": "faa7075a31cde09fe8f16042fe708c7582b4fa02",
+              "short_sha": "faa7075",
+              "subject": "fix(view): the ledger test's own variable under the gate's spelling"
+            },
+            {
+              "sha": "60aa49fb7b0a44b871aa5b7ad63ede8712d6a13b",
+              "short_sha": "60aa49f",
+              "subject": "docs(roadmap): refresh the pin over the view lane's closing commit"
+            },
+            {
+              "sha": "4d140abb7dee2652637630491777594e4c40a179",
+              "short_sha": "4d140ab",
+              "subject": "fix(view): the scope's psalm pin spelled as the analyser reads it"
+            },
+            {
+              "sha": "ac303773ea9fb8073df0623f78c4f46d9f2b3423",
+              "short_sha": "ac30377",
+              "subject": "fix(view): the first mutation round's six kills and the byte-semantics ledger entry"
+            },
+            {
+              "sha": "e20d9ec8764e632b32ccf11410637270987c2961",
+              "short_sha": "e20d9ec",
+              "subject": "docs(roadmap): the view lane's first mutation round recorded and the pin refreshed"
             }
           ]
         }

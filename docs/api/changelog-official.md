@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(view\): the presentation port and the native PHP-template answer [\#693](https://github.com/Zeflous/zeflous/pull/693) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the lost-connection message lane over the retry taxonomy [\#689](https://github.com/Zeflous/zeflous/pull/689) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the condition-object family over the widened where verbs [\#684](https://github.com/Zeflous/zeflous/pull/684) ([mbetixz](https://github.com/mbetixz))
 - feat\(modules\): the event extension point with its manifest fold over the standard events schema [\#681](https://github.com/Zeflous/zeflous/pull/681) ([mbetixz](https://github.com/mbetixz))
