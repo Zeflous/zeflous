@@ -15,7 +15,7 @@ use Zef\Framework\View\ViewName;
  * its own loader, and the name the caller spelled never changes).
  *
  * The fold is the lane's SECOND wall, and it trusts the first not at
- * all: the name grammar ({@see \Zef\Framework\View\ViewName}) could
+ * all: the name grammar ({@see ViewName}) could
  * never spell an escape (`..` never constructs, empty segments never
  * construct), and this fold's realpath containment still refuses one
  * -- because the only spelling left to a hostile tree is a symlink
@@ -39,8 +39,8 @@ final class ViewTemplateFile
      * Resolves one template identity into the canonical file address
      * inside the root, refusing the miss and the escape.
      *
-     * @param string $resolvedRoot the root {@see ViewTemplateDirectory::resolve()} answered
-     * @param ViewName $name       the template's logical identity
+     * @param string   $resolvedRoot the root {@see ViewTemplateDirectory::resolve()} answered
+     * @param ViewName $name         the template's logical identity
      *
      * @throws ViewException when the template does not answer under the root, or
      *                       escapes it
@@ -58,7 +58,7 @@ final class ViewTemplateFile
 
         $resolved = realpath($candidate);
 
-        if (!\is_string($resolved) || !\str_starts_with($resolved . '/', $resolvedRoot . '/')) {
+        if (!\is_string($resolved) || !str_starts_with($resolved . '/', $resolvedRoot . '/')) {
             throw new ViewException(
                 'The view template \'' . $name->spelling() . '\' escapes the'
                 . ' templates root.',

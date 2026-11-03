@@ -46,7 +46,7 @@ final readonly class TemplateFace
      * Escapes one value into HTML-safe text -- the fold every
      * interpolated value crosses, the tree's one escaping spelling.
      */
-    public function escape(Stringable|string $value): string
+    public function escape(string|Stringable $value): string
     {
         return htmlspecialchars((string) $value, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8');
     }
@@ -59,8 +59,8 @@ final readonly class TemplateFace
      * @param array<string, mixed> $data the partial's own bag
      *
      * @throws InvalidArgumentException when the name is outside the grammar the identity fold refuses
-     * @throws ViewException when the partial does not answer, escapes,
-     *                       refuses the bag, or fails mid-render
+     * @throws ViewException            when the partial does not answer, escapes,
+     *                                  refuses the bag, or fails mid-render
      */
     public function render(string $name, array $data): string
     {

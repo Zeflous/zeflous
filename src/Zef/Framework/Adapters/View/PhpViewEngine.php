@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Adapters\View;
 
+use InvalidArgumentException;
 use Override;
 use Throwable;
 use Zef\Framework\View\ViewEngine;
@@ -47,11 +48,11 @@ final readonly class PhpViewEngine implements ViewEngine
 
     /**
      * @param string $templateDirectory the templates root (validated by
-     *                                   {@see ViewTemplateDirectory}: existing, readable,
-     *                                   non-symlink, owner-only, outside the public
-     *                                   document root)
+     *                                  {@see ViewTemplateDirectory}: existing, readable,
+     *                                  non-symlink, owner-only, outside the public
+     *                                  document root)
      *
-     * @throws \InvalidArgumentException when the root refuses the posture
+     * @throws InvalidArgumentException when the root refuses the posture
      */
     public function __construct(string $templateDirectory)
     {

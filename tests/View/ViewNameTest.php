@@ -25,19 +25,19 @@ final class ViewNameTest extends TestCase
 {
     public function testConstructsTheSimpleSegment(): void
     {
-        self::assertSame('about', (new ViewName('about'))->spelling());
+        self::assertSame('about', new ViewName('about')->spelling());
     }
 
     public function testConstructsNestedSegments(): void
     {
-        self::assertSame('users/profile', (new ViewName('users/profile'))->spelling());
+        self::assertSame('users/profile', new ViewName('users/profile')->spelling());
     }
 
     public function testConstructsTheFullSegmentGrammar(): void
     {
         self::assertSame(
             'A.b-c_d0/E9.f-g_h',
-            (new ViewName('A.b-c_d0/E9.f-g_h'))->spelling(),
+            new ViewName('A.b-c_d0/E9.f-g_h')->spelling(),
         );
     }
 
@@ -46,14 +46,14 @@ final class ViewNameTest extends TestCase
         $name = implode('/', array_fill(0, 17, str_repeat('a', 240)));
 
         self::assertSame(4096, mb_strlen($name, '8bit'));
-        self::assertSame($name, (new ViewName($name))->spelling());
+        self::assertSame($name, new ViewName($name)->spelling());
     }
 
     public function testConstructsTheSegmentByteCeilingExactly(): void
     {
         $name = str_repeat('b', 255);
 
-        self::assertSame($name, (new ViewName($name))->spelling());
+        self::assertSame($name, new ViewName($name)->spelling());
     }
 
     public function testRefusesTheEmptyName(): void
@@ -218,7 +218,7 @@ final class ViewNameTest extends TestCase
         } catch (InvalidArgumentException $invalidArgumentException) {
             self::assertSame(
                 'A view name segment must be letter-or-digit led and carry only letters,'
-                . " digits, dots, underscores or hyphens, got 'a\b'.",
+                . " digits, dots, underscores or hyphens, got 'a\\b'.",
                 $invalidArgumentException->getMessage(),
             );
         }

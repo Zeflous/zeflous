@@ -77,7 +77,7 @@ final readonly class ViewName
 
             if (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/D', $segment) !== 1) {
                 throw new InvalidArgumentException(
-                    "A view name segment must be letter-or-digit led and carry only"
+                    'A view name segment must be letter-or-digit led and carry only'
                     . " letters, digits, dots, underscores or hyphens, got '" . $segment . "'.",
                 );
             }

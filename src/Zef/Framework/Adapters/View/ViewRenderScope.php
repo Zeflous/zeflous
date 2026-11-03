@@ -43,10 +43,10 @@ final class ViewRenderScope
      * Renders one resolved template inside the isolated scope,
      * answering the captured text.
      *
-     * @param string                $file the resolved template address {@see ViewTemplateFile::resolve()} answered
-     * @param TemplateFace          $view the face the template holds
-     * @param array<string, mixed>  $data the guarded bag whose keys become the template's variables
-     * @param ViewName              $name the identity the refusals name
+     * @param string               $file the resolved template address {@see ViewTemplateFile::resolve()} answered
+     * @param TemplateFace         $view the face the template holds
+     * @param array<string, mixed> $data the guarded bag whose keys become the template's variables
+     * @param ViewName             $name the identity the refusals name
      *
      * @throws ViewException when the template disturbs the output buffering
      *                       discipline
@@ -61,7 +61,9 @@ final class ViewRenderScope
             $answer = (static function (string $_file, TemplateFace $_view, array $_data): string {
                 extract($_data, \EXTR_SKIP);
                 unset($_data);
+
                 include $_file;
+
                 return (string) ob_get_contents();
             })($file, $view, $data);
 
