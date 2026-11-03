@@ -14,10 +14,10 @@ use Stringable;
  *
  * @internal
  */
-final class StringableValue implements Stringable
+final readonly class StringableValue implements Stringable
 {
     public function __construct(
-        private readonly string $text,
+        private string $text,
     ) {
     }
 

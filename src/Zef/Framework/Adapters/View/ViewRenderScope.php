@@ -43,15 +43,15 @@ final class ViewRenderScope
      * Renders one resolved template inside the isolated scope,
      * answering the captured text.
      *
-     * @param string               $file the resolved template address {@see ViewTemplateFile::resolve()} answered
-     * @param TemplateFace         $view the face the template holds
-     * @param array<string, mixed> $data the guarded bag whose keys become the template's variables
-     * @param ViewName             $name the identity the refusals name
+     * @param string               $file         the resolved template address {@see ViewTemplateFile::resolve()} answered
+     * @param TemplateFace         $templateFace the face the template holds
+     * @param array<string, mixed> $data         the guarded bag whose keys become the template's variables
+     * @param ViewName             $viewName     the identity the refusals name
      *
      * @throws ViewException when the template disturbs the output buffering
      *                       discipline
      */
-    public static function render(string $file, TemplateFace $view, array $data, ViewName $name): string
+    public static function render(string $file, TemplateFace $templateFace, array $data, ViewName $viewName): string
     {
         $entry = ob_get_level();
 
@@ -65,12 +65,12 @@ final class ViewRenderScope
                 include $_file;
 
                 return (string) ob_get_contents();
-            })($file, $view, $data);
+            })($file, $templateFace, $data);
 
             if (ob_get_level() !== $entry + 1) {
                 throw new ViewException(
-                    'The view template \'' . $name->spelling() . '\' disturbed the'
-                    . ' engine\'s output buffering discipline.',
+                    "The view template '" . $viewName->spelling() . "' disturbed the"
+                    . " engine's output buffering discipline.",
                 );
             }
         } finally {

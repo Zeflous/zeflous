@@ -32,14 +32,14 @@ final class ViewRenderScopeTest extends TestCase
 {
     private string $directory;
 
-    private TemplateFace $face;
+    private TemplateFace $templateFace;
 
     #[Override]
     protected function setUp(): void
     {
         $this->directory = sys_get_temp_dir() . '/zef-view-scope-' . bin2hex(random_bytes(8));
         mkdir($this->directory, 0o700);
-        $this->face = new TemplateFace(new RecordingViewEngine());
+        $this->templateFace = new TemplateFace(new RecordingViewEngine());
     }
 
     #[Override]
@@ -54,7 +54,7 @@ final class ViewRenderScopeTest extends TestCase
 
         self::assertSame(
             'Hello, &lt;Zef&gt;',
-            ViewRenderScope::render($file, $this->face, ['who' => '<Zef>'], new ViewName('echoer')),
+            ViewRenderScope::render($file, $this->templateFace, ['who' => '<Zef>'], new ViewName('echoer')),
         );
     }
 
@@ -64,7 +64,7 @@ final class ViewRenderScopeTest extends TestCase
 
         self::assertSame(
             '',
-            ViewRenderScope::render($file, $this->face, [], new ViewName('silent')),
+            ViewRenderScope::render($file, $this->templateFace, [], new ViewName('silent')),
         );
     }
 
@@ -72,12 +72,12 @@ final class ViewRenderScopeTest extends TestCase
     {
         $file = $this->template(
             'balanced',
-            '<?php ob_start(); echo \'inner\'; ob_end_flush(); ?>outer',
+            "<?php ob_start(); echo 'inner'; ob_end_flush(); ?>outer",
         );
 
         self::assertSame(
             'innerouter',
-            ViewRenderScope::render($file, $this->face, [], new ViewName('balanced')),
+            ViewRenderScope::render($file, $this->templateFace, [], new ViewName('balanced')),
         );
     }
 
@@ -89,7 +89,7 @@ final class ViewRenderScopeTest extends TestCase
             'p via &lt;i&gt;',
             ViewRenderScope::render(
                 $file,
-                $this->face,
+                $this->templateFace,
                 ['_view' => 'impostor', '_file' => 'impostor', 'payload' => 'p'],
                 new ViewName('impostor'),
             ),
@@ -102,7 +102,7 @@ final class ViewRenderScopeTest extends TestCase
 
         self::assertSame(
             'clean',
-            ViewRenderScope::render($file, $this->face, ['payload' => 'p'], new ViewName('sealed')),
+            ViewRenderScope::render($file, $this->templateFace, ['payload' => 'p'], new ViewName('sealed')),
         );
     }
 
@@ -113,16 +113,16 @@ final class ViewRenderScopeTest extends TestCase
         $entry = ob_get_level();
 
         try {
-            ViewRenderScope::render($file, $this->face, [], new ViewName('closer'));
+            ViewRenderScope::render($file, $this->templateFace, [], new ViewName('closer'));
             self::fail('The buffer-closing template was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'closer\' disturbed the engine\'s output buffering'
+                "The view template 'closer' disturbed the engine's output buffering"
                 . ' discipline.',
                 $viewException->getMessage(),
             );
         } finally {
-            self::assertSame($entry, ob_get_level(), 'The caller\'s own buffer level moved.');
+            self::assertSame($entry, ob_get_level(), "The caller's own buffer level moved.");
         }
     }
 
@@ -133,27 +133,27 @@ final class ViewRenderScopeTest extends TestCase
         $entry = ob_get_level();
 
         try {
-            ViewRenderScope::render($file, $this->face, [], new ViewName('leaver'));
+            ViewRenderScope::render($file, $this->templateFace, [], new ViewName('leaver'));
             self::fail('The buffer-leaving template was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'leaver\' disturbed the engine\'s output buffering'
+                "The view template 'leaver' disturbed the engine's output buffering"
                 . ' discipline.',
                 $viewException->getMessage(),
             );
         } finally {
-            self::assertSame($entry, ob_get_level(), 'The caller\'s own buffer level moved.');
+            self::assertSame($entry, ob_get_level(), "The caller's own buffer level moved.");
         }
     }
 
     public function testATemplateThatCrashesPropagatesWithEveryBufferPopped(): void
     {
-        $file = $this->template('crasher', '<?php throw new RuntimeException(\'scope-boom\'); ?>');
+        $file = $this->template('crasher', "<?php throw new RuntimeException('scope-boom'); ?>");
 
         $entry = ob_get_level();
 
         try {
-            ViewRenderScope::render($file, $this->face, [], new ViewName('crasher'));
+            ViewRenderScope::render($file, $this->templateFace, [], new ViewName('crasher'));
             self::fail('The crashing template did not propagate its own throwable.');
         } catch (RuntimeException $runtimeException) {
             self::assertSame('scope-boom', $runtimeException->getMessage());

@@ -27,63 +27,63 @@ final class TemplateFaceTest extends TestCase
 {
     public function testEscapesEveryHtmlSpecial(): void
     {
-        $face = new TemplateFace(new RecordingViewEngine());
+        $templateFace = new TemplateFace(new RecordingViewEngine());
 
         self::assertSame(
             '&lt;&gt;&amp;&quot;&#039;',
-            $face->escape('<>&"\''),
+            $templateFace->escape('<>&"\''),
         );
     }
 
     public function testEscapesPlainTextVerbatim(): void
     {
-        $face = new TemplateFace(new RecordingViewEngine());
+        $templateFace = new TemplateFace(new RecordingViewEngine());
 
-        self::assertSame('Zef stays plain', $face->escape('Zef stays plain'));
+        self::assertSame('Zef stays plain', $templateFace->escape('Zef stays plain'));
     }
 
     public function testEscapesAnEmptyValueToTheEmptyText(): void
     {
-        $face = new TemplateFace(new RecordingViewEngine());
+        $templateFace = new TemplateFace(new RecordingViewEngine());
 
-        self::assertSame('', $face->escape(''));
+        self::assertSame('', $templateFace->escape(''));
     }
 
     public function testCastsAStringableThroughTheSameFold(): void
     {
-        $face = new TemplateFace(new RecordingViewEngine());
+        $templateFace = new TemplateFace(new RecordingViewEngine());
 
-        self::assertSame('&lt;b&gt;', $face->escape(new StringableValue('<b>')));
+        self::assertSame('&lt;b&gt;', $templateFace->escape(new StringableValue('<b>')));
     }
 
     public function testSubstitutesTheInvalidByte(): void
     {
-        $face = new TemplateFace(new RecordingViewEngine());
+        $templateFace = new TemplateFace(new RecordingViewEngine());
 
-        self::assertSame("a\u{FFFD}b", $face->escape("a\xFFb"));
+        self::assertSame("a\u{FFFD}b", $templateFace->escape("a\xFFb"));
     }
 
     public function testThePartialVerbReentersTheEngine(): void
     {
-        $engine = new RecordingViewEngine(['item' => 'the-answer']);
-        $face = new TemplateFace($engine);
+        $recordingViewEngine = new RecordingViewEngine(['item' => 'the-answer']);
+        $templateFace = new TemplateFace($recordingViewEngine);
 
         self::assertSame(
             'the-answer',
-            $face->render('item', ['name' => 'Zef']),
+            $templateFace->render('item', ['name' => 'Zef']),
         );
         self::assertSame(
             [['name' => 'item', 'data' => ['name' => 'Zef']]],
-            $engine->renders,
+            $recordingViewEngine->renders,
         );
     }
 
     public function testThePartialVerbRefusesANameOutsideTheGrammar(): void
     {
-        $face = new TemplateFace(new RecordingViewEngine());
+        $templateFace = new TemplateFace(new RecordingViewEngine());
 
         try {
-            $face->render('..', []);
+            $templateFace->render('..', []);
             self::fail('The grammar-refusing name was not refused at the identity fold.');
         } catch (InvalidArgumentException $invalidArgumentException) {
             self::assertSame(

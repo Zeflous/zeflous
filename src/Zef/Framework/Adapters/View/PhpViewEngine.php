@@ -44,7 +44,7 @@ final readonly class PhpViewEngine implements ViewEngine
 {
     private string $templatesRoot;
 
-    private ViewRenderDepth $renderDepth;
+    private ViewRenderDepth $viewRenderDepth;
 
     /**
      * @param string $templateDirectory the templates root (validated by
@@ -57,32 +57,32 @@ final readonly class PhpViewEngine implements ViewEngine
     public function __construct(string $templateDirectory)
     {
         $this->templatesRoot = ViewTemplateDirectory::resolve($templateDirectory);
-        $this->renderDepth = new ViewRenderDepth();
+        $this->viewRenderDepth = new ViewRenderDepth();
     }
 
     #[Override]
-    public function render(ViewName $name, array $data): string
+    public function render(ViewName $viewName, array $data): string
     {
         ViewVariables::guard($data);
 
-        $file = ViewTemplateFile::resolve($this->templatesRoot, $name);
+        $file = ViewTemplateFile::resolve($this->templatesRoot, $viewName);
 
-        $this->renderDepth->enter($name);
+        $this->viewRenderDepth->enter($viewName);
 
         try {
             try {
-                return ViewRenderScope::render($file, new TemplateFace($this), $data, $name);
+                return ViewRenderScope::render($file, new TemplateFace($this), $data, $viewName);
             } catch (ViewException $viewException) {
                 throw $viewException;
             } catch (Throwable $templateFailure) {
                 throw new ViewException(
-                    'The view template \'' . $name->spelling() . '\' failed mid-render.',
+                    "The view template '" . $viewName->spelling() . "' failed mid-render.",
                     0,
                     $templateFailure,
                 );
             }
         } finally {
-            $this->renderDepth->leave();
+            $this->viewRenderDepth->leave();
         }
     }
 }

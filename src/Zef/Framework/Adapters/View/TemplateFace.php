@@ -38,7 +38,7 @@ use Zef\Framework\View\ViewName;
 final readonly class TemplateFace
 {
     public function __construct(
-        private ViewEngine $engine,
+        private ViewEngine $viewEngine,
     ) {
     }
 
@@ -64,6 +64,6 @@ final readonly class TemplateFace
      */
     public function render(string $name, array $data): string
     {
-        return $this->engine->render(new ViewName($name), $data);
+        return $this->viewEngine->render(new ViewName($name), $data);
     }
 }

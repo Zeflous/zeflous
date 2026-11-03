@@ -35,7 +35,7 @@ final class PhpViewEngineTest extends TestCase
 {
     private string $root;
 
-    private PhpViewEngine $engine;
+    private PhpViewEngine $phpViewEngine;
 
     #[Override]
     protected function setUp(): void
@@ -48,13 +48,13 @@ final class PhpViewEngineTest extends TestCase
         $this->template('layout', 'Layout(<?= $_view->render(\'partial\', [\'item\' => $item]) ?>)');
         $this->template('partial', '[<?= $_view->escape($item) ?>]');
         $this->template('layout-miss', '<?= $_view->render(\'nope\', []) ?>');
-        $this->template('crash', '<?php throw new RuntimeException(\'boom\'); ?>');
+        $this->template('crash', "<?php throw new RuntimeException('boom'); ?>");
         $this->template('recurse', '<?= $_view->render(\'recurse\', []) ?>');
         $this->template('cycle-a', 'A<?= $_view->render(\'cycle-b\', []) ?>');
         $this->template('cycle-b', 'B<?= $_view->render(\'cycle-a\', []) ?>');
         $this->template('typed', '<?= get_debug_type($value) ?>');
 
-        $this->engine = new PhpViewEngine($this->root);
+        $this->phpViewEngine = new PhpViewEngine($this->root);
     }
 
     #[Override]
@@ -67,21 +67,21 @@ final class PhpViewEngineTest extends TestCase
     {
         self::assertSame(
             'Hello, Zef &amp; Co!',
-            $this->engine->render(new ViewName('greet'), ['name' => 'Zef & Co']),
+            $this->phpViewEngine->render(new ViewName('greet'), ['name' => 'Zef & Co']),
         );
     }
 
     public function testRepeatedRendersAnswerIndependently(): void
     {
-        $name = new ViewName('greet');
+        $viewName = new ViewName('greet');
 
         self::assertSame(
             'Hello, Zef!',
-            $this->engine->render($name, ['name' => 'Zef']),
+            $this->phpViewEngine->render($viewName, ['name' => 'Zef']),
         );
         self::assertSame(
             'Hello, Zef!',
-            $this->engine->render($name, ['name' => 'Zef']),
+            $this->phpViewEngine->render($viewName, ['name' => 'Zef']),
         );
     }
 
@@ -89,20 +89,20 @@ final class PhpViewEngineTest extends TestCase
     {
         self::assertSame(
             'Raw: <b>',
-            $this->engine->render(new ViewName('raw'), ['title' => '<b>']),
+            $this->phpViewEngine->render(new ViewName('raw'), ['title' => '<b>']),
         );
     }
 
     public function testTheValuesAreNobodysCorridor(): void
     {
-        $name = new ViewName('typed');
+        $viewName = new ViewName('typed');
 
-        self::assertSame('stdClass', $this->engine->render($name, ['value' => new stdClass()]));
-        self::assertSame('null', $this->engine->render($name, ['value' => null]));
-        self::assertSame('array', $this->engine->render($name, ['value' => [1, 2]]));
+        self::assertSame('stdClass', $this->phpViewEngine->render($viewName, ['value' => new stdClass()]));
+        self::assertSame('null', $this->phpViewEngine->render($viewName, ['value' => null]));
+        self::assertSame('array', $this->phpViewEngine->render($viewName, ['value' => [1, 2]]));
         self::assertSame(
             'Closure',
-            $this->engine->render($name, ['value' => static fn (): string => 'x']),
+            $this->phpViewEngine->render($viewName, ['value' => static fn (): string => 'x']),
         );
     }
 
@@ -110,18 +110,18 @@ final class PhpViewEngineTest extends TestCase
     {
         self::assertSame(
             'Layout([x&lt;y])',
-            $this->engine->render(new ViewName('layout'), ['item' => 'x<y']),
+            $this->phpViewEngine->render(new ViewName('layout'), ['item' => 'x<y']),
         );
     }
 
     public function testAMissNamesTheNameAlone(): void
     {
         try {
-            $this->engine->render(new ViewName('missing'), []);
+            $this->phpViewEngine->render(new ViewName('missing'), []);
             self::fail('The miss was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'missing\' does not answer under the templates root.',
+                "The view template 'missing' does not answer under the templates root.",
                 $viewException->getMessage(),
             );
             self::assertStringNotContainsString(
@@ -135,7 +135,7 @@ final class PhpViewEngineTest extends TestCase
     public function testTheDataKeyCorridorTravelsTheTypedFamily(): void
     {
         try {
-            $this->engine->render(new ViewName('greet'), ['0bad' => 'digit-led']);
+            $this->phpViewEngine->render(new ViewName('greet'), ['0bad' => 'digit-led']);
             self::fail('The grammar-refusing key was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
@@ -151,7 +151,7 @@ final class PhpViewEngineTest extends TestCase
         $data = [42 => 'an integer key', 'sentinel' => 'kept'];
 
         try {
-            $this->engine->render(new ViewName('greet'), $data);
+            $this->phpViewEngine->render(new ViewName('greet'), $data);
             self::fail('The non-string key was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
@@ -164,11 +164,11 @@ final class PhpViewEngineTest extends TestCase
     public function testAMidRenderCrashIsWrappedWithTheTemplateNamedAndTheCauseChained(): void
     {
         try {
-            $this->engine->render(new ViewName('crash'), []);
+            $this->phpViewEngine->render(new ViewName('crash'), []);
             self::fail('The crashing template was not wrapped.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'crash\' failed mid-render.',
+                "The view template 'crash' failed mid-render.",
                 $viewException->getMessage(),
             );
             self::assertInstanceOf(RuntimeException::class, $viewException->getPrevious());
@@ -179,11 +179,11 @@ final class PhpViewEngineTest extends TestCase
     public function testTheFamilysOwnRefusalsTravelVerbatim(): void
     {
         try {
-            $this->engine->render(new ViewName('layout-miss'), []);
-            self::fail('The partial\'s miss was not refused.');
+            $this->phpViewEngine->render(new ViewName('layout-miss'), []);
+            self::fail("The partial's miss was not refused.");
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'nope\' does not answer under the templates root.',
+                "The view template 'nope' does not answer under the templates root.",
                 $viewException->getMessage(),
             );
         }
@@ -194,11 +194,11 @@ final class PhpViewEngineTest extends TestCase
         $entry = ob_get_level();
 
         try {
-            $this->engine->render(new ViewName('recurse'), []);
+            $this->phpViewEngine->render(new ViewName('recurse'), []);
             self::fail('The self-recursive template was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'View rendering nesting of 64 exceeded while rendering \'recurse\'.',
+                "View rendering nesting of 64 exceeded while rendering 'recurse'.",
                 $viewException->getMessage(),
             );
         } finally {
@@ -209,11 +209,11 @@ final class PhpViewEngineTest extends TestCase
     public function testTwoPartialsThatSpellACycleMeetTheSameCeiling(): void
     {
         try {
-            $this->engine->render(new ViewName('cycle-a'), []);
+            $this->phpViewEngine->render(new ViewName('cycle-a'), []);
             self::fail('The cyclic composition was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'View rendering nesting of 64 exceeded while rendering \'cycle-a\'.',
+                "View rendering nesting of 64 exceeded while rendering 'cycle-a'.",
                 $viewException->getMessage(),
             );
         }
@@ -222,7 +222,7 @@ final class PhpViewEngineTest extends TestCase
     public function testTheLedgerIsLeftWhereItWasFoundAfterARefusal(): void
     {
         try {
-            $this->engine->render(new ViewName('crash'), []);
+            $this->phpViewEngine->render(new ViewName('crash'), []);
             self::fail('The crashing template was not refused.');
         } catch (ViewException) {
             // The wrap under test -- the ledger question follows.
@@ -233,7 +233,7 @@ final class PhpViewEngineTest extends TestCase
         for ($render = 0; $render < 65; ++$render) {
             self::assertSame(
                 'Hello, Zef!',
-                $this->engine->render($greeting, ['name' => 'Zef']),
+                $this->phpViewEngine->render($greeting, ['name' => 'Zef']),
             );
         }
     }

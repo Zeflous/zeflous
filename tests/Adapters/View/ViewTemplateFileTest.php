@@ -78,7 +78,7 @@ final class ViewTemplateFileTest extends TestCase
             self::fail('The miss was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'missing\' does not answer under the templates root.',
+                "The view template 'missing' does not answer under the templates root.",
                 $viewException->getMessage(),
             );
             self::assertStringNotContainsString(
@@ -96,7 +96,7 @@ final class ViewTemplateFileTest extends TestCase
             self::fail('The extension-less resolution did not refuse.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'plain\' does not answer under the templates root.',
+                "The view template 'plain' does not answer under the templates root.",
                 $viewException->getMessage(),
             );
         }
@@ -111,7 +111,7 @@ final class ViewTemplateFileTest extends TestCase
             self::fail('The unreadable template was not refused as a miss.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'about\' does not answer under the templates root.',
+                "The view template 'about' does not answer under the templates root.",
                 $viewException->getMessage(),
             );
         } finally {
@@ -126,7 +126,7 @@ final class ViewTemplateFileTest extends TestCase
             self::fail('The directory-named resolution did not refuse.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'users\' does not answer under the templates root.',
+                "The view template 'users' does not answer under the templates root.",
                 $viewException->getMessage(),
             );
         }
@@ -143,7 +143,7 @@ final class ViewTemplateFileTest extends TestCase
             self::fail('The escaping symlink was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'escape\' escapes the templates root.',
+                "The view template 'escape' escapes the templates root.",
                 $viewException->getMessage(),
             );
         } finally {
@@ -170,7 +170,7 @@ final class ViewTemplateFileTest extends TestCase
             self::fail('The unresolvable template was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'The view template \'about\' escapes the templates root.',
+                "The view template 'about' escapes the templates root.",
                 $viewException->getMessage(),
             );
         }

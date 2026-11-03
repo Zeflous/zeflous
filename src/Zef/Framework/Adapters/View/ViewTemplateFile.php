@@ -40,18 +40,18 @@ final class ViewTemplateFile
      * inside the root, refusing the miss and the escape.
      *
      * @param string   $resolvedRoot the root {@see ViewTemplateDirectory::resolve()} answered
-     * @param ViewName $name         the template's logical identity
+     * @param ViewName $viewName     the template's logical identity
      *
      * @throws ViewException when the template does not answer under the root, or
      *                       escapes it
      */
-    public static function resolve(string $resolvedRoot, ViewName $name): string
+    public static function resolve(string $resolvedRoot, ViewName $viewName): string
     {
-        $candidate = $resolvedRoot . '/' . $name->spelling() . self::TEMPLATE_EXTENSION;
+        $candidate = $resolvedRoot . '/' . $viewName->spelling() . self::TEMPLATE_EXTENSION;
 
         if (!is_file($candidate) || !is_readable($candidate)) {
             throw new ViewException(
-                'The view template \'' . $name->spelling() . '\' does not answer'
+                "The view template '" . $viewName->spelling() . "' does not answer"
                 . ' under the templates root.',
             );
         }
@@ -60,7 +60,7 @@ final class ViewTemplateFile
 
         if (!\is_string($resolved) || !str_starts_with($resolved . '/', $resolvedRoot . '/')) {
             throw new ViewException(
-                'The view template \'' . $name->spelling() . '\' escapes the'
+                "The view template '" . $viewName->spelling() . "' escapes the"
                 . ' templates root.',
             );
         }

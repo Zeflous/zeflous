@@ -44,12 +44,12 @@ final class ViewRenderDepth
      *
      * @throws ViewException when the nesting ceiling would be exceeded
      */
-    public function enter(ViewName $name): void
+    public function enter(ViewName $viewName): void
     {
         if ($this->level === self::MAX_RENDERING) {
             throw new ViewException(
                 'View rendering nesting of ' . self::MAX_RENDERING
-                . ' exceeded while rendering \'' . $name->spelling() . '\'.',
+                . " exceeded while rendering '" . $viewName->spelling() . "'.",
             );
         }
 

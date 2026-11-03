@@ -26,19 +26,19 @@ final class ViewRenderDepthTest extends TestCase
 {
     public function testTheSixtyFifthNestIsRefusedAfterSixtyFourClimbs(): void
     {
-        $ledger = new ViewRenderDepth();
-        $name = new ViewName('deep');
+        $viewRenderDepth = new ViewRenderDepth();
+        $viewName = new ViewName('deep');
 
         for ($nest = 0; $nest < 64; ++$nest) {
-            $ledger->enter($name);
+            $viewRenderDepth->enter($viewName);
         }
 
         try {
-            $ledger->enter($name);
+            $viewRenderDepth->enter($viewName);
             self::fail('The sixty-fifth nest was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'View rendering nesting of 64 exceeded while rendering \'deep\'.',
+                "View rendering nesting of 64 exceeded while rendering 'deep'.",
                 $viewException->getMessage(),
             );
         }
@@ -46,22 +46,22 @@ final class ViewRenderDepthTest extends TestCase
 
     public function testALeaveStepsTheCorridorBack(): void
     {
-        $ledger = new ViewRenderDepth();
-        $name = new ViewName('deep');
+        $viewRenderDepth = new ViewRenderDepth();
+        $viewName = new ViewName('deep');
 
         for ($nest = 0; $nest < 64; ++$nest) {
-            $ledger->enter($name);
+            $viewRenderDepth->enter($viewName);
         }
 
-        $ledger->leave();
-        $ledger->enter($name);
+        $viewRenderDepth->leave();
+        $viewRenderDepth->enter($viewName);
 
         try {
-            $ledger->enter($name);
+            $viewRenderDepth->enter($viewName);
             self::fail('The re-climbed nest was not refused at the ceiling.');
         } catch (ViewException $viewException) {
             self::assertSame(
-                'View rendering nesting of 64 exceeded while rendering \'deep\'.',
+                "View rendering nesting of 64 exceeded while rendering 'deep'.",
                 $viewException->getMessage(),
             );
         }
@@ -71,22 +71,22 @@ final class ViewRenderDepthTest extends TestCase
     {
         $first = new ViewRenderDepth();
         $second = new ViewRenderDepth();
-        $name = new ViewName('deep');
+        $viewName = new ViewName('deep');
 
         for ($nest = 0; $nest < 64; ++$nest) {
-            $first->enter($name);
+            $first->enter($viewName);
         }
 
         for ($nest = 0; $nest < 64; ++$nest) {
-            $second->enter($name);
+            $second->enter($viewName);
         }
 
         try {
-            $second->enter($name);
-            self::fail('The second engine\'s own sixty-fifth nest was not refused.');
+            $second->enter($viewName);
+            self::fail("The second engine's own sixty-fifth nest was not refused.");
         } catch (ViewException $viewException) {
             self::assertSame(
-                'View rendering nesting of 64 exceeded while rendering \'deep\'.',
+                "View rendering nesting of 64 exceeded while rendering 'deep'.",
                 $viewException->getMessage(),
             );
         }

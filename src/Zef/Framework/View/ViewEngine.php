@@ -62,11 +62,11 @@ interface ViewEngine
      * address resolves only inside the root the answer was composed
      * over.
      *
-     * @param ViewName             $name the template's logical identity, extension-free
-     * @param array<string, mixed> $data the bag the template spells its values from
+     * @param ViewName             $viewName the template's logical identity, extension-free
+     * @param array<string, mixed> $data     the bag the template spells its values from
      *
      * @throws ViewException when the template does not answer under the answer's
      *                       root, escapes it, refuses the data bag's shape, or fails mid-render
      */
-    public function render(ViewName $name, array $data): string;
+    public function render(ViewName $viewName, array $data): string;
 }

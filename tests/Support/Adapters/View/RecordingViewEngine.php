@@ -29,10 +29,10 @@ final class RecordingViewEngine implements ViewEngine
     }
 
     #[Override]
-    public function render(ViewName $name, array $data): string
+    public function render(ViewName $viewName, array $data): string
     {
-        $this->renders[] = ['name' => $name->spelling(), 'data' => $data];
+        $this->renders[] = ['name' => $viewName->spelling(), 'data' => $data];
 
-        return $this->answers[$name->spelling()] ?? '';
+        return $this->answers[$viewName->spelling()] ?? '';
     }
 }

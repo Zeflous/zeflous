@@ -96,6 +96,19 @@ return RectorConfig::configure()
             // slow-request family's total-duration boundary (the same
             // PSR-15 process contract, in the HTTP lane).
             __DIR__ . '/src/Zef/Framework/Http/SlowRequestMiddleware.php',
+            // ViewRenderScope::render() is the template scope's own
+            // contract face: the isolated closure's reserved carriers
+            // ($_view the face, $_file the resolved address) are the
+            // names the INCLUDED template file itself references -- an
+            // include-file contract no static tool can resolve, so the
+            // type-derived renaming would rename the carrier out from
+            // under every template's own $_view spellings (the
+            // corridor's documented reserved names, and the psalm
+            // baseline's UnresolvableInclude pin over `include $_file;`
+            // with them). The method-level parameter names the gate
+            // spelled ($templateFace, $viewName) are carried by hand in
+            // the same commit; the skip is the closure carriers' own.
+            __DIR__ . '/src/Zef/Framework/Adapters/View/ViewRenderScope.php',
         ],
         // The rule resolves the expected name from a method-call chain's
         // return type differently on different environments (a fresh CI

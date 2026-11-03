@@ -25,26 +25,26 @@ final class ViewExceptionTest extends TestCase
 {
     public function testKeepsTheMessageTheThrowSiteSpelled(): void
     {
-        $viewException = new ViewException('The view template \'about\' does not answer.');
+        $viewException = new ViewException("The view template 'about' does not answer.");
 
         self::assertSame(
-            'The view template \'about\' does not answer.',
+            "The view template 'about' does not answer.",
             $viewException->getMessage(),
         );
     }
 
     public function testCarriesTheInternalHttpStatus(): void
     {
-        $viewException = new ViewException('The view template \'about\' escapes it.');
+        $viewException = new ViewException("The view template 'about' escapes it.");
 
         self::assertSame(500, $viewException->httpStatus());
     }
 
     public function testChainsTheCauseItWasConstructedOver(): void
     {
-        $cause = new RuntimeException('boom');
-        $viewException = new ViewException('The view template \'crash\' failed mid-render.', 0, $cause);
+        $runtimeException = new RuntimeException('boom');
+        $viewException = new ViewException("The view template 'crash' failed mid-render.", 0, $runtimeException);
 
-        self::assertSame($cause, $viewException->getPrevious());
+        self::assertSame($runtimeException, $viewException->getPrevious());
     }
 }
