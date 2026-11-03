@@ -6,6 +6,7 @@ namespace Zef\Framework\Config;
 
 use Zef\Framework\Config\Cache\ConfigCache;
 use Zef\Framework\Config\Merge\LayeredConfigBuilder;
+use Zef\Framework\Config\Schema\CliSchema;
 use Zef\Framework\Config\Schema\EventSchema;
 use Zef\Framework\Config\Schema\RouteSchema;
 
@@ -35,7 +36,14 @@ use Zef\Framework\Config\Schema\RouteSchema;
  *   typed), so a malformed listen table halts the bootstrap the same way,
  *   and a repository without the key boots too -- a listen-less
  *   configuration is valid zero-listening, the module system's event
- *   extension point joining its declarations under the same key.
+ *   extension point joining its declarations under the same key. The
+ *   {@see CliSchema} over the repository's `console.commands` key rides
+ *   the same validation: every entry under it must satisfy the Standard
+ *   CLI Schema (`name`/`description`/`service` required), so a malformed
+ *   command table halts the bootstrap the same way, and a repository
+ *   without the key boots too -- a command-less configuration is valid,
+ *   the module system's CLI extension point joining its declarations
+ *   under the same key.
  * - **Cache** is the optional {@see ConfigCache}: when a cache artifact is
  *   present, the bootstrapper reads it and the builder -- its loaders and
  *   its merge -- is never touched at all (the fast path a persistent
@@ -63,6 +71,7 @@ final readonly class ConfigBootstrapper
         private ?ConfigCache $configCache = null,
         private RouteSchema $routeSchema = new RouteSchema(),
         private EventSchema $eventSchema = new EventSchema(),
+        private CliSchema $cliSchema = new CliSchema(),
     ) {
     }
 
@@ -85,13 +94,14 @@ final readonly class ConfigBootstrapper
     }
 
     /**
-     * Validates the repository's route and event-listen entries and
-     * returns it as booted.
+     * Validates the repository's route, event-listen and console-command
+     * entries and returns it as booted.
      */
     private function validated(Config $config): Config
     {
         $this->assertRouteEntries($config);
         $this->assertEventEntries($config);
+        $this->assertConsoleEntries($config);
 
         return $config;
     }
@@ -104,6 +114,7 @@ final readonly class ConfigBootstrapper
     {
         $this->assertRouteEntries($config);
         $this->assertEventEntries($config);
+        $this->assertConsoleEntries($config);
         $configCache->dump($config->toArray());
 
         return $config;
@@ -141,5 +152,25 @@ final readonly class ConfigBootstrapper
         }
 
         $this->eventSchema->assertList($config->get('events.listen'));
+    }
+
+    /**
+     * A repository without a `console.commands` key boots too: a
+     * command-less configuration is valid, not an error. When the key is
+     * present, every entry under it must satisfy the Standard CLI Schema
+     * (the list-level contract {@see CliSchema::assertList()} owns) -- the
+     * same boot-time posture the route and listen tables carry, so a
+     * malformed declaration halts the bootstrap with its full path context
+     * instead of surfacing at the command registry's first resolution, and
+     * an invalid table never reaches the cache artifact the module join
+     * folds its declarations into.
+     */
+    private function assertConsoleEntries(Config $config): void
+    {
+        if (!$config->has('console.commands')) {
+            return;
+        }
+
+        $this->cliSchema->assertList($config->get('console.commands'));
     }
 }

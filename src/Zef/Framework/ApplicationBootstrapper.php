@@ -16,7 +16,6 @@ use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContainerCompileLane;
 use Zef\Framework\Container\ContainerInstalls;
 use Zef\Framework\Container\DefinitionCompiler;
-use Zef\Framework\Event\EventDispatcher;
 use Zef\Framework\Middleware\MiddlewarePipeline;
 use Zef\Framework\Middleware\PipelineFactory;
 use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
@@ -91,6 +90,15 @@ use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
  * the joined declarations at the host's first resolution -- one
  * `events.listen` key, one dispatcher, the module's events served
  * exactly as if the host had declared them.
+ * The CLI extension point's fold ({@see ModuleCliTable}) rides the
+ * same hinge: a module's declared commands file joins the repository's
+ * `console.commands` table the same way, and the command registry's
+ * reserved registration ({@see ConsoleWiring::COMMANDS_SERVICE}, over
+ * the augmented repository and the container's own laziness) answers
+ * the joined declarations at the host's first resolution -- one
+ * `console.commands` key, one registry, the module's commands served
+ * exactly as if the host had declared them, `bin/zef list` rendering
+ * the same joined table the dispatch answers from.
  * The empty knob -- the shipped default -- is
  * the honest no-op: no entries, no discovery, an empty roster, and a
  * repository that rides verbatim.
@@ -146,27 +154,11 @@ final readonly class ApplicationBootstrapper
      */
     public function boot(string $configDirectory, ?EnvSource $envSource = null): Kernel
     {
-        $configCache = CacheStorageWiring::configCache($this->configCache, $this->storageRoot);
-        $containerAotCache = CacheStorageWiring::containerAotCache(
-            $this->containerAotCache,
-            $this->storageRoot,
+        $config = new ConfigBootstrapper(
+            CacheStorageWiring::configCache($this->configCache, $this->storageRoot),
+        )->boot(
+            $this->builder($configDirectory, $envSource),
         );
-
-        $builder = LayeredConfigBuilder::create()
-            ->withDefaults(FrameworkDefaults::profile())
-        ;
-
-        $configFiles = DirectoryInventory::names($configDirectory);
-
-        if ($configFiles !== []) {
-            $builder = $builder->withAppDirectory($configDirectory, $configFiles);
-        }
-
-        if ($envSource instanceof EnvSource) {
-            $builder = $builder->withEnvironment($envSource);
-        }
-
-        $config = new ConfigBootstrapper($configCache)->boot($builder);
 
         $container = new Container();
         $container->set(
@@ -176,42 +168,36 @@ final readonly class ApplicationBootstrapper
 
         $moduleRoster = new ModuleBootstrapper()->register($config, $container);
 
-        // The route and event extension points' seam: a module's declared
-        // routes and events files join the frozen repository's `routes` and
-        // `events.listen` tables here -- after the registration phase,
-        // before the definitions install -- so the definitions, the process
-        // boundary and the booted kernel all ride the one merged
-        // repository. The composition root re-freezes its own
-        // `framework.config` word over the augmented repositories (the
-        // store's set overwrites by identifier and forgets the memoised
-        // singleton), so the service the profile and the host definitions
-        // resolve answers the same tables the kernel carries -- and the
-        // wired dispatcher's reserved registration rides the same word:
-        // installed ahead of the definitions (a host's same-identifier
-        // rebind wins, the reserved-services precedent), answered only at
-        // the host's first resolution (the never-at-the-boot discipline),
-        // the joined `events.listen` table the only source of truth it
-        // reads.
+        // The module system's extension-point seam: a module's declared
+        // routes, events and CLI files join the frozen repository's
+        // `routes`, `events.listen` and `console.commands` tables here --
+        // after the registration phase, before the definitions install --
+        // so the definitions, the process boundary and the booted kernel
+        // all ride the one merged repository. The composition root
+        // re-freezes its own `framework.config` word and the wired
+        // families' reserved readers over the augmented repositories
+        // (the store's set overwrites by identifier and forgets the
+        // memoised singleton, so the service the profile and the host
+        // definitions resolve answers the same tables the kernel carries).
         $config = new ModuleRouteTable()->augmented($config, $moduleRoster);
         $config = new ModuleEventsTable()->augmented($config, $moduleRoster);
+        $config = new ModuleCliTable()->augmented($config, $moduleRoster);
 
         $container->set(
             FrameworkDefaults::CONFIG_SERVICE,
             static fn (): Config => $config,
         );
-        $container->set(
-            EventWiring::DISPATCHER_SERVICE,
-            static fn (Container $container): EventDispatcher => EventWiring::dispatcher(
-                $config,
-                $container,
-            ),
-        );
+        EventWiring::register($container, $config);
+        ConsoleWiring::register($container, $config);
 
         $container = new ContainerBootstrapper(
             containerCompileLane: new ContainerCompileLane(
                 containerInstalls: new ContainerInstalls($this->definitionCompiler),
             ),
-            containerAotCache: $containerAotCache,
+            containerAotCache: CacheStorageWiring::containerAotCache(
+                $this->containerAotCache,
+                $this->storageRoot,
+            ),
         )
             ->bootstrap($config, $container)
         ;
@@ -231,5 +217,34 @@ final readonly class ApplicationBootstrapper
     public function pipeline(Kernel $kernel, RequestHandlerInterface $requestHandler): MiddlewarePipeline
     {
         return new PipelineFactory($kernel->container(), $kernel->config(), $requestHandler)->build();
+    }
+
+    /**
+     * Composes the layered builder the configuration bootstrapper reads:
+     * the framework's code-declared defaults, the host's configuration
+     * directory when one is present, and the environment overlay when the
+     * host opts in to one -- the Defaults < App < Env layering the frozen
+     * repository answers from.
+     *
+     * @param non-empty-string $configDirectory the host's configuration
+     *                                          directory (the `app/configs` layout)
+     */
+    private function builder(string $configDirectory, ?EnvSource $envSource): LayeredConfigBuilder
+    {
+        $builder = LayeredConfigBuilder::create()
+            ->withDefaults(FrameworkDefaults::profile())
+        ;
+
+        $configFiles = DirectoryInventory::names($configDirectory);
+
+        if ($configFiles !== []) {
+            $builder = $builder->withAppDirectory($configDirectory, $configFiles);
+        }
+
+        if ($envSource instanceof EnvSource) {
+            return $builder->withEnvironment($envSource);
+        }
+
+        return $builder;
     }
 }

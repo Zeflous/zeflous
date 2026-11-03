@@ -15,6 +15,7 @@ use Zef\Framework\Modules\ModuleEventsRefusals;
 use Zef\Framework\Modules\ModuleException;
 use Zef\Framework\Modules\ModuleExceptionSpelling;
 use Zef\Framework\Modules\ModuleManifest;
+use Zef\Framework\Modules\ModuleManifestPaths;
 use Zef\Framework\Modules\ModuleMetadata;
 use Zef\Framework\Modules\ModuleName;
 
@@ -27,6 +28,7 @@ use Zef\Framework\Modules\ModuleName;
  * @internal
  */
 #[CoversClass(ModuleManifest::class)]
+#[CoversClass(ModuleManifestPaths::class)]
 #[CoversClass(ModuleDeclaration::class)]
 #[CoversClass(ModuleMetadata::class)]
 #[CoversClass(ModuleName::class)]

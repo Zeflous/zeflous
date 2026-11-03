@@ -14,21 +14,21 @@ use Zef\Framework\Config\Schema\ConfigSchema;
  * The engine reuses {@see ConfigSchema} exactly as that class's docblock
  * anticipated -- a manifest is a configuration entry, so its validation
  * needs no engine of its own: the fields (name, version, requires,
- * class, config_schema, routes, events) ride the field-rule map, and an
+ * class, config_schema, routes, events, cli) ride the field-rule map, and an
  * unknown key or a wrong kind is a violation the schema renders, not a
  * silent skip. The kinds the schema answers are then refined by the
  * engine's own grammars: the name and version through
  * {@see ModuleMetadata}, the class through {@see ModuleDeclaration}'s
- * qualified-spelling refusal, the optional `config_schema`, `routes` and
- * `events` paths kept raw for the discovery fold -- only the fold that
- * read the manifest knows the directory a relative path resolves
+ * qualified-spelling refusal, the optional `config_schema`, `routes`,
+ * `events` and `cli` paths kept raw for the discovery fold -- only the fold
+ * that read the manifest knows the directory a relative path resolves
  * against.
  *
  * A manifest carries no behaviour: it declares which class implements the
  * contract and the identity the boot orders by, so discovery stays free
  * of instantiation until the resolution fold runs. The optional `events`
- * path rides the same rule the `routes` path rides: kept raw for the
- * discovery fold, resolved against the manifest's own directory when
+ * and `cli` paths ride the same rule the `routes` path rides: kept raw for
+ * the discovery fold, resolved against the manifest's own directory when
  * that fold read the manifest.
  */
 final readonly class ModuleManifest
@@ -46,6 +46,8 @@ final readonly class ModuleManifest
     private const string FIELD_ROUTES = 'routes';
 
     private const string FIELD_EVENTS = 'events';
+
+    private const string FIELD_CLI = 'cli';
 
     /** The shared field rules: the identity trio's required string, the three optional manifest paths' optional string. */
     private const array REQUIRED_STRING = ['required' => true, 'kind' => 'string'];
@@ -79,7 +81,7 @@ final readonly class ModuleManifest
          *
          * @var array{name: string, version: string, class: string,
          *     requires?: list<string>, config_schema?: string,
-         *     routes?: string, events?: string} $payload
+         *     routes?: string, events?: string, cli?: string} $payload
          */
         $violations = self::schema()->validate($payload);
 
@@ -99,57 +101,27 @@ final readonly class ModuleManifest
             $payload[self::FIELD_SCHEMA] ?? null,
             $payload[self::FIELD_ROUTES] ?? null,
             $payload[self::FIELD_EVENTS] ?? null,
+            $payload[self::FIELD_CLI] ?? null,
         );
     }
 
     /**
      * Parses the manifest the given file carried and resolves its
-     * `config_schema`, `routes` and `events` paths against that file's own
-     * directory -- the one spelling that knows where a relative path is
-     * relative to. A rooted spelling rides verbatim.
+     * `config_schema`, `routes`, `events` and `cli` paths against that
+     * file's own directory -- the one spelling that knows where a
+     * relative path is relative to. A rooted spelling rides verbatim.
      */
     public static function parsed(mixed $payload, string $manifest): ModuleDeclaration
     {
-        $moduleDeclaration = self::parse($payload);
-
-        if ($moduleDeclaration->routes !== null) {
-            $moduleDeclaration = $moduleDeclaration->withRoutes(
-                self::resolvedPath($moduleDeclaration->routes, $manifest),
-            );
-        }
-
-        if ($moduleDeclaration->events !== null) {
-            $moduleDeclaration = $moduleDeclaration->withEvents(
-                self::resolvedPath($moduleDeclaration->events, $manifest),
-            );
-        }
+        $moduleDeclaration = new ModuleManifestPaths()->resolved(self::parse($payload), $manifest);
 
         if ($moduleDeclaration->configSchema === null) {
             return $moduleDeclaration;
         }
 
         return $moduleDeclaration->withConfigSchema(
-            self::resolvedPath($moduleDeclaration->configSchema, $manifest),
+            ModuleManifestPaths::resolvedPath($moduleDeclaration->configSchema, $manifest),
         );
-    }
-
-    /**
-     * Resolves one manifest path spelling against the manifest file's own
-     * directory -- the one spelling that knows where a relative path is
-     * relative to. A rooted spelling rides verbatim; the `./` prefix is
-     * the same-directory sugar.
-     */
-    private static function resolvedPath(string $path, string $manifest): string
-    {
-        if (str_starts_with($path, './')) {
-            $path = mb_substr($path, 2);
-        }
-
-        if (str_starts_with($path, '/')) {
-            return $path;
-        }
-
-        return \dirname($manifest) . '/' . $path;
     }
 
     private static function schema(): ConfigSchema
@@ -162,6 +134,7 @@ final readonly class ModuleManifest
             self::FIELD_SCHEMA => self::OPTIONAL_STRING,
             self::FIELD_ROUTES => self::OPTIONAL_STRING,
             self::FIELD_EVENTS => self::OPTIONAL_STRING,
+            self::FIELD_CLI => self::OPTIONAL_STRING,
         ]);
     }
 }

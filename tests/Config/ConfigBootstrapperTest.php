@@ -227,6 +227,72 @@ final class ConfigBootstrapperTest extends TestCase
         self::assertFalse($configCache->exists());
     }
 
+    public function testAnInvalidConsoleCommandsConfigurationIsNeverCompiledIntoTheCache(): void
+    {
+        $configCache = new ConfigCache($this->cacheFile);
+
+        try {
+            new ConfigBootstrapper($configCache)->boot(
+                LayeredConfigBuilder::create()->withDefaults(['console' => ['commands' => 'not-a-list']]),
+            );
+            self::fail('An invalid console configuration must halt the bootstrap.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The "console.commands" configuration must be a list of command declarations.',
+                $configException->getMessage(),
+            );
+        }
+
+        // The compile fold's own ordering: the console assertion runs
+        // before the dump, so a malformed command table never reaches the
+        // artifact -- the cache stays absent, not wrong, the same guard
+        // the route and listen tables carry.
+        self::assertFalse($configCache->exists());
+    }
+
+    public function testAConsoleCommandsEntryThatFailsTheSchemaHaltsTheBootstrap(): void
+    {
+        $configCache = new ConfigCache($this->cacheFile);
+
+        try {
+            new ConfigBootstrapper($configCache)->boot(
+                LayeredConfigBuilder::create()->withDefaults([
+                    'console' => ['commands' => [['name' => 'shop:ping', 'description' => 'd']]],
+                ]),
+            );
+            self::fail('A schema-violating command declaration must halt the bootstrap.');
+        } catch (ConfigException $configException) {
+            self::assertStringContainsString('service', $configException->getMessage());
+        }
+
+        self::assertFalse($configCache->exists());
+    }
+
+    public function testAnInvalidConsoleCommandsConfigurationHaltsTheCachelessBootToo(): void
+    {
+        // The validated() path -- no cache handed over -- carries the same
+        // console assertion the compiled path carries, so a malformed
+        // command table never rides a boot that skipped the artifact.
+        try {
+            new ConfigBootstrapper()->boot(
+                LayeredConfigBuilder::create()->withDefaults([
+                    'console' => ['commands' => [['name' => 'shop:ping']]],
+                ]),
+            );
+            self::fail('An invalid console configuration must halt the cacheless boot.');
+        } catch (ConfigException $configException) {
+            self::assertStringContainsString('description', $configException->getMessage());
+            self::assertStringContainsString('service', $configException->getMessage());
+        }
+    }
+
+    public function testARepositoryWithoutTheConsoleKeyBootsToo(): void
+    {
+        $booted = new ConfigBootstrapper()->boot(LayeredConfigBuilder::create());
+
+        self::assertFalse($booted->has('console.commands'));
+    }
+
     public function testACorruptCacheHaltsTheBootstrap(): void
     {
         $configCache = new ConfigCache(__DIR__ . '/Cache/fixtures/returns-int.php');
