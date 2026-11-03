@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-02T23:38:48Z",
+  "as_of": "2026-11-03T09:39:37Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 286,
+  "unreleased_count": 287,
   "versions": [
     {
       "version": "Unreleased",
@@ -4347,6 +4347,37 @@
                 "sha": "1e0bf298d43381153b1affd8450b26d779ecc227",
                 "short_sha": "1e0bf29",
                 "subject": "docs(roadmap): refresh the pin over the merged main"
+              }
+            ]
+          },
+          {
+            "pr": 689,
+            "title": "feat(database): the lost-connection message lane over the retry taxonomy",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-03T09:39:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/689",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "aff8b027a082aa3983a8e05b556fdf563a64cdbb",
+                "short_sha": "aff8b02",
+                "subject": "feat(database): the lost-connection message lane over the retry taxonomy"
+              },
+              {
+                "sha": "63c8b7e14c45f4185469f2f468af9fd7d7617996",
+                "short_sha": "63c8b7e",
+                "subject": "refactor(database): the settle the ceiling forced over the widened taxonomy"
+              },
+              {
+                "sha": "af875511d1c3ff0fa1e758ea73c458ea87768347",
+                "short_sha": "af87551",
+                "subject": "test(database): the mutation round's two kills"
+              },
+              {
+                "sha": "ff37f82ba8f85a85da4e0875f3bad2fd31baf399",
+                "short_sha": "ff37f82",
+                "subject": "docs(roadmap): record the lost-connection message lane slice and pin the lane"
               }
             ]
           }
@@ -18575,6 +18606,37 @@
               "sha": "1e0bf298d43381153b1affd8450b26d779ecc227",
               "short_sha": "1e0bf29",
               "subject": "docs(roadmap): refresh the pin over the merged main"
+            }
+          ]
+        },
+        {
+          "pr": 689,
+          "title": "feat(database): the lost-connection message lane over the retry taxonomy",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-03T09:39:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/689",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "aff8b027a082aa3983a8e05b556fdf563a64cdbb",
+              "short_sha": "aff8b02",
+              "subject": "feat(database): the lost-connection message lane over the retry taxonomy"
+            },
+            {
+              "sha": "63c8b7e14c45f4185469f2f468af9fd7d7617996",
+              "short_sha": "63c8b7e",
+              "subject": "refactor(database): the settle the ceiling forced over the widened taxonomy"
+            },
+            {
+              "sha": "af875511d1c3ff0fa1e758ea73c458ea87768347",
+              "short_sha": "af87551",
+              "subject": "test(database): the mutation round's two kills"
+            },
+            {
+              "sha": "ff37f82ba8f85a85da4e0875f3bad2fd31baf399",
+              "short_sha": "ff37f82",
+              "subject": "docs(roadmap): record the lost-connection message lane slice and pin the lane"
             }
           ]
         }

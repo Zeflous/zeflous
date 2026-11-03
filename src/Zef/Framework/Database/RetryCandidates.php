@@ -10,7 +10,8 @@ use Throwable;
 /**
  * The transient-failure taxonomy's candidate fold: the SQLSTATE codes a
  * thrown failure answers, normalised to strings — getCode()'s spelling
- * plus the errorInfo slots a PDOException carries.
+ * plus the errorInfo slots a PDOException carries — and the membership
+ * judgement over those candidates.
  *
  * @internal
  */
@@ -43,5 +44,22 @@ final class RetryCandidates
         }
 
         return $candidates;
+    }
+
+    /**
+     * True when the throwable's candidate set carries one of
+     * $retryableSqlStates — the code lane's membership judgement, the
+     * fold's own list walked against the fold's own candidates.
+     *
+     * @param list<string> $retryableSqlStates
+     */
+    public static function carries(Throwable $throwable, array $retryableSqlStates): bool
+    {
+        $candidates = self::sqlStates($throwable);
+
+        return array_any(
+            $retryableSqlStates,
+            static fn (string $state): bool => \in_array($state, $candidates, true),
+        );
     }
 }

@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Zef\Framework\Database\RetryBackoff;
 use Zef\Framework\Database\RetryCandidates;
+use Zef\Framework\Database\RetryMessages;
 use Zef\Framework\Database\RetryTaxonomy;
 use Zef\Framework\Database\UnitOfWorkRetryPolicy;
 use Zef\Test\Support\Database\ArmedPdoException;
@@ -19,7 +20,8 @@ use Zef\Test\Support\Database\ArmedPdoException;
 /**
  * The UoW retry policy value object: validation, backoff shape, and the
  * transient-failure taxonomy (retryable class names + SQLSTATE codes,
- * including the MySQL integer-driver-code normalisation).
+ * including the MySQL integer-driver-code normalisation, + the
+ * lost-connection message lane over the codeless driver failures).
  *
  * @internal
  */
@@ -27,6 +29,7 @@ use Zef\Test\Support\Database\ArmedPdoException;
 #[CoversClass(RetryTaxonomy::class)]
 #[CoversClass(RetryCandidates::class)]
 #[CoversClass(RetryBackoff::class)]
+#[CoversClass(RetryMessages::class)]
 final class UnitOfWorkRetryPolicyTest extends TestCase
 {
     public function testDefaultConstructsSanely(): void
@@ -44,6 +47,13 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
         self::assertSame(
             UnitOfWorkRetryPolicy::DEFAULT_RETRYABLE_SQL_STATES,
             $unitOfWorkRetryPolicy->retryableSqlStates,
+            'the constructor default duplicates the public constant',
+        );
+        self::assertContains('server has gone away', $unitOfWorkRetryPolicy->retryableMessagePatterns);
+        self::assertContains('connection refused', $unitOfWorkRetryPolicy->retryableMessagePatterns);
+        self::assertSame(
+            UnitOfWorkRetryPolicy::DEFAULT_RETRYABLE_MESSAGE_PATTERNS,
+            $unitOfWorkRetryPolicy->retryableMessagePatterns,
             'the constructor default duplicates the public constant',
         );
     }
@@ -76,6 +86,29 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         new UnitOfWorkRetryPolicy(jitterMs: -10);
+    }
+
+    /**
+     * The message-pattern corridor's own refusal: an empty pattern would
+     * contain-match every message and silently retry the world — the
+     * corridor rejects it where the policy is spelled, not at flush
+     * time far from its construction.
+     */
+    public function testAnEmptyMessagePatternThrows(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new UnitOfWorkRetryPolicy(retryableMessagePatterns: ['server has gone away', '']);
+    }
+
+    /**
+     * A non-string entry would surface as a TypeError at flush time —
+     * the same corridor refuses it at construction.
+     */
+    public function testANonStringMessagePatternThrows(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        // @phpstan-ignore argument.type
+        new UnitOfWorkRetryPolicy(retryableMessagePatterns: [2006]);
     }
 
     public function testShouldRetryUntilExhausted(): void
@@ -170,6 +203,109 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
         $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
         $logicException = new LogicException('boom');
         self::assertFalse($unitOfWorkRetryPolicy->isRetryable($logicException));
+    }
+
+    /**
+     * The audit gap the message lane answers: a lost connection that
+     * arrives with nothing but its message — the code-0 wrapper (a
+     * failed handshake, a driver that filled no slot informatively).
+     * Before the lane, this failure was not retryable; the surrounding
+     * rollback answered a problem that resolves itself in milliseconds.
+     */
+    public function testIsRetryableMatchesTheCodelessLostConnection(): void
+    {
+        $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
+        $pdoException = new PDOException('MySQL server has gone away', 0);
+        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($pdoException));
+    }
+
+    /**
+     * The refused socket: driver code 2002 rides no default SQLSTATE,
+     * and its message carries the transient arm's spelling — the lane
+     * answers the family the code list deliberately leaves to it.
+     */
+    public function testIsRetryableMatchesTheRefusedSocketByItsMessage(): void
+    {
+        $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
+        $armedPdoException = new ArmedPdoException(
+            'SQLSTATE[HY000] [2002] Connection refused',
+            2002,
+            ['HY000', 2002, 'SQLSTATE[HY000] [2002] Connection refused'],
+        );
+        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($armedPdoException));
+    }
+
+    /**
+     * The configuration-defect arm of the same 2002 family stays out: a
+     * missing unix socket is a defect a retry cannot heal, and the
+     * default curation refuses it — the lane is a complement to the
+     * codes, never a licence to retry the world.
+     */
+    public function testIsRetryableRefusesTheMissingSocketSpelling(): void
+    {
+        $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
+        $armedPdoException = new ArmedPdoException(
+            'SQLSTATE[HY000] [2002] No such file or directory',
+            2002,
+            ['HY000', 2002, 'SQLSTATE[HY000] [2002] No such file or directory'],
+        );
+        self::assertFalse($unitOfWorkRetryPolicy->isRetryable($armedPdoException));
+    }
+
+    /**
+     * The class-name gate still applies upstream: a userland throwable
+     * whose message happens to spell a pattern is not the message
+     * lane's business — only driver-family throwables ride it.
+     */
+    public function testTheMessageLaneNeverBypassesTheClassNameGate(): void
+    {
+        $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
+        $runtimeException = new RuntimeException('MySQL server has gone away');
+        self::assertFalse($unitOfWorkRetryPolicy->isRetryable($runtimeException));
+    }
+
+    /**
+     * A message lane narrowed to nothing restores the pre-lane
+     * behaviour exactly: the code lane alone answers.
+     */
+    public function testAnEmptyPatternListLeavesTheCodeLaneAlone(): void
+    {
+        $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy(retryableMessagePatterns: []);
+        $pdoException = new PDOException('MySQL server has gone away', 0);
+        self::assertFalse($unitOfWorkRetryPolicy->isRetryable($pdoException));
+
+        $deadlock = $this->makePdoException('deadlock', '40P01');
+        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($deadlock));
+    }
+
+    /**
+     * The case-insensitive containment at the policy level: the driver's
+     * case spelling is not a contract.
+     */
+    public function testTheMessageLaneMatchesAcrossCaseSpellings(): void
+    {
+        $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy();
+        $pdoException = new PDOException('SQLSTATE[HY000]: General error: 2006 MySQL Server Has Gone Away', 0);
+        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($pdoException));
+    }
+
+    /**
+     * A host extending the lane for a driver the default curation does
+     * not speak for — the knob's own posture.
+     */
+    public function testCustomMessagePatternsExtendTheLane(): void
+    {
+        $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy(
+            retryableMessagePatterns: ['communication link failure'],
+        );
+        $linkFailure = new PDOException('TCP Provider: Communication link failure', 0);
+        self::assertTrue($unitOfWorkRetryPolicy->isRetryable($linkFailure));
+
+        $goneAway = new PDOException('MySQL server has gone away', 0);
+        self::assertFalse(
+            $unitOfWorkRetryPolicy->isRetryable($goneAway),
+            'the host list replaces the default, as every knob list does',
+        );
     }
 
     public function testIsRetryableWhenSqlStatesListEmptyMatchesClassOnly(): void
@@ -317,6 +453,21 @@ final class UnitOfWorkRetryPolicyTest extends TestCase
         // errorInfo[1] carries the retryable one (the MySQL spelling).
         $armedPdoException = new ArmedPdoException('lock wait timeout', 9999, ['HY000', 1205, 'lock wait timeout']);
         self::assertTrue($unitOfWorkRetryPolicy->isRetryable($armedPdoException));
+    }
+
+    /**
+     * The candidate fold's own surface, called directly: the
+     * normalisation the strict comparisons read (getCode()'s int
+     * spelling, the errorInfo slots) and the membership judgement the
+     * taxonomy composes — the fold's public posture, walked as itself
+     * and not only through the policy above it.
+     */
+    public function testTheCandidatesFoldAnswersItsOwnSurface(): void
+    {
+        $armedPdoException = new ArmedPdoException('deadlock', 1213, ['HY000', 1213, 'deadlock']);
+        self::assertSame(['1213', 'HY000', '1213'], RetryCandidates::sqlStates($armedPdoException));
+        self::assertTrue(RetryCandidates::carries($armedPdoException, ['40P01', '1213']));
+        self::assertFalse(RetryCandidates::carries($armedPdoException, ['42601']));
     }
 
     /**
