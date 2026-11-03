@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(database\): the condition-object family over the widened where verbs [\#684](https://github.com/Zeflous/zeflous/pull/684) ([mbetixz](https://github.com/mbetixz))
 - feat\(modules\): the event extension point with its manifest fold over the standard events schema [\#681](https://github.com/Zeflous/zeflous/pull/681) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the migrations command family over the wired runner [\#680](https://github.com/Zeflous/zeflous/pull/680) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the wiring knob block over the connection port [\#677](https://github.com/Zeflous/zeflous/pull/677) ([mbetixz](https://github.com/mbetixz))
