@@ -14,7 +14,9 @@ use Zef\Framework\View\ViewName;
  * byte ceilings (counted in bytes, not characters -- the multibyte
  * arm), the empty segment's three spellings, the dot-led family the
  * segment class refuses by shape (the traversal, the
- * self-reference, the dotfile), and every character class escape --
+ * self-reference, the dotfile), every character class escape, and
+ * the one byte whose refusal is the D-flag's own work (a trailing
+ * newline the undollar-anchored pattern would otherwise absorb) --
  * plus the exact boundaries both ceilings accept and the canonical
  * spelling the identity carries.
  *
@@ -261,6 +263,20 @@ final class ViewNameTest extends TestCase
             self::assertSame(
                 'A view name segment must be letter-or-digit led and carry only letters,'
                 . " digits, dots, underscores or hyphens, got 'a\x01b'.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testRefusesATrailingNewline(): void
+    {
+        try {
+            new ViewName("about\n");
+            self::fail('The trailing newline was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'A view name segment must be letter-or-digit led and carry only letters,'
+                . " digits, dots, underscores or hyphens, got 'about\n'.",
                 $invalidArgumentException->getMessage(),
             );
         }

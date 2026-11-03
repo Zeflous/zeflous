@@ -17,8 +17,14 @@ use Zef\Test\Support\Adapters\View\ViewFileDoubleState;
  * NAME alone (never the resolved address the lane's privacy posture
  * keeps), and the containment that refuses the symlink escape while
  * answering the inside symlink as the deployment's own alias -- plus
- * the extension honesty (a template is a `.php` file or it is a
- * miss) and the unresolvable-template arm the armed double spells.
+ * the extension honesty (a template is a `.php` file or it is a miss,
+ * a directory wearing the extension included), the containment's own
+ * inside boundary (a resolved address equal to the root itself is
+ * answered -- the slash-append idiom's one deliberate acceptance,
+ * pinned through the armed double), the string-prefix sibling escape
+ * (a symlink whose target shares the root's own spelling as a string
+ * prefix -- the boundary the idiom's trailing slash exists to refuse)
+ * and the unresolvable-template arm the armed double spells.
  *
  * @internal
  */
@@ -53,6 +59,7 @@ final class ViewTemplateFileTest extends TestCase
         }
 
         $this->removeTree($this->root);
+        $this->removeTree($this->root . '-sibling');
     }
 
     public function testResolvesATemplateUnderTheRoot(): void
@@ -132,6 +139,21 @@ final class ViewTemplateFileTest extends TestCase
         }
     }
 
+    public function testADirectoryWearingTheExtensionIsAMiss(): void
+    {
+        mkdir($this->root . '/trap.php');
+
+        try {
+            ViewTemplateFile::resolve($this->root, new ViewName('trap'));
+            self::fail('The directory wearing the extension was not refused as a miss.');
+        } catch (ViewException $viewException) {
+            self::assertSame(
+                "The view template 'trap' does not answer under the templates root.",
+                $viewException->getMessage(),
+            );
+        }
+    }
+
     public function testASymlinkEscapingTheRootIsRefused(): void
     {
         $outsideTarget = sys_get_temp_dir() . '/zef-view-outside-' . bin2hex(random_bytes(8)) . '.php';
@@ -148,6 +170,24 @@ final class ViewTemplateFileTest extends TestCase
             );
         } finally {
             unlink($outsideTarget);
+        }
+    }
+
+    public function testASymlinkIntoAStringPrefixSiblingIsRefused(): void
+    {
+        $siblingDirectory = $this->root . '-sibling';
+        mkdir($siblingDirectory);
+        file_put_contents($siblingDirectory . '/stolen.php', 'stolen');
+        symlink($siblingDirectory . '/stolen.php', $this->root . '/prefix-escape.php');
+
+        try {
+            ViewTemplateFile::resolve($this->root, new ViewName('prefix-escape'));
+            self::fail('The string-prefix sibling escape was not refused.');
+        } catch (ViewException $viewException) {
+            self::assertSame(
+                "The view template 'prefix-escape' escapes the templates root.",
+                $viewException->getMessage(),
+            );
         }
     }
 
@@ -174,6 +214,16 @@ final class ViewTemplateFileTest extends TestCase
                 $viewException->getMessage(),
             );
         }
+    }
+
+    public function testAResolvedAddressEqualToTheRootItselfIsAnswered(): void
+    {
+        ViewFileDoubleState::$realpathAnswer = $this->root;
+
+        self::assertSame(
+            $this->root,
+            ViewTemplateFile::resolve($this->root, new ViewName('about')),
+        );
     }
 
     private function removeTree(string $directory): void

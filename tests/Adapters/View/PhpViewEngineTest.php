@@ -171,6 +171,11 @@ final class PhpViewEngineTest extends TestCase
                 "The view template 'crash' failed mid-render.",
                 $viewException->getMessage(),
             );
+            self::assertSame(
+                0,
+                $viewException->getCode(),
+                "The wrap carries the family's own zero code, never an invented one.",
+            );
             self::assertInstanceOf(RuntimeException::class, $viewException->getPrevious());
             self::assertSame('boom', $viewException->getPrevious()->getMessage());
         }
