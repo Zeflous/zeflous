@@ -708,20 +708,22 @@
                 // refusals name the ceiling's own character count, and
                 // the rewrites are killed through that count.
                 //
-                // ModuleManifest::resolvedPath() strips the './' prefix
-                // behind the str_starts_with './' check, so the two units
-                // the character-wise cut and the byte-wise cut remove are
-                // the dot and the slash -- two single-byte characters that
-                // are also two bytes, and every remainder starts at the
-                // same offset under both cuts. The house's own formatter
-                // doctrine (MbStrFunctions rewrites every substr to its
-                // mb_ twin) makes the byte-level spelling not a
-                // source-level option. The fold lived in parsed() until
-                // the routes field joined the manifest and the shared path
-                // seam (resolvedPath) took both cuts over -- the ignore
-                // target moved with the fold.
+                // ModuleManifestPaths::resolvedPath() strips the './'
+                // prefix behind the str_starts_with './' check, so the two
+                // units the character-wise cut and the byte-wise cut remove
+                // are the dot and the slash -- two single-byte characters
+                // that are also two bytes, and every remainder starts at
+                // the same offset under both cuts. The house's own
+                // formatter doctrine (MbStrFunctions rewrites every
+                // substr to its mb_ twin) makes the byte-level spelling
+                // not a source-level option. The fold lived in parsed()
+                // until the routes field joined the manifest and the
+                // shared path seam (resolvedPath) took both cuts over, and
+                // the manifest-paths fold later carried the seam out to
+                // its own class for the CLI fold's arrival -- the ignore
+                // target moved with the fold both times.
                 "Zef\\Framework\\Modules\\ModuleVersion::asserted",
-                "Zef\\Framework\\Modules\\ModuleManifest::resolvedPath"
+                "Zef\\Framework\\Modules\\ModuleManifestPaths::resolvedPath"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",

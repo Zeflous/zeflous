@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Console\ConsoleCommandEntry;
 use Zef\Framework\Console\ConsoleCommands;
+use Zef\Framework\Console\ConsoleTableEntries;
 
 /**
  * The command registry: the joined table's single judgement -- the
@@ -20,6 +21,7 @@ use Zef\Framework\Console\ConsoleCommands;
  * @internal
  */
 #[CoversClass(ConsoleCommands::class)]
+#[CoversClass(ConsoleTableEntries::class)]
 #[CoversClass(ConfigException::class)]
 final class ConsoleCommandsTest extends TestCase
 {
@@ -93,8 +95,9 @@ final class ConsoleCommandsTest extends TestCase
     public function testAFrameworkVerbCollisionRefusesNamingTheVerb(): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "The command 'route:list' collides with the framework's own verb",
+        $this->expectExceptionMessageIs(
+            "The command 'route:list' collides with the framework's own verb;"
+            . " the CLI's builtin branch would shadow the declaration.",
         );
 
         new ConsoleCommands([
@@ -109,8 +112,9 @@ final class ConsoleCommandsTest extends TestCase
         // declaration is ever read -- the shadow question never waits
         // for a second spelling of the same lie.
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageIsOrContains(
-            "The command 'route:list' collides with the framework's own verb",
+        $this->expectExceptionMessageIs(
+            "The command 'route:list' collides with the framework's own verb;"
+            . " the CLI's builtin branch would shadow the declaration.",
         );
 
         new ConsoleCommands([

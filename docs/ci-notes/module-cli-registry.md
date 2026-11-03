@@ -151,3 +151,33 @@ End-to-end over `bin/zef` itself: the text and JSON directories, the
 host-and-module dispatch with its exit-code passthrough, the unknown
 verb's answer, the missing directory's refusal, and the positional-
 path builtins riding unintercepted.
+
+The SonarCloud correction round (the branch's first quality-gate
+verdict failed at 80.2% new-code coverage, 48 of 243 new lines): the
+two extracted folds of KDD-CR8 rode the suite without ever being
+`CoversClass` targets — `ConsoleTableEntries` was executed only
+through `ConsoleCommandsTest`'s constructions and `ModuleManifestPaths`
+only through the resolver and extension tests, and PHPUnit's target
+filtering discards every hit a test's covers metadata does not name,
+so the folds answered 0% to the clover the scanner bridges while their
+call sites answered 19 hits. The doctrine the routes and events lanes
+already carried — every fold class is a named target in the tests that
+exercise it — now covers both: the registry test carries the entry
+fold, the resolver test and the three extension tests carry the
+manifest-paths fold (its routes, events and CLI branches each live in
+their own lane's extension test). The round also paid the two honest
+debts the coverage had been hiding: the entry fold's non-array guard —
+a duplicate refusal the `CliSchema::assertList` call above it already
+makes with the identical class and sentence, unreachable at runtime —
+became the one-line `\assert` narrowing the events entries fold spells
+(an unreachable branch is a lie about who owns the question), and the
+two collision sentences' tests moved from the contains check to
+`expectExceptionMessageIs` over the whole message, so the concat
+mutants the first round pinned elsewhere cannot reorder this one
+either. The mutation round answered 230 mutants MSI 100/100 (the two
+folds' 27 now that they are covered; the manifest-paths
+`resolvedPath` seam's `mb_substr` cut joined its documented
+equivalent-mutant ignore — the entry the fold carried while it lived
+inside `ModuleManifest`, moved with the fold to its new home). The
+full suite and coverage gate after the correction: 6917 tests / 16743
+assertions, 98.54% line coverage, the two folds at 24/24 and 18/18.

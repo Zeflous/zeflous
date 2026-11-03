@@ -15,6 +15,7 @@ use Zef\Framework\Modules\ModuleDeclaration;
 use Zef\Framework\Modules\ModuleException;
 use Zef\Framework\Modules\ModuleExceptionSpelling;
 use Zef\Framework\Modules\ModuleManifest;
+use Zef\Framework\Modules\ModuleManifestPaths;
 use Zef\Framework\Modules\ModuleMetadata;
 use Zef\Framework\Modules\ModuleName;
 use Zef\Framework\Modules\ModuleRequires;
@@ -38,6 +39,7 @@ use Zef\Test\Modules\Fixtures\NotModule;
 #[CoversClass(ModuleConstructions::class)]
 #[CoversClass(ModuleBootRefusals::class)]
 #[CoversClass(ModuleManifestLoader::class)]
+#[CoversClass(ModuleManifestPaths::class)]
 #[CoversClass(ModuleManifest::class)]
 #[CoversClass(ModuleDeclaration::class)]
 #[CoversClass(ModuleMetadata::class)]

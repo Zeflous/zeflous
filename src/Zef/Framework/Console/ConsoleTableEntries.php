@@ -50,16 +50,16 @@ final readonly class ConsoleTableEntries
 
         new CliSchema()->assertList($table);
 
-        if (!\is_array($table)) {
-            // The narrowing guard the direct-composition reads carry: the
-            // list-level assertion above already refused a non-array table,
-            // and this fold's own read narrows the value for every consumer
-            // below -- the same fail-closed re-read the events wiring's own
-            // dispatcher composition carries.
-            throw new ConfigException(
-                'The "console.commands" configuration must be a list of command declarations.',
-            );
-        }
+        /*
+         * The schema's verdict is the table's own shape proof -- the
+         * list-level assertion above already refused a non-array table
+         * (its own ConfigException, the identical spelling), and this
+         * re-read narrows the value for every consumer below -- the
+         * same narrowing the events entries fold carries for its
+         * per-entry reads, a one-line proof the suite's assertions
+         * cover rather than an unreachable duplicate refusal.
+         */
+        \assert(\is_array($table));
 
         $entries = [];
         $seen = [];

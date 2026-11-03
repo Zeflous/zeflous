@@ -10,6 +10,7 @@ use Zef\Framework\ModuleCliEntries;
 use Zef\Framework\Modules\ModuleDeclaration;
 use Zef\Framework\Modules\ModuleException;
 use Zef\Framework\Modules\ModuleManifest;
+use Zef\Framework\Modules\ModuleManifestPaths;
 use Zef\Test\Modules\Fixtures\CliModule;
 
 /**
@@ -21,6 +22,7 @@ use Zef\Test\Modules\Fixtures\CliModule;
  * @internal
  */
 #[CoversClass(ModuleManifest::class)]
+#[CoversClass(ModuleManifestPaths::class)]
 #[CoversClass(ModuleDeclaration::class)]
 #[CoversClass(ModuleCliEntries::class)]
 #[CoversClass(ModuleException::class)]
