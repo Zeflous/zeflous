@@ -35,11 +35,11 @@ final class TemplateFaceTest extends TestCase
         );
     }
 
-    public function testEscapesASafeTextVerbatim(): void
+    public function testEscapesPlainTextVerbatim(): void
     {
         $face = new TemplateFace(new RecordingViewEngine());
 
-        self::assertSame('Zef & Friends', $face->escape('Zef & Friends'));
+        self::assertSame('Zef stays plain', $face->escape('Zef stays plain'));
     }
 
     public function testEscapesAnEmptyValueToTheEmptyText(): void

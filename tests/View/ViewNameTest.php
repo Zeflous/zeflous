@@ -43,8 +43,9 @@ final class ViewNameTest extends TestCase
 
     public function testConstructsTheWholeNameByteCeilingExactly(): void
     {
-        $name = str_repeat('a', 4096);
+        $name = implode('/', array_fill(0, 17, str_repeat('a', 240)));
 
+        self::assertSame(4096, mb_strlen($name, '8bit'));
         self::assertSame($name, (new ViewName($name))->spelling());
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Adapters\View;
 
+use InvalidArgumentException;
 use Stringable;
 use Zef\Framework\View\ViewEngine;
 use Zef\Framework\View\ViewException;
@@ -57,6 +58,7 @@ final readonly class TemplateFace
      *
      * @param array<string, mixed> $data the partial's own bag
      *
+     * @throws InvalidArgumentException when the name is outside the grammar the identity fold refuses
      * @throws ViewException when the partial does not answer, escapes,
      *                       refuses the bag, or fails mid-render
      */

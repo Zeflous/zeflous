@@ -25,6 +25,8 @@ final class ViewVariablesTest extends TestCase
 {
     public function testAcceptsALetterLedBag(): void
     {
+        $this->expectNotToPerformAssertions();
+
         ViewVariables::guard([
             'title' => 'A title',
             'a' => 1,
@@ -32,9 +34,6 @@ final class ViewVariablesTest extends TestCase
             'with_underscore' => 3,
             'withDigits0' => null,
         ]);
-
-        // The letter-led bag crossed the corridor.
-        self::addToAssertionCount(1);
     }
 
     public function testRefusesAnEmptyKey(): void
@@ -104,8 +103,8 @@ final class ViewVariablesTest extends TestCase
 
     public function testRefusesANonStringKey(): void
     {
-        /** @var array<string, mixed> $bag the int key the runtime bag can hand */
-        $bag = [42 => 'an integer key'];
+        /** @var array<string, mixed> $bag the int key the runtime bag can hand -- the numeric key's folded view (the RequestFactoryTest's own seam) */
+        $bag = [42 => 'an integer key', 'sentinel' => 'kept'];
 
         try {
             ViewVariables::guard($bag);
@@ -172,6 +171,8 @@ final class ViewVariablesTest extends TestCase
 
     public function testTheValuesAreNobodysCorridor(): void
     {
+        $this->expectNotToPerformAssertions();
+
         ViewVariables::guard([
             'anObject' => new stdClass(),
             'aNull' => null,
@@ -179,8 +180,5 @@ final class ViewVariablesTest extends TestCase
             'aClosure' => static fn (): string => 'x',
             'aBool' => false,
         ]);
-
-        // Every value shape crossed the corridor unpoliced.
-        self::addToAssertionCount(1);
     }
 }

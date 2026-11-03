@@ -96,6 +96,16 @@ final class ViewRenderScopeTest extends TestCase
         );
     }
 
+    public function testTheBagItselfNeverReachesTheTemplate(): void
+    {
+        $file = $this->template('sealed', '<?= isset($_data) ? \'leaked\' : \'clean\' ?>');
+
+        self::assertSame(
+            'clean',
+            ViewRenderScope::render($file, $this->face, ['payload' => 'p'], new ViewName('sealed')),
+        );
+    }
+
     public function testATemplateThatClosesTheEnginesBufferIsRefused(): void
     {
         $file = $this->template('closer', '<?php ob_end_clean();');

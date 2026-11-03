@@ -147,8 +147,8 @@ final class PhpViewEngineTest extends TestCase
 
     public function testANonStringKeyIsRefusedWithItsOwnType(): void
     {
-        /** @var array<string, mixed> $data the int key the runtime bag can hand */
-        $data = [42 => 'an integer key'];
+        /** @var array<string, mixed> $data the int key the runtime bag can hand -- the numeric key's folded view (the RequestFactoryTest's own seam) */
+        $data = [42 => 'an integer key', 'sentinel' => 'kept'];
 
         try {
             $this->engine->render(new ViewName('greet'), $data);
@@ -172,7 +172,7 @@ final class PhpViewEngineTest extends TestCase
                 $viewException->getMessage(),
             );
             self::assertInstanceOf(RuntimeException::class, $viewException->getPrevious());
-            self::assertSame('boom', $viewException->getPrevious()?->getMessage());
+            self::assertSame('boom', $viewException->getPrevious()->getMessage());
         }
     }
 
@@ -228,10 +228,14 @@ final class PhpViewEngineTest extends TestCase
             // The wrap under test -- the ledger question follows.
         }
 
-        self::assertSame(
-            'Hello, Zef!',
-            $this->engine->render(new ViewName('greet'), ['name' => 'Zef']),
-        );
+        $greeting = new ViewName('greet');
+
+        for ($render = 0; $render < 65; ++$render) {
+            self::assertSame(
+                'Hello, Zef!',
+                $this->engine->render($greeting, ['name' => 'Zef']),
+            );
+        }
     }
 
     public function testARootThatRefusesThePostureRefusesTheComposition(): void

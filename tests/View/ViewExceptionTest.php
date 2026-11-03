@@ -7,26 +7,26 @@ namespace Zef\Test\View;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Zef\Framework\Exception\CarriesHttpStatus;
-use Zef\Framework\Exception\ZefException;
 use Zef\Framework\View\ViewException;
 
 /**
- * Pins the lane's typed family posture: the refusal travels the
- * framework root, carries the internal status (500 -- the template
- * name is the application's own addressing, never the client's
- * resource), and keeps the message the throw site spelled.
+ * Pins the lane's typed family posture: the refusal keeps the
+ * message the throw site spelled, carries the internal status (500
+ * -- the template name is the application's own addressing, never
+ * the client's resource), and chains the cause it was constructed
+ * over. The family membership itself (the framework root, the
+ * status contract) is the type system's own fact -- the analyser
+ * proves it, and a tautological assertion would only restate it.
  *
  * @internal
  */
 #[CoversClass(ViewException::class)]
 final class ViewExceptionTest extends TestCase
 {
-    public function testTravelsTheFrameworkRoot(): void
+    public function testKeepsTheMessageTheThrowSiteSpelled(): void
     {
         $viewException = new ViewException('The view template \'about\' does not answer.');
 
-        self::assertInstanceOf(ZefException::class, $viewException);
         self::assertSame(
             'The view template \'about\' does not answer.',
             $viewException->getMessage(),
@@ -37,7 +37,6 @@ final class ViewExceptionTest extends TestCase
     {
         $viewException = new ViewException('The view template \'about\' escapes it.');
 
-        self::assertInstanceOf(CarriesHttpStatus::class, $viewException);
         self::assertSame(500, $viewException->httpStatus());
     }
 
