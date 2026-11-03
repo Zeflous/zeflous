@@ -181,3 +181,14 @@ equivalent-mutant ignore — the entry the fold carried while it lived
 inside `ModuleManifest`, moved with the fold to its new home). The
 full suite and coverage gate after the correction: 6917 tests / 16743
 assertions, 98.54% line coverage, the two folds at 24/24 and 18/18.
+
+The full-tree lane then answered its own debt: the CI mutation round
+over the whole tree (18,915 mutants) carried nine escapes in the
+directory renderer — `CliListText`'s indent, verb-separator and
+trailing-newline spellings, unguarded by the integration test's
+contains checks. The renderer now carries the route list table's own
+doctrine: a dedicated `CliListTest` pinning the whole directory
+verbatim (the fifteen-verb framework half, the declared half, the
+honest empty), every mutant of the renderer's 21 killed by the
+exact-string assertion, the same `assertSame`-over-the-whole-table
+posture `RouteListText` and `MigrationsStatusText` already carry.
