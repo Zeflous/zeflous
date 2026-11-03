@@ -6,6 +6,7 @@ namespace Zef\Test\Adapters\View;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Zef\Framework\Adapters\View\ViewVariables;
 use Zef\Framework\View\ViewException;
 
@@ -103,8 +104,11 @@ final class ViewVariablesTest extends TestCase
 
     public function testRefusesANonStringKey(): void
     {
+        /** @var array<string, mixed> $bag the int key the runtime bag can hand */
+        $bag = [42 => 'an integer key'];
+
         try {
-            ViewVariables::guard([42 => 'an integer key']);
+            ViewVariables::guard($bag);
             self::fail('The non-string key was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(
@@ -169,7 +173,7 @@ final class ViewVariablesTest extends TestCase
     public function testTheValuesAreNobodysCorridor(): void
     {
         ViewVariables::guard([
-            'anObject' => new \stdClass(),
+            'anObject' => new stdClass(),
             'aNull' => null,
             'anArray' => [1, 2, 3],
             'aClosure' => static fn (): string => 'x',

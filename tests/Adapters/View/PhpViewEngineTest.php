@@ -8,10 +8,11 @@ use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
+use stdClass;
 use Zef\Framework\Adapters\View\PhpViewEngine;
 use Zef\Framework\View\ViewException;
 use Zef\Framework\View\ViewName;
-use RuntimeException;
 
 /**
  * Pins the native engine's whole composition over a real templates
@@ -96,7 +97,7 @@ final class PhpViewEngineTest extends TestCase
     {
         $name = new ViewName('typed');
 
-        self::assertSame('stdClass', $this->engine->render($name, ['value' => new \stdClass()]));
+        self::assertSame('stdClass', $this->engine->render($name, ['value' => new stdClass()]));
         self::assertSame('null', $this->engine->render($name, ['value' => null]));
         self::assertSame('array', $this->engine->render($name, ['value' => [1, 2]]));
         self::assertSame(
@@ -146,8 +147,11 @@ final class PhpViewEngineTest extends TestCase
 
     public function testANonStringKeyIsRefusedWithItsOwnType(): void
     {
+        /** @var array<string, mixed> $data the int key the runtime bag can hand */
+        $data = [42 => 'an integer key'];
+
         try {
-            $this->engine->render(new ViewName('greet'), [42 => 'an integer key']);
+            $this->engine->render(new ViewName('greet'), $data);
             self::fail('The non-string key was not refused.');
         } catch (ViewException $viewException) {
             self::assertSame(

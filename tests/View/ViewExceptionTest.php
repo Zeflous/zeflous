@@ -6,6 +6,7 @@ namespace Zef\Test\View;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Zef\Framework\Exception\CarriesHttpStatus;
 use Zef\Framework\Exception\ZefException;
 use Zef\Framework\View\ViewException;
@@ -42,7 +43,7 @@ final class ViewExceptionTest extends TestCase
 
     public function testChainsTheCauseItWasConstructedOver(): void
     {
-        $cause = new \RuntimeException('boom');
+        $cause = new RuntimeException('boom');
         $viewException = new ViewException('The view template \'crash\' failed mid-render.', 0, $cause);
 
         self::assertSame($cause, $viewException->getPrevious());

@@ -7,6 +7,7 @@ namespace Zef\Test\Adapters\View;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Zef\Framework\Adapters\View\TemplateFace;
 use Zef\Framework\Adapters\View\ViewRenderScope;
 use Zef\Framework\View\ViewException;
@@ -144,7 +145,7 @@ final class ViewRenderScopeTest extends TestCase
         try {
             ViewRenderScope::render($file, $this->face, [], new ViewName('crasher'));
             self::fail('The crashing template did not propagate its own throwable.');
-        } catch (\RuntimeException $runtimeException) {
+        } catch (RuntimeException $runtimeException) {
             self::assertSame('scope-boom', $runtimeException->getMessage());
         } finally {
             self::assertSame($entry, ob_get_level(), 'A crashed render left a buffer behind.');
