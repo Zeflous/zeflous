@@ -8,9 +8,12 @@ use Throwable;
 
 /**
  * The transient-failure taxonomy's judgement: whether a thrown failure
- * matches the retryable class names (instanceof), and — when SQLSTATE
- * filtering is configured — whether the SQLSTATE the driver reported
- * is one of the retryable codes.
+ * matches the retryable class names (instanceof), and -- over a
+ * non-empty $retryableSqlStates -- whether the SQLSTATE the driver
+ * reported is one of the retryable codes OR the message carries one
+ * of the retryable lost-connection patterns ({@see RetryMessages}:
+ * the complement that answers the driver failures no informative
+ * code accompanies).
  *
  * @internal
  */
@@ -18,13 +21,19 @@ final class RetryTaxonomy
 {
     /**
      * True when the throwable matches the taxonomy: a class-name match,
-     * and — over a non-empty $retryableSqlStates — an SQLSTATE match.
+     * and -- over a non-empty $retryableSqlStates -- an SQLSTATE match
+     * or a message-pattern match.
      *
      * @param list<string> $retryableClassNames
      * @param list<string> $retryableSqlStates
+     * @param list<string> $retryableMessagePatterns
      */
-    public static function matches(Throwable $throwable, array $retryableClassNames, array $retryableSqlStates): bool
-    {
+    public static function matches(
+        Throwable $throwable,
+        array $retryableClassNames,
+        array $retryableSqlStates,
+        array $retryableMessagePatterns,
+    ): bool {
         if (!self::matchesClassName($throwable, $retryableClassNames)) {
             return false;
         }
@@ -33,7 +42,8 @@ final class RetryTaxonomy
             return true;
         }
 
-        return self::matchesSqlState($throwable, $retryableSqlStates);
+        return self::matchesSqlState($throwable, $retryableSqlStates)
+            || RetryMessages::matches($throwable->getMessage(), $retryableMessagePatterns);
     }
 
     /** @param list<string> $retryableClassNames */

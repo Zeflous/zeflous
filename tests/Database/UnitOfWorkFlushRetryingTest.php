@@ -15,6 +15,7 @@ use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\RetryBackoff;
 use Zef\Framework\Database\RetryCandidates;
+use Zef\Framework\Database\RetryMessages;
 use Zef\Framework\Database\RetryTaxonomy;
 use Zef\Framework\Database\SqlQuery;
 use Zef\Framework\Database\TransactionException;
@@ -46,6 +47,7 @@ use Zef\Test\Support\Database\ArmedPdoException;
 #[CoversClass(UnitOfWorkRetryPolicy::class)]
 #[CoversClass(RetryTaxonomy::class)]
 #[CoversClass(RetryCandidates::class)]
+#[CoversClass(RetryMessages::class)]
 #[CoversClass(RetryBackoff::class)]
 #[CoversClass(TransactionException::class)]
 final class UnitOfWorkFlushRetryingTest extends TestCase
@@ -102,6 +104,38 @@ final class UnitOfWorkFlushRetryingTest extends TestCase
         self::assertSame(1, $executed, 'final attempt succeeded');
         self::assertSame(['op-1', 'op-1'], $calls, 'operation replayed on retry');
         self::assertSame(0, $unitOfWork->pending(), 'queue cleared on success');
+    }
+
+    /**
+     * The message lane's end-to-end answer: a lost connection that
+     * arrives with nothing but its message (the code-0 wrapper — no
+     * SQLSTATE slot, no driver code) is replayed like any code-carrying
+     * transient failure. Before the lane, this failure escaped the
+     * retrying flush as non-retryable.
+     */
+    public function testFlushRetryingReplaysTheCodelessLostConnection(): void
+    {
+        $attempt = 0;
+        $unitOfWork = new UnitOfWork();
+        $unitOfWork->record(static function (ConnectionInterface $connection) use (&$attempt): void {
+            ++$attempt;
+            if ($attempt < 2) {
+                throw new PDOException('MySQL server has gone away', 0);
+            }
+
+            $connection->execute(new SqlQuery('INSERT INTO t (name) VALUES (?)', ['survivor']));
+        });
+
+        $unitOfWorkRetryPolicy = new UnitOfWorkRetryPolicy(maxAttempts: 3, initialDelayMs: 0);
+        $executed = $unitOfWork->flushRetrying($this->connection, $unitOfWorkRetryPolicy);
+
+        self::assertSame(1, $executed, 'the replayed attempt succeeded');
+        self::assertSame(2, $attempt, 'the codeless lost connection was retried once');
+        self::assertSame(
+            [['name' => 'survivor']],
+            $this->connection->fetchAll(SqlQuery::raw('SELECT name FROM t')),
+            'the retried write landed',
+        );
     }
 
     public function testFlushRetryingPropagatesNonRetryableThrowable(): void
