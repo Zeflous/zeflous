@@ -43,7 +43,8 @@ final class ViewRenderScope
      * Renders one resolved template inside the isolated scope,
      * answering the captured text.
      *
-     * @param string               $file         the resolved template address {@see ViewTemplateFile::resolve()} answered
+     * @param string               $file         the resolved template address
+     *                                           {@see ViewTemplateFile::resolve()} answered
      * @param TemplateFace         $templateFace the face the template holds
      * @param array<string, mixed> $data         the guarded bag whose keys become the template's variables
      * @param ViewName             $viewName     the identity the refusals name
