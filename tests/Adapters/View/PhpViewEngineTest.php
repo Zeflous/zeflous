@@ -228,12 +228,12 @@ final class PhpViewEngineTest extends TestCase
             // The wrap under test -- the ledger question follows.
         }
 
-        $greeting = new ViewName('greet');
+        $viewName = new ViewName('greet');
 
         for ($render = 0; $render < 65; ++$render) {
             self::assertSame(
                 'Hello, Zef!',
-                $this->phpViewEngine->render($greeting, ['name' => 'Zef']),
+                $this->phpViewEngine->render($viewName, ['name' => 'Zef']),
             );
         }
     }
