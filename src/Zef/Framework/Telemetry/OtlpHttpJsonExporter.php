@@ -53,9 +53,9 @@ use Override;
  * family already reads).
  */
 final readonly class OtlpHttpJsonExporter implements
-    SpanExporterInterface,
+    LogExporterInterface,
     MetricExporterInterface,
-    LogExporterInterface
+    SpanExporterInterface
 {
     /** The wire exchange unit the delivery contract rides. */
     private OtlpHttpTransport $otlpHttpTransport;

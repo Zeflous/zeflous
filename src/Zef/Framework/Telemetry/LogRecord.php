@@ -33,12 +33,12 @@ namespace Zef\Framework\Telemetry;
 final readonly class LogRecord
 {
     /**
-     * @param string              $severity     the severity's own
-     *                                         spelling (`ERROR`, `INFO`) -- the recording point's
-     *                                         vocabulary, carried verbatim
+     * @param string              $severity     the severity's own spelling
+     *                                          (`ERROR`, `INFO`) -- the recording
+     *                                          point's vocabulary, carried verbatim
      * @param string              $body         the recorded message
-     * @param int                 $timeUnixNano the record's timestamp,
-     *                                         in the Unix-nanosecond domain
+     * @param int                 $timeUnixNano the record's timestamp, in the
+     *                                          Unix-nanosecond domain
      * @param array<string,mixed> $attributes   the record's dimensions
      */
     public function __construct(

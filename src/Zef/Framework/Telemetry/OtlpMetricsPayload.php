@@ -41,13 +41,13 @@ final class OtlpMetricsPayload
     /**
      * Encodes one delivery's whole payload: the resource block the
      * exporter's identity declared, the single scope the lane names,
-     * and the meter's series as the protocol's sum data points.
+     * and the meter's series as the protocol's sum data points -- the
+     * stamp every data point carries is the delivery's own wall
+     * reading, the caller's reading the fold never mints.
      *
-     * @param array<string, mixed>     $resource    the resource block's attribute map
-     * @param array<string, array{count: float|int, sum: float, attributes: array<string, mixed>}> $metrics
-     *                                               the snapshot the meter answered
-     * @param int                      $timeUnixNano the delivery's own wall
-     *                                               reading, the stamp every data point carries
+     * @param array<string, mixed> $resource
+     * @param array<string,array{count:float|int,sum:float,attributes:array<string,mixed>}> $metrics
+     * @param int $timeUnixNano
      *
      * @return array<string, mixed>
      */
@@ -73,7 +73,7 @@ final class OtlpMetricsPayload
      * protocol metric per series identity, the sum block carrying
      * the cumulative, monotonic data point.
      *
-     * @param array<string, array{count: float|int, sum: float, attributes: array<string, mixed>}> $metrics
+     * @param array<string,array{count:float|int,sum:float,attributes:array<string,mixed>}> $metrics
      *
      * @return list<array<string, mixed>>
      */

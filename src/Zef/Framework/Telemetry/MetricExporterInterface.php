@@ -34,11 +34,11 @@ namespace Zef\Framework\Telemetry;
 interface MetricExporterInterface
 {
     /**
-     * Delivers one accumulated series table.
+     * Delivers one accumulated series table: the snapshot the meter
+     * answered, verbatim -- one entry per series identity with the
+     * accumulated count, sum and dimensions.
      *
      * @param array<string,array{count:float|int,sum:float,attributes:array<string,mixed>}> $metrics
-     *     the snapshot the meter answered -- one entry per series
-     *     identity, the accumulated count, sum and dimensions
      */
     public function exportMetrics(array $metrics): void;
 

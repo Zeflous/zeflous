@@ -8,16 +8,20 @@ use InvalidArgumentException;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Telemetry\LogRecord;
 use Zef\Framework\Telemetry\OtlpExporterException;
 use Zef\Framework\Telemetry\OtlpHttpJsonExporter;
 use Zef\Framework\Telemetry\OtlpHttpTransport;
 use Zef\Framework\Telemetry\OtlpJsonPayloadEncoder;
+use Zef\Framework\Telemetry\OtlpLogsPayload;
+use Zef\Framework\Telemetry\OtlpMetricsPayload;
 use Zef\Framework\Telemetry\SpanContext;
 use Zef\Framework\Telemetry\SpanData;
 use Zef\Test\Support\Telemetry\OtlpMockServer;
+use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 
 /**
- * The OTLP/HTTP-JSON span exporter, on its own terms and over the
+ * The OTLP/HTTP-JSON exporter, on its own terms and over the
  * real transport: the timeout's own bounds, the empty batch's
  * no-op, the payload's exact wire shape (resource, scope, span,
  * parent, status, events -- captured by a real loopback collector
@@ -25,6 +29,14 @@ use Zef\Test\Support\Telemetry\OtlpMockServer;
  * triage (the 2xx delivery, the 4xx permanent rejection, the 5xx
  * transient rejection), and the refused transport (a closed port,
  * whose own diagnostics ride the failure redacted).
+ *
+ * The widened signals ride the same discipline: the metrics
+ * delivery carries the meter-snapshot payload the sum data point
+ * spells (the collection stamp behind the injectable clock seam,
+ * frozen by the stepping double), and the logs delivery carries
+ * the record batch's own shape -- each signal's path appended
+ * behind the one endpoint fold, each query string kept after it,
+ * and each empty batch the no-op that never reaches the wire.
  *
  * The loopback collector is the engine's own built-in development
  * server over an ephemeral port ({@see OtlpMockServer}): the same
@@ -36,9 +48,12 @@ use Zef\Test\Support\Telemetry\OtlpMockServer;
  *
  * @internal
  */
+#[CoversClass(LogRecord::class)]
 #[CoversClass(OtlpHttpJsonExporter::class)]
 #[CoversClass(OtlpHttpTransport::class)]
 #[CoversClass(OtlpJsonPayloadEncoder::class)]
+#[CoversClass(OtlpLogsPayload::class)]
+#[CoversClass(OtlpMetricsPayload::class)]
 final class OtlpHttpJsonExporterTest extends TestCase
 {
     private const string TRACE_ID = '4bf92f3577b34da6a3ce929d0e0e4736';
@@ -307,6 +322,227 @@ final class OtlpHttpJsonExporterTest extends TestCase
         $otlpHttpJsonExporter->shutdown();
 
         self::addToAssertionCount(1);
+    }
+
+    public function testAnEmptyMetricsSnapshotIsANoOpWithoutATransport(): void
+    {
+        // The closed port would fail the transport in milliseconds:
+        // an empty snapshot never reaches it.
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter('http://127.0.0.1:1', [], 50);
+
+        $otlpHttpJsonExporter->exportMetrics([]);
+
+        self::addToAssertionCount(1);
+    }
+
+    public function testAnEmptyLogBatchIsANoOpWithoutATransport(): void
+    {
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter('http://127.0.0.1:1', [], 50);
+
+        $otlpHttpJsonExporter->exportLogs([]);
+
+        self::addToAssertionCount(1);
+    }
+
+    public function testADeliveredMetricsSnapshotCarriesTheWirePayload(): void
+    {
+        $endpoint = $this->otlpMockServer->start();
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter(
+            $endpoint,
+            ['service.name' => 'zef-test-service'],
+            500,
+            new SteppingTelemetryClock(wallEpoch: 1_700_000_000_000_000_000),
+        );
+
+        $otlpHttpJsonExporter->exportMetrics([
+            'zef.http.errors.total' => ['count' => 3, 'sum' => 3.0, 'attributes' => ['route' => '/api']],
+            'zef.requests' => ['count' => 2, 'sum' => 7, 'attributes' => []],
+        ]);
+
+        $bodies = $this->otlpMockServer->receivedBodies();
+        self::assertCount(1, $bodies, 'one delivery, one request');
+        self::assertSame(1, $this->otlpMockServer->requests());
+
+        $payload = $this->payloadAt($bodies[0]);
+        $resourceMetric = $this->mapAt($this->mapAt($payload['resourceMetrics'])[0]);
+        self::assertSame(
+            ['service.name' => 'zef-test-service'],
+            $this->attributeMap($this->mapAt($this->mapAt($resourceMetric['resource'])['attributes'])),
+            'the resource block carries the declared identity',
+        );
+
+        $scopeMetric = $this->mapAt($this->mapAt($resourceMetric['scopeMetrics'])[0]);
+        self::assertSame('zef-observability', $this->mapAt($scopeMetric['scope'])['name']);
+
+        $metrics = $this->mapAt($scopeMetric['metrics']);
+
+        $first = $this->mapAt($metrics[0]);
+        self::assertSame('zef.http.errors.total', $first['name']);
+
+        $sum = $this->mapAt($first['sum']);
+        self::assertSame(2, $sum['aggregationTemporality'], 'the cumulative aggregation the counter family spells');
+        self::assertSame(true, $sum['isMonotonic'], 'the meter series only ever grow');
+
+        $dataPoint = $this->mapAt($this->mapAt($sum['dataPoints'])[0]);
+        self::assertSame(3.0, $dataPoint['asDouble']);
+        self::assertSame('1700000000000000000', $dataPoint['timeUnixNano']);
+        self::assertSame(
+            ['route' => '/api'],
+            $this->attributeMap($this->mapAt($dataPoint['attributes'])),
+        );
+
+        $second = $this->mapAt($metrics[1]);
+        self::assertSame('zef.requests', $second['name']);
+
+        $secondPoint = $this->mapAt($this->mapAt($this->mapAt($second['sum'])['dataPoints'])[0]);
+        self::assertSame(
+            7.0,
+            $secondPoint['asDouble'],
+            'the integer-typed sum answers the protocols double',
+        );
+        self::assertSame([], $this->mapAt($secondPoint['attributes']));
+    }
+
+    public function testADeliveredLogBatchCarriesTheWirePayload(): void
+    {
+        $endpoint = $this->otlpMockServer->start();
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter(
+            $endpoint,
+            ['service.name' => 'zef-test-service'],
+            500,
+        );
+
+        $otlpHttpJsonExporter->exportLogs([
+            new LogRecord('ERROR', 'upstream 503', 5, ['http.method' => 'GET']),
+            new LogRecord('INFO', 'ready', 6),
+        ]);
+
+        $bodies = $this->otlpMockServer->receivedBodies();
+        self::assertCount(1, $bodies, 'one delivery, one request');
+        self::assertSame(1, $this->otlpMockServer->requests());
+
+        $payload = $this->payloadAt($bodies[0]);
+        $resourceLog = $this->mapAt($this->mapAt($payload['resourceLogs'])[0]);
+        self::assertSame(
+            ['service.name' => 'zef-test-service'],
+            $this->attributeMap($this->mapAt($this->mapAt($resourceLog['resource'])['attributes'])),
+            'the resource block carries the declared identity',
+        );
+
+        $scopeLog = $this->mapAt($this->mapAt($resourceLog['scopeLogs'])[0]);
+        self::assertSame('zef-observability', $this->mapAt($scopeLog['scope'])['name']);
+
+        $records = $this->mapAt($scopeLog['logRecords']);
+
+        $first = $this->mapAt($records[0]);
+        self::assertSame('5', $first['timeUnixNano']);
+        self::assertSame('ERROR', $first['severityText']);
+        self::assertSame('upstream 503', $this->mapAt($first['body'])['stringValue']);
+        self::assertSame(
+            ['http.method' => 'GET'],
+            $this->attributeMap($this->mapAt($first['attributes'])),
+        );
+
+        $second = $this->mapAt($records[1]);
+        self::assertSame('6', $second['timeUnixNano']);
+        self::assertSame('INFO', $second['severityText']);
+        self::assertSame('ready', $this->mapAt($second['body'])['stringValue']);
+        self::assertSame(
+            [],
+            $this->mapAt($second['attributes']),
+            'a record without dimensions carries the empty KeyValue list',
+        );
+    }
+
+    public function testTheMetricsAndLogsSignalPathsFoldTheirQueriesAfterThem(): void
+    {
+        // The refused transport's own warning carries the full URL
+        // the engine built, query string included -- the same
+        // credential-bearing fold the span lane pins, spelled for
+        // the two widened signals: each path lands in the path, each
+        // query keeps its place after it, and the token scrubs out
+        // of the diagnostic that rides the lane's own exception.
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter('http://127.0.0.1:1/?token=secret-value', [], 50);
+
+        try {
+            $otlpHttpJsonExporter->exportMetrics([
+                'zef.requests' => ['count' => 1, 'sum' => 1.0, 'attributes' => []],
+            ]);
+            self::fail('The refused connection must fail the metrics delivery.');
+        } catch (OtlpExporterException $otlpExporterException) {
+            self::assertStringContainsString(
+                'http://127.0.0.1:1/v1/metrics?token=[REDACTED]',
+                $otlpExporterException->getMessage(),
+                'the query rides after the metrics signal path, its token scrubbed',
+            );
+            self::assertStringNotContainsString('secret-value', $otlpExporterException->getMessage());
+        }
+
+        try {
+            $otlpHttpJsonExporter->exportLogs([new LogRecord('INFO', 'refused', 1)]);
+            self::fail('The refused connection must fail the logs delivery.');
+        } catch (OtlpExporterException $otlpExporterException) {
+            self::assertStringContainsString(
+                'http://127.0.0.1:1/v1/logs?token=[REDACTED]',
+                $otlpExporterException->getMessage(),
+                'the query rides after the logs signal path, its token scrubbed',
+            );
+            self::assertStringNotContainsString('secret-value', $otlpExporterException->getMessage());
+        }
+    }
+
+    public function testTheMetricsAndLogsSignalPathsAreAppendedOnce(): void
+    {
+        $endpoint = $this->otlpMockServer->start();
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter($endpoint . '/', ['service.name' => 'svc'], 500);
+
+        $otlpHttpJsonExporter->exportMetrics([
+            'zef.requests' => ['count' => 1, 'sum' => 1.0, 'attributes' => []],
+        ]);
+        $otlpHttpJsonExporter->exportLogs([new LogRecord('INFO', 'appended', 1)]);
+
+        self::assertSame(
+            2,
+            $this->otlpMockServer->requests(),
+            'the trailing slash folds and each signal path lands once',
+        );
+    }
+
+    public function testTheMetricsDataPointReadsTheDeliveryClockOnceAndOnlyTheWallDomain(): void
+    {
+        $endpoint = $this->otlpMockServer->start();
+        $steppingTelemetryClock = new SteppingTelemetryClock(wallEpoch: 5, wallStep: 7);
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter($endpoint, [], 500, $steppingTelemetryClock);
+
+        $otlpHttpJsonExporter->exportLogs([new LogRecord('INFO', 'clockless', 1)]);
+
+        self::assertSame(
+            0,
+            $steppingTelemetryClock->wallReadCount(),
+            'the logs lane stamps its records at the recording point -- it reads no clock at all',
+        );
+
+        $otlpHttpJsonExporter->exportMetrics([
+            'zef.requests' => ['count' => 1, 'sum' => 1.0, 'attributes' => []],
+        ]);
+
+        self::assertSame(1, $steppingTelemetryClock->wallReadCount(), 'one delivery, one wall reading');
+        self::assertSame(0, $steppingTelemetryClock->monotonicReadCount(), 'the stamp is the wall domain alone');
+
+        $bodies = $this->otlpMockServer->receivedBodies();
+        $payload = $this->payloadAt($bodies[1]);
+
+        $resourceMetric = $this->mapAt($this->mapAt($payload['resourceMetrics'])[0]);
+        $scopeMetric = $this->mapAt($this->mapAt($resourceMetric['scopeMetrics'])[0]);
+        $metric = $this->mapAt($this->mapAt($scopeMetric['metrics'])[0]);
+        $sum = $this->mapAt($metric['sum']);
+        $dataPoint = $this->mapAt($this->mapAt($sum['dataPoints'])[0]);
+
+        self::assertSame(
+            '5',
+            $dataPoint['timeUnixNano'],
+            'the collection stamp is the stepping clocks first wall answer',
+        );
     }
 
     /**
