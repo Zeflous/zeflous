@@ -603,11 +603,15 @@ the ceiling demands, the exporter keeping only the delivery
 contract (the paths, the verbs, the triage it delegates).
 
 **KDD-OB43 -- The consumer still the named follow-up: the delivery
-facade.** The two verbs' callers today are the suite and the host's
-own composition, and the psalm baseline carries the two
-`PossiblyUnusedMethod` entries -- the `consumer-arrives-with-the-
-wiring` posture the database lane's KDD-DW8 established and the
-view lane's engine pins replayed. The facade that retires them is
+facade.** The widened verbs' callers today are the suite and the
+host's own composition, and the psalm baseline carries the five
+findings that truth spells -- the two contracts' verbs and their
+shutdown declarations, and the record's constructor (nothing in
+`src/` constructs a `LogRecord` yet: the recording verb arrives
+with the facade), while the concrete exporter stays clean because
+psalm reads its verbs as the interface implementations they are --
+the `consumer-arrives-with-the-wiring` posture the database lane's
+KDD-DW8 established and the view lane's engine pins replayed. The facade that retires them is
 the lane's next slice: the meter/log delivery queues (the
 reference's 1024-cap postures), the lifecycle counters, the
 deadline-bounded shutdown drain, and the `observability.export`
