@@ -641,6 +641,12 @@
       <code><![CDATA[NoopTracer]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Telemetry/OtlpHttpJsonExporter.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[exportLogs]]></code>
+      <code><![CDATA[exportMetrics]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Telemetry/SpanData.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[durationSeconds]]></code>
