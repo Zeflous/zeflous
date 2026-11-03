@@ -90,7 +90,6 @@ final readonly class OtlpHttpJsonExporter implements
      * @throws InvalidArgumentException when the timeout sits outside
      *                                  its allowed range
      */
-
     public function __construct(
         private string $endpoint,
         private array $resource,

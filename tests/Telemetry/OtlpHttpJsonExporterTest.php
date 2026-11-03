@@ -355,8 +355,8 @@ final class OtlpHttpJsonExporterTest extends TestCase
         );
 
         $otlpHttpJsonExporter->exportMetrics([
-            'zef.http.errors.total' => ['count' => 3, 'sum' => 3.0, 'attributes' => ['route' => '/api']],
-            'zef.requests' => ['count' => 2, 'sum' => 7.0, 'attributes' => []],
+            'zef.http.errors.total' => ['count' => 3, 'sum' => 3.5, 'attributes' => ['route' => '/api']],
+            'zef.requests' => ['count' => 2, 'sum' => 7.25, 'attributes' => []],
         ]);
 
         $bodies = $this->otlpMockServer->receivedBodies();
@@ -384,7 +384,7 @@ final class OtlpHttpJsonExporterTest extends TestCase
         self::assertTrue($this->boolAt($sum['isMonotonic']), 'the meter series only ever grow');
 
         $dataPoint = $this->mapAt($this->mapAt($sum['dataPoints'])[0]);
-        self::assertSame(3.0, $dataPoint['asDouble']);
+        self::assertSame(3.5, $dataPoint['asDouble']);
         self::assertSame('1700000000000000000', $dataPoint['timeUnixNano']);
         self::assertSame(
             ['route' => '/api'],
@@ -395,7 +395,7 @@ final class OtlpHttpJsonExporterTest extends TestCase
         self::assertSame('zef.requests', $second['name']);
 
         $secondPoint = $this->mapAt($this->mapAt($this->mapAt($second['sum'])['dataPoints'])[0]);
-        self::assertSame(7.0, $secondPoint['asDouble']);
+        self::assertSame(7.25, $secondPoint['asDouble']);
         self::assertSame([], $this->mapAt($secondPoint['attributes']));
     }
 

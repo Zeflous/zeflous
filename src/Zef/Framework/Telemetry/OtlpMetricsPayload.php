@@ -51,9 +51,8 @@ final class OtlpMetricsPayload
      * stamp every data point carries is the delivery's own wall
      * reading, the caller's reading the fold never mints.
      *
-     * @param array<string, mixed> $resource
+     * @param array<string, mixed>                                                          $resource
      * @param array<string,array{count:float|int,sum:float,attributes:array<string,mixed>}> $metrics
-     * @param int $timeUnixNano
      *
      * @return array<string, mixed>
      */
