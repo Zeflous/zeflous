@@ -103,6 +103,22 @@
       <code><![CDATA[__construct]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Adapters/View/PhpViewEngine.php">
+    <UnusedClass>
+      <code><![CDATA[PhpViewEngine]]></code>
+    </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Adapters/View/TemplateFace.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[escape]]></code>
+      <code><![CDATA[render]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Adapters/View/ViewRenderScope.php">
+    <UnresolvableInclude>
+      <code><![CDATA[include $_file]]></code>
+    </UnresolvableInclude>
+  </file>
   <file src="src/Zef/Framework/Container/Aot/AotClosureEntry.php">
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$closure]]></code>
