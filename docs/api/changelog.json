@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-03T23:18:03Z",
+  "as_of": "2026-11-04T11:32:13Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 289,
+  "unreleased_count": 291,
   "versions": [
     {
       "version": "Unreleased",
@@ -4520,6 +4520,87 @@
                 "sha": "e20d9ec8764e632b32ccf11410637270987c2961",
                 "short_sha": "e20d9ec",
                 "subject": "docs(roadmap): the view lane's first mutation round recorded and the pin refreshed"
+              }
+            ]
+          },
+          {
+            "pr": 696,
+            "title": "feat(telemetry): the export lane's metrics and logs signals",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-04T09:38:31Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/696",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "49fdae0c2bfbe37a78276f15117af7ce1b097e0a",
+                "short_sha": "49fdae0",
+                "subject": "feat(telemetry): the export lane's metrics and logs signals"
+              },
+              {
+                "sha": "3d4789342f4feb8ff04570b1a5e284783eb206ff",
+                "short_sha": "3d47893",
+                "subject": "test(telemetry): the signals' adversarial curriculum"
+              },
+              {
+                "sha": "b9344ea13d1e09b02211e261566b10fa5a192a9b",
+                "short_sha": "b9344ea",
+                "subject": "docs(telemetry): the signals' decisions recorded as KDD-OB37..OB43, the roadmap row and pin"
+              },
+              {
+                "sha": "8fd7242cf7fb67972a470ab829ed9d8336869d50",
+                "short_sha": "8fd7242",
+                "subject": "fix(telemetry): the first CI round's router guard, dead cast and boolean shape"
+              },
+              {
+                "sha": "4f4f3ccdb78dee6e6c54c0b7f9cef007a74db93e",
+                "short_sha": "4f4f3cc",
+                "subject": "docs(roadmap): refresh the pin over the telemetry lane's closing commit"
+              },
+              {
+                "sha": "f2117dc253bb996e27bba5d1804fb6c7a93f4357",
+                "short_sha": "f2117dc",
+                "subject": "fix(telemetry): the fixer's two shapes and the wire floats fractional spelling"
+              },
+              {
+                "sha": "f169f3cb6e2a87ffdaf600fe976da837e4616063",
+                "short_sha": "f169f3c",
+                "subject": "fix(roadmap): the history row's union pipe, the table's own column count"
+              },
+              {
+                "sha": "959a0b933e30ec0c51e1a52ce29bede68c792d90",
+                "short_sha": "959a0b9",
+                "subject": "docs(roadmap): refresh the pin over the telemetry lane's closing commit"
+              },
+              {
+                "sha": "e322737320cc2113fd18d267eedf8e759ba9afcf",
+                "short_sha": "e322737",
+                "subject": "fix(telemetry): the psalm baseline's five honest findings and their record"
+              },
+              {
+                "sha": "1491b3cc7bbc20e005fb97dc7d7b554c6445f682",
+                "short_sha": "1491b3c",
+                "subject": "docs(roadmap): refresh the pin over the telemetry lane's closing commit"
+              },
+              {
+                "sha": "aa4b3922f62a7f8f88f1424d69d649bf56c605fc",
+                "short_sha": "aa4b392",
+                "subject": "Merge remote-tracking branch 'origin/main' into feat/telemetry-export-signals"
+              },
+              {
+                "sha": "e21973e2cd7445ca633159bdcfc797105f0393a4",
+                "short_sha": "e21973e",
+                "subject": "docs(roadmap): refresh the pin over the module lane's mid-flight landing"
+              },
+              {
+                "sha": "79de92e1e84f09b7432dc80a7f1e0a5bdf5b1682",
+                "short_sha": "79de92e",
+                "subject": "fix(roadmap): the history pin rides the newest recorded row, the status pin the merge"
+              },
+              {
+                "sha": "20f29a8593745c3aed9f6e49ca08f9123d6ede3c",
+                "short_sha": "20f29a8",
+                "subject": "docs(roadmap): the status pin rides the telemetry lane's closing head"
               }
             ]
           }
@@ -9298,6 +9379,22 @@
                 "sha": "a7ef03e81ccffdfe73c7ad2da640d4a3894965ef",
                 "short_sha": "a7ef03e",
                 "subject": "docs(roadmap): record the durable quarantine landing in the status rows"
+              }
+            ]
+          },
+          {
+            "pr": 699,
+            "title": "docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-11-04T11:32:13Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/699",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "befcbf36a3c1834628a34b9d2372556c4e451941",
+                "short_sha": "befcbf3",
+                "subject": "docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger"
               }
             ]
           }
@@ -18921,6 +19018,103 @@
               "sha": "e20d9ec8764e632b32ccf11410637270987c2961",
               "short_sha": "e20d9ec",
               "subject": "docs(roadmap): the view lane's first mutation round recorded and the pin refreshed"
+            }
+          ]
+        },
+        {
+          "pr": 696,
+          "title": "feat(telemetry): the export lane's metrics and logs signals",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-04T09:38:31Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/696",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "49fdae0c2bfbe37a78276f15117af7ce1b097e0a",
+              "short_sha": "49fdae0",
+              "subject": "feat(telemetry): the export lane's metrics and logs signals"
+            },
+            {
+              "sha": "3d4789342f4feb8ff04570b1a5e284783eb206ff",
+              "short_sha": "3d47893",
+              "subject": "test(telemetry): the signals' adversarial curriculum"
+            },
+            {
+              "sha": "b9344ea13d1e09b02211e261566b10fa5a192a9b",
+              "short_sha": "b9344ea",
+              "subject": "docs(telemetry): the signals' decisions recorded as KDD-OB37..OB43, the roadmap row and pin"
+            },
+            {
+              "sha": "8fd7242cf7fb67972a470ab829ed9d8336869d50",
+              "short_sha": "8fd7242",
+              "subject": "fix(telemetry): the first CI round's router guard, dead cast and boolean shape"
+            },
+            {
+              "sha": "4f4f3ccdb78dee6e6c54c0b7f9cef007a74db93e",
+              "short_sha": "4f4f3cc",
+              "subject": "docs(roadmap): refresh the pin over the telemetry lane's closing commit"
+            },
+            {
+              "sha": "f2117dc253bb996e27bba5d1804fb6c7a93f4357",
+              "short_sha": "f2117dc",
+              "subject": "fix(telemetry): the fixer's two shapes and the wire floats fractional spelling"
+            },
+            {
+              "sha": "f169f3cb6e2a87ffdaf600fe976da837e4616063",
+              "short_sha": "f169f3c",
+              "subject": "fix(roadmap): the history row's union pipe, the table's own column count"
+            },
+            {
+              "sha": "959a0b933e30ec0c51e1a52ce29bede68c792d90",
+              "short_sha": "959a0b9",
+              "subject": "docs(roadmap): refresh the pin over the telemetry lane's closing commit"
+            },
+            {
+              "sha": "e322737320cc2113fd18d267eedf8e759ba9afcf",
+              "short_sha": "e322737",
+              "subject": "fix(telemetry): the psalm baseline's five honest findings and their record"
+            },
+            {
+              "sha": "1491b3cc7bbc20e005fb97dc7d7b554c6445f682",
+              "short_sha": "1491b3c",
+              "subject": "docs(roadmap): refresh the pin over the telemetry lane's closing commit"
+            },
+            {
+              "sha": "aa4b3922f62a7f8f88f1424d69d649bf56c605fc",
+              "short_sha": "aa4b392",
+              "subject": "Merge remote-tracking branch 'origin/main' into feat/telemetry-export-signals"
+            },
+            {
+              "sha": "e21973e2cd7445ca633159bdcfc797105f0393a4",
+              "short_sha": "e21973e",
+              "subject": "docs(roadmap): refresh the pin over the module lane's mid-flight landing"
+            },
+            {
+              "sha": "79de92e1e84f09b7432dc80a7f1e0a5bdf5b1682",
+              "short_sha": "79de92e",
+              "subject": "fix(roadmap): the history pin rides the newest recorded row, the status pin the merge"
+            },
+            {
+              "sha": "20f29a8593745c3aed9f6e49ca08f9123d6ede3c",
+              "short_sha": "20f29a8",
+              "subject": "docs(roadmap): the status pin rides the telemetry lane's closing head"
+            }
+          ]
+        },
+        {
+          "pr": 699,
+          "title": "docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-11-04T11:32:13Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/699",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "befcbf36a3c1834628a34b9d2372556c4e451941",
+              "short_sha": "befcbf3",
+              "subject": "docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger"
             }
           ]
         }

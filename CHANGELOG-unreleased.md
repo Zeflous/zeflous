@@ -114,6 +114,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(database): the lost-connection message lane over the retry taxonomy [#689](https://github.com/Zeflous/zeflous/pull/689) ([mbetixz](https://github.com/mbetixz))
 - feat(modules): the CLI command extension point with its manifest fold over the standard CLI schema [#692](https://github.com/Zeflous/zeflous/pull/692) ([mbetixz](https://github.com/mbetixz))
 - feat(view): the presentation port and the native PHP-template answer [#693](https://github.com/Zeflous/zeflous/pull/693) ([mbetixz](https://github.com/mbetixz))
+- feat(telemetry): the export lane's metrics and logs signals [#696](https://github.com/Zeflous/zeflous/pull/696) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -300,6 +301,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): heal the status pin over the contributing integration rule [#541](https://github.com/Zeflous/zeflous/pull/541) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the router deprecation lifecycle and pin the lane [#544](https://github.com/Zeflous/zeflous/pull/544) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the durable quarantine landing in the status rows [#648](https://github.com/Zeflous/zeflous/pull/648) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger [#699](https://github.com/Zeflous/zeflous/pull/699) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
