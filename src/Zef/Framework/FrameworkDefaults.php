@@ -316,6 +316,11 @@ final readonly class FrameworkDefaults
                 'default' => '',
                 'connections' => [],
                 'migrations' => '',
+                // The query-log family's silent posture: the absent
+                // block, so a host's own spelling of `query_log` arms
+                // the family with the policy's own defaults rather
+                // than merging over a disabled frame.
+                'query_log' => null,
             ],
             'aot' => [
                 'enabled' => false,

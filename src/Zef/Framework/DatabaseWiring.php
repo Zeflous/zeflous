@@ -7,6 +7,7 @@ namespace Zef\Framework;
 use Psr\Log\LoggerInterface;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
+use Zef\Framework\Adapters\Database\PdoQueryLogArming;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Database\ConnectionInterface;
@@ -33,15 +34,19 @@ use Zef\Framework\Telemetry\MeterInterface;
  * shared meter the registration hands in, and the WARN record over
  * the deployment's ONE structured log address the slow-request
  * family's own doctrine spells, so the audit records join the error
- * and slow-request records in the one sink), the migration runner
- * (`database.migrator`, over the per-purpose connection: the
- * `database.migrations` name the host spelled, else the default --
- * a deployment may run its migrations on a connection of their own
- * naming without ever spelling the default), the managed-scope
- * transaction manager (`database.transactions`, over the shared
- * default connection the registration hands in), and the generic
- * per-table gateway ({@see repository()}, over the connection the
- * host's own per-table service declaration hands in).
+ * and slow-request records in the one sink -- and with the
+ * per-query logging family's own bracket when the declaration arms
+ * it: the `database.query_log` block's policy over the same shared
+ * meter and the same one log address, so the query records land in
+ * the one sink the audit and slow-request records land in), the
+ * migration runner (`database.migrator`, over the per-purpose
+ * connection: the `database.migrations` name the host spelled, else
+ * the default -- a deployment may run its migrations on a connection
+ * of their own naming without ever spelling the default), the
+ * managed-scope transaction manager (`database.transactions`, over
+ * the shared default connection the registration hands in), and the
+ * generic per-table gateway ({@see repository()}, over the connection
+ * the host's own per-table service declaration hands in).
  *
  * The silent declaration (the empty `database.default` knob, or the
  * absent `database` block entirely) is a refusal with the way out
@@ -88,20 +93,20 @@ final readonly class DatabaseWiring
     {
         $databaseDeclaration = DatabaseDeclaration::fromConfig($config);
 
-        if (!$databaseDeclaration->wantsWiredConnection()) {
-            throw new ConfigException(
-                'The database.connection wired default is not declared:'
-                . ' spell a connection (database.connections plus database.default)'
-                . ' or compose the family over your own ConnectionInterface.',
+        if ($databaseDeclaration->wantsWiredConnection()) {
+            return self::pdoConnection(
+                $config,
+                $databaseDeclaration,
+                $databaseDeclaration->default,
+                'default',
+                $meter,
             );
         }
 
-        return self::pdoConnection(
-            $config,
-            $databaseDeclaration->connections,
-            $databaseDeclaration->default,
-            'default',
-            $meter,
+        throw new ConfigException(
+            'The database.connection wired default is not declared:'
+            . ' spell a connection (database.connections plus database.default)'
+            . ' or compose the family over your own ConnectionInterface.',
         );
     }
 
@@ -138,7 +143,7 @@ final readonly class DatabaseWiring
         return new Migrator(
             self::pdoConnection(
                 $config,
-                $databaseDeclaration->connections,
+                $databaseDeclaration,
                 $migrationsName,
                 $databaseDeclaration->migrations !== '' ? 'migrations' : 'default',
                 $meter,
@@ -185,12 +190,16 @@ final readonly class DatabaseWiring
      * the audit emission's counter seam and its WARN record over
      * the deployment's ONE structured log address (an address the
      * configuration answers -- the slow-request family's own
-     * derivation -- or the silent posture's null seam).
+     * derivation -- or the silent posture's null seam), and with the
+     * query-log family's own bracket when the declaration arms it
+     * (over the same two shared sinks, so every record the family
+     * writes lands in the one sink).
      *
-     * @param array<string, array<string, mixed>> $connections the declared connections
-     * @param string                              $name        the connection name the ask spelled
-     * @param string                              $knob        the knob that spelled it
-     * @param null|MeterInterface                 $meter       the audit counter seam
+     * @param Config              $config              the frozen repository
+     * @param DatabaseDeclaration $databaseDeclaration the family's declaration
+     * @param string              $name                the connection name the ask spelled
+     * @param string              $knob                the knob that spelled it
+     * @param null|MeterInterface $meter               the audit counter seam
      *
      * @throws ConfigException when the name carries no declared
      *                         connection, or any connection field the adapter's
@@ -198,16 +207,19 @@ final readonly class DatabaseWiring
      */
     private static function pdoConnection(
         Config $config,
-        array $connections,
+        DatabaseDeclaration $databaseDeclaration,
         string $name,
         string $knob,
         ?MeterInterface $meter,
     ): PdoConnection {
+        $logger = self::auditLogger($config);
+
         return new PdoConnection(
-            ConnectionConfig::fromArray(DatabaseConnections::one($connections, $name, $knob)),
+            ConnectionConfig::fromArray(DatabaseConnections::one($databaseDeclaration->connections, $name, $knob)),
             null,
             $meter,
-            self::auditLogger($config),
+            $logger,
+            PdoQueryLogArming::bracket($databaseDeclaration->queryLogPolicy, $meter, $logger),
         );
     }
 
@@ -226,10 +238,6 @@ final readonly class DatabaseWiring
     {
         $logAddress = ErrorStorageWiring::logAddress($config);
 
-        if ($logAddress === '') {
-            return null;
-        }
-
-        return new JsonLineLogger($logAddress);
+        return $logAddress === '' ? null : new JsonLineLogger($logAddress);
     }
 }

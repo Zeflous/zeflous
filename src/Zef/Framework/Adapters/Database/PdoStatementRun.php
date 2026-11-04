@@ -45,9 +45,10 @@ final class PdoStatementRun
     }
 
     /**
-     * Executes the statement with the query's positional values.
+     * Executes the statement with the query's positional values,
+     * answering the statement it ran.
      */
-    public static function execute(PDOStatement $pdoStatement, SqlQuery $sqlQuery): void
+    public static function execute(PDOStatement $pdoStatement, SqlQuery $sqlQuery): PDOStatement
     {
         try {
             $pdoStatement->execute($sqlQuery->params);
@@ -58,5 +59,7 @@ final class PdoStatementRun
                 $pdoException,
             );
         }
+
+        return $pdoStatement;
     }
 }

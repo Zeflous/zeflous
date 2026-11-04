@@ -24,14 +24,21 @@ use Zef\Framework\Telemetry\MeterInterface;
  *   optional {@see LoggerInterface} WARN record is emitted through
  *   {@see PdoUnboundedAudit} for security audit trails (both seams
  *   default to null -- no observability, no cost);
+ * - optionally measures its statement runs: an armed {@see PdoQueryLog}
+ *   brackets the execute and fetchAll verbs' runs in the finally seam
+ *   the throw path shares, answering the per-query record, the
+ *   duration observation and the slow verdict's WARN record through
+ *   {@see PdoQuerySignals} (the seam defaults to null -- the honest
+ *   void: no query log, no clock read, no cost);
  * - the nested-transaction SAVEPOINT walk and its isolation rules live
  *   in {@see PdoTransactions}, the FETCH_ASSOC answer's narrowing in
  *   {@see PdoRows}, the statement execution mapping in
- *   {@see PdoStatementRun}, the last-insert identity fold in
- *   {@see PdoIdentity}, the lazy handle in {@see PdoHandle}, the
- *   isolation rules in {@see PdoIsolation} and the closure orchestration
- *   in {@see PdoTransactionRun} -- the adapter owns the port's verbs,
- *   one delegation each.
+ *   {@see PdoStatementRun}, the data verbs' run orchestration (the
+ *   measured window included) in {@see PdoQueryRun}, the last-insert
+ *   identity fold in {@see PdoIdentity}, the lazy handle in
+ *   {@see PdoHandle}, the isolation rules in {@see PdoIsolation} and
+ *   the closure orchestration in {@see PdoTransactionRun} -- the
+ *   adapter owns the port's verbs, one delegation each.
  */
 final readonly class PdoConnection implements ConnectionInterface
 {
@@ -46,6 +53,7 @@ final readonly class PdoConnection implements ConnectionInterface
         ?PDO $pdo = null,
         private ?MeterInterface $meter = null,
         private ?LoggerInterface $auditLogger = null,
+        private ?PdoQueryLog $pdoQueryLog = null,
     ) {
         $this->pdoHandle = new PdoHandle($connectionConfig, $pdo);
         $this->pdoTransactions = new PdoTransactions();
@@ -55,25 +63,19 @@ final readonly class PdoConnection implements ConnectionInterface
     #[Override]
     public function execute(SqlQuery $sqlQuery): int
     {
-        $pdoStatement = PdoStatementRun::prepare($this->pdoHandle->pdo(), $sqlQuery);
-        PdoStatementRun::execute($pdoStatement, $sqlQuery);
-
-        $affected = $pdoStatement->rowCount();
-
-        if ($sqlQuery->unbounded) {
-            PdoUnboundedAudit::emit($this->meter, $this->auditLogger, $sqlQuery, $affected);
-        }
-
-        return $affected;
+        return PdoQueryRun::execute(
+            $this->pdoHandle->pdo(),
+            $this->meter,
+            $this->auditLogger,
+            $this->pdoQueryLog,
+            $sqlQuery,
+        );
     }
 
     #[Override]
     public function fetchAll(SqlQuery $sqlQuery): array
     {
-        $pdoStatement = PdoStatementRun::prepare($this->pdoHandle->pdo(), $sqlQuery);
-        PdoStatementRun::execute($pdoStatement, $sqlQuery);
-
-        return PdoRows::narrow($pdoStatement->fetchAll(PDO::FETCH_ASSOC));
+        return PdoQueryRun::fetchAll($this->pdoHandle->pdo(), $this->pdoQueryLog, $sqlQuery);
     }
 
     #[Override]

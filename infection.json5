@@ -942,6 +942,21 @@
                 "Zef\\Framework\\Database\\UnitOfWorkWait::block"
             ],
             "ignoreSourceCodeByRegex": [
+                // The query-log window's inert opening instant: the
+                // `?? 0` fallback is write-only by construction -- the
+                // coalesce takes it only when the bracket is null, and
+                // the closing edge `$pdoQueryLog?->end` is then null-
+                // skipped itself, so the fallback value never flows
+                // anywhere any test could observe (verified by running
+                // the whole database family under the manually applied
+                // ±1 mutations -- 493 tests green under both). The
+                // coalesce SWAP on the same line stays fully under its
+                // mutator: `0 ?? begin()` pins the opening at zero and
+                // the measured span answers the uptime scale, which the
+                // fetch test's duration bounds kill. Scoped to the two
+                // orchestration methods' opening line.
+                "\\$startNs = \\$pdoQueryLog\\?->begin\\(\\) \\?\\? 0;",
+
                 // The Accept-negotiation sentinel and the range-specificity
                 // weights are value-equivalent under the integer mutators:
                 // the quality grammar admits only non-negative values, so
@@ -1054,6 +1069,21 @@
                 "Zef\\Framework\\Database\\UnitOfWorkWait::block"
             ],
             "ignoreSourceCodeByRegex": [
+                // The query-log window's inert opening instant: the
+                // `?? 0` fallback is write-only by construction -- the
+                // coalesce takes it only when the bracket is null, and
+                // the closing edge `$pdoQueryLog?->end` is then null-
+                // skipped itself, so the fallback value never flows
+                // anywhere any test could observe (verified by running
+                // the whole database family under the manually applied
+                // ±1 mutations -- 493 tests green under both). The
+                // coalesce SWAP on the same line stays fully under its
+                // mutator: `0 ?? begin()` pins the opening at zero and
+                // the measured span answers the uptime scale, which the
+                // fetch test's duration bounds kill. Scoped to the two
+                // orchestration methods' opening line.
+                "\\$startNs = \\$pdoQueryLog\\?->begin\\(\\) \\?\\? 0;",
+
                 // The Accept-negotiation sentinel and the range-specificity
                 // weights carry the IncrementInteger entry's construction
                 // verbatim (non-negative qualities make the sentinel and
