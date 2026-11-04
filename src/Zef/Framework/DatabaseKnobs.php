@@ -28,7 +28,10 @@ use Zef\Framework\Config\ConfigException;
  * The census is family-additive: the per-purpose connection knobs
  * the roadmap's later purposes name (each its own recorded slice)
  * join the known list here, and every boot that reads the family
- * through the declaration finds the list already guarding the map.
+ * through the declaration finds the list already guarding the map --
+ * the query-log block ({@see Database\QueryLogPolicy}) joined exactly
+ * that way, its own sub-map census and corridor living in the
+ * declaration fold that reads it.
  */
 final class DatabaseKnobs
 {
@@ -36,9 +39,10 @@ final class DatabaseKnobs
      * The children the `database` map owns, in declaration order --
      * the one list the census and the reading share: `default` the
      * default connection's name, `connections` the named connection
-     * maps, `migrations` the migration runner's per-purpose name.
+     * maps, `migrations` the migration runner's per-purpose name,
+     * `query_log` the per-query logging family's own knob block.
      */
-    private const array KNOBS = ['default', 'connections', 'migrations'];
+    private const array KNOBS = ['default', 'connections', 'migrations', 'query_log'];
 
     /**
      * The family's own map, guarded: the absent block answers the

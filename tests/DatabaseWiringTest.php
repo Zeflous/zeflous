@@ -8,6 +8,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Database\PdoConnection;
+use Zef\Framework\Adapters\Database\PdoQueryLog;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
@@ -49,6 +50,7 @@ use Zef\Test\Support\Telemetry\RecordingMeter;
 #[CoversClass(DatabaseDeclaration::class)]
 #[CoversClass(DatabaseKnobs::class)]
 #[CoversClass(DatabaseConnections::class)]
+#[CoversClass(PdoQueryLog::class)]
 final class DatabaseWiringTest extends TestCase
 {
     private ?string $temporaryConfigs = null;
@@ -362,6 +364,107 @@ final class DatabaseWiringTest extends TestCase
         self::assertSame('UPDATE audited SET v = ?', $context['sql'] ?? null);
         self::assertSame(1, $context['rows'] ?? null);
         self::assertSame('update', $context['op'] ?? null);
+
+        unlink($logPath);
+    }
+
+    public function testAnArmedQueryLogBlockRidesTheWiredConnection(): void
+    {
+        $recordingMeter = new RecordingMeter();
+        $connection = DatabaseWiring::connection(new Config([
+            'database' => [
+                'default' => 'app',
+                'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+                'query_log' => [],
+            ],
+        ]), $recordingMeter);
+
+        $connection->execute(new SqlQuery('CREATE TABLE logged (id INTEGER PRIMARY KEY, v TEXT)'));
+        $connection->execute(new SqlQuery('INSERT INTO logged (v) VALUES (?)', ['x']));
+
+        self::assertCount(2, $recordingMeter->observations, 'every wired statement answered its observation');
+        self::assertSame('zef.db.query.duration_seconds', $recordingMeter->observations[0]['name']);
+        self::assertSame(
+            ['db.statement.operation' => 'other'],
+            $recordingMeter->observations[0]['attributes'],
+            'the DDL head folds to the other word',
+        );
+        self::assertSame(
+            ['db.statement.operation' => 'insert'],
+            $recordingMeter->observations[1]['attributes'],
+        );
+    }
+
+    public function testTheSilentQueryLogPostureMeasuresNothing(): void
+    {
+        $recordingMeter = new RecordingMeter();
+        $connection = DatabaseWiring::connection($this->declaredConfig(), $recordingMeter);
+
+        $connection->execute(new SqlQuery('CREATE TABLE silent (id INTEGER PRIMARY KEY)'));
+        $connection->fetchAll(new SqlQuery('SELECT id FROM silent'));
+
+        self::assertSame(
+            [],
+            $recordingMeter->observations,
+            'the absent query_log block is the honest void: no emission object, no clock read',
+        );
+    }
+
+    public function testADisarmedQueryLogBlockMeasuresNothing(): void
+    {
+        $recordingMeter = new RecordingMeter();
+        $connection = DatabaseWiring::connection(new Config([
+            'database' => [
+                'default' => 'app',
+                'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+                'query_log' => ['enabled' => false],
+            ],
+        ]), $recordingMeter);
+
+        $connection->execute(new SqlQuery('CREATE TABLE disarmed (id INTEGER PRIMARY KEY)'));
+
+        self::assertSame(
+            [],
+            $recordingMeter->observations,
+            'a spelled-but-disarmed block never reads the clock: the explicit disarm',
+        );
+    }
+
+    public function testADeclaredLogAddressAnswersTheQueryRecordSink(): void
+    {
+        $logPath = sys_get_temp_dir() . '/zef-database-query-log-' . uniqid() . '.jsonl';
+        $connection = DatabaseWiring::connection(new Config([
+            'http' => [
+                'error_handling' => [
+                    'log_path' => $logPath,
+                ],
+            ],
+            'database' => [
+                'default' => 'app',
+                'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+                'query_log' => [],
+            ],
+        ]));
+
+        $connection->execute(new SqlQuery('CREATE TABLE logged (id INTEGER PRIMARY KEY, v TEXT)'));
+        $connection->execute(new SqlQuery('INSERT INTO logged (v) VALUES (?)', ['x']));
+
+        self::assertFileExists($logPath, "the query records landed in the deployment's one structured log address");
+
+        $lines = explode("\n", mb_trim((string) file_get_contents($logPath)));
+        self::assertCount(2, $lines, 'one record per executed statement');
+
+        $record = json_decode($lines[1], true, 4, \JSON_THROW_ON_ERROR);
+        self::assertIsArray($record);
+        self::assertSame('debug', $record['level'] ?? null);
+        self::assertSame('Query executed', $record['message'] ?? null);
+
+        $context = $record['context'] ?? null;
+        self::assertIsArray($context);
+        self::assertSame('INSERT INTO logged (v) VALUES (?)', $context['sql'] ?? null);
+        self::assertIsFloat($context['elapsed_ms'] ?? null);
+        self::assertSame('insert', $context['op'] ?? null);
+        self::assertArrayNotHasKey('params', $context, 'the bound values never travel in records');
 
         unlink($logPath);
     }

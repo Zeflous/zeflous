@@ -8,10 +8,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Database\QueryLogException;
 use Zef\Framework\DatabaseConnectionKnobs;
 use Zef\Framework\DatabaseConnections;
 use Zef\Framework\DatabaseDeclaration;
 use Zef\Framework\DatabaseKnobs;
+use Zef\Framework\DatabaseQueryLogKnobs;
 use Zef\Framework\FrameworkDefaults;
 
 /**
@@ -36,6 +38,7 @@ use Zef\Framework\FrameworkDefaults;
 #[CoversClass(DatabaseKnobs::class)]
 #[CoversClass(DatabaseConnections::class)]
 #[CoversClass(DatabaseConnectionKnobs::class)]
+#[CoversClass(DatabaseQueryLogKnobs::class)]
 #[CoversClass(FrameworkDefaults::class)]
 final class DatabaseDeclarationTest extends TestCase
 {
@@ -77,7 +80,7 @@ final class DatabaseDeclarationTest extends TestCase
 
         self::assertSame(
             "The database configuration carries the unknown knob 'conections'"
-                . ' (known knobs: default, connections, migrations).',
+                . ' (known knobs: default, connections, migrations, query_log).',
             $configException->getMessage(),
         );
     }
@@ -95,7 +98,7 @@ final class DatabaseDeclarationTest extends TestCase
 
         self::assertSame(
             "The database configuration carries the unknown knob 'conections'"
-                . ' (known knobs: default, connections, migrations).',
+                . ' (known knobs: default, connections, migrations, query_log).',
             $configException->getMessage(),
             'the census walks every child: a known knob never hides an unknown sibling',
         );
@@ -241,11 +244,121 @@ final class DatabaseDeclarationTest extends TestCase
         $profile = FrameworkDefaults::profile();
 
         self::assertSame(
-            ['default' => '', 'connections' => [], 'migrations' => ''],
+            ['default' => '', 'connections' => [], 'migrations' => '', 'query_log' => null],
             $profile['database'],
             'the framework ships no database of its own: the knob block lands silent,'
-                . ' and a host declaration is the only way one arrives',
+                . ' and a host declaration is the only way one arrives -- the query-log'
+                . ' block included, its silent posture the absent block',
         );
+    }
+
+    public function testAnAbsentQueryLogBlockAnswersTheSilentPosture(): void
+    {
+        $declaration = DatabaseDeclaration::fromConfig(new Config([
+            'database' => ['default' => 'app'],
+        ]));
+
+        self::assertNull(
+            $declaration->queryLogPolicy,
+            'an absent query_log block arms no query log: the honest void, no emission object at all',
+        );
+    }
+
+    public function testASpelledQueryLogBlockArmsWithItsOwnDefaults(): void
+    {
+        $declaration = DatabaseDeclaration::fromConfig(new Config([
+            'database' => ['query_log' => []],
+        ]));
+
+        $queryLogPolicy = $declaration->queryLogPolicy;
+        self::assertNotNull($queryLogPolicy, 'a spelled block arms the family');
+        self::assertTrue($queryLogPolicy->enabled);
+        self::assertSame(100, $queryLogPolicy->thresholdMs);
+    }
+
+    public function testASpelledThresholdReadsStrictly(): void
+    {
+        $declaration = DatabaseDeclaration::fromConfig(new Config([
+            'database' => ['query_log' => ['enabled' => false, 'threshold_ms' => 250]],
+        ]));
+
+        $queryLogPolicy = $declaration->queryLogPolicy;
+        self::assertNotNull($queryLogPolicy, 'a spelled block arms the family');
+        self::assertFalse($queryLogPolicy->enabled);
+        self::assertSame(250, $queryLogPolicy->thresholdMs);
+    }
+
+    public function testAMalformedQueryLogBlockHalts(): void
+    {
+        $configException = $this->readMalformed(['database' => ['query_log' => 'nope']]);
+
+        self::assertSame(
+            'The database.query_log configuration must be a map, string given.',
+            $configException->getMessage(),
+        );
+    }
+
+    public function testAnUnknownQueryLogKnobHaltsWithTheKnownListSpelled(): void
+    {
+        $configException = $this->readMalformed(['database' => ['query_log' => ['threshold' => 5]]]);
+
+        self::assertSame(
+            "The database.query_log configuration carries the unknown knob 'threshold'"
+                . ' (known knobs: enabled, threshold_ms).',
+            $configException->getMessage(),
+        );
+    }
+
+    public function testAnUnknownQueryLogKnobBehindAKnownOneStillHalts(): void
+    {
+        $configException = $this->readMalformed([
+            'database' => ['query_log' => ['enabled' => true, 'threshold' => 5]],
+        ]);
+
+        self::assertSame(
+            "The database.query_log configuration carries the unknown knob 'threshold'"
+                . ' (known knobs: enabled, threshold_ms).',
+            $configException->getMessage(),
+            'the sub-map census walks every child: a known knob never hides an unknown sibling',
+        );
+    }
+
+    public function testAWrongTypedArmKnobHalts(): void
+    {
+        $configException = $this->readMalformed(['database' => ['query_log' => ['enabled' => 'maybe']]]);
+
+        self::assertSame(
+            'database.query_log enabled must be a boolean.',
+            $configException->getMessage(),
+        );
+    }
+
+    public function testAWrongTypedThresholdKnobHalts(): void
+    {
+        $configException = $this->readMalformed(['database' => ['query_log' => ['threshold_ms' => '100']]]);
+
+        self::assertSame(
+            'database.query_log threshold_ms must be an integer.',
+            $configException->getMessage(),
+        );
+    }
+
+    public function testAnOutOfCorridorThresholdHaltsThroughThePolicy(): void
+    {
+        $queryLogException = null;
+
+        try {
+            DatabaseDeclaration::fromConfig(new Config([
+                'database' => ['query_log' => ['threshold_ms' => 0]],
+            ]));
+        } catch (QueryLogException $queryLogException) {
+            self::assertSame(
+                'The database.query_log threshold_ms knob must be between 1 and 3600000, 0 given.',
+                $queryLogException->getMessage(),
+            );
+        }
+
+        self::assertNotNull($queryLogException, 'the out-of-corridor threshold must halt the read');
     }
 
     /**

@@ -6,6 +6,8 @@ namespace Zef\Framework;
 
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Database\QueryLogException;
+use Zef\Framework\Database\QueryLogPolicy;
 
 /**
  * The database family's declaration fold: the strict read of the one
@@ -39,19 +41,33 @@ use Zef\Framework\Config\ConfigException;
  * connection's name when the knob stayed silent, so a deployment
  * may run its migrations on a connection of their own naming
  * without ever spelling the default.
+ *
+ * The query-log block (`query_log`, the per-query logging family's
+ * own knobs) reads through its own strict fold into the family's
+ * pure policy object ({@see QueryLogPolicy}): the ABSENT block is
+ * the family's silent posture (a null policy, no emission object at
+ * all), while a spelled block arms the family with its own defaults
+ * -- the arm-follows-declaration doctrine the slow-request family
+ * established. The block's own sub-map census and the corridor the
+ * threshold must hold refuse with the knob named, the same posture
+ * every other child of this map carries.
  */
 final readonly class DatabaseDeclaration
 {
     /**
-     * @param array<string, array<string, mixed>> $connections the named
-     *                                                         connection declarations, name to config map
-     * @param string                              $migrations  the migration runner's per-purpose
-     *                                                         connection name ('' the default connection)
+     * @param array<string, array<string, mixed>> $connections    the named
+     *                                                            connection declarations, name to config map
+     * @param string                              $migrations     the migration runner's per-purpose
+     *                                                            connection name ('' the default connection)
+     * @param null|QueryLogPolicy                 $queryLogPolicy the per-query logging family's
+     *                                                            own knob set, or null when the block
+     *                                                            stayed silent (the family's honest void)
      */
     public function __construct(
         public string $default,
         public array $connections,
         public string $migrations,
+        public ?QueryLogPolicy $queryLogPolicy = null,
     ) {
     }
 
@@ -61,9 +77,12 @@ final readonly class DatabaseDeclaration
      * the map-of-maps, and the two name knobs read through the
      * declaration's own string seam.
      *
-     * @throws ConfigException when the map is malformed or carries an
-     *                         unknown knob, the connections map is likewise malformed, or
-     *                         either name knob is not a string
+     * @throws ConfigException   when the map is malformed or carries an
+     *                           unknown knob, the connections map is likewise malformed, or
+     *                           either name knob is not a string
+     * @throws QueryLogException when the query-log block's threshold
+     *                           sits outside the corridor the policy's
+     *                           construction asserts
      */
     public static function fromConfig(Config $config): self
     {
@@ -112,6 +131,7 @@ final readonly class DatabaseDeclaration
             self::readName($map['default'] ?? '', 'default'),
             DatabaseConnections::read($map['connections'] ?? null),
             self::readName($map['migrations'] ?? '', 'migrations'),
+            DatabaseQueryLogKnobs::read($map['query_log'] ?? null),
         );
     }
 
