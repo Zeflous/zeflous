@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): the dev toolchain's symfony trio patched past the 2026-11-04 advisories [\#709](https://github.com/Zeflous/zeflous/pull/709) ([mbetixz](https://github.com/mbetixz))
+- feat\(database\): per-query logging with slow-query detection [\#702](https://github.com/Zeflous/zeflous/pull/702) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the database follow-up landings and the view half's first answer in the not-yet ledger [\#699](https://github.com/Zeflous/zeflous/pull/699) ([mbetixz](https://github.com/mbetixz))
 - feat\(telemetry\): the export lane's metrics and logs signals [\#696](https://github.com/Zeflous/zeflous/pull/696) ([mbetixz](https://github.com/mbetixz))
 - feat\(view\): the presentation port and the native PHP-template answer [\#693](https://github.com/Zeflous/zeflous/pull/693) ([mbetixz](https://github.com/mbetixz))
