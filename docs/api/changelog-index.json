@@ -1,17 +1,17 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-03T23:18:03Z",
+  "as_of": "2026-11-04T11:32:13Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 289,
+  "unreleased_count": 291,
   "versions": [
     {
       "version": "Unreleased",
       "date": null,
       "file": "CHANGELOG-unreleased.md",
-      "pr_count": 289
+      "pr_count": 291
     }
   ]
 }
