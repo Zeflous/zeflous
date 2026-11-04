@@ -8,11 +8,13 @@ use InvalidArgumentException;
 use Override;
 
 /**
- * The OTLP/HTTP-JSON span exporter: the delivery lane the
+ * The OTLP/HTTP-JSON exporter: the delivery lane the
  * campaign's hygiene-and-export family lands -- the out-of-process
  * sink an armed export family swaps the tracing core's in-memory
  * default for, one POST per drained batch over the wire protocol
- * every collector speaks.
+ * every collector speaks, widened into the three signals the
+ * reference's own exporter always answered: the spans, the meter's
+ * snapshots and the recorded logs.
  *
  * The exporter owns exactly the delivery contract, nothing else:
  * the payload's shapes and attribute encoding sit in their own
@@ -24,39 +26,66 @@ use Override;
  * itself -- the endpoint fold, the POST context, the scoped error
  * capture, the answer's triage -- sits in the transport unit the
  * archaeology gate's split landed ({@see OtlpHttpTransport}). What
- * this class owns is the contract between them: the `/v1/traces`
- * signal path, the JSON body with the resource block and the scope
- * the reference declared, and the idempotent shutdown.
+ * this class owns is the contract between them: the `/v1/traces`,
+ * `/v1/metrics` and `/v1/logs` signal paths, the JSON bodies with
+ * the resource block and the scope the reference declared, and
+ * the idempotent shutdown.
  *
  * Ported from the reference implementation (legacy
  * `zef-framework-src` `Infrastructure/Observability/
  * OtlpHttpJsonExporter.php`): the payload shapes, the signal-path
  * suffix rule, the scoped transport-error capture, the triage
  * arms and the idempotent shutdown move verbatim (the capture and
- * the triage into the transport unit, the shapes into the
- * encoder). The port's sequencing deviation: the reference's
- * exporter also answered the metrics and logs contracts, and this
- * port carries the span lane alone -- those contracts belong to
- * the campaign's metrics family, and the exporter arrives when
- * they do, widened, not before its consumers.
+ * the triage into the transport unit, the span shapes into the
+ * encoder, the metrics and logs shapes into the two signal folds
+ * this widening lands). The port's sequencing deviation closed:
+ * the span lane landed alone because the metrics and logs
+ * contracts belonged to the campaign's later families, and this
+ * widening is the arrival the exporter's own record promised --
+ * one exporter answering the three contracts the reference's
+ * single instance always fanned out to, the meter's snapshot and
+ * the recorded log travelling the same lane the spans do. The
+ * delivery cadence that queues the snapshots and the records --
+ * the facade the reference's own Telemetry carried -- remains the
+ * lane's named follow-up slice; until it lands, the two verbs
+ * answer the suite and the host's own composition ({@see
+ * \Zef\Framework\Middleware\TracingFactory}, the seam the armed
+ * family already reads).
  */
-final readonly class OtlpHttpJsonExporter implements SpanExporterInterface
+final readonly class OtlpHttpJsonExporter implements
+    LogExporterInterface,
+    MetricExporterInterface,
+    SpanExporterInterface
 {
     /** The wire exchange unit the delivery contract rides. */
     private OtlpHttpTransport $otlpHttpTransport;
 
+    /** The wall clock the metrics data point's collection stamp reads. */
+    private TelemetryClockInterface $telemetryClock;
+
     /**
-     * @param string               $endpoint  the collector's base
-     *                                        URL -- the `/v1/traces`
-     *                                        signal path is appended
-     *                                        unless already present
-     * @param array<string, mixed> $resource  the resource block every
-     *                                        payload carries (the
-     *                                        service identity and the
-     *                                        SDK declaration)
-     * @param int                  $timeoutMs the exchange's own wait,
-     *                                        clamped to the engine's
-     *                                        stream timeout
+     * @param string                       $endpoint       the collector's base
+     *                                                     URL -- the `/v1/traces`,
+     *                                                     `/v1/metrics` and `/v1/logs`
+     *                                                     signal paths are appended
+     *                                                     unless already present
+     * @param array<string, mixed>         $resource       the resource block every
+     *                                                     payload carries (the
+     *                                                     service identity and the
+     *                                                     SDK declaration)
+     * @param int                          $timeoutMs      the exchange's own wait,
+     *                                                     clamped to the engine's
+     *                                                     stream timeout
+     * @param null|TelemetryClockInterface $telemetryClock the wall clock the
+     *                                                     metrics data point's
+     *                                                     collection stamp reads
+     *                                                     -- the delivery's own
+     *                                                     reading, the system
+     *                                                     clock when no seam is
+     *                                                     wired ({@see TelemetryClock},
+     *                                                     the same default the
+     *                                                     tracing family's own
+     *                                                     composition declares)
      *
      * @throws InvalidArgumentException when the timeout sits outside
      *                                  its allowed range
@@ -65,7 +94,9 @@ final readonly class OtlpHttpJsonExporter implements SpanExporterInterface
         private string $endpoint,
         private array $resource,
         int $timeoutMs = 500,
+        ?TelemetryClockInterface $telemetryClock = null,
     ) {
+        $this->telemetryClock = $telemetryClock ?? new TelemetryClock();
         $this->otlpHttpTransport = new OtlpHttpTransport($timeoutMs);
     }
 
@@ -79,6 +110,36 @@ final readonly class OtlpHttpJsonExporter implements SpanExporterInterface
         $this->otlpHttpTransport->post(
             $this->endpointFor('/v1/traces'),
             OtlpJsonPayloadEncoder::payload($this->resource, $spans),
+        );
+    }
+
+    #[Override]
+    public function exportMetrics(array $metrics): void
+    {
+        if ($metrics === []) {
+            return;
+        }
+
+        $this->otlpHttpTransport->post(
+            $this->endpointFor('/v1/metrics'),
+            OtlpMetricsPayload::payload(
+                $this->resource,
+                $metrics,
+                $this->telemetryClock->unixNano(),
+            ),
+        );
+    }
+
+    #[Override]
+    public function exportLogs(array $records): void
+    {
+        if ($records === []) {
+            return;
+        }
+
+        $this->otlpHttpTransport->post(
+            $this->endpointFor('/v1/logs'),
+            OtlpLogsPayload::payload($this->resource, $records),
         );
     }
 

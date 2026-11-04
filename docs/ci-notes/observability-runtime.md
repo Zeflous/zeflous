@@ -530,6 +530,94 @@ routing runtime has not landed yet -- the pre-routing endpoint
 pattern the CORS preflight already models, and the pattern the
 routing lane will supersede when its dispatcher lands.
 
+
+**KDD-OB37 -- One exporter, three signals: the reference's fan-out,
+arrived as the record promised.** The exporter's own porting note
+carried the sequencing deviation ("the span lane alone ... the
+exporter arrives when they do, widened"), and this slice is the
+arrival: `MetricExporterInterface` and `LogExporterInterface`
+land beside `SpanExporterInterface`, and the one
+`OtlpHttpJsonExporter` answers all three -- the reference's single
+instance fanning out to `/v1/traces`, `/v1/metrics` and
+`/v1/logs`. Each signal's consumer narrows its own port; the three
+`shutdown()` declarations are the one method on the exporter (the
+idempotence flag still deferred with the close-body the facade
+will land, exactly as the span lane's own record spells).
+
+**KDD-OB38 -- The meter's snapshot IS the metrics contract's
+input.** `exportMetrics()` takes the exact shape
+`MeterInterface::snapshot()` answers, keyed by the series identity
+with the accumulated count, sum and dimensions -- no translation
+layer, no second shape the meter and the exporter could drift
+apart over. The exporter is the meter's downstream consumer by
+construction, the same one-shape agreement the span lane's
+`SpanData` carries.
+
+**KDD-OB39 -- The sum data point: cumulative, monotonic, the count
+not carried.** The protocol's metric is the sum block:
+`aggregationTemporality` 2 (every snapshot carries the series'
+whole total, never a delta), `isMonotonic` true (the
+`CounterMeter` series only ever grow -- the reference's own
+comment), one data point per series carrying `asDouble` and the
+delivery's wall stamp as the protocol's string nanoseconds. The
+snapshot's `count` does not ship: the OTLP counter IS the total,
+and the tally is the meter's own bookkeeping -- the pull lane's
+Prometheus renderer makes the same division of labour. The
+reference's narrowing cast on the sum is dropped as the dead guard
+it was under the shape's contract -- the first CI round's own
+verdict (`cast.useless`: the meter's snapshot answers a float sum
+by construction, `CounterMeter`'s accumulate advancing it by a
+float), the span lane's dropped-guard precedent replayed.
+
+**KDD-OB40 -- The log record's hygiene is a construction, not an
+encoding.** `LogRecord` carries the severity, the body, the
+timestamp and the dimensions raw, and the payload fold encodes the
+body verbatim with no clamp of its own -- the span lane's own
+doctrine replayed for the logs lane (the hygiene sits at the
+recording points, `TelemetrySanitizer` filtering before a record
+ever reaches the queue). The reference's own posture agrees: its
+facade sanitises at `recordLog()`, and this port's recording verb
+arrives with the delivery cadence the follow-up slice lands -- the
+fold's verbatim battery pins the posture (a body longer than the
+hygiene unit's own 2048 clamp rides whole).
+
+**KDD-OB41 -- The data-point clock behind the constructor seam.**
+The reference read the wall clock statically inside the exporter;
+the port gives the constructor the trailing
+`?TelemetryClockInterface` (null answering the system clock, the
+`BatchSpanProcessor` sleeper-seam spelling): the stepping double
+freezes the collection stamp to an exact nanosecond while the span
+lane's timeline and the logs lane's records (stamped at their own
+recording points) read no clock at all -- the wall-read counters
+are the battery's own observable.
+
+**KDD-OB42 -- The payload shapes in their own folds.** The
+`/v1/metrics` and `/v1/logs` wire shapes land as `OtlpMetricsPayload`
+and `OtlpLogsPayload` beside the encoder -- the same split the
+archaeology gate demanded when the span shapes moved out of the
+exporter, taken by construction this time: the encoder already
+rides the ceiling, and the two signal shapes compose its KeyValue
+arm for the resource and the dimensions. The reference built both
+lists inline in the exporter; the port carries them as the units
+the ceiling demands, the exporter keeping only the delivery
+contract (the paths, the verbs, the triage it delegates).
+
+**KDD-OB43 -- The consumer still the named follow-up: the delivery
+facade.** The widened verbs' callers today are the suite and the
+host's own composition, and the psalm baseline carries the five
+findings that truth spells -- the two contracts' verbs and their
+shutdown declarations, and the record's constructor (nothing in
+`src/` constructs a `LogRecord` yet: the recording verb arrives
+with the facade), while the concrete exporter stays clean because
+psalm reads its verbs as the interface implementations they are --
+the `consumer-arrives-with-the-wiring` posture the database lane's
+KDD-DW8 established and the view lane's engine pins replayed. The facade that retires them is
+the lane's next slice: the meter/log delivery queues (the
+reference's 1024-cap postures), the lifecycle counters, the
+deadline-bounded shutdown drain, and the `observability.export`
+knob widening that arms the push -- each its own census entry, the
+lost-connection lane's own recorded rule.
+
 ## Legacy attribution
 
 The reference implementation is the GitLab snapshot `zeflous/zef`
@@ -573,13 +661,19 @@ scoped transport-error capture, the answer triage, the idempotent
 shutdown, the endpoint validation and the resource map) and the
 same GitLab snapshot's `Application/Observability/
 BatchSpanProcessor.php` retry lane with its `RetryBackoffPolicy`.
-The port deviations -- the span lane alone (the metrics and logs
-contracts belong to the campaign's metrics family, the exporter
-widens when they arrive), the environment fold into the config
+The metrics and logs signals (this lane's own
+widening, #696) return through the same evolved exporter -- the
+`exportMetrics` sum data point and the `exportLogs` record shape
+moving verbatim into the two payload folds (KDD-OB42) -- with the
+reference's `Domain/Observability` contracts
+(`MetricExporterInterface`, `LogExporterInterface`, `LogRecord`)
+as their port source. The port deviations -- the environment fold
+into the config
 overlay (KDD-OB27), the retry default inverted to zero
 (KDD-OB22), the sleeper seam under the wait (KDD-OB25), the pair
 grammar's structural separators and the signal path's query fold
-(KDD-OB24) -- follow this repository's own family discipline, not
+(KDD-OB24), the data-point clock behind the constructor seam
+(KDD-OB41) -- follow this repository's own family discipline, not
 the reference's arrival shape.
 
 The tracing core's reference is the same snapshot's
