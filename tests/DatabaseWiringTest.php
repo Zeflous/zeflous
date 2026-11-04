@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoQueryLog;
+use Zef\Framework\Adapters\Database\PdoQueryLogArming;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
@@ -51,6 +52,7 @@ use Zef\Test\Support\Telemetry\RecordingMeter;
 #[CoversClass(DatabaseKnobs::class)]
 #[CoversClass(DatabaseConnections::class)]
 #[CoversClass(PdoQueryLog::class)]
+#[CoversClass(PdoQueryLogArming::class)]
 final class DatabaseWiringTest extends TestCase
 {
     private ?string $temporaryConfigs = null;

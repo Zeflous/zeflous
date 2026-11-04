@@ -10,6 +10,7 @@ use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoQueryLog;
 use Zef\Framework\Adapters\Database\PdoQueryOperation;
+use Zef\Framework\Adapters\Database\PdoQueryRun;
 use Zef\Framework\Adapters\Database\PdoQuerySignals;
 use Zef\Framework\Database\QueryException;
 use Zef\Framework\Database\QueryLogPolicy;
@@ -39,6 +40,7 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 #[CoversClass(PdoQueryLog::class)]
 #[CoversClass(PdoQuerySignals::class)]
 #[CoversClass(PdoQueryOperation::class)]
+#[CoversClass(PdoQueryRun::class)]
 #[CoversClass(PdoConnection::class)]
 final class PdoQueryLogTest extends TestCase
 {

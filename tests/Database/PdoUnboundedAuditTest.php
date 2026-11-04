@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
+use Zef\Framework\Adapters\Database\PdoQueryRun;
 use Zef\Framework\Adapters\Database\PdoUnboundedAudit;
 use Zef\Framework\Database\SqlQuery;
 use Zef\Test\Support\Log\RecordingLogger;
@@ -26,6 +27,7 @@ use Zef\Test\Support\Telemetry\RecordingMeter;
  * @internal
  */
 #[CoversClass(PdoUnboundedAudit::class)]
+#[CoversClass(PdoQueryRun::class)]
 #[CoversClass(PdoConnection::class)]
 final class PdoUnboundedAuditTest extends TestCase
 {
