@@ -7,9 +7,11 @@ namespace Zef\Test;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoQueryLog;
 use Zef\Framework\Adapters\Database\PdoQueryLogArming;
+use Zef\Framework\Adapters\Database\SchemaReflection;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
@@ -17,6 +19,7 @@ use Zef\Framework\Database\ConnectionException;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\Migrator;
 use Zef\Framework\Database\SqlQuery;
+use Zef\Framework\Database\TableName;
 use Zef\Framework\Database\TransactionManager;
 use Zef\Framework\Database\UnitOfWork;
 use Zef\Framework\DatabaseConnections;
@@ -33,9 +36,12 @@ use Zef\Test\Support\Telemetry\RecordingMeter;
  * answer the family's entry points from the frozen repository (the
  * silent refusal with the knob grammar spelled, the default
  * connection's happy path over a real SQLite database, the
- * per-purpose migrations connection and its standalone posture, the
- * transaction manager over the handed connection, the generic
- * gateway) and -- the rule-17 integration the slice exists for --
+ * per-purpose migrations connection and its standalone posture,
+ * the transaction manager over the handed connection, the generic
+ * gateway, and the read-only schema reflection over the wired
+ * default (its dialect's driver word derived from the same
+ * declaration the connection identity answers) and -- the rule-17
+ * integration the slice exists for --
  * the boot-level end-to-end path from declaration to read: the
  * silent profile boots without ever running the wiring's factories
  * (the lazy proxies the singleton warmer answers are the
@@ -248,6 +254,47 @@ final class DatabaseWiringTest extends TestCase
         self::assertSame(['id' => 1, 'v' => 'a-thing'], $gateway->find(1));
     }
 
+    public function testTheSchemaFoldComposesOverTheWiredDefaultConnection(): void
+    {
+        $config = $this->declaredConfig();
+        $connection = DatabaseWiring::connection($config);
+
+        $connection->execute(
+            new SqlQuery('CREATE TABLE wired_schema (id INTEGER PRIMARY KEY, v TEXT)'),
+        );
+
+        $reflection = DatabaseWiring::schema($config, $connection);
+
+        self::assertSame(
+            ['wired_schema'],
+            array_map(
+                static fn (TableName $tableName): string => $tableName->name,
+                $reflection->tables(),
+            ),
+            'the reflection asks through the port the connection itself rides',
+        );
+    }
+
+    public function testTheSilentSchemaDeclarationRefusesWithItsOwnGrammar(): void
+    {
+        $pdoConnection = new PdoConnection(ConnectionConfig::fromArray([
+            'driver' => 'sqlite',
+            'dbname' => ':memory:',
+        ]));
+
+        try {
+            DatabaseWiring::schema(new Config([]), $pdoConnection);
+            self::fail('the silent declaration refuses the schema identity');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The database.schema wired default is not declared: spell a connection'
+                    . ' (database.connections plus database.default) or compose the reflection'
+                    . ' over your own connection.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
     public function testTheSilentProfileBootsWithoutRunningTheWiringFactories(): void
     {
         $kernel = new ApplicationBootstrapper()->boot(__DIR__ . '/../app/configs');
@@ -291,6 +338,29 @@ final class DatabaseWiringTest extends TestCase
             $kernel->container()->get('database.connection'),
             $connection,
             'a lazy singleton materialises once: every later ask answers the one instance',
+        );
+    }
+
+    public function testTheBootedSchemaReflectionAnswersOverTheSharedSocket(): void
+    {
+        $kernel = self::bootDeclared();
+
+        $connection = $kernel->container()->get('database.connection');
+        self::assertInstanceOf(PdoConnection::class, $connection);
+        $connection->execute(
+            new SqlQuery('CREATE TABLE booted_schema (id INTEGER PRIMARY KEY, v TEXT)'),
+        );
+
+        $reflection = $kernel->container()->get('database.schema');
+        self::assertInstanceOf(SchemaReflection::class, $reflection);
+
+        self::assertSame(
+            ['booted_schema'],
+            array_map(
+                static fn (TableName $tableName): string => $tableName->name,
+                $reflection->tables(),
+            ),
+            'the reflection answers over the same socket the connection service rides: the one shared instance',
         );
     }
 

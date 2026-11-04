@@ -115,7 +115,14 @@ use Zef\Framework\Middleware\TracingFactory;
  * names, and the queue is the per-ask artifact its transient
  * lifetime spells (a fresh queue per resolution -- the
  * deferred-write queue's own nature, never a shared accumulating
- * one). The remaining growth follows the
+ * one). The schema-reflection family joins the catalogue the same
+ * way its own design record spells: the `database.schema`
+ * registration beside `database.transactions`, over the shared lazy
+ * connection, with the dialect's driver word derived from the same
+ * declaration the connection identity answers -- a service
+ * identity answering an identity, no knob of its own, deferring
+ * behind a lazy proxy so the silent knob's refusal fires only at
+ * the host's own first ask. The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
  * `http.trusted_hosts`, ...) migrate with their wiring, and the
  * container's `aot` switch has arrived with the compile/dump area
@@ -467,6 +474,14 @@ final readonly class FrameworkDefaults
                 'arguments' => [
                     ['service' => 'database.connection'],
                 ],
+            ],
+            'database.schema' => [
+                'factory' => DatabaseWiring::class . '::schema',
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                    ['service' => 'database.connection'],
+                ],
+                'lazy' => true,
             ],
             'database.unit_of_work' => [
                 'class' => UnitOfWork::class,
