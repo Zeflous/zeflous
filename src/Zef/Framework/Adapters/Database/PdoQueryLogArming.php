@@ -44,7 +44,11 @@ final class PdoQueryLogArming
         ?MeterInterface $meter,
         ?LoggerInterface $logger,
     ): ?PdoQueryLog {
-        if (!$queryLogPolicy instanceof QueryLogPolicy || !$queryLogPolicy->enabled || ($meter ?? $logger) === null) {
+        if (
+            !$queryLogPolicy instanceof QueryLogPolicy
+            || !$queryLogPolicy->enabled
+            || (!$meter instanceof MeterInterface && !$logger instanceof LoggerInterface)
+        ) {
             return null;
         }
 

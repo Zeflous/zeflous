@@ -203,23 +203,83 @@ reference logs it); and **per-verb timing splits** (prepare vs execute vs
 fetch — a single window per statement, the one number an operator graphs;
 the phase a failing statement died in is the typed exception's own fact).
 
+## KDD-QL10: the first CI round -- twenty escapes, three roots, and one vocabulary lesson
+
+The first full-tree infection run answered with twenty escapes the scoped
+local round had reported clean (the local round's filter invocation only
+honoured one file of the list -- the lesson KDD-DW8 already spelled, once
+more: a green local battery is only the battery you RAN). Three roots,
+each with its own answer:
+
+**The attribution root (eight escapes).** The null-seam kills lived in the
+wiring tests -- the meter-less connection's record path, the address-less
+connection's signals path -- which do not declare `PdoQuerySignals` in
+their covers lists, so the suite's `requireCoverageMetadata` filtered the
+attribution out and infection never ran them for those mutants. The kills
+now live where the class is declared: two direct emission tests handing
+the fold a null meter (both records answer, both signals skipped) and a
+null logger (both signals answer, no records) -- the kills are
+attribution-independent by construction.
+
+**The write-only root (four escapes, two documented equivalents).** The
+`?? 0` opening instant's fallback is inert by construction: the coalesce
+takes it only when the bracket is null, and the closing edge is then
+null-skipped itself, so the fallback value never flows anywhere a test
+could observe -- verified by running the whole database family (493
+tests) under the manually applied ±1 mutations, green under both. The two
+`ignoreSourceCodeByRegex` entries (one per integer mutator, the line-
+scoped spelling that keeps every future integer literal in the two
+orchestration methods under the mutators) carry this proof in
+`infection.json5`. The coalesce SWAP on the same line stays under its
+mutator and is killed: `0 ?? begin()` pins the opening at zero and the
+measured span answers the uptime scale -- a magnitude the fetch test's
+duration bounds now refuse (the execute test already refused it; the
+first spelling's fetch test had no bounds, which is exactly why its swap
+escaped).
+
+**The discriminator root (eight escapes).** The boundary pin the first
+spelling carried (`100*1000000+1 -> 100.0`) cannot separate a ±1 divisor
+rewrite: both spellings round to the same two decimals at that distance
+from the boundary. The discriminators are measured, not guessed:
+100 254 999 ns answers 100.25 under `/1_000_000` but 100.26 under
+`/999_999`; 100 255 001 ns answers 100.26 but 100.25 under `/1_000_001`;
+150 512 345 ns answers 150.51 at two decimals but 150.5 / 150.512 /
+150.0 under the precision and floor rewrites. Three emit calls, six
+records (the query record AND the slow record -- the mutants live in both
+context folds), each pinned to its exact float.
+
+**The vocabulary lesson (one escape, killed -- a precedent's claim does
+not transfer).** The unbounded-audit's `mb_strtoupper` ignore (KDD-DW6)
+rests on the claim that "no non-ASCII character upper-cases into any of
+its letters" -- true for UPDATE (U, P, D, A, T, E are unreachable from
+the case map's non-ASCII exceptions), FALSE for SELECT: U+017F (the long
+s) upper-cases into S, so `mb_strtoupper("\u{017F}ELECT 1")` answers
+`SELECT 1` while `strtoupper` keeps the long s and the head folds to
+`other`. The operation fold therefore KILLS the mutant with the long-s
+head pin -- the ignore precedent is vocabulary-specific, and this fold's
+five-word vocabulary is a different vocabulary. (The arming fold's
+coalesce escape -- `($meter ?? $logger)` swapped -- was truth-table
+equivalent under all four nullness combinations; the restructure to the
+explicit `=== null && === null` spelling replaces it with a mutant the
+arming table test kills through the reader-armed arms.)
+
 ## Verification
 
-The full local battery: `ci:static` core green (7,061 tests / 17,064
-assertions, smoke 20,000 iterations at 2,760 bytes growth, concurrency 23
-workflows, roadmap gate pin-fresh on main, strict audit 0 advisories,
-duplication and mess clean), PHPStan max clean, Psalm level 1 EXIT-0 with
-no new ledger entries (every new verb has its framework-internal caller),
-deptrac 0 violations (no new direction: the adapter's Telemetry reach rides
-the meter contract's existing widening, and the PSR-3 record rides the
-vendored shim deptrac already excludes), archeology 0 error-level findings
-after the four settle rounds (every unit under the 20 ceiling, the three
-touched classes at or under their main baselines), scoped infection over
-the slice's fourteen files MSI 100/100 — 191 mutants killed, 0 escapes, 0
-timeouts, 0 ignored, the one first-round escape (the sub-map census's
-`continue` → `break`) dying to the same known-behind-known kill test the
-family map's own census carries (KDD-DW6's precedent, replayed) — and the
-end-to-end rule-17 path pinned twice: the fold level (declaration -> wiring
--> adapter -> real SQLite socket -> the tapes and the JSONL sink) and the
-boot level unchanged (the silent profile still boots without running the
-wiring's factories — the lazy proxies own that, untouched).
+The full local battery after the CI round's answers landed: `ci:static`
+core green (7,065 tests / 17,086 assertions, smoke 20,000 iterations at
+2,760 bytes growth, concurrency 23 workflows, roadmap gate pin-fresh,
+strict audit 0 advisories, duplication and mess clean), PHPStan max clean,
+Psalm level 1 EXIT-0 with no new ledger entries, deptrac 0 violations (no
+new direction), archeology 0 error-level findings (every unit under the 20
+ceiling), and the mutation story in two rounds: the scoped round's one
+escape (the sub-map census's `continue` → `break`, dying to the same
+known-behind-known kill test KDD-DW6 recorded one level up) and the first
+FULL-TREE CI round's twenty escapes — every one of them now answered
+(KDD-QL10): twelve killed by the new deterministic pins, four dissolved by
+the arming restructure and the fetch bounds, four carried as the two
+line-scoped documented equivalents whose write-only construction the whole
+database family running green under the manually applied mutations proves.
+The end-to-end rule-17 path pinned twice: the fold level (declaration ->
+wiring -> adapter -> real SQLite socket -> the tapes and the JSONL sink)
+and the boot level unchanged (the silent profile still boots without
+running the wiring's factories — the lazy proxies own that, untouched).
