@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-03T20:31:33Z",
+  "as_of": "2026-11-03T23:18:03Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 288,
+  "unreleased_count": 289,
   "versions": [
     {
       "version": "Unreleased",
@@ -4378,6 +4378,47 @@
                 "sha": "ff37f82ba8f85a85da4e0875f3bad2fd31baf399",
                 "short_sha": "ff37f82",
                 "subject": "docs(roadmap): record the lost-connection message lane slice and pin the lane"
+              }
+            ]
+          },
+          {
+            "pr": 692,
+            "title": "feat(modules): the CLI command extension point with its manifest fold over the standard CLI schema",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-03T23:18:03Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/692",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "15d1815aa386a0e1da67dbe8d98a140a8a935254",
+                "short_sha": "15d1815",
+                "subject": "feat(modules): the CLI command extension point with its manifest fold over the standard CLI schema"
+              },
+              {
+                "sha": "a242c0f12a38cf18e53974f65abb232039ef9a06",
+                "short_sha": "a242c0f",
+                "subject": "docs(roadmap): record the CLI command extension point and refresh the pin"
+              },
+              {
+                "sha": "714fa8099bf302c168905a30112de8c4d91d97f2",
+                "short_sha": "714fa80",
+                "subject": "fix(console): the extracted folds ride as coverage targets and pay the debts their 0% hid"
+              },
+              {
+                "sha": "818765fdd058ad888d72eaac1183d61109411c73",
+                "short_sha": "818765f",
+                "subject": "test(console): the directory renderer's whole-table pin, the full-tree round's nine kills"
+              },
+              {
+                "sha": "3a78aa73d34dba2dc058e2f55b1ceed0c173a6dd",
+                "short_sha": "3a78aa7",
+                "subject": "Merge remote-tracking branch 'origin/main' into feat/module-cli-registry"
+              },
+              {
+                "sha": "7a2131592257871b43416ef21d9880d0526ef6ed",
+                "short_sha": "7a21315",
+                "subject": "docs(roadmap): refresh the pin over the view lane's mid-flight landing"
               }
             ]
           },
@@ -18738,6 +18779,47 @@
               "sha": "ff37f82ba8f85a85da4e0875f3bad2fd31baf399",
               "short_sha": "ff37f82",
               "subject": "docs(roadmap): record the lost-connection message lane slice and pin the lane"
+            }
+          ]
+        },
+        {
+          "pr": 692,
+          "title": "feat(modules): the CLI command extension point with its manifest fold over the standard CLI schema",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-03T23:18:03Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/692",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "15d1815aa386a0e1da67dbe8d98a140a8a935254",
+              "short_sha": "15d1815",
+              "subject": "feat(modules): the CLI command extension point with its manifest fold over the standard CLI schema"
+            },
+            {
+              "sha": "a242c0f12a38cf18e53974f65abb232039ef9a06",
+              "short_sha": "a242c0f",
+              "subject": "docs(roadmap): record the CLI command extension point and refresh the pin"
+            },
+            {
+              "sha": "714fa8099bf302c168905a30112de8c4d91d97f2",
+              "short_sha": "714fa80",
+              "subject": "fix(console): the extracted folds ride as coverage targets and pay the debts their 0% hid"
+            },
+            {
+              "sha": "818765fdd058ad888d72eaac1183d61109411c73",
+              "short_sha": "818765f",
+              "subject": "test(console): the directory renderer's whole-table pin, the full-tree round's nine kills"
+            },
+            {
+              "sha": "3a78aa73d34dba2dc058e2f55b1ceed0c173a6dd",
+              "short_sha": "3a78aa7",
+              "subject": "Merge remote-tracking branch 'origin/main' into feat/module-cli-registry"
+            },
+            {
+              "sha": "7a2131592257871b43416ef21d9880d0526ef6ed",
+              "short_sha": "7a21315",
+              "subject": "docs(roadmap): refresh the pin over the view lane's mid-flight landing"
             }
           ]
         },
