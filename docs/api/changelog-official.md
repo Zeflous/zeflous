@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): record the database follow-up landings and the view half's first answer in the not-yet ledger [\#699](https://github.com/Zeflous/zeflous/pull/699) ([mbetixz](https://github.com/mbetixz))
+- feat\(telemetry\): the export lane's metrics and logs signals [\#696](https://github.com/Zeflous/zeflous/pull/696) ([mbetixz](https://github.com/mbetixz))
 - feat\(view\): the presentation port and the native PHP-template answer [\#693](https://github.com/Zeflous/zeflous/pull/693) ([mbetixz](https://github.com/mbetixz))
 - feat\(modules\): the CLI command extension point with its manifest fold over the standard CLI schema [\#692](https://github.com/Zeflous/zeflous/pull/692) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the lost-connection message lane over the retry taxonomy [\#689](https://github.com/Zeflous/zeflous/pull/689) ([mbetixz](https://github.com/mbetixz))
