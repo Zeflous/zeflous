@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-05T06:57:06Z",
+  "as_of": "2026-11-05T19:11:35Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 295,
+  "unreleased_count": 296,
   "versions": [
     {
       "version": "Unreleased",
@@ -4724,6 +4724,42 @@
                 "sha": "96a912575d91f3a9420752494deaee26d7a389ae",
                 "short_sha": "96a9125",
                 "subject": "chore: merge main (the changelog regenerations #713/#714) into feat/database-type-mapping"
+              }
+            ]
+          },
+          {
+            "pr": 705,
+            "title": "feat(database): the connection healing posture over the lazy handle",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-05T19:11:35Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/705",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a328d71d00bc28f1c77ad1e1e5731c33fbe35370",
+                "short_sha": "a328d71",
+                "subject": "docs(database): the connection-healing design record"
+              },
+              {
+                "sha": "05c8f6239ba066cff15053984a766e1ce456811b",
+                "short_sha": "05c8f62",
+                "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-connection-healing"
+              },
+              {
+                "sha": "fed9dc6dfd5de6378ff1ac778e766e972df0efd0",
+                "short_sha": "fed9dc6",
+                "subject": "Merge remote-tracking branch 'origin/main' into feat/database-connection-healing"
+              },
+              {
+                "sha": "4a1412cebe3f3b54c44abd5a00285741a424fc7d",
+                "short_sha": "4a1412c",
+                "subject": "feat(database): the connection healing posture over the lazy handle"
+              },
+              {
+                "sha": "ab21d21a05ab196ee9ee269c2e134852cf52cbcf",
+                "short_sha": "ab21d21",
+                "subject": "docs(roadmap): the connection-healing row rides the lane's substantif head"
               }
             ]
           }
@@ -19382,6 +19418,42 @@
               "sha": "96a912575d91f3a9420752494deaee26d7a389ae",
               "short_sha": "96a9125",
               "subject": "chore: merge main (the changelog regenerations #713/#714) into feat/database-type-mapping"
+            }
+          ]
+        },
+        {
+          "pr": 705,
+          "title": "feat(database): the connection healing posture over the lazy handle",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-05T19:11:35Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/705",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a328d71d00bc28f1c77ad1e1e5731c33fbe35370",
+              "short_sha": "a328d71",
+              "subject": "docs(database): the connection-healing design record"
+            },
+            {
+              "sha": "05c8f6239ba066cff15053984a766e1ce456811b",
+              "short_sha": "05c8f62",
+              "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-connection-healing"
+            },
+            {
+              "sha": "fed9dc6dfd5de6378ff1ac778e766e972df0efd0",
+              "short_sha": "fed9dc6",
+              "subject": "Merge remote-tracking branch 'origin/main' into feat/database-connection-healing"
+            },
+            {
+              "sha": "4a1412cebe3f3b54c44abd5a00285741a424fc7d",
+              "short_sha": "4a1412c",
+              "subject": "feat(database): the connection healing posture over the lazy handle"
+            },
+            {
+              "sha": "ab21d21a05ab196ee9ee269c2e134852cf52cbcf",
+              "short_sha": "ab21d21",
+              "subject": "docs(roadmap): the connection-healing row rides the lane's substantif head"
             }
           ]
         },
