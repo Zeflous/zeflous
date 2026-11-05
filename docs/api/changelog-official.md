@@ -7,6 +7,7 @@
 **Merged pull requests:**
 
 - chore\(deps\): the dev toolchain's symfony trio patched past the 2026-11-04 advisories [\#709](https://github.com/Zeflous/zeflous/pull/709) ([mbetixz](https://github.com/mbetixz))
+- feat\(database\): the data-type mapping with JSON support [\#704](https://github.com/Zeflous/zeflous/pull/704) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the schema reflection family over the connection port [\#703](https://github.com/Zeflous/zeflous/pull/703) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): per-query logging with slow-query detection [\#702](https://github.com/Zeflous/zeflous/pull/702) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): record the database follow-up landings and the view half's first answer in the not-yet ledger [\#699](https://github.com/Zeflous/zeflous/pull/699) ([mbetixz](https://github.com/mbetixz))
