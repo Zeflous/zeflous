@@ -12,6 +12,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
 use Zef\Framework\Adapters\Database\PdoConnection;
+use Zef\Framework\Adapters\Database\SchemaReflection;
 use Zef\Test\Support\Container\Aot\CallsHouse;
 use Zef\Test\Support\Container\Aot\House;
 use Zef\Test\Support\Container\Aot\Roof;
@@ -153,12 +154,17 @@ final class ContainerInventoryReportTest extends TestCase
 
         $report = ContainerInventoryReport::rendering($this->configDirectory);
 
-        self::assertStringContainsString('lazy marks -- 3', $report);
+        self::assertStringContainsString('lazy marks -- 4', $report);
         self::assertStringContainsString("\n  app.window -> " . Window::class, $report);
         self::assertStringContainsString(
             "\n  database.connection -> " . PdoConnection::class,
             $report,
             'the wired default connection defers: the silent knob refuses at the ask, never at the boot',
+        );
+        self::assertStringContainsString(
+            "\n  database.schema -> " . SchemaReflection::class,
+            $report,
+            'the schema reflection defers behind the same lazy proxy posture',
         );
         self::assertStringContainsString("\n  database.migrator -> ", $report);
     }

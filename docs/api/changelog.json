@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-04T11:32:13Z",
+  "as_of": "2026-11-05T06:57:06Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 291,
+  "unreleased_count": 295,
   "versions": [
     {
       "version": "Unreleased",
@@ -4603,6 +4603,129 @@
                 "subject": "docs(roadmap): the status pin rides the telemetry lane's closing head"
               }
             ]
+          },
+          {
+            "pr": 702,
+            "title": "feat(database): per-query logging with slow-query detection",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-04T18:15:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/702",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0115b58b6af9d1273be73d151fe533b30b6ccfee",
+                "short_sha": "0115b58",
+                "subject": "feat(database): per-query logging with slow-query detection"
+              },
+              {
+                "sha": "df4c7b177c57c1b67d0ad109a9f8a4d3a899ee36",
+                "short_sha": "df4c7b1",
+                "subject": "docs(roadmap): the database lane's query-log landing recorded"
+              },
+              {
+                "sha": "f946eb0e6e986be48be9efd85f74edbc60a1a90b",
+                "short_sha": "f946eb0",
+                "subject": "test(database): the covers-attribution for the orchestration, arming and audit-path folds"
+              },
+              {
+                "sha": "b485e6a66966657d9cf8840b2bed31da400a300c",
+                "short_sha": "b485e6a",
+                "subject": "docs(roadmap): the pin rides the query-log lane's covers fix"
+              },
+              {
+                "sha": "4aba10946133cb1619afac1ed7cf438b8532fece",
+                "short_sha": "4aba109",
+                "subject": "docs(roadmap): the recorded row rides the lane's closing substantive head"
+              },
+              {
+                "sha": "58ae2b2c159aba320810bf8de1e74ec0c6880536",
+                "short_sha": "58ae2b2",
+                "subject": "Merge branch 'main' into feat/database-query-logging"
+              },
+              {
+                "sha": "d4f974bf19a6ec0a8f1479e317419ee1e23b2427",
+                "short_sha": "d4f974b",
+                "subject": "test(database): the first CI mutation round's twenty escapes answered"
+              },
+              {
+                "sha": "f4b28b6e0e6c93fa1612518089cd14909e07cad4",
+                "short_sha": "f4b28b6",
+                "subject": "docs(roadmap): the pin and the recorded row ride the mutation round's head"
+              }
+            ]
+          },
+          {
+            "pr": 703,
+            "title": "feat(database): the schema reflection family over the connection port",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-05T01:56:03Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/703",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "975a7bdc6bedfd9c2037a6f066878700a3e9dc38",
+                "short_sha": "975a7bd",
+                "subject": "docs(database): the schema-reflection design record"
+              },
+              {
+                "sha": "705a1b2306ea55ad08ab8f62bf1ae1880dfc4397",
+                "short_sha": "705a1b2",
+                "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-schema-reflection"
+              },
+              {
+                "sha": "c88c9347309e6fa0b9de18e9df417d5b39a6f057",
+                "short_sha": "c88c934",
+                "subject": "feat(database): the schema reflection family over the connection port"
+              },
+              {
+                "sha": "097eb4c41e3ae546bc2eb9a222b6084ece41ec99",
+                "short_sha": "097eb4c",
+                "subject": "docs(roadmap): the schema-reflection row rides the lane's substantif head"
+              }
+            ]
+          },
+          {
+            "pr": 704,
+            "title": "feat(database): the data-type mapping with JSON support",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-05T06:57:06Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/704",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7d02d04e89da7aea55b8f1047f2dbc3878cce575",
+                "short_sha": "7d02d04",
+                "subject": "docs(database): the type-mapping design record"
+              },
+              {
+                "sha": "b6cdbda8e7f4009f45daea37051b555970c82f63",
+                "short_sha": "b6cdbda",
+                "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-type-mapping"
+              },
+              {
+                "sha": "679c1b2e9c16238a32014e3cf8106edb1e6c5aa8",
+                "short_sha": "679c1b2",
+                "subject": "chore: merge main (the schema reflection landing #703) into feat/database-type-mapping"
+              },
+              {
+                "sha": "31298f538fc0d84dc70d859f63ccb2d41b28785c",
+                "short_sha": "31298f5",
+                "subject": "feat(database): the data-type mapping with JSON support"
+              },
+              {
+                "sha": "1f81632475df79fd465967eca4a9713f5c339276",
+                "short_sha": "1f81632",
+                "subject": "docs(roadmap): the type-mapping row rides the lane's substantif head"
+              },
+              {
+                "sha": "96a912575d91f3a9420752494deaee26d7a389ae",
+                "short_sha": "96a9125",
+                "subject": "chore: merge main (the changelog regenerations #713/#714) into feat/database-type-mapping"
+              }
+            ]
           }
         ],
         "Bug Fixes": [
@@ -7543,6 +7666,27 @@
                 "sha": "d631e7bb4d6f7243220fbb2845e935c096dee728",
                 "short_sha": "d631e7b",
                 "subject": "docs(roadmap): record the sonar scope-keys hygiene and refresh the pin"
+              }
+            ]
+          },
+          {
+            "pr": 709,
+            "title": "chore(deps): the dev toolchain's symfony trio patched past the 2026-11-04 advisories",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-04T21:48:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/709",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e5a89dc9d952161010ca37a14403dd1f498e764b",
+                "short_sha": "e5a89dc",
+                "subject": "chore(deps): the dev toolchain's symfony trio patched past the 2026-11-04 advisories"
+              },
+              {
+                "sha": "552d26dc9065ee432557608c280134cb6f5c2cbd",
+                "short_sha": "552d26d",
+                "subject": "docs(roadmap): the supply-chain row for the symfony advisory answer"
               }
             ]
           }
@@ -19115,6 +19259,150 @@
               "sha": "befcbf36a3c1834628a34b9d2372556c4e451941",
               "short_sha": "befcbf3",
               "subject": "docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger"
+            }
+          ]
+        },
+        {
+          "pr": 702,
+          "title": "feat(database): per-query logging with slow-query detection",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-04T18:15:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/702",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0115b58b6af9d1273be73d151fe533b30b6ccfee",
+              "short_sha": "0115b58",
+              "subject": "feat(database): per-query logging with slow-query detection"
+            },
+            {
+              "sha": "df4c7b177c57c1b67d0ad109a9f8a4d3a899ee36",
+              "short_sha": "df4c7b1",
+              "subject": "docs(roadmap): the database lane's query-log landing recorded"
+            },
+            {
+              "sha": "f946eb0e6e986be48be9efd85f74edbc60a1a90b",
+              "short_sha": "f946eb0",
+              "subject": "test(database): the covers-attribution for the orchestration, arming and audit-path folds"
+            },
+            {
+              "sha": "b485e6a66966657d9cf8840b2bed31da400a300c",
+              "short_sha": "b485e6a",
+              "subject": "docs(roadmap): the pin rides the query-log lane's covers fix"
+            },
+            {
+              "sha": "4aba10946133cb1619afac1ed7cf438b8532fece",
+              "short_sha": "4aba109",
+              "subject": "docs(roadmap): the recorded row rides the lane's closing substantive head"
+            },
+            {
+              "sha": "58ae2b2c159aba320810bf8de1e74ec0c6880536",
+              "short_sha": "58ae2b2",
+              "subject": "Merge branch 'main' into feat/database-query-logging"
+            },
+            {
+              "sha": "d4f974bf19a6ec0a8f1479e317419ee1e23b2427",
+              "short_sha": "d4f974b",
+              "subject": "test(database): the first CI mutation round's twenty escapes answered"
+            },
+            {
+              "sha": "f4b28b6e0e6c93fa1612518089cd14909e07cad4",
+              "short_sha": "f4b28b6",
+              "subject": "docs(roadmap): the pin and the recorded row ride the mutation round's head"
+            }
+          ]
+        },
+        {
+          "pr": 703,
+          "title": "feat(database): the schema reflection family over the connection port",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-05T01:56:03Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/703",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "975a7bdc6bedfd9c2037a6f066878700a3e9dc38",
+              "short_sha": "975a7bd",
+              "subject": "docs(database): the schema-reflection design record"
+            },
+            {
+              "sha": "705a1b2306ea55ad08ab8f62bf1ae1880dfc4397",
+              "short_sha": "705a1b2",
+              "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-schema-reflection"
+            },
+            {
+              "sha": "c88c9347309e6fa0b9de18e9df417d5b39a6f057",
+              "short_sha": "c88c934",
+              "subject": "feat(database): the schema reflection family over the connection port"
+            },
+            {
+              "sha": "097eb4c41e3ae546bc2eb9a222b6084ece41ec99",
+              "short_sha": "097eb4c",
+              "subject": "docs(roadmap): the schema-reflection row rides the lane's substantif head"
+            }
+          ]
+        },
+        {
+          "pr": 704,
+          "title": "feat(database): the data-type mapping with JSON support",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-05T06:57:06Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/704",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7d02d04e89da7aea55b8f1047f2dbc3878cce575",
+              "short_sha": "7d02d04",
+              "subject": "docs(database): the type-mapping design record"
+            },
+            {
+              "sha": "b6cdbda8e7f4009f45daea37051b555970c82f63",
+              "short_sha": "b6cdbda",
+              "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-type-mapping"
+            },
+            {
+              "sha": "679c1b2e9c16238a32014e3cf8106edb1e6c5aa8",
+              "short_sha": "679c1b2",
+              "subject": "chore: merge main (the schema reflection landing #703) into feat/database-type-mapping"
+            },
+            {
+              "sha": "31298f538fc0d84dc70d859f63ccb2d41b28785c",
+              "short_sha": "31298f5",
+              "subject": "feat(database): the data-type mapping with JSON support"
+            },
+            {
+              "sha": "1f81632475df79fd465967eca4a9713f5c339276",
+              "short_sha": "1f81632",
+              "subject": "docs(roadmap): the type-mapping row rides the lane's substantif head"
+            },
+            {
+              "sha": "96a912575d91f3a9420752494deaee26d7a389ae",
+              "short_sha": "96a9125",
+              "subject": "chore: merge main (the changelog regenerations #713/#714) into feat/database-type-mapping"
+            }
+          ]
+        },
+        {
+          "pr": 709,
+          "title": "chore(deps): the dev toolchain's symfony trio patched past the 2026-11-04 advisories",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-04T21:48:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/709",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e5a89dc9d952161010ca37a14403dd1f498e764b",
+              "short_sha": "e5a89dc",
+              "subject": "chore(deps): the dev toolchain's symfony trio patched past the 2026-11-04 advisories"
+            },
+            {
+              "sha": "552d26dc9065ee432557608c280134cb6f5c2cbd",
+              "short_sha": "552d26d",
+              "subject": "docs(roadmap): the supply-chain row for the symfony advisory answer"
             }
           ]
         }

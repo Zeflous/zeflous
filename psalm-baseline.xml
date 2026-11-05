@@ -277,6 +277,46 @@
       <code><![CDATA[ConditionNull]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Database/ColumnSchema.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$default]]></code>
+      <code><![CDATA[$nullable]]></code>
+      <code><![CDATA[$primaryKeyPosition]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Database/ForeignKeySchema.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$columns]]></code>
+      <code><![CDATA[$name]]></code>
+      <code><![CDATA[$referencedColumns]]></code>
+      <code><![CDATA[$referencedTable]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Database/IndexSchema.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$columns]]></code>
+      <code><![CDATA[$name]]></code>
+      <code><![CDATA[$unique]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Database/TypeMapDecode.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$decoded[$column]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Database/TypeMapEncode.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Database/TableSchema.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$foreignKeys]]></code>
+      <code><![CDATA[$indexes]]></code>
+      <code><![CDATA[$name]]></code>
+    </PossiblyUnusedProperty>
+  </file>
   <file src="src/Zef/Framework/Database/ConnectionInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[beginTransaction]]></code>

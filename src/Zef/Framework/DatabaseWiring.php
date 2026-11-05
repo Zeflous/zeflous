@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoQueryLogArming;
+use Zef\Framework\Adapters\Database\SchemaReflection;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Database\ConnectionInterface;
@@ -103,10 +104,10 @@ final readonly class DatabaseWiring
             );
         }
 
-        throw new ConfigException(
-            'The database.connection wired default is not declared:'
-            . ' spell a connection (database.connections plus database.default)'
-            . ' or compose the family over your own ConnectionInterface.',
+        throw self::undeclaredDefault(
+            'database.connection',
+            'spell a connection (database.connections plus database.default)'
+            . ' or compose the family over your own ConnectionInterface',
         );
     }
 
@@ -132,11 +133,11 @@ final readonly class DatabaseWiring
         $migrationsName = $databaseDeclaration->migrationsName();
 
         if ($migrationsName === '') {
-            throw new ConfigException(
-                'The database.migrator wired default is not declared:'
-                . " spell the migration runner's connection (database.migrations"
+            throw self::undeclaredDefault(
+                'database.migrator',
+                "spell the migration runner's connection (database.migrations"
                 . ' or database.default over database.connections) or compose'
-                . ' the runner over your own ConnectionInterface.',
+                . ' the runner over your own ConnectionInterface',
             );
         }
 
@@ -167,6 +168,40 @@ final readonly class DatabaseWiring
     public static function transactions(ConnectionInterface $connection): TransactionManager
     {
         return new TransactionManager($connection);
+    }
+
+    /**
+     * Answers the read-only schema reflection over the shared
+     * connection the registration hands in: the `database.schema`
+     * service identity the framework profile registers beside
+     * `database.transactions` -- the Doctrine schema-manager split
+     * (a service over the connection, never a widening of the port),
+     * with the dialect's driver word derived from the declaration
+     * the connection identity itself answers, so the reflection and
+     * the connection it composes over always agree on the one driver
+     * the deployment spelled.
+     *
+     * @throws ConfigException when the declaration is silent (no
+     *                         default connection spelled), the named connection is not
+     *                         declared, or any connection field the adapter's reading
+     *                         folds consume refuses
+     */
+    public static function schema(Config $config, ConnectionInterface $connection): SchemaReflection
+    {
+        $databaseDeclaration = DatabaseDeclaration::fromConfig($config);
+
+        if ($databaseDeclaration->wantsWiredConnection()) {
+            return new SchemaReflection(
+                $connection,
+                $databaseDeclaration->defaultDriver(),
+            );
+        }
+
+        throw self::undeclaredDefault(
+            'database.schema',
+            'spell a connection (database.connections plus database.default)'
+            . ' or compose the reflection over your own connection',
+        );
     }
 
     /**
@@ -220,6 +255,18 @@ final readonly class DatabaseWiring
             $meter,
             $logger,
             PdoQueryLogArming::bracket($databaseDeclaration->queryLogPolicy, $meter, $logger),
+        );
+    }
+
+    /**
+     * The family's one silent-declaration refusal: the identity that
+     * asked, and the way out spelled -- one fold, so the wiring's
+     * folds share a doctrine without sharing a token stream.
+     */
+    private static function undeclaredDefault(string $identity, string $wayOut): ConfigException
+    {
+        return new ConfigException(
+            "The {$identity} wired default is not declared: {$wayOut}.",
         );
     }
 
