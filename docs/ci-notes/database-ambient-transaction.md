@@ -145,9 +145,22 @@ the manager's own (refused in KDD-AT1).
   pin: one holder's scope open, the second holder seeing it, the scope
   closing at the outermost boundary). `ApplicationBootstrapperTest`
   pins the registration in the boot catalogue audit.
-- Scoped mutation rounds over the two touched source files: the holder
-  **2 mutants, 2 killed** and the wiring **27 mutants, 27 killed** —
-  MSI 100/100, zero escapes, zero new infection ignores.
+- Scoped mutation rounds over the three touched source files: the holder
+  **2 mutants, 2 killed**, the wiring **27 mutants, 27 killed** and —
+  after the CI SonarCloud round — the defaults **224 mutants, 224
+  killed** — MSI 100/100, zero escapes, zero new infection ignores.
+- The CI SonarCloud round (php:S138, the catalogue's own length): the
+  database family's sixth registration pushed
+  `FrameworkDefaults::serviceRegistrations()`
+  to 155 lines over the 150-line rule, answered by the split by question
+  the tree's own fold doctrine spells — the database family's six
+  registrations riding their own fold
+  (`FrameworkDefaults::databaseRegistrations()`, 46 lines) composed
+  under the same map through the array spread
+  (`...self::databaseRegistrations()`), `serviceRegistrations()` landing
+  at 115 lines; the composed catalogue is byte-identical (the boot
+  catalogue pins and the container inventory pins untouched and green),
+  the host's same-identifier rebind posture unchanged.
 - The psalm ledger moves with the landing: the holder's two verbs
   enter the baseline (consumers in tests, the position every
   service-identity class holds), while `inTransaction` +
