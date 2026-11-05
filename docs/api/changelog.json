@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-04T21:48:50Z",
+  "as_of": "2026-11-05T01:56:03Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 293,
+  "unreleased_count": 294,
   "versions": [
     {
       "version": "Unreleased",
@@ -4652,6 +4652,37 @@
                 "sha": "f4b28b6e0e6c93fa1612518089cd14909e07cad4",
                 "short_sha": "f4b28b6",
                 "subject": "docs(roadmap): the pin and the recorded row ride the mutation round's head"
+              }
+            ]
+          },
+          {
+            "pr": 703,
+            "title": "feat(database): the schema reflection family over the connection port",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-05T01:56:03Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/703",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "975a7bdc6bedfd9c2037a6f066878700a3e9dc38",
+                "short_sha": "975a7bd",
+                "subject": "docs(database): the schema-reflection design record"
+              },
+              {
+                "sha": "705a1b2306ea55ad08ab8f62bf1ae1880dfc4397",
+                "short_sha": "705a1b2",
+                "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-schema-reflection"
+              },
+              {
+                "sha": "c88c9347309e6fa0b9de18e9df417d5b39a6f057",
+                "short_sha": "c88c934",
+                "subject": "feat(database): the schema reflection family over the connection port"
+              },
+              {
+                "sha": "097eb4c41e3ae546bc2eb9a222b6084ece41ec99",
+                "short_sha": "097eb4c",
+                "subject": "docs(roadmap): the schema-reflection row rides the lane's substantif head"
               }
             ]
           }
@@ -19238,6 +19269,37 @@
               "sha": "f4b28b6e0e6c93fa1612518089cd14909e07cad4",
               "short_sha": "f4b28b6",
               "subject": "docs(roadmap): the pin and the recorded row ride the mutation round's head"
+            }
+          ]
+        },
+        {
+          "pr": 703,
+          "title": "feat(database): the schema reflection family over the connection port",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-05T01:56:03Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/703",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "975a7bdc6bedfd9c2037a6f066878700a3e9dc38",
+              "short_sha": "975a7bd",
+              "subject": "docs(database): the schema-reflection design record"
+            },
+            {
+              "sha": "705a1b2306ea55ad08ab8f62bf1ae1880dfc4397",
+              "short_sha": "705a1b2",
+              "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-schema-reflection"
+            },
+            {
+              "sha": "c88c9347309e6fa0b9de18e9df417d5b39a6f057",
+              "short_sha": "c88c934",
+              "subject": "feat(database): the schema reflection family over the connection port"
+            },
+            {
+              "sha": "097eb4c41e3ae546bc2eb9a222b6084ece41ec99",
+              "short_sha": "097eb4c",
+              "subject": "docs(roadmap): the schema-reflection row rides the lane's substantif head"
             }
           ]
         },

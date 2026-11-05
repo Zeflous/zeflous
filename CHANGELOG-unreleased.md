@@ -116,6 +116,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(view): the presentation port and the native PHP-template answer [#693](https://github.com/Zeflous/zeflous/pull/693) ([mbetixz](https://github.com/mbetixz))
 - feat(telemetry): the export lane's metrics and logs signals [#696](https://github.com/Zeflous/zeflous/pull/696) ([mbetixz](https://github.com/mbetixz))
 - feat(database): per-query logging with slow-query detection [#702](https://github.com/Zeflous/zeflous/pull/702) ([mbetixz](https://github.com/mbetixz))
+- feat(database): the schema reflection family over the connection port [#703](https://github.com/Zeflous/zeflous/pull/703) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
