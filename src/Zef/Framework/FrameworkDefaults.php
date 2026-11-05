@@ -115,7 +115,14 @@ use Zef\Framework\Middleware\TracingFactory;
  * names, and the queue is the per-ask artifact its transient
  * lifetime spells (a fresh queue per resolution -- the
  * deferred-write queue's own nature, never a shared accumulating
- * one). The schema-reflection family joins the catalogue the same
+ * one). The ambient transaction holder joins them with no knob of
+ * its own either: the `database.ambient` registration over the
+ * manager identity, carrying the TRANSIENT lifetime the
+ * unit-of-work queue spelled -- the holder owns no state (the
+ * manager owns the scope truth), so a fresh holder every
+ * resolution is observably the same ambient scope and the
+ * never-request-global posture stays by construction, not by
+ * discipline. The schema-reflection family joins the catalogue the same
  * way its own design record spells: the `database.schema`
  * registration beside `database.transactions`, over the shared lazy
  * connection, with the dialect's driver word derived from the same
@@ -474,6 +481,13 @@ final readonly class FrameworkDefaults
                 'arguments' => [
                     ['service' => 'database.connection'],
                 ],
+            ],
+            'database.ambient' => [
+                'factory' => DatabaseWiring::class . '::ambient',
+                'arguments' => [
+                    ['service' => 'database.transactions'],
+                ],
+                'lifetime' => 'transient',
             ],
             'database.schema' => [
                 'factory' => DatabaseWiring::class . '::schema',

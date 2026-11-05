@@ -11,10 +11,12 @@ use Zef\Framework\Adapters\Database\PdoQueryLogArming;
 use Zef\Framework\Adapters\Database\SchemaReflection;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Database\AmbientTransaction;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\Migrator;
 use Zef\Framework\Database\TableGateway;
 use Zef\Framework\Database\TransactionManager;
+use Zef\Framework\Database\TransactionManagerInterface;
 use Zef\Framework\Logging\JsonLineLogger;
 use Zef\Framework\Middleware\ErrorStorageWiring;
 use Zef\Framework\Telemetry\MeterInterface;
@@ -27,7 +29,7 @@ use Zef\Framework\Telemetry\MeterInterface;
  * config integration lands with the first live reader, never
  * before).
  *
- * The folds answer the four service identities the framework
+ * The folds answer the six service identities the framework
  * profile's own {@see FrameworkDefaults} registration names: the
  * default connection (`database.connection`, the {@see PdoConnection}
  * over {@see ConnectionConfig::fromArray()} with the
@@ -45,7 +47,12 @@ use Zef\Framework\Telemetry\MeterInterface;
  * the default -- a deployment may run its migrations on a connection
  * of their own naming without ever spelling the default), the
  * managed-scope transaction manager (`database.transactions`, over
- * the shared default connection the registration hands in), and the
+ * the shared default connection the registration hands in), the
+ * ambient transaction holder (`database.ambient`, over the manager
+ * the ask's frames already ride -- the transient registration the
+ * `database.unit_of_work` posture spelled, safe precisely because
+ * the holder delegates and never re-bookkeeps: two holders of one
+ * ask are observably the same ambient scope), and the
  * generic per-table gateway ({@see repository()}, over the connection
  * the host's own per-table service declaration hands in).
  *
@@ -168,6 +175,24 @@ final readonly class DatabaseWiring
     public static function transactions(ConnectionInterface $connection): TransactionManager
     {
         return new TransactionManager($connection);
+    }
+
+    /**
+     * Answers the ambient transaction holder over the managed-scope
+     * manager the registration hands in -- the composition seam's
+     * answer to the holder's open identity question: the
+     * `database.ambient` registration carries the TRANSIENT lifetime
+     * the `database.unit_of_work` registration spelled, because the
+     * holder owns no state of its own (the manager owns the scope
+     * truth; the holder owns only the vocabulary), so a fresh holder
+     * every resolution never fragments anything -- two holders over
+     * one manager are observably the same ambient scope. Never a
+     * singleton: a shared ambient holder would be the hidden
+     * request-global coupling the never-at-the-boot doctrine refuses.
+     */
+    public static function ambient(TransactionManagerInterface $transactionManager): AmbientTransaction
+    {
+        return new AmbientTransaction($transactionManager);
     }
 
     /**
