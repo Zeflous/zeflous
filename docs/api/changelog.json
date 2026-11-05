@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-05T19:11:35Z",
+  "as_of": "2026-11-05T22:35:04Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 296,
+  "unreleased_count": 297,
   "versions": [
     {
       "version": "Unreleased",
@@ -4760,6 +4760,52 @@
                 "sha": "ab21d21a05ab196ee9ee269c2e134852cf52cbcf",
                 "short_sha": "ab21d21",
                 "subject": "docs(roadmap): the connection-healing row rides the lane's substantif head"
+              }
+            ]
+          },
+          {
+            "pr": 706,
+            "title": "feat(database): the ambient transaction scope",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-05T22:35:04Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/706",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7991e2fa05895debee2c77aa569602115b0d8f1c",
+                "short_sha": "7991e2f",
+                "subject": "docs(database): the ambient-transaction design record"
+              },
+              {
+                "sha": "0ec0dc9709c9eb617c156abcb3169270a9a87ae7",
+                "short_sha": "0ec0dc9",
+                "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-ambient-transaction"
+              },
+              {
+                "sha": "7f987a80b0dc6d58752829cb4137c44d04a7fd48",
+                "short_sha": "7f987a8",
+                "subject": "chore: merge main (the schema-reflection, type-mapping and healing landings) into feat/database-ambient-transaction"
+              },
+              {
+                "sha": "a040381eeaaa7e64ba8ae08fe8a33a875efe6bb2",
+                "short_sha": "a040381",
+                "subject": "feat(database): the ambient transaction scope"
+              },
+              {
+                "sha": "ef18d96c2f4b9aa68ce2940c815ceed8772b3a57",
+                "short_sha": "ef18d96",
+                "subject": "docs(roadmap): the ambient-transaction row rides the lane's substantif head"
+              },
+              {
+                "sha": "e91e919b1262c06ba0fa9fe9fa7a3ab853a50afb",
+                "short_sha": "e91e919",
+                "subject": "refactor(framework): the catalogue's own fold — the SonarCloud length round"
+              },
+              {
+                "sha": "e34ddbb1caaca2f74e6e64ce59efbcb7838a7272",
+                "short_sha": "e34ddbb",
+                "subject": "docs(roadmap): the pins ride the fold — the slice's last substantif head"
               }
             ]
           }
@@ -19454,6 +19500,52 @@
               "sha": "ab21d21a05ab196ee9ee269c2e134852cf52cbcf",
               "short_sha": "ab21d21",
               "subject": "docs(roadmap): the connection-healing row rides the lane's substantif head"
+            }
+          ]
+        },
+        {
+          "pr": 706,
+          "title": "feat(database): the ambient transaction scope",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-05T22:35:04Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/706",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7991e2fa05895debee2c77aa569602115b0d8f1c",
+              "short_sha": "7991e2f",
+              "subject": "docs(database): the ambient-transaction design record"
+            },
+            {
+              "sha": "0ec0dc9709c9eb617c156abcb3169270a9a87ae7",
+              "short_sha": "0ec0dc9",
+              "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-ambient-transaction"
+            },
+            {
+              "sha": "7f987a80b0dc6d58752829cb4137c44d04a7fd48",
+              "short_sha": "7f987a8",
+              "subject": "chore: merge main (the schema-reflection, type-mapping and healing landings) into feat/database-ambient-transaction"
+            },
+            {
+              "sha": "a040381eeaaa7e64ba8ae08fe8a33a875efe6bb2",
+              "short_sha": "a040381",
+              "subject": "feat(database): the ambient transaction scope"
+            },
+            {
+              "sha": "ef18d96c2f4b9aa68ce2940c815ceed8772b3a57",
+              "short_sha": "ef18d96",
+              "subject": "docs(roadmap): the ambient-transaction row rides the lane's substantif head"
+            },
+            {
+              "sha": "e91e919b1262c06ba0fa9fe9fa7a3ab853a50afb",
+              "short_sha": "e91e919",
+              "subject": "refactor(framework): the catalogue's own fold — the SonarCloud length round"
+            },
+            {
+              "sha": "e34ddbb1caaca2f74e6e64ce59efbcb7838a7272",
+              "short_sha": "e34ddbb",
+              "subject": "docs(roadmap): the pins ride the fold — the slice's last substantif head"
             }
           ]
         },
