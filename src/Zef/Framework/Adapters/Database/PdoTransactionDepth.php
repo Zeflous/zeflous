@@ -66,6 +66,21 @@ final class PdoTransactionDepth
     }
 
     /**
+     * Resets the depth to zero in one move -- the heal-time answer for
+     * the socket whose engine already ended every transaction on
+     * disconnect: there is nothing left to climb down from, and a depth
+     * that survived its own handle would answer every later
+     * beginTransaction a phantom level (a commit that releases a
+     * savepoint instead of committing, a level the guard can no longer
+     * vouch for). Only ever called beside the handle's drop, the two
+     * halves of {@see PdoHealing}'s one answer.
+     */
+    public function reset(): void
+    {
+        $this->level = 0;
+    }
+
+    /**
      * Current nesting depth: 0 = no transaction, 1 = real transaction,
      * 2+ = inside savepoints.
      */
