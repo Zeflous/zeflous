@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-05T01:56:03Z",
+  "as_of": "2026-11-05T06:57:06Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 294,
+  "unreleased_count": 295,
   "versions": [
     {
       "version": "Unreleased",
@@ -4683,6 +4683,47 @@
                 "sha": "097eb4c41e3ae546bc2eb9a222b6084ece41ec99",
                 "short_sha": "097eb4c",
                 "subject": "docs(roadmap): the schema-reflection row rides the lane's substantif head"
+              }
+            ]
+          },
+          {
+            "pr": 704,
+            "title": "feat(database): the data-type mapping with JSON support",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-05T06:57:06Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/704",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7d02d04e89da7aea55b8f1047f2dbc3878cce575",
+                "short_sha": "7d02d04",
+                "subject": "docs(database): the type-mapping design record"
+              },
+              {
+                "sha": "b6cdbda8e7f4009f45daea37051b555970c82f63",
+                "short_sha": "b6cdbda",
+                "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-type-mapping"
+              },
+              {
+                "sha": "679c1b2e9c16238a32014e3cf8106edb1e6c5aa8",
+                "short_sha": "679c1b2",
+                "subject": "chore: merge main (the schema reflection landing #703) into feat/database-type-mapping"
+              },
+              {
+                "sha": "31298f538fc0d84dc70d859f63ccb2d41b28785c",
+                "short_sha": "31298f5",
+                "subject": "feat(database): the data-type mapping with JSON support"
+              },
+              {
+                "sha": "1f81632475df79fd465967eca4a9713f5c339276",
+                "short_sha": "1f81632",
+                "subject": "docs(roadmap): the type-mapping row rides the lane's substantif head"
+              },
+              {
+                "sha": "96a912575d91f3a9420752494deaee26d7a389ae",
+                "short_sha": "96a9125",
+                "subject": "chore: merge main (the changelog regenerations #713/#714) into feat/database-type-mapping"
               }
             ]
           }
@@ -19300,6 +19341,47 @@
               "sha": "097eb4c41e3ae546bc2eb9a222b6084ece41ec99",
               "short_sha": "097eb4c",
               "subject": "docs(roadmap): the schema-reflection row rides the lane's substantif head"
+            }
+          ]
+        },
+        {
+          "pr": 704,
+          "title": "feat(database): the data-type mapping with JSON support",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-05T06:57:06Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/704",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7d02d04e89da7aea55b8f1047f2dbc3878cce575",
+              "short_sha": "7d02d04",
+              "subject": "docs(database): the type-mapping design record"
+            },
+            {
+              "sha": "b6cdbda8e7f4009f45daea37051b555970c82f63",
+              "short_sha": "b6cdbda",
+              "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-type-mapping"
+            },
+            {
+              "sha": "679c1b2e9c16238a32014e3cf8106edb1e6c5aa8",
+              "short_sha": "679c1b2",
+              "subject": "chore: merge main (the schema reflection landing #703) into feat/database-type-mapping"
+            },
+            {
+              "sha": "31298f538fc0d84dc70d859f63ccb2d41b28785c",
+              "short_sha": "31298f5",
+              "subject": "feat(database): the data-type mapping with JSON support"
+            },
+            {
+              "sha": "1f81632475df79fd465967eca4a9713f5c339276",
+              "short_sha": "1f81632",
+              "subject": "docs(roadmap): the type-mapping row rides the lane's substantif head"
+            },
+            {
+              "sha": "96a912575d91f3a9420752494deaee26d7a389ae",
+              "short_sha": "96a9125",
+              "subject": "chore: merge main (the changelog regenerations #713/#714) into feat/database-type-mapping"
             }
           ]
         },
