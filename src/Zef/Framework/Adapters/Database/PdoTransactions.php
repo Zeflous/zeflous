@@ -93,4 +93,15 @@ final readonly class PdoTransactions
     {
         return $this->pdoTransactionDepth->level();
     }
+
+    /**
+     * The healing fold's depth half: the handle's drop and the depth's
+     * reset are ONE answer -- {@see PdoHealing} reaches both through
+     * their two owners, this delegation included, so a socket lost
+     * mid-transaction never leaves a phantom level behind.
+     */
+    public function reset(): void
+    {
+        $this->pdoTransactionDepth->reset();
+    }
 }
