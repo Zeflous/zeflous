@@ -115,7 +115,14 @@ use Zef\Framework\Middleware\TracingFactory;
  * names, and the queue is the per-ask artifact its transient
  * lifetime spells (a fresh queue per resolution -- the
  * deferred-write queue's own nature, never a shared accumulating
- * one). The schema-reflection family joins the catalogue the same
+ * one). The ambient transaction holder joins them with no knob of
+ * its own either: the `database.ambient` registration over the
+ * manager identity, carrying the TRANSIENT lifetime the
+ * unit-of-work queue spelled -- the holder owns no state (the
+ * manager owns the scope truth), so a fresh holder every
+ * resolution is observably the same ambient scope and the
+ * never-request-global posture stays by construction, not by
+ * discipline. The schema-reflection family joins the catalogue the same
  * way its own design record spells: the `database.schema`
  * registration beside `database.transactions`, over the shared lazy
  * connection, with the dialect's driver word derived from the same
@@ -342,10 +349,14 @@ final readonly class FrameworkDefaults
     /**
      * The boot-ordered service registrations the default profile wires:
      * the HTTP error boundary and debug toolbar lanes, the security
-     * middleware family, and the observability collaborators -- each
-     * config-driven factory addressed through the shared construction
-     * entry ({@see CONFIG_FACTORY_ENTRY}) so a host's same-identifier
-     * rebind wins over the framework's own defaults.
+     * middleware family, the observability collaborators, and the
+     * events deferred-delivery arm -- each config-driven factory
+     * addressed through the shared construction entry
+     * ({@see CONFIG_FACTORY_ENTRY}) so a host's same-identifier rebind
+     * wins over the framework's own defaults. The database family rides
+     * its own fold ({@see databaseRegistrations()}) composed under the
+     * same map -- the split the catalogue's own length demanded, one
+     * family one fold.
      *
      * @return array<non-empty-string, array<string, mixed>>
      */
@@ -461,6 +472,28 @@ final readonly class FrameworkDefaults
                 ],
                 'lifetime' => 'transient',
             ],
+            ...self::databaseRegistrations(),
+        ];
+    }
+
+    /**
+     * The database family's registrations, the fold the catalogue's
+     * own length demanded (the 150-line rule's split by question:
+     * one family, one fold, the composition seam unchanged -- the
+     * same map arrived in two spellings): the six service identities
+     * the database wiring owns -- the shared lazy connection, the
+     * managed-scope transaction manager, the ambient transaction
+     * holder over it (transient, one ask's scope vocabulary), the
+     * read-only schema reflection, the per-ask unit-of-work queue,
+     * and the migrator -- each over the {@see DatabaseWiring} folds,
+     * the host's same-identifier rebind still winning over the
+     * framework's own defaults.
+     *
+     * @return array<non-empty-string, array<string, mixed>>
+     */
+    private static function databaseRegistrations(): array
+    {
+        return [
             'database.connection' => [
                 'factory' => DatabaseWiring::class . '::connection',
                 'arguments' => [
@@ -474,6 +507,13 @@ final readonly class FrameworkDefaults
                 'arguments' => [
                     ['service' => 'database.connection'],
                 ],
+            ],
+            'database.ambient' => [
+                'factory' => DatabaseWiring::class . '::ambient',
+                'arguments' => [
+                    ['service' => 'database.transactions'],
+                ],
+                'lifetime' => 'transient',
             ],
             'database.schema' => [
                 'factory' => DatabaseWiring::class . '::schema',

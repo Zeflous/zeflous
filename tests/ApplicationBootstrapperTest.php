@@ -207,6 +207,13 @@ final class ApplicationBootstrapperTest extends TestCase
                         ['service' => 'database.connection'],
                     ],
                 ],
+                'database.ambient' => [
+                    'factory' => DatabaseWiring::class . '::ambient',
+                    'arguments' => [
+                        ['service' => 'database.transactions'],
+                    ],
+                    'lifetime' => 'transient',
+                ],
                 'database.schema' => [
                     'factory' => DatabaseWiring::class . '::schema',
                     'arguments' => [

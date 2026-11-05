@@ -15,6 +15,7 @@ use Zef\Framework\Adapters\Database\SchemaReflection;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Database\AmbientTransaction;
 use Zef\Framework\Database\ConnectionException;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\Migrator;
@@ -384,6 +385,63 @@ final class DatabaseWiringTest extends TestCase
             $kernel->container()->get('database.unit_of_work'),
             'the deferred-write queue is a per-ask artifact: a fresh queue every resolution',
         );
+    }
+
+    public function testTheAmbientFoldAnswersTheHolderOverTheHandedManager(): void
+    {
+        $connection = DatabaseWiring::connection($this->declaredConfig());
+        $connection->execute(new SqlQuery('CREATE TABLE ambient (id INTEGER PRIMARY KEY, v TEXT)'));
+
+        $ambient = DatabaseWiring::ambient(DatabaseWiring::transactions($connection));
+
+        // The closure carries its own connection reference: the ambient
+        // vocabulary never threads one through the signature.
+        $ambient->around(static function () use ($connection): void {
+            $connection->execute(new SqlQuery('INSERT INTO ambient (v) VALUES (?)', ['joined']));
+        });
+
+        self::assertSame(
+            ['id' => 1, 'v' => 'joined'],
+            $connection->fetchOne(new SqlQuery('SELECT * FROM ambient WHERE id = 1')),
+            'the fold answers the holder whose bracket carries the write into the one commit',
+        );
+    }
+
+    public function testTheBootedAmbientHolderAnswersItsOwnTransientIdentity(): void
+    {
+        $kernel = self::bootDeclared();
+
+        self::assertInstanceOf(
+            TransactionManager::class,
+            $kernel->container()->get('database.transactions'),
+        );
+
+        $holder = $kernel->container()->get('database.ambient');
+        self::assertInstanceOf(AmbientTransaction::class, $holder);
+        self::assertNotSame(
+            $holder,
+            $kernel->container()->get('database.ambient'),
+            'the holder is a per-ask artifact: a fresh holder every resolution, the'
+                . ' unit-of-work posture spelled again',
+        );
+
+        // The transient posture is safe because the holder delegates: two
+        // holders over the one manager are observably the same ambient scope.
+        self::assertFalse($holder->isOpen());
+        $second = $kernel->container()->get('database.ambient');
+        self::assertInstanceOf(AmbientTransaction::class, $second);
+        $connection = $kernel->container()->get('database.connection');
+        self::assertInstanceOf(PdoConnection::class, $connection);
+        $connection->execute(new SqlQuery('CREATE TABLE ambient_boot (id INTEGER PRIMARY KEY, v TEXT)'));
+
+        $holder->around(static function () use ($second): void {
+            self::assertTrue(
+                $second->isOpen(),
+                "the second holder sees the first holder's scope: one manager owns the truth",
+            );
+        });
+
+        self::assertFalse($holder->isOpen(), 'the ambient scope closed at its outermost boundary');
     }
 
     public function testTheBootLevelAuditEmissonCountsOnTheSharedMeter(): void

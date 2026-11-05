@@ -236,6 +236,16 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Database/AmbientTransaction.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[around]]></code>
+      <code><![CDATA[isOpen]]></code>
+    </PossiblyUnusedMethod>
+    <!-- The holder's two verbs are consumed by the tests and the boot
+         registrations (database.ambient, the wiring fold's callers), both
+         outside Psalm's projectFiles: the same ledger position every
+         service-identity class whose consumers live in tests holds. -->
+  </file>
   <file src="src/Zef/Framework/Database/ConditionBetween.php">
     <UnusedClass>
       <code><![CDATA[ConditionBetween]]></code>
@@ -363,10 +373,12 @@
   <file src="src/Zef/Framework/Database/TransactionManagerInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[afterCommit]]></code>
-      <code><![CDATA[inTransaction]]></code>
       <code><![CDATA[level]]></code>
-      <code><![CDATA[withTransaction]]></code>
     </PossiblyUnusedMethod>
+    <!-- inTransaction + withTransaction left this ledger with the ambient
+         holder's landing: its delegation and bracket are the first
+         src-side consumers of the two verbs, so the entries went stale
+         and were removed (the UnusedBaselineEntry gate's instruction). -->
   </file>
   <file src="src/Zef/Framework/Database/UnitOfWork.php">
     <PossiblyUnusedMethod>
