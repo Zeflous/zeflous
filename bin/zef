@@ -5,10 +5,13 @@ declare(strict_types=1);
 
 /**
  * The one autoloader every CLI command rides: Composer's mapping when the
- * install is present, otherwise the zero-dependency spelling -- minimal
- * PSR-4 registrations over the framework's own runtime tree plus the
+ * install is present, otherwise the zero-dependency spelling -- the same
+ * mapping composer.json itself declares, spelled by hand: the framework's
+ * runtime tree, the PSR contract trees it type-checks against, the
+ * files-include bootstrap that publishes ZEF_FRAMEWORK_ROOT, and the
  * tooling support classes under tests/ (the gate engine's home since the
- * src tree became runtime-only code), so a bare install still loads both.
+ * src tree became runtime-only code), so a bare install still loads all
+ * of them.
  *
  * Extracted from nine per-command copies that had drifted from one pasted
  * block (#717): the loading strategy now changes in exactly one place,
@@ -24,10 +27,21 @@ function requireFrameworkAutoloader(): void
         return;
     }
 
+    // The fallback mirrors composer.json exactly -- measured: the pasted
+    // original mapped `Zef\Framework\` to `src/`, a path no framework
+    // class has ever lived at, so the fallback had been unable to load a
+    // single framework class since its birth in `fdb0f46`, uncaught
+    // because no test exercises a vendor-less tree.
+    require_once dirname(__DIR__) . '/src/autoload.php';
+
     spl_autoload_register(static function (string $class): void {
         $bases = [
-            'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-            'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+            'Zef\\Framework\\' => dirname(__DIR__) . '/src/Zef/Framework/',
+            'Psr\\Container\\' => dirname(__DIR__) . '/src/Contracts/Psr/Container/',
+            'Psr\\Http\\Message\\' => dirname(__DIR__) . '/src/Contracts/Psr/Http/Message/',
+            'Psr\\Http\\Server\\' => dirname(__DIR__) . '/src/Contracts/Psr/Http/Server/',
+            'Psr\\Log\\' => dirname(__DIR__) . '/src/Contracts/Psr/Log/',
+            'Zef\\Test\\' => dirname(__DIR__) . '/tests/',
         ];
         foreach ($bases as $prefix => $base) {
             if (str_starts_with($class, $prefix)) {
