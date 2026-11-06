@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-06T11:45:01Z",
+  "as_of": "2026-11-06T18:26:25Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 299,
+  "unreleased_count": 300,
   "versions": [
     {
       "version": "Unreleased",
@@ -9773,6 +9773,27 @@
                 "sha": "48c0caa91a8b2e0f1039e37a3ac9c782cad69cc4",
                 "short_sha": "48c0caa",
                 "subject": "Merge branch 'main' into test/covers-orphan-classes"
+              }
+            ]
+          },
+          {
+            "pr": 731,
+            "title": "test(http): make the unpositionable-stream assertion deterministic",
+            "author": "mbetixz",
+            "category": "Tests",
+            "merged_at": "2026-11-06T18:26:25Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/731",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ba87cf6302ff094a10beab9886909aa70f0e73af",
+                "short_sha": "ba87cf6",
+                "subject": "test(http): make the unpositionable-stream assertion deterministic"
+              },
+              {
+                "sha": "f783b03e7538aad841e6c2ebb11d2f670338bd11",
+                "short_sha": "f783b03",
+                "subject": "docs(roadmap): record the stream tell determinism repair and refresh the pin"
               }
             ]
           }
@@ -19731,6 +19752,27 @@
               "sha": "552d26dc9065ee432557608c280134cb6f5c2cbd",
               "short_sha": "552d26d",
               "subject": "docs(roadmap): the supply-chain row for the symfony advisory answer"
+            }
+          ]
+        },
+        {
+          "pr": 731,
+          "title": "test(http): make the unpositionable-stream assertion deterministic",
+          "author": "mbetixz",
+          "category": "Tests",
+          "merged_at": "2026-11-06T18:26:25Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/731",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ba87cf6302ff094a10beab9886909aa70f0e73af",
+              "short_sha": "ba87cf6",
+              "subject": "test(http): make the unpositionable-stream assertion deterministic"
+            },
+            {
+              "sha": "f783b03e7538aad841e6c2ebb11d2f670338bd11",
+              "short_sha": "f783b03",
+              "subject": "docs(roadmap): record the stream tell determinism repair and refresh the pin"
             }
           ]
         }
