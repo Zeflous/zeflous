@@ -567,9 +567,10 @@ if ($command === 'storage:map') {
 if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollback', 'migrations:generate'], true)) {
     $migrationsUsage = "Usage: bin/zef migrations:status <config-directory>"
         . " [<migrations-directory>] [--json]\n"
-        . "       bin/zef migrations:run <config-directory> [<migrations-directory>]\n"
+        . "       bin/zef migrations:run <config-directory>"
+        . " [<migrations-directory>] [--json]\n"
         . "       bin/zef migrations:rollback <config-directory>"
-        . " [<migrations-directory>] [--steps=<n>]\n"
+        . " [<migrations-directory>] [--steps=<n>] [--json]\n"
         . "       bin/zef migrations:generate <config-directory>"
         . " [<migrations-directory>] <name> [--json]\n"
         . "       (the migrations directory defaults to the configuration"
@@ -589,7 +590,9 @@ if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollb
     $positionalArguments = [];
 
     foreach (array_slice($argv, 3) as $argument) {
-        if ($argument === '--json' && in_array($command, ['migrations:status', 'migrations:generate'], true)) {
+        if ($argument === '--json'
+            && in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollback', 'migrations:generate'], true)
+        ) {
             $answerAsJson = true;
         } elseif (str_starts_with($argument, '--steps=') && $command === 'migrations:rollback') {
             $steps = substr($argument, strlen('--steps='));
@@ -708,18 +711,28 @@ if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollb
         } elseif ($command === 'migrations:run') {
             fwrite(
                 STDOUT,
-                Zef\Test\Support\Tooling\MigrationsRunText::applied(
-                    $migrationsBoot->names(),
-                    $migrationsBoot->migrate(),
-                ),
+                $answerAsJson
+                    ? Zef\Test\Support\Tooling\MigrationsRunJson::applied(
+                        $migrationsBoot->names(),
+                        $migrationsBoot->migrate(),
+                    ) . "\n"
+                    : Zef\Test\Support\Tooling\MigrationsRunText::applied(
+                        $migrationsBoot->names(),
+                        $migrationsBoot->migrate(),
+                    ),
             );
         } else {
             fwrite(
                 STDOUT,
-                Zef\Test\Support\Tooling\MigrationsRunText::rolledBack(
-                    $migrationsBoot->names(),
-                    $migrationsBoot->rollback($rollbackSteps),
-                ),
+                $answerAsJson
+                    ? Zef\Test\Support\Tooling\MigrationsRollbackJson::rolledBack(
+                        $migrationsBoot->names(),
+                        $migrationsBoot->rollback($rollbackSteps),
+                    ) . "\n"
+                    : Zef\Test\Support\Tooling\MigrationsRunText::rolledBack(
+                        $migrationsBoot->names(),
+                        $migrationsBoot->rollback($rollbackSteps),
+                    ),
             );
         }
 

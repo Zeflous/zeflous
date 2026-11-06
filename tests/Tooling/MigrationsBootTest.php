@@ -11,6 +11,8 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Database\MigrationException;
 use Zef\Test\Support\Tooling\MigrationsBoot;
+use Zef\Test\Support\Tooling\MigrationsRollbackJson;
+use Zef\Test\Support\Tooling\MigrationsRunJson;
 use Zef\Test\Support\Tooling\MigrationsRunText;
 use Zef\Test\Support\Tooling\MigrationsStatusJson;
 use Zef\Test\Support\Tooling\MigrationsStatusText;
@@ -22,7 +24,8 @@ use Zef\Test\Support\Tooling\MigrationsStatusText;
  * registered runner, over the real SQLite socket the wiring composes,
  * the durable bookkeeping answered by a SECOND boot -- and the
  * presentation units ({@see MigrationsStatusText}, {@see
- * MigrationsStatusJson}, {@see MigrationsRunText}) over the plain
+ * MigrationsStatusJson}, {@see MigrationsRunText}, {@see
+ * MigrationsRunJson}, {@see MigrationsRollbackJson}) over the plain
  * data those questions answer.
  *
  * The seam-ownership doctrine rides the refusals: the missing
@@ -39,11 +42,15 @@ use Zef\Test\Support\Tooling\MigrationsStatusText;
 #[CoversClass(MigrationsStatusText::class)]
 #[CoversClass(MigrationsStatusJson::class)]
 #[CoversClass(MigrationsRunText::class)]
+#[CoversClass(MigrationsRunJson::class)]
+#[CoversClass(MigrationsRollbackJson::class)]
 final class MigrationsBootTest extends TestCase
 {
     private const string FIRST_VERSION = '20261102120000';
 
     private const string SECOND_VERSION = '20261102130000';
+
+    private const string THIRD_VERSION = '20261102140000';
 
     private string $root = '';
 
@@ -373,6 +380,124 @@ final class MigrationsBootTest extends TestCase
     }
 
     /**
+     * The run's JSON twin over the REAL socket: the runner's own answer
+     * -- the versions migrate() spelled, the boot's own declared names
+     * -- rendered by both spellings, the same facts on both sides (the
+     * twins rendering one answer, or they drift, and drift at this seam
+     * is a silent contract break for every script built on it).
+     */
+    public function testTheRunJsonAndTextTwinsAnswerTheSameFactsOverTheRealSocket(): void
+    {
+        $this->writeDeclaredConfiguration();
+        $this->writeCreateUsersMigration();
+        $this->writeCreateSessionsMigration();
+
+        $boot = MigrationsBoot::booted($this->configs(), $this->migrations());
+        $applied = $boot->migrate();
+
+        $text = MigrationsRunText::applied($boot->names(), $applied);
+        $document = json_decode(MigrationsRunJson::applied($boot->names(), $applied), true);
+
+        self::assertIsArray($document);
+
+        $records = $document['applied'] ?? null;
+        self::assertIsArray($records);
+        self::assertCount(
+            \count($applied),
+            $records,
+            'every applied version carries its own record, never a truncated one',
+        );
+
+        foreach ($applied as $index => $version) {
+            $name = $boot->names()[$version];
+
+            self::assertSame(
+                ['version' => $version, 'name' => $name],
+                $records[$index] ?? null,
+                "the JSON record carries the version and its declared name, in the runner's own order",
+            );
+            self::assertStringContainsString(
+                '  ' . $version . '  ' . $name,
+                $text,
+                'the text twin spells the same fact the JSON twin carries',
+            );
+        }
+    }
+
+    /**
+     * The run's JSON twin over the honest empty: a second run touching
+     * nothing answers the empty list, never a truncated document -- the
+     * same honest-empty doctrine the text twin spells.
+     */
+    public function testTheRunJsonOverAnEmptyAnswerSpellsTheHonestEmpty(): void
+    {
+        $document = json_decode(MigrationsRunJson::applied([], []), true);
+
+        self::assertIsArray($document);
+        self::assertSame(
+            [],
+            $document['applied'] ?? null,
+            'a second run touching nothing says so, never a truncated document',
+        );
+    }
+
+    /**
+     * The rollback's JSON twin over the steps=2 the design record names:
+     * three declared, two reverted, the answer EXACTLY two records in
+     * the runner's own newest-first order -- never a truncated or
+     * padded list.
+     */
+    public function testTheRollbackJsonAnswersExactlyTheTwoStepsReverted(): void
+    {
+        $this->writeDeclaredConfiguration();
+        $this->writeCreateUsersMigration();
+        $this->writeCreateSessionsMigration();
+        $this->writeCreateTokensMigration();
+
+        $boot = MigrationsBoot::booted($this->configs(), $this->migrations());
+        $boot->migrate();
+
+        $reverted = $boot->rollback(2);
+        $document = json_decode(
+            MigrationsRollbackJson::rolledBack($boot->names(), $reverted),
+            true,
+        );
+
+        self::assertSame(
+            [self::THIRD_VERSION, self::SECOND_VERSION],
+            $reverted,
+            'the rollback answered the two newest applied versions, newest first',
+        );
+        self::assertIsArray($document);
+
+        $records = $document['rolledBack'] ?? null;
+        self::assertIsArray($records);
+        self::assertCount(2, $records, 'steps=2 answers exactly two records');
+        self::assertSame(['version' => self::THIRD_VERSION, 'name' => 'create tokens'], $records[0] ?? null);
+        self::assertSame(['version' => self::SECOND_VERSION, 'name' => 'create sessions'], $records[1] ?? null);
+    }
+
+    /**
+     * The honest JSON name for a rolled-back version whose declaration
+     * left the directory: null, never a guess -- the status document's
+     * own spelling, replayed for the mutation twin.
+     */
+    public function testTheRollbackJsonNamesAnUndeclaredVersionNull(): void
+    {
+        $document = json_decode(MigrationsRollbackJson::rolledBack([], [self::SECOND_VERSION]), true);
+
+        self::assertIsArray($document);
+
+        $records = $document['rolledBack'] ?? null;
+        self::assertIsArray($records);
+        self::assertSame(
+            ['version' => self::SECOND_VERSION, 'name' => null],
+            $records[0] ?? null,
+            'the honest JSON name for a version whose declaration left: null, never a guess',
+        );
+    }
+
+    /**
      * Writes the declared database profile: the default connection over
      * the temporary SQLite file.
      */
@@ -404,6 +529,16 @@ final class MigrationsBootTest extends TestCase
             'create sessions',
             ['CREATE TABLE sessions (id TEXT PRIMARY KEY)'],
             ['DROP TABLE sessions'],
+        );
+    }
+
+    private function writeCreateTokensMigration(): void
+    {
+        $this->writeMigrationFile(
+            self::THIRD_VERSION,
+            'create tokens',
+            ['CREATE TABLE tokens (id TEXT PRIMARY KEY)'],
+            ['DROP TABLE tokens'],
         );
     }
 
