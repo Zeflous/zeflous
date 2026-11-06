@@ -120,6 +120,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(database): the data-type mapping with JSON support [#704](https://github.com/Zeflous/zeflous/pull/704) ([mbetixz](https://github.com/mbetixz))
 - feat(database): the connection healing posture over the lazy handle [#705](https://github.com/Zeflous/zeflous/pull/705) ([mbetixz](https://github.com/mbetixz))
 - feat(database): the ambient transaction scope [#706](https://github.com/Zeflous/zeflous/pull/706) ([mbetixz](https://github.com/mbetixz))
+- feat(database): the migrations scaffolding verb [#707](https://github.com/Zeflous/zeflous/pull/707) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 

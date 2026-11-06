@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-05T22:35:04Z",
+  "as_of": "2026-11-06T04:19:33Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 297,
+  "unreleased_count": 298,
   "versions": [
     {
       "version": "Unreleased",
@@ -4806,6 +4806,52 @@
                 "sha": "e34ddbb1caaca2f74e6e64ce59efbcb7838a7272",
                 "short_sha": "e34ddbb",
                 "subject": "docs(roadmap): the pins ride the fold — the slice's last substantif head"
+              }
+            ]
+          },
+          {
+            "pr": 707,
+            "title": "feat(database): the migrations scaffolding verb",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-06T04:19:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/707",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "faddc37b9e43aea69b1db9bcc2d326b35321286a",
+                "short_sha": "faddc37",
+                "subject": "docs(database): the migrations-scaffolding design record"
+              },
+              {
+                "sha": "4ee5b56c057d27f0eed0c5f5d95aaba4c1b3fe25",
+                "short_sha": "4ee5b56",
+                "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-migrations-scaffolding"
+              },
+              {
+                "sha": "6bc6b31ef9b8a3f9226c201894cb12a6a3122582",
+                "short_sha": "6bc6b31",
+                "subject": "chore: merge main (the schema-reflection, type-mapping, healing, ambient and changelog landings) into feat/database-migrations-scaffolding"
+              },
+              {
+                "sha": "0621a7f49e6a0b7d6794b73bfa41bde9c3150417",
+                "short_sha": "0621a7f",
+                "subject": "feat(database): the migrations scaffolding verb"
+              },
+              {
+                "sha": "4f3a7095eab0e344438a784fc8245d963b7149a6",
+                "short_sha": "4f3a709",
+                "subject": "docs(roadmap): the migrations scaffolding row rides the lane's substantif head"
+              },
+              {
+                "sha": "d7d9f6f06252486554c11f541d18dc9d53128743",
+                "short_sha": "d7d9f6f",
+                "subject": "refactor(database): the name corridor becomes its own value fold — the archeology round's answer"
+              },
+              {
+                "sha": "00b2f9230f9312a914bfa590f867a489775c2e0e",
+                "short_sha": "00b2f92",
+                "subject": "docs(roadmap): the pins ride the name fold — the slice's last substantif head"
               }
             ]
           }
@@ -19546,6 +19592,52 @@
               "sha": "e34ddbb1caaca2f74e6e64ce59efbcb7838a7272",
               "short_sha": "e34ddbb",
               "subject": "docs(roadmap): the pins ride the fold — the slice's last substantif head"
+            }
+          ]
+        },
+        {
+          "pr": 707,
+          "title": "feat(database): the migrations scaffolding verb",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-06T04:19:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/707",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "faddc37b9e43aea69b1db9bcc2d326b35321286a",
+              "short_sha": "faddc37",
+              "subject": "docs(database): the migrations-scaffolding design record"
+            },
+            {
+              "sha": "4ee5b56c057d27f0eed0c5f5d95aaba4c1b3fe25",
+              "short_sha": "4ee5b56",
+              "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-migrations-scaffolding"
+            },
+            {
+              "sha": "6bc6b31ef9b8a3f9226c201894cb12a6a3122582",
+              "short_sha": "6bc6b31",
+              "subject": "chore: merge main (the schema-reflection, type-mapping, healing, ambient and changelog landings) into feat/database-migrations-scaffolding"
+            },
+            {
+              "sha": "0621a7f49e6a0b7d6794b73bfa41bde9c3150417",
+              "short_sha": "0621a7f",
+              "subject": "feat(database): the migrations scaffolding verb"
+            },
+            {
+              "sha": "4f3a7095eab0e344438a784fc8245d963b7149a6",
+              "short_sha": "4f3a709",
+              "subject": "docs(roadmap): the migrations scaffolding row rides the lane's substantif head"
+            },
+            {
+              "sha": "d7d9f6f06252486554c11f541d18dc9d53128743",
+              "short_sha": "d7d9f6f",
+              "subject": "refactor(database): the name corridor becomes its own value fold — the archeology round's answer"
+            },
+            {
+              "sha": "00b2f9230f9312a914bfa590f867a489775c2e0e",
+              "short_sha": "00b2f92",
+              "subject": "docs(roadmap): the pins ride the name fold — the slice's last substantif head"
             }
           ]
         },
