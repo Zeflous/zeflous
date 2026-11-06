@@ -45,6 +45,7 @@ final readonly class FrameworkVerbs
         'migrations:status' => 'Answer the applied, pending and declared migration counts.',
         'migrations:run' => 'Apply the pending migrations through the wired runner.',
         'migrations:rollback' => 'Roll back the applied migrations through the wired runner.',
+        'migrations:generate' => 'Scaffold a new migration file from the house template, no database touched.',
         'http:dump' => 'Simulate one HTTP request and render the raw exchange.',
         'http:headers' => 'Audit the response headers one HTTP request answers with.',
         'errors:report' => 'Summarise the local JSONL error log by level and code.',
