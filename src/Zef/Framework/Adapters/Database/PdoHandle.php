@@ -28,4 +28,18 @@ final class PdoHandle
 
         return $this->pdo;
     }
+
+    /**
+     * Drops the materialised handle: the next ask re-materialises the
+     * socket over the same connection identity -- the lazy singleton's
+     * own doctrine, replayed at heal time by {@see PdoHealing} (the
+     * classified lost-connection fold the only caller, beside which the
+     * transaction depth's reset always rides: a depth that survived its
+     * own handle would answer every later beginTransaction a phantom
+     * level over a socket whose engine already ended the transaction).
+     */
+    public function drop(): void
+    {
+        $this->pdo = null;
+    }
 }

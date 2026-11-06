@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework;
 
+use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Database\QueryLogException;
@@ -111,6 +112,26 @@ final readonly class DatabaseDeclaration
     public function migrationsName(): string
     {
         return $this->migrations !== '' ? $this->migrations : $this->default;
+    }
+
+    /**
+     * The default connection's driver word: the one fact the
+     * schema-reflection family's wiring asks the declaration for --
+     * the driver the default's own connection map spells, read
+     * through the adapter's own field folds so the reflection's
+     * dialect and the connection it composes over always agree on
+     * the one driver the deployment spelled. Reached only when
+     * {@see wantsWiredConnection()} answers true.
+     *
+     * @throws ConfigException when the default name carries no declared connection,
+     *                         or any connection field the adapter's reading folds
+     *                         consume refuses
+     */
+    public function defaultDriver(): string
+    {
+        return ConnectionConfig::fromArray(
+            DatabaseConnections::one($this->connections, $this->default, 'default'),
+        )->driver;
     }
 
     /**

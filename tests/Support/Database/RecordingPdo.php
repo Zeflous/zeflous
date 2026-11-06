@@ -7,6 +7,7 @@ namespace Zef\Test\Support\Database;
 use Override;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 /**
  * Recording PDO double: a real SQLite handle over `:memory:` whose
@@ -29,6 +30,13 @@ use PDOException;
  * the network drivers' spellings (SET TRANSACTION above all) that the
  * SQLite engine would refuse at parse time: the verb stream still
  * carries them.
+ *
+ * The dead-socket arm is the healing fold's evidence source: a
+ * `deadSocket` exception armed on the double makes EVERY driver ask on
+ * it throw that same instance -- sticky by construction, because a
+ * socket that died mid-flight stays dead, and only a test whose
+ * SECOND ask lands on a re-materialised handle can ever observe a
+ * success after it.
  */
 final class RecordingPdo extends PDO
 {
@@ -44,6 +52,9 @@ final class RecordingPdo extends PDO
 
     public bool $runStatements = true;
 
+    /** @var null|PDOException when armed, every driver ask on this handle throws it -- the dead-socket arm */
+    public ?PDOException $deadSocket = null;
+
     public function __construct()
     {
         parent::__construct('sqlite::memory:');
@@ -52,6 +63,7 @@ final class RecordingPdo extends PDO
     #[Override]
     public function beginTransaction(): bool
     {
+        $this->answerDeadSocket();
         $this->verbs[] = 'BEGIN';
 
         return parent::beginTransaction();
@@ -60,6 +72,7 @@ final class RecordingPdo extends PDO
     #[Override]
     public function commit(): bool
     {
+        $this->answerDeadSocket();
         $this->verbs[] = 'COMMIT';
 
         if ($this->refuseCommit) {
@@ -72,14 +85,27 @@ final class RecordingPdo extends PDO
     #[Override]
     public function rollBack(): bool
     {
+        $this->answerDeadSocket();
         $this->verbs[] = 'ROLLBACK';
 
         return parent::rollBack();
     }
 
+    /**
+     * @param array<array-key, mixed> $options
+     */
+    #[Override]
+    public function prepare(string $query, array $options = []): false|PDOStatement
+    {
+        $this->answerDeadSocket();
+
+        return parent::prepare($query, $options);
+    }
+
     #[Override]
     public function exec(string $statement): false|int
     {
+        $this->answerDeadSocket();
         $this->verbs[] = $statement;
 
         if ($this->refuseStatements) {
@@ -96,6 +122,20 @@ final class RecordingPdo extends PDO
     #[Override]
     public function lastInsertId(?string $name = null): false|string
     {
+        $this->answerDeadSocket();
+
         return $this->lastInsertIdAnswer;
+    }
+
+    /**
+     * The dead-socket guard: when the arm is set, the ask dies before
+     * the engine ever sees it -- the socket is gone, and every verb
+     * below the recording seam shares the one refusal.
+     */
+    private function answerDeadSocket(): void
+    {
+        if ($this->deadSocket instanceof PDOException) {
+            throw $this->deadSocket;
+        }
     }
 }

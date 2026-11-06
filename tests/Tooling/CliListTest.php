@@ -12,7 +12,7 @@ use Zef\Test\Support\Tooling\CliListText;
 /**
  * The CLI directory command's text view ({@see CliListText}): the
  * whole table pinned line by line -- the size-headed header, the
- * framework's own fifteen verbs with their one-line purposes in the
+ * framework's own sixteen verbs with their one-line purposes in the
  * vocabulary's own order, the declared section spelled even when
  * empty, and every line's two-space indent and two-space verb
  * separator carried verbatim, so the rendering is a surface a script
@@ -38,7 +38,7 @@ final class CliListTest extends TestCase
         ]);
 
         self::assertSame(
-            "Zef commands -- 15 framework, 2 declared\n"
+            "Zef commands -- 16 framework, 2 declared\n"
             . "framework:\n"
             . "  errors:replay  Replay one recorded error snapshot against a local target.\n"
             . "  container:inventory  Inspect the booted container's service inventory.\n"
@@ -51,6 +51,7 @@ final class CliListTest extends TestCase
             . "  migrations:status  Answer the applied, pending and declared migration counts.\n"
             . "  migrations:run  Apply the pending migrations through the wired runner.\n"
             . "  migrations:rollback  Roll back the applied migrations through the wired runner.\n"
+            . "  migrations:generate  Scaffold a new migration file from the house template, no database touched.\n"
             . "  http:dump  Simulate one HTTP request and render the raw exchange.\n"
             . "  http:headers  Audit the response headers one HTTP request answers with.\n"
             . "  errors:report  Summarise the local JSONL error log by level and code.\n"
@@ -71,7 +72,7 @@ final class CliListTest extends TestCase
     public function testTheEmptyRegistryAnswersTheHonestEmptyDirectory(): void
     {
         self::assertSame(
-            "Zef commands -- 15 framework, 0 declared\n"
+            "Zef commands -- 16 framework, 0 declared\n"
             . "framework:\n"
             . "  errors:replay  Replay one recorded error snapshot against a local target.\n"
             . "  container:inventory  Inspect the booted container's service inventory.\n"
@@ -84,6 +85,7 @@ final class CliListTest extends TestCase
             . "  migrations:status  Answer the applied, pending and declared migration counts.\n"
             . "  migrations:run  Apply the pending migrations through the wired runner.\n"
             . "  migrations:rollback  Roll back the applied migrations through the wired runner.\n"
+            . "  migrations:generate  Scaffold a new migration file from the house template, no database touched.\n"
             . "  http:dump  Simulate one HTTP request and render the raw exchange.\n"
             . "  http:headers  Audit the response headers one HTTP request answers with.\n"
             . "  errors:report  Summarise the local JSONL error log by level and code.\n"

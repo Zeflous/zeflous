@@ -8,12 +8,15 @@ use Psr\Log\LoggerInterface;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoQueryLogArming;
+use Zef\Framework\Adapters\Database\SchemaReflection;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Database\AmbientTransaction;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\Migrator;
 use Zef\Framework\Database\TableGateway;
 use Zef\Framework\Database\TransactionManager;
+use Zef\Framework\Database\TransactionManagerInterface;
 use Zef\Framework\Logging\JsonLineLogger;
 use Zef\Framework\Middleware\ErrorStorageWiring;
 use Zef\Framework\Telemetry\MeterInterface;
@@ -26,7 +29,7 @@ use Zef\Framework\Telemetry\MeterInterface;
  * config integration lands with the first live reader, never
  * before).
  *
- * The folds answer the four service identities the framework
+ * The folds answer the six service identities the framework
  * profile's own {@see FrameworkDefaults} registration names: the
  * default connection (`database.connection`, the {@see PdoConnection}
  * over {@see ConnectionConfig::fromArray()} with the
@@ -44,7 +47,12 @@ use Zef\Framework\Telemetry\MeterInterface;
  * the default -- a deployment may run its migrations on a connection
  * of their own naming without ever spelling the default), the
  * managed-scope transaction manager (`database.transactions`, over
- * the shared default connection the registration hands in), and the
+ * the shared default connection the registration hands in), the
+ * ambient transaction holder (`database.ambient`, over the manager
+ * the ask's frames already ride -- the transient registration the
+ * `database.unit_of_work` posture spelled, safe precisely because
+ * the holder delegates and never re-bookkeeps: two holders of one
+ * ask are observably the same ambient scope), and the
  * generic per-table gateway ({@see repository()}, over the connection
  * the host's own per-table service declaration hands in).
  *
@@ -103,10 +111,10 @@ final readonly class DatabaseWiring
             );
         }
 
-        throw new ConfigException(
-            'The database.connection wired default is not declared:'
-            . ' spell a connection (database.connections plus database.default)'
-            . ' or compose the family over your own ConnectionInterface.',
+        throw self::undeclaredDefault(
+            'database.connection',
+            'spell a connection (database.connections plus database.default)'
+            . ' or compose the family over your own ConnectionInterface',
         );
     }
 
@@ -132,11 +140,11 @@ final readonly class DatabaseWiring
         $migrationsName = $databaseDeclaration->migrationsName();
 
         if ($migrationsName === '') {
-            throw new ConfigException(
-                'The database.migrator wired default is not declared:'
-                . " spell the migration runner's connection (database.migrations"
+            throw self::undeclaredDefault(
+                'database.migrator',
+                "spell the migration runner's connection (database.migrations"
                 . ' or database.default over database.connections) or compose'
-                . ' the runner over your own ConnectionInterface.',
+                . ' the runner over your own ConnectionInterface',
             );
         }
 
@@ -167,6 +175,58 @@ final readonly class DatabaseWiring
     public static function transactions(ConnectionInterface $connection): TransactionManager
     {
         return new TransactionManager($connection);
+    }
+
+    /**
+     * Answers the ambient transaction holder over the managed-scope
+     * manager the registration hands in -- the composition seam's
+     * answer to the holder's open identity question: the
+     * `database.ambient` registration carries the TRANSIENT lifetime
+     * the `database.unit_of_work` registration spelled, because the
+     * holder owns no state of its own (the manager owns the scope
+     * truth; the holder owns only the vocabulary), so a fresh holder
+     * every resolution never fragments anything -- two holders over
+     * one manager are observably the same ambient scope. Never a
+     * singleton: a shared ambient holder would be the hidden
+     * request-global coupling the never-at-the-boot doctrine refuses.
+     */
+    public static function ambient(TransactionManagerInterface $transactionManager): AmbientTransaction
+    {
+        return new AmbientTransaction($transactionManager);
+    }
+
+    /**
+     * Answers the read-only schema reflection over the shared
+     * connection the registration hands in: the `database.schema`
+     * service identity the framework profile registers beside
+     * `database.transactions` -- the Doctrine schema-manager split
+     * (a service over the connection, never a widening of the port),
+     * with the dialect's driver word derived from the declaration
+     * the connection identity itself answers, so the reflection and
+     * the connection it composes over always agree on the one driver
+     * the deployment spelled.
+     *
+     * @throws ConfigException when the declaration is silent (no
+     *                         default connection spelled), the named connection is not
+     *                         declared, or any connection field the adapter's reading
+     *                         folds consume refuses
+     */
+    public static function schema(Config $config, ConnectionInterface $connection): SchemaReflection
+    {
+        $databaseDeclaration = DatabaseDeclaration::fromConfig($config);
+
+        if ($databaseDeclaration->wantsWiredConnection()) {
+            return new SchemaReflection(
+                $connection,
+                $databaseDeclaration->defaultDriver(),
+            );
+        }
+
+        throw self::undeclaredDefault(
+            'database.schema',
+            'spell a connection (database.connections plus database.default)'
+            . ' or compose the reflection over your own connection',
+        );
     }
 
     /**
@@ -220,6 +280,18 @@ final readonly class DatabaseWiring
             $meter,
             $logger,
             PdoQueryLogArming::bracket($databaseDeclaration->queryLogPolicy, $meter, $logger),
+        );
+    }
+
+    /**
+     * The family's one silent-declaration refusal: the identity that
+     * asked, and the way out spelled -- one fold, so the wiring's
+     * folds share a doctrine without sharing a token stream.
+     */
+    private static function undeclaredDefault(string $identity, string $wayOut): ConfigException
+    {
+        return new ConfigException(
+            "The {$identity} wired default is not declared: {$wayOut}.",
         );
     }
 
