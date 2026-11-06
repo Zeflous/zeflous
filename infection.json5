@@ -452,18 +452,18 @@
                 // refused -- pins the ceiling itself under every other
                 // spelling). Scoped to that single method.
                 "Zef\\Framework\\Database\\MigrationRegistration::accept",
-                // The house template's name corridor counts BYTES over
+                // The migration name fold's corridor counts BYTES over
                 // the same grammar the registration fold pins -- the
                 // settled spelling is mb_strlen($name, '8bit'), the
                 // encoding that IS byte semantics, so the mutator's
                 // strlen rewrite answers the identical count for every
-                // name the template's own grammar can ever see (the
-                // registration twin above, replayed for the template;
-                // the corridor's own boundary tests -- the 128-byte
-                // name accepted, the 129-byte spell refused -- pin the
-                // ceiling itself under every other spelling). Scoped
-                // to that single method.
-                "Zef\\Framework\\Database\\MigrationTemplate::assertName",
+                // name the fold's own grammar can ever see (the
+                // registration twin above, replayed for the scaffolding
+                // verb's name corridor; the corridor's own boundary
+                // tests -- the 128-byte name accepted, the 129-byte
+                // spell refused -- pin the ceiling itself under every
+                // other spelling). Scoped to that single method.
+                "Zef\\Framework\\Database\\MigrationName::fromSpelling",
                 "Zef\\Framework\\Http\\AllowScopePolicy::authorize",
                 "Zef\\Framework\\Http\\AuthCredential::fromBearerLine",
                 "Zef\\Framework\\Http\\BodyBudget::refuses",

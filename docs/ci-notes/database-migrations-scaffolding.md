@@ -17,12 +17,14 @@ template, timestamped, written into the directory the run verb
 already reads through; NO database touched, NO runner booted, NO
 application boot at all (an empty configuration directory answers
 the scaffold — the honest posture, not a database-less coincidence).
-The implementation is three folds and a dispatch row:
-`MigrationTemplate` (src, the template + grammar corridor),
-`MigrationsGenerate` (tooling, the write seam + refusal table),
-`MigrationsGenerateText/Json` (the answer's two spellings), and the
-`migrations:generate` branch `bin/zef` now answers beside its three
-siblings — the sixteenth verb the vocabulary pins.
+The implementation is four folds and a dispatch row:
+`MigrationTemplate` (src, the template's own entries + the version
+boundary), `MigrationName` (src, the name grammar's value fold — the
+archeology round's split, below), `MigrationsGenerate` (tooling, the
+write seam + refusal table), `MigrationsGenerateText/Json` (the
+answer's two spellings), and the `migrations:generate` branch
+`bin/zef` now answers beside its three siblings — the sixteenth verb
+the vocabulary pins.
 
 ## KDD-MS1: the verdict — a template verb with zero dependencies
 
@@ -183,31 +185,46 @@ doctrine).
   `bin/zef`'s branch and the vocabulary one surface), and the CLI
   directory pins ride the count (15 → 16 framework verbs) in
   `CliListTest` and the module integration test.
-- Scoped mutation rounds over the four touched source files: the
-  template + the write + the renderer pair — **75 mutants, 75
-  killed, MSI 100/100, zero escapes**. Two lessons the escapes
-  taught, both paid: (1) the name-refusal message is pinned FULL
-  (the ContainsString spelling let seven concat-reordering mutants
-  walk), and (2) `content()`'s own validation must not be masked by
-  a nested re-validation — the canonical spelling moved to the
-  private `canonicalWords()` fold every public entry composes AFTER
-  its own refusal, so each entry validates exactly once and the
-  validation's removal is visible in that entry's own answer. One
-  documented ignore joins the family: the corridor's byte ceiling
-  counts BYTES over `mb_strlen($name, '8bit')` — the encoding that
-  IS byte semantics, the mutator's strlen rewrite answering the
-  identical count for every name the grammar can ever see — the
-  `MigrationRegistration`/`SqlIdentifier` twins' own argument,
-  replayed for the template (the fourth member of that doctrine
-  family), scoped to the single method.
+- Scoped mutation rounds over the five touched source files: the
+  template + the name fold + the write + the renderer pair — after
+  the restructure below, **52 mutants, 52 killed, MSI 100/100,
+  zero escapes** (the first round's 75 carried the pre-split
+  template's validation surface). Two lessons the first round's
+  nine escapes taught, both paid: (1) the name-refusal message is
+  pinned FULL (the ContainsString spelling let seven
+  concat-reordering mutants walk), and (2) the template's own
+  validation must not be masked by a nested re-validation — the
+  corridor moved to the `MigrationName` value fold the entries
+  compose after their own refusal, so each entry validates exactly
+  once and the validation's removal is visible in that entry's own
+  answer. One documented ignore joins the family: the corridor's
+  byte ceiling counts BYTES over `mb_strlen($name, '8bit')` — the
+  encoding that IS byte semantics, the mutator's strlen rewrite
+  answering the identical count for every name the grammar can ever
+  see — the `MigrationRegistration`/`SqlIdentifier` twins' own
+  argument, replayed for the scaffolding verb's corridor (the
+  fourth member of that doctrine family), scoped to the single
+  method.
+- The CI archeology round (the first red check on the branch):
+  `MigrationTemplate` as one unit answered difficulty 25.70 (file)
+  over the 20 ceiling — answered by the house's own fold split, the
+  corridor becoming the `MigrationName` value fold: the template
+  lands at difficulty 16.82 and the name fold at 10.67, both under
+  the ceiling, the gate green (0 error-level findings). The value
+  fold's shape also paid a coverage dividend the metadata filter
+  demanded: the fold carries its own `#[CoversClass]` entry on the
+  template's test (the #589 covers-filter lesson replayed — a unit
+  the tests exercise only through another class's metadata collects
+  nothing), both units answering 19/19 statements.
 - The psalm ledger moves with the landing: the three tooling units
   enter the baseline as `UnusedClass` (their consumer is `bin/zef`,
   outside psalm's projectFiles — the renderer family's own
   position), the src-side template needs no entry.
 - Full battery on the branch head: 7222 tests / 17624 assertions;
   phpstan 0 errors; psalm 0 errors; deptrac 0 violations (the
-  template sits inside the Database layer, the write inside the
-  Tooling layer whose Database edge the migrations family already
-  owns); duplication + mess gates green; archeology 0 error-level
-  findings; coverage gate 98.60% (required 90); zero-deps, smoke,
-  workflow-concurrency and the roadmap gate green.
+  template and the name fold sit inside the Database layer, the
+  write inside the Tooling layer whose Database edge the migrations
+  family already owns); duplication + mess gates green; archeology
+  0 error-level findings (after the round above); coverage gate
+  98.49% (required 90); zero-deps, smoke, workflow-concurrency and
+  the roadmap gate green.

@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Database\MigrationInterface;
+use Zef\Framework\Database\MigrationName;
 use Zef\Framework\Database\MigrationTemplate;
 
 /**
@@ -23,6 +24,7 @@ use Zef\Framework\Database\MigrationTemplate;
  *
  * @internal
  */
+#[CoversClass(MigrationName::class)]
 #[CoversClass(MigrationTemplate::class)]
 final class MigrationTemplateTest extends TestCase
 {
