@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-11-07 · `main` @ `ba87cf6`
+**Last updated:** 2026-11-07 · `main` @ `7c301e6`
 
 **How to read this file**
 
@@ -26,7 +26,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | HTTP Layer | 34 |
 | Middleware Pipeline | 1 |
 | Error Handling | 6 |
-| Kernel & Platform | 1 |
+| Kernel & Platform | 2 |
 | Quality Gates & Tooling | 26 |
 | CI / Supply chain | 41 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
@@ -37,7 +37,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Event source | 4 |
 | Adapters layer | 19 |
 | Module integration | 4 |
-| **Total merged PRs** | **224** |
+| **Total merged PRs** | **225** |
 
 ---
 
@@ -127,6 +127,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Work item | PR | Merged | Commit |
 |---|---|---|---|
 | Composer scaffold — `Kernel`, `Version`, `Contracts/ServiceProviderInterface`, `Health/*`, `src/autoload.php` | #1 | 2026-10-07 | `f6aa0dbeb8` |
+| refactor(cli): extract the nine autoload copies and repair the zero-dependency mapping (the CLI entrypoint's own bootstrap becomes one instrument -- #717's step 1: every command branch in bin/zef had carried its own pasted copy of the autoload block since `fdb0f46` birthed the first for container:inventory, nine copies verified byte-identical modulo indentation and three command-specific comment wordings, so the extraction is mechanical -- one file-scope `requireFrameworkAutoloader()` holds the single spelling and each branch calls it exactly where its copy stood, after the branch's own argument validation, bin/zef 1129 -> 984 lines and spl_autoload_register 9 -> 1 -- and the extraction's vendor-less verification measured that the strategy had ALREADY diverged at birth: the fallback mapped `Zef\Framework\` to `src/`, a path no framework class has ever lived at, so it had never loaded a single framework class (every command answered a class-not-found refusal on a bare install, the opposite of the block's own comment), while also omitting the four PSR contract namespaces, the `Zef\Test\` dev mapping (the old Tooling-only spelling could not load `ScriptedMigration` under tests/Support/Database), and the files include `src/autoload.php` that publishes ZEF_FRAMEWORK_ROOT -- the repair mirrors composer.json exactly; verification: the command nets green at 63 tests / 261 assertions, and a vendor-less sandbox copy of the tree (bin/ + src/ + tests/, no vendor/) answers byte-identically to the composer install on every family exercised -- list, route:list/tree, container:inventory, route:openapi/postman, migrations:status/run (full lifecycle 0/3 pending -> applied 3 -> 3/0, loading the ScriptedMigration class the old mapping could never load), storage:map, http:headers, errors:report -- same output, same exit codes, the fixture boot-refusal paths agreeing too; #717's structural step 2 (the per-family handler split) stays the issue's named follow-up, and bin/ entering the static gates' scope is #718's own slice, deliberately sequenced after this one) | #732 | 2026-11-07 | `7c301e6` |
 
 ## 5. Quality Gates & Tooling
 
