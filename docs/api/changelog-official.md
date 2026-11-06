@@ -7,6 +7,7 @@
 **Merged pull requests:**
 
 - chore\(deps\): the dev toolchain's symfony trio patched past the 2026-11-04 advisories [\#709](https://github.com/Zeflous/zeflous/pull/709) ([mbetixz](https://github.com/mbetixz))
+- feat\(database\): the JSON answers on the migrations mutation verbs [\#708](https://github.com/Zeflous/zeflous/pull/708) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the migrations scaffolding verb [\#707](https://github.com/Zeflous/zeflous/pull/707) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the ambient transaction scope [\#706](https://github.com/Zeflous/zeflous/pull/706) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the connection healing posture over the lazy handle [\#705](https://github.com/Zeflous/zeflous/pull/705) ([mbetixz](https://github.com/mbetixz))
