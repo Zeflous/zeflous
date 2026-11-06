@@ -3,6 +3,44 @@
 
 declare(strict_types=1);
 
+/**
+ * The one autoloader every CLI command rides: Composer's mapping when the
+ * install is present, otherwise the zero-dependency spelling -- minimal
+ * PSR-4 registrations over the framework's own runtime tree plus the
+ * tooling support classes under tests/ (the gate engine's home since the
+ * src tree became runtime-only code), so a bare install still loads both.
+ *
+ * Extracted from nine per-command copies that had drifted from one pasted
+ * block (#717): the loading strategy now changes in exactly one place,
+ * while every command branch keeps its own argument validation ahead of
+ * the call, exactly where each copy used to stand.
+ */
+function requireFrameworkAutoloader(): void
+{
+    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    if (is_file($autoload)) {
+        require_once $autoload;
+
+        return;
+    }
+
+    spl_autoload_register(static function (string $class): void {
+        $bases = [
+            'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
+            'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
+        ];
+        foreach ($bases as $prefix => $base) {
+            if (str_starts_with($class, $prefix)) {
+                $file = $base
+                    . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+                if (is_file($file)) {
+                    require $file;
+                }
+            }
+        }
+    });
+}
+
 $command = $argv[1] ?? '';
 
 if ($command === 'errors:replay') {
@@ -152,31 +190,7 @@ if ($command === 'container:inventory') {
         exit(2);
     }
 
-    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
-    if (is_file($autoload)) {
-        require_once $autoload;
-    } else {
-        // The zero-dependency spelling: the analysis command rides the
-        // framework's own runtime tree plus the tooling support classes
-        // under tests/ (the gate engine's home since the src tree became
-        // runtime-only code), so a bare install loads both through minimal
-        // PSR-4 registrations instead of Composer.
-        spl_autoload_register(static function (string $class): void {
-            $bases = [
-                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
-            ];
-            foreach ($bases as $prefix => $base) {
-                if (str_starts_with($class, $prefix)) {
-                    $file = $base
-                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                    if (is_file($file)) {
-                        require $file;
-                    }
-                }
-            }
-        });
-    }
+    requireFrameworkAutoloader();
 
     try {
         fwrite(
@@ -273,26 +287,7 @@ if (in_array($command, ['route:list', 'route:test', 'route:tree'], true)) {
         }
     }
 
-    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
-    if (is_file($autoload)) {
-        require_once $autoload;
-    } else {
-        spl_autoload_register(static function (string $class): void {
-            $bases = [
-                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
-            ];
-            foreach ($bases as $prefix => $base) {
-                if (str_starts_with($class, $prefix)) {
-                    $file = $base
-                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                    if (is_file($file)) {
-                        require $file;
-                    }
-                }
-            }
-        });
-    }
+    requireFrameworkAutoloader();
 
     try {
         $router = Zef\Test\Support\Tooling\RouteInspectionBoot::router($resolved);
@@ -392,26 +387,7 @@ if (in_array($command, ['route:openapi', 'route:postman'], true)) {
         exit(2);
     }
 
-    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
-    if (is_file($autoload)) {
-        require_once $autoload;
-    } else {
-        spl_autoload_register(static function (string $class): void {
-            $bases = [
-                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
-            ];
-            foreach ($bases as $prefix => $base) {
-                if (str_starts_with($class, $prefix)) {
-                    $file = $base
-                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                    if (is_file($file)) {
-                        require $file;
-                    }
-                }
-            }
-        });
-    }
+    requireFrameworkAutoloader();
 
     try {
         $router = Zef\Test\Support\Tooling\RouteInspectionBoot::router($resolved);
@@ -457,31 +433,7 @@ if ($command === 'list') {
         exit(2);
     }
 
-    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
-    if (is_file($autoload)) {
-        require_once $autoload;
-    } else {
-        // The zero-dependency spelling: the directory command rides the
-        // framework's own runtime tree plus the tooling support classes
-        // under tests/ (the gate engine's home since the src tree became
-        // runtime-only code), so a bare install loads both through
-        // minimal PSR-4 registrations instead of Composer.
-        spl_autoload_register(static function (string $class): void {
-            $bases = [
-                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
-            ];
-            foreach ($bases as $prefix => $base) {
-                if (str_starts_with($class, $prefix)) {
-                    $file = $base
-                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                    if (is_file($file)) {
-                        require $file;
-                    }
-                }
-            }
-        });
-    }
+    requireFrameworkAutoloader();
 
     try {
         $kernel = Zef\Test\Support\Tooling\CliInspectionBoot::kernel($resolved);
@@ -527,26 +479,7 @@ if ($command === 'storage:map') {
             : dirname(__DIR__) . '/files'
     );
 
-    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
-    if (is_file($autoload)) {
-        require_once $autoload;
-    } else {
-        spl_autoload_register(static function (string $class): void {
-            $bases = [
-                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
-            ];
-            foreach ($bases as $prefix => $base) {
-                if (str_starts_with($class, $prefix)) {
-                    $file = $base
-                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                    if (is_file($file)) {
-                        require $file;
-                    }
-                }
-            }
-        });
-    }
+    requireFrameworkAutoloader();
 
     try {
         $storagePaths = Zef\Framework\Storage\StorageLayout::resolve($storageRoot);
@@ -636,26 +569,7 @@ if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollb
     $migrationsDirectory = $migrationsDirectoryArgument
         ?? dirname($resolvedConfigDirectory) . '/migrations';
 
-    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
-    if (is_file($autoload)) {
-        require_once $autoload;
-    } else {
-        spl_autoload_register(static function (string $class): void {
-            $bases = [
-                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
-            ];
-            foreach ($bases as $prefix => $base) {
-                if (str_starts_with($class, $prefix)) {
-                    $file = $base
-                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                    if (is_file($file)) {
-                        require $file;
-                    }
-                }
-            }
-        });
-    }
+    requireFrameworkAutoloader();
 
     if ($command === 'migrations:generate') {
         $generateVersionStamp = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('YmdHis');
@@ -836,26 +750,7 @@ if (in_array($command, ['http:dump', 'http:headers'], true)) {
         exit(2);
     }
 
-    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
-    if (is_file($autoload)) {
-        require_once $autoload;
-    } else {
-        spl_autoload_register(static function (string $class): void {
-            $bases = [
-                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
-            ];
-            foreach ($bases as $prefix => $base) {
-                if (str_starts_with($class, $prefix)) {
-                    $file = $base
-                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                    if (is_file($file)) {
-                        require $file;
-                    }
-                }
-            }
-        });
-    }
+    requireFrameworkAutoloader();
 
     try {
         $exchange = Zef\Test\Support\Tooling\HttpInspectionBoot::answered(
@@ -906,28 +801,7 @@ if (in_array($command, ['http:dump', 'http:headers'], true)) {
 $dispatchConfigDirectory = $argv[2] ?? '';
 
 if ($command !== '' && $dispatchConfigDirectory !== '' && !str_starts_with($dispatchConfigDirectory, '--')) {
-    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
-    if (is_file($autoload)) {
-        require_once $autoload;
-    } else {
-        // The zero-dependency spelling: the declared-command dispatch
-        // rides the same two trees the analysis commands load.
-        spl_autoload_register(static function (string $class): void {
-            $bases = [
-                'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-                'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
-            ];
-            foreach ($bases as $prefix => $base) {
-                if (str_starts_with($class, $prefix)) {
-                    $file = $base
-                        . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                    if (is_file($file)) {
-                        require $file;
-                    }
-                }
-            }
-        });
-    }
+    requireFrameworkAutoloader();
 
     if (!isset(Zef\Framework\Console\FrameworkVerbs::all()[$command])) {
         $resolved = realpath($dispatchConfigDirectory);
@@ -993,26 +867,7 @@ if (is_string($positionalPath)) {
     if (is_string($environmentErrorLog) && $environmentErrorLog !== '') {
         $path = $environmentErrorLog;
     } else {
-        $autoload = dirname(__DIR__) . '/vendor/autoload.php';
-        if (is_file($autoload)) {
-            require_once $autoload;
-        } else {
-            spl_autoload_register(static function (string $class): void {
-                $bases = [
-                    'Zef\\Framework\\' => dirname(__DIR__) . '/src/',
-                    'Zef\\Test\\Support\\Tooling\\' => dirname(__DIR__) . '/tests/Support/Tooling/',
-                ];
-                foreach ($bases as $prefix => $base) {
-                    if (str_starts_with($class, $prefix)) {
-                        $file = $base
-                            . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                        if (is_file($file)) {
-                            require $file;
-                        }
-                    }
-                }
-            });
-        }
+        requireFrameworkAutoloader();
 
         $environmentStorageRoot = getenv('ZEF_STORAGE_ROOT');
         $storageRoot = is_string($environmentStorageRoot) && $environmentStorageRoot !== ''
