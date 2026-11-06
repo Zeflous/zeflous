@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-06T18:26:25Z",
+  "as_of": "2026-11-06T20:34:52Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 300,
+  "unreleased_count": 301,
   "versions": [
     {
       "version": "Unreleased",
@@ -7851,6 +7851,42 @@
                 "sha": "552d26dc9065ee432557608c280134cb6f5c2cbd",
                 "short_sha": "552d26d",
                 "subject": "docs(roadmap): the supply-chain row for the symfony advisory answer"
+              }
+            ]
+          },
+          {
+            "pr": 732,
+            "title": "refactor(cli): extract the nine autoload copies and repair the zero-dependency mapping",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-06T20:34:52Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/732",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e886136e024a599712f096133e14126a7691c49e",
+                "short_sha": "e886136",
+                "subject": "refactor(cli): extract the nine autoload copies into one shared function"
+              },
+              {
+                "sha": "7c301e63e92f125a3d8545d213e7e36151402e66",
+                "short_sha": "7c301e6",
+                "subject": "fix(cli): repair the zero-dependency autoloader mapping (broken since birth)"
+              },
+              {
+                "sha": "a5e6897d7510060fe28f48ac0ecffdba4f4b606d",
+                "short_sha": "a5e6897",
+                "subject": "chore: merge main (the stream tell determinism repair #731 landing with its roadmap row) into refactor/cli-autoload-extraction"
+              },
+              {
+                "sha": "a2bde0805bfdc09febec95af7ed209e8efd421e4",
+                "short_sha": "a2bde08",
+                "subject": "docs(roadmap): record the CLI autoload extraction and refresh the pin"
+              },
+              {
+                "sha": "c96361054873ff48651534a80f9af326ace8dc79",
+                "short_sha": "c963610",
+                "subject": "docs(roadmap): re-pin the row and both pins onto the main-absorbing merge"
               }
             ]
           }
@@ -19773,6 +19809,42 @@
               "sha": "f783b03e7538aad841e6c2ebb11d2f670338bd11",
               "short_sha": "f783b03",
               "subject": "docs(roadmap): record the stream tell determinism repair and refresh the pin"
+            }
+          ]
+        },
+        {
+          "pr": 732,
+          "title": "refactor(cli): extract the nine autoload copies and repair the zero-dependency mapping",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-06T20:34:52Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/732",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e886136e024a599712f096133e14126a7691c49e",
+              "short_sha": "e886136",
+              "subject": "refactor(cli): extract the nine autoload copies into one shared function"
+            },
+            {
+              "sha": "7c301e63e92f125a3d8545d213e7e36151402e66",
+              "short_sha": "7c301e6",
+              "subject": "fix(cli): repair the zero-dependency autoloader mapping (broken since birth)"
+            },
+            {
+              "sha": "a5e6897d7510060fe28f48ac0ecffdba4f4b606d",
+              "short_sha": "a5e6897",
+              "subject": "chore: merge main (the stream tell determinism repair #731 landing with its roadmap row) into refactor/cli-autoload-extraction"
+            },
+            {
+              "sha": "a2bde0805bfdc09febec95af7ed209e8efd421e4",
+              "short_sha": "a2bde08",
+              "subject": "docs(roadmap): record the CLI autoload extraction and refresh the pin"
+            },
+            {
+              "sha": "c96361054873ff48651534a80f9af326ace8dc79",
+              "short_sha": "c963610",
+              "subject": "docs(roadmap): re-pin the row and both pins onto the main-absorbing merge"
             }
           ]
         }

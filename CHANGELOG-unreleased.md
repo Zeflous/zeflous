@@ -222,6 +222,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - ci(qa): resurrect the SonarCloud lane on the new account [#628](https://github.com/Zeflous/zeflous/pull/628) ([mbetixz](https://github.com/mbetixz))
 - chore(sonar): drop the no-effect sonar.sources and sonar.tests keys [#631](https://github.com/Zeflous/zeflous/pull/631) ([mbetixz](https://github.com/mbetixz))
 - chore(deps): the dev toolchain's symfony trio patched past the 2026-11-04 advisories [#709](https://github.com/Zeflous/zeflous/pull/709) ([mbetixz](https://github.com/mbetixz))
+- refactor(cli): extract the nine autoload copies and repair the zero-dependency mapping [#732](https://github.com/Zeflous/zeflous/pull/732) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 
