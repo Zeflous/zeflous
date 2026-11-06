@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- refactor\(cli\): extract the nine autoload copies and repair the zero-dependency mapping [\#732](https://github.com/Zeflous/zeflous/pull/732) ([mbetixz](https://github.com/mbetixz))
+- test\(http\): make the unpositionable-stream assertion deterministic [\#731](https://github.com/Zeflous/zeflous/pull/731) ([mbetixz](https://github.com/mbetixz))
 - chore\(deps\): the dev toolchain's symfony trio patched past the 2026-11-04 advisories [\#709](https://github.com/Zeflous/zeflous/pull/709) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the JSON answers on the migrations mutation verbs [\#708](https://github.com/Zeflous/zeflous/pull/708) ([mbetixz](https://github.com/mbetixz))
 - feat\(database\): the migrations scaffolding verb [\#707](https://github.com/Zeflous/zeflous/pull/707) ([mbetixz](https://github.com/mbetixz))
