@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-06T04:19:33Z",
+  "as_of": "2026-11-06T11:45:01Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 298,
+  "unreleased_count": 299,
   "versions": [
     {
       "version": "Unreleased",
@@ -4852,6 +4852,42 @@
                 "sha": "00b2f9230f9312a914bfa590f867a489775c2e0e",
                 "short_sha": "00b2f92",
                 "subject": "docs(roadmap): the pins ride the name fold — the slice's last substantif head"
+              }
+            ]
+          },
+          {
+            "pr": 708,
+            "title": "feat(database): the JSON answers on the migrations mutation verbs",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-06T11:45:01Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/708",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "33f91a2a68448cbd39b57e948ca72c07ee9ddd52",
+                "short_sha": "33f91a2",
+                "subject": "docs(database): the migrations-json design record"
+              },
+              {
+                "sha": "479b4008a9b04012aaad258920e51c1aad9befe1",
+                "short_sha": "479b400",
+                "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-migrations-json"
+              },
+              {
+                "sha": "06d9669577091871aebfc4d120266c980f2300ea",
+                "short_sha": "06d9669",
+                "subject": "chore: merge main (the migrations scaffolding landing #707 and the changelog regens) into feat/database-migrations-json"
+              },
+              {
+                "sha": "73daa3c01699b881017d90a857a0feef7eb9644b",
+                "short_sha": "73daa3c",
+                "subject": "feat(database): the JSON answers on the mutations"
+              },
+              {
+                "sha": "c49a8cbd7c636e27e89d22ae1ab454c398e0de29",
+                "short_sha": "c49a8cb",
+                "subject": "docs(roadmap): the migrations-json row rides the lane's substantif head"
               }
             ]
           }
@@ -19638,6 +19674,42 @@
               "sha": "00b2f9230f9312a914bfa590f867a489775c2e0e",
               "short_sha": "00b2f92",
               "subject": "docs(roadmap): the pins ride the name fold — the slice's last substantif head"
+            }
+          ]
+        },
+        {
+          "pr": 708,
+          "title": "feat(database): the JSON answers on the migrations mutation verbs",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-06T11:45:01Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/708",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "33f91a2a68448cbd39b57e948ca72c07ee9ddd52",
+              "short_sha": "33f91a2",
+              "subject": "docs(database): the migrations-json design record"
+            },
+            {
+              "sha": "479b4008a9b04012aaad258920e51c1aad9befe1",
+              "short_sha": "479b400",
+              "subject": "chore: merge main (the symfony advisory fix #709) into feat/database-migrations-json"
+            },
+            {
+              "sha": "06d9669577091871aebfc4d120266c980f2300ea",
+              "short_sha": "06d9669",
+              "subject": "chore: merge main (the migrations scaffolding landing #707 and the changelog regens) into feat/database-migrations-json"
+            },
+            {
+              "sha": "73daa3c01699b881017d90a857a0feef7eb9644b",
+              "short_sha": "73daa3c",
+              "subject": "feat(database): the JSON answers on the mutations"
+            },
+            {
+              "sha": "c49a8cbd7c636e27e89d22ae1ab454c398e0de29",
+              "short_sha": "c49a8cb",
+              "subject": "docs(roadmap): the migrations-json row rides the lane's substantif head"
             }
           ]
         },

@@ -121,6 +121,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(database): the connection healing posture over the lazy handle [#705](https://github.com/Zeflous/zeflous/pull/705) ([mbetixz](https://github.com/mbetixz))
 - feat(database): the ambient transaction scope [#706](https://github.com/Zeflous/zeflous/pull/706) ([mbetixz](https://github.com/mbetixz))
 - feat(database): the migrations scaffolding verb [#707](https://github.com/Zeflous/zeflous/pull/707) ([mbetixz](https://github.com/mbetixz))
+- feat(database): the JSON answers on the migrations mutation verbs [#708](https://github.com/Zeflous/zeflous/pull/708) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
