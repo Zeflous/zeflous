@@ -564,18 +564,21 @@ if ($command === 'storage:map') {
     }
 }
 
-if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollback'], true)) {
+if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollback', 'migrations:generate'], true)) {
     $migrationsUsage = "Usage: bin/zef migrations:status <config-directory>"
         . " [<migrations-directory>] [--json]\n"
         . "       bin/zef migrations:run <config-directory> [<migrations-directory>]\n"
         . "       bin/zef migrations:rollback <config-directory>"
         . " [<migrations-directory>] [--steps=<n>]\n"
+        . "       bin/zef migrations:generate <config-directory>"
+        . " [<migrations-directory>] <name> [--json]\n"
         . "       (the migrations directory defaults to the configuration"
         . " directory's sibling 'migrations')\n";
 
     $configDirectoryArgument = $argv[2] ?? '';
     $migrationsDirectoryArgument = null;
-    $statusAsJson = false;
+    $generateNameArgument = null;
+    $answerAsJson = false;
     $rollbackSteps = 1;
 
     if ($configDirectoryArgument === '' || str_starts_with($configDirectoryArgument, '--')) {
@@ -583,9 +586,11 @@ if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollb
         exit(2);
     }
 
+    $positionalArguments = [];
+
     foreach (array_slice($argv, 3) as $argument) {
-        if ($argument === '--json' && $command === 'migrations:status') {
-            $statusAsJson = true;
+        if ($argument === '--json' && in_array($command, ['migrations:status', 'migrations:generate'], true)) {
+            $answerAsJson = true;
         } elseif (str_starts_with($argument, '--steps=') && $command === 'migrations:rollback') {
             $steps = substr($argument, strlen('--steps='));
             if (preg_match('/^[1-9][0-9]{0,8}$/', $steps) !== 1) {
@@ -596,12 +601,27 @@ if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollb
         } elseif (str_starts_with($argument, '--')) {
             fwrite(STDERR, $migrationsUsage);
             exit(2);
-        } elseif ($migrationsDirectoryArgument === null) {
-            $migrationsDirectoryArgument = $argument;
+        } else {
+            $positionalArguments[] = $argument;
+        }
+    }
+
+    if ($command === 'migrations:generate') {
+        if (count($positionalArguments) === 2) {
+            [$migrationsDirectoryArgument, $generateNameArgument] = $positionalArguments;
+        } elseif (count($positionalArguments) === 1) {
+            $generateNameArgument = $positionalArguments[0];
         } else {
             fwrite(STDERR, $migrationsUsage);
             exit(2);
         }
+    } elseif ($positionalArguments !== []) {
+        if (count($positionalArguments) > 1) {
+            fwrite(STDERR, $migrationsUsage);
+            exit(2);
+        }
+
+        $migrationsDirectoryArgument = $positionalArguments[0];
     }
 
     $resolvedConfigDirectory = realpath($configDirectoryArgument);
@@ -634,6 +654,36 @@ if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollb
         });
     }
 
+    if ($command === 'migrations:generate') {
+        $generateVersionStamp = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('YmdHis');
+
+        try {
+            $generated = Zef\Test\Support\Tooling\MigrationsGenerate::written(
+                $migrationsDirectory,
+                $generateNameArgument,
+                $generateVersionStamp,
+            );
+
+            fwrite(
+                STDOUT,
+                $answerAsJson
+                    ? Zef\Test\Support\Tooling\MigrationsGenerateJson::rendered(
+                        $generated['version'],
+                        $generated['name'],
+                        $generated['file'],
+                    ) . "\n"
+                    : Zef\Test\Support\Tooling\MigrationsGenerateText::created($generated['file']),
+            );
+            exit(0);
+        } catch (InvalidArgumentException $generateUsageDefect) {
+            fwrite(STDERR, $migrationsUsage);
+            exit(2);
+        } catch (Throwable $generateFailure) {
+            fwrite(STDERR, 'The migrations command refused: ' . $generateFailure->getMessage() . "\n");
+            exit(1);
+        }
+    }
+
     try {
         $migrationsBoot = Zef\Test\Support\Tooling\MigrationsBoot::booted(
             $resolvedConfigDirectory,
@@ -643,7 +693,7 @@ if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollb
         if ($command === 'migrations:status') {
             fwrite(
                 STDOUT,
-                $statusAsJson
+                $answerAsJson
                     ? Zef\Test\Support\Tooling\MigrationsStatusJson::rendered(
                         $migrationsBoot->names(),
                         $migrationsBoot->applied(),

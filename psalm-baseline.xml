@@ -829,6 +829,21 @@
       <code><![CDATA[rollback]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="tests/Support/Tooling/MigrationsGenerate.php">
+    <UnusedClass>
+      <code><![CDATA[MigrationsGenerate]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/MigrationsGenerateJson.php">
+    <UnusedClass>
+      <code><![CDATA[MigrationsGenerateJson]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/MigrationsGenerateText.php">
+    <UnusedClass>
+      <code><![CDATA[MigrationsGenerateText]]></code>
+    </UnusedClass>
+  </file>
   <file src="tests/Support/Tooling/MigrationsRunText.php">
     <UnusedClass>
       <code><![CDATA[MigrationsRunText]]></code>

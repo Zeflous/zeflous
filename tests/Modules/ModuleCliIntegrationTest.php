@@ -138,7 +138,7 @@ final class ModuleCliIntegrationTest extends TestCase
 
         $text = CliListText::table($commands);
 
-        self::assertStringContainsString('Zef commands -- 15 framework, 2 declared', $text);
+        self::assertStringContainsString('Zef commands -- 16 framework, 2 declared', $text);
         self::assertStringContainsString('framework:', $text);
         self::assertStringContainsString('route:list', $text);
         self::assertStringContainsString('declared:', $text);
@@ -165,7 +165,7 @@ final class ModuleCliIntegrationTest extends TestCase
 
         $text = CliListText::table($commands);
 
-        self::assertStringContainsString('Zef commands -- 15 framework, 0 declared', $text);
+        self::assertStringContainsString('Zef commands -- 16 framework, 0 declared', $text);
         self::assertStringContainsString('declared:', $text);
 
         $decoded = json_decode(CliListJson::rendered($commands), true);
