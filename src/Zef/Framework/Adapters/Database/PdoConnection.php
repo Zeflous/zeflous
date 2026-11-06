@@ -38,7 +38,13 @@ use Zef\Framework\Telemetry\MeterInterface;
  *   identity fold in {@see PdoIdentity}, the lazy handle in
  *   {@see PdoHandle}, the isolation rules in {@see PdoIsolation} and
  *   the closure orchestration in {@see PdoTransactionRun} -- the
- *   adapter owns the port's verbs, one delegation each.
+ *   adapter owns the port's verbs, one delegation each;
+ * - every ask verb rides the healing fold ({@see PdoHealing}): a
+ *   classified lost-connection failure drops the lazy handle and
+ *   resets the savepoint depth with it -- the next ask
+ *   re-materialises the socket -- while the classified exception
+ *   propagates untouched (heal-and-propagate, never blind replay:
+ *   the caller's retry policy decides whether the next ask lands).
  */
 final readonly class PdoConnection implements ConnectionInterface
 {
@@ -63,19 +69,27 @@ final readonly class PdoConnection implements ConnectionInterface
     #[Override]
     public function execute(SqlQuery $sqlQuery): int
     {
-        return PdoQueryRun::execute(
-            $this->pdoHandle->pdo(),
-            $this->meter,
-            $this->auditLogger,
-            $this->pdoQueryLog,
-            $sqlQuery,
+        return PdoHealing::around(
+            $this->pdoHandle,
+            $this->pdoTransactions,
+            fn (): int => PdoQueryRun::execute(
+                $this->pdoHandle->pdo(),
+                $this->meter,
+                $this->auditLogger,
+                $this->pdoQueryLog,
+                $sqlQuery,
+            ),
         );
     }
 
     #[Override]
     public function fetchAll(SqlQuery $sqlQuery): array
     {
-        return PdoQueryRun::fetchAll($this->pdoHandle->pdo(), $this->pdoQueryLog, $sqlQuery);
+        return PdoHealing::around(
+            $this->pdoHandle,
+            $this->pdoTransactions,
+            fn (): array => PdoQueryRun::fetchAll($this->pdoHandle->pdo(), $this->pdoQueryLog, $sqlQuery),
+        );
     }
 
     #[Override]
@@ -87,25 +101,45 @@ final readonly class PdoConnection implements ConnectionInterface
     #[Override]
     public function lastInsertId(): ?string
     {
-        return PdoIdentity::lastInsertId($this->pdoHandle->pdo());
+        return PdoHealing::around(
+            $this->pdoHandle,
+            $this->pdoTransactions,
+            fn (): ?string => PdoIdentity::lastInsertId($this->pdoHandle->pdo()),
+        );
     }
 
     #[Override]
     public function beginTransaction(?IsolationLevel $isolationLevel = null): void
     {
-        $this->pdoTransactions->begin($this->pdoHandle->pdo(), $this->driver, $isolationLevel);
+        PdoHealing::around(
+            $this->pdoHandle,
+            $this->pdoTransactions,
+            fn (): null => $this->pdoTransactions->begin(
+                $this->pdoHandle->pdo(),
+                $this->driver,
+                $isolationLevel,
+            ),
+        );
     }
 
     #[Override]
     public function commit(): void
     {
-        $this->pdoTransactions->commit($this->pdoHandle->pdo());
+        PdoHealing::around(
+            $this->pdoHandle,
+            $this->pdoTransactions,
+            fn (): null => $this->pdoTransactions->commit($this->pdoHandle->pdo()),
+        );
     }
 
     #[Override]
     public function rollBack(): void
     {
-        $this->pdoTransactions->rollBack($this->pdoHandle->pdo());
+        PdoHealing::around(
+            $this->pdoHandle,
+            $this->pdoTransactions,
+            fn (): null => $this->pdoTransactions->rollBack($this->pdoHandle->pdo()),
+        );
     }
 
     #[Override]
@@ -117,13 +151,17 @@ final readonly class PdoConnection implements ConnectionInterface
     #[Override]
     public function transaction(callable $fn, ?IsolationLevel $isolationLevel = null): mixed
     {
-        return PdoTransactionRun::around(
-            $fn,
-            $isolationLevel,
-            $this,
+        return PdoHealing::around(
+            $this->pdoHandle,
             $this->pdoTransactions,
-            $this->pdoHandle->pdo(),
-            $this->driver,
+            fn (): mixed => PdoTransactionRun::around(
+                $fn,
+                $isolationLevel,
+                $this,
+                $this->pdoTransactions,
+                $this->pdoHandle->pdo(),
+                $this->driver,
+            ),
         );
     }
 }

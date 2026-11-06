@@ -236,6 +236,16 @@
       <code><![CDATA[ServiceProviderInterface]]></code>
     </UnusedClass>
   </file>
+  <file src="src/Zef/Framework/Database/AmbientTransaction.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[around]]></code>
+      <code><![CDATA[isOpen]]></code>
+    </PossiblyUnusedMethod>
+    <!-- The holder's two verbs are consumed by the tests and the boot
+         registrations (database.ambient, the wiring fold's callers), both
+         outside Psalm's projectFiles: the same ledger position every
+         service-identity class whose consumers live in tests holds. -->
+  </file>
   <file src="src/Zef/Framework/Database/ConditionBetween.php">
     <UnusedClass>
       <code><![CDATA[ConditionBetween]]></code>
@@ -276,6 +286,46 @@
     <UnusedClass>
       <code><![CDATA[ConditionNull]]></code>
     </UnusedClass>
+  </file>
+  <file src="src/Zef/Framework/Database/ColumnSchema.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$default]]></code>
+      <code><![CDATA[$nullable]]></code>
+      <code><![CDATA[$primaryKeyPosition]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Database/ForeignKeySchema.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$columns]]></code>
+      <code><![CDATA[$name]]></code>
+      <code><![CDATA[$referencedColumns]]></code>
+      <code><![CDATA[$referencedTable]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Database/IndexSchema.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$columns]]></code>
+      <code><![CDATA[$name]]></code>
+      <code><![CDATA[$unique]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="src/Zef/Framework/Database/TypeMapDecode.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+      <code><![CDATA[$decoded[$column]]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Database/TypeMapEncode.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
+  <file src="src/Zef/Framework/Database/TableSchema.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$foreignKeys]]></code>
+      <code><![CDATA[$indexes]]></code>
+      <code><![CDATA[$name]]></code>
+    </PossiblyUnusedProperty>
   </file>
   <file src="src/Zef/Framework/Database/ConnectionInterface.php">
     <PossiblyUnusedMethod>
@@ -323,10 +373,12 @@
   <file src="src/Zef/Framework/Database/TransactionManagerInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[afterCommit]]></code>
-      <code><![CDATA[inTransaction]]></code>
       <code><![CDATA[level]]></code>
-      <code><![CDATA[withTransaction]]></code>
     </PossiblyUnusedMethod>
+    <!-- inTransaction + withTransaction left this ledger with the ambient
+         holder's landing: its delegation and bracket are the first
+         src-side consumers of the two verbs, so the entries went stale
+         and were removed (the UnusedBaselineEntry gate's instruction). -->
   </file>
   <file src="src/Zef/Framework/Database/UnitOfWork.php">
     <PossiblyUnusedMethod>

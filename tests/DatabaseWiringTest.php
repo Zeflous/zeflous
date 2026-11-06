@@ -7,16 +7,20 @@ namespace Zef\Test;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoQueryLog;
 use Zef\Framework\Adapters\Database\PdoQueryLogArming;
+use Zef\Framework\Adapters\Database\SchemaReflection;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Database\AmbientTransaction;
 use Zef\Framework\Database\ConnectionException;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\Migrator;
 use Zef\Framework\Database\SqlQuery;
+use Zef\Framework\Database\TableName;
 use Zef\Framework\Database\TransactionManager;
 use Zef\Framework\Database\UnitOfWork;
 use Zef\Framework\DatabaseConnections;
@@ -33,9 +37,12 @@ use Zef\Test\Support\Telemetry\RecordingMeter;
  * answer the family's entry points from the frozen repository (the
  * silent refusal with the knob grammar spelled, the default
  * connection's happy path over a real SQLite database, the
- * per-purpose migrations connection and its standalone posture, the
- * transaction manager over the handed connection, the generic
- * gateway) and -- the rule-17 integration the slice exists for --
+ * per-purpose migrations connection and its standalone posture,
+ * the transaction manager over the handed connection, the generic
+ * gateway, and the read-only schema reflection over the wired
+ * default (its dialect's driver word derived from the same
+ * declaration the connection identity answers) and -- the rule-17
+ * integration the slice exists for --
  * the boot-level end-to-end path from declaration to read: the
  * silent profile boots without ever running the wiring's factories
  * (the lazy proxies the singleton warmer answers are the
@@ -248,6 +255,47 @@ final class DatabaseWiringTest extends TestCase
         self::assertSame(['id' => 1, 'v' => 'a-thing'], $gateway->find(1));
     }
 
+    public function testTheSchemaFoldComposesOverTheWiredDefaultConnection(): void
+    {
+        $config = $this->declaredConfig();
+        $connection = DatabaseWiring::connection($config);
+
+        $connection->execute(
+            new SqlQuery('CREATE TABLE wired_schema (id INTEGER PRIMARY KEY, v TEXT)'),
+        );
+
+        $reflection = DatabaseWiring::schema($config, $connection);
+
+        self::assertSame(
+            ['wired_schema'],
+            array_map(
+                static fn (TableName $tableName): string => $tableName->name,
+                $reflection->tables(),
+            ),
+            'the reflection asks through the port the connection itself rides',
+        );
+    }
+
+    public function testTheSilentSchemaDeclarationRefusesWithItsOwnGrammar(): void
+    {
+        $pdoConnection = new PdoConnection(ConnectionConfig::fromArray([
+            'driver' => 'sqlite',
+            'dbname' => ':memory:',
+        ]));
+
+        try {
+            DatabaseWiring::schema(new Config([]), $pdoConnection);
+            self::fail('the silent declaration refuses the schema identity');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The database.schema wired default is not declared: spell a connection'
+                    . ' (database.connections plus database.default) or compose the reflection'
+                    . ' over your own connection.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
     public function testTheSilentProfileBootsWithoutRunningTheWiringFactories(): void
     {
         $kernel = new ApplicationBootstrapper()->boot(__DIR__ . '/../app/configs');
@@ -294,6 +342,29 @@ final class DatabaseWiringTest extends TestCase
         );
     }
 
+    public function testTheBootedSchemaReflectionAnswersOverTheSharedSocket(): void
+    {
+        $kernel = self::bootDeclared();
+
+        $connection = $kernel->container()->get('database.connection');
+        self::assertInstanceOf(PdoConnection::class, $connection);
+        $connection->execute(
+            new SqlQuery('CREATE TABLE booted_schema (id INTEGER PRIMARY KEY, v TEXT)'),
+        );
+
+        $reflection = $kernel->container()->get('database.schema');
+        self::assertInstanceOf(SchemaReflection::class, $reflection);
+
+        self::assertSame(
+            ['booted_schema'],
+            array_map(
+                static fn (TableName $tableName): string => $tableName->name,
+                $reflection->tables(),
+            ),
+            'the reflection answers over the same socket the connection service rides: the one shared instance',
+        );
+    }
+
     public function testTheBootedMigratorUnitOfWorkAndTransactionsAnswerTheirOwnIdentities(): void
     {
         $kernel = self::bootDeclared();
@@ -314,6 +385,63 @@ final class DatabaseWiringTest extends TestCase
             $kernel->container()->get('database.unit_of_work'),
             'the deferred-write queue is a per-ask artifact: a fresh queue every resolution',
         );
+    }
+
+    public function testTheAmbientFoldAnswersTheHolderOverTheHandedManager(): void
+    {
+        $connection = DatabaseWiring::connection($this->declaredConfig());
+        $connection->execute(new SqlQuery('CREATE TABLE ambient (id INTEGER PRIMARY KEY, v TEXT)'));
+
+        $ambient = DatabaseWiring::ambient(DatabaseWiring::transactions($connection));
+
+        // The closure carries its own connection reference: the ambient
+        // vocabulary never threads one through the signature.
+        $ambient->around(static function () use ($connection): void {
+            $connection->execute(new SqlQuery('INSERT INTO ambient (v) VALUES (?)', ['joined']));
+        });
+
+        self::assertSame(
+            ['id' => 1, 'v' => 'joined'],
+            $connection->fetchOne(new SqlQuery('SELECT * FROM ambient WHERE id = 1')),
+            'the fold answers the holder whose bracket carries the write into the one commit',
+        );
+    }
+
+    public function testTheBootedAmbientHolderAnswersItsOwnTransientIdentity(): void
+    {
+        $kernel = self::bootDeclared();
+
+        self::assertInstanceOf(
+            TransactionManager::class,
+            $kernel->container()->get('database.transactions'),
+        );
+
+        $holder = $kernel->container()->get('database.ambient');
+        self::assertInstanceOf(AmbientTransaction::class, $holder);
+        self::assertNotSame(
+            $holder,
+            $kernel->container()->get('database.ambient'),
+            'the holder is a per-ask artifact: a fresh holder every resolution, the'
+                . ' unit-of-work posture spelled again',
+        );
+
+        // The transient posture is safe because the holder delegates: two
+        // holders over the one manager are observably the same ambient scope.
+        self::assertFalse($holder->isOpen());
+        $second = $kernel->container()->get('database.ambient');
+        self::assertInstanceOf(AmbientTransaction::class, $second);
+        $connection = $kernel->container()->get('database.connection');
+        self::assertInstanceOf(PdoConnection::class, $connection);
+        $connection->execute(new SqlQuery('CREATE TABLE ambient_boot (id INTEGER PRIMARY KEY, v TEXT)'));
+
+        $holder->around(static function () use ($second): void {
+            self::assertTrue(
+                $second->isOpen(),
+                "the second holder sees the first holder's scope: one manager owns the truth",
+            );
+        });
+
+        self::assertFalse($holder->isOpen(), 'the ambient scope closed at its outermost boundary');
     }
 
     public function testTheBootLevelAuditEmissonCountsOnTheSharedMeter(): void

@@ -282,6 +282,20 @@
                 // spellings included). This ignore is scoped to that
                 // single method.
                 "Zef\\Framework\\AppEnvironment::isDevelopment",
+                // The reflected map entry's declared-word lowering
+                // reads the fold's own closed vocabulary (datetime,
+                // timestamp, json) -- no k in any of the three words,
+                // and the Kelvin sign's landing on k is the only
+                // single-character lower-case arrival in ASCII the
+                // Unicode map carries -- so a declared spelling that
+                // diverges between the character map and the byte map
+                // misses every word under both spellings and the fold
+                // answers no-entry either way (verified by running the
+                // database family suite under the manually applied
+                // mutation -- the complete suite passes, 535 tests
+                // over the real SQLite socket included). This ignore
+                // is scoped to that single method.
+                "Zef\\Framework\\Database\\ReflectedTypeMap::fromSchema",
                 // The router lane's grammar folds are the fifth through
                 // ninth, each ASCII by its own construction: the DNS
                 // label, parameter-name and version grammars admit only

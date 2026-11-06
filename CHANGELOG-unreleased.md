@@ -115,6 +115,11 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(modules): the CLI command extension point with its manifest fold over the standard CLI schema [#692](https://github.com/Zeflous/zeflous/pull/692) ([mbetixz](https://github.com/mbetixz))
 - feat(view): the presentation port and the native PHP-template answer [#693](https://github.com/Zeflous/zeflous/pull/693) ([mbetixz](https://github.com/mbetixz))
 - feat(telemetry): the export lane's metrics and logs signals [#696](https://github.com/Zeflous/zeflous/pull/696) ([mbetixz](https://github.com/mbetixz))
+- feat(database): per-query logging with slow-query detection [#702](https://github.com/Zeflous/zeflous/pull/702) ([mbetixz](https://github.com/mbetixz))
+- feat(database): the schema reflection family over the connection port [#703](https://github.com/Zeflous/zeflous/pull/703) ([mbetixz](https://github.com/mbetixz))
+- feat(database): the data-type mapping with JSON support [#704](https://github.com/Zeflous/zeflous/pull/704) ([mbetixz](https://github.com/mbetixz))
+- feat(database): the connection healing posture over the lazy handle [#705](https://github.com/Zeflous/zeflous/pull/705) ([mbetixz](https://github.com/mbetixz))
+- feat(database): the ambient transaction scope [#706](https://github.com/Zeflous/zeflous/pull/706) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
@@ -214,6 +219,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - ci(qa): retire the SonarCloud lane [#622](https://github.com/Zeflous/zeflous/pull/622) ([mbetixz](https://github.com/mbetixz))
 - ci(qa): resurrect the SonarCloud lane on the new account [#628](https://github.com/Zeflous/zeflous/pull/628) ([mbetixz](https://github.com/mbetixz))
 - chore(sonar): drop the no-effect sonar.sources and sonar.tests keys [#631](https://github.com/Zeflous/zeflous/pull/631) ([mbetixz](https://github.com/mbetixz))
+- chore(deps): the dev toolchain's symfony trio patched past the 2026-11-04 advisories [#709](https://github.com/Zeflous/zeflous/pull/709) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 
