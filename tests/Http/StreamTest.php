@@ -167,11 +167,39 @@ final class StreamTest extends TestCase
 
     public function testTellThrowsWhenThePositionCannotBeDetermined(): void
     {
-        $stream = $this->stdoutStream();
+        // The write end of a real pipe is the one stream shape whose
+        // position the engine cannot report: the fd refuses lseek(), so
+        // ftell() answers false and the guard must fail closed. The
+        // assertion used to ride on php://stdout, but its seekability
+        // follows the runner's redirection -- a pipe or a tty fails
+        // ftell() while a regular file or /dev/null answers a position --
+        // so the outcome flipped with how the suite was launched. An
+        // immediately exiting PHP child supplies the pipe without
+        // depending on any platform binary, and its stdio sinks are
+        // /dev/null so it cannot talk back.
+        $pipes = [];
+        $process = proc_open(
+            [\PHP_BINARY, '-n', '-r', 'exit(0);'],
+            [0 => ['pipe', 'r'], 1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']],
+            $pipes,
+        );
 
-        $this->assertThrows('Unable to determine stream position.', static function () use ($stream): void {
-            $stream->tell();
-        });
+        try {
+            self::assertIsResource($process);
+            $stream = new Stream($pipes[0]);
+
+            $this->assertThrows('Unable to determine stream position.', static function () use ($stream): void {
+                $stream->tell();
+            });
+        } finally {
+            foreach ($pipes as $pipe) {
+                fclose($pipe);
+            }
+
+            if (\is_resource($process)) {
+                proc_close($process);
+            }
+        }
     }
 
     public function testSeekThrowsWhenTheStreamIsDetached(): void
