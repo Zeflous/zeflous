@@ -26,7 +26,7 @@ the pull request and its merge group. The rest are advisory signals.
 | --- | --- |
 | `CI Strict` | Aggregator: green only when `CI Static`, `CI Coverage`, `CI Infection` and `CI Bench` are all green. |
 | `CI Static` | `composer ci:static` — PHPStan (max level) + ratchet, Deptrac, PHP-CS-Fixer, PHP_CodeSniffer + Slevomat, Rector, PHPUnit, the persistent-worker smoke test and the strict supply-chain audit — plus Psalm (level 1 + baseline), Progpilot and PhpCodeArcheology. |
-| `CI Coverage` | `composer ci:coverage` — the 90% line-coverage gate. |
+| `CI Coverage` | `composer ci:coverage` — the 90% line-coverage gate, measured only through `composer coverage`'s pinned runtime settings (see [`docs/ci-notes/coverage-measurement.md`](docs/ci-notes/coverage-measurement.md)). |
 | `CI Infection` | `composer ci:infection` — Infection mutation testing (MSI 100) and the mutation-score floor. |
 | `CI Bench` | `composer ci:bench` — PHPBench. |
 | `PR Validator` | The pull-request title is a valid Conventional-Commit header. |
