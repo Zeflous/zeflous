@@ -285,39 +285,12 @@ if (in_array($command, ['route:openapi', 'route:postman'], true)) {
 }
 
 if ($command === 'list') {
-    $listUsage = "Usage: bin/zef list <config-directory> [--json]\n";
-
-    $configDirectory = $argv[2] ?? '';
-    $listAsJson = in_array('--json', array_slice($argv, 3), true);
-
-    if ($configDirectory === '' || str_starts_with($configDirectory, '--')) {
-        fwrite(STDERR, $listUsage);
-        exit(2);
-    }
-
-    $resolved = realpath($configDirectory);
-    if ($resolved === false || !is_dir($resolved)) {
-        fwrite(STDERR, "Configuration directory does not exist: {$configDirectory}\n");
-        exit(2);
-    }
-
     requireFrameworkAutoloader();
 
-    try {
-        $kernel = Zef\Test\Support\Tooling\CliInspectionBoot::kernel($resolved);
-        $commands = Zef\Framework\ConsoleWiring::commands($kernel->config());
-
-        fwrite(
-            STDOUT,
-            $listAsJson
-                ? Zef\Test\Support\Tooling\CliListJson::rendered($commands) . "\n"
-                : Zef\Test\Support\Tooling\CliListText::table($commands),
-        );
-        exit(0);
-    } catch (Throwable $inspectionFailure) {
-        fwrite(STDERR, 'The CLI inspection refused: ' . $inspectionFailure->getMessage() . "\n");
-        exit(1);
-    }
+    $outcome = \Zef\Test\Support\Tooling\CliList::run(array_slice($argv, 2));
+    fwrite(STDERR, $outcome->stderr);
+    fwrite(STDOUT, $outcome->stdout);
+    exit($outcome->exitCode);
 }
 
 if ($command === 'storage:map') {

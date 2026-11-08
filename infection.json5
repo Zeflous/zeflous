@@ -1111,7 +1111,18 @@
         // to that single method.
         "UnwrapArraySlice": {
             "ignore": [
-                "Zef\\Test\\Support\\Tooling\\ContainerInventory::run"
+                "Zef\\Test\\Support\\Tooling\\ContainerInventory::run",
+                // The list verb's flag scan slice: unwrapping the scan
+                // reads index 0 too, and the only index-0 spelling that
+                // can newly match '--json' already answers the usage
+                // refusal two statements later (a '--' prefix IS the
+                // usage defect); every other index-0 spelling lacks the
+                // flag and the scan skips it under both spellings
+                // (verified by running the verb battery and the
+                // subprocess command battery under the manually applied
+                // unwrap -- both pass complete). Scoped to that single
+                // method.
+                "Zef\\Test\\Support\\Tooling\\CliList::run"
             ]
         },
         "DecrementInteger": {
@@ -1151,6 +1162,19 @@
                 // battery under the manually applied mutation -- both
                 // pass complete). Scoped to that single method.
                 "Zef\\Test\\Support\\Tooling\\ContainerInventory::run",
+                // The list verb's flag scan offset: the same unreachable
+                // positional as the inventory verb's -- the only index-0
+                // spelling the widened scan (offset 0) can newly read is
+                // '--json' itself, which the usage refusal answers two
+                // statements later (a '--' prefix IS the usage defect),
+                // so the flag's parsed presence is unreachable from any
+                // observable outcome and every other index-0 spelling
+                // lacks the flag and is skipped under both offsets
+                // (verified by running the verb battery and the
+                // subprocess command battery under the manually applied
+                // mutation -- both pass complete). Scoped to that
+                // single method.
+                "Zef\\Test\\Support\\Tooling\\CliList::run"
             ],
             "ignoreSourceCodeByRegex": [
                 // The query-log window's inert opening instant: the

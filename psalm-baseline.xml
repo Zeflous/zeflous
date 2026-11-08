@@ -801,6 +801,14 @@
       <code><![CDATA[$stderr]]></code>
     </PossiblyUnusedProperty>
   </file>
+  <file src="tests/Support/Tooling/CliList.php">
+    <UnusedClass>
+      <code><![CDATA[CliList]]></code>
+    </UnusedClass>
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$resolved]]></code>
+    </ArgumentTypeCoercion>
+  </file>
   <file src="tests/Support/Tooling/ContainerInventory.php">
     <UnusedClass>
       <code><![CDATA[ContainerInventory]]></code>
@@ -847,21 +855,6 @@
     <MixedAssignment>
       <code><![CDATA[$fileViolation]]></code>
     </MixedAssignment>
-  </file>
-  <file src="tests/Support/Tooling/CliInspectionBoot.php">
-    <UnusedClass>
-      <code><![CDATA[CliInspectionBoot]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/CliListJson.php">
-    <UnusedClass>
-      <code><![CDATA[CliListJson]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/CliListText.php">
-    <UnusedClass>
-      <code><![CDATA[CliListText]]></code>
-    </UnusedClass>
   </file>
   <file src="tests/Support/Tooling/MigrationsBoot.php">
     <PossiblyUnusedMethod>
