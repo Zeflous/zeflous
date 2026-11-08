@@ -219,6 +219,21 @@ Unit-test line coverage **MUST** be **greater than 90 %** (the CI gate enforces
 - tests assert behaviour, not implementation details;
 - no test is skipped, weakened or deleted to make the gate pass.
 
+**The measurement is contractual.** `composer coverage` — and `composer
+ci:coverage`, the gate spelling — is the only sanctioned way to measure line
+coverage; a number produced by any other invocation is unmeasured, not a
+decline. The script pins three runtime settings a bare
+`php -d pcov.enabled=1 vendor/bin/phpunit --coverage-text` does not:
+`pcov.directory` restricts instrumentation to the repository tree,
+`pcov.exclude` keeps `/vendor/` out of the record, and `zend.assertions=1`
+runs the assertions production removes (`memory_limit=1G` merely survives the
+full suite). On the very same suite the two invocations answer ~8.6 points
+apart on lines — wide enough to look like a regression and send a fix after a
+problem that is not there, and the bare spelling can even land under the 90 %
+floor while the gate stays green (#721). The full field evidence and the
+reproduction commands live in
+[`docs/ci-notes/coverage-measurement.md`](docs/ci-notes/coverage-measurement.md).
+
 ### 10. Watch CI gates to green, then let auto-merge run
 
 After pushing, the author **MUST** watch the CI gates until **all** of them are
