@@ -799,6 +799,47 @@
       <code><![CDATA[HttpInspectionBoot]]></code>
     </UnusedClass>
   </file>
+  <file src="tests/Support/Tooling/CommandOutcome.php">
+    <PossiblyUnusedProperty>
+      <code><![CDATA[$exitCode]]></code>
+      <code><![CDATA[$stdout]]></code>
+      <code><![CDATA[$stderr]]></code>
+    </PossiblyUnusedProperty>
+  </file>
+  <file src="tests/Support/Tooling/ErrorsClear.php">
+    <UnusedClass>
+      <code><![CDATA[ErrorsClear]]></code>
+    </UnusedClass>
+  </file>
+  <file src="tests/Support/Tooling/ErrorsReplay.php">
+    <UnusedClass>
+      <code><![CDATA[ErrorsReplay]]></code>
+    </UnusedClass>
+    <MixedAssignment>
+      <code><![CDATA[$rawMethod]]></code>
+      <code><![CDATA[$requestPath]]></code>
+      <code><![CDATA[$query]]></code>
+      <code><![CDATA[$body]]></code>
+      <code><![CDATA[$bodyReplayable]]></code>
+      <code><![CDATA[$storedHeaders]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+    <MixedOperand>
+      <code><![CDATA[$requestPath]]></code>
+      <code><![CDATA[$query]]></code>
+    </MixedOperand>
+  </file>
+  <file src="tests/Support/Tooling/ErrorsReport.php">
+    <UnusedClass>
+      <code><![CDATA[ErrorsReport]]></code>
+    </UnusedClass>
+    <MixedAssignment>
+      <code><![CDATA[$storedContext]]></code>
+      <code><![CDATA[$storedLevel]]></code>
+      <code><![CDATA[$storedCode]]></code>
+      <code><![CDATA[$storedClass]]></code>
+    </MixedAssignment>
+  </file>
   <file src="tests/Support/Tooling/MessReport.php">
     <MixedAssignment>
       <code><![CDATA[$fileViolation]]></code>

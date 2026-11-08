@@ -265,6 +265,19 @@
         // methods.
         "MBString": {
             "ignore": [
+                // The errors family's request-id prefix strip reads the
+                // prefix's own closed vocabulary: '--request-id=' is pure
+                // ASCII (13 bytes, 13 characters -- every spelling of the
+                // argument that reaches the strip starts with it, or the
+                // branch never runs), so mb_strlen and strlen answer the
+                // same offset and mb_substr and substr cut the same bytes
+                // there. The candidate that follows is corridor-checked by
+                // the D-anchored ASCII-only pattern -- a multi-byte
+                // candidate never passes the corridor, so no input can
+                // observe the rewrite. The neighbouring str_starts_with()
+                // call is not an mb_ spelling to begin with. This ignore is
+                // scoped to that single method.
+                "Zef\\Test\\Support\\Tooling\\ErrorsLogArguments::parsed",
                 // The container's environment fold reads the toolbar
                 // doctrine's own closed vocabulary (the two
                 // DebugToolbarFactory and ErrorMappingFactory entries
