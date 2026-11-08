@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-11-08 · `main` @ `11a71df`
+**Last updated:** 2026-11-08 · `main` @ `76c5377`
 
 **How to read this file**
 
