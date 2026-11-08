@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-08T09:08:54Z",
+  "as_of": "2026-11-08T15:42:38Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 302,
+  "unreleased_count": 303,
   "versions": [
     {
       "version": "Unreleased",
@@ -6739,6 +6739,42 @@
                 "sha": "b4b68865bb1eb21d4ff15b63046a9e5753f03d3e",
                 "short_sha": "b4b6886",
                 "subject": "docs(roadmap): record the runner-dependent kill repair and refresh the pin"
+              }
+            ]
+          },
+          {
+            "pr": 737,
+            "title": "fix(ci): explicit memory ceilings on the three parallel gates",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-08T15:42:38Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/737",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+                "short_sha": "c25ada1",
+                "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+              },
+              {
+                "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+                "short_sha": "052468a",
+                "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+              },
+              {
+                "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+                "short_sha": "a838a8b",
+                "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+              },
+              {
+                "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+                "short_sha": "e7524ae",
+                "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+              },
+              {
+                "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+                "short_sha": "fd91abd",
+                "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
               }
             ]
           }
@@ -19897,6 +19933,42 @@
               "sha": "f1371c2f39e56091032dea694d9845eed42b5945",
               "short_sha": "f1371c2",
               "subject": "docs(roadmap): the record row rides the section table and the history pointer follows it"
+            }
+          ]
+        },
+        {
+          "pr": 737,
+          "title": "fix(ci): explicit memory ceilings on the three parallel gates",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-08T15:42:38Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/737",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+              "short_sha": "c25ada1",
+              "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+            },
+            {
+              "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+              "short_sha": "052468a",
+              "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+            },
+            {
+              "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+              "short_sha": "a838a8b",
+              "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+            },
+            {
+              "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+              "short_sha": "e7524ae",
+              "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+            },
+            {
+              "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+              "short_sha": "fd91abd",
+              "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
             }
           ]
         }
