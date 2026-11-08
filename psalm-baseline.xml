@@ -825,6 +825,15 @@
       <code><![CDATA[$resolved]]></code>
     </ArgumentTypeCoercion>
   </file>
+  <file src="tests/Support/Tooling/RouteExport.php">
+    <UnusedClass>
+      <code><![CDATA[RouteExport]]></code>
+    </UnusedClass>
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$resolved]]></code>
+      <code><![CDATA[$resolved]]></code>
+    </ArgumentTypeCoercion>
+  </file>
   <file src="tests/Support/Tooling/StorageMap.php">
     <UnusedClass>
       <code><![CDATA[StorageMap]]></code>
@@ -932,16 +941,6 @@
   <file src="tests/Support/Tooling/ReviewThreadResolver.php">
     <UnusedClass>
       <code><![CDATA[ReviewThreadResolver]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/RouteOpenApiExport.php">
-    <UnusedClass>
-      <code><![CDATA[RouteOpenApiExport]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/RoutePostmanExport.php">
-    <UnusedClass>
-      <code><![CDATA[RoutePostmanExport]]></code>
     </UnusedClass>
   </file>
 </files>
