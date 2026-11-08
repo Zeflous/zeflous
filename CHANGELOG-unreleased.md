@@ -311,6 +311,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): record the router deprecation lifecycle and pin the lane [#544](https://github.com/Zeflous/zeflous/pull/544) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the durable quarantine landing in the status rows [#648](https://github.com/Zeflous/zeflous/pull/648) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger [#699](https://github.com/Zeflous/zeflous/pull/699) ([mbetixz](https://github.com/mbetixz))
+- docs(contributing): the coverage measurement contract pins one sanctioned invocation [#736](https://github.com/Zeflous/zeflous/pull/736) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

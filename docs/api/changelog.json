@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-06T20:34:52Z",
+  "as_of": "2026-11-08T09:08:54Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 301,
+  "unreleased_count": 302,
   "versions": [
     {
       "version": "Unreleased",
@@ -9739,6 +9739,32 @@
                 "sha": "befcbf36a3c1834628a34b9d2372556c4e451941",
                 "short_sha": "befcbf3",
                 "subject": "docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger"
+              }
+            ]
+          },
+          {
+            "pr": 736,
+            "title": "docs(contributing): the coverage measurement contract pins one sanctioned invocation",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-11-08T09:08:54Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/736",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "4a636b4b8a23ba14a63e844c9fc1e9a703b6b319",
+                "short_sha": "4a636b4",
+                "subject": "docs(contributing): the coverage measurement contract pins one sanctioned invocation"
+              },
+              {
+                "sha": "e6bda1464509221786117ff8d2520fdb253e3099",
+                "short_sha": "e6bda14",
+                "subject": "docs(roadmap): the coverage measurement contract recorded and the pin refreshed"
+              },
+              {
+                "sha": "f1371c2f39e56091032dea694d9845eed42b5945",
+                "short_sha": "f1371c2",
+                "subject": "docs(roadmap): the record row rides the section table and the history pointer follows it"
               }
             ]
           }
@@ -19845,6 +19871,32 @@
               "sha": "c96361054873ff48651534a80f9af326ace8dc79",
               "short_sha": "c963610",
               "subject": "docs(roadmap): re-pin the row and both pins onto the main-absorbing merge"
+            }
+          ]
+        },
+        {
+          "pr": 736,
+          "title": "docs(contributing): the coverage measurement contract pins one sanctioned invocation",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-11-08T09:08:54Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/736",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "4a636b4b8a23ba14a63e844c9fc1e9a703b6b319",
+              "short_sha": "4a636b4",
+              "subject": "docs(contributing): the coverage measurement contract pins one sanctioned invocation"
+            },
+            {
+              "sha": "e6bda1464509221786117ff8d2520fdb253e3099",
+              "short_sha": "e6bda14",
+              "subject": "docs(roadmap): the coverage measurement contract recorded and the pin refreshed"
+            },
+            {
+              "sha": "f1371c2f39e56091032dea694d9845eed42b5945",
+              "short_sha": "f1371c2",
+              "subject": "docs(roadmap): the record row rides the section table and the history pointer follows it"
             }
           ]
         }
