@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-11-08 · `main` @ `7426ea0`
+**Last updated:** 2026-11-08 · `main` @ `76c5377`
 
 **How to read this file**
 
@@ -26,7 +26,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | HTTP Layer | 34 |
 | Middleware Pipeline | 1 |
 | Error Handling | 6 |
-| Kernel & Platform | 5 |
+| Kernel & Platform | 6 |
 | Quality Gates & Tooling | 27 |
 | CI / Supply chain | 42 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
@@ -37,7 +37,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Event source | 4 |
 | Adapters layer | 19 |
 | Module integration | 4 |
-| **Total merged PRs** | **231** |
+| **Total merged PRs** | **232** |
 
 ---
 
@@ -131,6 +131,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | refactor(cli): the errors family becomes three pure verb classes over shared folds (#717's structural step, first family -- the CLI's joined errors branch lifted out of bin/zef whole: the three verbs answer as pure computations over a CommandOutcome {exit code, STDOUT answer, STDERR refusal} so the dispatch owns the terminals and the family's discipline lives in one reviewable place; ErrorsReplay carries the replay verb's whole safety posture, ErrorsReport the counted report with the request-id filter and the control-byte display discipline, ErrorsClear the --confirm refusal and the truncation under LOCK_EX, over the shared folds ErrorsLogArguments/ErrorsLogPath/ErrorsDisplayText; bin/zef 998 -> 737 lines, the errors dispatch eleven; byte-identical behaviour -- the 70 subprocess tests that pin the joined branch's words pass unchanged -- while the in-process curriculum answers the mutation gate: scoped infection over the seven new files at MSI 100/100, 392 mutants killed, two documented-equivalent MBString sites ignored with the BodyBudget precedent's reasoning; the ZefLockStreamWrapper fixture observes the clear verb's flush/unlock/close discipline and lock refusal as data; psalm carries the same payload-mixed baseline entries the JSON-report folds carry; the remaining families (route, container, migrations, http, storage, list) stay the named follow-up slices, and bin/ entering the static gates' scope stays #718's own slice after the split completes) | #739 | 2026-11-08 | `d8052fb` |
 | refactor(cli): the container inventory family becomes one pure verb class (#717's structural step's container slice -- the CLI's joined container:inventory branch lifted out whole: the verb answers as a pure computation over CommandOutcome -- the argument grammar (the positional configuration directory, the --id=<service> filter whose last spelling wins and whose empty spelling answers the whole table), the usage refusal (exit 2), the path-defect refusal naming the directory, the boot's own report as the answer (exit 0), and the refused boot surfacing with the boot's own chain (exit 1) -- exactly the words the joined branch spelled, bin/zef 744 -> 716 lines with the container dispatch at seven; the report's UnusedClass psalm baseline entry retires (the verb is its in-project consumer now), the verb's own entry rides the bin/zef-outside-projectFiles precedent, the analyzer disagreement over realpath()'s narrowed return (PHPStan sees non-empty-string, Psalm sees string) lands as the baseline's documented ArgumentTypeCoercion entry, and scoped infection over the new file answers MSI 100/100 (28 mutants killed, four documented equivalents ignored in infection.json5 with the ErrorsLogArguments reasoning -- the ASCII '--id=' prefix strip and the usage-refusal-unreachable positional the widened loop would read); the route, migrations, http, storage and list branches each remain their own named slice, and the gates-scope widening stays #718's, sequenced after the split completes) | #742 | 2026-11-08 | `290c670` |
 | refactor(cli): the list family becomes one pure verb class (#717's structural step's list slice -- the CLI's joined list branch lifted out whole: the verb answers as a pure computation over CommandOutcome -- the argument grammar (the positional configuration directory, the --json flag choosing the machine form over the table), the usage refusal (exit 2), the path-defect refusal naming the directory, the inspection boot's own listing as the answer (exit 0), and the refused inspection surfacing with the boot's own chain (exit 1) -- exactly the words the joined branch spelled, bin/zef 716 -> 689 lines; the inspection boot and both renderers' UnusedClass psalm baseline entries retire (the verb is their in-project consumer now), the verb's own entry rides the bin/zef-outside-projectFiles precedent, the realpath() analyzer disagreement lands as the baseline's second documented ArgumentTypeCoercion entry, and scoped infection over the new file answers MSI 100/100 (29 mutants killed, two documented equivalents ignored in infection.json5 -- the usage-refusal unreachable positional the widened flag scan would read); the route, migrations, http and storage branches each remain their own named slice, and the gates-scope widening stays #718's, sequenced after the split completes) | #743 | 2026-11-08 | `7426ea0` |
+| refactor(cli): the storage map family becomes one pure verb class (#717's structural step's storage slice -- the CLI's joined storage:map branch lifted out whole: the verb answers as a pure computation over CommandOutcome -- the argument grammar (the optional storage-root positional, the --json flag, the usage refusal for an unknown flag or a second positional), the one-way root precedence the whole storage lane answers (the positional, then the ZEF_STORAGE_ROOT environment spelling, then the repository's own files skeleton), the layout's own walk as the answer (exit 0), and the refused layout surfacing with the layout's own defect (exit 1) -- exactly the words the joined branch spelled, bin/zef 689 -> 653 lines; both renderers' UnusedClass psalm baseline entries retire (the verb is their in-project consumer now), the verb's own entry rides the bin/zef-outside-projectFiles precedent, and scoped infection over the new file answers MSI 100/100 with zero equivalent ignores -- the environment-root test rides its own seven-lane skeleton fixture, so the precedence condition's logical rewrites stay observable; the route, migrations and http branches each remain their own named slice, and the gates-scope widening stays #718's, sequenced after the split completes) | #744 | 2026-11-08 | `76c5377` |
 
 ## 5. Quality Gates & Tooling
 

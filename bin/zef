@@ -294,48 +294,12 @@ if ($command === 'list') {
 }
 
 if ($command === 'storage:map') {
-    $storageUsage = "Usage: bin/zef storage:map [<storage-root>] [--json]\n";
-
-    $storageRootArgument = null;
-    $storageAsJson = false;
-
-    foreach (array_slice($argv, 2) as $argument) {
-        if ($argument === '--json') {
-            $storageAsJson = true;
-        } elseif (str_starts_with($argument, '--')) {
-            fwrite(STDERR, $storageUsage);
-            exit(2);
-        } elseif ($storageRootArgument === null) {
-            $storageRootArgument = $argument;
-        } else {
-            fwrite(STDERR, $storageUsage);
-            exit(2);
-        }
-    }
-
-    $environmentRoot = getenv('ZEF_STORAGE_ROOT');
-    $storageRoot = $storageRootArgument ?? (
-        \is_string($environmentRoot) && $environmentRoot !== ''
-            ? $environmentRoot
-            : dirname(__DIR__) . '/files'
-    );
-
     requireFrameworkAutoloader();
 
-    try {
-        $storagePaths = Zef\Framework\Storage\StorageLayout::resolve($storageRoot);
-
-        fwrite(
-            STDOUT,
-            $storageAsJson
-                ? Zef\Test\Support\Tooling\StorageMapJson::rendered($storagePaths) . "\n"
-                : Zef\Test\Support\Tooling\StorageMapText::table($storagePaths),
-        );
-        exit(0);
-    } catch (Throwable $layoutFailure) {
-        fwrite(STDERR, 'The storage layout refused: ' . $layoutFailure->getMessage() . "\n");
-        exit(1);
-    }
+    $outcome = \Zef\Test\Support\Tooling\StorageMap::run(array_slice($argv, 2));
+    fwrite(STDERR, $outcome->stderr);
+    fwrite(STDOUT, $outcome->stdout);
+    exit($outcome->exitCode);
 }
 
 if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollback', 'migrations:generate'], true)) {
