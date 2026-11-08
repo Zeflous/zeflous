@@ -506,6 +506,18 @@ a workflow fallback or exclusion to turn missing required-gate evidence green.
 | `Changelog generator tests` | Unit tests for the changelog generator. |
 | `CI Ruleset Lint` | Weekly guard: every required status-check context in the live `main` ruleset — united with the classic branch-protection layer's contexts whenever such a layer exists (the read distinguishes `read` / `absent` / `unread`: an administration-scoped 401/403 stays an explicit warning, while the consolidation's 404 "Branch not protected" is the definitive absence) — must have a check-run on each of the last ten merged pull-request heads (the dead-required-check failure mode of the merge-gate audit). The lane reads the rulesets endpoint with the owner's `ZEF_TOKEN` PAT first — the only credential that reaches it in practice — then the workflow token, then the anonymous read. |
 
+**Resource ceilings on the parallel gates.** The gates that spawn worker
+pools — `composer mutation`, `composer rector:check` and `composer qa:mess` —
+carry **explicit parallelism and memory ceilings** spelled where each command
+lives (the composer script, `rector.php`, the gate's command builder), sized
+so the strict pipeline stays reproducible on a 2 GiB cgroup, not only on a
+large runner. A gate dying with `Killed` / exit 137 is a **memory budget
+statement about the environment, never a defect in the tree** — triage the
+cgroup and the ceilings (see
+[`docs/ci-notes/memory-ceilings.md`](docs/ci-notes/memory-ceilings.md)),
+not the code (#720). A larger host may raise the numbers locally; the
+ceilings are minimums for reproducibility, not maximums for performance.
+
 Do not weaken a gate, add a rule exclusion, or lower a threshold to make a
 change pass. Fix the underlying issue instead.
 

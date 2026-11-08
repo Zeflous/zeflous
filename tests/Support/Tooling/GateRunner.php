@@ -265,12 +265,19 @@ final readonly class GateRunner
      * anything else (a missing ruleset, a crash) is a run the gate
      * refuses to trust. The exit code and the parsed payload must agree
      * for the same fail-closed reason as the duplication arm.
+     *
+     * The parsing pool is pinned to one thread: phpmd's own default is a
+     * worker per CPU core, so a many-core host under a small cgroup OOMs
+     * (exit 137, no diagnostic) before the first violation is ever
+     * reported (#720). One thread is the measured stable spelling on the
+     * 2 GiB audit environment; the tree parses in seconds, so the
+     * ceiling costs nothing the gate would notice.
      */
     private function mess(): GateResult
     {
         [$exitCode, $output] = ($this->processRunner)(\sprintf(
             'cd %s && vendor/bin/phpmd analyze src --format=json --ruleset=phpmd.xml'
-            . " --exclude='*src/Contracts/Psr/*' --no-progress 2>/dev/null",
+            . " --exclude='*src/Contracts/Psr/*' --no-progress --threads=1 2>/dev/null",
             escapeshellarg($this->root),
         ));
 

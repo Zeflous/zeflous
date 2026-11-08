@@ -120,7 +120,7 @@
         "deptrac": "deptrac analyse --config-file=deptrac.yaml --no-progress",
         "audit:security": "@php scripts/ci/gate.php audit",
         "audit:strict": "@php scripts/ci/gate.php audit",
-        "mutation": "@php -d pcov.enabled=1 -d memory_limit=1G vendor/bin/infection --threads=max --min-msi=100 --min-covered-msi=100 --logger-github --initial-tests-php-options=\"-d pcov.directory=$PWD -d pcov.exclude=/vendor/ -d memory_limit=1G\"",
+        "mutation": "@php -d pcov.enabled=1 -d memory_limit=1G vendor/bin/infection --threads=3 --min-msi=100 --min-covered-msi=100 --logger-github --initial-tests-php-options=\"-d pcov.directory=$PWD -d pcov.exclude=/vendor/ -d memory_limit=1G\"",
         "mutation:zones": "@php scripts/ci/gate.php mutation 100",
         "docs": "@php vendor/bin/doctum.php update doctum.php --no-progress",
         "bench": "phpbench run --report=aggregate --progress=none",
