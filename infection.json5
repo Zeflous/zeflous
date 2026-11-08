@@ -902,7 +902,28 @@
                 // observable, and its killer pins the folded spelling
                 // the refusal echoes). This ignore is scoped to that
                 // single source line.
-                "\\$keyword = \\$type === 'inner' \\? 'INNER JOIN' : mb_strtoupper.*"
+                "\\$keyword = \\$type === 'inner' \\? 'INNER JOIN' : mb_strtoupper.*",
+                // The route inspection verb's three flag strips read the
+                // same closed-vocabulary shape the container family's
+                // identifier strip documented: '--host=', '--accept='
+                // and '--version=' are pure ASCII (7, 9 and 10 bytes,
+                // the same character count -- every spelling of an
+                // argument that reaches a strip starts with its prefix,
+                // or the branch never runs), so mb_strlen and strlen
+                // answer the same offset and mb_substr and substr cut
+                // the same tail bytes there; the value that follows is
+                // handed to the match either way, so no input can
+                // observe the rewrite (verified by running the family
+                // battery under the manually applied mutations -- the
+                // complete battery passes). The neighbouring
+                // str_starts_with() calls are not mb_ spellings to
+                // begin with. The three bound lines on the path, host,
+                // accept and version values stay fully under the
+                // mutator: the multibyte boundary tests kill their
+                // rewrites through the character-count judgement.
+                "\\$host = mb_substr\\(\\$argument, mb_strlen\\('--host='.*",
+                "\\$accept = mb_substr\\(\\$argument, mb_strlen\\('--accept='.*",
+                "\\$version = mb_substr\\(\\$argument, mb_strlen\\('--version='.*"
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is
