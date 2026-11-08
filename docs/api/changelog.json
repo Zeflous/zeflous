@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-08T15:42:38Z",
+  "as_of": "2026-11-08T18:15:20Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 303,
+  "unreleased_count": 307,
   "versions": [
     {
       "version": "Unreleased",
@@ -7925,6 +7925,309 @@
                 "subject": "docs(roadmap): re-pin the row and both pins onto the main-absorbing merge"
               }
             ]
+          },
+          {
+            "pr": 739,
+            "title": "refactor(cli): the errors family becomes three pure verb classes over shared folds",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-08T16:59:41Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/739",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+                "short_sha": "c25ada1",
+                "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+              },
+              {
+                "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+                "short_sha": "052468a",
+                "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+              },
+              {
+                "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+                "short_sha": "a838a8b",
+                "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+              },
+              {
+                "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+                "short_sha": "c7bd5d5",
+                "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+              },
+              {
+                "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+                "short_sha": "21c3b9f",
+                "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+              },
+              {
+                "sha": "9ec2db742d0b95e3de3ff67ce695dec29b25bc19",
+                "short_sha": "9ec2db7",
+                "subject": "refactor(cli): the errors family becomes three pure verb classes over shared folds"
+              },
+              {
+                "sha": "dcc0647b4b18a92e65dfaec8a79559b9ba6f71fa",
+                "short_sha": "dcc0647",
+                "subject": "merge: the ceilings lane's bookkeeping rides along"
+              },
+              {
+                "sha": "ec7293810b80e0d24453c8e9222b522ed2fe2f61",
+                "short_sha": "ec72938",
+                "subject": "docs(roadmap): the errors family split recorded and the pin refreshed"
+              },
+              {
+                "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+                "short_sha": "b49845b",
+                "subject": "merge: main's coverage landing joins the ledger"
+              },
+              {
+                "sha": "fe742001d237e5d721c29a1025b1fe0557f09ae6",
+                "short_sha": "fe74200",
+                "subject": "merge: main's coverage landing joins the split's ledger"
+              },
+              {
+                "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+                "short_sha": "e7524ae",
+                "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+              },
+              {
+                "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+                "short_sha": "fd91abd",
+                "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+              },
+              {
+                "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+                "short_sha": "23a9a98",
+                "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+              },
+              {
+                "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+                "short_sha": "5d62604",
+                "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+              },
+              {
+                "sha": "d8052fb39b938b0e8fd2347785cdb4f51d9f4ed8",
+                "short_sha": "d8052fb",
+                "subject": "merge: the refreshed priorities ledger rides the split"
+              },
+              {
+                "sha": "eccca67bbe9f9afb949f7f8045e4ca4ce6c5a723",
+                "short_sha": "eccca67",
+                "subject": "docs(roadmap): the split's pin rides the refreshed ledger"
+              }
+            ]
+          },
+          {
+            "pr": 742,
+            "title": "refactor(cli): the container inventory family becomes one pure verb class",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-08T17:29:36Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/742",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+                "short_sha": "c25ada1",
+                "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+              },
+              {
+                "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+                "short_sha": "052468a",
+                "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+              },
+              {
+                "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+                "short_sha": "a838a8b",
+                "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+              },
+              {
+                "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+                "short_sha": "c7bd5d5",
+                "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+              },
+              {
+                "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+                "short_sha": "21c3b9f",
+                "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+              },
+              {
+                "sha": "9ec2db742d0b95e3de3ff67ce695dec29b25bc19",
+                "short_sha": "9ec2db7",
+                "subject": "refactor(cli): the errors family becomes three pure verb classes over shared folds"
+              },
+              {
+                "sha": "dcc0647b4b18a92e65dfaec8a79559b9ba6f71fa",
+                "short_sha": "dcc0647",
+                "subject": "merge: the ceilings lane's bookkeeping rides along"
+              },
+              {
+                "sha": "ec7293810b80e0d24453c8e9222b522ed2fe2f61",
+                "short_sha": "ec72938",
+                "subject": "docs(roadmap): the errors family split recorded and the pin refreshed"
+              },
+              {
+                "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+                "short_sha": "b49845b",
+                "subject": "merge: main's coverage landing joins the ledger"
+              },
+              {
+                "sha": "fe742001d237e5d721c29a1025b1fe0557f09ae6",
+                "short_sha": "fe74200",
+                "subject": "merge: main's coverage landing joins the split's ledger"
+              },
+              {
+                "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+                "short_sha": "e7524ae",
+                "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+              },
+              {
+                "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+                "short_sha": "fd91abd",
+                "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+              },
+              {
+                "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+                "short_sha": "23a9a98",
+                "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+              },
+              {
+                "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+                "short_sha": "5d62604",
+                "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+              },
+              {
+                "sha": "d8052fb39b938b0e8fd2347785cdb4f51d9f4ed8",
+                "short_sha": "d8052fb",
+                "subject": "merge: the refreshed priorities ledger rides the split"
+              },
+              {
+                "sha": "eccca67bbe9f9afb949f7f8045e4ca4ce6c5a723",
+                "short_sha": "eccca67",
+                "subject": "docs(roadmap): the split's pin rides the refreshed ledger"
+              },
+              {
+                "sha": "290c670181955137472ede8a3fb294f21abe83f4",
+                "short_sha": "290c670",
+                "subject": "refactor(cli): the container inventory family becomes one pure verb class"
+              },
+              {
+                "sha": "078783e9f7c304f0821ae4f632377673c83ea7bb",
+                "short_sha": "078783e",
+                "subject": "docs(roadmap): the container family's slice recorded and the pin refreshed"
+              }
+            ]
+          },
+          {
+            "pr": 743,
+            "title": "refactor(cli): the list family becomes one pure verb class",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-08T18:15:20Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/743",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+                "short_sha": "c25ada1",
+                "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+              },
+              {
+                "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+                "short_sha": "052468a",
+                "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+              },
+              {
+                "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+                "short_sha": "a838a8b",
+                "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+              },
+              {
+                "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+                "short_sha": "c7bd5d5",
+                "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+              },
+              {
+                "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+                "short_sha": "21c3b9f",
+                "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+              },
+              {
+                "sha": "9ec2db742d0b95e3de3ff67ce695dec29b25bc19",
+                "short_sha": "9ec2db7",
+                "subject": "refactor(cli): the errors family becomes three pure verb classes over shared folds"
+              },
+              {
+                "sha": "dcc0647b4b18a92e65dfaec8a79559b9ba6f71fa",
+                "short_sha": "dcc0647",
+                "subject": "merge: the ceilings lane's bookkeeping rides along"
+              },
+              {
+                "sha": "ec7293810b80e0d24453c8e9222b522ed2fe2f61",
+                "short_sha": "ec72938",
+                "subject": "docs(roadmap): the errors family split recorded and the pin refreshed"
+              },
+              {
+                "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+                "short_sha": "b49845b",
+                "subject": "merge: main's coverage landing joins the ledger"
+              },
+              {
+                "sha": "fe742001d237e5d721c29a1025b1fe0557f09ae6",
+                "short_sha": "fe74200",
+                "subject": "merge: main's coverage landing joins the split's ledger"
+              },
+              {
+                "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+                "short_sha": "e7524ae",
+                "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+              },
+              {
+                "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+                "short_sha": "fd91abd",
+                "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+              },
+              {
+                "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+                "short_sha": "23a9a98",
+                "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+              },
+              {
+                "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+                "short_sha": "5d62604",
+                "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+              },
+              {
+                "sha": "d8052fb39b938b0e8fd2347785cdb4f51d9f4ed8",
+                "short_sha": "d8052fb",
+                "subject": "merge: the refreshed priorities ledger rides the split"
+              },
+              {
+                "sha": "eccca67bbe9f9afb949f7f8045e4ca4ce6c5a723",
+                "short_sha": "eccca67",
+                "subject": "docs(roadmap): the split's pin rides the refreshed ledger"
+              },
+              {
+                "sha": "290c670181955137472ede8a3fb294f21abe83f4",
+                "short_sha": "290c670",
+                "subject": "refactor(cli): the container inventory family becomes one pure verb class"
+              },
+              {
+                "sha": "078783e9f7c304f0821ae4f632377673c83ea7bb",
+                "short_sha": "078783e",
+                "subject": "docs(roadmap): the container family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "7426ea012ff8572666151c91f213815499e0c92e",
+                "short_sha": "7426ea0",
+                "subject": "refactor(cli): the list family becomes one pure verb class"
+              },
+              {
+                "sha": "9ad5791f615624244515c39a10594d21133977a3",
+                "short_sha": "9ad5791",
+                "subject": "docs(roadmap): the list family's slice recorded and the pin refreshed"
+              }
+            ]
           }
         ],
         "Documentation": [
@@ -9801,6 +10104,67 @@
                 "sha": "f1371c2f39e56091032dea694d9845eed42b5945",
                 "short_sha": "f1371c2",
                 "subject": "docs(roadmap): the record row rides the section table and the history pointer follows it"
+              }
+            ]
+          },
+          {
+            "pr": 738,
+            "title": "docs(roadmap): the Partial lanes gain their production order and definitions of done",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-11-08T16:29:51Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/738",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+                "short_sha": "c25ada1",
+                "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+              },
+              {
+                "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+                "short_sha": "052468a",
+                "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+              },
+              {
+                "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+                "short_sha": "a838a8b",
+                "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+              },
+              {
+                "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+                "short_sha": "c7bd5d5",
+                "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+              },
+              {
+                "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+                "short_sha": "21c3b9f",
+                "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+              },
+              {
+                "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+                "short_sha": "b49845b",
+                "subject": "merge: main's coverage landing joins the ledger"
+              },
+              {
+                "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+                "short_sha": "e7524ae",
+                "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+              },
+              {
+                "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+                "short_sha": "fd91abd",
+                "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+              },
+              {
+                "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+                "short_sha": "23a9a98",
+                "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+              },
+              {
+                "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+                "short_sha": "5d62604",
+                "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
               }
             ]
           }
@@ -19969,6 +20333,370 @@
               "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
               "short_sha": "fd91abd",
               "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+            }
+          ]
+        },
+        {
+          "pr": 738,
+          "title": "docs(roadmap): the Partial lanes gain their production order and definitions of done",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-11-08T16:29:51Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/738",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+              "short_sha": "c25ada1",
+              "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+            },
+            {
+              "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+              "short_sha": "052468a",
+              "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+            },
+            {
+              "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+              "short_sha": "a838a8b",
+              "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+            },
+            {
+              "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+              "short_sha": "c7bd5d5",
+              "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+            },
+            {
+              "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+              "short_sha": "21c3b9f",
+              "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+            },
+            {
+              "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+              "short_sha": "b49845b",
+              "subject": "merge: main's coverage landing joins the ledger"
+            },
+            {
+              "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+              "short_sha": "e7524ae",
+              "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+            },
+            {
+              "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+              "short_sha": "fd91abd",
+              "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+            },
+            {
+              "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+              "short_sha": "23a9a98",
+              "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+            },
+            {
+              "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+              "short_sha": "5d62604",
+              "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+            }
+          ]
+        },
+        {
+          "pr": 739,
+          "title": "refactor(cli): the errors family becomes three pure verb classes over shared folds",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-08T16:59:41Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/739",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+              "short_sha": "c25ada1",
+              "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+            },
+            {
+              "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+              "short_sha": "052468a",
+              "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+            },
+            {
+              "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+              "short_sha": "a838a8b",
+              "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+            },
+            {
+              "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+              "short_sha": "c7bd5d5",
+              "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+            },
+            {
+              "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+              "short_sha": "21c3b9f",
+              "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+            },
+            {
+              "sha": "9ec2db742d0b95e3de3ff67ce695dec29b25bc19",
+              "short_sha": "9ec2db7",
+              "subject": "refactor(cli): the errors family becomes three pure verb classes over shared folds"
+            },
+            {
+              "sha": "dcc0647b4b18a92e65dfaec8a79559b9ba6f71fa",
+              "short_sha": "dcc0647",
+              "subject": "merge: the ceilings lane's bookkeeping rides along"
+            },
+            {
+              "sha": "ec7293810b80e0d24453c8e9222b522ed2fe2f61",
+              "short_sha": "ec72938",
+              "subject": "docs(roadmap): the errors family split recorded and the pin refreshed"
+            },
+            {
+              "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+              "short_sha": "b49845b",
+              "subject": "merge: main's coverage landing joins the ledger"
+            },
+            {
+              "sha": "fe742001d237e5d721c29a1025b1fe0557f09ae6",
+              "short_sha": "fe74200",
+              "subject": "merge: main's coverage landing joins the split's ledger"
+            },
+            {
+              "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+              "short_sha": "e7524ae",
+              "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+            },
+            {
+              "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+              "short_sha": "fd91abd",
+              "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+            },
+            {
+              "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+              "short_sha": "23a9a98",
+              "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+            },
+            {
+              "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+              "short_sha": "5d62604",
+              "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+            },
+            {
+              "sha": "d8052fb39b938b0e8fd2347785cdb4f51d9f4ed8",
+              "short_sha": "d8052fb",
+              "subject": "merge: the refreshed priorities ledger rides the split"
+            },
+            {
+              "sha": "eccca67bbe9f9afb949f7f8045e4ca4ce6c5a723",
+              "short_sha": "eccca67",
+              "subject": "docs(roadmap): the split's pin rides the refreshed ledger"
+            }
+          ]
+        },
+        {
+          "pr": 742,
+          "title": "refactor(cli): the container inventory family becomes one pure verb class",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-08T17:29:36Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/742",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+              "short_sha": "c25ada1",
+              "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+            },
+            {
+              "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+              "short_sha": "052468a",
+              "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+            },
+            {
+              "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+              "short_sha": "a838a8b",
+              "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+            },
+            {
+              "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+              "short_sha": "c7bd5d5",
+              "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+            },
+            {
+              "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+              "short_sha": "21c3b9f",
+              "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+            },
+            {
+              "sha": "9ec2db742d0b95e3de3ff67ce695dec29b25bc19",
+              "short_sha": "9ec2db7",
+              "subject": "refactor(cli): the errors family becomes three pure verb classes over shared folds"
+            },
+            {
+              "sha": "dcc0647b4b18a92e65dfaec8a79559b9ba6f71fa",
+              "short_sha": "dcc0647",
+              "subject": "merge: the ceilings lane's bookkeeping rides along"
+            },
+            {
+              "sha": "ec7293810b80e0d24453c8e9222b522ed2fe2f61",
+              "short_sha": "ec72938",
+              "subject": "docs(roadmap): the errors family split recorded and the pin refreshed"
+            },
+            {
+              "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+              "short_sha": "b49845b",
+              "subject": "merge: main's coverage landing joins the ledger"
+            },
+            {
+              "sha": "fe742001d237e5d721c29a1025b1fe0557f09ae6",
+              "short_sha": "fe74200",
+              "subject": "merge: main's coverage landing joins the split's ledger"
+            },
+            {
+              "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+              "short_sha": "e7524ae",
+              "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+            },
+            {
+              "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+              "short_sha": "fd91abd",
+              "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+            },
+            {
+              "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+              "short_sha": "23a9a98",
+              "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+            },
+            {
+              "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+              "short_sha": "5d62604",
+              "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+            },
+            {
+              "sha": "d8052fb39b938b0e8fd2347785cdb4f51d9f4ed8",
+              "short_sha": "d8052fb",
+              "subject": "merge: the refreshed priorities ledger rides the split"
+            },
+            {
+              "sha": "eccca67bbe9f9afb949f7f8045e4ca4ce6c5a723",
+              "short_sha": "eccca67",
+              "subject": "docs(roadmap): the split's pin rides the refreshed ledger"
+            },
+            {
+              "sha": "290c670181955137472ede8a3fb294f21abe83f4",
+              "short_sha": "290c670",
+              "subject": "refactor(cli): the container inventory family becomes one pure verb class"
+            },
+            {
+              "sha": "078783e9f7c304f0821ae4f632377673c83ea7bb",
+              "short_sha": "078783e",
+              "subject": "docs(roadmap): the container family's slice recorded and the pin refreshed"
+            }
+          ]
+        },
+        {
+          "pr": 743,
+          "title": "refactor(cli): the list family becomes one pure verb class",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-08T18:15:20Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/743",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+              "short_sha": "c25ada1",
+              "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+            },
+            {
+              "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+              "short_sha": "052468a",
+              "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+            },
+            {
+              "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+              "short_sha": "a838a8b",
+              "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+            },
+            {
+              "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+              "short_sha": "c7bd5d5",
+              "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+            },
+            {
+              "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+              "short_sha": "21c3b9f",
+              "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+            },
+            {
+              "sha": "9ec2db742d0b95e3de3ff67ce695dec29b25bc19",
+              "short_sha": "9ec2db7",
+              "subject": "refactor(cli): the errors family becomes three pure verb classes over shared folds"
+            },
+            {
+              "sha": "dcc0647b4b18a92e65dfaec8a79559b9ba6f71fa",
+              "short_sha": "dcc0647",
+              "subject": "merge: the ceilings lane's bookkeeping rides along"
+            },
+            {
+              "sha": "ec7293810b80e0d24453c8e9222b522ed2fe2f61",
+              "short_sha": "ec72938",
+              "subject": "docs(roadmap): the errors family split recorded and the pin refreshed"
+            },
+            {
+              "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+              "short_sha": "b49845b",
+              "subject": "merge: main's coverage landing joins the ledger"
+            },
+            {
+              "sha": "fe742001d237e5d721c29a1025b1fe0557f09ae6",
+              "short_sha": "fe74200",
+              "subject": "merge: main's coverage landing joins the split's ledger"
+            },
+            {
+              "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+              "short_sha": "e7524ae",
+              "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+            },
+            {
+              "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+              "short_sha": "fd91abd",
+              "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+            },
+            {
+              "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+              "short_sha": "23a9a98",
+              "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+            },
+            {
+              "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+              "short_sha": "5d62604",
+              "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+            },
+            {
+              "sha": "d8052fb39b938b0e8fd2347785cdb4f51d9f4ed8",
+              "short_sha": "d8052fb",
+              "subject": "merge: the refreshed priorities ledger rides the split"
+            },
+            {
+              "sha": "eccca67bbe9f9afb949f7f8045e4ca4ce6c5a723",
+              "short_sha": "eccca67",
+              "subject": "docs(roadmap): the split's pin rides the refreshed ledger"
+            },
+            {
+              "sha": "290c670181955137472ede8a3fb294f21abe83f4",
+              "short_sha": "290c670",
+              "subject": "refactor(cli): the container inventory family becomes one pure verb class"
+            },
+            {
+              "sha": "078783e9f7c304f0821ae4f632377673c83ea7bb",
+              "short_sha": "078783e",
+              "subject": "docs(roadmap): the container family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "7426ea012ff8572666151c91f213815499e0c92e",
+              "short_sha": "7426ea0",
+              "subject": "refactor(cli): the list family becomes one pure verb class"
+            },
+            {
+              "sha": "9ad5791f615624244515c39a10594d21133977a3",
+              "short_sha": "9ad5791",
+              "subject": "docs(roadmap): the list family's slice recorded and the pin refreshed"
             }
           ]
         }
