@@ -944,7 +944,50 @@
                 // strip rewritten together). The neighbouring
                 // str_starts_with() call is not an mb_ spelling to begin
                 // with. This ignore is scoped to that single source line.
-                "\\$steps = mb_substr\\(\\$argument, mb_strlen\\('--steps='.*"
+                "\\$steps = mb_substr\\(\\$argument, mb_strlen\\('--steps='.*",
+                // The http inspection verb's header strip and body offset
+                // read the same closed-vocabulary shape the route verbs'
+                // flag strips documented: the '--header=' and '--body='
+                // prefixes are pure ASCII (9 and 7 bytes, the same
+                // character count -- every spelling of an argument that
+                // reaches a strip starts with its prefix, or the branch
+                // never runs), so mb_strlen and strlen answer the same
+                // offset and mb_substr and substr cut the same tail bytes
+                // there; the header candidate that follows is re-read by
+                // the colon-split's own mb_ folds (the name and value
+                // extractions substituting any invalid byte the byte-wise
+                // strip would have passed), so no input can observe the
+                // rewrite -- verified by running the family battery under
+                // the manually applied mutations with the body extraction
+                // kept mb- (the complete battery passes). The body
+                // extraction's own mb_substr rewrite is NOT ignored: it
+                // stays under the mutator, killed by the
+                // substituted-form test -- the offset line alone carries
+                // this ignore.
+                "\\$headerArguments\\[\\] = mb_substr\\(\\$argument, mb_strlen\\('--header='.*",
+                "\\$bodyOffset = mb_strlen\\('--body='\\);",
+                // The colon-split's own folds: the mb_strpos search and
+                // the name and value extractions agree with their byte-wise
+                // twins on every header the grammar admits -- the colon is
+                // a single ASCII byte both spellings find at the same
+                // position, the name corridor (the /D-anchored token
+                // vocabulary) refuses every multibyte spelling either way,
+                // and the value the byte-wise spelling would hand raw is
+                // substituted to the printable question mark by the
+                // request's own header handling before the wire renders
+                // it -- verified together with the strip mutations above
+                // by the same family battery.
+                "\\$colon = mb_strpos\\(\\$headerArgument, ':'\\);",
+                "\\$headerName = \\$colon === false \\? '' : mb_substr\\(.*",
+                "\\$headerValue = \\$colon === false \\? '' : mb_ltrim\\(mb_substr\\(.*",
+                // The two 8bit bounds are the BodyBudget::refuses()
+                // precedent: mb_strlen($value, '8bit') and strlen($value)
+                // both answer the exact byte count for every possible
+                // input -- the '8bit' encoding IS byte semantics -- so no
+                // test can distinguish the twins. These ignores are scoped
+                // to those two source lines.
+                "\\|\\| mb_strlen\\(\\$headerValue, '8bit'\\) > 4096",
+                "if \\(mb_strlen\\(\\$body, '8bit'\\) > 8192\\) \\{",
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is
