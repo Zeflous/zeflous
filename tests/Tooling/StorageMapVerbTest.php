@@ -88,6 +88,7 @@ final class StorageMapVerbTest extends TestCase
             foreach (['cache', 'logs', 'queue', 'replay', 'sessions', 'temp', 'uploads'] as $lane) {
                 rmdir($root . '/' . $lane);
             }
+
             rmdir($root);
         }
     }
