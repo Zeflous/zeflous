@@ -68,9 +68,12 @@ final readonly class MigrationsBoot
      *
      * @param non-empty-string $configDirectory     the host's configuration
      *                                              directory (the `app/configs` layout)
-     * @param non-empty-string $migrationsDirectory the operator's migrations
+     * @param string           $migrationsDirectory the operator's migrations
      *                                              directory (one `*.php` file per
-     *                                              declared migration)
+     *                                              declared migration; an empty
+     *                                              spelling refusing at the
+     *                                              discovery seam like any
+     *                                              missing directory)
      *
      * @throws ConfigException    when the silent database
      *                            profile refuses at the host's first use
