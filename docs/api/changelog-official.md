@@ -6,6 +6,9 @@
 
 **Merged pull requests:**
 
+- refactor\(cli\): the container inventory family becomes one pure verb class [\#742](https://github.com/Zeflous/zeflous/pull/742) ([mbetixz](https://github.com/mbetixz))
+- refactor\(cli\): the errors family becomes three pure verb classes over shared folds [\#739](https://github.com/Zeflous/zeflous/pull/739) ([mbetixz](https://github.com/mbetixz))
+- docs\(roadmap\): the Partial lanes gain their production order and definitions of done [\#738](https://github.com/Zeflous/zeflous/pull/738) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): explicit memory ceilings on the three parallel gates [\#737](https://github.com/Zeflous/zeflous/pull/737) ([mbetixz](https://github.com/mbetixz))
 - docs\(contributing\): the coverage measurement contract pins one sanctioned invocation [\#736](https://github.com/Zeflous/zeflous/pull/736) ([mbetixz](https://github.com/mbetixz))
 - refactor\(cli\): extract the nine autoload copies and repair the zero-dependency mapping [\#732](https://github.com/Zeflous/zeflous/pull/732) ([mbetixz](https://github.com/mbetixz))
