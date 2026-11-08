@@ -6,6 +6,10 @@
 
 **Merged pull requests:**
 
+- refactor\(cli\): the migrations family becomes one pure verb class [\#752](https://github.com/Zeflous/zeflous/pull/752) ([mbetixz](https://github.com/mbetixz))
+- refactor\(cli\): the route export family becomes one pure verb class [\#750](https://github.com/Zeflous/zeflous/pull/750) ([mbetixz](https://github.com/mbetixz))
+- refactor\(cli\): the route inspection family becomes one pure verb class [\#749](https://github.com/Zeflous/zeflous/pull/749) ([mbetixz](https://github.com/mbetixz))
+- refactor\(cli\): the storage map family becomes one pure verb class [\#744](https://github.com/Zeflous/zeflous/pull/744) ([mbetixz](https://github.com/mbetixz))
 - refactor\(cli\): the list family becomes one pure verb class [\#743](https://github.com/Zeflous/zeflous/pull/743) ([mbetixz](https://github.com/mbetixz))
 - refactor\(cli\): the container inventory family becomes one pure verb class [\#742](https://github.com/Zeflous/zeflous/pull/742) ([mbetixz](https://github.com/mbetixz))
 - refactor\(cli\): the errors family becomes three pure verb classes over shared folds [\#739](https://github.com/Zeflous/zeflous/pull/739) ([mbetixz](https://github.com/mbetixz))
