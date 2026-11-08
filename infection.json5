@@ -278,6 +278,21 @@
                 // call is not an mb_ spelling to begin with. This ignore is
                 // scoped to that single method.
                 "Zef\\Test\\Support\\Tooling\\ErrorsLogArguments::parsed",
+                // The container family's identifier strip reads the
+                // same closed-vocabulary shape: '--id=' is pure ASCII
+                // (5 bytes, 5 characters -- every spelling of the
+                // argument that reaches the strip starts with it, or
+                // the branch never runs), so mb_strlen and strlen
+                // answer the same offset and mb_substr and substr cut
+                // the same bytes there; the identifier that follows is
+                // handed to the boot's own report either way, so no
+                // input can observe the rewrite (verified by running
+                // the family battery under the manually applied
+                // mutations -- the complete battery passes). The
+                // neighbouring str_starts_with() call is not an mb_
+                // spelling to begin with. This ignore is scoped to
+                // that single method.
+                "Zef\\Test\\Support\\Tooling\\ContainerInventory::run",
                 // The container's environment fold reads the toolbar
                 // doctrine's own closed vocabulary (the two
                 // DebugToolbarFactory and ErrorMappingFactory entries
@@ -1083,6 +1098,22 @@
         // reads the undefined capture 4, the engine answers an
         // undefined-dimension error, and tests kill it. The ignore is
         // scoped to that single source line.
+// The inventory verb's argument loop slice: unwrapping
+        // array_slice($arguments, 1) into the bare $arguments reads
+        // index 0 too -- and the only index-0 spelling that can newly
+        // match the '--id=' prefix already answers the usage refusal
+        // two statements later (a '--' prefix IS the usage defect), so
+        // the parsed identifier is unreachable from any observable
+        // outcome; every other index-0 spelling lacks the prefix and
+        // the loop skips it under both spellings (verified by running
+        // the verb battery and the subprocess command battery under
+        // the manually applied unwrap -- both pass complete). Scoped
+        // to that single method.
+        "UnwrapArraySlice": {
+            "ignore": [
+                "Zef\\Test\\Support\\Tooling\\ContainerInventory::run"
+            ]
+        },
         "DecrementInteger": {
             // The replay window's default literal: the knob's only
             // observable face is the TTL the round-up hands the store, and
@@ -1105,7 +1136,21 @@
                 // unit can spell. The removal of the usleep call
                 // itself stays fully under its mutator: the 50 ms
                 // elapsed floor kills it. Scoped to that single method.
-                "Zef\\Framework\\Database\\UnitOfWorkWait::block"
+                "Zef\\Framework\\Database\\UnitOfWorkWait::block",
+                // The inventory verb's argument loop offset: the only
+                // argument the widened loop (offset 0) can newly read is
+                // the positional at index 0, and every spelling of that
+                // positional which carries the '--id=' prefix already
+                // answers the usage refusal two statements later (a '--'
+                // prefix IS the usage defect), so the parsed identifier
+                // is unreachable from any observable outcome -- the
+                // refusal fires identically whether or not index 0 was
+                // read, and every other index-0 spelling lacks the
+                // prefix and is skipped under both offsets (verified by
+                // running the verb battery and the subprocess command
+                // battery under the manually applied mutation -- both
+                // pass complete). Scoped to that single method.
+                "Zef\\Test\\Support\\Tooling\\ContainerInventory::run",
             ],
             "ignoreSourceCodeByRegex": [
                 // The query-log window's inert opening instant: the

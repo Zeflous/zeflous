@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-11-08 · `main` @ `d8052fb`
+**Last updated:** 2026-11-08 · `main` @ `290c670`
 
 **How to read this file**
 
@@ -26,7 +26,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | HTTP Layer | 34 |
 | Middleware Pipeline | 1 |
 | Error Handling | 6 |
-| Kernel & Platform | 3 |
+| Kernel & Platform | 4 |
 | Quality Gates & Tooling | 27 |
 | CI / Supply chain | 42 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
@@ -37,7 +37,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Event source | 4 |
 | Adapters layer | 19 |
 | Module integration | 4 |
-| **Total merged PRs** | **229** |
+| **Total merged PRs** | **230** |
 
 ---
 
@@ -129,6 +129,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Composer scaffold — `Kernel`, `Version`, `Contracts/ServiceProviderInterface`, `Health/*`, `src/autoload.php` | #1 | 2026-10-07 | `f6aa0dbeb8` |
 | refactor(cli): extract the nine autoload copies and repair the zero-dependency mapping (the CLI entrypoint's own bootstrap becomes one instrument -- #717's step 1: every command branch in bin/zef had carried its own pasted copy of the autoload block since `fdb0f46` birthed the first for container:inventory, nine copies verified byte-identical modulo indentation and three command-specific comment wordings, so the extraction is mechanical -- one file-scope `requireFrameworkAutoloader()` holds the single spelling and each branch calls it exactly where its copy stood, after the branch's own argument validation, bin/zef 1129 -> 984 lines and spl_autoload_register 9 -> 1 -- and the extraction's vendor-less verification measured that the strategy had ALREADY diverged at birth: the fallback mapped `Zef\Framework\` to `src/`, a path no framework class has ever lived at, so it had never loaded a single framework class (every command answered a class-not-found refusal on a bare install, the opposite of the block's own comment), while also omitting the four PSR contract namespaces, the `Zef\Test\` dev mapping (the old Tooling-only spelling could not load `ScriptedMigration` under tests/Support/Database), and the files include `src/autoload.php` that publishes ZEF_FRAMEWORK_ROOT -- the repair mirrors composer.json exactly; verification: the command nets green at 63 tests / 261 assertions, and a vendor-less sandbox copy of the tree (bin/ + src/ + tests/, no vendor/) answers byte-identically to the composer install on every family exercised -- list, route:list/tree, container:inventory, route:openapi/postman, migrations:status/run (full lifecycle 0/3 pending -> applied 3 -> 3/0, loading the ScriptedMigration class the old mapping could never load), storage:map, http:headers, errors:report -- same output, same exit codes, the fixture boot-refusal paths agreeing too; #717's structural step 2 (the per-family handler split) stays the issue's named follow-up, and bin/ entering the static gates' scope is #718's own slice, deliberately sequenced after this one) | #732 | 2026-11-07 | `a5e6897` |
 | refactor(cli): the errors family becomes three pure verb classes over shared folds (#717's structural step, first family -- the CLI's joined errors branch lifted out of bin/zef whole: the three verbs answer as pure computations over a CommandOutcome {exit code, STDOUT answer, STDERR refusal} so the dispatch owns the terminals and the family's discipline lives in one reviewable place; ErrorsReplay carries the replay verb's whole safety posture, ErrorsReport the counted report with the request-id filter and the control-byte display discipline, ErrorsClear the --confirm refusal and the truncation under LOCK_EX, over the shared folds ErrorsLogArguments/ErrorsLogPath/ErrorsDisplayText; bin/zef 998 -> 737 lines, the errors dispatch eleven; byte-identical behaviour -- the 70 subprocess tests that pin the joined branch's words pass unchanged -- while the in-process curriculum answers the mutation gate: scoped infection over the seven new files at MSI 100/100, 392 mutants killed, two documented-equivalent MBString sites ignored with the BodyBudget precedent's reasoning; the ZefLockStreamWrapper fixture observes the clear verb's flush/unlock/close discipline and lock refusal as data; psalm carries the same payload-mixed baseline entries the JSON-report folds carry; the remaining families (route, container, migrations, http, storage, list) stay the named follow-up slices, and bin/ entering the static gates' scope stays #718's own slice after the split completes) | #739 | 2026-11-08 | `d8052fb` |
+| refactor(cli): the container inventory family becomes one pure verb class (#717's structural step's container slice -- the CLI's joined container:inventory branch lifted out whole: the verb answers as a pure computation over CommandOutcome -- the argument grammar (the positional configuration directory, the --id=<service> filter whose last spelling wins and whose empty spelling answers the whole table), the usage refusal (exit 2), the path-defect refusal naming the directory, the boot's own report as the answer (exit 0), and the refused boot surfacing with the boot's own chain (exit 1) -- exactly the words the joined branch spelled, bin/zef 744 -> 716 lines with the container dispatch at seven; the report's UnusedClass psalm baseline entry retires (the verb is its in-project consumer now), the verb's own entry rides the bin/zef-outside-projectFiles precedent, the analyzer disagreement over realpath()'s narrowed return (PHPStan sees non-empty-string, Psalm sees string) lands as the baseline's documented ArgumentTypeCoercion entry, and scoped infection over the new file answers MSI 100/100 (28 mutants killed, four documented equivalents ignored in infection.json5 with the ErrorsLogArguments reasoning -- the ASCII '--id=' prefix strip and the usage-refusal-unreachable positional the widened loop would read); the route, migrations, http, storage and list branches each remain their own named slice, and the gates-scope widening stays #718's, sequenced after the split completes) | #742 | 2026-11-08 | `290c670` |
 
 ## 5. Quality Gates & Tooling
 
