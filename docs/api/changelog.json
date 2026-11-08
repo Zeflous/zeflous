@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-08T18:15:20Z",
+  "as_of": "2026-11-08T21:44:38Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 307,
+  "unreleased_count": 310,
   "versions": [
     {
       "version": "Unreleased",
@@ -8226,6 +8226,244 @@
                 "sha": "9ad5791f615624244515c39a10594d21133977a3",
                 "short_sha": "9ad5791",
                 "subject": "docs(roadmap): the list family's slice recorded and the pin refreshed"
+              }
+            ]
+          },
+          {
+            "pr": 744,
+            "title": "refactor(cli): the storage map family becomes one pure verb class",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-08T20:11:02Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/744",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+                "short_sha": "c25ada1",
+                "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+              },
+              {
+                "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+                "short_sha": "052468a",
+                "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+              },
+              {
+                "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+                "short_sha": "a838a8b",
+                "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+              },
+              {
+                "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+                "short_sha": "c7bd5d5",
+                "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+              },
+              {
+                "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+                "short_sha": "21c3b9f",
+                "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+              },
+              {
+                "sha": "9ec2db742d0b95e3de3ff67ce695dec29b25bc19",
+                "short_sha": "9ec2db7",
+                "subject": "refactor(cli): the errors family becomes three pure verb classes over shared folds"
+              },
+              {
+                "sha": "dcc0647b4b18a92e65dfaec8a79559b9ba6f71fa",
+                "short_sha": "dcc0647",
+                "subject": "merge: the ceilings lane's bookkeeping rides along"
+              },
+              {
+                "sha": "ec7293810b80e0d24453c8e9222b522ed2fe2f61",
+                "short_sha": "ec72938",
+                "subject": "docs(roadmap): the errors family split recorded and the pin refreshed"
+              },
+              {
+                "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+                "short_sha": "b49845b",
+                "subject": "merge: main's coverage landing joins the ledger"
+              },
+              {
+                "sha": "fe742001d237e5d721c29a1025b1fe0557f09ae6",
+                "short_sha": "fe74200",
+                "subject": "merge: main's coverage landing joins the split's ledger"
+              },
+              {
+                "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+                "short_sha": "e7524ae",
+                "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+              },
+              {
+                "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+                "short_sha": "fd91abd",
+                "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+              },
+              {
+                "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+                "short_sha": "23a9a98",
+                "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+              },
+              {
+                "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+                "short_sha": "5d62604",
+                "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+              },
+              {
+                "sha": "d8052fb39b938b0e8fd2347785cdb4f51d9f4ed8",
+                "short_sha": "d8052fb",
+                "subject": "merge: the refreshed priorities ledger rides the split"
+              },
+              {
+                "sha": "eccca67bbe9f9afb949f7f8045e4ca4ce6c5a723",
+                "short_sha": "eccca67",
+                "subject": "docs(roadmap): the split's pin rides the refreshed ledger"
+              },
+              {
+                "sha": "290c670181955137472ede8a3fb294f21abe83f4",
+                "short_sha": "290c670",
+                "subject": "refactor(cli): the container inventory family becomes one pure verb class"
+              },
+              {
+                "sha": "078783e9f7c304f0821ae4f632377673c83ea7bb",
+                "short_sha": "078783e",
+                "subject": "docs(roadmap): the container family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "7426ea012ff8572666151c91f213815499e0c92e",
+                "short_sha": "7426ea0",
+                "subject": "refactor(cli): the list family becomes one pure verb class"
+              },
+              {
+                "sha": "9ad5791f615624244515c39a10594d21133977a3",
+                "short_sha": "9ad5791",
+                "subject": "docs(roadmap): the list family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "11a71dfc8f3cb93c8a10dda7e15da98fa1173713",
+                "short_sha": "11a71df",
+                "subject": "refactor(cli): the storage map family becomes one pure verb class"
+              },
+              {
+                "sha": "e4a33a1d2b3c2127c12bf603d10f2468ac30b402",
+                "short_sha": "e4a33a1",
+                "subject": "docs(roadmap): the storage family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "76c5377039b913df33120a8ceefb72a84f8ba6b6",
+                "short_sha": "76c5377",
+                "subject": "rector: the finally block's foreach gains its trailing newline"
+              },
+              {
+                "sha": "60e012ef8c2a023e75befd03b7f03ed08861d932",
+                "short_sha": "60e012e",
+                "subject": "docs(roadmap): the storage family's pin rides the rector settle"
+              },
+              {
+                "sha": "3946490cc66677ad2b2478d76f608b4f647a3159",
+                "short_sha": "3946490",
+                "subject": "docs(roadmap): the storage family's row records the settle its pin rides"
+              }
+            ]
+          },
+          {
+            "pr": 749,
+            "title": "refactor(cli): the route inspection family becomes one pure verb class",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-08T20:59:31Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/749",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "11a71dfc8f3cb93c8a10dda7e15da98fa1173713",
+                "short_sha": "11a71df",
+                "subject": "refactor(cli): the storage map family becomes one pure verb class"
+              },
+              {
+                "sha": "e4a33a1d2b3c2127c12bf603d10f2468ac30b402",
+                "short_sha": "e4a33a1",
+                "subject": "docs(roadmap): the storage family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "76c5377039b913df33120a8ceefb72a84f8ba6b6",
+                "short_sha": "76c5377",
+                "subject": "rector: the finally block's foreach gains its trailing newline"
+              },
+              {
+                "sha": "60e012ef8c2a023e75befd03b7f03ed08861d932",
+                "short_sha": "60e012e",
+                "subject": "docs(roadmap): the storage family's pin rides the rector settle"
+              },
+              {
+                "sha": "3946490cc66677ad2b2478d76f608b4f647a3159",
+                "short_sha": "3946490",
+                "subject": "docs(roadmap): the storage family's row records the settle its pin rides"
+              },
+              {
+                "sha": "198d9410678849eb3a0a06668d130199d4bbd9d0",
+                "short_sha": "198d941",
+                "subject": "refactor(cli): the route inspection family becomes one pure verb class"
+              },
+              {
+                "sha": "8b2f72120abd60a9d5f3ba16cbaf64f86fea46c0",
+                "short_sha": "8b2f721",
+                "subject": "docs(roadmap): the route inspection family's slice recorded and the pin refreshed"
+              }
+            ]
+          },
+          {
+            "pr": 750,
+            "title": "refactor(cli): the route export family becomes one pure verb class",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-08T21:44:38Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/750",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "11a71dfc8f3cb93c8a10dda7e15da98fa1173713",
+                "short_sha": "11a71df",
+                "subject": "refactor(cli): the storage map family becomes one pure verb class"
+              },
+              {
+                "sha": "e4a33a1d2b3c2127c12bf603d10f2468ac30b402",
+                "short_sha": "e4a33a1",
+                "subject": "docs(roadmap): the storage family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "76c5377039b913df33120a8ceefb72a84f8ba6b6",
+                "short_sha": "76c5377",
+                "subject": "rector: the finally block's foreach gains its trailing newline"
+              },
+              {
+                "sha": "60e012ef8c2a023e75befd03b7f03ed08861d932",
+                "short_sha": "60e012e",
+                "subject": "docs(roadmap): the storage family's pin rides the rector settle"
+              },
+              {
+                "sha": "3946490cc66677ad2b2478d76f608b4f647a3159",
+                "short_sha": "3946490",
+                "subject": "docs(roadmap): the storage family's row records the settle its pin rides"
+              },
+              {
+                "sha": "198d9410678849eb3a0a06668d130199d4bbd9d0",
+                "short_sha": "198d941",
+                "subject": "refactor(cli): the route inspection family becomes one pure verb class"
+              },
+              {
+                "sha": "8b2f72120abd60a9d5f3ba16cbaf64f86fea46c0",
+                "short_sha": "8b2f721",
+                "subject": "docs(roadmap): the route inspection family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "5f217482a176afddfe53112d91c87a01f5dcd84a",
+                "short_sha": "5f21748",
+                "subject": "refactor(cli): the route export family becomes one pure verb class"
+              },
+              {
+                "sha": "57536f713b8ddce90ceaf2b04686ea4c709b9849",
+                "short_sha": "57536f7",
+                "subject": "docs(roadmap): the route export family's slice recorded and the pin refreshed"
               }
             ]
           }
@@ -20697,6 +20935,244 @@
               "sha": "9ad5791f615624244515c39a10594d21133977a3",
               "short_sha": "9ad5791",
               "subject": "docs(roadmap): the list family's slice recorded and the pin refreshed"
+            }
+          ]
+        },
+        {
+          "pr": 744,
+          "title": "refactor(cli): the storage map family becomes one pure verb class",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-08T20:11:02Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/744",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c25ada1a5732e53d97fe5bdb0ee00eb73ef7baad",
+              "short_sha": "c25ada1",
+              "subject": "fix(ci): explicit memory ceilings on the three parallel gates"
+            },
+            {
+              "sha": "052468adb1af1699563342f2afaa89a84177d73b",
+              "short_sha": "052468a",
+              "subject": "merge: the coverage record rides along so the ceilings lane inherits the bookkeeping"
+            },
+            {
+              "sha": "a838a8b36b0826a8480ca5dc8c20168dbe2809f1",
+              "short_sha": "a838a8b",
+              "subject": "docs(roadmap): the ceilings lane's record rides the inherited coverage bookkeeping"
+            },
+            {
+              "sha": "c7bd5d53658527723cf3a495a98a12b9a68aecaf",
+              "short_sha": "c7bd5d5",
+              "subject": "docs(roadmap): the Partial lanes gain their production order and definitions of done"
+            },
+            {
+              "sha": "21c3b9f00067ea48b412fdac8ed6cd21614ee7ce",
+              "short_sha": "21c3b9f",
+              "subject": "docs(roadmap): the priorities decision recorded and the pin refreshed"
+            },
+            {
+              "sha": "9ec2db742d0b95e3de3ff67ce695dec29b25bc19",
+              "short_sha": "9ec2db7",
+              "subject": "refactor(cli): the errors family becomes three pure verb classes over shared folds"
+            },
+            {
+              "sha": "dcc0647b4b18a92e65dfaec8a79559b9ba6f71fa",
+              "short_sha": "dcc0647",
+              "subject": "merge: the ceilings lane's bookkeeping rides along"
+            },
+            {
+              "sha": "ec7293810b80e0d24453c8e9222b522ed2fe2f61",
+              "short_sha": "ec72938",
+              "subject": "docs(roadmap): the errors family split recorded and the pin refreshed"
+            },
+            {
+              "sha": "b49845bfb9d9c0d0ce0dfb87efa27bc7761e7c43",
+              "short_sha": "b49845b",
+              "subject": "merge: main's coverage landing joins the ledger"
+            },
+            {
+              "sha": "fe742001d237e5d721c29a1025b1fe0557f09ae6",
+              "short_sha": "fe74200",
+              "subject": "merge: main's coverage landing joins the split's ledger"
+            },
+            {
+              "sha": "e7524ae6892704c2002c044b8b7cafce32027c43",
+              "short_sha": "e7524ae",
+              "subject": "chore: merge main (the coverage contract's landing) into fix/ci-parallel-gates-memory-ceiling"
+            },
+            {
+              "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
+              "short_sha": "fd91abd",
+              "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+            },
+            {
+              "sha": "23a9a9805a3fbea40b058ecfa554a6079d52be28",
+              "short_sha": "23a9a98",
+              "subject": "merge: the refreshed ceilings ledger rides the priorities lane"
+            },
+            {
+              "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
+              "short_sha": "5d62604",
+              "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+            },
+            {
+              "sha": "d8052fb39b938b0e8fd2347785cdb4f51d9f4ed8",
+              "short_sha": "d8052fb",
+              "subject": "merge: the refreshed priorities ledger rides the split"
+            },
+            {
+              "sha": "eccca67bbe9f9afb949f7f8045e4ca4ce6c5a723",
+              "short_sha": "eccca67",
+              "subject": "docs(roadmap): the split's pin rides the refreshed ledger"
+            },
+            {
+              "sha": "290c670181955137472ede8a3fb294f21abe83f4",
+              "short_sha": "290c670",
+              "subject": "refactor(cli): the container inventory family becomes one pure verb class"
+            },
+            {
+              "sha": "078783e9f7c304f0821ae4f632377673c83ea7bb",
+              "short_sha": "078783e",
+              "subject": "docs(roadmap): the container family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "7426ea012ff8572666151c91f213815499e0c92e",
+              "short_sha": "7426ea0",
+              "subject": "refactor(cli): the list family becomes one pure verb class"
+            },
+            {
+              "sha": "9ad5791f615624244515c39a10594d21133977a3",
+              "short_sha": "9ad5791",
+              "subject": "docs(roadmap): the list family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "11a71dfc8f3cb93c8a10dda7e15da98fa1173713",
+              "short_sha": "11a71df",
+              "subject": "refactor(cli): the storage map family becomes one pure verb class"
+            },
+            {
+              "sha": "e4a33a1d2b3c2127c12bf603d10f2468ac30b402",
+              "short_sha": "e4a33a1",
+              "subject": "docs(roadmap): the storage family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "76c5377039b913df33120a8ceefb72a84f8ba6b6",
+              "short_sha": "76c5377",
+              "subject": "rector: the finally block's foreach gains its trailing newline"
+            },
+            {
+              "sha": "60e012ef8c2a023e75befd03b7f03ed08861d932",
+              "short_sha": "60e012e",
+              "subject": "docs(roadmap): the storage family's pin rides the rector settle"
+            },
+            {
+              "sha": "3946490cc66677ad2b2478d76f608b4f647a3159",
+              "short_sha": "3946490",
+              "subject": "docs(roadmap): the storage family's row records the settle its pin rides"
+            }
+          ]
+        },
+        {
+          "pr": 749,
+          "title": "refactor(cli): the route inspection family becomes one pure verb class",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-08T20:59:31Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/749",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "11a71dfc8f3cb93c8a10dda7e15da98fa1173713",
+              "short_sha": "11a71df",
+              "subject": "refactor(cli): the storage map family becomes one pure verb class"
+            },
+            {
+              "sha": "e4a33a1d2b3c2127c12bf603d10f2468ac30b402",
+              "short_sha": "e4a33a1",
+              "subject": "docs(roadmap): the storage family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "76c5377039b913df33120a8ceefb72a84f8ba6b6",
+              "short_sha": "76c5377",
+              "subject": "rector: the finally block's foreach gains its trailing newline"
+            },
+            {
+              "sha": "60e012ef8c2a023e75befd03b7f03ed08861d932",
+              "short_sha": "60e012e",
+              "subject": "docs(roadmap): the storage family's pin rides the rector settle"
+            },
+            {
+              "sha": "3946490cc66677ad2b2478d76f608b4f647a3159",
+              "short_sha": "3946490",
+              "subject": "docs(roadmap): the storage family's row records the settle its pin rides"
+            },
+            {
+              "sha": "198d9410678849eb3a0a06668d130199d4bbd9d0",
+              "short_sha": "198d941",
+              "subject": "refactor(cli): the route inspection family becomes one pure verb class"
+            },
+            {
+              "sha": "8b2f72120abd60a9d5f3ba16cbaf64f86fea46c0",
+              "short_sha": "8b2f721",
+              "subject": "docs(roadmap): the route inspection family's slice recorded and the pin refreshed"
+            }
+          ]
+        },
+        {
+          "pr": 750,
+          "title": "refactor(cli): the route export family becomes one pure verb class",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-08T21:44:38Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/750",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "11a71dfc8f3cb93c8a10dda7e15da98fa1173713",
+              "short_sha": "11a71df",
+              "subject": "refactor(cli): the storage map family becomes one pure verb class"
+            },
+            {
+              "sha": "e4a33a1d2b3c2127c12bf603d10f2468ac30b402",
+              "short_sha": "e4a33a1",
+              "subject": "docs(roadmap): the storage family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "76c5377039b913df33120a8ceefb72a84f8ba6b6",
+              "short_sha": "76c5377",
+              "subject": "rector: the finally block's foreach gains its trailing newline"
+            },
+            {
+              "sha": "60e012ef8c2a023e75befd03b7f03ed08861d932",
+              "short_sha": "60e012e",
+              "subject": "docs(roadmap): the storage family's pin rides the rector settle"
+            },
+            {
+              "sha": "3946490cc66677ad2b2478d76f608b4f647a3159",
+              "short_sha": "3946490",
+              "subject": "docs(roadmap): the storage family's row records the settle its pin rides"
+            },
+            {
+              "sha": "198d9410678849eb3a0a06668d130199d4bbd9d0",
+              "short_sha": "198d941",
+              "subject": "refactor(cli): the route inspection family becomes one pure verb class"
+            },
+            {
+              "sha": "8b2f72120abd60a9d5f3ba16cbaf64f86fea46c0",
+              "short_sha": "8b2f721",
+              "subject": "docs(roadmap): the route inspection family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "5f217482a176afddfe53112d91c87a01f5dcd84a",
+              "short_sha": "5f21748",
+              "subject": "refactor(cli): the route export family becomes one pure verb class"
+            },
+            {
+              "sha": "57536f713b8ddce90ceaf2b04686ea4c709b9849",
+              "short_sha": "57536f7",
+              "subject": "docs(roadmap): the route export family's slice recorded and the pin refreshed"
             }
           ]
         }
