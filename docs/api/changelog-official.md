@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- refactor\(cli\): the list family becomes one pure verb class [\#743](https://github.com/Zeflous/zeflous/pull/743) ([mbetixz](https://github.com/mbetixz))
 - refactor\(cli\): the container inventory family becomes one pure verb class [\#742](https://github.com/Zeflous/zeflous/pull/742) ([mbetixz](https://github.com/mbetixz))
 - refactor\(cli\): the errors family becomes three pure verb classes over shared folds [\#739](https://github.com/Zeflous/zeflous/pull/739) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): the Partial lanes gain their production order and definitions of done [\#738](https://github.com/Zeflous/zeflous/pull/738) ([mbetixz](https://github.com/mbetixz))
