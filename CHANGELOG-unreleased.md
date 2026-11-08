@@ -224,6 +224,9 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - chore(sonar): drop the no-effect sonar.sources and sonar.tests keys [#631](https://github.com/Zeflous/zeflous/pull/631) ([mbetixz](https://github.com/mbetixz))
 - chore(deps): the dev toolchain's symfony trio patched past the 2026-11-04 advisories [#709](https://github.com/Zeflous/zeflous/pull/709) ([mbetixz](https://github.com/mbetixz))
 - refactor(cli): extract the nine autoload copies and repair the zero-dependency mapping [#732](https://github.com/Zeflous/zeflous/pull/732) ([mbetixz](https://github.com/mbetixz))
+- refactor(cli): the errors family becomes three pure verb classes over shared folds [#739](https://github.com/Zeflous/zeflous/pull/739) ([mbetixz](https://github.com/mbetixz))
+- refactor(cli): the container inventory family becomes one pure verb class [#742](https://github.com/Zeflous/zeflous/pull/742) ([mbetixz](https://github.com/mbetixz))
+- refactor(cli): the list family becomes one pure verb class [#743](https://github.com/Zeflous/zeflous/pull/743) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 
@@ -313,6 +316,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): record the durable quarantine landing in the status rows [#648](https://github.com/Zeflous/zeflous/pull/648) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger [#699](https://github.com/Zeflous/zeflous/pull/699) ([mbetixz](https://github.com/mbetixz))
 - docs(contributing): the coverage measurement contract pins one sanctioned invocation [#736](https://github.com/Zeflous/zeflous/pull/736) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): the Partial lanes gain their production order and definitions of done [#738](https://github.com/Zeflous/zeflous/pull/738) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
