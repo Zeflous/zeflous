@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(contributing\): the coverage measurement contract pins one sanctioned invocation [\#736](https://github.com/Zeflous/zeflous/pull/736) ([mbetixz](https://github.com/mbetixz))
 - refactor\(cli\): extract the nine autoload copies and repair the zero-dependency mapping [\#732](https://github.com/Zeflous/zeflous/pull/732) ([mbetixz](https://github.com/mbetixz))
 - test\(http\): make the unpositionable-stream assertion deterministic [\#731](https://github.com/Zeflous/zeflous/pull/731) ([mbetixz](https://github.com/mbetixz))
 - chore\(deps\): the dev toolchain's symfony trio patched past the 2026-11-04 advisories [\#709](https://github.com/Zeflous/zeflous/pull/709) ([mbetixz](https://github.com/mbetixz))
