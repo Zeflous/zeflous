@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-11-07 · `main` @ `a5e6897`
+**Last updated:** 2026-11-08 · `main` @ `c7bd5d5`
 
 **How to read this file**
 
@@ -30,14 +30,14 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Quality Gates & Tooling | 26 |
 | CI / Supply chain | 41 (incl. auto-merge + Sonar lanes) |
 | Changelog automation | 29 (4 human + 25 bot regenerations) |
-| Roadmap docs | 3 |
+| Roadmap docs | 4 |
 | Configuration System | 29 |
 | Probes / no-op | 6 (superseded, kept for the audit trail) |
 | Storage layout | 4 |
 | Event source | 4 |
 | Adapters layer | 19 |
 | Module integration | 4 |
-| **Total merged PRs** | **225** |
+| **Total merged PRs** | **226** |
 
 ---
 
@@ -261,6 +261,7 @@ Each of these is the automation re-writing `CHANGELOG.md`, `CHANGELOG-unreleased
 | refactor(ci): split heavy jobs and add roadmap status | #39 | 2026-10-08 | `4744045781` |
 | ci: bump sonar checkout to v4.4.0 and split heavy jobs | #59 | 2026-10-08 | `94f246061e` |
 | docs(roadmap): refresh ROADMAP-STATUS header to current main | #74 | 2026-10-08 | `c6c4734241` |
+| docs(roadmap): the Partial lanes gain their production order and definitions of done (issue #722's decision record -- the audit's ask that the nine Partial areas be prioritised before production, answered with the count corrected first: the ninth Partial grep hit is the legend row itself, the same raw-count trap the issue's own verification note taught for Not started, so eight areas carry the order): P1 the uploads/temp storage reservations (the one Partial area that is a production attack surface -- an uploads lane without its writer leaves every host hand-rolling file handling outside the audited layout, the issue's own directive); P2 the request-surface lanes (the HTTP layer's hardening slices, the error family's observability and DX -- what production diagnosis rides); P3 the enterprise and DX lanes (the event bus transports and outbox, the module Fase 2-4 slices, the adapters and view/database follow-ups, the middleware DX/performance slices, the shim's remaining runtime halves); every row answered with a testable definition of done in the ROADMAP-STATUS section -- no status changed, a priority is a plan not an implementation (CONTRIBUTING rule 13); the section rides its own gate-clean spelling: uniform columns, separated headings, no repeated six-word run in any cell) | #738 | 2026-11-08 | `c7bd5d5` |
 
 ## 9. Probes & no-ops (audit trail)
 
