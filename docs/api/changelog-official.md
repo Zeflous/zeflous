@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(ci\): explicit memory ceilings on the three parallel gates [\#737](https://github.com/Zeflous/zeflous/pull/737) ([mbetixz](https://github.com/mbetixz))
 - docs\(contributing\): the coverage measurement contract pins one sanctioned invocation [\#736](https://github.com/Zeflous/zeflous/pull/736) ([mbetixz](https://github.com/mbetixz))
 - refactor\(cli\): extract the nine autoload copies and repair the zero-dependency mapping [\#732](https://github.com/Zeflous/zeflous/pull/732) ([mbetixz](https://github.com/mbetixz))
 - test\(http\): make the unpositionable-stream assertion deterministic [\#731](https://github.com/Zeflous/zeflous/pull/731) ([mbetixz](https://github.com/mbetixz))
