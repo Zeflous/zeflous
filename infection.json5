@@ -926,7 +926,25 @@
                 "\\$accept = mb_substr\\(\\$argument, mb_strlen\\('--accept='.*",
                 "\\$version = mb_substr\\(\\$argument, mb_strlen\\('--version='.*",
                 "\\$title = mb_substr\\(\\$argument, mb_strlen\\('--title='.*",
-                "\\$scheme = mb_substr\\(\\$argument, mb_strlen\\('--scheme='.*"
+                "\\$scheme = mb_substr\\(\\$argument, mb_strlen\\('--scheme='.*",
+                // The migrations verb's steps strip reads the same
+                // closed-vocabulary shape the route verbs' flag strips
+                // documented above: the '--steps=' prefix is pure ASCII
+                // (8 bytes, 8 characters -- every spelling of an argument
+                // that reaches the strip starts with the prefix, or the
+                // branch never runs), so mb_strlen and strlen answer the
+                // same offset and mb_substr and substr cut the same tail
+                // bytes there; the candidate that follows is
+                // corridor-checked by the D-anchored digits-only pattern
+                // (one-to-nine then up to eight more ASCII digits -- a
+                // multi-byte candidate never passes the corridor), so no
+                // input can observe the rewrite (verified by running the
+                // family battery under the manually applied mutations --
+                // the complete battery passes, both spellings of the
+                // strip rewritten together). The neighbouring
+                // str_starts_with() call is not an mb_ spelling to begin
+                // with. This ignore is scoped to that single source line.
+                "\\$steps = mb_substr\\(\\$argument, mb_strlen\\('--steps='.*"
             ]
         },
         // The match start's capture read in RedactionCandidate::edit() is

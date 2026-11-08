@@ -834,6 +834,14 @@
       <code><![CDATA[$resolved]]></code>
     </ArgumentTypeCoercion>
   </file>
+  <file src="tests/Support/Tooling/Migrations.php">
+    <UnusedClass>
+      <code><![CDATA[Migrations]]></code>
+    </UnusedClass>
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$resolvedConfigDirectory]]></code>
+    </ArgumentTypeCoercion>
+  </file>
   <file src="tests/Support/Tooling/StorageMap.php">
     <UnusedClass>
       <code><![CDATA[StorageMap]]></code>
@@ -877,56 +885,6 @@
     <MixedAssignment>
       <code><![CDATA[$fileViolation]]></code>
     </MixedAssignment>
-  </file>
-  <file src="tests/Support/Tooling/MigrationsBoot.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[applied]]></code>
-      <code><![CDATA[booted]]></code>
-      <code><![CDATA[migrate]]></code>
-      <code><![CDATA[names]]></code>
-      <code><![CDATA[plan]]></code>
-      <code><![CDATA[rollback]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="tests/Support/Tooling/MigrationsGenerate.php">
-    <UnusedClass>
-      <code><![CDATA[MigrationsGenerate]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/MigrationsGenerateJson.php">
-    <UnusedClass>
-      <code><![CDATA[MigrationsGenerateJson]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/MigrationsGenerateText.php">
-    <UnusedClass>
-      <code><![CDATA[MigrationsGenerateText]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/MigrationsRollbackJson.php">
-    <UnusedClass>
-      <code><![CDATA[MigrationsRollbackJson]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/MigrationsRunJson.php">
-    <UnusedClass>
-      <code><![CDATA[MigrationsRunJson]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/MigrationsRunText.php">
-    <UnusedClass>
-      <code><![CDATA[MigrationsRunText]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/MigrationsStatusJson.php">
-    <UnusedClass>
-      <code><![CDATA[MigrationsStatusJson]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/MigrationsStatusText.php">
-    <UnusedClass>
-      <code><![CDATA[MigrationsStatusText]]></code>
-    </UnusedClass>
   </file>
   <file src="tests/Support/Tooling/ReviewThread.php">
     <PossiblyUnusedProperty>
