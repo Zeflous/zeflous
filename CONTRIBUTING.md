@@ -219,6 +219,21 @@ Unit-test line coverage **MUST** be **greater than 90 %** (the CI gate enforces
 - tests assert behaviour, not implementation details;
 - no test is skipped, weakened or deleted to make the gate pass.
 
+**The measurement is contractual.** `composer coverage` — and `composer
+ci:coverage`, the gate spelling — is the only sanctioned way to measure line
+coverage; a number produced by any other invocation is unmeasured, not a
+decline. The script pins three runtime settings a bare
+`php -d pcov.enabled=1 vendor/bin/phpunit --coverage-text` does not:
+`pcov.directory` restricts instrumentation to the repository tree,
+`pcov.exclude` keeps `/vendor/` out of the record, and `zend.assertions=1`
+runs the assertions production removes (`memory_limit=1G` merely survives the
+full suite). On the very same suite the two invocations answer ~8.6 points
+apart on lines — wide enough to look like a regression and send a fix after a
+problem that is not there, and the bare spelling can even land under the 90 %
+floor while the gate stays green (#721). The full field evidence and the
+reproduction commands live in
+[`docs/ci-notes/coverage-measurement.md`](docs/ci-notes/coverage-measurement.md).
+
 ### 10. Watch CI gates to green, then let auto-merge run
 
 After pushing, the author **MUST** watch the CI gates until **all** of them are
@@ -505,6 +520,18 @@ a workflow fallback or exclusion to turn missing required-gate evidence green.
 | `PHPBench` | Benchmark regression check. |
 | `Changelog generator tests` | Unit tests for the changelog generator. |
 | `CI Ruleset Lint` | Weekly guard: every required status-check context in the live `main` ruleset — united with the classic branch-protection layer's contexts whenever such a layer exists (the read distinguishes `read` / `absent` / `unread`: an administration-scoped 401/403 stays an explicit warning, while the consolidation's 404 "Branch not protected" is the definitive absence) — must have a check-run on each of the last ten merged pull-request heads (the dead-required-check failure mode of the merge-gate audit). The lane reads the rulesets endpoint with the owner's `ZEF_TOKEN` PAT first — the only credential that reaches it in practice — then the workflow token, then the anonymous read. |
+
+**Resource ceilings on the parallel gates.** The gates that spawn worker
+pools — `composer mutation`, `composer rector:check` and `composer qa:mess` —
+carry **explicit parallelism and memory ceilings** spelled where each command
+lives (the composer script, `rector.php`, the gate's command builder), sized
+so the strict pipeline stays reproducible on a 2 GiB cgroup, not only on a
+large runner. A gate dying with `Killed` / exit 137 is a **memory budget
+statement about the environment, never a defect in the tree** — triage the
+cgroup and the ceilings (see
+[`docs/ci-notes/memory-ceilings.md`](docs/ci-notes/memory-ceilings.md)),
+not the code (#720). A larger host may raise the numbers locally; the
+ceilings are minimums for reproducibility, not maximums for performance.
 
 Do not weaken a gate, add a rule exclusion, or lower a threshold to make a
 change pass. Fix the underlying issue instead.

@@ -284,7 +284,7 @@ final class GateRunnerTest extends TestCase
             self::assertSame(
                 'cd ' . escapeshellarg($this->root)
                     . ' && vendor/bin/phpmd analyze src --format=json --ruleset=phpmd.xml'
-                    . " --exclude='*src/Contracts/Psr/*' --no-progress 2>/dev/null",
+                    . " --exclude='*src/Contracts/Psr/*' --no-progress --threads=1 2>/dev/null",
                 $command,
             );
 

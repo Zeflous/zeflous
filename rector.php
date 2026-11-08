@@ -10,6 +10,15 @@ return RectorConfig::configure()
         __DIR__ . '/tests',
         __DIR__ . '/benchmarks',
     ])
+    // The parallel pool is pinned, not left to the host's core count: the
+    // default spawns a worker per CPU, so a many-core host under a small
+    // cgroup OOMs (exit 137, no diagnostic) mid-run (#720). Two workers
+    // keep the run parallel where it helps while staying inside the 2 GiB
+    // audit environment's measured budget, and the per-process memory
+    // floor turns a genuine overshoot into PHP's own "Allowed memory
+    // size exhausted" message instead of the kernel's silent kill.
+    ->withParallel(null, 2)
+    ->withMemoryLimit('1G')
     ->withSkip([
         __DIR__ . '/src/Contracts/Psr',
         __DIR__ . '/vendor',
