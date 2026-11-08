@@ -127,6 +127,35 @@ Cross-cutting substrate — not a `ROADMAP.md` area of its own; tracked here the
 
 ---
 
+---
+
+## Lane priorities before production (`Partial` areas)
+
+The decision issue #722 asked for: which `🟡 Partial` lanes close first, in
+what order, and what "done" means for each. Eight areas are `Partial` — the
+ninth `Partial` grep hit is the legend row itself, the same raw-count trap the
+issue's own verification note taught for `Not started` (its `grep -c` answer
+of 1 was the legend, so 0 areas; here 9 minus the legend is 8). No status
+changes here — CONTRIBUTING §13 keeps status tied to code evidence, and a
+priority is a plan, not an implementation.
+
+| Priority | Partial area (section) | Why this order | Testable definition of done |
+| --- | --- | --- | --- |
+| **P1** | Storage layout — the `temp` and `uploads` reservations (§ Storage layout) | The one Partial area that is a production attack surface rather than a feature lane: an uploads lane without its writer leaves every host hand-rolling file handling outside the audited layout — the issue's own directive. | `StorageLane::Uploads` answers its first writer with fail-closed validation (size, type) behind a knob; `temp` answers its writer with a cadenced sweep; the skeleton, walk, inspector and pin answer nine lanes; the new folds carry scoped infection MSI 100/100 and a KDD note. |
+| **P2** | HTTP Layer — security & hardening, observability, debugging utilities (§ HTTP Layer) | The same request surface the uploads writer lands on: hardening slices close before the first production traffic, not after it. | The section's row turns `✅ Implemented` with every named open slice carrying its own openable evidence pointer — not before. |
+| **P2** | Error Handling — standardisation, observability, DX (§ Error Handling System) | Production diagnosis rides the error family: the typed family and RFC 9457 envelope are live, what remains is the operator's tooling. | Same shape as the lane above: the row turns `✅ Implemented` only when each named open slice has a landed, openable evidence pointer. |
+| **P3** | Event — the bus transports, transactional/outbox, EventStore/CQRS (§ Event Source System) | Enterprise integrations, not production blockers: the durable file store already answers deferred delivery for a single-process deployment. | The first bus transport lands over the existing port (an `Adapters\Event` fold with its KDD), and each remaining named section lands as its own slice; the row's open list shrinks with every landing. |
+| **P3** | Module integration — Fase 2 per-module migrations, Fase 3 governance, Fase 4 DX (§ Module Integration System) | Host-facing developer experience: the core engine and two extension folds are live and exercised by the suite. | The three named Fase slices land (the migrations fold, governance, the generator and `module:list`/`module:doctor` trio), each with evidence. |
+| **P3** | Adapters layer — the view and database follow-ups, parked socket pooling (§ Adapters Layer) | Feature lanes with their own recorded follow-ups; none blocks a first production deployment. | Each named follow-up (the Twig optional adapter, the views wiring family, the per-purpose knobs, pooling under its recorded opening condition) lands as its own slice with evidence. |
+| **P3** | Middleware Pipeline — the DX and performance slices (§ Middleware Pipeline) | The engine, dispatch and per-route resolution are live; what remains is developer convenience on an already-exercised surface. | The DX and performance slices land with their evidence pointers, their costs pinned in the CI bench lane. |
+| **P3** | HTTP Shim — the runtime adapter's remaining halves, security, performance (§ HTTP Layer — "Zero-Library Shim") | The vendored contracts and the inbound worker adapter are live; the outbound runtime adapter matters only to persistent-worker deployments that adopt it. | The remaining Fase slices land with evidence, so a deployment riding the shim's contracts has its adapter story complete. |
+
+The order is a review order, not a queue: P2 lanes may proceed in parallel
+with P1 whenever their slices are independent — the gate discipline
+(coverage, mutation, architecture) is what keeps every landing honest, and
+each lane's slice still ships as its own pull request.
+
+
 ## How to update this file
 
 1. When a roadmap area gains code, change its **Status** and add the concrete
