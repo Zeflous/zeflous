@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-09T02:38:40Z",
+  "as_of": "2026-11-09T05:03:15Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 312,
+  "unreleased_count": 313,
   "versions": [
     {
       "version": "Unreleased",
@@ -8556,6 +8556,27 @@
                 "sha": "ba74d4718b46a3dd61ec08325a78b4dfe150e9a0",
                 "short_sha": "ba74d47",
                 "subject": "docs(roadmap): the pin rides the http inspection settle"
+              }
+            ]
+          },
+          {
+            "pr": 757,
+            "title": "refactor(cli): the declared-command dispatch becomes one pure verb class",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-09T05:03:15Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/757",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "31381ffdc99c60dbdd7a283e26972832633268ca",
+                "short_sha": "31381ff",
+                "subject": "refactor(cli): the declared-command dispatch becomes one pure verb class"
+              },
+              {
+                "sha": "aac3223f21e22d339c74d494c71235ccbeb93953",
+                "short_sha": "aac3223",
+                "subject": "docs(roadmap): the declared-command dispatch's slice recorded and the pin refreshed"
               }
             ]
           }
@@ -21357,6 +21378,27 @@
               "sha": "ba74d4718b46a3dd61ec08325a78b4dfe150e9a0",
               "short_sha": "ba74d47",
               "subject": "docs(roadmap): the pin rides the http inspection settle"
+            }
+          ]
+        },
+        {
+          "pr": 757,
+          "title": "refactor(cli): the declared-command dispatch becomes one pure verb class",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-09T05:03:15Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/757",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "31381ffdc99c60dbdd7a283e26972832633268ca",
+              "short_sha": "31381ff",
+              "subject": "refactor(cli): the declared-command dispatch becomes one pure verb class"
+            },
+            {
+              "sha": "aac3223f21e22d339c74d494c71235ccbeb93953",
+              "short_sha": "aac3223",
+              "subject": "docs(roadmap): the declared-command dispatch's slice recorded and the pin refreshed"
             }
           ]
         }
