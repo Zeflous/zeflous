@@ -238,11 +238,21 @@ final readonly class GateRunner
      * is a run the gate refuses to trust. The exit code and the parsed
      * payload must agree -- a tool that reports clones while exiting
      * clean (or the reverse) is a tool whose verdict nobody can read.
+     *
+     * The corpus is `src` AND `bin`: the CLI entrypoint rides the detector
+     * by its own suffix (#718's (b) split, after #717's refactor landed
+     * clean of clone pairs) -- `--suffix .php --suffix zef`, because the
+     * entrypoint carries no extension and a directory entry alone is a
+     * silent no-op whose walk never sees it (the analyser widening's
+     * Finding 1, this gate's own copy). Measured: `zef` as a suffix
+     * matches names ending in it, and the only such file in the tree is
+     * `bin/zef` itself.
      */
     private function duplication(): GateResult
     {
         [$exitCode, $output] = ($this->processRunner)(\sprintf(
-            'cd %s && vendor/bin/phpcpd src --exclude src/Contracts/Psr'
+            'cd %s && vendor/bin/phpcpd src bin --suffix .php --suffix zef'
+            . ' --exclude src/Contracts/Psr'
             . ' --log-pmd php://stdout --quiet 2>/dev/null',
             escapeshellarg($this->root),
         ));
@@ -280,11 +290,20 @@ final readonly class GateRunner
      * reported (#720). One thread is the measured stable spelling on the
      * 2 GiB audit environment; the tree parses in seconds, so the
      * ceiling costs nothing the gate would notice.
+     *
+     * The corpus is `src` AND `bin`: the CLI entrypoint rides the detector
+     * through the empty suffix (#718's (b) split) -- `--suffixes php
+     * --suffixes ''`, because the extension filter drops the extension-
+     * less file from BOTH directory walks and explicitly named paths
+     * (measured against phpmd's own ExtensionFilter: only an empty
+     * entry in the extension list admits an empty pathinfo extension).
      */
     private function mess(): GateResult
     {
         [$exitCode, $output] = ($this->processRunner)(\sprintf(
-            'cd %s && vendor/bin/phpmd analyze src --format=json --ruleset=phpmd.xml'
+            'cd %s && vendor/bin/phpmd analyze src bin'
+            . " --suffixes php --suffixes ''"
+            . ' --format=json --ruleset=phpmd.xml'
             . " --exclude='*src/Contracts/Psr/*' --no-progress --threads=1 2>/dev/null",
             escapeshellarg($this->root),
         ));

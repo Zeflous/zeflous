@@ -220,6 +220,43 @@ escaped.
   now encoded in this file so the next reader does not rediscover
   them.
 
+## KDD-QA9 — the corpora widen to the CLI entrypoint (#718's (b) split)
+
+The gates' own scope had the same hole the analysers' did (#718's
+Finding 1): both corpora were `src/`-only, and the extension-less
+`bin/zef` could not ride a directory entry — `phpcpd`'s default suffix
+is `.php` and phpmd's extension filter drops extension-less files from
+BOTH directory walks and explicitly named paths (measured against its
+own `ExtensionFilter`: `pathinfo('bin/zef')` answers an empty
+extension, and only an empty entry in the extension list admits it).
+
+The spellings the widening pinned, both measured before landing:
+
+* **phpcpd** — `src bin --suffix .php --suffix zef`: the suffix list is
+  a name-suffix match ("names ending on"), so `zef` admits `bin/zef`
+  while `.php` keeps every first-party class; the only in-tree name
+  ending in `zef` is the entrypoint itself. Two directory arguments
+  are accepted (the usage line's singular `<directory>` is the tool's
+  own understatement). The empty PMD payload over `src bin` is the
+  measured clean verdict.
+* **phpmd** — `analyze src bin --suffixes php --suffixes ''`: the
+  repeatable `--suffixes` flag builds the extension list, and the empty
+  string entry is the one spelling that admits the empty `pathinfo`
+  extension; without it the entrypoint is a **silent no-op** even as
+  an explicit path (the probe pair proved it: the `.php` twin of an
+  extension-less file reported its `EvalExpression` violation while the
+  extension-less original vanished from the same run's payload).
+
+Ordering, per the issue's own contract: the widening waited for
+#717's refactor (nine verb slices + the autoloader extraction) to land
+so the widened gate never turned red — and the refactored entrypoint
+answers zero clone pairs and zero violations on its first widened run
+(measured on the PR head). The regression pin is the two gate tests'
+exact command assertions: the corpus spelling is now under test, so
+the next no-op widening cannot land silently. The `DuplicationGate`
+verdict messages name both halves of the corpus (`src/ or bin/`) so a
+red gate answers "where" honestly.
+
 ## SonarCloud's standing after this slice
 
 `sonarcloud.yml`, `sonar-project.properties` and
