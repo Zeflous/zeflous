@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="6.19.2@fa716e443b23e6fa35bf58907e67ca692ec3c00a">
-  <file src="src/Zef/Framework/Console/CommandHandler.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[run]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="src/Zef/Framework/Console/ConsoleCommands.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[named]]></code>
-    </PossiblyUnusedMethod>
+  <file src="tests/Support/Tooling/DeclaredCommands.php">
+    <UnusedClass>
+      <code><![CDATA[DeclaredCommands]]></code>
+    </UnusedClass>
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$resolvedConfigDirectory]]></code>
+    </ArgumentTypeCoercion>
   </file>
   <file src="src/Contracts/Psr/Http/Message/MessageInterface.php">
     <PossiblyUnusedMethod>
