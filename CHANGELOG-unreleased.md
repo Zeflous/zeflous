@@ -230,6 +230,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - refactor(cli): the storage map family becomes one pure verb class [#744](https://github.com/Zeflous/zeflous/pull/744) ([mbetixz](https://github.com/mbetixz))
 - refactor(cli): the route inspection family becomes one pure verb class [#749](https://github.com/Zeflous/zeflous/pull/749) ([mbetixz](https://github.com/mbetixz))
 - refactor(cli): the route export family becomes one pure verb class [#750](https://github.com/Zeflous/zeflous/pull/750) ([mbetixz](https://github.com/mbetixz))
+- refactor(cli): the migrations family becomes one pure verb class [#752](https://github.com/Zeflous/zeflous/pull/752) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 
