@@ -248,8 +248,14 @@ final class HttpInspectionTest extends TestCase
 
         self::assertSame(0, $outcome->exitCode);
         self::assertSame('', $outcome->stderr);
-        self::assertStringContainsString("POST /mirror/spot HTTP/1.1\r\nX-Test: custom\r\nHost: example.test\r\n", $outcome->stdout);
-        self::assertStringContainsString("\r\n\r\nhello\r\n\r\n-- response --\r\nHTTP/1.1 201 Created\r\n", $outcome->stdout);
+        self::assertStringContainsString(
+            "POST /mirror/spot HTTP/1.1\r\nX-Test: custom\r\nHost: example.test\r\n",
+            $outcome->stdout,
+        );
+        self::assertStringContainsString(
+            "\r\n\r\nhello\r\n\r\n-- response --\r\nHTTP/1.1 201 Created\r\n",
+            $outcome->stdout,
+        );
         self::assertStringEndsWith("\r\n\r\nmirrored spot", $outcome->stdout);
 
         $unspaced = HttpInspection::run(

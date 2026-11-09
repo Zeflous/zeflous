@@ -85,8 +85,10 @@ final class HttpInspection
             return CommandOutcome::refused(2, "Invalid request method: {$method}\n");
         }
 
-        if ($path === '' || !str_starts_with($path, '/') || mb_strlen($path) > 2048
-            || preg_match('/[\x00-\x1f\x7f]/', $path) === 1) {
+        if (
+            $path === '' || !str_starts_with($path, '/') || mb_strlen($path) > 2048
+            || preg_match('/[\x00-\x1f\x7f]/', $path) === 1
+        ) {
             return CommandOutcome::refused(
                 2,
                 "The request path must start with a slash and carry no control bytes.\n",
@@ -138,10 +140,12 @@ final class HttpInspection
             $headerName = $colon === false ? '' : mb_substr($headerArgument, 0, $colon);
             $headerValue = $colon === false ? '' : mb_ltrim(mb_substr($headerArgument, $colon + 1), ' ');
 
-            if (preg_match('/^[!#$%&\'*+.^_`|~0-9A-Za-z-]+$/D', $headerName) !== 1
+            if (
+                preg_match('/^[!#$%&\'*+.^_`|~0-9A-Za-z-]+$/D', $headerName) !== 1
                 || $headerValue === ''
                 || mb_strlen($headerValue, '8bit') > 4096
-                || preg_match('/[\x00-\x08\x0a-\x1f\x7f]/', $headerValue) === 1) {
+                || preg_match('/[\x00-\x08\x0a-\x1f\x7f]/', $headerValue) === 1
+            ) {
                 return CommandOutcome::refused(
                     2,
                     'Each --header= flag must spell `Name: value`'
