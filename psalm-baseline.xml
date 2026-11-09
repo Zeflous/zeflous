@@ -586,11 +586,6 @@
       <code><![CDATA[with]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Http/SecurityHeaderAudit.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[over]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Zef/Framework/Http/ServerProtocol.php">
     <LessSpecificReturnStatement>
       <code><![CDATA[$matches[1]]]></code>
@@ -769,30 +764,16 @@
       <code><![CDATA[GateRunner]]></code>
     </UnusedClass>
   </file>
-  <file src="tests/Support/Tooling/HeaderAuditJson.php">
+  <file src="tests/Support/Tooling/HttpInspection.php">
     <UnusedClass>
-      <code><![CDATA[HeaderAuditJson]]></code>
+      <code><![CDATA[HttpInspection]]></code>
     </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/HeaderAuditText.php">
-    <UnusedClass>
-      <code><![CDATA[HeaderAuditText]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/HttpDumpText.php">
-    <UnusedClass>
-      <code><![CDATA[HttpDumpText]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/HttpExchange.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[scheme]]></code>
-    </PossiblyUnusedMethod>
-  </file>
-  <file src="tests/Support/Tooling/HttpInspectionBoot.php">
-    <UnusedClass>
-      <code><![CDATA[HttpInspectionBoot]]></code>
-    </UnusedClass>
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$resolvedConfigDirectory]]></code>
+      <code><![CDATA[$method]]></code>
+      <code><![CDATA[$path]]></code>
+      <code><![CDATA[$headerPairs]]></code>
+    </ArgumentTypeCoercion>
   </file>
   <file src="tests/Support/Tooling/CommandOutcome.php">
     <PossiblyUnusedProperty>
