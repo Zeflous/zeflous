@@ -10,6 +10,11 @@ parameters:
         - src
         - tests
         - benchmarks
+        # The CLI entrypoint joins the analysed scope (#718): an explicit
+        # FILE entry, because the path has no `.php` extension -- a
+        # directory entry here would be a silent no-op that analyses none
+        # of it, the exact defect the issue recorded.
+        - bin/zef
     # Optional-dependency analysis stubs, seen by the analyser in
     # environments whose runtime carries none of them: the phpredis
     # extension's class (the rate-limit store's boundary), the Guzzle

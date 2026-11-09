@@ -10,7 +10,14 @@ $finder = Finder::create()
     ->notPath('#Contracts/Psr#')
     ->name('*.php')
     ->ignoreDotFiles(true)
-    ->ignoreVCS(true);
+    ->ignoreVCS(true)
+    // The CLI entrypoint joins the formatted scope (#718): appended by its
+    // explicit path, because `name('*.php')` filters directory scans by
+    // extension and the entrypoint carries none -- an `in([..., '/bin'])`
+    // entry would be a silent no-op that formats none of it. Appended files
+    // bypass the name filter, and the fixer still applies every rule that
+    // fits a global-scope procedural file.
+    ->append([__DIR__ . '/bin/zef']);
 
 return (new Config())
     ->setRiskyAllowed(true)
@@ -48,7 +55,16 @@ return (new Config())
             'scope' => 'namespaced',
             'strict' => true,
         ],
-        'native_constant_invocation' => ['strict' => true],
+        // The constant twin of the function rule above: native constants
+        // carry the invocation prefix in namespaced code only. The
+        // namespace-less CLI entrypoint keeps the bare spelling Slevomat's
+        // ReferenceUsedNamesOnly demands there (a leading backslash in a
+        // file without a namespace is the error its sniff names), so the
+        // two fixers agree instead of ping-ponging the spelling.
+        'native_constant_invocation' => [
+            'scope' => 'namespaced',
+            'strict' => true,
+        ],
         'no_superfluous_phpdoc_tags' => [
             'allow_mixed' => false,
             'remove_inheritdoc' => false,

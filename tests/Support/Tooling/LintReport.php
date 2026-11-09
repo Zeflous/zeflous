@@ -19,6 +19,12 @@ use SplFileInfo;
  * gate lints, and a shrunken corpus is a green that lies -- the honest
  * answers are every configured directory present, or a failure that
  * names the one that is not.
+ *
+ * The directory walk only ever sees `*.php` files, so the extension-less
+ * CLI entrypoint rides the corpus as an explicitly named file (#718): a
+ * `bin` directory entry alone was a silent no-op that linted none of it,
+ * the exact defect class the issue recorded. A named file that does not
+ * exist refuses the collection for the same fail-loud reason.
  */
 final readonly class LintReport
 {
@@ -31,8 +37,9 @@ final readonly class LintReport
 
     /**
      * @param list<string> $directories
+     * @param list<string> $entrypointFiles root-relative named files the corpus must carry
      */
-    public static function collectPhpFiles(string $root, array $directories): self
+    public static function collectPhpFiles(string $root, array $directories, array $entrypointFiles = []): self
     {
         $files = [];
 
@@ -68,6 +75,10 @@ final readonly class LintReport
             }
         }
 
+        foreach ($entrypointFiles as $entrypointFile) {
+            $files[] = self::entrypointPath($root, $entrypointFile);
+        }
+
         sort($files);
 
         return new self($files);
@@ -76,5 +87,25 @@ final readonly class LintReport
     public function count(): int
     {
         return \count($this->files);
+    }
+
+    /**
+     * The named entrypoint's absolute path, or the refusal that names it:
+     * a missing file shrinks the corpus exactly like a missing directory,
+     * and the honest answer is the failure, not a smaller green.
+     */
+    private static function entrypointPath(string $root, string $entrypointFile): string
+    {
+        $path = $root . \DIRECTORY_SEPARATOR . $entrypointFile;
+
+        if (!is_file($path)) {
+            throw new ToolingException(\sprintf(
+                'The lint corpus file "%s" does not exist'
+                . ' -- a shrunken corpus must fail loudly, not lint less.',
+                $path,
+            ));
+        }
+
+        return $path;
     }
 }

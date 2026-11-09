@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <files psalm-version="6.19.2@fa716e443b23e6fa35bf58907e67ca692ec3c00a">
   <file src="tests/Support/Tooling/DeclaredCommands.php">
-    <UnusedClass>
-      <code><![CDATA[DeclaredCommands]]></code>
-    </UnusedClass>
     <ArgumentTypeCoercion>
       <code><![CDATA[$resolvedConfigDirectory]]></code>
     </ArgumentTypeCoercion>
@@ -763,9 +760,6 @@
     </UnusedClass>
   </file>
   <file src="tests/Support/Tooling/HttpInspection.php">
-    <UnusedClass>
-      <code><![CDATA[HttpInspection]]></code>
-    </UnusedClass>
     <ArgumentTypeCoercion>
       <code><![CDATA[$resolvedConfigDirectory]]></code>
       <code><![CDATA[$method]]></code>
@@ -773,68 +767,33 @@
       <code><![CDATA[$headerPairs]]></code>
     </ArgumentTypeCoercion>
   </file>
-  <file src="tests/Support/Tooling/CommandOutcome.php">
-    <PossiblyUnusedProperty>
-      <code><![CDATA[$exitCode]]></code>
-      <code><![CDATA[$stdout]]></code>
-      <code><![CDATA[$stderr]]></code>
-    </PossiblyUnusedProperty>
-  </file>
   <file src="tests/Support/Tooling/CliList.php">
-    <UnusedClass>
-      <code><![CDATA[CliList]]></code>
-    </UnusedClass>
     <ArgumentTypeCoercion>
       <code><![CDATA[$resolved]]></code>
     </ArgumentTypeCoercion>
   </file>
   <file src="tests/Support/Tooling/ContainerInventory.php">
-    <UnusedClass>
-      <code><![CDATA[ContainerInventory]]></code>
-    </UnusedClass>
     <ArgumentTypeCoercion>
       <code><![CDATA[$resolved]]></code>
     </ArgumentTypeCoercion>
   </file>
   <file src="tests/Support/Tooling/RouteInspection.php">
-    <UnusedClass>
-      <code><![CDATA[RouteInspection]]></code>
-    </UnusedClass>
     <ArgumentTypeCoercion>
       <code><![CDATA[$resolved]]></code>
     </ArgumentTypeCoercion>
   </file>
   <file src="tests/Support/Tooling/RouteExport.php">
-    <UnusedClass>
-      <code><![CDATA[RouteExport]]></code>
-    </UnusedClass>
     <ArgumentTypeCoercion>
       <code><![CDATA[$resolved]]></code>
       <code><![CDATA[$resolved]]></code>
     </ArgumentTypeCoercion>
   </file>
   <file src="tests/Support/Tooling/Migrations.php">
-    <UnusedClass>
-      <code><![CDATA[Migrations]]></code>
-    </UnusedClass>
     <ArgumentTypeCoercion>
       <code><![CDATA[$resolvedConfigDirectory]]></code>
     </ArgumentTypeCoercion>
   </file>
-  <file src="tests/Support/Tooling/StorageMap.php">
-    <UnusedClass>
-      <code><![CDATA[StorageMap]]></code>
-    </UnusedClass>
-  </file>
-  <file src="tests/Support/Tooling/ErrorsClear.php">
-    <UnusedClass>
-      <code><![CDATA[ErrorsClear]]></code>
-    </UnusedClass>
-  </file>
   <file src="tests/Support/Tooling/ErrorsReplay.php">
-    <UnusedClass>
-      <code><![CDATA[ErrorsReplay]]></code>
-    </UnusedClass>
     <MixedAssignment>
       <code><![CDATA[$rawMethod]]></code>
       <code><![CDATA[$requestPath]]></code>
@@ -850,9 +809,6 @@
     </MixedOperand>
   </file>
   <file src="tests/Support/Tooling/ErrorsReport.php">
-    <UnusedClass>
-      <code><![CDATA[ErrorsReport]]></code>
-    </UnusedClass>
     <MixedAssignment>
       <code><![CDATA[$storedContext]]></code>
       <code><![CDATA[$storedLevel]]></code>
