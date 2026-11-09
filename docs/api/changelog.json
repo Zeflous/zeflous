@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-08T22:21:38Z",
+  "as_of": "2026-11-09T02:38:40Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 311,
+  "unreleased_count": 312,
   "versions": [
     {
       "version": "Unreleased",
@@ -8505,6 +8505,57 @@
                 "sha": "a854e0f8ef889d4117910ccb251e862d88a30f60",
                 "short_sha": "a854e0f",
                 "subject": "docs(roadmap): the migrations family's slice recorded and the pin refreshed"
+              }
+            ]
+          },
+          {
+            "pr": 754,
+            "title": "refactor(cli): the http inspection family becomes one pure verb class",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-09T02:38:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/754",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5f217482a176afddfe53112d91c87a01f5dcd84a",
+                "short_sha": "5f21748",
+                "subject": "refactor(cli): the route export family becomes one pure verb class"
+              },
+              {
+                "sha": "57536f713b8ddce90ceaf2b04686ea4c709b9849",
+                "short_sha": "57536f7",
+                "subject": "docs(roadmap): the route export family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "95fa886887b8b2a3da604bc85d2c612b967534b0",
+                "short_sha": "95fa886",
+                "subject": "refactor(cli): the migrations family becomes one pure verb class"
+              },
+              {
+                "sha": "a854e0f8ef889d4117910ccb251e862d88a30f60",
+                "short_sha": "a854e0f",
+                "subject": "docs(roadmap): the migrations family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "fd1afb595a0c6243d5ef04f58e1ebd6e38bf3238",
+                "short_sha": "fd1afb5",
+                "subject": "refactor(cli): the http inspection family becomes one pure verb class"
+              },
+              {
+                "sha": "115ac0164d77c66cdcd22419c07606421666e540",
+                "short_sha": "115ac01",
+                "subject": "docs(roadmap): the http inspection family's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "24ac75f2dc6591fc4925f71dea1098134d5249c8",
+                "short_sha": "24ac75f",
+                "subject": "refactor(cli): the http inspection family's phpcs findings settled"
+              },
+              {
+                "sha": "ba74d4718b46a3dd61ec08325a78b4dfe150e9a0",
+                "short_sha": "ba74d47",
+                "subject": "docs(roadmap): the pin rides the http inspection settle"
               }
             ]
           }
@@ -21255,6 +21306,57 @@
               "sha": "a854e0f8ef889d4117910ccb251e862d88a30f60",
               "short_sha": "a854e0f",
               "subject": "docs(roadmap): the migrations family's slice recorded and the pin refreshed"
+            }
+          ]
+        },
+        {
+          "pr": 754,
+          "title": "refactor(cli): the http inspection family becomes one pure verb class",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-09T02:38:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/754",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5f217482a176afddfe53112d91c87a01f5dcd84a",
+              "short_sha": "5f21748",
+              "subject": "refactor(cli): the route export family becomes one pure verb class"
+            },
+            {
+              "sha": "57536f713b8ddce90ceaf2b04686ea4c709b9849",
+              "short_sha": "57536f7",
+              "subject": "docs(roadmap): the route export family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "95fa886887b8b2a3da604bc85d2c612b967534b0",
+              "short_sha": "95fa886",
+              "subject": "refactor(cli): the migrations family becomes one pure verb class"
+            },
+            {
+              "sha": "a854e0f8ef889d4117910ccb251e862d88a30f60",
+              "short_sha": "a854e0f",
+              "subject": "docs(roadmap): the migrations family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "fd1afb595a0c6243d5ef04f58e1ebd6e38bf3238",
+              "short_sha": "fd1afb5",
+              "subject": "refactor(cli): the http inspection family becomes one pure verb class"
+            },
+            {
+              "sha": "115ac0164d77c66cdcd22419c07606421666e540",
+              "short_sha": "115ac01",
+              "subject": "docs(roadmap): the http inspection family's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "24ac75f2dc6591fc4925f71dea1098134d5249c8",
+              "short_sha": "24ac75f",
+              "subject": "refactor(cli): the http inspection family's phpcs findings settled"
+            },
+            {
+              "sha": "ba74d4718b46a3dd61ec08325a78b4dfe150e9a0",
+              "short_sha": "ba74d47",
+              "subject": "docs(roadmap): the pin rides the http inspection settle"
             }
           ]
         }
