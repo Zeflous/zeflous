@@ -9,6 +9,10 @@ return RectorConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/tests',
         __DIR__ . '/benchmarks',
+        // The CLI entrypoint joins the refactored scope (#718): an explicit
+        // file path, because it carries no `.php` extension -- a directory
+        // entry would be a silent no-op that reaches none of it.
+        __DIR__ . '/bin/zef',
     ])
     // The parallel pool is pinned, not left to the host's core count: the
     // default spawns a worker per CPU, so a many-core host under a small

@@ -88,6 +88,53 @@ final class LintReportTest extends TestCase
     }
 
     /**
+     * The extension-less entrypoint rides the corpus by its own explicit
+     * name: the directory walk's extension filter can never see it, so the
+     * named spelling is the only one that answers for the file the
+     * repository executes (#718's Finding 1, the lint arm's own copy).
+     */
+    public function testCollectsTheNamedExtensionLessEntrypoint(): void
+    {
+        file_put_contents($this->root . '/zef', "#!/usr/bin/env php\n<?php");
+
+        try {
+            $lintReport = LintReport::collectPhpFiles($this->root, ['src'], ['zef']);
+
+            self::assertSame(
+                [
+                    $this->root . '/src/A.php',
+                    $this->root . '/src/Z.php',
+                    $this->root . '/src/sub/B.php',
+                    $this->root . '/zef',
+                ],
+                $lintReport->files,
+            );
+        } finally {
+            unlink($this->root . '/zef');
+        }
+    }
+
+    /**
+     * A named entrypoint that does not exist refuses the collection with
+     * the same fail-loud posture as a missing directory: the corpus's own
+     * contract is every configured file present, or the failure that
+     * names the one that is not.
+     */
+    public function testRefusesAMissingNamedEntrypoint(): void
+    {
+        try {
+            LintReport::collectPhpFiles($this->root, ['src'], ['zef']);
+            self::fail('A missing named lint corpus file must raise a ToolingException.');
+        } catch (ToolingException $toolingException) {
+            self::assertSame(
+                'The lint corpus file "' . $this->root . '/zef" does not exist'
+                    . ' -- a shrunken corpus must fail loudly, not lint less.',
+                $toolingException->getMessage(),
+            );
+        }
+    }
+
+    /**
      * A configured directory that does not exist refuses the collection:
      * a missing directory shrinks the corpus the gate lints, and a
      * shrunken corpus is a green that lies -- the honest answer names the

@@ -3,6 +3,19 @@
 
 declare(strict_types=1);
 
+use Zef\Test\Support\Tooling\CliList;
+use Zef\Test\Support\Tooling\CommandOutcome;
+use Zef\Test\Support\Tooling\ContainerInventory;
+use Zef\Test\Support\Tooling\DeclaredCommands;
+use Zef\Test\Support\Tooling\ErrorsClear;
+use Zef\Test\Support\Tooling\ErrorsReplay;
+use Zef\Test\Support\Tooling\ErrorsReport;
+use Zef\Test\Support\Tooling\HttpInspection;
+use Zef\Test\Support\Tooling\Migrations;
+use Zef\Test\Support\Tooling\RouteExport;
+use Zef\Test\Support\Tooling\RouteInspection;
+use Zef\Test\Support\Tooling\StorageMap;
+
 /**
  * The one autoloader every CLI command rides: Composer's mapping when the
  * install is present, otherwise the zero-dependency spelling -- the same
@@ -20,7 +33,7 @@ declare(strict_types=1);
  */
 function requireFrameworkAutoloader(): void
 {
-    $autoload = dirname(__DIR__) . '/vendor/autoload.php';
+    $autoload = __DIR__ . '/../vendor/autoload.php';
     if (is_file($autoload)) {
         require_once $autoload;
 
@@ -32,100 +45,126 @@ function requireFrameworkAutoloader(): void
     // class has ever lived at, so the fallback had been unable to load a
     // single framework class since its birth in `fdb0f46`, uncaught
     // because no test exercises a vendor-less tree.
-    require_once dirname(__DIR__) . '/src/autoload.php';
+    require_once __DIR__ . '/../src/autoload.php';
 
     spl_autoload_register(static function (string $class): void {
         $bases = [
-            'Zef\\Framework\\' => dirname(__DIR__) . '/src/Zef/Framework/',
-            'Psr\\Container\\' => dirname(__DIR__) . '/src/Contracts/Psr/Container/',
-            'Psr\\Http\\Message\\' => dirname(__DIR__) . '/src/Contracts/Psr/Http/Message/',
-            'Psr\\Http\\Server\\' => dirname(__DIR__) . '/src/Contracts/Psr/Http/Server/',
-            'Psr\\Log\\' => dirname(__DIR__) . '/src/Contracts/Psr/Log/',
-            'Zef\\Test\\' => dirname(__DIR__) . '/tests/',
+            'Zef\Framework\\' => __DIR__ . '/../src/Zef/Framework/',
+            'Psr\Container\\' => __DIR__ . '/../src/Contracts/Psr/Container/',
+            'Psr\Http\Message\\' => __DIR__ . '/../src/Contracts/Psr/Http/Message/',
+            'Psr\Http\Server\\' => __DIR__ . '/../src/Contracts/Psr/Http/Server/',
+            'Psr\Log\\' => __DIR__ . '/../src/Contracts/Psr/Log/',
+            'Zef\Test\\' => __DIR__ . '/../tests/',
         ];
         foreach ($bases as $prefix => $base) {
-            if (str_starts_with($class, $prefix)) {
-                $file = $base
-                    . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
-                if (is_file($file)) {
-                    require $file;
-                }
+            if (!str_starts_with($class, $prefix)) {
+                continue;
             }
+
+            $file = $base
+                . str_replace('\\', '/', mb_substr($class, mb_strlen($prefix))) . '.php';
+            if (!is_file($file)) {
+                continue;
+            }
+
+            require $file;
         }
     });
 }
 
 $command = $argv[1] ?? '';
 
+/**
+ * The arguments every verb receives -- the caller's own words with the
+ * script's name already skipped. PHP's own CLI contract spells `$argv` as
+ * the script's name followed by the arguments, every element a string,
+ * and `array_slice()` with the default `preserve_keys=false` over a list
+ * answers a list again -- a runtime property the analyser's coarse
+ * `array`-return stub loses, so the list spelling is restated once here
+ * instead of being argued at every call site (#718: the entrypoint joins
+ * the analysers' scope, and it joins clean).
+ *
+ * @var list<string> $arguments
+ */
+$arguments = array_slice($argv, 2);
+
 if ($command === 'errors:replay') {
     requireFrameworkAutoloader();
 
-    $outcome = \Zef\Test\Support\Tooling\ErrorsReplay::run(array_slice($argv, 2));
+    $outcome = ErrorsReplay::run($arguments);
     fwrite(STDERR, $outcome->stderr);
     fwrite(STDOUT, $outcome->stdout);
+
     exit($outcome->exitCode);
 }
 
 if ($command === 'container:inventory') {
     requireFrameworkAutoloader();
 
-    $outcome = \Zef\Test\Support\Tooling\ContainerInventory::run(array_slice($argv, 2));
+    $outcome = ContainerInventory::run($arguments);
     fwrite(STDERR, $outcome->stderr);
     fwrite(STDOUT, $outcome->stdout);
+
     exit($outcome->exitCode);
 }
 
 if (in_array($command, ['route:list', 'route:test', 'route:tree'], true)) {
     requireFrameworkAutoloader();
 
-    $outcome = \Zef\Test\Support\Tooling\RouteInspection::run($command, array_slice($argv, 2));
+    $outcome = RouteInspection::run($command, $arguments);
     fwrite(STDERR, $outcome->stderr);
     fwrite(STDOUT, $outcome->stdout);
+
     exit($outcome->exitCode);
 }
 
 if (in_array($command, ['route:openapi', 'route:postman'], true)) {
     requireFrameworkAutoloader();
 
-    $outcome = \Zef\Test\Support\Tooling\RouteExport::run($command, array_slice($argv, 2));
+    $outcome = RouteExport::run($command, $arguments);
     fwrite(STDERR, $outcome->stderr);
     fwrite(STDOUT, $outcome->stdout);
+
     exit($outcome->exitCode);
 }
 
 if ($command === 'list') {
     requireFrameworkAutoloader();
 
-    $outcome = \Zef\Test\Support\Tooling\CliList::run(array_slice($argv, 2));
+    $outcome = CliList::run($arguments);
     fwrite(STDERR, $outcome->stderr);
     fwrite(STDOUT, $outcome->stdout);
+
     exit($outcome->exitCode);
 }
 
 if ($command === 'storage:map') {
     requireFrameworkAutoloader();
 
-    $outcome = \Zef\Test\Support\Tooling\StorageMap::run(array_slice($argv, 2));
+    $outcome = StorageMap::run($arguments);
     fwrite(STDERR, $outcome->stderr);
     fwrite(STDOUT, $outcome->stdout);
+
     exit($outcome->exitCode);
 }
 
 if (in_array($command, ['migrations:status', 'migrations:run', 'migrations:rollback', 'migrations:generate'], true)) {
     requireFrameworkAutoloader();
 
-    $outcome = \Zef\Test\Support\Tooling\Migrations::run($command, array_slice($argv, 2));
+    $outcome = Migrations::run($command, $arguments);
     fwrite(STDERR, $outcome->stderr);
     fwrite(STDOUT, $outcome->stdout);
+
     exit($outcome->exitCode);
 }
 
 if (in_array($command, ['http:dump', 'http:headers'], true)) {
     requireFrameworkAutoloader();
 
-    $outcome = \Zef\Test\Support\Tooling\HttpInspection::run($command, array_slice($argv, 2));
+    $outcome = HttpInspection::run($command, $arguments);
     fwrite(STDERR, $outcome->stderr);
     fwrite(STDOUT, $outcome->stdout);
+
     exit($outcome->exitCode);
 }
 
@@ -146,11 +185,12 @@ $dispatchConfigDirectory = $argv[2] ?? '';
 if ($command !== '' && $dispatchConfigDirectory !== '' && !str_starts_with($dispatchConfigDirectory, '--')) {
     requireFrameworkAutoloader();
 
-    $dispatchOutcome = \Zef\Test\Support\Tooling\DeclaredCommands::run($command, array_slice($argv, 2));
+    $dispatchOutcome = DeclaredCommands::run($command, $arguments);
 
-    if ($dispatchOutcome !== null) {
+    if ($dispatchOutcome instanceof CommandOutcome) {
         fwrite(STDERR, $dispatchOutcome->stderr);
         fwrite(STDOUT, $dispatchOutcome->stdout);
+
         exit($dispatchOutcome->exitCode);
     }
 }
@@ -159,12 +199,13 @@ if ($command === 'errors:report' || $command === 'errors:clear') {
     requireFrameworkAutoloader();
 
     if ($command === 'errors:clear') {
-        $outcome = \Zef\Test\Support\Tooling\ErrorsClear::run(array_slice($argv, 2));
+        $outcome = ErrorsClear::run($arguments);
     } else {
-        $outcome = \Zef\Test\Support\Tooling\ErrorsReport::run(array_slice($argv, 2));
+        $outcome = ErrorsReport::run($arguments);
     }
 
     fwrite(STDERR, $outcome->stderr);
     fwrite(STDOUT, $outcome->stdout);
+
     exit($outcome->exitCode);
 }

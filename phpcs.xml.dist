@@ -5,6 +5,12 @@
     <file>src</file>
     <file>tests</file>
     <file>benchmarks</file>
+    <!-- The CLI entrypoint joins the sniffed scope (#718): an explicit
+         FILE entry, because the `extensions=php` argument filters directory
+         scans by extension and the entrypoint carries none; a
+         <file>bin</file> directory entry would be a silent no-op that
+         sniffs none of it. An explicitly named file is sniffed as-is. -->
+    <file>bin/zef</file>
 
     <exclude-pattern>*/src/Contracts/Psr/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
@@ -41,6 +47,20 @@
     </rule>
 
     <rule ref="PSR12"/>
+
+    <!-- The CLI entrypoint's symbol-and-side-effect duality is its job
+         description, not a defect: the one function it declares
+         (requireFrameworkAutoloader) cannot live anywhere else (a loader
+         cannot be autoloaded, and the vendor-first strategy it owns must
+         run before ANY other file is loaded), so the entrypoint itself is
+         the only home the bootstrap grammar admits; PSR-1's own text
+         targets library files, and a bootstrap script is the canonical
+         exception. Moving the dispatch out of the entrypoint would
+         change nothing: the dispatch IS the side effect. One rule, one
+         file, no reasonable alternative; the S1066 MeterCount shape. -->
+    <rule ref="PSR1.Files.SideEffects">
+        <exclude-pattern>bin/zef</exclude-pattern>
+    </rule>
 
     <!-- PHP's stream-wrapper protocol mandates snake_case method names
          (stream_open, stream_read, ...); the test fixtures that double that

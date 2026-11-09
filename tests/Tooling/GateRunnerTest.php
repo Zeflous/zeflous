@@ -33,6 +33,10 @@ final class GateRunnerTest extends TestCase
         }
 
         file_put_contents($this->root . '/src/Example.php', '<?php');
+        // The corpus's one named entrypoint, present for the same
+        // fail-loud reason as the five directories: a missing named file
+        // refuses the lint gate outright.
+        file_put_contents($this->root . '/bin/zef', "#!/usr/bin/env php\n<?php");
     }
 
     #[Override]
@@ -173,6 +177,57 @@ final class GateRunnerTest extends TestCase
         $runner = $this->runner(static fn (string $command): array => [0, 'No syntax errors']);
 
         self::assertTrue($runner->run('lint', [])->passed);
+    }
+
+    /**
+     * The extension-less CLI entrypoint rides the lint corpus by its own
+     * explicit name (#718): the `bin` directory entry alone was a silent
+     * no-op whose walk only ever sees `*.php` files, so the one file the
+     * repository executes by name was never linted at all. The corpus now
+     * answers for it -- and for a directory-walked file in the same run,
+     * so the roster mutation that would drop the `src` walk (or the
+     * named entrypoint) has no hiding place left.
+     */
+    public function testLintGateLintsTheExtensionLessEntrypoint(): void
+    {
+        $linted = [];
+        $entrypoint = escapeshellarg($this->root . '/bin/zef');
+        $rosterFile = escapeshellarg($this->root . '/src/Example.php');
+        $runner = $this->runner(static function (string $command) use (&$linted): array {
+            $linted[] = $command;
+
+            return [0, 'No syntax errors'];
+        });
+
+        self::assertTrue($runner->run('lint', [])->passed);
+        $lintedRosterFile = array_filter(
+            $linted,
+            static fn (string $command): bool => str_contains($command, $rosterFile),
+        );
+        $lintedEntrypoint = array_filter(
+            $linted,
+            static fn (string $command): bool => str_contains($command, $entrypoint),
+        );
+        self::assertCount(1, $lintedRosterFile);
+        self::assertCount(1, $lintedEntrypoint);
+    }
+
+    /**
+     * A named corpus entrypoint that does not exist refuses the lint gate
+     * outright, exactly like a missing corpus directory: the honest answer
+     * is the failure that names the file, never a smaller green.
+     */
+    public function testLintGateRefusesAMissingNamedEntrypoint(): void
+    {
+        unlink($this->root . '/bin/zef');
+
+        $this->expectException(ToolingException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The lint corpus file "' . $this->root . '/bin/zef" does not exist'
+            . ' -- a shrunken corpus must fail loudly, not lint less.',
+        );
+
+        $this->runner()->run('lint', []);
     }
 
     /**
@@ -584,6 +639,7 @@ final class GateRunnerTest extends TestCase
             $root . '/tests',
             $root . '/benchmarks',
             $root . '/scripts',
+            $root . '/bin/zef',
             $root . '/bin',
             $root . '/.github/workflows',
             $root . '/.github',

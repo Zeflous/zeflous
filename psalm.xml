@@ -15,6 +15,11 @@
              tooling, never shipped); Psalm keeps auditing it at level 1
              against the same frozen baseline, at its new home. -->
         <directory name="tests/Support/Tooling" />
+        <!-- The CLI entrypoint joins the audited scope (#718): an explicit
+             <file> entry, because the path carries no `.php` extension; a
+             <directory name="bin"/> would be a silent no-op that analyses
+             none of it, the exact defect the issue recorded. -->
+        <file name="bin/zef" />
         <ignoreFiles>
             <directory name="vendor" />
         </ignoreFiles>

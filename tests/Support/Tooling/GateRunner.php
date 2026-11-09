@@ -46,7 +46,15 @@ final readonly class GateRunner
             'audit' => new DependencyAuditGate($this->readAuditAllowlist())
                 ->evaluate(DependencyAudit::fromComposerAuditJson($this->auditPayload())),
             'lint' => new LintGate(fn (string $file): bool => $this->lintFile($file))
-                ->evaluate(LintReport::collectPhpFiles($this->root, ['src', 'tests', 'benchmarks', 'scripts', 'bin'])),
+                ->evaluate(LintReport::collectPhpFiles(
+                    $this->root,
+                    ['src', 'tests', 'benchmarks', 'scripts', 'bin'],
+                    // The extension-less CLI entrypoint (#718): the directory
+                    // walk above only ever sees `*.php` files, so the one
+                    // file the repository executes by name rides the corpus
+                    // by its own explicit path.
+                    ['bin/zef'],
+                )),
             'duplication' => $this->duplication(),
             'mess' => $this->mess(),
             'workflow-concurrency' => new WorkflowConcurrencyGate()
