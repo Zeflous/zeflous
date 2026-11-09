@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-09T05:03:15Z",
+  "as_of": "2026-11-09T18:08:12Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 313,
+  "unreleased_count": 314,
   "versions": [
     {
       "version": "Unreleased",
@@ -8577,6 +8577,27 @@
                 "sha": "aac3223f21e22d339c74d494c71235ccbeb93953",
                 "short_sha": "aac3223",
                 "subject": "docs(roadmap): the declared-command dispatch's slice recorded and the pin refreshed"
+              }
+            ]
+          },
+          {
+            "pr": 762,
+            "title": "ci(gates): the CLI entrypoint joins every analyser's scope (#718)",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-09T18:08:12Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/762",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "bb6f680bb024793f659883999682d80089727918",
+                "short_sha": "bb6f680",
+                "subject": "ci(gates): the CLI entrypoint joins every analyser's scope (the #718 widening: PHPStan paths, Psalm projectFiles, Rector withPaths, the fixer's finder and the sniffer's ruleset all name bin/zef explicitly -- a directory entry is a silent no-op for the extension-less file, the exact Finding 1 mechanism -- and the syntax-lint corpus gains the named-entrypoint arm so the file the repository executes is finally linted; the honest census after the #717 refactor: phpstan 0, psalm 11 one-class array_slice stub coercions paid with the single @var list<string> narrowing, rector's two equivalent spellings applied, the formatter's mechanical pass; psalm's baseline SHRANK twelve entries the same run -- the eleven verb classes' and CommandOutcome's pins retire with their in-project consumer; one documented exclusion earned: PSR1 SideEffects on the entrypoint whose job description is declaring the un-autoloadable loader and executing the dispatch; the two fixers harmonised on native_constant_invocation scope namespaced so STDERR stops ping-ponging; KDD-CA1..CA6 in docs/ci-notes/cli-analyser-scope.md)"
+              },
+              {
+                "sha": "deec1c77d077a21c544391ce5e20e6078bc3e031",
+                "short_sha": "deec1c7",
+                "subject": "docs(roadmap): the analyser-scope widening's slice recorded and the pin refreshed (#762 rides section 5's row; the status meter's static-analysis row gains the entrypoint-scope evidence; pin bb6f680b)"
               }
             ]
           }
@@ -21399,6 +21420,27 @@
               "sha": "aac3223f21e22d339c74d494c71235ccbeb93953",
               "short_sha": "aac3223",
               "subject": "docs(roadmap): the declared-command dispatch's slice recorded and the pin refreshed"
+            }
+          ]
+        },
+        {
+          "pr": 762,
+          "title": "ci(gates): the CLI entrypoint joins every analyser's scope (#718)",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-09T18:08:12Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/762",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "bb6f680bb024793f659883999682d80089727918",
+              "short_sha": "bb6f680",
+              "subject": "ci(gates): the CLI entrypoint joins every analyser's scope (the #718 widening: PHPStan paths, Psalm projectFiles, Rector withPaths, the fixer's finder and the sniffer's ruleset all name bin/zef explicitly -- a directory entry is a silent no-op for the extension-less file, the exact Finding 1 mechanism -- and the syntax-lint corpus gains the named-entrypoint arm so the file the repository executes is finally linted; the honest census after the #717 refactor: phpstan 0, psalm 11 one-class array_slice stub coercions paid with the single @var list<string> narrowing, rector's two equivalent spellings applied, the formatter's mechanical pass; psalm's baseline SHRANK twelve entries the same run -- the eleven verb classes' and CommandOutcome's pins retire with their in-project consumer; one documented exclusion earned: PSR1 SideEffects on the entrypoint whose job description is declaring the un-autoloadable loader and executing the dispatch; the two fixers harmonised on native_constant_invocation scope namespaced so STDERR stops ping-ponging; KDD-CA1..CA6 in docs/ci-notes/cli-analyser-scope.md)"
+            },
+            {
+              "sha": "deec1c77d077a21c544391ce5e20e6078bc3e031",
+              "short_sha": "deec1c7",
+              "subject": "docs(roadmap): the analyser-scope widening's slice recorded and the pin refreshed (#762 rides section 5's row; the status meter's static-analysis row gains the entrypoint-scope evidence; pin bb6f680b)"
             }
           ]
         }
