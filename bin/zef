@@ -146,34 +146,12 @@ $dispatchConfigDirectory = $argv[2] ?? '';
 if ($command !== '' && $dispatchConfigDirectory !== '' && !str_starts_with($dispatchConfigDirectory, '--')) {
     requireFrameworkAutoloader();
 
-    if (!isset(Zef\Framework\Console\FrameworkVerbs::all()[$command])) {
-        $resolved = realpath($dispatchConfigDirectory);
-        if ($resolved === false || !is_dir($resolved)) {
-            fwrite(STDERR, "Configuration directory does not exist: {$dispatchConfigDirectory}\n");
-            exit(2);
-        }
+    $dispatchOutcome = \Zef\Test\Support\Tooling\DeclaredCommands::run($command, array_slice($argv, 2));
 
-        try {
-            $kernel = Zef\Test\Support\Tooling\CliInspectionBoot::kernel($resolved);
-            $commands = Zef\Framework\ConsoleWiring::commands($kernel->config());
-
-            $entry = $commands->named($command);
-
-            if ($entry === null) {
-                fwrite(
-                    STDERR,
-                    "Unknown command '{$command}'. Run 'bin/zef list <config-directory>' to see the declared commands.\n",
-                );
-                exit(2);
-            }
-
-            $handler = Zef\Framework\ConsoleWiring::handler($kernel->container(), $entry);
-
-            exit($handler->run(array_values(array_slice($argv, 3))));
-        } catch (Throwable $dispatchFailure) {
-            fwrite(STDERR, 'The command dispatch refused: ' . $dispatchFailure->getMessage() . "\n");
-            exit(1);
-        }
+    if ($dispatchOutcome !== null) {
+        fwrite(STDERR, $dispatchOutcome->stderr);
+        fwrite(STDOUT, $dispatchOutcome->stdout);
+        exit($dispatchOutcome->exitCode);
     }
 }
 
