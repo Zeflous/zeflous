@@ -202,8 +202,8 @@
         "bench": "Run the PHPBench benchmarks with assertions.",
         "bench:regression": "Run PHPBench with the aggregate report.",
         "smoke:persistent": "Run the persistent-worker (RoadRunner) smoke test.",
-        "qa:duplication": "Run the copy-paste detector (phpcpd) over src/ and fail on any clone pair (the vendored PSR shim is excluded).",
-        "qa:mess": "Run the mess detector (phpmd) over src/ under the opted-in ruleset (phpmd.xml) and fail on any violation.",
+        "qa:duplication": "Run the copy-paste detector (phpcpd) over src/ and the CLI entrypoint bin/zef (its own --suffix zef admission, the file having no extension) and fail on any clone pair (the vendored PSR shim is excluded).",
+        "qa:mess": "Run the mess detector (phpmd) over src/ and the CLI entrypoint bin/zef (the empty --suffixes entry's admission) under the opted-in ruleset (phpmd.xml) and fail on any violation.",
         "lint": "Fast syntax lint of the codebase (via the tooling gate dispatcher).",
         "ci": "Full local CI pipeline (mirrors the standard GitHub Actions workflow).",
         "ci:strict": "Strict CI pipeline: every gate, including coverage, mutation and strict audit."

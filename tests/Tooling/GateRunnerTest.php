@@ -241,7 +241,8 @@ final class GateRunnerTest extends TestCase
         $runner = $this->runner(function (string $command): array {
             self::assertSame(
                 'cd ' . escapeshellarg($this->root)
-                    . ' && vendor/bin/phpcpd src --exclude src/Contracts/Psr'
+                    . ' && vendor/bin/phpcpd src bin --suffix .php --suffix zef'
+                    . ' --exclude src/Contracts/Psr'
                     . ' --log-pmd php://stdout --quiet 2>/dev/null',
                 $command,
             );
@@ -338,7 +339,8 @@ final class GateRunnerTest extends TestCase
         $runner = $this->runner(function (string $command): array {
             self::assertSame(
                 'cd ' . escapeshellarg($this->root)
-                    . ' && vendor/bin/phpmd analyze src --format=json --ruleset=phpmd.xml'
+                    . " && vendor/bin/phpmd analyze src bin --suffixes php --suffixes ''"
+                    . ' --format=json --ruleset=phpmd.xml'
                     . " --exclude='*src/Contracts/Psr/*' --no-progress --threads=1 2>/dev/null",
                 $command,
             );

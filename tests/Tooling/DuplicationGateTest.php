@@ -142,7 +142,7 @@ final class DuplicationGateTest extends TestCase
 
         self::assertTrue($gateResult->passed);
         self::assertSame(
-            'Duplication gate PASSED: the copy-paste detector found no clone in src/.',
+            'Duplication gate PASSED: the copy-paste detector found no clone in src/ or bin/.',
             $gateResult->message,
         );
     }
@@ -167,7 +167,7 @@ final class DuplicationGateTest extends TestCase
 
         self::assertFalse($gateResult->passed);
         self::assertSame(
-            'Duplication gate FAILED: 2 code clone(s) in src/: '
+            'Duplication gate FAILED: 2 code clone(s) in src/ or bin/: '
             . 'src/Http/A.php:19-57 <-> src/Http/B.php:27-65 (38 lines); '
             . 'src/Http/C.php:1-6 <-> src/Http/D.php:2-7 (6 lines).',
             $gateResult->message,

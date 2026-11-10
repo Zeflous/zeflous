@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Zef\Test\Support\Tooling;
 
 /**
- * The copy-paste gate: any clone pair the detector found in `src/` is a
+ * The copy-paste gate: any clone pair the detector found in the
+ * first-party corpus (`src/` and the `bin/` entrypoint) is a
  * failure that names both spans, because a duplication that ships is a
  * duplication the next reader pays for. The vendored PSR shim
  * (`src/Contracts/Psr/`) stays outside the detector's scope -- it is
@@ -21,7 +22,7 @@ final readonly class DuplicationGate
     {
         if ($duplicationReport->clones === []) {
             return GateResult::passed(
-                'Duplication gate PASSED: the copy-paste detector found no clone in src/.',
+                'Duplication gate PASSED: the copy-paste detector found no clone in src/ or bin/.',
             );
         }
 
@@ -38,7 +39,7 @@ final readonly class DuplicationGate
         }
 
         return GateResult::failed(
-            'Duplication gate FAILED: ' . \count($rendered) . ' code clone(s) in src/: '
+            'Duplication gate FAILED: ' . \count($rendered) . ' code clone(s) in src/ or bin/: '
             . implode('; ', $rendered) . '.',
         );
     }

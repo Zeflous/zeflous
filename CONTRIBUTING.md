@@ -305,7 +305,7 @@ Every change **MUST** pass the full strict pipeline. The gates are:
 | PHPStan | **max level** + baseline veto (an absent or empty baseline passes; any committed ignored error fails — stricter than a ratchet) |
 | Psalm | **level 1** against the frozen baseline |
 | Deptrac | architecture boundaries respected |
-| Duplication (`composer qa:duplication`) | **zero clone pairs** in `src/` (phpcpd; the vendored PSR shim is excluded) |
+| Duplication (`composer qa:duplication`) | **zero clone pairs** in `src/` and the CLI entrypoint `bin/zef` (phpcpd over `src bin --suffix .php --suffix zef`, the extension-less file's own admission; the vendored PSR shim is excluded) |
 | Mess (`composer qa:mess`) | **zero violations** under the opted-in ruleset (`phpmd.xml`, per-rule opt-in) |
 | `composer audit` | **strict** — fail on any advisory or non-allow-listed abandoned package |
 | `CI Strict` | green (aggregates `CI Static`, `CI Coverage`, `CI Infection`, `CI Bench`) |
