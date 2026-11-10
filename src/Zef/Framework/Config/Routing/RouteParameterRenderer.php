@@ -14,12 +14,15 @@ use Zef\Framework\Config\ConfigException;
  * caller's table of names), must be scalar or `Stringable` and
  * stringify to something (an empty segment can never round-trip its own
  * route -- the string form is narrowed by {@see RouteParameterString}),
- * and must satisfy the route's constraint -- judged on the raw value,
- * before the encoding, because the engine matches raw path text
- * (KDD-R6): a generated URL re-matches its route, and the captured raw
- * value is the `rawurlencode`d form of the given value. A typical
- * constraint accepts only characters the encoding preserves, so what it
- * accepts it also accepts after encoding.
+ * and must satisfy the route's constraint twice: on the raw value, and
+ * on the `rawurlencode`d form the engine actually re-matches -- the
+ * engine judges path text without decoding (KDD-R6), so the segment a
+ * generated URL resolves back to is the encoded spelling. A constraint
+ * that accepts the raw value but refuses its encoded form would emit a
+ * URL that 404s against its own route, breaking the self-validation
+ * promise (`ROADMAP.md` -- "Self-Validation"), so generation fails
+ * closed here instead: the exception names the route, the parameter and
+ * both spellings of the value.
  *
  * @internal
  */
@@ -56,6 +59,22 @@ final class RouteParameterRenderer
             );
         }
 
-        return rawurlencode($string);
+        $encoded = rawurlencode($string);
+
+        if (!$compiledRoute->constraints()->check($parameterName, $encoded)) {
+            throw new ConfigException(
+                \sprintf(
+                    'The encoded form "%s" of the value "%s" of the parameter "%s" violates the constraint'
+                        . ' of the route "%s": the engine matches the encoded path, so a URL with this segment'
+                        . ' could not resolve back to the route.',
+                    $encoded,
+                    $string,
+                    $parameterName,
+                    $compiledRoute->path()->pattern(),
+                ),
+            );
+        }
+
+        return $encoded;
     }
 }
