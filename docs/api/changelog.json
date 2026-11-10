@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-09T18:08:12Z",
+  "as_of": "2026-11-10T10:50:28Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 314,
+  "unreleased_count": 315,
   "versions": [
     {
       "version": "Unreleased",
@@ -8598,6 +8598,32 @@
                 "sha": "deec1c77d077a21c544391ce5e20e6078bc3e031",
                 "short_sha": "deec1c7",
                 "subject": "docs(roadmap): the analyser-scope widening's slice recorded and the pin refreshed (#762 rides section 5's row; the status meter's static-analysis row gains the entrypoint-scope evidence; pin bb6f680b)"
+              }
+            ]
+          },
+          {
+            "pr": 763,
+            "title": "ci(qa): the CLI entrypoint joins the duplication and mess corpora (#718)",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-10T10:50:28Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/763",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "9283e4ea6462434399a1787c7bcaa403765c4f71",
+                "short_sha": "9283e4e",
+                "subject": "ci(qa): the CLI entrypoint joins the duplication and mess corpora (the #718 (b) split, sequenced after #717's refactor so the widened gate never turns red: phpcpd rides 'src bin --suffix .php --suffix zef' -- the suffix a name-suffix match, 'zef' the extension-less entrypoint's own admission, '.php' every first-party class kept; phpmd rides 'analyze src bin --suffixes php --suffixes ''' -- the empty entry the one spelling its ExtensionFilter admits an empty pathinfo extension by, measured: without it the file is a silent no-op even as an explicit path; the refactored entrypoint answers zero clone pairs and zero violations on the widened corpus's first run; DuplicationGate's verdict messages name both halves so a red gate answers where honestly; the command spellings are pinned by the gate tests' exact assertions so the next no-op widening cannot land silently; KDD-QA9 in docs/ci-notes/qa-gates.md; CONTRIBUTING's gate table row and composer's own script descriptions widened with the corpus)"
+              },
+              {
+                "sha": "a024792adb740a6f0ebc13e43d32cda94ce0dcc6",
+                "short_sha": "a024792",
+                "subject": "docs(roadmap): the QA-corpora widening's slice recorded and the pin refreshed (#763 rides section 5's row; the status meter's duplication+mess row gains the entrypoint-corpus evidence; pin 9283e4ea)"
+              },
+              {
+                "sha": "6ee849542d5fe34e5b923dc71fd79d26da3446d1",
+                "short_sha": "6ee8495",
+                "subject": "Merge remote-tracking branch 'origin/main' into ci/qa-corpora-entrypoint"
               }
             ]
           }
@@ -21441,6 +21467,32 @@
               "sha": "deec1c77d077a21c544391ce5e20e6078bc3e031",
               "short_sha": "deec1c7",
               "subject": "docs(roadmap): the analyser-scope widening's slice recorded and the pin refreshed (#762 rides section 5's row; the status meter's static-analysis row gains the entrypoint-scope evidence; pin bb6f680b)"
+            }
+          ]
+        },
+        {
+          "pr": 763,
+          "title": "ci(qa): the CLI entrypoint joins the duplication and mess corpora (#718)",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-10T10:50:28Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/763",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "9283e4ea6462434399a1787c7bcaa403765c4f71",
+              "short_sha": "9283e4e",
+              "subject": "ci(qa): the CLI entrypoint joins the duplication and mess corpora (the #718 (b) split, sequenced after #717's refactor so the widened gate never turns red: phpcpd rides 'src bin --suffix .php --suffix zef' -- the suffix a name-suffix match, 'zef' the extension-less entrypoint's own admission, '.php' every first-party class kept; phpmd rides 'analyze src bin --suffixes php --suffixes ''' -- the empty entry the one spelling its ExtensionFilter admits an empty pathinfo extension by, measured: without it the file is a silent no-op even as an explicit path; the refactored entrypoint answers zero clone pairs and zero violations on the widened corpus's first run; DuplicationGate's verdict messages name both halves so a red gate answers where honestly; the command spellings are pinned by the gate tests' exact assertions so the next no-op widening cannot land silently; KDD-QA9 in docs/ci-notes/qa-gates.md; CONTRIBUTING's gate table row and composer's own script descriptions widened with the corpus)"
+            },
+            {
+              "sha": "a024792adb740a6f0ebc13e43d32cda94ce0dcc6",
+              "short_sha": "a024792",
+              "subject": "docs(roadmap): the QA-corpora widening's slice recorded and the pin refreshed (#763 rides section 5's row; the status meter's duplication+mess row gains the entrypoint-corpus evidence; pin 9283e4ea)"
+            },
+            {
+              "sha": "6ee849542d5fe34e5b923dc71fd79d26da3446d1",
+              "short_sha": "6ee8495",
+              "subject": "Merge remote-tracking branch 'origin/main' into ci/qa-corpora-entrypoint"
             }
           ]
         }

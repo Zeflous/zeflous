@@ -234,6 +234,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - refactor(cli): the http inspection family becomes one pure verb class [#754](https://github.com/Zeflous/zeflous/pull/754) ([mbetixz](https://github.com/mbetixz))
 - refactor(cli): the declared-command dispatch becomes one pure verb class [#757](https://github.com/Zeflous/zeflous/pull/757) ([mbetixz](https://github.com/mbetixz))
 - ci(gates): the CLI entrypoint joins every analyser's scope (#718) [#762](https://github.com/Zeflous/zeflous/pull/762) ([mbetixz](https://github.com/mbetixz))
+- ci(qa): the CLI entrypoint joins the duplication and mess corpora (#718) [#763](https://github.com/Zeflous/zeflous/pull/763) ([mbetixz](https://github.com/mbetixz))
 
 **Documentation:**
 
