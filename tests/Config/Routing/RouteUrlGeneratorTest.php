@@ -321,6 +321,90 @@ final class RouteUrlGeneratorTest extends TestCase
         self::assertSame(['name' => 'hello%20world%21'], $matchResult->parameters());
     }
 
+    public function testRejectsAValueWhoseEncodedFormViolatesTheConstraint(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/greet/{name}',
+                'method' => ['GET'],
+                'handler' => 'Greet@show',
+                'name' => 'greet',
+                'constraints' => ['name' => '[a-z ]+'],
+            ],
+        ]);
+
+        $this->assertGeneratorRejects(
+            $radixTree,
+            'greet',
+            ['name' => 'ab cd'],
+            'The encoded form "ab%20cd" of the value "ab cd" of the parameter "name" violates the constraint'
+                . ' of the route "/greet/{name}": the engine matches the encoded path, so a URL with this segment'
+                . ' could not resolve back to the route.',
+        );
+    }
+
+    public function testRejectsAnEncodingChangingValueOnEachChangedCharacter(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/greet/{name}',
+                'method' => ['GET'],
+                'handler' => 'Greet@show',
+                'name' => 'greet',
+                'constraints' => ['name' => '[a-z%+# ]+'],
+            ],
+        ]);
+
+        foreach (['ab cd', 'a%b', 'a+b', 'a#b'] as $value) {
+            $this->assertGeneratorRejects(
+                $radixTree,
+                'greet',
+                ['name' => $value],
+                'The encoded form "' . rawurlencode($value) . '" of the value "' . $value . '" of the parameter'
+                    . ' "name" violates the constraint of the route "/greet/{name}": the engine matches the encoded'
+                    . ' path, so a URL with this segment could not resolve back to the route.',
+            );
+        }
+    }
+
+    public function testGeneratesAValueWhoseBothSpellingsSatisfyTheConstraint(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/greet/{name}',
+                'method' => ['GET'],
+                'handler' => 'Greet@show',
+                'name' => 'greet',
+                'constraints' => ['name' => '[a-z%20 ]+'],
+            ],
+        ]);
+
+        self::assertSame(
+            '/greet/ab%20cd',
+            new RouteUrlGenerator($radixTree)->generate('greet', ['name' => 'ab cd']),
+        );
+    }
+
+    public function testGeneratedUrlsOverEncodingChangedValuesResolveBackToTheirRoute(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/greet/{name}',
+                'method' => ['GET'],
+                'handler' => 'Greet@show',
+                'name' => 'greet',
+                'constraints' => ['name' => '[a-z%20 ]+'],
+            ],
+        ]);
+        $routeUrlGenerator = new RouteUrlGenerator($radixTree);
+
+        $matchResult = $radixTree->match('GET', $routeUrlGenerator->generate('greet', ['name' => 'ab cd']));
+
+        self::assertTrue($matchResult->isFound());
+        self::assertSame('Greet@show', $matchResult->route()->handler());
+        self::assertSame(['name' => 'ab%20cd'], $matchResult->parameters());
+    }
+
     /**
      * @param array<string, mixed> $params intentionally invalid shapes included
      */
