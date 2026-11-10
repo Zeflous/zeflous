@@ -8,6 +8,7 @@ use ArrayObject;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Zef\Framework\Container\CircularDependencyException;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\InterceptionBuilder;
@@ -37,6 +38,8 @@ use Zef\Test\Support\Container\Interception\OptionalInterceptor;
 use Zef\Test\Support\Container\Interception\ParameterlessInterceptor;
 use Zef\Test\Support\Container\Interception\RecordingInterceptor;
 use Zef\Test\Support\Container\Interception\RecordingResolvingListener;
+use Zef\Test\Support\Container\Interception\ReEnteringInterceptor;
+use Zef\Test\Support\Container\Interception\ReEnteringResolvingListener;
 use Zef\Test\Support\Container\Interception\ReplacedService;
 use Zef\Test\Support\Container\Interception\ReplacingResolvedListener;
 use Zef\Test\Support\Container\Interception\ShapelessService;
@@ -376,6 +379,68 @@ final class InterceptionsTest extends TestCase
 
         self::assertSame($sentinel, $container->get('short circuited'));
         self::assertSame($sentinel, $container->get('short circuited'));
+    }
+
+    public function testAnInterceptorReEnteringItsOwnIdentifierIsRefusedCatchably(): void
+    {
+        $container = new Container();
+        $container->set('reentry.container', static fn (): Container => $container);
+        $container->set('reentry.target', static fn (): stdClass => new stdClass());
+        $container->set('reentry.sibling', static fn (): stdClass => new stdClass());
+
+        $container->interceptions()->arm(
+            InterceptorsMap::parse('interceptors', [
+                ['class' => ReEnteringInterceptor::class, 'arguments' => [['service' => 'reentry.container']]],
+            ]),
+            ListenersMap::parse('listeners', null),
+            $container,
+        );
+
+        try {
+            $container->get('reentry.target');
+            self::fail('Expected the re-entry to be refused with the catchable cycle refusal.');
+        } catch (CircularDependencyException $circularDependencyException) {
+            self::assertSame(
+                "Service 'reentry.target' is part of a circular reference chain: reentry.target -> reentry.target.",
+                $circularDependencyException->getMessage(),
+            );
+        }
+
+        self::assertInstanceOf(
+            stdClass::class,
+            $container->get('reentry.sibling'),
+            'a refused re-entry leaves no residue a later honest resolution could trip over',
+        );
+    }
+
+    public function testAResolvingListenerReEnteringTheIdentifierIsRefusedCatchably(): void
+    {
+        $container = new Container();
+        $container->set('reentry.container', static fn (): Container => $container);
+        $container->set('reentry.target', static fn (): stdClass => new stdClass());
+
+        $container->interceptions()->arm(
+            InterceptorsMap::parse('interceptors', null),
+            ListenersMap::parse('listeners', [
+                'resolving' => [
+                    [
+                        'class' => ReEnteringResolvingListener::class,
+                        'arguments' => [['service' => 'reentry.container']],
+                    ],
+                ],
+            ]),
+            $container,
+        );
+
+        try {
+            $container->get('reentry.target');
+            self::fail('Expected the re-entry to be refused with the catchable cycle refusal.');
+        } catch (CircularDependencyException $circularDependencyException) {
+            self::assertSame(
+                "Service 'reentry.target' is part of a circular reference chain: reentry.target -> reentry.target.",
+                $circularDependencyException->getMessage(),
+            );
+        }
     }
 
     public function testAShapelessClassIsRefusedAtTheMaterialisation(): void

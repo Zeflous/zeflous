@@ -22,8 +22,11 @@ use Closure;
  * The run's order keeps the reference's own: the resolving listeners
  * fire when a construction starts (before the onion), the onion wraps
  * the terminal step (the guarded factory call the resolution lane
- * hands over -- an interceptor's frame sits outside the cycle-guard
- * frame, so re-entry detection is untouched), and the resolved
+ * hands over -- the cycle-guard frame now wraps the whole run, so an
+ * interceptor or listener that resolves the identifier under
+ * construction re-enters that open frame and is refused with the
+ * catchable circular-dependency exception, never the unbounded
+ * recursion the guard-less spelling recursed into), and the resolved
  * listeners fire over the answer (a non-null answer replacing the
  * instance before the per-lifetime memo records it). The container's
  * own machinery identifiers (`@decor:`, `@contextual:`, `@value:`)

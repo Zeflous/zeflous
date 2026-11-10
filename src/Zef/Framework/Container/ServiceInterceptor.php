@@ -20,9 +20,12 @@ use Closure;
  *
  * The interceptor wraps the *construction* step only: the cache-miss
  * path every lifetime lane rides (a memoised answer pays nothing). Its
- * seam order keeps the reference's own: the onion sits around the
- * guarded factory call, so an interceptor's frame is outside the
- * cycle-guard frame the construction runs in.
+ * seam order keeps the reference's own: the cycle-guard frame wraps
+ * the whole run -- listeners, onion and factory call alike -- so the
+ * frame an interceptor runs in is inside the construction's own
+ * guard, and an interceptor that resolves the identifier it is
+ * intercepting is refused with the catchable circular-dependency
+ * exception the guard keeps for every other cycle.
  *
  * `priority` orders the chain HIGHEST FIRST (the outermost), ties keep
  * declaration order -- the `middleware.stack` convention. The container's

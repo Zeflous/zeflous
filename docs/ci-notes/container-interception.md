@@ -138,17 +138,35 @@ check one layer down, silently forgiving the caller that skipped it.
 
 The run order keeps the reference's own: the resolving listeners fire
 when the construction starts (before the onion), the onion wraps the
-guarded factory call (an interceptor's frame sits *outside* the
-cycle-guard frame, so re-entry detection is untouched), and the
-resolved listeners fire over the answer — a non-null answer replacing
-the instance before the per-lifetime memo records it, inside every
-lane's build step. The onion alone reserves its bypass: the container's
-own `@`-prefixed machinery identifiers (`@decor:`, `@contextual:`,
-`@value:`) skip the onion — an interceptor wraps the host's services,
-not the container's plumbing, so a decorated identifier's whole chain
-is one construction rather than once per layer — while the listeners
-observe every construction, machinery included: an observer sees what
-happens.
+guarded factory call, and the resolved listeners fire over the answer —
+a non-null answer replacing the instance before the per-lifetime memo
+records it, inside every lane's build step. The onion alone reserves
+its bypass: the container's own `@`-prefixed machinery identifiers
+(`@decor:`, `@contextual:`, `@value:`) skip the onion — an interceptor
+wraps the host's services, not the container's plumbing, so a
+decorated identifier's whole chain is one construction rather than
+once per layer — while the listeners observe every construction,
+machinery included: an observer sees what happens.
+
+**Amendment (issue #791, 2026-11-11): the guard's frame wraps the
+whole run.** The original spelling placed the cycle-guard frame
+*inside* the interception — the terminal the onion wrapped — so an
+interceptor (or a resolving listener) that resolved the identifier
+under construction re-entered the lane before the guard's frame ever
+opened: memo miss, another onion, another interceptor, without bound —
+a PHP stack exhaustion, which is a *fatal* no caller can catch, the
+exact opposite of the container's own contract ("a resolution failure
+is an exception the caller can catch, never a fatal the process
+cannot"). `ServiceResolutions::guarded()` now opens the guard frame
+around the entire `Interceptions::run()` — listeners, onion and
+factory call alike — so an interceptor's or listener's re-entry hits
+the already-open frame and answers the catchable
+`CircularDependencyException` with the walked chain (`x -> x`), the
+same discipline the guard keeps for a factory's own cycle, and the
+depth budget finally covers the interception frames too. The refused
+re-entry leaves no residue (the guard's `finally` closes the frame,
+the memo records nothing): a later honest resolution of the same
+registry answers, pinned by test.
 
 ## I.4 — The AOT behaviour and the digest
 
