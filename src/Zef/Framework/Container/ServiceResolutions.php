@@ -88,6 +88,15 @@ final readonly class ServiceResolutions
      * interception lane's seam: an armed registry wraps the call and
      * fires its listeners around it; an empty one leaves the mechanics
      * alone.
+     *
+     * The guard's frame wraps the whole interception, not the factory
+     * call alone: it opens before the resolving listeners fire and
+     * before the onion's first layer runs, so an interceptor (or a
+     * listener) that resolves the identifier being constructed re-enters
+     * the guard's own open frame -- the catchable refusal the container's
+     * contract promises, never the unbounded recursion a memo-only
+     * algorithm would recurse into (an interceptor's re-entry is a cycle
+     * the same way a factory's is: x -> interceptor -> x).
      */
     public function guarded(string $id, Container $container): mixed
     {
@@ -95,13 +104,13 @@ final readonly class ServiceResolutions
             return $this->cycleGuard->resolve($id, $this->factoryRegistrations->factory($id), $container);
         }
 
-        return $this->interceptions->run(
+        return $this->cycleGuard->resolve(
             $id,
-            fn (): mixed => $this->cycleGuard->resolve(
+            fn (Container $guardedContainer): mixed => $this->interceptions->run(
                 $id,
-                $this->factoryRegistrations->factory($id),
-                $container,
+                fn (): mixed => $this->factoryRegistrations->factory($id)($guardedContainer),
             ),
+            $container,
         );
     }
 
