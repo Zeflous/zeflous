@@ -56,7 +56,7 @@ verdict could only come from CI, weakening the pre-push principle itself.
 | Gate | Before | After | Why the number |
 | --- | --- | --- | --- |
 | `composer mutation` | `--threads=max` | `--threads=3` | The issue's own ladder: 3 threads measured 1.37 GB stable on the 2 GiB cgroup; 6 and 47 died. Three is also within a standard CI runner's effective pool, so the lane's wall time does not regress. |
-| `composer rector:check` | Rector default (worker per core) | `withParallel(null, 2)` + `withMemoryLimit('1G')` | The field evidence only certifies serial; two workers keep the run parallel where it helps while two ~1G-capped processes fit the 2 GiB budget. The per-process floor is the diagnostic: a genuine overshoot becomes PHP's "Allowed memory size exhausted" with a stack trace instead of the kernel's silent kill. |
+| `composer rector:check` | Rector default (worker per core) | `withParallel(null, 2)` + `withMemoryLimit('2G')` | The pool is pinned so the worker count is environment-independent, and the per-process ceiling is the diagnostic: a genuine overshoot becomes PHP's "Allowed memory size exhausted" with a stack trace instead of the kernel's silent kill. The ceiling itself is 2G because the runner's real per-worker need has crossed 1G (the 2026-11-11 merge-queue evidence below); a 1G pin was a blocker the tree could not out-run. A 2 GiB cgroup host pins the pool to 1 — serial was #720's only field-certified shape, and two ~1G-plus working sets exceed that budget. |
 | `composer qa:mess` | phpmd default (worker per core) | `--threads=1` | The pinned spelling the issue measured green. The tree parses in seconds single-threaded, so the ceiling costs nothing the gate would notice. |
 
 Each ceiling lives in the same place the command itself is spelled — the
@@ -79,3 +79,30 @@ Either way the number is evidence about the *environment*, never again a
 phantom defect in the tree. A larger host that wants more throughput can
 raise the three numbers locally — the ceilings are minimums for
 reproducibility, not maximums for performance.
+
+## 2026-11-11 addendum: the 1G ceiling was the merge blocker
+
+`fix(ci): raise the rector memory ceiling to 2G` records the day the
+1G pin stopped being a diagnostic floor and became the queue's blocker:
+
+- **The evidence.** The merge-queue group run for the then-open #809 died
+  in `rector:check` twice (09:17 and 14:05 on 2026-11-11), each time with
+  `Child process error: PHP Fatal error: Allowed memory size of
+  1073741824 bytes exhausted (tried to allocate 2097152 bytes)` — a worker
+  refused a 2 MiB allocation on top of a full 1G, the pin's own ceiling.
+  The pull request's own `CI Static` run had already needed three attempts
+  to pass on the same tree; the group runs failed both times they were
+  built. A kicked-out queue entry also disarms GitHub's auto-merge, so the
+  pull request could not land while the pin held.
+- **The reading.** The 2026-11-08 sizing assumed "two ~1G-capped processes
+  fit the 2 GiB budget" — a budget statement about the *audit* cgroup,
+  mistaken for a measurement of the worker's real need. The runner's real
+  per-worker working set is now just over 1G (the refused allocation was
+  2 MiB), so the 1G cap fired on a healthy tree; the diagnostic worked
+  exactly as designed and told the truth the sizing had not measured.
+- **The fix.** `withMemoryLimit('2G')`: double the real need measured on
+  the runner, the ceiling the tree can out-run again. The pool stays at 2
+  — two workers each with headroom fit any standard runner — while a
+  2 GiB cgroup host pins the pool to 1 locally (`withParallel(null, 1)`),
+  the serial shape #720's own field evidence certified. The ceilings stay
+  minimums for reproducibility, never maximums for performance.

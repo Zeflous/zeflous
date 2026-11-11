@@ -525,8 +525,10 @@ a workflow fallback or exclusion to turn missing required-gate evidence green.
 pools — `composer mutation`, `composer rector:check` and `composer qa:mess` —
 carry **explicit parallelism and memory ceilings** spelled where each command
 lives (the composer script, `rector.php`, the gate's command builder), sized
-so the strict pipeline stays reproducible on a 2 GiB cgroup, not only on a
-large runner. A gate dying with `Killed` / exit 137 is a **memory budget
+from the field evidence on each host class — the runner's measured
+per-worker need sets the ceiling (Rector's 2G since the 2026-11-11
+merge-queue blocker), and a 2 GiB cgroup host pins the Rector pool to 1
+locally. A gate dying with `Killed` / exit 137 is a **memory budget
 statement about the environment, never a defect in the tree** — triage the
 cgroup and the ceilings (see
 [`docs/ci-notes/memory-ceilings.md`](docs/ci-notes/memory-ceilings.md)),

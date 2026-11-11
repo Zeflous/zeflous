@@ -17,12 +17,19 @@ return RectorConfig::configure()
     // The parallel pool is pinned, not left to the host's core count: the
     // default spawns a worker per CPU, so a many-core host under a small
     // cgroup OOMs (exit 137, no diagnostic) mid-run (#720). Two workers
-    // keep the run parallel where it helps while staying inside the 2 GiB
-    // audit environment's measured budget, and the per-process memory
+    // keep the run parallel where it helps, and the per-process memory
     // floor turns a genuine overshoot into PHP's own "Allowed memory
     // size exhausted" message instead of the kernel's silent kill.
+    // The ceiling is 2G because the runner's real per-worker need has
+    // crossed 1G: the 2026-11-11 merge-queue evidence -- two group runs
+    // (09:17, 14:05) and the PR-head attempts before them all died at
+    // exactly 1073741824 bytes, a 2 MiB allocation refused on top of a
+    // full 1G -- so a 1G pin is a blocker the tree cannot out-run; 2G
+    // leaves the runner's real ~1G-plus working set the headroom it now
+    // measures, and a 2 GiB cgroup host still pins the pool to 1 (see
+    // docs/ci-notes/memory-ceilings.md).
     ->withParallel(null, 2)
-    ->withMemoryLimit('1G')
+    ->withMemoryLimit('2G')
     ->withSkip([
         __DIR__ . '/src/Contracts/Psr',
         __DIR__ . '/vendor',
