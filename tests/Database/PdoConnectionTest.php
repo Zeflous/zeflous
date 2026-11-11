@@ -108,6 +108,45 @@ final class PdoConnectionTest extends TestCase
         self::assertSame(1, $affected);
     }
 
+    public function testFalseBindsAsTheEnginesZeroNotTheEmptyString(): void
+    {
+        $this->connection->execute(QueryBuilder::table('t')->insertRows([['name' => 'Ari', 'age' => false]])->build());
+
+        $row = $this->connection->fetchOne(new SqlQuery('SELECT age, typeof(age) AS age_type FROM t'));
+
+        self::assertSame(['age' => 0, 'age_type' => 'integer'], $row);
+    }
+
+    public function testTrueBindsAsTheEnginesOne(): void
+    {
+        $this->connection->execute(QueryBuilder::table('t')->insertRows([['name' => 'Ari', 'age' => true]])->build());
+
+        $row = $this->connection->fetchOne(new SqlQuery('SELECT age, typeof(age) AS age_type FROM t'));
+
+        self::assertSame(['age' => 1, 'age_type' => 'integer'], $row);
+    }
+
+    public function testAFalsePredicateMatchesTheZeroTheEngineOwns(): void
+    {
+        $this->connection->execute(QueryBuilder::table('t')->insertRows([['name' => 'Ari', 'age' => 0]])->build());
+        $this->connection->execute(QueryBuilder::table('t')->insertRows([['name' => 'Budi', 'age' => 1]])->build());
+
+        $rows = $this->connection->fetchAll(QueryBuilder::table('t')->where('age', '=', false)->build());
+
+        self::assertSame([['id' => 1, 'name' => 'Ari', 'age' => 0]], $rows);
+    }
+
+    public function testPositionalValuesBindInStatementOrder(): void
+    {
+        $this->connection->execute(QueryBuilder::table('t')->insertRows([['name' => 'Ari', 'age' => 20]])->build());
+
+        $row = $this->connection->fetchOne(
+            new SqlQuery('SELECT name FROM t WHERE age = ? AND name = ?', [20, 'Ari']),
+        );
+
+        self::assertSame(['name' => 'Ari'], $row);
+    }
+
     public function testFetchAllAnswersStringKeyedRows(): void
     {
         $this->connection->execute(QueryBuilder::table('t')->insertRows([['name' => 'Ari', 'age' => 20]])->build());
