@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-10T10:50:28Z",
+  "as_of": "2026-11-11T00:28:06Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 315,
+  "unreleased_count": 316,
   "versions": [
     {
       "version": "Unreleased",
@@ -6775,6 +6775,27 @@
                 "sha": "fd91abdce805eaae238a4983de0bd3a28accd584",
                 "short_sha": "fd91abd",
                 "subject": "docs(roadmap): the ceilings lane's pin rides the main sync"
+              }
+            ]
+          },
+          {
+            "pr": 803,
+            "title": "fix(router): the URL generator refuses a value whose encoded form breaks the round-trip",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-11T00:28:06Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/803",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "5a2761bfe61e21ce9c9cf35231d57cf828c738c1",
+                "short_sha": "5a2761b",
+                "subject": "fix(router): the URL generator refuses a value whose encoded form breaks the round-trip (issue #790 -- the generator validated the constraint on the raw value and then rawurlencode'd it, while the engine matches the path without decoding (KDD-R6): a constraint that accepted the raw value but refused its encoded spelling -- a space, %, + or # -- produced a URL that 404s against its own route, and the ROADMAP's Self-Validation promise was pinned only by tests. RouteParameterRenderer now checks the constraint on the encoded form too, fail-closed with an exact ConfigException naming the route, the parameter and both spellings of the value, so the promise is enforced at generation time; the docblock's 'typical constraint' caveat is retired; R9 amended in docs/ci-notes/radix-engine.md; +4 tests: the atypical-constraint rejection with its exact message, one rejection per encoding-changed character, a both-spellings constraint that still generates, and a round-trip pin over an encoding-changing value with a constraint)"
+              },
+              {
+                "sha": "2f665ece3981790279867cb139d7e0da43998c15",
+                "short_sha": "2f665ec",
+                "subject": "docs(roadmap): the round-trip enforcement's slice recorded and the pin refreshed (#803 rides section 10's row; the status meter's pin points at the substantive commit 5a2761bf)"
               }
             ]
           }
@@ -21493,6 +21514,27 @@
               "sha": "6ee849542d5fe34e5b923dc71fd79d26da3446d1",
               "short_sha": "6ee8495",
               "subject": "Merge remote-tracking branch 'origin/main' into ci/qa-corpora-entrypoint"
+            }
+          ]
+        },
+        {
+          "pr": 803,
+          "title": "fix(router): the URL generator refuses a value whose encoded form breaks the round-trip",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-11T00:28:06Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/803",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "5a2761bfe61e21ce9c9cf35231d57cf828c738c1",
+              "short_sha": "5a2761b",
+              "subject": "fix(router): the URL generator refuses a value whose encoded form breaks the round-trip (issue #790 -- the generator validated the constraint on the raw value and then rawurlencode'd it, while the engine matches the path without decoding (KDD-R6): a constraint that accepted the raw value but refused its encoded spelling -- a space, %, + or # -- produced a URL that 404s against its own route, and the ROADMAP's Self-Validation promise was pinned only by tests. RouteParameterRenderer now checks the constraint on the encoded form too, fail-closed with an exact ConfigException naming the route, the parameter and both spellings of the value, so the promise is enforced at generation time; the docblock's 'typical constraint' caveat is retired; R9 amended in docs/ci-notes/radix-engine.md; +4 tests: the atypical-constraint rejection with its exact message, one rejection per encoding-changed character, a both-spellings constraint that still generates, and a round-trip pin over an encoding-changing value with a constraint)"
+            },
+            {
+              "sha": "2f665ece3981790279867cb139d7e0da43998c15",
+              "short_sha": "2f665ec",
+              "subject": "docs(roadmap): the round-trip enforcement's slice recorded and the pin refreshed (#803 rides section 10's row; the status meter's pin points at the substantive commit 5a2761bf)"
             }
           ]
         }

@@ -175,6 +175,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix: close the round-3 audit's four core-logic holes (q-OWS, br fold honesty, lazy captive guard, session amplification) [#599](https://github.com/Zeflous/zeflous/pull/599) ([mbetixz](https://github.com/mbetixz))
 - fix: give the five runner-dependent mutants their deterministic observation [#635](https://github.com/Zeflous/zeflous/pull/635) ([mbetixz](https://github.com/mbetixz))
 - fix(ci): explicit memory ceilings on the three parallel gates [#737](https://github.com/Zeflous/zeflous/pull/737) ([mbetixz](https://github.com/mbetixz))
+- fix(router): the URL generator refuses a value whose encoded form breaks the round-trip [#803](https://github.com/Zeflous/zeflous/pull/803) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
