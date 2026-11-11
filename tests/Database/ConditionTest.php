@@ -17,6 +17,7 @@ use Zef\Framework\Database\ConditionLike;
 use Zef\Framework\Database\ConditionNot;
 use Zef\Framework\Database\ConditionNull;
 use Zef\Framework\Database\DatabaseException;
+use Zef\Framework\Database\IdentifierQuoting;
 use Zef\Framework\Database\QueryBuilder;
 use Zef\Framework\Database\QueryComparison;
 use Zef\Framework\Database\QueryException;
@@ -188,6 +189,20 @@ final class ConditionTest extends TestCase
         self::assertSame(['Ar%'], $bare->params);
         self::assertSame("SELECT * FROM \"users\" WHERE \"name\" LIKE ? ESCAPE '\\'", $escaped->sql);
         self::assertSame(['Ar\%'], $escaped->params);
+    }
+
+    public function testTheLikeLeafRidesTheMysqlDialectWhenTheBuilderDeclaresIt(): void
+    {
+        // The same leaf over the issue #778 vocabulary: the escape
+        // character is MySQL's pipe (its own doubling first), the
+        // clause spells a character no sql_mode can veto.
+        $escaped = QueryBuilder::table('users', null, IdentifierQuoting::MySql)
+            ->where(new ConditionLike('name', 'Ar|%', escapeWildcards: true))
+            ->build()
+        ;
+
+        self::assertSame("SELECT * FROM `users` WHERE `name` LIKE ? ESCAPE '|'", $escaped->sql);
+        self::assertSame(['Ar|||%'], $escaped->params);
     }
 
     // ------------------------------------------------------------------

@@ -203,6 +203,26 @@ final class MigrationLockTest extends TestCase
         ], $scriptedConnection->executed);
     }
 
+    public function testAcquireSpellsTheMysqlDialectWhenTheConnectionDeclaresIt(): void
+    {
+        // The issue #778 dialect: the same lock machine over the mysql
+        // driver word -- every identifier backticked, the grammar and
+        // the verb stream otherwise identical.
+        $scriptedConnection = new ScriptedConnection();
+        $scriptedConnection->driver = 'mysql';
+        $scriptedConnection->executeScript = [0, 0];
+
+        new MigrationLock($scriptedConnection, static fn (): int => self::T0, 300.0)->acquire();
+
+        self::assertSame([
+            'CREATE TABLE IF NOT EXISTS `zef_migrations_lock` ('
+            . '`id` INTEGER NOT NULL PRIMARY KEY, '
+            . '`locked_at` INTEGER NOT NULL, '
+            . '`ttl` REAL NOT NULL)',
+            'INSERT INTO `zef_migrations_lock` (`id`, `locked_at`, `ttl`) VALUES (?, ?, ?)',
+        ], $scriptedConnection->executed);
+    }
+
     public function testANonNumericStringTtlFoldsToZeroAndIsStolen(): void
     {
         // The row declares garbage: the engine's own (float) coercion

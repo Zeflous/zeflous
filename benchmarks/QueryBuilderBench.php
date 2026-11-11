@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Benchmark;
 
 use PhpBench\Attributes\Revs;
+use Zef\Framework\Database\IdentifierQuoting;
 use Zef\Framework\Database\QueryBuilder;
 
 /**
@@ -81,6 +82,33 @@ final readonly class QueryBuilderBench
         \assert($sqlQuery->sql !== '');
         \assert($sqlQuery->params === ['Ari', 123, 1]);
         \assert($sqlQuery->unbounded === false);
+
+        return [$sqlQuery->sql, $sqlQuery->params];
+    }
+
+    /**
+     * The backtick lane's own subject: the same select over the
+     * MySQL vocabulary (issue #778), the LIKE escape's pipe dialect
+     * included -- the grammar's validation pass costs the same over
+     * either quoting, and this pin holds the lane to its own
+     * spelling so a future drift of the vocabulary's rendering
+     * fails the lane rather than silently reporting a number.
+     *
+     * @return array{string, list<mixed>}
+     */
+    #[Revs(20000)]
+    public function benchMysqlQuotedSelectWithLike(): array
+    {
+        $sqlQuery = QueryBuilder::table('users', 'u', IdentifierQuoting::MySql)
+            ->select('u.id')
+            ->whereLike('u.name', 'Ari|%', true)
+            ->limit(1)
+            ->build()
+        ;
+
+        \assert(str_contains($sqlQuery->sql, '`users` AS `u`'));
+        \assert(str_contains($sqlQuery->sql, "`u`.`name` LIKE ? ESCAPE '|'"));
+        \assert($sqlQuery->params === ['Ari|||%']);
 
         return [$sqlQuery->sql, $sqlQuery->params];
     }

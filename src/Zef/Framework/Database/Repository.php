@@ -143,10 +143,17 @@ abstract class Repository
     }
 
     /**
-     * Fresh builder bound to this repository's table.
+     * Fresh builder bound to this repository's table, quoting in the
+     * dialect the connection's own driver word answers (the issue
+     * #778 vocabulary: stock MySQL's backticks, the standard's
+     * double quotes for every other driver).
      */
     protected function qb(): QueryBuilder
     {
-        return QueryBuilder::table($this->table);
+        return QueryBuilder::table(
+            $this->table,
+            null,
+            IdentifierQuoting::forDriver($this->connection->driver()),
+        );
     }
 }

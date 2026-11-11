@@ -99,7 +99,11 @@ final class QueryPredicate
 
     /**
      * Renders `column LIKE ?` -- with the wildcards escaped and the
-     * ESCAPE clause emitted when the caller asks for it.
+     * ESCAPE clause emitted when the caller asks for it, both in the
+     * dialect the builder's {@see SqlIdentifier} carries
+     * ({@see IdentifierQuoting}: the backslash escape on the
+     * standard's spelling, the pipe on MySQL's -- the clause's own
+     * reason is the vocabulary's docblock).
      */
     public static function like(
         SqlIdentifier $sqlIdentifier,
@@ -113,8 +117,9 @@ final class QueryPredicate
 
         $escape = '';
         if ($escapeWildcards) {
-            $pattern = str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $pattern);
-            $escape = " ESCAPE '\\'";
+            $quoting = $sqlIdentifier->quoting();
+            $pattern = $quoting->escapeLikePattern($pattern);
+            $escape = $quoting->likeEscapeClause();
         }
 
         return new QueryFragment($sqlIdentifier->columnPath($column) . ' LIKE ?' . $escape, [$pattern]);

@@ -76,6 +76,26 @@ final class RepositoryTest extends TestCase
         self::assertSame(1, $this->repository->count());
     }
 
+    public function testTheGatewayQuotesInTheDialectTheConnectionsDriverAnswers(): void
+    {
+        // The issue #778 integration: a gateway composed over the mysql
+        // driver word quotes in its dialect without the host spelling
+        // anything -- the port's own driver word is the one fact the
+        // quoting derives from, so the same gateway base serves every
+        // driver it is composed over.
+        $scriptedConnection = new ScriptedConnection();
+        $scriptedConnection->driver = 'mysql';
+
+        $usersRepository = new UsersRepository($scriptedConnection);
+
+        $usersRepository->insert(['name' => 'Ari', 'age' => 30]);
+
+        self::assertSame(
+            ['INSERT INTO `users` (`name`, `age`) VALUES (?, ?)'],
+            $scriptedConnection->executed,
+        );
+    }
+
     public function testFindUsesTheDeclaredPrimaryKey(): void
     {
         $this->repository->insert(['name' => 'Ari', 'age' => 30, 'email' => 'a@x.id']);

@@ -22,7 +22,11 @@ final class MigrationStep
         $connection->transaction(
             static function (ConnectionInterface $connection) use ($migration, $appliedAt): void {
                 $migration->up($connection);
-                $connection->execute(MigrationBookkeeping::appliedStatement($migration, $appliedAt));
+                $connection->execute(MigrationBookkeeping::appliedStatement(
+                    $migration,
+                    $appliedAt,
+                    IdentifierQuoting::forDriver($connection->driver()),
+                ));
             },
         );
     }
@@ -35,7 +39,10 @@ final class MigrationStep
         $connection->transaction(
             static function (ConnectionInterface $connection) use ($migration, $version): void {
                 $migration->down($connection);
-                $connection->execute(MigrationBookkeeping::removalStatement($version));
+                $connection->execute(MigrationBookkeeping::removalStatement(
+                    $version,
+                    IdentifierQuoting::forDriver($connection->driver()),
+                ));
             },
         );
     }

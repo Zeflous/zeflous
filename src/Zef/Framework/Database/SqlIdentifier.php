@@ -5,24 +5,43 @@ declare(strict_types=1);
 namespace Zef\Framework\Database;
 
 /**
- * The identifier grammar's quoting fold: validation and double-quoting
+ * The identifier grammar's quoting fold: validation and quoting
  * for every table and column name the builder accepts -- strict
  * `[A-Za-z_][A-Za-z0-9_]{0,63}`, at most one dot in a path -- so user
  * input can never become SQL syntax: every accepted identifier is
- * spelled back double-quoted, and anything dynamic travels as an
- * explicit {@see SqlExpression} instead (the greppable escape hatch).
+ * spelled back in the quoting the builder declared
+ * ({@see IdentifierQuoting::Ansi}'s double quotes by default,
+ * {@see IdentifierQuoting::MySql}'s backticks for stock MySQL), and
+ * anything dynamic travels as an explicit {@see SqlExpression}
+ * instead (the greppable escape hatch).
  *
  * The column-list spellings (`path AS alias`, raw expressions) live in
  * their own fold, {@see SqlColumn}.
  */
-final class SqlIdentifier
+final readonly class SqlIdentifier
 {
     private const string IDENT_RE = '/^[A-Za-z_][A-Za-z0-9_]{0,63}$/';
 
     private const int MAX_IDENTIFIER_BYTES = 64;
 
+    public function __construct(
+        private IdentifierQuoting $identifierQuoting = IdentifierQuoting::Ansi,
+    ) {
+    }
+
     /**
-     * Validate and double-quote one identifier (max 64 bytes, strict grammar).
+     * The vocabulary this fold quotes in -- the where family's
+     * predicate folds read it for the LIKE escape spellings they
+     * owe the same dialect ({@see IdentifierQuoting}).
+     */
+    public function quoting(): IdentifierQuoting
+    {
+        return $this->identifierQuoting;
+    }
+
+    /**
+     * Validate and quote one identifier (max 64 bytes, strict grammar)
+     * in the declared quoting.
      */
     public function quote(string $identifier, string $context = 'identifier'): string
     {
@@ -56,7 +75,7 @@ final class SqlIdentifier
             throw new QueryException($message);
         }
 
-        return '"' . $identifier . '"';
+        return $this->identifierQuoting->quote($identifier);
     }
 
     /**

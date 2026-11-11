@@ -67,6 +67,12 @@ final readonly class PdoConnection implements ConnectionInterface
     }
 
     #[Override]
+    public function driver(): string
+    {
+        return $this->driver;
+    }
+
+    #[Override]
     public function execute(SqlQuery $sqlQuery): int
     {
         return PdoHealing::around(
