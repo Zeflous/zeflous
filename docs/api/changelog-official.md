@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(container\): the cycle guard's frame wraps the whole interception run [\#804](https://github.com/Zeflous/zeflous/pull/804) ([mbetixz](https://github.com/mbetixz))
 - fix\(router\): the URL generator refuses a value whose encoded form breaks the round-trip [\#803](https://github.com/Zeflous/zeflous/pull/803) ([mbetixz](https://github.com/mbetixz))
 - ci\(qa\): the CLI entrypoint joins the duplication and mess corpora \(\#718\) [\#763](https://github.com/Zeflous/zeflous/pull/763) ([mbetixz](https://github.com/mbetixz))
 - ci\(gates\): the CLI entrypoint joins every analyser's scope \(\#718\) [\#762](https://github.com/Zeflous/zeflous/pull/762) ([mbetixz](https://github.com/mbetixz))
