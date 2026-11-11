@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- fix\(database\): the identifier quoting vocabulary answers the driver's dialect \(issue \#778\) [\#816](https://github.com/Zeflous/zeflous/pull/816) ([mbetixz](https://github.com/mbetixz))
+- fix\(database\): the transaction unwind never replaces the closure's own failure \(issue \#777\) [\#813](https://github.com/Zeflous/zeflous/pull/813) ([mbetixz](https://github.com/mbetixz))
 - fix\(ci\): raise the rector memory ceiling to 2G [\#810](https://github.com/Zeflous/zeflous/pull/810) ([mbetixz](https://github.com/mbetixz))
 - fix\(database\): the statement run binds each positional value at its own engine-side type [\#809](https://github.com/Zeflous/zeflous/pull/809) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the cycle guard's frame wraps the whole interception run [\#804](https://github.com/Zeflous/zeflous/pull/804) ([mbetixz](https://github.com/mbetixz))
