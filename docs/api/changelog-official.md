@@ -7,6 +7,7 @@
 **Merged pull requests:**
 
 - fix\(ci\): raise the rector memory ceiling to 2G [\#810](https://github.com/Zeflous/zeflous/pull/810) ([mbetixz](https://github.com/mbetixz))
+- fix\(database\): the statement run binds each positional value at its own engine-side type [\#809](https://github.com/Zeflous/zeflous/pull/809) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the cycle guard's frame wraps the whole interception run [\#804](https://github.com/Zeflous/zeflous/pull/804) ([mbetixz](https://github.com/mbetixz))
 - fix\(router\): the URL generator refuses a value whose encoded form breaks the round-trip [\#803](https://github.com/Zeflous/zeflous/pull/803) ([mbetixz](https://github.com/mbetixz))
 - ci\(qa\): the CLI entrypoint joins the duplication and mess corpora \(\#718\) [\#763](https://github.com/Zeflous/zeflous/pull/763) ([mbetixz](https://github.com/mbetixz))
