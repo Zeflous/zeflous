@@ -176,6 +176,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix: give the five runner-dependent mutants their deterministic observation [#635](https://github.com/Zeflous/zeflous/pull/635) ([mbetixz](https://github.com/mbetixz))
 - fix(ci): explicit memory ceilings on the three parallel gates [#737](https://github.com/Zeflous/zeflous/pull/737) ([mbetixz](https://github.com/mbetixz))
 - fix(router): the URL generator refuses a value whose encoded form breaks the round-trip [#803](https://github.com/Zeflous/zeflous/pull/803) ([mbetixz](https://github.com/mbetixz))
+- fix(container): the cycle guard's frame wraps the whole interception run [#804](https://github.com/Zeflous/zeflous/pull/804) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 

@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-11T00:28:06Z",
+  "as_of": "2026-11-11T01:52:21Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 316,
+  "unreleased_count": 317,
   "versions": [
     {
       "version": "Unreleased",
@@ -6796,6 +6796,27 @@
                 "sha": "2f665ece3981790279867cb139d7e0da43998c15",
                 "short_sha": "2f665ec",
                 "subject": "docs(roadmap): the round-trip enforcement's slice recorded and the pin refreshed (#803 rides section 10's row; the status meter's pin points at the substantive commit 5a2761bf)"
+              }
+            ]
+          },
+          {
+            "pr": 804,
+            "title": "fix(container): the cycle guard's frame wraps the whole interception run",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-11T01:52:21Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/804",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "694f2a91f17249a0d9505d899151d5caa6272bd5",
+                "short_sha": "694f2a9",
+                "subject": "fix(container): the cycle guard's frame wraps the whole interception run (issue #791 -- the onion wrapped the terminal that *contained* CycleGuard::resolve(), so the frame for the id under construction opened only when the factory itself started: an interceptor, or a resolving listener, that resolved that same id re-entered the resolution lane before any frame existed -- memo miss, withinSingleton push, another onion, another interceptor, without bound, and the failure mode was PHP stack exhaustion, a fatal no caller can catch, the exact opposite of the container's documented contract. ServiceResolutions::guarded() now opens the guard frame around the entire Interceptions::run() -- resolving listeners, onion and factory call alike -- so an interceptor's or listener's re-entry hits the already-open frame and answers the catchable CircularDependencyException with the walked chain, the same discipline a factory's own cycle meets, and the 256-frame depth budget finally covers the interception frames. The docblocks that promised the old posture are retired -- InterceptionSet's 're-entry detection is untouched' caveat, ServiceInterceptor's 'an interceptor's frame is outside the cycle-guard frame', ServiceResolutions' seam note -- and I.3 amended in docs/ci-notes/container-interception.md; +2 tests: the interceptor re-entry refused catchably with the exact chain message and the honest sibling resolution after it, and the resolving-listener re-entry refused the same way; +2 fixtures)"
+              },
+              {
+                "sha": "fd608f3df3fb7d88df3cce6640cade10da033625",
+                "short_sha": "fd608f3",
+                "subject": "docs(roadmap): the interception re-entrancy guard's slice recorded and the pin refreshed (#804 rides section 1's row; the status meter's pin points at the rebased substantive commit 694f2a91)"
               }
             ]
           }
@@ -21535,6 +21556,27 @@
               "sha": "2f665ece3981790279867cb139d7e0da43998c15",
               "short_sha": "2f665ec",
               "subject": "docs(roadmap): the round-trip enforcement's slice recorded and the pin refreshed (#803 rides section 10's row; the status meter's pin points at the substantive commit 5a2761bf)"
+            }
+          ]
+        },
+        {
+          "pr": 804,
+          "title": "fix(container): the cycle guard's frame wraps the whole interception run",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-11T01:52:21Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/804",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "694f2a91f17249a0d9505d899151d5caa6272bd5",
+              "short_sha": "694f2a9",
+              "subject": "fix(container): the cycle guard's frame wraps the whole interception run (issue #791 -- the onion wrapped the terminal that *contained* CycleGuard::resolve(), so the frame for the id under construction opened only when the factory itself started: an interceptor, or a resolving listener, that resolved that same id re-entered the resolution lane before any frame existed -- memo miss, withinSingleton push, another onion, another interceptor, without bound, and the failure mode was PHP stack exhaustion, a fatal no caller can catch, the exact opposite of the container's documented contract. ServiceResolutions::guarded() now opens the guard frame around the entire Interceptions::run() -- resolving listeners, onion and factory call alike -- so an interceptor's or listener's re-entry hits the already-open frame and answers the catchable CircularDependencyException with the walked chain, the same discipline a factory's own cycle meets, and the 256-frame depth budget finally covers the interception frames. The docblocks that promised the old posture are retired -- InterceptionSet's 're-entry detection is untouched' caveat, ServiceInterceptor's 'an interceptor's frame is outside the cycle-guard frame', ServiceResolutions' seam note -- and I.3 amended in docs/ci-notes/container-interception.md; +2 tests: the interceptor re-entry refused catchably with the exact chain message and the honest sibling resolution after it, and the resolving-listener re-entry refused the same way; +2 fixtures)"
+            },
+            {
+              "sha": "fd608f3df3fb7d88df3cce6640cade10da033625",
+              "short_sha": "fd608f3",
+              "subject": "docs(roadmap): the interception re-entrancy guard's slice recorded and the pin refreshed (#804 rides section 1's row; the status meter's pin points at the rebased substantive commit 694f2a91)"
             }
           ]
         }
