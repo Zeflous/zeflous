@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-11T16:24:50Z",
+  "as_of": "2026-11-11T17:41:40Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 318,
+  "unreleased_count": 319,
   "versions": [
     {
       "version": "Unreleased",
@@ -6817,6 +6817,27 @@
                 "sha": "fd608f3df3fb7d88df3cce6640cade10da033625",
                 "short_sha": "fd608f3",
                 "subject": "docs(roadmap): the interception re-entrancy guard's slice recorded and the pin refreshed (#804 rides section 1's row; the status meter's pin points at the rebased substantive commit 694f2a91)"
+              }
+            ]
+          },
+          {
+            "pr": 809,
+            "title": "fix(database): the statement run binds each positional value at its own engine-side type",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-11T17:41:40Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/809",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7af94374b8655b5b6eb8606d98bf24c48b233191",
+                "short_sha": "7af9437",
+                "subject": "fix(database): the statement run binds each positional value at its own engine-side type (issue #776 -- PdoStatementRun::execute() handed the whole params list to PDOStatement::execute(), whose array-lane binding stringifies every value as PARAM_STR: PHP false becomes the empty string, not the engine's own zero, so every INSERT/UPDATE/WHERE carrying a boolean silently wrote or compared '' against integer columns -- verified live on SQLite with EMULATE_PREPARES=false (flag='' stored typeof text in an INT column, WHERE flag = 0 matching nothing, WHERE flag = '' matching only the corrupt row). PdoParamTypes is the new pure fold the run binds through: bool to PDO::PARAM_BOOL, int to PARAM_INT, null to PARAM_NULL, string/float to PARAM_STR, and execute() now walks bindValue(position + 1, value, type) before the bare execute -- a false predicate matches the zero the engine owns, a true the one, an int its integer spelling. +11 tests: the mapping matrix over all four arms (7 provider cases), the false-then-typeof pin of the engine's integer spelling, true's one, the false predicate matching only the zero row over two rows, and the positional order pin a swapped binding cannot survive)"
+              },
+              {
+                "sha": "49e4915f97ec84f7ca878c3a15975ef30f2da73c",
+                "short_sha": "49e4915",
+                "subject": "docs(roadmap): the engine-side binding's slice recorded and the pin refreshed (#809 rides section 14's row; the status meter's pin points at the rebased substantive commit 7af94374)"
               }
             ]
           },
@@ -21598,6 +21619,27 @@
               "sha": "fd608f3df3fb7d88df3cce6640cade10da033625",
               "short_sha": "fd608f3",
               "subject": "docs(roadmap): the interception re-entrancy guard's slice recorded and the pin refreshed (#804 rides section 1's row; the status meter's pin points at the rebased substantive commit 694f2a91)"
+            }
+          ]
+        },
+        {
+          "pr": 809,
+          "title": "fix(database): the statement run binds each positional value at its own engine-side type",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-11T17:41:40Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/809",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7af94374b8655b5b6eb8606d98bf24c48b233191",
+              "short_sha": "7af9437",
+              "subject": "fix(database): the statement run binds each positional value at its own engine-side type (issue #776 -- PdoStatementRun::execute() handed the whole params list to PDOStatement::execute(), whose array-lane binding stringifies every value as PARAM_STR: PHP false becomes the empty string, not the engine's own zero, so every INSERT/UPDATE/WHERE carrying a boolean silently wrote or compared '' against integer columns -- verified live on SQLite with EMULATE_PREPARES=false (flag='' stored typeof text in an INT column, WHERE flag = 0 matching nothing, WHERE flag = '' matching only the corrupt row). PdoParamTypes is the new pure fold the run binds through: bool to PDO::PARAM_BOOL, int to PARAM_INT, null to PARAM_NULL, string/float to PARAM_STR, and execute() now walks bindValue(position + 1, value, type) before the bare execute -- a false predicate matches the zero the engine owns, a true the one, an int its integer spelling. +11 tests: the mapping matrix over all four arms (7 provider cases), the false-then-typeof pin of the engine's integer spelling, true's one, the false predicate matching only the zero row over two rows, and the positional order pin a swapped binding cannot survive)"
+            },
+            {
+              "sha": "49e4915f97ec84f7ca878c3a15975ef30f2da73c",
+              "short_sha": "49e4915",
+              "subject": "docs(roadmap): the engine-side binding's slice recorded and the pin refreshed (#809 rides section 14's row; the status meter's pin points at the rebased substantive commit 7af94374)"
             }
           ]
         },
