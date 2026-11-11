@@ -45,13 +45,21 @@ final class PdoStatementRun
     }
 
     /**
-     * Executes the statement with the query's positional values,
+     * Executes the statement with the query's positional values, each
+     * bound at its own engine-side type through {@see PdoParamTypes}
+     * -- a boolean the engine's own zero-or-one, never the empty
+     * string the array-lane binding stringifies `false` into --
      * answering the statement it ran.
      */
     public static function execute(PDOStatement $pdoStatement, SqlQuery $sqlQuery): PDOStatement
     {
         try {
-            $pdoStatement->execute($sqlQuery->params);
+            /** @var mixed $value one positional value, its engine-side type read by the fold below */
+            foreach ($sqlQuery->params as $position => $value) {
+                $pdoStatement->bindValue($position + 1, $value, PdoParamTypes::of($value));
+            }
+
+            $pdoStatement->execute();
         } catch (PDOException $pdoException) {
             throw new QueryException(
                 'Execution failed: ' . $pdoException->getMessage() . ' (sql: ' . $sqlQuery->sql . ')',
