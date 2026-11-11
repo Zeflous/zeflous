@@ -23,13 +23,13 @@ use PDOStatement;
  * double can produce the `false` arm a real SQLite handle never
  * answers. The default `'0'` spelling is the no-insert answer.
  *
- * The two refusal arms are steerable too: a commit that throws and an
- * administrative statement that throws -- the driver-refusal paths a
- * healthy real handle can never produce for the mapping folds to be
- * observed under. Statement execution can be bypassed entirely for
- * the network drivers' spellings (SET TRANSACTION above all) that the
- * SQLite engine would refuse at parse time: the verb stream still
- * carries them.
+ * The three refusal arms are steerable too: a commit that throws, a
+ * rollback that throws and an administrative statement that throws --
+ * the driver-refusal paths a healthy real handle can never produce for
+ * the mapping folds to be observed under. Statement execution can be
+ * bypassed entirely for the network drivers' spellings (SET TRANSACTION
+ * above all) that the SQLite engine would refuse at parse time: the
+ * verb stream still carries them.
  *
  * The dead-socket arm is the healing fold's evidence source: a
  * `deadSocket` exception armed on the double makes EVERY driver ask on
@@ -47,6 +47,8 @@ final class RecordingPdo extends PDO
     public false|string $lastInsertIdAnswer = '0';
 
     public bool $refuseCommit = false;
+
+    public bool $refuseRollback = false;
 
     public bool $refuseStatements = false;
 
@@ -87,6 +89,10 @@ final class RecordingPdo extends PDO
     {
         $this->answerDeadSocket();
         $this->verbs[] = 'ROLLBACK';
+
+        if ($this->refuseRollback) {
+            throw new PDOException('simulated rollback refusal');
+        }
 
         return parent::rollBack();
     }

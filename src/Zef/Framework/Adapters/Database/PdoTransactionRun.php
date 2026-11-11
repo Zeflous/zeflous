@@ -15,6 +15,11 @@ use Zef\Framework\Database\IsolationLevel;
  * answer, rollback on any throwable and the commit -- the four steps
  * every managed run walks, in order.
  *
+ * The unwind a failed closure owes never replaces the closure's own
+ * failure (issue #777): the best-effort rollback lives in its own fold,
+ * {@see PdoTransactionUnwind} -- the run rethrows the closure's original
+ * throwable the moment that fold returns, whatever the rollback answered.
+ *
  * @internal
  */
 final class PdoTransactionRun
@@ -40,7 +45,7 @@ final class PdoTransactionRun
         try {
             $result = $fn($connection);
         } catch (Throwable $throwable) {
-            $pdoTransactions->rollBack($pdo);
+            PdoTransactionUnwind::quietly($pdoTransactions, $pdo);
 
             throw $throwable;
         }
