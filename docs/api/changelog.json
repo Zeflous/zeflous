@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-11T01:52:21Z",
+  "as_of": "2026-11-11T16:24:50Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 317,
+  "unreleased_count": 318,
   "versions": [
     {
       "version": "Unreleased",
@@ -6817,6 +6817,27 @@
                 "sha": "fd608f3df3fb7d88df3cce6640cade10da033625",
                 "short_sha": "fd608f3",
                 "subject": "docs(roadmap): the interception re-entrancy guard's slice recorded and the pin refreshed (#804 rides section 1's row; the status meter's pin points at the rebased substantive commit 694f2a91)"
+              }
+            ]
+          },
+          {
+            "pr": 810,
+            "title": "fix(ci): raise the rector memory ceiling to 2G",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-11T16:24:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/810",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "78c9c14ef1eb64001c074f4e2944cde74912912f",
+                "short_sha": "78c9c14",
+                "subject": "fix(ci): raise the rector memory ceiling to 2G"
+              },
+              {
+                "sha": "85e8a75030784368a2fc75d84b5e6d571c997501",
+                "short_sha": "85e8a75",
+                "subject": "docs(roadmap): the rector memory ceiling's slice recorded and the pin refreshed (#810 rides section 6's row; the status meter's pin points at the substantive commit 78c9c14e)"
               }
             ]
           }
@@ -21577,6 +21598,27 @@
               "sha": "fd608f3df3fb7d88df3cce6640cade10da033625",
               "short_sha": "fd608f3",
               "subject": "docs(roadmap): the interception re-entrancy guard's slice recorded and the pin refreshed (#804 rides section 1's row; the status meter's pin points at the rebased substantive commit 694f2a91)"
+            }
+          ]
+        },
+        {
+          "pr": 810,
+          "title": "fix(ci): raise the rector memory ceiling to 2G",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-11T16:24:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/810",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "78c9c14ef1eb64001c074f4e2944cde74912912f",
+              "short_sha": "78c9c14",
+              "subject": "fix(ci): raise the rector memory ceiling to 2G"
+            },
+            {
+              "sha": "85e8a75030784368a2fc75d84b5e6d571c997501",
+              "short_sha": "85e8a75",
+              "subject": "docs(roadmap): the rector memory ceiling's slice recorded and the pin refreshed (#810 rides section 6's row; the status meter's pin points at the substantive commit 78c9c14e)"
             }
           ]
         }
