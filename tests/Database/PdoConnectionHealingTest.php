@@ -13,7 +13,9 @@ use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoHandle;
 use Zef\Framework\Adapters\Database\PdoHealing;
 use Zef\Framework\Adapters\Database\PdoTransactionDepth;
+use Zef\Framework\Adapters\Database\PdoTransactionRun;
 use Zef\Framework\Adapters\Database\PdoTransactions;
+use Zef\Framework\Adapters\Database\PdoTransactionUnwind;
 use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\QueryException;
 use Zef\Framework\Database\SqlQuery;
@@ -38,6 +40,8 @@ use Zef\Test\Support\Database\RecordingPdo;
 #[CoversClass(PdoHandle::class)]
 #[CoversClass(PdoTransactions::class)]
 #[CoversClass(PdoTransactionDepth::class)]
+#[CoversClass(PdoTransactionRun::class)]
+#[CoversClass(PdoTransactionUnwind::class)]
 final class PdoConnectionHealingTest extends TestCase
 {
     /**
@@ -276,40 +280,116 @@ final class PdoConnectionHealingTest extends TestCase
     }
 
     /**
-     * The mid-flight edge inside the managed closure, pinned exactly:
-     * the ask heals (drop and reset), and the unwind's rollback then
-     * answers the level-zero guard -- the pre-existing replacement
-     * shape the unbalanced closure always answered, now reached
-     * honestly because the transaction the engine already ended is
-     * gone. The connection afterwards is healed: level zero, the next
-     * begin landing fresh.
+     * The mid-flight edge inside the managed closure, pinned exactly
+     * (issue #777): the ask heals (drop and reset), so the engine has
+     * already ended the transaction and the unwind owes NO rollback --
+     * attempting one would answer the depth machine's level-zero
+     * refusal and replace the closure's failure. The caller therefore
+     * receives the ORIGINAL QueryException with its dead-socket
+     * evidence intact -- the chained driver failure and the code the
+     * retry lanes read (2006, the candidate the level-zero
+     * TransactionException never carried) -- so a policy whose class
+     * list knows the typed family classifies the transient failure
+     * again. The connection afterwards is healed: level zero, the next
+     * begin landing fresh, the verb stream carrying no phantom
+     * ROLLBACK.
      */
-    public function testTheHealedMidFlightClosureLeavesTheUnwindAtTheLevelZeroGuard(): void
+    public function testTheHealedMidFlightClosureAnswersTheOriginalFailure(): void
     {
+        $routedErrorLog = sys_get_temp_dir() . '/zef-transaction-healed-errorlog-' . uniqid() . '.log';
+        $previousErrorLog = (string) ini_set('error_log', $routedErrorLog);
+
         $recordingPdo = new RecordingPdo();
         $pdoConnection = $this->healingConnection($recordingPdo);
         $deadSocket = new PDOException('MySQL server has gone away', 2006);
 
         try {
-            $pdoConnection->transaction(
-                static function (ConnectionInterface $connection) use ($recordingPdo, $deadSocket): int {
-                    $recordingPdo->deadSocket = $deadSocket;
+            try {
+                $pdoConnection->transaction(
+                    static function (ConnectionInterface $connection) use ($recordingPdo, $deadSocket): int {
+                        $recordingPdo->deadSocket = $deadSocket;
 
-                    return $connection->execute(SqlQuery::raw('SELECT 1'));
-                },
+                        return $connection->execute(SqlQuery::raw('SELECT 1'));
+                    },
+                );
+                self::fail("the dead socket must refuse the closure's ask");
+            } catch (QueryException $queryException) {
+                self::assertSame($deadSocket, $queryException->getPrevious());
+                self::assertSame(
+                    2006,
+                    $queryException->getCode(),
+                    'the received failure must carry the retryable code the level-zero replacement never had',
+                );
+            }
+
+            self::assertSame(['BEGIN'], $recordingPdo->verbs);
+            self::assertFileDoesNotExist(
+                $routedErrorLog,
+                'the skipped rollback is the engine ending the transaction, not an unwind failure to record',
             );
-            self::fail("the dead socket must refuse the closure's ask");
-        } catch (TransactionException $transactionException) {
-            self::assertSame(
-                'rollBack() called outside a transaction.',
-                $transactionException->getMessage(),
-            );
+            self::assertSame(0, $pdoConnection->transactionLevel());
+            $pdoConnection->beginTransaction();
+            self::assertSame(1, $pdoConnection->transactionLevel());
+            $pdoConnection->commit();
+        } finally {
+            ini_set('error_log', $previousErrorLog);
+            if (is_file($routedErrorLog)) {
+                unlink($routedErrorLog);
+            }
         }
+    }
 
-        self::assertSame(0, $pdoConnection->transactionLevel());
-        $pdoConnection->beginTransaction();
-        self::assertSame(1, $pdoConnection->transactionLevel());
-        $pdoConnection->commit();
+    /**
+     * The unwind's own failure never takes the throw from the closure
+     * (issue #777): a rollback the driver refuses on a live
+     * transaction is recorded on the SAPI diagnostic lane and
+     * swallowed -- the caller receives the closure's own domain
+     * throwable, the SAME instance, while the depth machine keeps its
+     * honest level (the refusal refused the leave) for the next
+     * explicit verb to answer. The error_log routing keeps the SAPI
+     * write off the process's real stderr (Infection's initial test
+     * run terminates on the first stderr byte) while making the
+     * recorded line assertable.
+     */
+    public function testTheUnwindKeepsTheClosuresFailureWhenTheRollbackItselfRefuses(): void
+    {
+        $routedErrorLog = sys_get_temp_dir() . '/zef-transaction-unwind-errorlog-' . uniqid() . '.log';
+        $previousErrorLog = (string) ini_set('error_log', $routedErrorLog);
+        $domain = new RuntimeException('closure domain failure');
+
+        $recordingPdo = new RecordingPdo();
+        $recordingPdo->refuseRollback = true;
+
+        $pdoConnection = $this->healingConnection($recordingPdo);
+
+        try {
+            try {
+                $pdoConnection->transaction(
+                    static function (ConnectionInterface $connection) use ($domain): never {
+                        $connection->execute(SqlQuery::raw('SELECT 1'));
+
+                        throw $domain;
+                    },
+                );
+            } catch (RuntimeException $runtimeException) {
+                self::assertSame($domain, $runtimeException);
+            }
+
+            self::assertSame(['BEGIN', 'ROLLBACK'], $recordingPdo->verbs);
+            self::assertSame(1, $pdoConnection->transactionLevel());
+
+            self::assertFileExists($routedErrorLog, 'the refused rollback must be recorded');
+            $contents = (string) file_get_contents($routedErrorLog);
+            self::assertStringContainsString(
+                'ZEF transaction unwind failure: ' . TransactionException::class,
+                $contents,
+            );
+        } finally {
+            ini_set('error_log', $previousErrorLog);
+            if (is_file($routedErrorLog)) {
+                unlink($routedErrorLog);
+            }
+        }
     }
 
     /**
