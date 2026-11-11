@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-11T17:41:40Z",
+  "as_of": "2026-11-11T22:25:07Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 319,
+  "unreleased_count": 321,
   "versions": [
     {
       "version": "Unreleased",
@@ -6859,6 +6859,48 @@
                 "sha": "85e8a75030784368a2fc75d84b5e6d571c997501",
                 "short_sha": "85e8a75",
                 "subject": "docs(roadmap): the rector memory ceiling's slice recorded and the pin refreshed (#810 rides section 6's row; the status meter's pin points at the substantive commit 78c9c14e)"
+              }
+            ]
+          },
+          {
+            "pr": 813,
+            "title": "fix(database): the transaction unwind never replaces the closure's own failure (issue #777)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-11T19:20:17Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/813",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "30fef039c3576e640492bf6d80781f651bb38307",
+                "short_sha": "30fef03",
+                "subject": "fix(database): the transaction unwind never replaces the closure's own failure (issue #777)"
+              },
+              {
+                "sha": "c0e2ef867a7fdda6918a00b9d810d582f9b8555f",
+                "short_sha": "c0e2ef8",
+                "subject": "docs(roadmap): the transaction unwind's slice recorded and the pin refreshed (#813 rides section 14's row; the status meter's pin points at the substantive commit 30fef039)"
+              }
+            ]
+          },
+          {
+            "pr": 816,
+            "title": "fix(database): the identifier quoting vocabulary answers the driver's dialect (issue #778)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-11T22:25:07Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/816",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "44e66c7038e2aaeb0c4372446cf1fdc64b271042",
+                "short_sha": "44e66c7",
+                "subject": "fix(database): the identifier quoting vocabulary answers the driver's dialect (issue #778)"
+              },
+              {
+                "sha": "5b7f279008f31999b34328802512437d24b5b092",
+                "short_sha": "5b7f279",
+                "subject": "docs(roadmap): the identifier quoting vocabulary's slice recorded and the pin refreshed (#816 rides section 14's row; the status meter's pin points at the substantive commit 44e66c70)"
               }
             ]
           }
@@ -21661,6 +21703,48 @@
               "sha": "85e8a75030784368a2fc75d84b5e6d571c997501",
               "short_sha": "85e8a75",
               "subject": "docs(roadmap): the rector memory ceiling's slice recorded and the pin refreshed (#810 rides section 6's row; the status meter's pin points at the substantive commit 78c9c14e)"
+            }
+          ]
+        },
+        {
+          "pr": 813,
+          "title": "fix(database): the transaction unwind never replaces the closure's own failure (issue #777)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-11T19:20:17Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/813",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "30fef039c3576e640492bf6d80781f651bb38307",
+              "short_sha": "30fef03",
+              "subject": "fix(database): the transaction unwind never replaces the closure's own failure (issue #777)"
+            },
+            {
+              "sha": "c0e2ef867a7fdda6918a00b9d810d582f9b8555f",
+              "short_sha": "c0e2ef8",
+              "subject": "docs(roadmap): the transaction unwind's slice recorded and the pin refreshed (#813 rides section 14's row; the status meter's pin points at the substantive commit 30fef039)"
+            }
+          ]
+        },
+        {
+          "pr": 816,
+          "title": "fix(database): the identifier quoting vocabulary answers the driver's dialect (issue #778)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-11T22:25:07Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/816",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "44e66c7038e2aaeb0c4372446cf1fdc64b271042",
+              "short_sha": "44e66c7",
+              "subject": "fix(database): the identifier quoting vocabulary answers the driver's dialect (issue #778)"
+            },
+            {
+              "sha": "5b7f279008f31999b34328802512437d24b5b092",
+              "short_sha": "5b7f279",
+              "subject": "docs(roadmap): the identifier quoting vocabulary's slice recorded and the pin refreshed (#816 rides section 14's row; the status meter's pin points at the substantive commit 44e66c70)"
             }
           ]
         }
