@@ -12,6 +12,7 @@ use Zef\Framework\Database\ConditionComparison;
 use Zef\Framework\Database\ConditionGroup;
 use Zef\Framework\Database\ConditionNull;
 use Zef\Framework\Database\DatabaseException;
+use Zef\Framework\Database\IdentifierQuoting;
 use Zef\Framework\Database\QueryBuild;
 use Zef\Framework\Database\QueryBuilder;
 use Zef\Framework\Database\QueryColumns;
@@ -774,7 +775,7 @@ final class QueryBuilderTest extends TestCase
         $this->expectException(QueryException::class);
         $this->expectExceptionMessageIsOrContains("Unknown query type 'bogus'.");
 
-        QueryBuild::statement('bogus', $querySnapshot, new QueryWhere($sqlIdentifier));
+        QueryBuild::statement('bogus', $querySnapshot, new QueryWhere($sqlIdentifier), $sqlIdentifier);
     }
 
     // ------------------------------------------------------------------
@@ -914,5 +915,108 @@ final class QueryBuilderTest extends TestCase
                 ),
             ),
         ];
+    }
+
+    // ------------------------------------------------------------------
+    // MySQL vocabulary (issue #778 -- backticks over the same grammar)
+    // ------------------------------------------------------------------
+
+    public function testMysqlVocabularyQuotesTheTableAliasAndColumns(): void
+    {
+        $query = QueryBuilder::table('users', 'u', IdentifierQuoting::MySql)->select('u.id')->build();
+
+        self::assertSame('SELECT `u`.`id` FROM `users` AS `u`', $query->sql);
+        self::assertSame([], $query->params);
+    }
+
+    public function testMysqlVocabularySpellsTheJoinOnClauseWithBackticks(): void
+    {
+        $query = QueryBuilder::table('users', 'u', IdentifierQuoting::MySql)
+            ->select('u.id')
+            ->join('orders', 'o.user_id', '=', 'u.id')
+            ->build()
+        ;
+
+        self::assertSame(
+            'SELECT `u`.`id` FROM `users` AS `u` INNER JOIN `orders` ON `o`.`user_id` = `u`.`id`',
+            $query->sql,
+        );
+    }
+
+    public function testMysqlVocabularySpellsInsertColumnsWithBackticks(): void
+    {
+        $query = QueryBuilder::table('users', null, IdentifierQuoting::MySql)
+            ->insertRows([['name' => 'Ari', 'age' => 20]])->build()
+        ;
+
+        self::assertSame('INSERT INTO `users` (`name`, `age`) VALUES (?, ?)', $query->sql);
+        self::assertSame(['Ari', 20], $query->params);
+    }
+
+    public function testMysqlVocabularySpellsTheUpdatePairsWithBackticks(): void
+    {
+        $query = QueryBuilder::table('users', null, IdentifierQuoting::MySql)
+            ->update(['name' => 'Ari', 'age' => 21])
+            ->where('id', '=', 1)
+            ->build()
+        ;
+
+        self::assertSame('UPDATE `users` SET `name` = ?, `age` = ? WHERE `id` = ?', $query->sql);
+        self::assertSame(['Ari', 21, 1], $query->params);
+    }
+
+    public function testMysqlVocabularySpellsTheDeleteWhereWithBackticks(): void
+    {
+        $query = QueryBuilder::table('users', null, IdentifierQuoting::MySql)
+            ->where('id', '=', 1)
+            ->delete()
+            ->build()
+        ;
+
+        self::assertSame('DELETE FROM `users` WHERE `id` = ?', $query->sql);
+        self::assertSame([1], $query->params);
+    }
+
+    public function testMysqlVocabularySpellsGroupHavingAndOrderWithBackticks(): void
+    {
+        $query = QueryBuilder::table('users', null, IdentifierQuoting::MySql)
+            ->select('city')
+            ->groupBy('city', 'region')
+            ->having('city', '!=', 'Jakarta')
+            ->orderBy('city', 'ASC')
+            ->build()
+        ;
+
+        self::assertSame(
+            'SELECT `city` FROM `users` GROUP BY `city`, `region` HAVING `city` != ? ORDER BY `city` ASC',
+            $query->sql,
+        );
+        self::assertSame(['Jakarta'], $query->params);
+    }
+
+    public function testMysqlVocabularyEscapesLikeOverItsOwnEscapeCharacter(): void
+    {
+        // The pipe is MySQL's own escape character (the vocabulary's
+        // docblock spells why the backslash cannot ride the clause):
+        // the escape character doubles first, then the wildcards and
+        // the backslash are prefixed with it.
+        $query = QueryBuilder::table('users', null, IdentifierQuoting::MySql)
+            ->whereLike('name', 'Ar\%ry_an%', true)
+            ->build()
+        ;
+
+        self::assertSame("SELECT * FROM `users` WHERE `name` LIKE ? ESCAPE '|'", $query->sql);
+        self::assertSame(['Ar|\|%ry|_an|%'], $query->params);
+    }
+
+    public function testMysqlVocabularyWithoutTheEscapeAskLeavesThePatternUntouched(): void
+    {
+        $query = QueryBuilder::table('users', null, IdentifierQuoting::MySql)
+            ->whereLike('name', 'Ar%')
+            ->build()
+        ;
+
+        self::assertSame('SELECT * FROM `users` WHERE `name` LIKE ?', $query->sql);
+        self::assertSame(['Ar%'], $query->params);
     }
 }

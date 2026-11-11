@@ -10,8 +10,10 @@ namespace Zef\Framework\Database;
  *
  * Design rules:
  * - every identifier (table, column, alias) is validated against the
- *   {@see SqlIdentifier} grammar and double-quoted -- user input can
- *   never become SQL syntax;
+ *   {@see SqlIdentifier} grammar and quoted in the builder's declared
+ *   {@see IdentifierQuoting} -- double quotes on the standard's Ansi
+ *   default, backticks for stock MySQL (the issue #778 dialect) -- user
+ *   input can never become SQL syntax;
  * - string column arguments must be plain identifiers (optionally
  *   `table.column` or `identifier AS alias`); anything dynamic is passed
  *   as an explicit {@see SqlExpression} so raw SQL stays greppable;
@@ -92,9 +94,12 @@ final class QueryBuilder
     ) {
     }
 
-    public static function table(SqlExpression|string $table, ?string $alias = null): self
-    {
-        $sqlIdentifier = new SqlIdentifier();
+    public static function table(
+        SqlExpression|string $table,
+        ?string $alias = null,
+        IdentifierQuoting $identifierQuoting = IdentifierQuoting::Ansi,
+    ): self {
+        $sqlIdentifier = new SqlIdentifier($identifierQuoting);
         $builder = new self(
             $sqlIdentifier,
             new QueryWhere($sqlIdentifier),
@@ -327,6 +332,7 @@ final class QueryBuilder
                 $this->unboundedAllowed,
             ),
             $this->queryWhere,
+            $this->sqlIdentifier,
         );
     }
 }

@@ -17,6 +17,17 @@ namespace Zef\Framework\Database;
 interface ConnectionInterface
 {
     /**
+     * The driver word this connection speaks -- `mysql`, `pgsql` or
+     * `sqlite` for the PDO adapter, a custom implementation's own
+     * word for its own engine -- the one fact the family's SQL
+     * spelling folds key on ({@see IdentifierQuoting::forDriver()}),
+     * so a gateway or the migrator composed over the port quotes
+     * identifiers in the dialect the connection's own engine
+     * answers instead of the builder's standard default.
+     */
+    public function driver(): string;
+
+    /**
      * Run a statement, returning the number of affected rows.
      *
      * @throws QueryException when preparation or execution fails

@@ -97,6 +97,25 @@ final class PdoConnectionTest extends TestCase
         self::assertSame(1, $affected);
     }
 
+    public function testDriverAnswersTheConfigsWordWithoutTouchingTheSocket(): void
+    {
+        // The lazy-handle posture extended to the driver word: the
+        // mysql spelling is answered from the frozen configuration
+        // alone -- no connection is opened to read it (the issue #778
+        // port widening the quoting vocabulary keys on).
+        $pdoConnection = new PdoConnection(ConnectionConfig::fromArray([
+            'driver' => 'mysql',
+            'dbname' => 'app_db',
+            'host' => 'localhost',
+            'port' => 3306,
+            'username' => 'app',
+            'password' => 'secret',
+        ]));
+
+        self::assertSame('mysql', $pdoConnection->driver());
+        self::assertSame('sqlite', $this->connection->driver());
+    }
+
     public function testUpdateExecuteAnswersAffectedRows(): void
     {
         $this->connection->execute(QueryBuilder::table('t')->insertRows([['name' => 'Ari', 'age' => 20]])->build());

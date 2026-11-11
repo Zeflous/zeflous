@@ -284,3 +284,95 @@ class: the facade at 18.23, every fold under 20), coverage 98.44%
 new directories MSI 100/100 (856 mutants, 853 killed, 3 documented
 ignores, 0 escapes), and the bench subjects hold their first-push
 economics (select 21.8us, insert 7.0us, update 8.3us per build).
+
+## KDD-DB10: the driver dialect vocabulary (issue #778 -- stock MySQL's quoting)
+
+The audit finding: `SqlIdentifier` quoted every identifier with double
+quotes and the LIKE fold emitted `ESCAPE '\'` -- both correct on the
+standard's engines, both INVALID on stock MySQL, whose default sql_mode
+parses `"users"` as a string literal (the whole builder/gateway output)
+and reads the bare-backslash clause as an unterminated literal. The
+driver was declared by the config layer (`mysql` rides
+`ConnectionFields::DRIVERS`) but nothing downstream of the word knew
+it: the builder was driver-blind by construction.
+
+- **One vocabulary, both spellings.** `IdentifierQuoting` (enum, two
+  cases) owns the two spellings where stock MySQL deviates from the
+  standard: the identifier quote (`"` vs backtick) and the LIKE escape
+  clause. The default is `Ansi`, so every deployment that declares no
+  MySQL word sees byte-identical SQL to the pre-vocabulary builder --
+  the 7503-test suite's existing pins were the regression proof, none
+  of them edited. `forDriver()` answers `MySql` for the one mainstream
+  engine whose stock sql_mode deviates and `Ansi` for every other word
+  (pgsql, sqlite, a custom implementation's own): the standard's
+  spelling is the correct spelling for SQL Server and Oracle too, and
+  the word's own validation stays where it always lived
+  (`ConnectionFields::readDriver()`) -- the vocabulary is a spelling
+  chooser, not a driver validator, pinned by the case-sensitive
+  `'MySQL'` provider case answering Ansi.
+- **The pipe, not the backslash, on MySQL's ESCAPE.** The backslash
+  escape character would need the clause spelled `ESCAPE '\\'` under
+  the default sql_mode but `ESCAPE '\'` under `NO_BACKSLASH_ESCAPES` --
+  two spellings the builder cannot choose between without asking the
+  server its mode at build time. The escape character moves to `|`
+  instead: a character no LIKE grammar treats specially, spelled
+  identically under every sql_mode. The pattern transform rides the
+  same character, and the ORDER is load-bearing: `str_replace` passes
+  are sequential, so the `|` -> `||` pass runs BEFORE the `|%`/`|_`
+  insertions -- the introducers the later passes mint are never
+  re-escaped by the first (the `a|b\c%d_e` provider case kills any
+  reordering; a lone `|` doubling is its own pin).
+- **No quote doubling, and why that is sound.** The grammar
+  `[A-Za-z_][A-Za-z0-9_]{0,63}` contains neither quote character: a
+  backtick or double quote inside an identifier is a spelling the
+  grammar refused before the vocabulary ever reached it -- pinned by
+  the backtick-input refusal over the MySql vocabulary returning the
+  same `Invalid column` the Ansi fold always answered. The closing
+  quote never needs escaping; the vocabulary's `quote()` is a wrap, not
+  an escape hatch.
+- **The port widening: `driver()`.** The connection is the one place
+  the driver word lives, so the port grew the one fact the spelling
+  folds key on -- `ConnectionInterface::driver()`, answered by
+  `PdoConnection` from the frozen configuration without touching the
+  socket (the lazy-handle posture extended to the word). The gateway
+  base (`Repository::qb()`) and the migrator's bookkeeping folds
+  (ensureTable/readApplied/applied/removal, the lock row's five verbs)
+  derive the vocabulary from the connection's own word, so a gateway
+  composed over a MySQL deployment quotes in its dialect without the
+  host spelling anything.
+- **The threading rode the identifier.** The vocabulary travels as a
+  `SqlIdentifier` constructor parameter, so every fold that already
+  received the identifier (QueryWhere, QueryHaving, QueryColumns,
+  QueryJoin, QueryOrder, the predicate folds, the condition leaves)
+  inherited the dialect without one signature change. The one real
+  gap was the assemblies: `QueryBuild::statement()` constructed them
+  with fresh default identifiers, so the alias the SELECT assembly
+  quotes and the write-payload columns the INSERT/UPDATE assemblies
+  quote would have stayed Ansi -- the builder now hands its own
+  identifier to every assembly it dispatches.
+- **The DDL honesty.** The migrator's two CREATE TABLE spellings quote
+  their internal constants through the same vocabulary -- no
+  unquoted side lane -- and the statement folds (`appliedStatement`/
+  `removalStatement`) take the vocabulary explicitly from the step
+  fold that owns the connection. The `SchemaDialect` reflection spells
+  are untouched: they are per-driver raw SQL already, their
+  identifiers interpolating bare per `TableName`'s own
+  grammar-wall doctrine.
+- **The settle round.** PHPStan caught the provider's empty-word case
+  against its own `non-empty-string` shape (the pin is the shape, so
+  the phpdoc widened to `string` -- the empty word answering the
+  standard IS the documented behaviour); PHPCS burned two rounds of
+  line-length on the folded signatures; rector renamed the migrator
+  folds' locals to the vocabulary's type. The scoped mutation round:
+  269 mutants killed, MSI 100/100, 0 escapes, 0 new ignores -- the
+  escape-character ordering, both quote renderings, the driver match
+  and the port passthrough all die on their exact-string pins.
+
+The settled battery: `ci:static` EXIT-0 (7503 tests / 18502
+assertions; smoke 2760B/20000; concurrency 23; roadmap:gate; audit
+0), psalm EXIT-0, progpilot `[]`, archeology 0 error-level findings,
+coverage 98.57%, scoped infection over the ten touched files 269
+mutants MSI 100/100, and the bench lane's fourth subject
+(`benchMysqlQuotedSelectWithLike`, 10.5us -- the Ansi select's own
+economics, the grammar's validation pass costing the same over either
+quoting).

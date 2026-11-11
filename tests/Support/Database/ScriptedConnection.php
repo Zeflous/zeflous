@@ -35,6 +35,18 @@ final class ScriptedConnection implements ConnectionInterface
     /** @var list<string> the SQL statements execute accepted, in order */
     public array $executed = [];
 
+    /** The driver word the dialect folds read -- sqlite by default so
+     * the double-quote spelling every existing pin expects stays the
+     * double's own answer, and a test can spell mysql to pin the
+     * backtick lane (the issue #778 vocabulary). */
+    public string $driver = 'sqlite';
+
+    #[Override]
+    public function driver(): string
+    {
+        return $this->driver;
+    }
+
     #[Override]
     public function execute(SqlQuery $sqlQuery): int
     {

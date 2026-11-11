@@ -157,6 +157,30 @@ final class MigratorTest extends TestCase
         );
     }
 
+    public function testTheMysqlDriverWordSpellsTheBookkeepingInBackticks(): void
+    {
+        // The issue #778 dialect: the bookkeeping family's schema, read
+        // and select over the mysql driver word -- the same statements,
+        // every identifier backticked, so stock MySQL parses what the
+        // builder emits instead of reading each name as a string
+        // literal.
+        $scriptedConnection = new ScriptedConnection();
+        $scriptedConnection->driver = 'mysql';
+        $scriptedConnection->fetchAllScript = [];
+
+        MigrationBookkeeping::ensureTable($scriptedConnection);
+        $schemaStatement = 'CREATE TABLE IF NOT EXISTS `zef_migrations` ('
+            . '`version` VARCHAR(14) NOT NULL PRIMARY KEY, '
+            . '`name` VARCHAR(128) NOT NULL, '
+            . '`applied_at` INTEGER NOT NULL)';
+
+        self::assertSame([], new Migrator($scriptedConnection)->applied());
+        self::assertSame(
+            [$schemaStatement, $schemaStatement, 'SELECT `version` FROM `zef_migrations` ORDER BY `version` ASC'],
+            $scriptedConnection->executed,
+        );
+    }
+
     public function testTheVersionsFoldSpellsThePlanOrder(): void
     {
         $first = new ScriptedMigration('20260101000001');
