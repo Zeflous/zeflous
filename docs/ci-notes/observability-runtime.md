@@ -618,6 +618,30 @@ deadline-bounded shutdown drain, and the `observability.export`
 knob widening that arms the push -- each its own census entry, the
 lost-connection lane's own recorded rule.
 
+**KDD-OB44 -- The composite snapshot key is split before the wire
+carries it, and the data point's attributes ride the series' own
+map.** The push lane read the snapshot's composite keys
+(`MeterSlot`'s `name . '|' . json` grammar) verbatim as OTLP metric
+names -- the issue #779 finding: `increment("zef.http.errors.total",
+..., ["http.request.method" => "GET"])` shipped as ONE garbage
+metric per series, its name the whole `name|{...}` composite,
+where the pull lane had already split the same key
+(`PrometheusSeries::identity`, the exposition's own twin). The
+split lands as its own unit (`OtlpMetricKey`, the OTLP lane's fold
+over the same first-separator grammar -- a name carrying a pipe of
+its own reads the same off-vocabulary truncation both delivery
+lanes answer, the framework-owned `zef.*` names never carrying
+one, and a bare key reads whole), and the payload's grouping
+deviates from its twin's re-decode on purpose: the data point's
+attributes ride the series' own authoritative map -- the normalised,
+ordered map the slot minted the key from, carried in the snapshot
+entry itself -- never the key's re-decoded JSON half, so one NAME
+recorded under two dimension sets answers ONE metric whose data
+points carry both series, in the snapshot's own order. The suite's
+real-meter lane pins the fold the hand-made maps could not see (the
+issue's own repro): a `CounterMeter` snapshot fed whole, the names
+the caller spelled, one data point per series identity.
+
 ## Legacy attribution
 
 The reference implementation is the GitLab snapshot `zeflous/zef`
