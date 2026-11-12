@@ -29,6 +29,19 @@ use InvalidArgumentException;
  * a "come back later" the lane's own backoff addresses, not a
  * payload it should drop on the floor.
  *
+ * The JSON encode carries the byte-substitution doctrine the
+ * repository's own failure lanes already answer ({@see
+ * \Zef\Framework\Logging\JsonLineFormatter}, the HTTP family's
+ * replay and problem-detail writers): `JSON_INVALID_UTF8_SUBSTITUTE`
+ * rides the flag set so a malformed byte that slips every census
+ * gap -- a resource block key the caller declared, an attribute key
+ * no recording point scrubs -- substitutes at the wire instead of
+ * answering the `JsonException` the retry lane would misread as a
+ * transient failure and retry past until the budget burns and the
+ * whole batch is lost (the issue #780 finding, the hygiene unit's
+ * own documented failure mode spelled for the transport's last
+ * line of defence).
+ *
  * The transport's failure diagnostics are captured through a
  * scoped error handler so the refused connection's own reason
  * rides the exception, redacted through the hygiene unit first
@@ -65,7 +78,10 @@ final readonly class OtlpHttpTransport
      */
     public function post(string $url, array $payload): void
     {
-        $json = json_encode($payload, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES);
+        $json = json_encode(
+            $payload,
+            \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES | \JSON_INVALID_UTF8_SUBSTITUTE,
+        );
         $context = stream_context_create([
             'http' => [
                 'method' => 'POST',

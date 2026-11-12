@@ -642,6 +642,47 @@ real-meter lane pins the fold the hand-made maps could not see (the
 issue's own repro): a `CounterMeter` snapshot fed whole, the names
 the caller spelled, one data point per series identity.
 
+**KDD-OB45 -- The malformed byte answers two defences, and the
+retry lane never meets it.** The span name was the one string on
+the delivery lane no census read: the event name clamped at its
+own budget (`TelemetrySanitizer::string(..., 256)`), the status
+message at its (`..., 1024`), but `OtlpJsonPayloadEncoder::span()`
+shipped the name verbatim -- so one request-derived name carrying
+a malformed UTF-8 byte (the issue #780 repro: `bad\xC3\x28name`)
+answered a `JsonException` inside the transport's
+`JSON_THROW_ON_ERROR` encode, and `BatchRetryLane::deliver()`
+triaged the throwable as transient, slept the declared backoff,
+and retried the same poison batch until the budget burned and the
+whole batch was lost silently -- the exact failure mode the
+hygiene unit's own docblock records as the scrub's founding
+motive ("invalid sequences made the exporter's JSON encode throw
+and whole batches drop"), reached past every census the family
+landed. The fix answers the issue's own two proposals, both at
+their own seams. FIRST the census point: the span name now reads
+the same clamp every event name reads (`TelemetrySanitizer::string(
+$spanData->name, 256)` -- the 256 budget the name family shares,
+the malformed byte substituted, the control bytes stripped, the
+over-budget name truncated at a character boundary), so the
+encoder's output is wire-encodable by construction. SECOND the
+transport's own substitution: `JSON_INVALID_UTF8_SUBSTITUTE` rides
+the encode flag set (the byte-substitution doctrine the failure
+lanes' JSON writers already carry -- `JsonLineFormatter`, the
+problem-detail and replay writers), the last line of defence for
+every string no census owns -- a resource block key the caller
+declared, an attribute key no recording point scrubs -- because a
+malformed byte there would answer the same `JsonException` the
+same retry lane would burn the same budget on. The two defences
+substitute differently by design and each is pinned by its own
+spelling: the census answers the mbstring substitution character,
+the wire grammar answers the JSON extension's own U+FFFD escape --
+the suite pins both the delivery (one request, the first attempt,
+the batch whole) and the substituted bytes, over the real loopback
+wire the exporter's own stream context delivers to. The lane's
+classification discipline is untouched: a `JsonException` remains
+a transient-classified throwable, the permanent rejection remains
+the plain `InvalidArgumentException` alone -- the fix removes the
+poison, never the triage.
+
 ## Legacy attribution
 
 The reference implementation is the GitLab snapshot `zeflous/zef`

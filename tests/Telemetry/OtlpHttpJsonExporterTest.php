@@ -46,6 +46,14 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
  * populates, so every branch of the mapping is pinned against the
  * branch the wire itself exercises.
  *
+ * The malformed-byte lane rides the same real wire (the issue
+ * #780 pins): a span name whose bytes the UTF-8 grammar refuses
+ * still delivers its batch over the census clamp every event name
+ * reads, and a malformed byte no census owns -- a resource block
+ * key the caller declared -- substitutes at the wire grammar
+ * itself, so neither answers the JsonException the retry lane
+ * would burn its whole budget on before losing the batch.
+ *
  * @internal
  */
 #[CoversClass(LogRecord::class)]
@@ -538,6 +546,73 @@ final class OtlpHttpJsonExporterTest extends TestCase
             '5',
             $dataPoint['timeUnixNano'],
             'the collection stamp is the stepping clocks first wall answer',
+        );
+    }
+
+    public function testABadUtf8SpanNameStillDeliversItsBatchWithSubstitutedBytes(): void
+    {
+        // The issue #780 pin, over the real loopback wire: a span
+        // whose name carries the malformed UTF-8 byte of the issue's
+        // own repro (`\xC3\x28`, a byte sequence a request-derived
+        // name plausibly carries) rides the census clamp every event
+        // name already reads, and the batch that carries it DELIVERS --
+        // one request, the first attempt, no retry burned -- where
+        // before the fix the transport's throwing encode answered the
+        // JsonException the lane retried past its budget before
+        // losing the whole batch silently.
+        $endpoint = $this->otlpMockServer->start();
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter($endpoint, ['service.name' => 'svc'], 500);
+
+        $otlpHttpJsonExporter->export([$this->record("bad\xC3\x28name")]);
+
+        $bodies = $this->otlpMockServer->receivedBodies();
+        self::assertCount(1, $bodies, 'the batch that carries the malformed name delivers whole');
+        self::assertSame(1, $this->otlpMockServer->requests(), 'one request -- the first attempt delivered');
+
+        $payload = $this->payloadAt($bodies[0]);
+        $resourceSpan = $this->mapAt($this->mapAt($payload['resourceSpans'])[0]);
+        $scopeSpan = $this->mapAt($this->mapAt($resourceSpan['scopeSpans'])[0]);
+        $span = $this->mapAt($this->mapAt($scopeSpan['spans'])[0]);
+        $name = $span['name'];
+
+        self::assertIsString($name, 'the wire name is the string the protocol spells');
+        self::assertTrue(mb_check_encoding($name, 'UTF-8'), 'the malformed byte answers its substitution');
+        self::assertSame(9, mb_strlen($name, 'UTF-8'), 'one substitution answers the malformed byte');
+        self::assertStringStartsWith('bad', $name);
+        self::assertStringEndsWith('(name', $name);
+    }
+
+    public function testAMalformedByteTheCensusDoesNotOwnSubstitutesAtTheWire(): void
+    {
+        // The transport's own last line of defence, over the same
+        // loopback wire: a resource block key the caller declared is a
+        // string no recording point scrubs -- the census gap class.
+        // The byte-substitution flag now rides the encode (the same
+        // doctrine the failure lanes' JSON writers carry), so the
+        // delivery lands with the wire grammar substituting the
+        // malformed byte itself, where before the fix the same byte
+        // answered the JsonException the retry lane burned its whole
+        // budget on before losing the batch.
+        $endpoint = $this->otlpMockServer->start();
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter($endpoint, ["bad\xC3\x28key" => 'svc'], 500);
+
+        $otlpHttpJsonExporter->export([$this->record('kept')]);
+
+        $bodies = $this->otlpMockServer->receivedBodies();
+        self::assertCount(1, $bodies, 'the delivery lands over the census gap');
+        self::assertSame(1, $this->otlpMockServer->requests(), 'one request -- the first attempt delivered');
+
+        $payload = $this->payloadAt($bodies[0]);
+        $resourceSpan = $this->mapAt($this->mapAt($payload['resourceSpans'])[0]);
+        $attributes = $this->mapAt($this->mapAt($resourceSpan['resource'])['attributes']);
+        $entry = $this->mapAt($attributes[0]);
+        $key = $entry['key'];
+
+        self::assertIsString($key, 'the resource key is the string the protocol spells');
+        self::assertSame(
+            'bad' . "\u{FFFD}" . '(key',
+            $key,
+            'the wire grammar substitutes the malformed byte itself',
         );
     }
 
