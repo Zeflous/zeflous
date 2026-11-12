@@ -15,6 +15,7 @@ use Zef\Framework\Adapters\Session\FileSessionAdapter;
 use Zef\Framework\Adapters\Session\SessionBagDepth;
 use Zef\Framework\Adapters\Session\SessionRecordDecoder;
 use Zef\Framework\Adapters\Session\SessionRecordEncoder;
+use Zef\Framework\Adapters\Session\SessionRecordExchange;
 use Zef\Framework\Adapters\Session\SessionRecordFiles;
 use Zef\Framework\Adapters\Session\SessionRecordLoad;
 use Zef\Framework\Adapters\Session\SessionRecordLock;
@@ -55,6 +56,7 @@ use Zef\Test\Support\Adapters\Session\SessionFileDoubleState;
 #[CoversClass(SessionRecordEncoder::class)]
 #[CoversClass(SessionRecordFiles::class)]
 #[CoversClass(SessionRecordLoad::class)]
+#[CoversClass(SessionRecordExchange::class)]
 #[CoversClass(SessionRecordLock::class)]
 #[CoversClass(SessionRecordScan::class)]
 #[CoversClass(SessionRecordShape::class)]
