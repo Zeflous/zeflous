@@ -181,6 +181,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(ci): raise the rector memory ceiling to 2G [#810](https://github.com/Zeflous/zeflous/pull/810) ([mbetixz](https://github.com/mbetixz))
 - fix(database): the transaction unwind never replaces the closure's own failure (issue #777) [#813](https://github.com/Zeflous/zeflous/pull/813) ([mbetixz](https://github.com/mbetixz))
 - fix(database): the identifier quoting vocabulary answers the driver's dialect (issue #778) [#816](https://github.com/Zeflous/zeflous/pull/816) ([mbetixz](https://github.com/mbetixz))
+- fix(telemetry): the OTLP metrics fold splits the composite snapshot key back to the metric name (issue #779) [#819](https://github.com/Zeflous/zeflous/pull/819) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 

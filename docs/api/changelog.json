@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-11T22:25:07Z",
+  "as_of": "2026-11-12T10:58:50Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 321,
+  "unreleased_count": 322,
   "versions": [
     {
       "version": "Unreleased",
@@ -6901,6 +6901,27 @@
                 "sha": "5b7f279008f31999b34328802512437d24b5b092",
                 "short_sha": "5b7f279",
                 "subject": "docs(roadmap): the identifier quoting vocabulary's slice recorded and the pin refreshed (#816 rides section 14's row; the status meter's pin points at the substantive commit 44e66c70)"
+              }
+            ]
+          },
+          {
+            "pr": 819,
+            "title": "fix(telemetry): the OTLP metrics fold splits the composite snapshot key back to the metric name (issue #779)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-12T10:58:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/819",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "898607b0f2934ebd4a3d5225159c46688b1dc212",
+                "short_sha": "898607b",
+                "subject": "fix(telemetry): the OTLP metrics fold splits the composite snapshot key back to the metric name (issue #779)"
+              },
+              {
+                "sha": "c99336c11d0ae6b612a335e3f9de0464524e631c",
+                "short_sha": "c99336c",
+                "subject": "docs(roadmap): the composite snapshot key split's slice recorded and the pin refreshed (#819 rides section 2's row; the status meter's pin points at the substantive commit 898607b0)"
               }
             ]
           }
@@ -21745,6 +21766,27 @@
               "sha": "5b7f279008f31999b34328802512437d24b5b092",
               "short_sha": "5b7f279",
               "subject": "docs(roadmap): the identifier quoting vocabulary's slice recorded and the pin refreshed (#816 rides section 14's row; the status meter's pin points at the substantive commit 44e66c70)"
+            }
+          ]
+        },
+        {
+          "pr": 819,
+          "title": "fix(telemetry): the OTLP metrics fold splits the composite snapshot key back to the metric name (issue #779)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-12T10:58:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/819",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "898607b0f2934ebd4a3d5225159c46688b1dc212",
+              "short_sha": "898607b",
+              "subject": "fix(telemetry): the OTLP metrics fold splits the composite snapshot key back to the metric name (issue #779)"
+            },
+            {
+              "sha": "c99336c11d0ae6b612a335e3f9de0464524e631c",
+              "short_sha": "c99336c",
+              "subject": "docs(roadmap): the composite snapshot key split's slice recorded and the pin refreshed (#819 rides section 2's row; the status meter's pin points at the substantive commit 898607b0)"
             }
           ]
         }
