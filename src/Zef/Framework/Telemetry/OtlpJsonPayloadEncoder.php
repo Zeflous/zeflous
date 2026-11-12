@@ -92,10 +92,16 @@ final class OtlpJsonPayloadEncoder
 
     /**
      * Encodes one completed span as the protocol's span block: the
-     * identity and parent, the name and kind, the two timestamps as
-     * the protocol's string nanoseconds, the encoded attributes, the
-     * status with its folded code and clamped message, and the
-     * events with their own clamped names and encoded attributes.
+     * identity and parent, the clamped name (the hygiene unit's own
+     * census -- the 256 budget the event name's clamp shares, the
+     * invalid UTF-8 scrubbed before the wire grammar can refuse it,
+     * the issue #780 finding: one unclamped name answered a
+     * `JsonException` inside the transport's encode and took the
+     * whole batch down the retry lane after burning its budget), the
+     * kind, the two timestamps as the protocol's string nanoseconds,
+     * the encoded attributes, the status with its folded code and
+     * clamped message, and the events with their own clamped names
+     * and encoded attributes.
      *
      * @return array<string, mixed>
      */
@@ -104,7 +110,7 @@ final class OtlpJsonPayloadEncoder
         $encoded = [
             'traceId' => $spanData->context->traceId,
             'spanId' => $spanData->context->spanId,
-            'name' => $spanData->name,
+            'name' => TelemetrySanitizer::string($spanData->name, 256),
             'kind' => 'SPAN_KIND_SERVER',
             'startTimeUnixNano' => (string) $spanData->startUnixNano,
             'endTimeUnixNano' => (string) $spanData->endUnixNano,
