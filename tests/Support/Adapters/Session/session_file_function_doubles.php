@@ -5,15 +5,18 @@
  * adapter's own namespace for the whole suite: the staging fold
  * calls file_put_contents, chmod and rename unqualified, the
  * layout fold calls scandir, file_exists and unlink, the sweep and
- * the load read through file_get_contents, and the directory fold
- * calls realpath and fileperms -- so PHP resolves them in the
- * namespace first. These doubles shadow the global calls, answer
- * the engine's own result by default, and expose the failure arms
- * the tests arm explicitly (a refused write, an unsecurable
- * record, an unfinalisable record, an unremovable record, an
- * unscannable root, an unreadable record, an unresolvable
- * directory, unreadable permissions), without the PHP warnings the
- * engine's own failure answers would otherwise emit.
+ * the load read through file_get_contents, the read-modify-write
+ * lane's own fold opens its sidecar through fopen and takes its
+ * lock through flock, and the directory fold calls realpath and
+ * fileperms -- so PHP resolves them in the namespace first. These
+ * doubles shadow the global calls, answer the engine's own result
+ * by default, and expose the failure arms the tests arm
+ * explicitly (a refused write, an unsecurable record, an
+ * unfinalisable record, an unremovable record, an unscannable
+ * root, an unreadable record, an unresolvable directory,
+ * unreadable permissions, an unopenable sidecar companion, an
+ * untakeable sidecar lock), without the PHP warnings the engine's
+ * own failure answers would otherwise emit.
  *
  * The rename double's armed answers carry one rule the delivery
  * boundary's own doubles spelled first (see {@see
@@ -49,6 +52,8 @@ use function file_exists as engine_file_exists;
 use function file_get_contents as engine_file_get_contents;
 use function file_put_contents as engine_file_put_contents;
 use function fileperms as engine_fileperms;
+use function flock as engine_flock;
+use function fopen as engine_fopen;
 use function realpath as engine_realpath;
 use function rename as engine_rename;
 use function scandir as engine_scandir;
@@ -147,6 +152,43 @@ function fileperms(string $filename): false|int
     }
 
     return engine_fileperms($filename);
+}
+
+/**
+ * The read-modify-write lane's own companion opening: the armed
+ * answer is the fail-closed refusal arm the lane's own test names
+ * (the sidecar the store cannot open), with the mode the lane's own
+ * fold spells.
+ *
+ * @return false|resource
+ */
+function fopen(string $filename, string $mode)
+{
+    if (SessionFileDoubleState::$fopenAnswer !== null) {
+        return SessionFileDoubleState::$fopenAnswer;
+    }
+
+    return engine_fopen($filename, $mode);
+}
+
+/**
+ * The read-modify-write lane's own lock taking: the armed answer
+ * is the fail-closed refusal arm the lane's own test names (the
+ * sidecar whose exclusive lock the engine refuses), with the
+ * blocking operation the lane's own fold spells and the by-reference
+ * would-block out-parameter the engine's own signature carries.
+ *
+ * @param resource  $stream      the locked companion's own handle
+ * @param int<0, 7> $operation   the blocking operation the lane spells
+ * @param null|int  $would_block the engine's own by-reference out-parameter
+ */
+function flock($stream, int $operation, ?int &$would_block = null): bool
+{
+    if (SessionFileDoubleState::$flockAnswer !== null) {
+        return SessionFileDoubleState::$flockAnswer;
+    }
+
+    return engine_flock($stream, $operation, $would_block);
 }
 
 function file_exists(string $filename): bool
