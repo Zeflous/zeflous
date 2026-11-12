@@ -8,12 +8,20 @@ namespace Zef\Framework\Telemetry;
  * The OTLP/JSON metrics payload fold: the `/v1/metrics` wire body
  * the exporter's delivery contract serialises -- the resource block,
  * the single scope the lane names, and the meter's accumulated
- * series as the protocol's sum data points. One shape, one unit,
- * so the exporter stays inside its own class-size budget and the
- * encoding logic sits in a fold of its own -- the same split the
- * archaeology gate demanded when the span shapes moved out of the
- * exporter ({@see OtlpJsonPayloadEncoder}, whose KeyValue arm this
- * fold composes for the resource and the series dimensions).
+ * series as the protocol's sum data points, one metric per NAME
+ * with one data point per series identity ({@see OtlpMetricKey},
+ * the composite snapshot key split back into the name the map was
+ * keyed by -- the data point's attributes ride the series' own
+ * authoritative map, the one the slot minted, never the key's
+ * re-decoded JSON half), so a name recorded under two dimension
+ * sets answers ONE metric whose data points carry both: the
+ * collector reads the series the way the meter recorded them. One
+ * shape, one unit, so the exporter stays inside its own class-size
+ * budget and the encoding logic sits in a fold of its own -- the
+ * same split the archaeology gate demanded when the span shapes
+ * moved out of the exporter ({@see OtlpJsonPayloadEncoder}, whose
+ * KeyValue arm this fold composes for the resource and the series
+ * dimensions).
  *
  * The sum data point is the counter family's own posture: the
  * aggregation is cumulative (temporality 2 -- every snapshot
@@ -75,8 +83,12 @@ final class OtlpMetricsPayload
 
     /**
      * Encodes the snapshot's series in the map's own order: one
-     * protocol metric per series identity, the sum block carrying
-     * the cumulative, monotonic data point.
+     * protocol metric per NAME, the sum block carrying one
+     * cumulative, monotonic data point per series identity -- the
+     * name the composite key's split answers ({@see OtlpMetricKey}),
+     * the data point's attributes the series' own authoritative map
+     * (the normalised, ordered map the slot minted the key from,
+     * never the key's re-decoded JSON half).
      *
      * @param array<string,array{count:float|int,sum:float,attributes:array<string,mixed>}> $metrics
      *
@@ -84,21 +96,23 @@ final class OtlpMetricsPayload
      */
     private static function metrics(array $metrics, int $timeUnixNano): array
     {
-        $encoded = [];
+        $dataPointsByName = [];
+        foreach ($metrics as $key => $metric) {
+            $dataPointsByName[OtlpMetricKey::name($key)][] = [
+                'asDouble' => $metric['sum'],
+                'timeUnixNano' => (string) $timeUnixNano,
+                'attributes' => OtlpJsonPayloadEncoder::attributes($metric['attributes']),
+            ];
+        }
 
-        foreach ($metrics as $name => $metric) {
+        $encoded = [];
+        foreach ($dataPointsByName as $name => $dataPoints) {
             $encoded[] = [
                 'name' => $name,
                 'sum' => [
                     'aggregationTemporality' => 2,
                     'isMonotonic' => true,
-                    'dataPoints' => [
-                        [
-                            'asDouble' => $metric['sum'],
-                            'timeUnixNano' => (string) $timeUnixNano,
-                            'attributes' => OtlpJsonPayloadEncoder::attributes($metric['attributes']),
-                        ],
-                    ],
+                    'dataPoints' => $dataPoints,
                 ],
             ];
         }
