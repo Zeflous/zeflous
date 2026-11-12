@@ -33,6 +33,12 @@ final class SessionFileDoubleState
     /** @var null|false|string the armed file_get_contents answer */
     public static false|string|null $fileGetContentsAnswer = null;
 
+    /** @var null|false the armed fopen answer (false arms the lane's unopenable-companion refusal) */
+    public static ?false $fopenAnswer = null;
+
+    /** @var null|false the armed flock answer (false arms the lane's untakeable-lock refusal) */
+    public static ?false $flockAnswer = null;
+
     /** @var null|false|string the armed realpath answer (false arms the unresolvable-directory refusal) */
     public static false|string|null $realpathAnswer = null;
 
@@ -53,6 +59,8 @@ final class SessionFileDoubleState
         self::$unlinkAnswer = null;
         self::$scandirAnswer = null;
         self::$fileGetContentsAnswer = null;
+        self::$fopenAnswer = null;
+        self::$flockAnswer = null;
         self::$realpathAnswer = null;
         self::$filepermsAnswer = null;
         self::$fileExistsAnswers = [];
