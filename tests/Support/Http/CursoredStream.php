@@ -23,6 +23,9 @@ final class CursoredStream implements StreamInterface
 {
     public int $tellCalls = 0;
 
+    /** How many seeks the stream answered; the upload move's success path must answer none. */
+    public int $seekCalls = 0;
+
     public function __construct(
         private readonly ?int $size,
         private readonly int $position,
@@ -80,6 +83,8 @@ final class CursoredStream implements StreamInterface
     #[Override]
     public function seek(int $offset, int $whence = \SEEK_SET): void
     {
+        ++$this->seekCalls;
+
         // Deliberately a no-op: the adversarial point of this double is
         // the cursor that never moves, not the seek it would serve.
     }

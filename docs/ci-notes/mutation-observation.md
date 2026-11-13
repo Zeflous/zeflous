@@ -86,3 +86,86 @@ runner-dependent kills replaced by assertion-owned kills) · the five new
 three tests green · `ci:static` EXIT-0 · psalm EXIT-0 (no new baseline
 entries: the fold's consumer lives in the same audited tree) · progpilot
 `[]`.
+## The second batch: seven runner-dependent mutants behind the changelog lane's red (2026-11-13)
+
+PR #820 (a one-line changelog regeneration) reddened `CI Infection`
+twice with seven escaped mutants on a tree whose `src/` was
+byte-identical to the `main` the merge queue had validated minutes
+earlier — the same class as the #634/#635 repair, two months later, in
+two new shapes. The diagnosis reproduced locally: a scoped run over
+`DirectoryLoader` + `UploadedMove` escapes the same seven mutants, and
+the passing CI runs turn out to have been passing on noise (below).
+
+**KDD-MO5: the upload staging name's kills were shared-/tmp
+contamination, never assertions.** Six of the seven lived on
+`UploadedMove::onto()`'s one line — the `.zef-tmp-` marker and the
+`bin2hex(random_bytes(8))` entropy of the staging sibling. No test
+pinned the sibling's NAME: the only shape-observing assertions were
+`assertSame([], glob(dirname($target) . '/*.zef-tmp-*'))` over the
+SHARED temporary directory. That glob observes every other process's
+leftovers, and under `--threads=3` mutation testing the "other
+processes" are the lane's own concurrent mutants — a mutant that breaks
+the cleanup leaves a sibling behind, and every later mutant whose
+covering set includes such a glob then dies to a file it never created.
+The green runs were thread-scheduling luck (a leftover present when the
+name mutants ran: the queue's `CI Infection` on the #823 group head,
+#822's PR head); the red runs were a clean schedule (#820's two heads,
+the local reproduction). The repair is the observation the marker and
+the entropy deserve: the cleanup's `unlink` refusal arm
+(`ReplaySnapshotDoubleState::$unlinkAnswers = [false]`, the boundary's
+own double) makes the staging sibling SURVIVE its own cleanup, and the
+survivor's name is pinned by an anchored pattern — the target, the
+`.zef-tmp-` marker, exactly sixteen lowercase hex characters — inside
+the test's own directory, where no other process's leftovers can answer
+for it; the survivor's payload is pinned with it. The existing
+whole-payload glob is narrowed to the target's own sibling pattern so
+it stops observing the shared directory at all — and the narrowing
+immediately exposed the next unowned mutant (KDD-MO7). Verified
+contamination-proof directly: the scoped run holds MSI 100/100 with
+decoy `.zef-tmp-*` files planted in the shared directory.
+
+**KDD-MO6: the dotfile skip's kill was the host's readdir order, and
+the sorted scan it needed brought its own ledger.** `DirectoryLoader`'s
+hidden-entry `continue` was killed only when the filesystem's iteration
+happened to answer the dotfile before a loadable child (the kill test's
+own comment claimed creation order made it independent — it does not;
+readdir order is the host's). The class docblock already promised a
+"deliberately narrow and deterministic" scan; the scan now sorts the
+entry names itself (`SortedDirectoryEntries::inNameOrder()`, a pure
+fold over the collected list so its own contract is testable without a
+filesystem), a hidden entry always sorts before the loadable children
+behind it, and the skip test's skippable entries were renamed so they
+sort before the loadable (`a-notes.txt`, not `notes.txt`) — the kill is
+now the walk's own order, on every host. Two ledger items the sorted
+scan created and closed: the emission `ksort()` became redundant with a
+sorted walk (its removal would have been equivalent), so the fixture
+pair became one whose NAME order differs from its KEY order
+(`x-y.php` delegates before `x.php`, but key `x` sorts before key
+`x-y` — the ksort is the only thing standing between the two); and the
+walk's fail-closed delegation order is now alphabetical, so the
+allowlist tests name the first sorted offender.
+
+**KDD-MO7: the success flag's false arm and the flush before the
+close.** With the shared-/tmp noise gone, two more of `onto()`'s
+mutants lost their only (noise) kills. The `$success = true` flip runs
+the failure cleanup after a successful rename — the cleanup itself is
+shielded (the staging sibling is already renamed away, `is_file()`
+answers false), so the restore's `seek()` on the payload stream is the
+only witness: `CursoredStream` now counts the seeks it answers, and a
+successful move must answer exactly zero. The `fflush($dest)` removal
+is the honest equivalent of the batch: the staging stream is a plain
+engine file whose next line is `fclose()` — the close's own contract
+flushes the user-space buffer, so nothing between the two calls can
+observe the flush. Verified against the engine by running the complete
+suite under the manually applied mutation (7516 tests pass), and
+recorded as the `FunctionCallRemoval` lane's second entry — a
+source-regex ignore scoped to that single line, the neighbouring calls
+of `onto()` staying under the mutator with their own kills.
+
+**Verified locally before the PR:** scoped infection over the three
+mutant-bearing files (`DirectoryLoader` + `SortedDirectoryEntries` +
+`UploadedMove`, 60 mutants) MSI 100/100 on a cleaned `/tmp`, and still
+100/100 with decoy `.zef-tmp-*` files planted in the shared directory
+(the batch's own mechanism, observed directly) · the three new
+observation tests plus the narrowed glob and the renamed fixtures green
+· `ci:static` EXIT-0 · psalm EXIT-0 · progpilot `[]`.

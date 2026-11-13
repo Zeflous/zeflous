@@ -25,19 +25,22 @@ final class DirectoryLoaderTest extends TestCase
         $this->directory = (string) tempnam(sys_get_temp_dir(), 'zef-dir-');
         unlink($this->directory);
         mkdir($this->directory);
-        // zeta.php is created *before* alpha.php on purpose: the unsorted
-        // directory iteration order must differ from the sorted expectation
-        // on every supported filesystem, otherwise killing the ksort()-removal
-        // mutant depends on readdir luck rather than on the test itself.
-        file_put_contents($this->directory . '/zeta.php', '<?php return ["key" => "zeta"];');
-        file_put_contents($this->directory . '/alpha.php', '<?php return ["key" => "alpha"];');
+        // x-y.php is created *before* x.php on purpose, and the pair is
+        // chosen so the two orders genuinely differ: by NAME the hyphen
+        // sorts before the dot ('x-y.php' < 'x.php'), while by KEY the
+        // shorter basename sorts first ('x' < 'x-y'). The sorted walk
+        // delegates in name order, so the emission-order ksort() is the
+        // only thing standing between the two -- its removal changes the
+        // answer, regardless of how any filesystem orders the entries.
+        file_put_contents($this->directory . '/x-y.php', '<?php return ["key" => "hyphen"];');
+        file_put_contents($this->directory . '/x.php', '<?php return ["key" => "plain"];');
     }
 
     #[Override]
     protected function tearDown(): void
     {
-        unlink($this->directory . '/zeta.php');
-        unlink($this->directory . '/alpha.php');
+        unlink($this->directory . '/x-y.php');
+        unlink($this->directory . '/x.php');
 
         if (is_dir($this->directory . '/module.php')) {
             rmdir($this->directory . '/module.php');
@@ -46,12 +49,12 @@ final class DirectoryLoaderTest extends TestCase
         rmdir($this->directory);
     }
 
-    public function testLoadsFilesSortedByNameRegardlessOfCreationOrder(): void
+    public function testLoadsFilesSortedByKeyRegardlessOfWalkOrder(): void
     {
-        $data = new DirectoryLoader(new PhpFileLoader(['zeta.php', 'alpha.php']))->load($this->directory);
+        $data = new DirectoryLoader(new PhpFileLoader(['x-y.php', 'x.php']))->load($this->directory);
 
         self::assertSame(
-            ['alpha' => ['key' => 'alpha'], 'zeta' => ['key' => 'zeta']],
+            ['x' => ['key' => 'plain'], 'x-y' => ['key' => 'hyphen']],
             $data,
         );
     }
@@ -62,14 +65,16 @@ final class DirectoryLoaderTest extends TestCase
         unlink($directory);
         mkdir($directory);
 
-        // The skippable entries are created *before* the loadable one on
-        // purpose: skipping is a per-entry decision, so a mutant that aborts
-        // the whole iteration (continue -> break) stops before last.php is
-        // ever reached and the load comes back empty. Creating the entries
-        // in this order makes that kill independent of how any filesystem
-        // orders the entries of an existing directory.
-        file_put_contents($directory . '/notes.txt', 'not php');
+        // The skippable entries sort *before* the loadable one on purpose:
+        // skipping is a per-entry decision, so a mutant that aborts the
+        // whole iteration (continue -> break) stops before last.php is
+        // ever reached and the load comes back empty. The walk's own
+        // sorted-name order (not the filesystem's readdir order, and not
+        // the creation order) guarantees that placement on every host --
+        // the dot sorts below every letter, and 'a-notes.txt' sorts below
+        // 'last.php'.
         file_put_contents($directory . '/.hidden.php', '<?php return [];');
+        file_put_contents($directory . '/a-notes.txt', 'not php');
         file_put_contents($directory . '/last.php', '<?php return ["key" => "last"];');
 
         try {
@@ -78,8 +83,8 @@ final class DirectoryLoaderTest extends TestCase
                 new DirectoryLoader(new PhpFileLoader(['last.php']))->load($directory),
             );
         } finally {
-            unlink($directory . '/notes.txt');
             unlink($directory . '/.hidden.php');
+            unlink($directory . '/a-notes.txt');
             unlink($directory . '/last.php');
             rmdir($directory);
         }
@@ -119,15 +124,16 @@ final class DirectoryLoaderTest extends TestCase
     public function testRejectsAChildMissingFromTheAllowlist(): void
     {
         try {
-            new DirectoryLoader(new PhpFileLoader(['alpha.php']))->load($this->directory);
+            new DirectoryLoader(new PhpFileLoader(['x.php']))->load($this->directory);
             self::fail('A directory child outside the allowlist must raise a ConfigException.');
         } catch (ConfigException $configException) {
             self::assertSame(
                 \sprintf(
                     'The configuration file "%s" is not allowed.',
-                    $this->directory . '/zeta.php',
+                    $this->directory . '/x-y.php',
                 ),
                 $configException->getMessage(),
+                'the sorted walk delegates x-y.php first, so it is the refusal the allowlist answers',
             );
         }
     }
@@ -186,7 +192,7 @@ final class DirectoryLoaderTest extends TestCase
         mkdir($this->directory . '/module.php');
 
         try {
-            new DirectoryLoader(new PhpFileLoader(['zeta.php', 'alpha.php', 'module.php']))
+            new DirectoryLoader(new PhpFileLoader(['x-y.php', 'x.php', 'module.php']))
                 ->load($this->directory)
             ;
             self::fail('A nested directory named like a php file must raise a ConfigException.');
