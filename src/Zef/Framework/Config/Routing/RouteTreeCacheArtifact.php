@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Config\Routing;
 
 use ParseError;
+use Throwable;
 use Zef\Framework\Config\ConfigException;
 
 /**
@@ -15,7 +16,13 @@ use Zef\Framework\Config\ConfigException;
  * Every corruption shape the file can take fails closed with the path in
  * the message, including the torn-write shape a partial
  * `file_put_contents()` actually produces (a `require` that raises a
- * `ParseError`). The narrowing stops at the artifact's own three fields;
+ * `ParseError`) and the unreplayable shape an object-bearing `meta`
+ * value produces (a `require` whose `::__set_state()` call raises anything
+ * at all -- the reading runtime not even finding the class, or the class
+ * never answering the call; the grammar lets `meta` carry free-form
+ * values, and only the value's own class can rebuild them, so the one
+ * class the artifact cannot rebuild is the artifact's own corruption,
+ * #768). The narrowing stops at the artifact's own three fields;
  * the node graph's format is {@see RouteTreeCacheNodeFields}'s question,
  * and the replay of that graph is {@see RouteTreeCacheHydration}'s.
  *
@@ -46,7 +53,10 @@ final readonly class RouteTreeCacheArtifact
      * @return array{signature: non-empty-string, routes: list<mixed>, root: mixed}
      *
      * @throws ConfigException when the artifact is missing, is not valid
-     *                         PHP, does not return an array, does not
+     *                         PHP, cannot be replayed (a `require` that
+     *                         raises anything else -- the `::__set_state()`
+     *                         calls an object-bearing `meta` value rests
+     *                         on), does not return an array, does not
      *                         carry exactly the cache's fields, or does
      *                         not record a signature and a list table
      */
@@ -67,6 +77,12 @@ final readonly class RouteTreeCacheArtifact
                 \sprintf('The route tree cache "%s" is corrupted: it is not valid PHP.', $file),
                 0,
                 $parseError,
+            );
+        } catch (Throwable $replayFailure) {
+            throw new ConfigException(
+                \sprintf('The route tree cache "%s" is corrupted: it cannot be replayed.', $file),
+                0,
+                $replayFailure,
             );
         }
 

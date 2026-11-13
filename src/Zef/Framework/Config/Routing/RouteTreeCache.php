@@ -49,10 +49,12 @@ use Zef\Framework\Config\ConfigException;
  * uniqueness), so a hand-edited artifact that introduces an ambiguous
  * table is refused with the engine's own messages -- while the node graph
  * itself is trusted exactly as far as its shape narrowing sees: a torn
- * write (a `ParseError`), a truncated or non-array artifact, a node that
- * is not the cache's format, a route reference that names no carried
- * entry, or two static children under one first character all fail closed
- * with the artifact path in the message.
+ * write (a `ParseError`), an entry whose object-bearing `meta` the
+ * reading runtime cannot replay (the `::__set_state()` call the
+ * artifact's format rests on -- #768), a truncated or non-array
+ * artifact, a node that is not the cache's format, a route reference
+ * that names no carried entry, or two static children under one first
+ * character all fail closed with the artifact path in the message.
  *
  * The signature is the roadmap's "Revision-Aware Compile" as a tooling
  * concern: the runtime NEVER compares it (that would read the sources the
