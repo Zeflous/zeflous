@@ -29,6 +29,11 @@ use Zef\Framework\Config\ConfigException;
  * - nested directories are not traversed: an entry named `*.php` that is not
  *   a regular file is delegated to the file loader, which rejects it -- fail
  *   closed instead of silently skipping a source that looks like one;
+ * - the scan itself walks the directory's entries in sorted name order, so
+ *   the delegation order (and with it every skip and refusal) is the same
+ *   on every filesystem regardless of the directory's internal readdir
+ *   order -- a hidden entry always sorts before the loadable files behind
+ *   it, which is what makes the skip's observation deterministic; and
  * - entries are emitted sorted by key, so the load order is the same on every
  *   filesystem regardless of the directory's internal ordering.
  */
@@ -50,8 +55,8 @@ final readonly class DirectoryLoader implements ConfigLoaderInterface
 
         $config = [];
 
-        foreach (new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS) as $file) {
-            if (!($file instanceof SplFileInfo) || $file->getExtension() !== 'php') {
+        foreach ($this->sortedEntries($path) as $file) {
+            if ($file->getExtension() !== 'php') {
                 continue;
             }
 
@@ -67,5 +72,30 @@ final readonly class DirectoryLoader implements ConfigLoaderInterface
         ksort($config, \SORT_STRING);
 
         return $config;
+    }
+
+    /**
+     * The directory's entries in sorted name order: the filesystem's own
+     * readdir order is host-owned (a dotfile can answer first or last), so
+     * the walk hands the collected entries to
+     * {@see SortedDirectoryEntries::inNameOrder()} -- every skip,
+     * delegation and refusal downstream then observes the same entry
+     * order on every host.
+     *
+     * @return list<SplFileInfo> the directory's direct children, by name
+     */
+    private function sortedEntries(string $path): array
+    {
+        $entries = [];
+
+        foreach (new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS) as $file) {
+            if (!$file instanceof SplFileInfo) {
+                continue;
+            }
+
+            $entries[] = $file;
+        }
+
+        return SortedDirectoryEntries::inNameOrder($entries);
     }
 }

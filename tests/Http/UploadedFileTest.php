@@ -16,8 +16,11 @@ use Zef\Framework\Http\UploadedMove;
 use Zef\Framework\Http\UploadedPosition;
 use Zef\Framework\Http\UploadedTarget;
 use Zef\Framework\Http\UploadedTransfer;
+use Zef\Test\Support\Http\CursoredStream;
 use Zef\Test\Support\Http\LyingEofStreamWrapper;
 use Zef\Test\Support\Http\NoSeekStreamWrapper;
+use Zef\Test\Support\Http\ReplaySnapshotDoubleState;
+use Zef\Test\Support\Http\ReplaySnapshotFunctionDoubles;
 use Zef\Test\Support\Http\UnopenableStreamWrapper;
 use Zef\Test\Support\Http\UnwritableStreamWrapper;
 
@@ -43,6 +46,8 @@ final class UploadedFileTest extends TestCase
     #[Override]
     protected function setUp(): void
     {
+        ReplaySnapshotFunctionDoubles::define();
+
         stream_wrapper_register(self::LYING_EOF_PROTOCOL, LyingEofStreamWrapper::class);
         stream_wrapper_register(self::NO_SEEK_PROTOCOL, NoSeekStreamWrapper::class);
         stream_wrapper_register(self::UNOPENABLE_PROTOCOL, UnopenableStreamWrapper::class);
@@ -52,6 +57,8 @@ final class UploadedFileTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
+        ReplaySnapshotFunctionDoubles::reset();
+
         stream_wrapper_unregister(self::LYING_EOF_PROTOCOL);
         stream_wrapper_unregister(self::NO_SEEK_PROTOCOL);
         stream_wrapper_unregister(self::UNOPENABLE_PROTOCOL);
@@ -114,7 +121,11 @@ final class UploadedFileTest extends TestCase
         $uploadedFile->moveTo($target);
 
         self::assertSame('uploaded payload', file_get_contents($target));
-        self::assertSame([], glob(\dirname($target) . '/*.zef-tmp-*'));
+        // Scoped to THIS move's own staging sibling: a glob over the whole
+        // shared temporary directory would observe every other process's
+        // leftovers, and under mutation testing the sibling files earlier
+        // mutants leave behind would turn this assertion into host noise.
+        self::assertSame([], glob($target . '.zef-tmp-*'));
         $this->assertThrows('Stream detached.', static function () use ($stream): void {
             $stream->tell();
         });
@@ -299,6 +310,112 @@ final class UploadedFileTest extends TestCase
         } finally {
             rmdir($target);
             rmdir($base);
+        }
+    }
+
+    public function testTheFailedMoveStagesItsPayloadUnderTheTemporarySiblingNameItself(): void
+    {
+        // The temporary sibling's name is the move's own contract -- the
+        // staging spelling that makes the rename atomic -- but its shape
+        // was observed only through post-hoc glob-emptiness, which passes
+        // for any spelling the cleanup happens to remove. The refusal arm
+        // makes the observation assertion-owned: the cleanup's unlink
+        // refuses once, the staging file survives, and the survivor's name
+        // is pinned exactly (the target, the '.zef-tmp-' marker, and the
+        // 16 hex characters of the 8 entropy bytes).
+        $base = sys_get_temp_dir() . '/zef-upload-staging-' . bin2hex(random_bytes(4));
+        mkdir($base, 0o777, true);
+        $target = $base . '/final';
+        mkdir($target, 0o777, true);
+
+        ReplaySnapshotDoubleState::$unlinkAnswers = [false];
+
+        try {
+            $uploadedFile = new UploadedFile(Stream::fromString('staged payload'));
+
+            try {
+                $uploadedFile->moveTo($target);
+                self::fail('HttpException expected.');
+            } catch (HttpException $httpException) {
+                self::assertStringStartsWith(
+                    "Unable to finalize uploaded file to '{$target}': ",
+                    $httpException->getMessage(),
+                );
+            }
+
+            $survivors = glob($base . '/*.zef-tmp-*');
+            self::assertIsArray($survivors);
+            self::assertCount(1, $survivors, 'exactly one staging sibling survives the refused cleanup');
+
+            self::assertMatchesRegularExpression(
+                '~^' . preg_quote($target, '~') . '\.zef-tmp-[0-9a-f]{16}$~',
+                $survivors[0],
+                'the staging sibling is the target plus the marker and the 8 entropy bytes',
+            );
+            self::assertSame('staged payload', file_get_contents($survivors[0]));
+            unlink($survivors[0]);
+        } finally {
+            rmdir($target);
+            rmdir($base);
+        }
+    }
+
+    public function testTheFailedMoveRestoresTheStreamsOriginalPosition(): void
+    {
+        // The capture-before-copy is what lets a failed move be retried
+        // over the same bytes -- but no assertion owned the restored
+        // position, so the capture's removal was only observable through
+        // the engine's own EOF state. The probe stream starts mid-payload,
+        // the move fails on the rename, and the position must come back to
+        // where it started.
+        $base = sys_get_temp_dir() . '/zef-upload-position-' . bin2hex(random_bytes(4));
+        mkdir($base, 0o777, true);
+        $target = $base . '/final';
+        mkdir($target, 0o777, true);
+
+        try {
+            $stream = Stream::fromString('0123456789');
+            $stream->seek(4);
+            $uploadedFile = new UploadedFile($stream);
+
+            try {
+                $uploadedFile->moveTo($target);
+                self::fail('HttpException expected.');
+            } catch (HttpException) {
+                // The rename failure is the other test's question; here it
+                // is only the trigger for the restore arm under test.
+            }
+
+            self::assertSame(4, $stream->tell(), 'the failed move restores the pre-copy position');
+        } finally {
+            rmdir($target);
+            rmdir($base);
+        }
+    }
+
+    public function testTheSuccessfulMoveNeverSeeksTheStreamBack(): void
+    {
+        // The success flag's false arm is the whole difference between
+        // "the payload crossed" and "put the stream back where it
+        // started": a mutant that runs the failure cleanup after a
+        // successful rename leaves no file to observe (the rename already
+        // moved the staging sibling), so the restore's seek is the only
+        // witness -- and the recording stream answers it. A successful
+        // move must answer exactly zero seeks.
+        $target = $this->targetPath('no-restore');
+
+        $cursoredStream = new CursoredStream(5, 0);
+        $uploadedFile = new UploadedFile($cursoredStream);
+
+        try {
+            $uploadedFile->moveTo($target);
+
+            self::assertFileExists($target);
+            self::assertSame(0, $cursoredStream->seekCalls, 'a successful move never seeks the stream back');
+        } finally {
+            if (is_file($target)) {
+                unlink($target);
+            }
         }
     }
 
