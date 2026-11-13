@@ -419,6 +419,60 @@ final class UploadedFileTest extends TestCase
         }
     }
 
+    public function testTheCopyResumesPastAShortWrite(): void
+    {
+        // The engine may accept fewer bytes than the copy hands it, and
+        // the copy's resume arithmetic (advance by what the engine
+        // accepted, slice the remainder) is the whole difference between
+        // the payload and a truncated file. The fwrite double's byte
+        // budget forces a four-byte short write per call; the target must
+        // still carry the exact payload. The source stream is built BEFORE
+        // the budget is armed: the double shadows the whole Http
+        // namespace's fwrite calls, and Stream::fromString itself writes
+        // the payload through it.
+        $target = $this->targetPath('short-write');
+        $uploadedFile = new UploadedFile(Stream::fromString('0123456789'));
+
+        ReplaySnapshotDoubleState::$fwriteChunk = 4;
+
+        try {
+            $uploadedFile->moveTo($target);
+
+            self::assertSame('0123456789', file_get_contents($target));
+        } finally {
+            if (is_file($target)) {
+                unlink($target);
+            }
+        }
+    }
+
+    public function testTheCopyRefusesAWriteThatAcceptsNothing(): void
+    {
+        // A write that accepts zero bytes is data loss in progress: the
+        // copy must fail closed with the documented message rather than
+        // spin on a stream that never advances. The source stream is
+        // built BEFORE the answer is armed (Stream::fromString writes
+        // through the same double), so the armed zero lands on the copy's
+        // own first write.
+        $target = $this->targetPath('zero-write');
+        $uploadedFile = new UploadedFile(Stream::fromString('payload'));
+
+        ReplaySnapshotDoubleState::$fwriteAnswers = [0];
+
+        try {
+            $this->assertThrows(
+                'Unable to write uploaded file.',
+                static function () use ($uploadedFile, $target): void {
+                    $uploadedFile->moveTo($target);
+                },
+            );
+        } finally {
+            if (is_file($target)) {
+                unlink($target);
+            }
+        }
+    }
+
     public function testGetSizePrefersTheExplicitSize(): void
     {
         $uploadedFile = new UploadedFile(Stream::fromString('payload'), 12);

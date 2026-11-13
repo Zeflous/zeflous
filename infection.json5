@@ -824,6 +824,21 @@
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",
+                // The upload copy's two byte-exact lines (the 2026-11-13
+                // runner-dependent batch): an upload payload is opaque
+                // bytes, and the '8bit' encoding IS byte semantics, so
+                // mb_strlen/strlen answer the same length and
+                // mb_substr/substr cut the same slice for every input the
+                // lines can ever see -- the byte-agreement class the
+                // entries above spelled, verified against the engine by
+                // running the complete suite under each manually applied
+                // mutation (7536 tests pass under both rewrites, the
+                // short-write resume test included). The neighbouring
+                // write-side arithmetic stays under its own mutator: the
+                // Minus entry below owns the slice-length arithmetic these
+                // same lines carry.
+                "\\$length = mb_strlen\\(\\$chunk, '8bit'\\);",
+                "\\$written = fwrite\\(\\$dest, mb_substr\\(\\$chunk, \\$offset, \\$length - \\$offset, '8bit'\\)\\);",
                 // The event pattern's two tail cuts sit in zones the guards
                 // above them have already proven ASCII: the constructor's
                 // -2 cut runs only behind the str_ends_with '.*' check (the
@@ -1223,6 +1238,23 @@
                 // unwrap -- both pass complete). Scoped to that single
                 // method.
                 "Zef\\Test\\Support\\Tooling\\CliList::run"
+            ]
+        },
+        // The upload copy's slice-length subtraction (the 2026-11-13
+        // runner-dependent batch): mb_substr() clamps its length at the
+        // string's end, and the remaining bytes are exactly $length -
+        // $offset (the chunk's own byte length is $length), so the
+        // rewritten $length + $offset is always >= the remainder and the
+        // clamp hands fwrite the identical slice for every input the line
+        // can ever see -- verified against the engine by running the
+        // complete suite under the manually applied mutation (7536 tests
+        // pass, the short-write resume test that forces three consecutive
+        // partial writes included). The neighbouring += advance stays
+        // under its own mutator: the short-write test's infinite-loop
+        // observation kills it.
+        "Minus": {
+            "ignoreSourceCodeByRegex": [
+                "\\$written = fwrite\\(\\$dest, mb_substr\\(\\$chunk, \\$offset, \\$length - \\$offset, '8bit'\\)\\);"
             ]
         },
         "DecrementInteger": {
