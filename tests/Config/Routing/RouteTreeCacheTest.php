@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Zef\Test\Config\Routing;
 
 use DateTimeImmutable;
+use Error;
 use Override;
 use ParseError;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RadixNode;
@@ -19,6 +21,8 @@ use Zef\Framework\Config\Routing\RouteTreeCacheExport;
 use Zef\Framework\Config\Routing\RouteTreeCacheHydration;
 use Zef\Framework\Config\Routing\RouteTreeCacheNodeFields;
 use Zef\Framework\Config\Routing\RouteUrlGenerator;
+use Zef\Test\Support\Routing\RouteMetaOpaque;
+use Zef\Test\Support\Routing\RouteMetaStamp;
 
 /**
  * @internal
@@ -260,6 +264,39 @@ final class RouteTreeCacheTest extends TestCase
         self::assertSame('application/json', $routeTreeCache->load()->route('report')->produces()[0]);
     }
 
+    public function testObjectMetaRoundTripsWhenTheClassAnswersSetState(): void
+    {
+        // The grammar lets `meta` carry free-form values, and the artifact's
+        // `var_export()` format renders an object as a `::__set_state()` call
+        // -- a call the class must answer for the value to cross the cache.
+        // This class does, so the lane is supported: the loaded tree's meta
+        // answers the RECONSTRUCTED value (a new instance, never the dumped
+        // identity), nested exactly as the table declared it.
+        $routes = [
+            [
+                'path' => '/stamped',
+                'method' => ['GET'],
+                'handler' => 'Stamp@show',
+                'name' => 'stamped',
+                'meta' => [
+                    'stamp' => new RouteMetaStamp('gold'),
+                    'nested' => ['stamp' => new RouteMetaStamp('silver')],
+                ],
+            ],
+        ];
+
+        $routeTreeCache = new RouteTreeCache($this->file);
+        $routeTreeCache->dump($routes);
+
+        $meta = $routeTreeCache->load()->route('stamped')->meta();
+
+        self::assertInstanceOf(RouteMetaStamp::class, $meta['stamp']);
+        self::assertSame('gold', $meta['stamp']->tier());
+        self::assertIsArray($meta['nested']);
+        self::assertInstanceOf(RouteMetaStamp::class, $meta['nested']['stamp']);
+        self::assertSame('silver', $meta['nested']['stamp']->tier());
+    }
+
     public function testADeprecationDeclarationRoundTripsThroughTheCache(): void
     {
         // The cache carries the raw route table and recompiles it through
@@ -433,6 +470,130 @@ final class RouteTreeCacheTest extends TestCase
             );
             self::assertSame(0, $configException->getCode());
             self::assertInstanceOf(ParseError::class, $configException->getPrevious());
+        }
+    }
+
+    public function testLoadFailsClosedWhenObjectMetaCannotBeReplayed(): void
+    {
+        // Issue #768's own shape: `meta` is schema-legal free-form, the
+        // table dumps fine, and `var_export()` renders the object as a
+        // `::__set_state()` call the class never answers -- so the
+        // `require` raises an `Error` the read's `ParseError` arm never
+        // saw, and boot production crashed with an UNCAUGHT `Error`
+        // instead of the documented `ConfigException` (the error
+        // boundary's own vocabulary). The widened arm fails closed for
+        // it: the artifact's path in the message, the `Error` chained as
+        // the diagnosis.
+        $routes = [
+            [
+                'path' => '/opaque',
+                'method' => ['GET'],
+                'handler' => 'Opaque@show',
+                'name' => 'opaque',
+                'meta' => ['probe' => new RouteMetaOpaque('tenant-42')],
+            ],
+        ];
+
+        $routeTreeCache = new RouteTreeCache($this->file);
+        $routeTreeCache->dump($routes);
+
+        try {
+            $routeTreeCache->load();
+            self::fail('A route tree cache whose meta object cannot be replayed must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                \sprintf('The route tree cache "%s" is corrupted: it cannot be replayed.', $this->file),
+                $configException->getMessage(),
+            );
+            self::assertSame(0, $configException->getCode());
+
+            $previous = $configException->getPrevious();
+
+            self::assertInstanceOf(Error::class, $previous);
+            self::assertStringContainsString(
+                'RouteMetaOpaque::__set_state',
+                $previous->getMessage(),
+            );
+        }
+    }
+
+    public function testLoadFailsClosedWhenTheArtifactReferencesAnAbsentClass(): void
+    {
+        // The other unreplayable arm: the artifact was dumped in a
+        // runtime that could autoload the meta class and is loaded in one
+        // that cannot -- `require` then raises `Error: Class not found`
+        // before any `::__set_state()` call is even made. Simulated by
+        // renaming the class the dumped artifact references to one no
+        // runtime has (the artifact's own `never edit it by hand`
+        // posture).
+        $routes = [
+            [
+                'path' => '/stamped',
+                'method' => ['GET'],
+                'handler' => 'Stamp@show',
+                'name' => 'stamped',
+                'meta' => ['stamp' => new RouteMetaStamp('gold')],
+            ],
+        ];
+
+        $routeTreeCache = new RouteTreeCache($this->file);
+        $routeTreeCache->dump($routes);
+
+        $rendered = (string) file_get_contents($this->file);
+
+        file_put_contents(
+            $this->file,
+            str_replace(
+                RouteMetaStamp::class,
+                'Zef\Test\Support\Routing\AbsentRouteMetaStamp',
+                $rendered,
+            ),
+        );
+
+        try {
+            $routeTreeCache->load();
+            self::fail('A route tree cache that references an absent class must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                \sprintf('The route tree cache "%s" is corrupted: it cannot be replayed.', $this->file),
+                $configException->getMessage(),
+            );
+
+            $previous = $configException->getPrevious();
+
+            self::assertInstanceOf(Error::class, $previous);
+            self::assertStringContainsString(
+                'AbsentRouteMetaStamp',
+                $previous->getMessage(),
+            );
+        }
+    }
+
+    public function testLoadFailsClosedWhenTheArtifactThrowsAtRequire(): void
+    {
+        // The catch totals the artifact file's own code surface -- a
+        // `return` plus the `::__set_state()` calls `var_export()`
+        // rendered -- so WHATEVER the file raises is the file failing to
+        // be the cache, including a plain `Exception` a hand-edited (or
+        // hostile `__set_state()`) file can raise. No throwable escapes
+        // the fail-closed net.
+        file_put_contents($this->file, '<?php throw new RuntimeException("hand-edited");');
+
+        $routeTreeCache = new RouteTreeCache($this->file);
+
+        try {
+            $routeTreeCache->load();
+            self::fail('A route tree cache that throws at require must raise a ConfigException.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                \sprintf('The route tree cache "%s" is corrupted: it cannot be replayed.', $this->file),
+                $configException->getMessage(),
+            );
+
+            $previous = $configException->getPrevious();
+
+            self::assertInstanceOf(RuntimeException::class, $previous);
+            self::assertSame('hand-edited', $previous->getMessage());
         }
     }
 

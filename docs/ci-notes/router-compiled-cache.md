@@ -83,6 +83,39 @@ stable integration seams from the Router facade") applied to the cache.
 The engine's only other touch is `RadixNode::staticChildren()`, a pure
 read accessor for the export walk.
 
+## KDD-RC6 — the replay failure is a corruption shape, not an escape (#768)
+
+The route grammar's `meta` field is deliberately free-form
+(`RouteEntryMeta` judges only the shape — present, a map, non-empty),
+and `var_export()` renders an object value as a `::__set_state()` call
+the artifact's `require` then MAKES. A class that never answers it — or
+one the reading runtime cannot even load — turns a schema-legal table
+into an artifact that raises an `Error` at boot: a shape the read's
+original `ParseError` arm never saw, so the documented
+`ConfigException` contract (`load()` "fails closed on corruption") was
+broken by an uncaught `Error` the error boundary never rendered — the
+production-boot crash of issue #768.
+
+The fix widens the read to fail closed on ANY throwable the `require`
+raises, wrapping it as the artifact's own corruption ("it cannot be
+replayed", the original throwable chained as the previous for the
+diagnosis) while the `ParseError` arm keeps the torn-write message it
+already owned. The totality is the point: the artifact file's whole code
+surface is a `return` plus the `__set_state()` calls `var_export()`
+rendered, so whatever the file raises IS the file failing to be the
+cache — narrowing the second arm to `Error` alone would re-open the
+escape for a hostile `__set_state()` that throws a plain `Exception`.
+
+`dump()` deliberately does NOT pre-judge replayability: the dump runtime
+cannot own the load runtime's autoload state (the class-not-found arm
+is only ever visible at load), so a dump-side `__set_state()` probe
+would promise a safety it cannot deliver. The single honest net is the
+load's, and the round-trip tests pin both sides of the line: a meta
+object whose class answers `__set_state()` round-trips (reconstructed —
+a new instance, never the dumped identity — so equality answers the
+value, not the object), and one that does not (or whose class the
+reading runtime cannot find) fails closed as corruption.
+
 ## Maintenance pass: the gate-settling redistribution
 
 The first cut landed the whole cache as one 533-line `RouteTreeCache`
@@ -142,4 +175,11 @@ registry, non-array nodes, unknown/missing node fields, non-string
 prefixes, non-list children and references, empty static prefixes,
 first-character collisions, non-integer and out-of-range route
 references, missing dump directory, non-list dump input, invalid dump
-entry). `RoutingRuntimeTest` and `RouterTest` pin the two seams.
+entry, and the unreplayable shapes of #768 — an object-bearing `meta`
+whose class never answers `__set_state()`, an artifact referencing a
+class the reading runtime cannot find, and any other throwable the file
+raises at require, all failing closed as corruption with the original
+chained as the previous — beside the supported side of the same line:
+the object-meta round trip through a class that answers `__set_state()`
+(reconstructed nested, its value pinned).
+`RoutingRuntimeTest` and `RouterTest` pin the two seams.
