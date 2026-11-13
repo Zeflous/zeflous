@@ -28,13 +28,22 @@ use Zef\Framework\Http\SessionAdapterInterface;
  * never observes a half-written bag; the read and its expiry
  * judgment are the load walk ({@see SessionRecordLoad}) over the
  * record's own decoder ({@see SessionRecordDecoder}); the
- * cadenced sweep that retires the abandoned is its own fold
- * ({@see SessionSweep}); and the directory's posture (existing,
- * writable, non-symlink, owner-only, outside the public document
- * root) is the store's own fold ({@see SessionStoreDirectory}) --
- * the session bags are the users' own data spelled in the clear,
- * and the driver refuses to write them anywhere a disclosure could
- * read them.
+ * read-modify-write lane held for the whole span between one
+ * request's load and its save or destroy is the sidecar lock fold
+ * ({@see SessionRecordLock}) -- the native `files` handler's own
+ * semantics, the issue #781 finding's answer: two overlapping
+ * requests on one session (two tabs, a double-submit, an AJAX
+ * poller) serialized instead of interleaving last-write-wins, the
+ * second request's read-modify-write beginning over the first
+ * one's write -- the arming itself the exchange fold's own
+ * question ({@see SessionRecordExchange}), every verb this driver
+ * answers through it; the cadenced sweep that retires the
+ * abandoned is its own fold ({@see SessionSweep}); and the
+ * directory's posture (existing, writable, non-symlink, owner-only,
+ * outside the public document root) is the store's own fold
+ * ({@see SessionStoreDirectory}) -- the session bags are the
+ * users' own data spelled in the clear, and the driver refuses to
+ * write them anywhere a disclosure could read them.
  *
  * The refusals this lane spells are construction-time
  * {@see InvalidArgumentException}s -- the adapters lane's own
@@ -46,15 +55,7 @@ use Zef\Framework\Http\SessionAdapterInterface;
  */
 final readonly class FileSessionAdapter implements SessionAdapterInterface
 {
-    private SessionRecordFiles $sessionRecordFiles;
-
-    private SessionRecordEncoder $sessionRecordEncoder;
-
-    private SessionRecordStaging $sessionRecordStaging;
-
-    private SessionRecordLoad $sessionRecordLoad;
-
-    private SessionSweep $sessionSweep;
+    private SessionRecordExchange $sessionRecordExchange;
 
     /**
      * @param string                $directory   the store's root directory
@@ -71,58 +72,45 @@ final readonly class FileSessionAdapter implements SessionAdapterInterface
     public function __construct(
         string $directory,
         int $idleTimeout,
-        private ?Closure $clock = null,
+        ?Closure $clock = null,
     ) {
         $resolvedDirectory = SessionStoreDirectory::resolve($directory);
 
         $sessionRecordDecoder = new SessionRecordDecoder();
+        $sessionRecordFiles = new SessionRecordFiles($resolvedDirectory);
+        $sessionRecordLock = new SessionRecordLock($sessionRecordFiles);
 
-        $this->sessionRecordFiles = new SessionRecordFiles($resolvedDirectory);
-        $this->sessionRecordEncoder = new SessionRecordEncoder();
-        $this->sessionRecordStaging = new SessionRecordStaging();
-        $this->sessionRecordLoad = new SessionRecordLoad(
-            $this->sessionRecordFiles,
-            $sessionRecordDecoder,
-            $idleTimeout,
-        );
-        $this->sessionSweep = new SessionSweep(
-            new SessionRecordScan($resolvedDirectory),
-            $this->sessionRecordFiles,
-            $sessionRecordDecoder,
-            $idleTimeout,
+        $this->sessionRecordExchange = new SessionRecordExchange(
+            $sessionRecordLock,
+            new SessionRecordLoad($sessionRecordFiles, $sessionRecordDecoder, $idleTimeout),
+            new SessionRecordStaging(),
+            new SessionRecordEncoder(),
+            $sessionRecordFiles,
+            new SessionSweep(
+                new SessionRecordScan($resolvedDirectory),
+                $sessionRecordFiles,
+                $sessionRecordDecoder,
+                $idleTimeout,
+            ),
+            $clock,
         );
     }
 
     #[Override]
     public function load(string $id): ?array
     {
-        return $this->sessionRecordLoad->load($id, $this->now());
+        return $this->sessionRecordExchange->load($id);
     }
 
     #[Override]
     public function save(string $id, array $data): void
     {
-        $now = $this->now();
-
-        $this->sessionRecordStaging->write(
-            $this->sessionRecordFiles->recordPath($id),
-            $this->sessionRecordEncoder->encode($data, $now),
-        );
-
-        $this->sessionSweep->rideSave($now);
+        $this->sessionRecordExchange->save($id, $data);
     }
 
     #[Override]
     public function destroy(string $id): void
     {
-        $this->sessionRecordFiles->removeRecord($id);
-    }
-
-    /**
-     * The current reading of the injectable clock.
-     */
-    private function now(): int
-    {
-        return ($this->clock ?? time(...))();
+        $this->sessionRecordExchange->destroy($id);
     }
 }

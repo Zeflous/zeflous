@@ -8,7 +8,8 @@ use InvalidArgumentException;
 
 /**
  * The session store's file layout fold: which file one
- * identifier's record is, and the removal that retires one. Every
+ * identifier's record is, the read-modify-write lane's own
+ * sidecar companion, and the removal that retires one. Every
  * record is one JSON file named by the session's own identifier
  * plus the extension -- the identifier's alphabet is base64url
  * ({@see \Zef\Framework\Http\SessionId::GRAMMAR}), so the name the
@@ -23,6 +24,9 @@ final readonly class SessionRecordFiles
 {
     /** The record file's extension: the JSON spelling the codec owns. */
     public const string EXTENSION = '.json';
+
+    /** The read-modify-write lane sidecar's extension: the lock spelling. */
+    public const string LOCK_EXTENSION = '.lock';
 
     /**
      * @param string $directory the store root the directory fold
@@ -52,6 +56,22 @@ final readonly class SessionRecordFiles
     public function recordIdOf(string $filename): string
     {
         return mb_substr($filename, 0, -mb_strlen(self::EXTENSION));
+    }
+
+    /**
+     * One identifier's read-modify-write lane sidecar: a leading-dot
+     * `.lock` companion to the record, never the record itself -- the
+     * record's own write is the one-rename discipline, and a `flock`
+     * held on the record's inode would be released by the very rename
+     * that finalises the write, so the lane rides the companion
+     * instead ({@see SessionRecordLock}). The leading dot is the scan's
+     * own skip: the sidecar is invisible to the store's walks exactly
+     * like the staging file a crash strands, and the companion carries
+     * no bytes at all, forever.
+     */
+    public function lockPath(string $id): string
+    {
+        return $this->directory . \DIRECTORY_SEPARATOR . '.' . $id . self::LOCK_EXTENSION;
     }
 
     /**

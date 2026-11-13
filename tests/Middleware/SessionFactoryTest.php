@@ -146,16 +146,10 @@ final class SessionFactoryTest extends TestCase
                 'the bag the first exchange wrote is the bag the second loads',
             );
         } finally {
-            $entries = glob($store . '/*');
-            foreach (\is_array($entries) ? $entries : [] as $entry) {
-                if (!is_file($entry)) {
-                    continue;
-                }
-
-                unlink($entry);
-            }
-
-            rmdir($store);
+            // The store's own removal walk, dot-files included: the
+            // read-modify-write lane's sidecar companion is a leading-dot
+            // artefact the plain glob walk never sees.
+            $this->removeTree($store);
         }
     }
 

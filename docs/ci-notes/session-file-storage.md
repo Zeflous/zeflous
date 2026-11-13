@@ -236,3 +236,113 @@ carry the exact essay of their own precedent twins
 with no ASCII `k` in its words, the write-length guard over the
 ASCII-by-construction record, and the ASCII suffix cut whose last five
 characters and last five bytes are the same five bytes.
+
+## KDD-SF12 — the read-modify-write lane: the sidecar companion, the blocking posture, the one-lane scope
+
+The issue #781 finding: the port's load and save are two verbs with an
+entire request between them, and nothing between them held the session
+file -- `load()` read without a lock, `save()` overwrote the whole bag
+through the staging rename, and two overlapping requests on one session
+(two tabs, a double-submit, an AJAX poller) interleaved their
+read-modify-writes last-write-wins, one request's writes silently lost
+-- the classic lost update, exactly what the native `files` handler's
+own per-request `flock` exists to prevent. The lane lands as its own
+fold (`SessionRecordLock`), the native semantics replayed over this
+driver's own grammar, and three decisions carry it:
+
+THE SIDECAR, not the record file itself. The record's write is the
+one-rename discipline (staged under a dot-name, renamed into place),
+and a `flock` held on the record's own inode would be released by the
+very rename that finalises the write -- the next opener addresses a
+NEW inode no one holds -- so the record file cannot carry the lane.
+The lane rides a dedicated `.<id>.lock` companion
+(`SessionRecordFiles::lockPath()`), a dot-file the store's own walks
+never see (the scan's own skip, the staging stranding's own convention),
+carrying no bytes at all forever: an empty file the directory's own
+owner-only posture already guards, stranded-forever material exactly
+like the staging dot-files a crash strands -- an operator may sweep
+dot-files while no writer runs. The suite's own factories learned the
+same lesson (`SessionFactoryTest`'s teardown now walks the store with
+the dot-aware removal, the plain glob never seeing the companion).
+
+THE BLOCKING posture: `LOCK_EX` waits, exactly as the native handler's
+own lock does and exactly as this repository's own `flock` lanes spell
+it (`JsonLineWriter`, `ReplaySnapshotWriter`) -- a sibling request on
+the same session waits for the lane, which is the entire point: the
+second request's read-modify-write begins over the first one's write.
+The suite pins the blocking against the engine's own machinery, both
+halves: a non-blocking sibling probe refused while the lane is held
+and answered after the release (the in-process observable every span
+pin reads), and a real cross-process child (the engine's own binary,
+the array-command form) that blocks on the marker until the parent's
+adapter releases -- plus the issue's own repro run whole: two real
+children, two full driver round trips over one session, BOTH writes
+kept, where the lane-less interleave silently lost one.
+
+THE ONE LANE per driver instance: the span between a load and its
+save is the request, and one instance serves one read-modify-write at
+a time -- the native handler's own posture. The same identifier's
+second acquire is the lane continuing (the load that began the
+request, the save that ends it); a different identifier's acquire
+while a lane is held is the interleave the driver refuses, naming the
+lane it holds -- the multi-id map shape is the in-memory driver's own
+(`SessionEntries`), not this one's. The port's sequential grammar is
+untouched (the next different identifier after a settled lane): the
+HTTP session middleware's own flow -- one session per request, the
+settlement's save or destroy ending the lane the resolution's load
+began -- never meets the refusal. The lane never outlives the process
+that holds it: the release rides the save's and destroy's `finally`
+(a refused write never strands it), a refused load releases it on the
+way out (a poisoned store stays loud on every later load), and a
+process that dies mid-span releases it by the engine's own handle
+teardown -- the same guarantee every `flock` carries. The sweep is
+deliberately unchanged: its reads are already whole-file under the
+rename discipline, its retirement idiom already honest under the
+multi-worker race, and the native handler's own GC races its sessions
+too.
+
+## KDD-SF13 — the lane's arming became its own fold: the difficulty ceiling's answer, replayed
+
+The settle round reddened the archaeology gate's difficulty ceiling
+twice (the class-level Halstead: `SessionRecordLock` at 26.67,
+`FileSessionAdapter` at 26.82, against the pinned 20), and the
+fold-split discipline answered exactly as it always has
+(KDD-SF9's own lineage). THE EXCHANGE FOLD: the lane-armed verbs --
+the load that takes the lane and answers the walk under it (the
+refused walk releasing it on the way out), the save that ends the
+lane the load began with the release riding the finally, the destroy
+that retires the record and releases the lane together -- moved into
+their own unit (`SessionRecordExchange`), one question with one
+vocabulary, and the adapter went back to being the port's wiring
+alone (the posture resolution, the fold construction, the three
+delegations): adapter 8.86, exchange 15.08, both under the ceiling.
+THE STATE'S SPELLING: the lane's held state went from one
+array-shaped property to two plain properties (`$heldId`,
+`$heldHandle`) -- the array literal and the index accesses carried
+operator kinds the class's aggregate vocabulary did not need, and
+the two-property spelling also gave the refusal arm its own named
+folds (`refuseForeignLane`, `lockedSidecarHandle`). THE SPELLING
+RATHER THAN THE LEDGER, twice: the `!flock(...)` refusal arm
+re-spelled `flock(...) === false` -- the one `!` the class carried,
+dropping the operator kind from the aggregate's vocabulary the same
+way the depth walk's running-max comparison re-spelled `max()`
+(KDD-SF11's own third lesson: when the equivalence is the
+arithmetic's own, change the spelling, never the ledger) -- taking
+the lane fold from 20.91 to 18.82; and the adapter's write-only
+promoted clock property (psalm's own `UnusedProperty` finding: the
+adapter only ever passed the seam through) de-promoted into the
+plain constructor parameter it already was, the exchange owning the
+injection now.
+
+The fold's own failure arms joined the suite's doubles vocabulary
+(`fopen`/`flock` in the session namespace's function doubles, the
+`$would_block` out-parameter spelled by reference exactly as the
+engine's own signature carries it), so the unopenable companion and
+the untakeable lock are pinned like every other engine-refusal arm
+the lane's siblings always were. The child fixtures the
+cross-process pins ride are the same array-command discipline the
+OTLP mock server carries (`SessionLaneChild` over the real driver
+for the lost-update repro, `SessionLaneMarkerChild` over the pure
+sidecar protocol for the blocking causality), and the factory test's
+teardown learned the dot-aware removal walk the companion rides
+(the plain glob never sees a leading-dot artefact).

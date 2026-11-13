@@ -15,8 +15,10 @@ use Zef\Framework\Adapters\Session\FileSessionAdapter;
 use Zef\Framework\Adapters\Session\SessionBagDepth;
 use Zef\Framework\Adapters\Session\SessionRecordDecoder;
 use Zef\Framework\Adapters\Session\SessionRecordEncoder;
+use Zef\Framework\Adapters\Session\SessionRecordExchange;
 use Zef\Framework\Adapters\Session\SessionRecordFiles;
 use Zef\Framework\Adapters\Session\SessionRecordLoad;
+use Zef\Framework\Adapters\Session\SessionRecordLock;
 use Zef\Framework\Adapters\Session\SessionRecordScan;
 use Zef\Framework\Adapters\Session\SessionRecordShape;
 use Zef\Framework\Adapters\Session\SessionRecordStaging;
@@ -34,8 +36,14 @@ use Zef\Test\Support\Adapters\Session\SessionFileDoubleState;
  * the concurrent-retirement window, the cadenced sweep that
  * retires the abandoned, the fail-closed decode of a corrupt or
  * hand-edited record, the depth ceiling honoured at the write so
- * every written record reads back, and the engine's own failure
- * arms (the refused write, the unsecurable record, the
+ * every written record reads back, the read-modify-write lane the
+ * issue #781 finding demanded (the load holding the sibling-refused
+ * sidecar lane through the save that releases it, the refused walk
+ * releasing it on the way out, the one-lane-per-instance posture,
+ * and the real cross-process serialization -- two overlapping
+ * requests on one session keeping BOTH their writes where the
+ * last-write-wins interleave silently lost one), and the engine's
+ * own failure arms (the refused write, the unsecurable record, the
  * unfinalisable record, the unremovable record, the unscannable
  * root, the unreadable record) exercised through the namespace's
  * function doubles, armed per test and reset in the tear-down.
@@ -46,12 +54,14 @@ use Zef\Test\Support\Adapters\Session\SessionFileDoubleState;
 #[CoversClass(SessionRecordDecoder::class)]
 #[CoversClass(SessionBagDepth::class)]
 #[CoversClass(SessionRecordEncoder::class)]
-#[CoversClass(SessionRecordValues::class)]
 #[CoversClass(SessionRecordFiles::class)]
 #[CoversClass(SessionRecordLoad::class)]
+#[CoversClass(SessionRecordExchange::class)]
+#[CoversClass(SessionRecordLock::class)]
 #[CoversClass(SessionRecordScan::class)]
 #[CoversClass(SessionRecordShape::class)]
 #[CoversClass(SessionRecordStaging::class)]
+#[CoversClass(SessionRecordValues::class)]
 #[CoversClass(SessionStoreDirectory::class)]
 #[CoversClass(SessionSweep::class)]
 final class FileSessionAdapterTest extends TestCase
@@ -598,14 +608,15 @@ final class FileSessionAdapterTest extends TestCase
             '{"data":{"user":5},"written_at":500}',
         );
 
-        $adapter = $this->adapter(30, 1000);
-
+        // One adapter instance per read-modify-write lane: the miss's
+        // load and the later save are two lanes over one store, the
+        // one-lane-per-instance posture the driver's lock fold owns.
         self::assertNull(
-            $adapter->load('aaa'),
+            $this->adapter(30, 1000)->load('aaa'),
             'a directory named like a record is the miss the load answers',
         );
 
-        $adapter->save('clientOne', ['user' => 7]);
+        $this->adapter(30, 1000)->save('clientOne', ['user' => 7]);
 
         self::assertFileDoesNotExist(
             $this->directory . '/zzz.json',
@@ -674,6 +685,204 @@ final class FileSessionAdapterTest extends TestCase
         }
     }
 
+    public function testALoadHoldsTheLaneUntilTheSaveReleasesIt(): void
+    {
+        // The issue #781 core span, against the engine's own lock
+        // machinery: the load TAKES the sibling-refused lane and the
+        // save RELEASES it -- the whole read-modify-write the native
+        // `files` handler holds per request, observed through a
+        // non-blocking probe the sibling would answer.
+        $adapter = $this->adapter(1800, 1000);
+
+        $adapter->load('clientOne');
+
+        self::assertFalse(
+            $this->probeLane('clientOne'),
+            'the lane is held from the load -- a sibling request is refused it',
+        );
+
+        $adapter->save('clientOne', ['user' => 7]);
+
+        self::assertTrue(
+            $this->probeLane('clientOne'),
+            'the save released the lane -- the sibling request answers it now',
+        );
+    }
+
+    public function testALoadMissHoldsItsLaneTooUntilTheSaveReleasesIt(): void
+    {
+        // A fresh session's read-modify-write rides the same lane:
+        // the miss the load answered still took it, and the first
+        // save -- the settlement's own write for a session that began
+        // this request -- releases it.
+        $adapter = $this->adapter(1800, 1000);
+
+        self::assertNull($adapter->load('freshClient'));
+        self::assertFalse($this->probeLane('freshClient'), 'the miss took the lane');
+
+        $adapter->save('freshClient', ['user' => 7]);
+
+        self::assertTrue($this->probeLane('freshClient'), 'the first save released it');
+    }
+
+    public function testADestroyEndsTheLaneTheLoadBegan(): void
+    {
+        $adapter = $this->adapter(1800, 1000);
+        $adapter->save('clientOne', ['user' => 7]);
+        $adapter->load('clientOne');
+
+        self::assertFalse($this->probeLane('clientOne'), 'the destroy-load took the lane');
+
+        $adapter->destroy('clientOne');
+
+        self::assertTrue(
+            $this->probeLane('clientOne'),
+            'the destroy released the lane the load began',
+        );
+    }
+
+    public function testARefusedLoadReleasesTheLaneOnTheWayOut(): void
+    {
+        // A poisoned store stays loud on every later load, never a
+        // lane the process silently cannot take again: the refused
+        // walk releases the lane on its way out.
+        file_put_contents(
+            $this->directory . '/clientOne.json',
+            'not json at all',
+        );
+
+        $adapter = $this->adapter(1800, 1000);
+
+        try {
+            $adapter->load('clientOne');
+            self::fail('The corrupt record was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertStringContainsString('clientOne', $invalidArgumentException->getMessage());
+        }
+
+        self::assertTrue(
+            $this->probeLane('clientOne'),
+            'the refused load released the lane on the way out',
+        );
+    }
+
+    public function testARefusedSaveReleasesTheLaneOnTheWayOut(): void
+    {
+        // The release rides the save's finally: a write the store
+        // refuses never strands the lane in this process -- the
+        // sibling request waiting on the lane is answered either way.
+        $adapter = $this->adapter(1800, 1000);
+        $adapter->load('clientOne');
+
+        SessionFileDoubleState::$filePutContentsAnswer = false;
+
+        try {
+            $adapter->save('clientOne', ['user' => 7]);
+            self::fail('The refused write was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The session file store cannot write the record 'clientOne.json'.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+
+        self::assertTrue(
+            $this->probeLane('clientOne'),
+            'the refused save released the lane on the way out',
+        );
+    }
+
+    public function testAMultiLaneInterleaveOverOneInstanceIsRefused(): void
+    {
+        // One instance, one read-modify-write at a time -- the native
+        // handler's own posture. The port's sequential grammar is
+        // untouched (the next different identifier's load or save
+        // after a settled lane), the INTERLEAVE is what the driver
+        // refuses, naming the lane it holds.
+        $adapter = $this->adapter(1800, 1000);
+        $adapter->load('clientOne');
+
+        try {
+            $adapter->save('clientTwo', ['user' => 7]);
+            self::fail('The interleave over one instance was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The session file store holds one read-modify-write lane at a time'
+                . " (held: 'clientOne', asked: 'clientTwo').",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testASiblingRequestBlocksOnTheLaneUntilTheRequestsSave(): void
+    {
+        // The cross-process half of the lane's reality: the marker
+        // child takes the same sidecar lock the driver takes, blocks
+        // while the adapter holds the lane, and marks only after the
+        // save releases it -- the causality the assertion reads both
+        // sides of (the marker is absent before the release because
+        // the child cannot hold the lane; present after because it
+        // then did).
+        $marker = $this->directory . '-marker';
+        $adapter = $this->adapter(1800, 1000);
+        $adapter->load('clientOne');
+
+        $child = $this->spawnChild(__DIR__ . '/../../Support/Adapters/Session/SessionLaneMarkerChild.php', [
+            $this->directory . '/.clientOne.lock',
+            $marker,
+        ]);
+
+        usleep(300_000);
+
+        self::assertFileDoesNotExist(
+            $marker,
+            'the sibling is still blocked on the lane the request holds',
+        );
+
+        $adapter->save('clientOne', ['user' => 7]);
+
+        $this->reapChild($child);
+        self::assertSame(
+            'acquired',
+            file_get_contents($marker),
+            'the sibling acquired the lane only after the request released it',
+        );
+    }
+
+    public function testTwoOverlappingRequestsOnOneSessionKeepBothTheirWrites(): void
+    {
+        // The issue #781 repro itself, over the real driver in the
+        // engine's own children: two sibling requests on one session
+        // (two tabs, a double-submit, an AJAX poller) each read under
+        // the lane, merge their own write into whatever the sibling
+        // already wrote, and save under the lane -- whichever child
+        // runs second blocks on the first child's lane and reads the
+        // first child's write, so BOTH writes survive, where the
+        // last-write-wins interleave silently lost one.
+        $first = $this->spawnChild(__DIR__ . '/../../Support/Adapters/Session/SessionLaneChild.php', [
+            $this->directory,
+            'clientOne',
+            'firstTab',
+        ]);
+        $second = $this->spawnChild(__DIR__ . '/../../Support/Adapters/Session/SessionLaneChild.php', [
+            $this->directory,
+            'clientOne',
+            'secondTab',
+        ]);
+
+        $this->reapChild($first);
+        $this->reapChild($second);
+
+        $bag = $this->adapter(1800, 1000)->load('clientOne');
+
+        self::assertEqualsCanonicalizing(
+            ['firstTab' => true, 'secondTab' => true],
+            $bag,
+            'both overlapping requests kept their writes -- the lane serialized the read-modify-writes'
+            . ' (whichever child won the lane first, its key landed first)',
+        );
+    }
+
     /**
      * Builds the adapter over the test's own directory, with the
      * frozen clock the expiry and cadence tests read.
@@ -706,6 +915,73 @@ final class FileSessionAdapterTest extends TestCase
         }
 
         return $bag;
+    }
+
+    /**
+     * One sibling's non-blocking probe of the identifier's lane: the
+     * engine's own lock machinery answering whether the sidecar is
+     * held -- the observable the lane's whole span family reads.
+     */
+    private function probeLane(string $id): bool
+    {
+        $handle = fopen($this->directory . '/.' . $id . '.lock', 'cb');
+
+        if ($handle === false) {
+            self::fail('The lane sidecar could not be opened for the probe.');
+        }
+
+        $taken = !flock($handle, \LOCK_EX | \LOCK_NB);
+        flock($handle, \LOCK_UN);
+        fclose($handle);
+
+        return !$taken;
+    }
+
+    /**
+     * Spawns one engine child over the array-command form: the
+     * command and its arguments as the process's own argv, no shell
+     * wrapper between the parent and the binary -- the same
+     * discipline the OTLP mock server and the unpositionable
+     * stream's own children carry.
+     *
+     * @param list<string> $arguments the child script's own argv, the
+     *                                script path first
+     *
+     * @return resource the spawned process
+     */
+    private function spawnChild(string $script, array $arguments)
+    {
+        $command = array_merge([\PHP_BINARY, $script], $arguments);
+        $process = proc_open($command, [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ], $pipes);
+
+        if ($process === false) {
+            self::fail('The lane child could not be spawned.');
+        }
+
+        fclose($pipes[0]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+
+        return $process;
+    }
+
+    /**
+     * Reaps one spawned child: the wait that proves it exited, with
+     * the exit code the sibling's own verdict rides.
+     *
+     * @param resource $process the spawned process
+     */
+    private function reapChild($process): int
+    {
+        $exit = proc_close($process);
+
+        self::assertSame(0, $exit, 'the lane child completed its own round trip');
+
+        return $exit;
     }
 
     private function removeTree(string $directory): void
