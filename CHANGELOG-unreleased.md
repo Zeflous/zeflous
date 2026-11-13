@@ -185,6 +185,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(telemetry): the malformed UTF-8 byte answers two defences before the retry lane ever meets it (issue #780) [#822](https://github.com/Zeflous/zeflous/pull/822) ([mbetixz](https://github.com/mbetixz))
 - fix(session): the file driver holds the read-modify-write lane over the sidecar companion (issue #781) [#823](https://github.com/Zeflous/zeflous/pull/823) ([mbetixz](https://github.com/mbetixz))
 - fix: give the changelog lane's seven runner-dependent mutants their deterministic observation [#824](https://github.com/Zeflous/zeflous/pull/824) ([mbetixz](https://github.com/mbetixz))
+- fix(router): the replay failure is the cache's own corruption shape (issue #768) [#826](https://github.com/Zeflous/zeflous/pull/826) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 

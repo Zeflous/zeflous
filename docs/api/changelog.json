@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-13T05:05:53Z",
+  "as_of": "2026-11-13T17:38:07Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 325,
+  "unreleased_count": 326,
   "versions": [
     {
       "version": "Unreleased",
@@ -7020,6 +7020,27 @@
                 "sha": "8513337b278313e3eeb1d02085c1ea10c40bb0e4",
                 "short_sha": "8513337",
                 "subject": "docs(roadmap): the pin rides the slice's settle commits (rule 13, the #583 ladder)"
+              }
+            ]
+          },
+          {
+            "pr": 826,
+            "title": "fix(router): the replay failure is the cache's own corruption shape (issue #768)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-13T17:38:07Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/826",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "af4c69be4337a1ebd435c60c47bf9db12ebd0bbd",
+                "short_sha": "af4c69b",
+                "subject": "fix(router): the replay failure is the cache's own corruption shape (issue #768)"
+              },
+              {
+                "sha": "b3f7ed6b259fd91d11e8835513d8af4f25b8cc4e",
+                "short_sha": "b3f7ed6",
+                "subject": "docs(roadmap): the replay-failure slice recorded and the pin refreshed (#826 rides section 10's row, the compiled route tree cache's own family lane; the status meter's pin points at the substantive commit af4c69be)"
               }
             ]
           }
@@ -21983,6 +22004,27 @@
               "sha": "8513337b278313e3eeb1d02085c1ea10c40bb0e4",
               "short_sha": "8513337",
               "subject": "docs(roadmap): the pin rides the slice's settle commits (rule 13, the #583 ladder)"
+            }
+          ]
+        },
+        {
+          "pr": 826,
+          "title": "fix(router): the replay failure is the cache's own corruption shape (issue #768)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-13T17:38:07Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/826",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "af4c69be4337a1ebd435c60c47bf9db12ebd0bbd",
+              "short_sha": "af4c69b",
+              "subject": "fix(router): the replay failure is the cache's own corruption shape (issue #768)"
+            },
+            {
+              "sha": "b3f7ed6b259fd91d11e8835513d8af4f25b8cc4e",
+              "short_sha": "b3f7ed6",
+              "subject": "docs(roadmap): the replay-failure slice recorded and the pin refreshed (#826 rides section 10's row, the compiled route tree cache's own family lane; the status meter's pin points at the substantive commit af4c69be)"
             }
           ]
         }
