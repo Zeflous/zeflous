@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-12T10:58:50Z",
+  "as_of": "2026-11-13T05:05:53Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 322,
+  "unreleased_count": 325,
   "versions": [
     {
       "version": "Unreleased",
@@ -6922,6 +6922,104 @@
                 "sha": "c99336c11d0ae6b612a335e3f9de0464524e631c",
                 "short_sha": "c99336c",
                 "subject": "docs(roadmap): the composite snapshot key split's slice recorded and the pin refreshed (#819 rides section 2's row; the status meter's pin points at the substantive commit 898607b0)"
+              }
+            ]
+          },
+          {
+            "pr": 822,
+            "title": "fix(telemetry): the malformed UTF-8 byte answers two defences before the retry lane ever meets it (issue #780)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-12T18:07:23Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/822",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b2c8681076343ed1452e7279220cab7dad8b8d92",
+                "short_sha": "b2c8681",
+                "subject": "fix(telemetry): the malformed UTF-8 byte answers two defences before the retry lane ever meets it (issue #780)"
+              },
+              {
+                "sha": "92a95346f4c970062cf4532a7cf40cc90dcaac58",
+                "short_sha": "92a9534",
+                "subject": "docs(roadmap): the malformed-byte slice's ride is recorded and the pin refreshed (#822 rides section 2's row; the status meter's pin points at the substantive commit b2c86810)"
+              }
+            ]
+          },
+          {
+            "pr": 823,
+            "title": "fix(session): the file driver holds the read-modify-write lane over the sidecar companion (issue #781)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-13T00:08:16Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/823",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a6eb2a7607b833f32e71b2f9a35e685a3adc4f25",
+                "short_sha": "a6eb2a7",
+                "subject": "fix(session): the file driver holds the read-modify-write lane over the sidecar companion (issue #781)"
+              },
+              {
+                "sha": "ff0bc6cbad52f2dbcd41e8979fe959d3a76a8dfb",
+                "short_sha": "ff0bc6c",
+                "subject": "docs(roadmap): the read-modify-write lane's slice recorded and the pin refreshed (#823 rides section 12's row, the session driver's own family lane; the status meter's pin points at the substantive commit a6eb2a76)"
+              },
+              {
+                "sha": "69b02dc90fea87118b1dc4f5d2448cd9d4799a72",
+                "short_sha": "69b02dc",
+                "subject": "settle(session): the exchange joins the covers census and the row's date joins the pointer's tie-break"
+              },
+              {
+                "sha": "23a8a4ac021f3a0bd44e9740145b98630b87a5d5",
+                "short_sha": "23a8a4a",
+                "subject": "docs(roadmap): the pin rides the slice's settle commit (the covers-census fix the CI round demanded)"
+              }
+            ]
+          },
+          {
+            "pr": 824,
+            "title": "fix: give the changelog lane's seven runner-dependent mutants their deterministic observation",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-13T05:05:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/824",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "03ef24049298971e18c4c7ac50c053dcea79e060",
+                "short_sha": "03ef240",
+                "subject": "fix: give the changelog lane's seven runner-dependent mutants their deterministic observation"
+              },
+              {
+                "sha": "915e669419528b014efb7059c172a4da0098440b",
+                "short_sha": "915e669",
+                "subject": "docs(roadmap): the runner-dependent observation batch's ride is recorded and the pin refreshed"
+              },
+              {
+                "sha": "4e73358b93b2ced694c2b2f605cb3785f71262db",
+                "short_sha": "4e73358",
+                "subject": "docs(roadmap): the history header's pin rides up to its own row"
+              },
+              {
+                "sha": "81a125bf4472d4eaa364feb79bb75b15afca2dd1",
+                "short_sha": "81a125b",
+                "subject": "merge: main joins the observation slice (the #823 ride lands mid-flight)"
+              },
+              {
+                "sha": "1f1583771af1519b416b43cf6232d8bd3722f09d",
+                "short_sha": "1f15837",
+                "subject": "settle(sonar): the order fold answers the Quality Gate without a comparator"
+              },
+              {
+                "sha": "fcfb0875887cdc99df113bd09cfae1522c5b6d89",
+                "short_sha": "fcfb087",
+                "subject": "settle(infection): the copy loop's five noise-painted mutants get their own observations"
+              },
+              {
+                "sha": "8513337b278313e3eeb1d02085c1ea10c40bb0e4",
+                "short_sha": "8513337",
+                "subject": "docs(roadmap): the pin rides the slice's settle commits (rule 13, the #583 ladder)"
               }
             ]
           }
@@ -21787,6 +21885,104 @@
               "sha": "c99336c11d0ae6b612a335e3f9de0464524e631c",
               "short_sha": "c99336c",
               "subject": "docs(roadmap): the composite snapshot key split's slice recorded and the pin refreshed (#819 rides section 2's row; the status meter's pin points at the substantive commit 898607b0)"
+            }
+          ]
+        },
+        {
+          "pr": 822,
+          "title": "fix(telemetry): the malformed UTF-8 byte answers two defences before the retry lane ever meets it (issue #780)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-12T18:07:23Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/822",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b2c8681076343ed1452e7279220cab7dad8b8d92",
+              "short_sha": "b2c8681",
+              "subject": "fix(telemetry): the malformed UTF-8 byte answers two defences before the retry lane ever meets it (issue #780)"
+            },
+            {
+              "sha": "92a95346f4c970062cf4532a7cf40cc90dcaac58",
+              "short_sha": "92a9534",
+              "subject": "docs(roadmap): the malformed-byte slice's ride is recorded and the pin refreshed (#822 rides section 2's row; the status meter's pin points at the substantive commit b2c86810)"
+            }
+          ]
+        },
+        {
+          "pr": 823,
+          "title": "fix(session): the file driver holds the read-modify-write lane over the sidecar companion (issue #781)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-13T00:08:16Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/823",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a6eb2a7607b833f32e71b2f9a35e685a3adc4f25",
+              "short_sha": "a6eb2a7",
+              "subject": "fix(session): the file driver holds the read-modify-write lane over the sidecar companion (issue #781)"
+            },
+            {
+              "sha": "ff0bc6cbad52f2dbcd41e8979fe959d3a76a8dfb",
+              "short_sha": "ff0bc6c",
+              "subject": "docs(roadmap): the read-modify-write lane's slice recorded and the pin refreshed (#823 rides section 12's row, the session driver's own family lane; the status meter's pin points at the substantive commit a6eb2a76)"
+            },
+            {
+              "sha": "69b02dc90fea87118b1dc4f5d2448cd9d4799a72",
+              "short_sha": "69b02dc",
+              "subject": "settle(session): the exchange joins the covers census and the row's date joins the pointer's tie-break"
+            },
+            {
+              "sha": "23a8a4ac021f3a0bd44e9740145b98630b87a5d5",
+              "short_sha": "23a8a4a",
+              "subject": "docs(roadmap): the pin rides the slice's settle commit (the covers-census fix the CI round demanded)"
+            }
+          ]
+        },
+        {
+          "pr": 824,
+          "title": "fix: give the changelog lane's seven runner-dependent mutants their deterministic observation",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-13T05:05:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/824",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "03ef24049298971e18c4c7ac50c053dcea79e060",
+              "short_sha": "03ef240",
+              "subject": "fix: give the changelog lane's seven runner-dependent mutants their deterministic observation"
+            },
+            {
+              "sha": "915e669419528b014efb7059c172a4da0098440b",
+              "short_sha": "915e669",
+              "subject": "docs(roadmap): the runner-dependent observation batch's ride is recorded and the pin refreshed"
+            },
+            {
+              "sha": "4e73358b93b2ced694c2b2f605cb3785f71262db",
+              "short_sha": "4e73358",
+              "subject": "docs(roadmap): the history header's pin rides up to its own row"
+            },
+            {
+              "sha": "81a125bf4472d4eaa364feb79bb75b15afca2dd1",
+              "short_sha": "81a125b",
+              "subject": "merge: main joins the observation slice (the #823 ride lands mid-flight)"
+            },
+            {
+              "sha": "1f1583771af1519b416b43cf6232d8bd3722f09d",
+              "short_sha": "1f15837",
+              "subject": "settle(sonar): the order fold answers the Quality Gate without a comparator"
+            },
+            {
+              "sha": "fcfb0875887cdc99df113bd09cfae1522c5b6d89",
+              "short_sha": "fcfb087",
+              "subject": "settle(infection): the copy loop's five noise-painted mutants get their own observations"
+            },
+            {
+              "sha": "8513337b278313e3eeb1d02085c1ea10c40bb0e4",
+              "short_sha": "8513337",
+              "subject": "docs(roadmap): the pin rides the slice's settle commits (rule 13, the #583 ladder)"
             }
           ]
         }
