@@ -89,9 +89,7 @@ final readonly class DirectoryLoader implements ConfigLoaderInterface
         $entries = [];
 
         foreach (new FilesystemIterator($path, FilesystemIterator::SKIP_DOTS) as $file) {
-            if (!$file instanceof SplFileInfo) {
-                continue;
-            }
+            \assert($file instanceof SplFileInfo, 'the iterator answers its children as SplFileInfo');
 
             $entries[] = $file;
         }

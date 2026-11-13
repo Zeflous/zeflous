@@ -21,7 +21,10 @@ use SplFileInfo;
  *
  * The fold is pure over the injected list (never touching the
  * filesystem itself) so its own contract is testable without a host:
- * the sorted answer is the only behaviour it owns.
+ * the sorted answer is the only behaviour it owns. The sort is a plain
+ * byte-wise string sort over the filenames -- the entries of one
+ * directory never share a name, so keying by name loses nothing, and
+ * the answer is the same on every host and every locale.
  *
  * @internal
  */
@@ -36,17 +39,14 @@ final class SortedDirectoryEntries
      */
     public static function inNameOrder(array $entries): array
     {
-        usort($entries, self::compareNames(...));
+        $byName = [];
 
-        return $entries;
-    }
+        foreach ($entries as $entry) {
+            $byName[$entry->getFilename()] = $entry;
+        }
 
-    /**
-     * The fold's own ordering: a plain byte-wise name comparison, so the
-     * answer is the same on every host and every locale.
-     */
-    private static function compareNames(SplFileInfo $first, SplFileInfo $second): int
-    {
-        return strcmp($first->getFilename(), $second->getFilename());
+        ksort($byName, \SORT_STRING);
+
+        return array_values($byName);
     }
 }
