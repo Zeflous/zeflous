@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-14T12:57:36Z",
+  "as_of": "2026-11-14T15:57:06Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 329,
+  "unreleased_count": 331,
   "versions": [
     {
       "version": "Unreleased",
@@ -7169,6 +7169,103 @@
                 "sha": "657e23581c626dfdef02680c652494d3894ea293",
                 "short_sha": "657e235",
                 "subject": "docs(roadmap): the history's meter rides the slice's recorded row"
+              }
+            ]
+          },
+          {
+            "pr": 836,
+            "title": "fix(console): the directory verb joins the collision vocabulary (issue #772)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-14T14:30:04Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/836",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "fec39333fde94640ed92f721096c4587970cf6a9",
+                "short_sha": "fec3933",
+                "subject": "fix(console): the directory verb joins the collision vocabulary (issue #772)"
+              },
+              {
+                "sha": "d90c2bcf2393cfd50e569ba6bc9e36a34ee1afc5",
+                "short_sha": "d90c2bc",
+                "subject": "test(console): the seventeenth verb pinned everywhere the vocabulary reads"
+              },
+              {
+                "sha": "75cec898638531a515cdb50330b38585df229661",
+                "short_sha": "75cec89",
+                "subject": "docs(console): the missed maintainer step recorded in KDD-CR3 (issue #772)"
+              },
+              {
+                "sha": "cb00a5ad44ba6aee12080bc8ea802a3049629740",
+                "short_sha": "cb00a5a",
+                "subject": "chore: merge main (the #833 landing) into fix/issue-772-list-verb-vocabulary"
+              },
+              {
+                "sha": "313f976984f03cb3d6c3dbadbe8eacb9bef882f0",
+                "short_sha": "313f976",
+                "subject": "docs(roadmap): the directory-verb slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "5f18ea281724308cbabf0b102582b20d1250c09a",
+                "short_sha": "5f18ea2",
+                "subject": "test(console): the migrations battery's directory pin rides seventeen"
+              },
+              {
+                "sha": "7ec6195a737531a56807d4c100dd3ca14658e4fd",
+                "short_sha": "7ec6195",
+                "subject": "docs(roadmap): the pin rides the count-pin correction's head"
+              },
+              {
+                "sha": "1777533a6e5b64418a905ce730e9c692821b6c17",
+                "short_sha": "1777533",
+                "subject": "docs(roadmap): the directory-verb row rides the section's own table block"
+              }
+            ]
+          },
+          {
+            "pr": 839,
+            "title": "fix(cli): the entrypoint owns its exit-code contract's final arm (issue #773)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-14T15:57:06Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/839",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cb60db5053df8cde8bec06e3481dc1e5010ae746",
+                "short_sha": "cb60db5",
+                "subject": "fix(cli): the entrypoint owns its exit-code contract's final arm (issue #773)"
+              },
+              {
+                "sha": "4d83c9706a2e340a114d2a8ab4599280a5c1a49d",
+                "short_sha": "4d83c97",
+                "subject": "test(cli): the unanswerable invocation pinned over the real entrypoint"
+              },
+              {
+                "sha": "f6594065549cf2e5238e308f4d039878099fead9",
+                "short_sha": "f659406",
+                "subject": "docs(cli): the final arm the CR6 prose claimed now recorded as owned (issue #773)"
+              },
+              {
+                "sha": "dff433e407d630625e8eedb152d51ad57c8ffce6",
+                "short_sha": "dff433e",
+                "subject": "chore: merge main (the #836 landing) into fix/issue-773-entrypoint-exit-contract"
+              },
+              {
+                "sha": "ee064f1af290a16a44e03c69a659dee05082488d",
+                "short_sha": "ee064f1",
+                "subject": "docs(roadmap): the exit-code contract's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "4ce4c1972a91859ef15007094bdfcc37d7c8fc7b",
+                "short_sha": "4ce4c19",
+                "subject": "fix(cli): the final arm's terminals carry the house spacing"
+              },
+              {
+                "sha": "7d55daefc0752c2203012cbd51c7d3253efa8606",
+                "short_sha": "7d55dae",
+                "subject": "docs(roadmap): the pin rides the terminal-spacing correction's head"
               }
             ]
           }
@@ -22281,6 +22378,103 @@
               "sha": "657e23581c626dfdef02680c652494d3894ea293",
               "short_sha": "657e235",
               "subject": "docs(roadmap): the history's meter rides the slice's recorded row"
+            }
+          ]
+        },
+        {
+          "pr": 836,
+          "title": "fix(console): the directory verb joins the collision vocabulary (issue #772)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-14T14:30:04Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/836",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "fec39333fde94640ed92f721096c4587970cf6a9",
+              "short_sha": "fec3933",
+              "subject": "fix(console): the directory verb joins the collision vocabulary (issue #772)"
+            },
+            {
+              "sha": "d90c2bcf2393cfd50e569ba6bc9e36a34ee1afc5",
+              "short_sha": "d90c2bc",
+              "subject": "test(console): the seventeenth verb pinned everywhere the vocabulary reads"
+            },
+            {
+              "sha": "75cec898638531a515cdb50330b38585df229661",
+              "short_sha": "75cec89",
+              "subject": "docs(console): the missed maintainer step recorded in KDD-CR3 (issue #772)"
+            },
+            {
+              "sha": "cb00a5ad44ba6aee12080bc8ea802a3049629740",
+              "short_sha": "cb00a5a",
+              "subject": "chore: merge main (the #833 landing) into fix/issue-772-list-verb-vocabulary"
+            },
+            {
+              "sha": "313f976984f03cb3d6c3dbadbe8eacb9bef882f0",
+              "short_sha": "313f976",
+              "subject": "docs(roadmap): the directory-verb slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "5f18ea281724308cbabf0b102582b20d1250c09a",
+              "short_sha": "5f18ea2",
+              "subject": "test(console): the migrations battery's directory pin rides seventeen"
+            },
+            {
+              "sha": "7ec6195a737531a56807d4c100dd3ca14658e4fd",
+              "short_sha": "7ec6195",
+              "subject": "docs(roadmap): the pin rides the count-pin correction's head"
+            },
+            {
+              "sha": "1777533a6e5b64418a905ce730e9c692821b6c17",
+              "short_sha": "1777533",
+              "subject": "docs(roadmap): the directory-verb row rides the section's own table block"
+            }
+          ]
+        },
+        {
+          "pr": 839,
+          "title": "fix(cli): the entrypoint owns its exit-code contract's final arm (issue #773)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-14T15:57:06Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/839",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cb60db5053df8cde8bec06e3481dc1e5010ae746",
+              "short_sha": "cb60db5",
+              "subject": "fix(cli): the entrypoint owns its exit-code contract's final arm (issue #773)"
+            },
+            {
+              "sha": "4d83c9706a2e340a114d2a8ab4599280a5c1a49d",
+              "short_sha": "4d83c97",
+              "subject": "test(cli): the unanswerable invocation pinned over the real entrypoint"
+            },
+            {
+              "sha": "f6594065549cf2e5238e308f4d039878099fead9",
+              "short_sha": "f659406",
+              "subject": "docs(cli): the final arm the CR6 prose claimed now recorded as owned (issue #773)"
+            },
+            {
+              "sha": "dff433e407d630625e8eedb152d51ad57c8ffce6",
+              "short_sha": "dff433e",
+              "subject": "chore: merge main (the #836 landing) into fix/issue-773-entrypoint-exit-contract"
+            },
+            {
+              "sha": "ee064f1af290a16a44e03c69a659dee05082488d",
+              "short_sha": "ee064f1",
+              "subject": "docs(roadmap): the exit-code contract's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "4ce4c1972a91859ef15007094bdfcc37d7c8fc7b",
+              "short_sha": "4ce4c19",
+              "subject": "fix(cli): the final arm's terminals carry the house spacing"
+            },
+            {
+              "sha": "7d55daefc0752c2203012cbd51c7d3253efa8606",
+              "short_sha": "7d55dae",
+              "subject": "docs(roadmap): the pin rides the terminal-spacing correction's head"
             }
           ]
         }
