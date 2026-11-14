@@ -41,6 +41,7 @@ final readonly class FrameworkVerbs
         'route:tree' => 'Render the booted radix route tree.',
         'route:openapi' => 'Export the booted route table as an OpenAPI document.',
         'route:postman' => 'Export the booted route table as a Postman collection.',
+        'list' => 'Answer the command directory: the framework verbs and the declared commands.',
         'storage:map' => "Answer the storage layout's lane map for a declared root.",
         'migrations:status' => 'Answer the applied, pending and declared migration counts.',
         'migrations:run' => 'Apply the pending migrations through the wired runner.',

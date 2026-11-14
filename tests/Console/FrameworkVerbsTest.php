@@ -48,6 +48,20 @@ final class FrameworkVerbsTest extends TestCase
     }
 
     /**
+     * Issue #772: the CLI's own `list` intercept is a builtin branch
+     * before the declared-command seam, so the vocabulary that guards
+     * the collision surface must carry it -- a vocabulary without its
+     * own directory verb let a host's `list` declaration be advertised
+     * while the intercept answered it forever, unreachable code wearing
+     * a registry entry (the audit's A-E1 finding: the directory counted
+     * sixteen while the CLI answered seventeen).
+     */
+    public function testTheVocabularyCarriesTheCliOwnListVerb(): void
+    {
+        self::assertArrayHasKey('list', FrameworkVerbs::all());
+    }
+
+    /**
      * The correspondence pin: every verb the vocabulary spells must be a
      * verb `bin/zef` answers -- the CLI's own command-matching literals,
      * read from the file itself so the pin fails the day a builtin

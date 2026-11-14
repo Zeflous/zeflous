@@ -296,7 +296,7 @@ final class MigrationsGenerateCommandTest extends TestCase
         [$exitCode, $output] = $this->runCommand(['list', 'app/configs'], \dirname(__DIR__, 2));
 
         self::assertSame(0, $exitCode);
-        self::assertStringContainsString('Zef commands -- 16 framework', $output);
+        self::assertStringContainsString('Zef commands -- 17 framework', $output);
         self::assertStringContainsString(
             'migrations:generate  Scaffold a new migration file from the house template,'
             . ' no database touched.',
