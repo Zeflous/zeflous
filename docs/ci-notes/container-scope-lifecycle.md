@@ -379,3 +379,49 @@ infection scoped membaca attribution yang sama — 89 → 93 mutant
 **test baru yang menyentuh rantai kolaborator baru wajib men-list
 rantainya sejak lahir** — hijau lokal gate lama tidak menutup
 celah Sonar yang membaca clover yang sama.
+
+## Ronda gate kedua: difficulty ceiling dan siklus dependensi (#769, archeology 6 temuan)
+
+Ronde kedua PR #829 memerah di PhpCodeArcheology: enam temuan
+error-level — file/kelas `AliasLifetimes` (42.50), `ServiceStore`
+(28.88), dan `NamespaceFallbacks` (21.09) melewati difficulty
+ceiling 20 (`php-codearch-config.yaml`, difficulty = Halstead:
+n1/2 × N2/n2 — volume operator/operand, BUKAN cabang siklikomatis).
+Diagnosis lokal awalnya terbaca "0 temuan" karena
+`composer archeology:gate` membaca report basi direktori build —
+pelajaran #445/#647 replayed: analisis fresh sebelum gate. Tiga
+perbaikan, masing-masing question-honest:
+
+- **Split walk jadi empat unit pertanyaan** (preseden #647 "seams
+  split the QUESTIONS"): `AliasLifetimes` fold stage (12.57),
+  `AliasChains` satu-alias ride (17.14), `AliasTargets` kebijakan
+  satu target (16.00), `ContextualSynthetics` vocabulary guard
+  `@contextual:` (1.25 — preseden `DecoratorLayers::occupies`).
+- **Probe store-half pindah ke inti registrasi**: `ContainerAnswers::
+  lifetime` membaca `ServiceStore::factoryRegistrations()` (accessor
+  yang sudah ada) → `FactoryRegistrations::sharingPolicy` (null saat
+  tak terdaftar; arm memo di-drop karena unreachable — `set()` menulis
+  pasangan bersama dan melupakan memo, lane singleton hanya mengisi
+  yang registrasinya ada) — `ServiceStore` kembali ke baseline 16.39
+  tanpa menyentuh jalurnya.
+- **Fallback-half dipindah ke unit walk coverage**: `NamespaceCoverings`
+  bertambah `entry()` + `lifetime()` (15.75/17.00), `FallbackSingletons`
+  diekstrak dari arm singleton `resolve()` (5.25) — registry turun ke
+  18.28/19.20.
+
+Ronde ketiga kecil tapi tajam: kelas `AliasChains ↔ AliasTargets`
+saling rekursif = temuan **circular dependency** error-level baru.
+Perbaikan: arah rekursi dipecah satu-arah — `AliasTargets::ridden`
+menjawab kebijakan leaf ATAU menyerahkan definisi alias-kelanjutan
+(union `ServiceLifetime|AliasDefinition`), `AliasChains` yang memegang
+rekursi; memo walk di-drop (guard perf murni; rantai boot-time
+pendek-bound) sehingga entri ignore `ReturnRemoval` yang tadinya
+dibutuhkan ikut HILUS dari infection.json5 — hanya ignore TrueValue
+isset-blind yang tersisa. Pelajaran sampingan: mutant
+`PublicVisibility` `longestPrefix` lolos karena pemanggil eksternalnya
+hilang bersama refactor — visibility dititikan ulang jadi private
+(jujur terhadap call graph baru). Dan pelajaran formulanya: D = n1/2 ×
+N2/n2 bergerak aneh — membuang operand yang terakhir kalinya mengecilkan
+n2 bisa MEMPERBURUK rasio; yang menurunkan D adalah menghilangkan
+operator-UNIK terakhir pemakaiannya (kasus `??` satu-satunya di
+NamespaceFallbacks) atau memindahkan volume ke unit lain.

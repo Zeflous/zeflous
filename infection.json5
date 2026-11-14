@@ -1485,24 +1485,6 @@
                 "Zef\\Framework\\Database\\UnitOfWorkQueue::armFlush",
                 "Zef\\Framework\\Database\\UnitOfWorkQueue::armReplay",
                 "Zef\\Framework\\Container\\DefinitionCycles::visit",
-                // The alias-lifetime alignment walk's memo early return:
-                // a performance guard, not a correctness branch -- the
-                // same posture as the cycle walk's settled memo beside
-                // it. Re-walking a memoised chain link recomputes the
-                // identical aligned alias (the walk is a pure fold of
-                // the declared set: same targets, same policies, same
-                // cycle-arm answers), so the mutant that removes the
-                // return is value-equivalent (verified by running the
-                // container battery under the manually applied
-                // mutation -- the chain-order and shared-link tests
-                // stay green). Scoped to that single method; the
-                // neighbouring cycle-arm return under the same mutator
-                // stays live and killed (its removal turns the
-                // walk's open-id answer into a recompute over an
-                // already-open id, which the alias-cycle test's
-                // termination pins through the graph refusal that
-                // follows).
-                "Zef\\Framework\\Container\\AliasLifetimes::aligned",
                 "Zef\\Framework\\Middleware\\DebugToolbarInjector::updatedBody",
                 "Zef\\Framework\\Telemetry\\TelemetrySanitizer::scrubbed",
                 "Zef\\Framework\\Telemetry\\PrometheusNumbers::diverged",
@@ -1934,16 +1916,16 @@
                 // under the flipped polarity -- the complete battery
                 // passes, the repeated-label refusal included).
                 ".*\\$seenParameters\\[\\$parameter] = true.*",
-                // The alias-lifetime walk's open-id mark is the same
+                // The alias chain walk's open-id mark is the same
                 // isset-only bookkeeping: the cycle arm reads
-                // isset(\$visited[\$aliasDefinition->id]) alone, which
+                // isset(\$visited[\$alias->id]) alone, which
                 // answers the same question for true and false alike,
                 // so the mark's polarity is the walk's documentation,
                 // never an observable distinction (verified by running
                 // the container battery under the flipped polarity --
                 // the complete battery passes, the alias-cycle refusal
                 // included).
-                "\\$visited\\[\\$aliasDefinition->id] = true;"
+                "\\$visited\\[\\$alias->id] = true;"
             ]
         },
         // The series count's float cast in

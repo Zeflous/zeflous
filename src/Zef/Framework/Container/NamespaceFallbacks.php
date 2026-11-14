@@ -58,17 +58,17 @@ final class NamespaceFallbacks
      */
     private array $fallbacks = [];
 
-    private SingletonMemo $singletonMemo;
-
     private readonly FallbackConstructions $fallbackConstructions;
+
+    private readonly FallbackSingletons $fallbackSingletons;
 
     public function __construct(
         CycleGuard $cycleGuard,
         Interceptions $interceptions,
-        private readonly ResolutionFrames $resolutionFrames = new ResolutionFrames(),
+        ResolutionFrames $resolutionFrames = new ResolutionFrames(),
     ) {
-        $this->singletonMemo = new SingletonMemo();
         $this->fallbackConstructions = new FallbackConstructions($cycleGuard, $interceptions);
+        $this->fallbackSingletons = new FallbackSingletons($this->fallbackConstructions, $resolutionFrames);
     }
 
     /**
@@ -92,7 +92,7 @@ final class NamespaceFallbacks
         $collapsed = new NamespaceFallbackGrammar()->collapsed($prefix, $serviceLifetime, $this->fallbacks);
 
         $this->fallbacks[$collapsed] = ['factory' => $factory, 'lifetime' => $serviceLifetime];
-        $this->forgetMemoised();
+        $this->fallbackSingletons->forget();
     }
 
     /**
@@ -107,27 +107,25 @@ final class NamespaceFallbacks
 
     /**
      * The covering fallback's sharing policy -- the lifetime probe's
-     * fallback half ({@see ContainerAnswers::lifetime()}),
-     * the one read that lets a declared alias to a fallback-covered
-     * target ride the prefix's own policy ({@see AliasLifetimes}).
-     * An identifier no fallback covers answers null.
+     * fallback half ({@see ContainerAnswers::lifetime()}), delegated to
+     * the coverage walk's own unit ({@see NamespaceCoverings::
+     * lifetime()}): the one read that lets a declared alias to a
+     * fallback-covered target ride the prefix's own policy ({@see
+     * AliasLifetimes}). An identifier no fallback covers answers null.
      */
     public function lifetime(string $id): ?ServiceLifetime
     {
-        $entry = $this->covering($id);
-
-        if ($entry === null) {
-            return null;
-        }
-
-        return $entry['lifetime'];
+        return new NamespaceCoverings()->lifetime($this->fallbacks, $id);
     }
 
     /**
      * Resolves the identifier through its covering fallback -- the
      * get() miss path's own resolution. An identifier no fallback
      * covers is the miss itself, refused exactly as the store refuses
-     * it.
+     * it. The transient arm pays the guarded construction every
+     * resolution; the singleton arm defers to {@see
+     * FallbackSingletons} (the registry's own memo over its own ids,
+     * the wider-lifetime frame riding the build).
      */
     public function resolve(string $id, Container $container): mixed
     {
@@ -141,40 +139,19 @@ final class NamespaceFallbacks
             return $this->fallbackConstructions->run($id, $entry['factory'], $container);
         }
 
-        return $this->singletonMemo->answer(
-            $id,
-            fn (): mixed => $this->resolutionFrames->withinSingleton(
-                $id,
-                fn (): mixed => $this->fallbackConstructions->run($id, $entry['factory'], $container),
-            ),
-        );
+        return $this->fallbackSingletons->answer($id, $entry['factory'], $container);
     }
 
     /**
      * The covering fallback: the longest collapsed prefix that contains
-     * the identifier's collapsed spelling.
+     * the identifier's collapsed spelling -- the coverage walk's own
+     * unit answers the entry it selected ({@see
+     * NamespaceCoverings::entry()}).
      *
      * @return null|array{factory: Closure(Container, string): mixed, lifetime: ServiceLifetime}
      */
     private function covering(string $id): ?array
     {
-        $longest = new NamespaceCoverings()->longestPrefix($this->fallbacks, $id);
-
-        if ($longest === null) {
-            return null;
-        }
-
-        return $this->fallbacks[$longest];
-    }
-
-    /**
-     * Forgets every memoised fallback answer -- a replaced factory's
-     * own invalidation (a fresh memo, because the per-identifier keys
-     * the old one carries cannot be attributed back to the prefix that
-     * built them).
-     */
-    private function forgetMemoised(): void
-    {
-        $this->singletonMemo = new SingletonMemo();
+        return new NamespaceCoverings()->entry($this->fallbacks, $id);
     }
 }

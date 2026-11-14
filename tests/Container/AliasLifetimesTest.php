@@ -7,10 +7,13 @@ namespace Zef\Test\Container;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Zef\Framework\Container\AliasChains;
 use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\AliasLifetimes;
+use Zef\Framework\Container\AliasTargets;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContainerAnswers;
+use Zef\Framework\Container\ContextualSynthetics;
 use Zef\Framework\Container\DefinitionCycles;
 use Zef\Framework\Container\DefinitionEdges;
 use Zef\Framework\Container\DefinitionException;
@@ -39,6 +42,9 @@ use Zef\Test\Support\Container\Greeter;
  * @internal
  */
 #[CoversClass(AliasLifetimes::class)]
+#[CoversClass(AliasChains::class)]
+#[CoversClass(AliasTargets::class)]
+#[CoversClass(ContextualSynthetics::class)]
 #[CoversClass(Container::class)]
 #[CoversClass(ContainerAnswers::class)]
 #[CoversClass(ServiceStore::class)]

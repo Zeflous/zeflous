@@ -8,12 +8,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Container\ActiveScope;
+use Zef\Framework\Container\AliasChains;
 use Zef\Framework\Container\AliasLifetimes;
+use Zef\Framework\Container\AliasTargets;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Container\ContainerAnswers;
 use Zef\Framework\Container\ContainerCompilePipeline;
+use Zef\Framework\Container\ContextualSynthetics;
 use Zef\Framework\Container\DefinitionCycles;
 use Zef\Framework\Container\DefinitionEdges;
 use Zef\Framework\Container\DefinitionException;
+use Zef\Framework\Container\FactoryRegistrations;
 use Zef\Framework\Container\LifetimeCaptures;
 use Zef\Framework\Container\RequestInstances;
 use Zef\Framework\Container\RequestScope;
@@ -23,6 +28,8 @@ use Zef\Framework\Container\ResolutionFrames;
 use Zef\Framework\Container\ServiceDefinitionGraph;
 use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ServiceResolutions;
+use Zef\Framework\Container\ServiceStore;
+use Zef\Framework\Container\SingletonMemo;
 use Zef\Framework\ContainerBootstrapper;
 use Zef\Test\Support\Container\Aliasing\SalutingGreeter;
 use Zef\Test\Support\Container\Announcer;
@@ -41,6 +48,13 @@ use Zef\Test\Support\Container\Greeter;
  * @internal
  */
 #[CoversClass(AliasLifetimes::class)]
+#[CoversClass(AliasChains::class)]
+#[CoversClass(AliasTargets::class)]
+#[CoversClass(ContextualSynthetics::class)]
+#[CoversClass(ContainerAnswers::class)]
+#[CoversClass(FactoryRegistrations::class)]
+#[CoversClass(SingletonMemo::class)]
+#[CoversClass(ServiceStore::class)]
 #[CoversClass(ContainerBootstrapper::class)]
 #[CoversClass(ContainerCompilePipeline::class)]
 #[CoversClass(Container::class)]

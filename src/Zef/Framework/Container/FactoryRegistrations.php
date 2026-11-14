@@ -57,4 +57,23 @@ final class FactoryRegistrations
     {
         return $this->lifetimes[$id] ?? ServiceLifetime::SINGLETON;
     }
+
+    /**
+     * The registration's own sharing policy, or null when no
+     * registration carries the identifier -- the store half of the
+     * read-only lifetime probe ({@see ContainerAnswers::lifetime()},
+     * reached through {@see ServiceStore::factoryRegistrations()}):
+     * the same totality the store's own has() answers with, because a
+     * memo entry only ever exists beside the registration its lane
+     * resolved (`set()` writes the pair together and forgets the memo,
+     * the singleton lane fills only what the registration holds), so
+     * the registrations alone are the sharing policies the store
+     * carries.
+     */
+    public function sharingPolicy(string $id): ?ServiceLifetime
+    {
+        return \array_key_exists($id, $this->factories)
+            ? ($this->lifetimes[$id] ?? ServiceLifetime::SINGLETON)
+            : null;
+    }
 }

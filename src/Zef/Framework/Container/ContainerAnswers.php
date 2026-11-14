@@ -53,10 +53,16 @@ final readonly class ContainerAnswers
     /**
      * The sharing policy the identifier's answering lane carries --
      * the store's registration, the covering fallback's prefix, or
-     * null for an identifier no lane answers.
+     * null for an identifier no lane answers. The store half reads
+     * the registration core the store itself exposes ({@see
+     * ServiceStore::factoryRegistrations()}: the registrations ARE
+     * the store's sharing policies, a memo entry only ever existing
+     * beside the registration its lane resolved), the same
+     * store-over-fallback precedence the answer lane dispatches with.
      */
     public function lifetime(string $id): ?ServiceLifetime
     {
-        return $this->serviceStore->lifetime($id) ?? $this->namespaceFallbacks->lifetime($id);
+        return $this->serviceStore->factoryRegistrations()->sharingPolicy($id)
+            ?? $this->namespaceFallbacks->lifetime($id);
     }
 }
