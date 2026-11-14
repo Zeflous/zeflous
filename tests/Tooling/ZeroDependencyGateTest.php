@@ -49,7 +49,8 @@ final class ZeroDependencyGateTest extends TestCase
         self::assertFalse($gateResult->passed);
         self::assertSame(1, $gateResult->exitCode());
         self::assertSame(
-            'Zero-dependency gate FAILED: composer.json require is {"php":"^8.4","ext-mbstring":"*","monolog/monolog":"^3.0"},'
+            'Zero-dependency gate FAILED: composer.json require is'
+            . ' {"php":"^8.4","ext-mbstring":"*","monolog/monolog":"^3.0"},'
             . ' expected exactly {"php": "^8.4", "ext-mbstring": "*"}.',
             $gateResult->message,
         );
@@ -92,7 +93,8 @@ final class ZeroDependencyGateTest extends TestCase
 
         self::assertFalse($gateResult->passed);
         self::assertSame(
-            'Zero-dependency gate FAILED: composer.json require is [], expected exactly {"php": "^8.4", "ext-mbstring": "*"}.',
+            'Zero-dependency gate FAILED: composer.json require is [],'
+            . ' expected exactly {"php": "^8.4", "ext-mbstring": "*"}.',
             $gateResult->message,
         );
     }

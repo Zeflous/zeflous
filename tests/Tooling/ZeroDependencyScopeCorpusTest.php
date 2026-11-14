@@ -155,7 +155,8 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
     public static function provideTheFenceCases(): iterable
     {
         yield 'outside: a require-dev section never reaches the verdict' => [
-            '{"name":"zeflous/zeflous","require":{"php":"^8.4","ext-mbstring":"*"},"require-dev":{"phpunit/phpunit":"^11.0"}}',
+            '{"name":"zeflous/zeflous","require":{"php":"^8.4",'
+            . '"ext-mbstring":"*"},"require-dev":{"phpunit/phpunit":"^11.0"}}',
             '{"content-hash":"abc123","packages":[],"packages-dev":[]}',
         ];
 
