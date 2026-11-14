@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-14T04:24:28Z",
+  "as_of": "2026-11-14T10:55:28Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 327,
+  "unreleased_count": 328,
   "versions": [
     {
       "version": "Unreleased",
@@ -7087,6 +7087,27 @@
                 "sha": "fa4796289e91e3bec53dad4ab699f9bb0d4e9558",
                 "short_sha": "fa47962",
                 "subject": "docs(roadmap): the pin rides the slice's latest substantive commit (PR #829's queue round)"
+              }
+            ]
+          },
+          {
+            "pr": 832,
+            "title": "fix(container): the rebind invalidation reaches the alias lane (issue #770)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-14T10:55:28Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/832",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d16072833bd9a54ca8d9342962547f5665a87055",
+                "short_sha": "d160728",
+                "subject": "fix(container): the rebind's invalidation reaches the alias lane (issue #770)"
+              },
+              {
+                "sha": "1edf553b46d08761b25c774b72070b90a23b87fe",
+                "short_sha": "1edf553",
+                "subject": "docs(roadmap): the alias-stale-memo slice recorded and the pin refreshed"
               }
             ]
           }
@@ -22117,6 +22138,27 @@
               "sha": "fa4796289e91e3bec53dad4ab699f9bb0d4e9558",
               "short_sha": "fa47962",
               "subject": "docs(roadmap): the pin rides the slice's latest substantive commit (PR #829's queue round)"
+            }
+          ]
+        },
+        {
+          "pr": 832,
+          "title": "fix(container): the rebind invalidation reaches the alias lane (issue #770)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-14T10:55:28Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/832",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d16072833bd9a54ca8d9342962547f5665a87055",
+              "short_sha": "d160728",
+              "subject": "fix(container): the rebind's invalidation reaches the alias lane (issue #770)"
+            },
+            {
+              "sha": "1edf553b46d08761b25c774b72070b90a23b87fe",
+              "short_sha": "1edf553",
+              "subject": "docs(roadmap): the alias-stale-memo slice recorded and the pin refreshed"
             }
           ]
         }
