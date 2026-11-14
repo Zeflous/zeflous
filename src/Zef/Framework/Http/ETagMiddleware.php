@@ -31,15 +31,20 @@ use Psr\Http\Server\RequestHandlerInterface;
  * handler already set one. The response body is consumed to hash it --
  * a seekable stream's cursor is restored afterwards (the audit #303
  * regression: the shared stream flows on to the emitter, which must
- * still ship the full representation on the cache-miss path).
+ * still ship the full representation on the cache-miss path), and a
+ * non-seekable stream's payload rides onward as the response's seekable
+ * snapshot ({@see RepresentationSnapshot}, the issue #771 half: a stream
+ * that cannot rewind cannot be restored, only replaced, or every later
+ * body reader answers the nothing the read left).
  *
  * OPT-IN: add the middleware to the stack of an application that wants
  * conditional requests; it is intentionally not part of any default
  * stack. Ported from the reference implementation (legacy
  * `zef-framework` `Adapters.Http.ETagMiddleware`); the precondition
  * precedence chain lives in {@see RequestPreconditions}, the validator
- * in {@see StrongEtag} and the cursor-restoring body read in
- * {@see RepresentationBody}.
+ * in {@see StrongEtag}, the cursor-restoring body read in
+ * {@see RepresentationBody} and the consumed non-seekable body's
+ * replacement in {@see RepresentationSnapshot}.
  *
  * Deviation from the reference, restructured for observability: the
  * reference's early return for "empty body and no `Last-Modified`"
@@ -73,8 +78,9 @@ final class ETagMiddleware implements MiddlewareInterface
 
         $stream = $response->getBody();
         $body = RepresentationBody::read($stream);
+        $surviving = RepresentationSnapshot::answer($response, $stream, $body);
 
-        return $this->resolvePreconditions($serverRequest, $response, $body);
+        return $this->resolvePreconditions($serverRequest, $surviving, $body);
     }
 
     private function resolvePreconditions(

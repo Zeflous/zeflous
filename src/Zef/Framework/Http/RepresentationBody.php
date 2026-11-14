@@ -14,7 +14,11 @@ use Psr\Http\Message\StreamInterface;
  * `(string)` leaves a seekable stream at EOF, and the shared stream
  * flows on to the emitter, which must still ship the full
  * representation on the cache-miss path). A non-seekable stream simply
- * yields its payload; there is no cursor to restore.
+ * yields its payload; there is no cursor to restore, so its
+ * representation survives the reading through replacement instead --
+ * {@see RepresentationSnapshot} owns that half (issue #771: the bytes
+ * read ride onward as the response's seekable snapshot, because the
+ * stream itself can never be rewound).
  */
 final class RepresentationBody
 {
