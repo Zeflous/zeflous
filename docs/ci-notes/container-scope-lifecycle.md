@@ -353,3 +353,29 @@ test.
   test baru: boot kedua dari artifact menjawab transient-ride fresh
   (`get(alias) !== get(alias)` di lane zero-planning).
 
+
+## Ronda gate: pelajaran attribution ke-lima (#769, Sonar 92.9%)
+
+Ronde pertama PR #829 memerah di SonarCloud: new-code coverage 92.9%
+(required 95%), padahal `composer coverage:gate` lokal hijau 98.57%.
+Akar masalahnya bukan kode yang tak ter-cover — runtime probe membuktikan
+`NamespaceFallbacks::lifetime()` dieksekusi dan menjawab TRANSIENT —
+melainkan **`requireCoverageMetadata="true"` di phpunit.xml.dist**: hit
+dari sebuah test hanya ter-atribusi ke kelas-kelas di daftar
+`#[CoversClass]`-nya. Tiga file test baru slice ini hanya men-list
+subjek utamanya; kolaborator rantai probe (ServiceStore →
+FactoryRegistrations/SingletonMemo → NamespaceFallbacks →
+NamespaceCoverings) terbaca NOL di clover meski dieksekusi — persis
+pelajaran #439 (covers-filter) dan #487 (boot lanes missing) yang
+lupakan dirinya sendiri kembali. Fix: daftar covers ketiga baterai
+diperluas ke setiap kolaborator yang diamatiri asersinya (probe battery
++7 kelas, alignment battery +10, boot battery +12 — mekanik request
+scope dan graph verdict yang asersi boot-level bacanya langsung).
+Clover setelahnya: `NamespaceFallbacks::lifetime` count 5, baris tak
+ter-cover 0, gate naik 98.57% → 98.58%. Efek samping yang sehat:
+infection scoped membaca attribution yang sama — 89 → 93 mutant
+(rewrite if/else menambah mutant cabang) semuanya tetap MSI 100/100
+0 escape. Pelajaran ke-lima untuk kanon attribution battery:
+**test baru yang menyentuh rantai kolaborator baru wajib men-list
+rantainya sejak lahir** — hijau lokal gate lama tidak menutup
+celah Sonar yang membaca clover yang sama.

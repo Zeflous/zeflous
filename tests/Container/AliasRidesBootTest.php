@@ -7,11 +7,22 @@ namespace Zef\Test\Container;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Config;
+use Zef\Framework\Container\ActiveScope;
 use Zef\Framework\Container\AliasLifetimes;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Container\ContainerCompilePipeline;
+use Zef\Framework\Container\DefinitionCycles;
+use Zef\Framework\Container\DefinitionEdges;
 use Zef\Framework\Container\DefinitionException;
+use Zef\Framework\Container\LifetimeCaptures;
+use Zef\Framework\Container\RequestInstances;
+use Zef\Framework\Container\RequestScope;
 use Zef\Framework\Container\RequestScopeException;
+use Zef\Framework\Container\RequestScopeRefusals;
+use Zef\Framework\Container\ResolutionFrames;
+use Zef\Framework\Container\ServiceDefinitionGraph;
 use Zef\Framework\Container\ServiceLifetime;
+use Zef\Framework\Container\ServiceResolutions;
 use Zef\Framework\ContainerBootstrapper;
 use Zef\Test\Support\Container\Aliasing\SalutingGreeter;
 use Zef\Test\Support\Container\Announcer;
@@ -31,6 +42,18 @@ use Zef\Test\Support\Container\Greeter;
  */
 #[CoversClass(AliasLifetimes::class)]
 #[CoversClass(ContainerBootstrapper::class)]
+#[CoversClass(ContainerCompilePipeline::class)]
+#[CoversClass(Container::class)]
+#[CoversClass(ServiceResolutions::class)]
+#[CoversClass(RequestScope::class)]
+#[CoversClass(RequestInstances::class)]
+#[CoversClass(ActiveScope::class)]
+#[CoversClass(RequestScopeRefusals::class)]
+#[CoversClass(ResolutionFrames::class)]
+#[CoversClass(ServiceDefinitionGraph::class)]
+#[CoversClass(DefinitionEdges::class)]
+#[CoversClass(DefinitionCycles::class)]
+#[CoversClass(LifetimeCaptures::class)]
 final class AliasRidesBootTest extends TestCase
 {
     public function testATransientTargetAnswersAFreshInstancePerCallThroughTheAlias(): void

@@ -116,7 +116,11 @@ final class NamespaceFallbacks
     {
         $entry = $this->covering($id);
 
-        return $entry === null ? null : $entry['lifetime'];
+        if ($entry === null) {
+            return null;
+        }
+
+        return $entry['lifetime'];
     }
 
     /**

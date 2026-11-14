@@ -9,8 +9,12 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContainerAnswers;
+use Zef\Framework\Container\FactoryRegistrations;
+use Zef\Framework\Container\NamespaceCoverings;
+use Zef\Framework\Container\NamespaceFallbacks;
 use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ServiceStore;
+use Zef\Framework\Container\SingletonMemo;
 
 /**
  * The facade's lifetime probe (#769's read half): the sharing policy an
@@ -23,6 +27,10 @@ use Zef\Framework\Container\ServiceStore;
 #[CoversClass(Container::class)]
 #[CoversClass(ContainerAnswers::class)]
 #[CoversClass(ServiceStore::class)]
+#[CoversClass(FactoryRegistrations::class)]
+#[CoversClass(SingletonMemo::class)]
+#[CoversClass(NamespaceFallbacks::class)]
+#[CoversClass(NamespaceCoverings::class)]
 final class ContainerLifetimeTest extends TestCase
 {
     public function testTheRegisteredLaneAnswersItsOwnPolicy(): void

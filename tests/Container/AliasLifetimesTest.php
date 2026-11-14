@@ -10,12 +10,20 @@ use stdClass;
 use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\AliasLifetimes;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Container\ContainerAnswers;
+use Zef\Framework\Container\DefinitionCycles;
+use Zef\Framework\Container\DefinitionEdges;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\FactoryDefinition;
+use Zef\Framework\Container\FactoryRegistrations;
 use Zef\Framework\Container\InstanceDefinition;
+use Zef\Framework\Container\NamespaceCoverings;
+use Zef\Framework\Container\NamespaceFallbacks;
 use Zef\Framework\Container\ServiceDefinition;
 use Zef\Framework\Container\ServiceDefinitionGraph;
 use Zef\Framework\Container\ServiceLifetime;
+use Zef\Framework\Container\ServiceStore;
+use Zef\Framework\Container\SingletonMemo;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\ExternalFactory;
 use Zef\Test\Support\Container\Greeter;
@@ -31,6 +39,16 @@ use Zef\Test\Support\Container\Greeter;
  * @internal
  */
 #[CoversClass(AliasLifetimes::class)]
+#[CoversClass(Container::class)]
+#[CoversClass(ContainerAnswers::class)]
+#[CoversClass(ServiceStore::class)]
+#[CoversClass(FactoryRegistrations::class)]
+#[CoversClass(SingletonMemo::class)]
+#[CoversClass(NamespaceFallbacks::class)]
+#[CoversClass(NamespaceCoverings::class)]
+#[CoversClass(ServiceDefinitionGraph::class)]
+#[CoversClass(DefinitionEdges::class)]
+#[CoversClass(DefinitionCycles::class)]
 final class AliasLifetimesTest extends TestCase
 {
     public function testATransientTargetAlignsItsAlias(): void
