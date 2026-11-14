@@ -18,14 +18,15 @@ final class ZeroDependencyGateTest extends TestCase
 {
     public function testPassesOnACleanManifest(): void
     {
-        $gateResult = $this->evaluate(['php' => '^8.4'], []);
+        $gateResult = $this->evaluate(['php' => '^8.4', 'ext-mbstring' => '*'], []);
 
         self::assertTrue($gateResult->passed);
         // The exact message (not a substring): a mutated verdict, swapped
         // fragments or a dropped figure would otherwise survive independent
         // substring assertions.
         self::assertSame(
-            'Zero-dependency gate PASSED: composer.json require is {"php": "^8.4"} and composer.lock packages is [].',
+            'Zero-dependency gate PASSED: composer.json require is {"php": "^8.4", "ext-mbstring": "*"}'
+            . ' and composer.lock packages is [].',
             $gateResult->message,
         );
         self::assertSame(0, $gateResult->exitCode());
@@ -36,31 +37,51 @@ final class ZeroDependencyGateTest extends TestCase
         // Dev dependencies are none of the gate's business: only the
         // production `packages` array is asserted, so a packages-dev-only
         // lock stays a pass.
-        $gateResult = $this->evaluate(['php' => '^8.4'], []);
+        $gateResult = $this->evaluate(['php' => '^8.4', 'ext-mbstring' => '*'], []);
 
         self::assertTrue($gateResult->passed);
     }
 
     public function testFailsWhenRequireDeclaresAnExtraPackage(): void
     {
-        $gateResult = $this->evaluate(['php' => '^8.4', 'monolog/monolog' => '^3.0'], []);
+        $gateResult = $this->evaluate(['php' => '^8.4', 'ext-mbstring' => '*', 'monolog/monolog' => '^3.0'], []);
 
         self::assertFalse($gateResult->passed);
         self::assertSame(1, $gateResult->exitCode());
         self::assertSame(
-            'Zero-dependency gate FAILED: composer.json require is {"php":"^8.4","monolog/monolog":"^3.0"},'
-            . ' expected exactly {"php": "^8.4"}.',
+            'Zero-dependency gate FAILED: composer.json require is {"php":"^8.4","ext-mbstring":"*","monolog/monolog":"^3.0"},'
+            . ' expected exactly {"php": "^8.4", "ext-mbstring": "*"}.',
+            $gateResult->message,
+        );
+    }
+
+    /**
+     * Issue #774's own posture: the extension the runtime's multibyte
+     * grammar rides (~330 mb_* call sites) once went undeclared -- a
+     * manifest spelling php alone -- and the gate green-lit it. The
+     * platform block now carries the extension, and php alone refuses
+     * exactly like any other narrowed manifest.
+     */
+    public function testFailsWhenTheMbstringDeclarationIsMissing(): void
+    {
+        $gateResult = $this->evaluate(['php' => '^8.4'], []);
+
+        self::assertFalse($gateResult->passed);
+        self::assertSame(
+            'Zero-dependency gate FAILED: composer.json require is {"php":"^8.4"},'
+            . ' expected exactly {"php": "^8.4", "ext-mbstring": "*"}.',
             $gateResult->message,
         );
     }
 
     public function testFailsWhenThePhpConstraintChanges(): void
     {
-        $gateResult = $this->evaluate(['php' => '^8.3'], []);
+        $gateResult = $this->evaluate(['php' => '^8.3', 'ext-mbstring' => '*'], []);
 
         self::assertFalse($gateResult->passed);
         self::assertSame(
-            'Zero-dependency gate FAILED: composer.json require is {"php":"^8.3"}, expected exactly {"php": "^8.4"}.',
+            'Zero-dependency gate FAILED: composer.json require is {"php":"^8.3","ext-mbstring":"*"},'
+            . ' expected exactly {"php": "^8.4", "ext-mbstring": "*"}.',
             $gateResult->message,
         );
     }
@@ -71,14 +92,14 @@ final class ZeroDependencyGateTest extends TestCase
 
         self::assertFalse($gateResult->passed);
         self::assertSame(
-            'Zero-dependency gate FAILED: composer.json require is [], expected exactly {"php": "^8.4"}.',
+            'Zero-dependency gate FAILED: composer.json require is [], expected exactly {"php": "^8.4", "ext-mbstring": "*"}.',
             $gateResult->message,
         );
     }
 
     public function testFailsWhenASingleProductionPackageIsLocked(): void
     {
-        $gateResult = $this->evaluate(['php' => '^8.4'], [['name' => 'monolog/monolog']]);
+        $gateResult = $this->evaluate(['php' => '^8.4', 'ext-mbstring' => '*'], [['name' => 'monolog/monolog']]);
 
         self::assertFalse($gateResult->passed);
         self::assertSame(
@@ -91,7 +112,7 @@ final class ZeroDependencyGateTest extends TestCase
     public function testFailsWhenTwoProductionPackagesAreLocked(): void
     {
         $gateResult = $this->evaluate(
-            ['php' => '^8.4'],
+            ['php' => '^8.4', 'ext-mbstring' => '*'],
             [['name' => 'monolog/monolog'], ['name' => 'psr/log']],
         );
 
@@ -105,7 +126,8 @@ final class ZeroDependencyGateTest extends TestCase
 
         self::assertFalse($gateResult->passed);
         self::assertSame(
-            'Zero-dependency gate FAILED: composer.json require is {"ext-pcntl":"*"}, expected exactly {"php": "^8.4"};'
+            'Zero-dependency gate FAILED: composer.json require is {"ext-pcntl":"*"},'
+            . ' expected exactly {"php": "^8.4", "ext-mbstring": "*"};'
             . ' composer.lock declares 1 production package(s); the packages array must stay empty.',
             $gateResult->message,
         );
@@ -119,7 +141,8 @@ final class ZeroDependencyGateTest extends TestCase
 
         self::assertFalse($gateResult->passed);
         self::assertSame(
-            'Zero-dependency gate FAILED: composer.json require is <unencodable>, expected exactly {"php": "^8.4"}.',
+            'Zero-dependency gate FAILED: composer.json require is <unencodable>,'
+            . ' expected exactly {"php": "^8.4", "ext-mbstring": "*"}.',
             $gateResult->message,
         );
     }
