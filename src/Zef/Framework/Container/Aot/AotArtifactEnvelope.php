@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Container\Aot;
 
 /**
- * The artifact's envelope validation: the five keys the dump always
+ * The artifact's envelope validation: the six keys the dump always
  * writes, exactly -- the structural promises that precede any
  * per-member or per-entry validation, split as their own unit the way
  * the entries and the identifier lists already are.
@@ -15,6 +15,7 @@ namespace Zef\Framework\Container\Aot;
  * string. What answers is the raw member map with the digest proven --
  * the members' own validators ({@see AotArtifactIds},
  * {@see AotArtifact::validatedTags()}, {@see AotArtifactLazies::validated()},
+ * {@see AotArtifactRides::validated()},
  * {@see AotArtifactEntries}) take it from there.
  *
  * The {@see GENERATION} constant is the boundary's format version the
@@ -42,6 +43,7 @@ final readonly class AotArtifactEnvelope
         'tags' => true,
         'lazy' => true,
         'entries' => true,
+        'aliasRides' => true,
     ];
 
     /**
@@ -49,7 +51,7 @@ final readonly class AotArtifactEnvelope
      *
      * @param mixed $payload whatever the artifact file returned
      *
-     * @return array{digest: string, unreferenced: mixed, tags: mixed, lazy: mixed, entries: mixed}
+     * @return array{digest: string, unreferenced: mixed, tags: mixed, lazy: mixed, entries: mixed, aliasRides: mixed}
      */
     public static function validated(string $file, mixed $payload): array
     {
@@ -79,6 +81,7 @@ final readonly class AotArtifactEnvelope
             'tags' => $payload['tags'],
             'lazy' => $payload['lazy'],
             'entries' => $payload['entries'],
+            'aliasRides' => $payload['aliasRides'],
         ];
     }
 }

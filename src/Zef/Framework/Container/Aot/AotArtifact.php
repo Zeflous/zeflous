@@ -40,6 +40,7 @@ final readonly class AotArtifact
      * @param list<string>                                 $unreferenced the report baked at dump time
      * @param array<string, list<string>>                  $tags         the baked tag index
      * @param array<string, class-string>                  $lazy         the baked lazy map
+     * @param array<string, string>                        $aliasRides   the baked alias ride index
      * @param array<string, AotBuildEntry|AotClosureEntry> $entries      the validated entries
      */
     private function __construct(
@@ -47,6 +48,7 @@ final readonly class AotArtifact
         private array $unreferenced,
         private array $tags,
         private array $lazy,
+        private array $aliasRides,
         private array $entries,
     ) {
     }
@@ -97,6 +99,23 @@ final readonly class AotArtifact
     }
 
     /**
+     * The baked alias ride index: which identifiers are aliases riding
+     * which target, the marks the load lane writes into the container's
+     * ride registry after its install loop ({@see AotBootLane} -- the
+     * compile lane's own marking step, baked the same way the lazy map
+     * bakes, because rebuilding it from the parsed declarations would
+     * not survive the decoration lane's re-homing; the re-registration
+     * invalidation walks it so a rebinded target never leaves an alias
+     * lane serving the stale instance, #770).
+     *
+     * @return array<string, string>
+     */
+    public function aliasRides(): array
+    {
+        return $this->aliasRides;
+    }
+
+    /**
      * The validated entries, keyed by identifier in declaration order.
      *
      * @return array<string, AotBuildEntry|AotClosureEntry>
@@ -120,33 +139,10 @@ final readonly class AotArtifact
         return new self(
             $envelope['digest'],
             AotArtifactIds::validated($file, 'the unreferenced report', $envelope['unreferenced']),
-            self::validatedTags($file, $envelope['tags']),
+            AotArtifactTags::validated($file, $envelope['tags']),
             AotArtifactLazies::validated($file, $envelope['lazy']),
+            AotArtifactRides::validated($file, $envelope['aliasRides']),
             AotArtifactEntries::validated($file, $envelope['entries']),
         );
-    }
-
-    /**
-     * @param mixed $tags the payload's `tags` member
-     *
-     * @return array<string, list<string>>
-     */
-    private static function validatedTags(string $file, mixed $tags): array
-    {
-        if (!\is_array($tags)) {
-            throw AotRefusals::artifactShape($file, 'the tag index must be a map');
-        }
-
-        $validated = [];
-
-        foreach (array_keys($tags) as $tag) {
-            if (!\is_string($tag) || $tag === '') {
-                throw AotRefusals::artifactShape($file, 'the tag index keys must be non-empty tag strings');
-            }
-
-            $validated[$tag] = AotArtifactIds::validated($file, "the tag index for '{$tag}'", $tags[$tag]);
-        }
-
-        return $validated;
     }
 }

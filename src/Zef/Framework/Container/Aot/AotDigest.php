@@ -59,9 +59,15 @@ final readonly class AotDigest
      * stage now writes the target's policy where older dumps wrote the
      * singleton pin), so every artifact of the second generation is
      * proven stale and the boot recompiles and re-dumps rather than
-     * running lifetimes the new planning no longer stands behind.
+     * running lifetimes the new planning no longer stands behind. The
+     * fourth generation's reason is #770 -- the envelope gained the
+     * `aliasRides` member (the baked ride index a re-registration's
+     * invalidation walks), so every artifact of the third generation
+     * is proven stale and the boot recompiles and re-dumps rather
+     * than running an install whose rides the new invalidation never
+     * reaches.
      */
-    public const int ARTIFACT_GENERATION = 3;
+    public const int ARTIFACT_GENERATION = 4;
 
     /**
      * Folds the source maps, the framework version and the artifact

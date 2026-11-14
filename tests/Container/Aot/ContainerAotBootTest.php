@@ -256,6 +256,38 @@ final class ContainerAotBootTest extends TestCase
         );
     }
 
+    public function testASingletonTargetsAliasForgetsItsStaleMemoThroughTheArtifactRoundTrip(): void
+    {
+        // #770's AOT half: the artifact bakes the ride index, so the
+        // zero-planning boot's re-registration invalidation reaches
+        // the alias lane the same way the full lane's does -- and the
+        // generation bump the envelope's new member forced is what
+        // proves every pre-index artifact stale.
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $config = $this->config(['enabled' => true]);
+        $config['services']['app.stable'] = ['class' => Window::class];
+        $config['services']['app.stable.alias'] = ['alias' => 'app.stable'];
+
+        $first = $containerBootstrapper->bootstrap(new Config($config), new Container());
+        self::assertInstanceOf(Window::class, $first->get('app.stable.alias'));
+
+        $second = $containerBootstrapper->bootstrap(new Config($config), new Container());
+
+        $secondOutcome = $second->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $secondOutcome);
+        self::assertSame(AotLane::ArtifactLoaded, $secondOutcome->lane);
+
+        $stale = $second->get('app.stable.alias');
+        self::assertInstanceOf(Window::class, $stale);
+
+        $second->set('app.stable', static fn (): Window => new Window());
+
+        self::assertNotSame($stale, $second->get('app.stable.alias'));
+        self::assertSame($second->get('app.stable'), $second->get('app.stable.alias'));
+    }
+
     public function testTheFirstBootDumpsAndTheSecondLoads(): void
     {
         $containerAotCache = new ContainerAotCache($this->artifactFile);

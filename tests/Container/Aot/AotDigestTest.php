@@ -179,12 +179,14 @@ final class AotDigestTest extends TestCase
      * change silently. (The generation-3 re-pin is #769's own loud
      * change: the alias-lifetime alignment changed what a `closure`
      * entry's `lifetime` member means, and the pinned hexes moved with
-     * the generation the digest folds.).
+     * the generation the digest folds. The generation-4 re-pin is
+     * #770's: the envelope gained the `aliasRides` member, and the
+     * pinned hexes moved with the generation the digest folds.).
      */
     public function testTheFoldSpellsItsCanonicalFormStably(): void
     {
         self::assertSame(
-            '3396a47d5e1b3a36847e3498aaa4dbccd1c7491af990e500891994448610e1bf',
+            '7d07818a77221d611705541dafa7efe7ad288f43140aae65b5a3ead2756c2272',
             AotDigest::over([
                 'framework.services' => ['x' => ['factory' => 'A::b']],
                 'services' => ['a' => ['class' => 'C', 'arguments' => [1, '1', 1.5, true, false, null,
@@ -196,7 +198,7 @@ final class AotDigestTest extends TestCase
         );
 
         self::assertSame(
-            '14f4f81021a5466e8bfbac4d9d64d601dd8f5ab1a536a1531643ac38cb9b44ff',
+            '9ed91dd3ac2442cdf570852318b8e6c576cb03c3a8571cfad8fc4e8e0e77b16f',
             AotDigest::over([], '1'),
         );
     }

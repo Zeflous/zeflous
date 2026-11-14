@@ -124,6 +124,11 @@
       <code><![CDATA[include $_file]]></code>
     </UnresolvableInclude>
   </file>
+  <file src="src/Zef/Framework/Container/AliasRides.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[rides]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Container/Aot/AotClosureEntry.php">
     <MixedArgumentTypeCoercion>
       <code><![CDATA[$closure]]></code>

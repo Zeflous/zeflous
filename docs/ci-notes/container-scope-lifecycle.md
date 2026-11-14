@@ -444,3 +444,91 @@ diaudit dengan diff penuh terhadap main sebelum commit
 Perbaikan: baris dipulihkan + regex slice mengeja nama variabel
 pasca-rector; diff penuh terhadap main dijamin = satu tambahan
 saja.
+
+## KDD-B20..B24: memo alias ikut dilupakan saat target di-re-register (#770)
+
+- **B20 (kontrak memo dilanggar di lane alias — temuan A-C2)**:
+  `ServiceStore::set()` hanya `forget($id)` milik id yang di-daftar
+  ulang — padahal post-#769 alias yang selaras singleton menyimpan
+  jawabannya di slot memo MILIK ALIAS (`SingletonMemo` per-id), sehingga
+  setelah `set('t', factoryBaru)`, `get('a')` (a→t) masih melayani
+  instance LAMA sementara `get('t')` menjawab yang baru: setengah
+  container melayani objek basi, docblock memo sendiri ("The previous
+  instance must never answer again") dilanggar oleh lane alias. Fix =
+  opsi #1 issue: reverse-index ride — registri `AliasRides` (alias→
+  target) yang `set()` walk untuk melupakan slot SEMUA alias yang
+  menunggangi id yang di-rebind, transitif (rider's rider sama basi
+  dengan rider-nya: a→b→c, rebind c melupakan b dan a).
+- **B21 (identitas, bukan dependensi — batas honest scope)**: invalidasi
+  menjangkau LANE ALIAS saja, bukan dependen lain: singleton yang
+  constructor-inject 't' (holder) tetap membawa instance lama pasca
+  rebind — itu semantik rebind klasik DI (dependen = identitas lain,
+  rebuild dependen bukan klaim issue ini; lihat doctrine rebuild
+  namespace tersendiri kalau kelak dibutuhkan). Alias adalah identitas
+  target dengan nama lain ("an alias is transparent") — di situlah
+  bedanya: memo alias melanggar kontrak "previous instance must never
+  answer again" MILIK target. Wrapper dekorasi pun identitas dependen
+  (decoration = definition surgery, wrapper = service baru) — hanya
+  slot `@decor:` yang re-homed tetap alias transparan yang ikut
+  dicatat ride-nya. Scope request: slot scope milik target sendiri
+  punya staleness pre-existing yang sama untuk keduanya (konsisten,
+  alias TIDAK LEBIH basi dari target) — scope baru menjawab registrasi
+  baru; test mem-pin scope-baru saja.
+- **B22 (rekaman dari plan TERPASANG, bukan deklarasi parse)**: ride
+  dicatat `ContainerInstalls` untuk SETIAP `AliasDefinition` di plan
+  terpasang — apa pun id yang dihasilkan surgery pipeline (biasa,
+  `@decor:` re-homed, `@contextual:` sintetis yang menunjuk
+  implementasinya): graph yang di-walk invalidasi = graph yang boot
+  instal. Predikat kosong (tanpa filter sintetis) itu sengaja:
+  `@contextual:` sintetik singleton yang memo-nya men-PIN jawaban
+  implementasi = bug kelas yang sama, invalidasinya benar juga.
+  Re-register id alias itu sendiri = drop record (id kini jawab
+  factory-nya sendiri, rebind target lama tak boleh menembusnya)
+  sementara rider yang menunjuk id itu TETAP terjangkau (jawaban
+  delegasi mereka berubah transitif). Fasilitas: `Container::
+  markAliasRide()` (postur markLazy) + `ServiceStore::aliasRides()`.
+- **B23 (walk BFS defensif, order tak diamati)**: `forgottenFor` =
+  BFS reverse-atas-edge dengan visited-set — melanjutkan MELALUI alias
+  yang terjangkau (rider's rider) karena jawaban delegasi mereka
+  berubah transitif; arm siklus `isset($seen)` defensif (graph
+  validator boot sudah menolak siklus — registry tidak mempercayai
+  inputnya, preseden cycle-arm AliasChains). Urutan jawaban
+  breadth-first TIDAK pernah diamati pemanggil (forget per-slot),
+  dipin hanya demi determinisme baterai.
+- **B24 (AOT generation 4 bump: member baru aliasRides)**: artifact
+  membake index ride (`AotAliasRides::all` dari plan — alasan bake
+  sama dengan lazy map: re-homing dekorasi tak selamat dari
+  re-derivation parse; load lane `AotBootLane` men-mark dari peta
+  baked, postur yang sama dengan lazy marks). Envelope enam kunci
+  (digest/unreferenced/tags/lazy/entries/aliasRides), validator
+  fail-closed per-member (`AotArtifactRides`: map, identifier
+  non-kosong dua sisi — artifact robek tak bisa setengah-boot dengan
+  ride menunjuk slot yang tak pernah dipasang). GENERATION 3→4:
+  artifact generasi 3 tak membake index → re-registration invalidasi
+  tidak menjangkau lane alias pada boot zero-planning — proven-stale,
+  recompile + re-dump. Order kunci 'aliasRides' DITARUH SETELAH
+  'entries' agar dua test missing-key lama (entries/lazy) tetap
+  melaporkan kunci yang sama.
+
+## Ronda gate: panggilan statik menambah operator unik (#770, archeology)
+
+Ronde pertama slice #770 memerah archeology TIGA temuan: ServiceStore
+file+class (22.33/22.50) dan AotArtifact class (20.17) di atas ceiling
+20 — padahal main masing-masing 16.39 dan ~19.x. Diagnosis token:
+Halstead D = (n1/2) × (N2/n2) — n1 file main = 5 operator unik,
+tambahan panggilan STATIK `RebindInvalidations::forget(...)` di
+ServiceStore::set() menaikkan n1 → 6 (operator baru), N2 59→61, n2
+tetap 9 → D melompat 16.39→20.33 padahal volume tambahan kecil.
+PANGGILAN INSTANCI `->` memakai operator yang sudah ada — mengganti
+fold statik jadi KOLABORATOR INSTANCE (properti + konstruksi di ctor,
+`$this->rebindInvalidations->forget($id)` di set()) menurunkan file
+ke 17.50 (biaya slice +1.11 di atas main) TANPA mengubah semantik.
+Pelajaran umum: difficulty Halstead sensitif terhadap operator UNIK
+baru, bukan volume — dalam file yang n2-nya kecil (ServiceStore = 9
+operand unik), satu operator baru = +20% D. Prefiks diagnosa:
+bandingkan metrik file laporan ("Unique operators/operands") terhadap
+main sebelum merancang refactor. AotArtifact 20.17 → 7.17 lewat
+ekstraksi validatedTags ke unit keluarga AotArtifactTags (preseden
+split per-member validator), juga mengikuti pola ronde archeology
+#829 ("the walk splits into question units under the difficulty
+ceiling").

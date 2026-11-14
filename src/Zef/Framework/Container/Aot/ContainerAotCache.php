@@ -111,9 +111,16 @@ final readonly class ContainerAotCache
      * @param array<string, list<string>>      $tags         the baked tag index
      * @param array<string, class-string>      $lazy         the baked lazy map
      * @param list<string>                     $unreferenced the baked unreferenced report
+     * @param array<string, string>            $aliasRides   the baked alias ride index (#770)
      */
-    public function dump(string $digest, array $entries, array $tags, array $lazy, array $unreferenced): void
-    {
+    public function dump(
+        string $digest,
+        array $entries,
+        array $tags,
+        array $lazy,
+        array $unreferenced,
+        array $aliasRides = [],
+    ): void {
         $directory = \dirname($this->file);
 
         if (!is_dir($directory)) {
@@ -128,6 +135,7 @@ final readonly class ContainerAotCache
             . "    'entries' => [\n"
             . AotEntriesBlock::rendered($entries)
             . "    ],\n"
+            . "    'aliasRides' => " . var_export($aliasRides, true) . ",\n"
             . "];\n";
 
         // A PID alone collides when two processes dump the same target
@@ -178,6 +186,7 @@ final readonly class ContainerAotCache
             $containerCompilePlan->tagIndex->toArray(),
             AotLazies::all($containerCompilePlan->definitions),
             $containerCompilePlan->unreferenced,
+            AotAliasRides::all($containerCompilePlan->definitions),
         );
 
         return true;

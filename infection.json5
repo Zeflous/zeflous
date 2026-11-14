@@ -1926,7 +1926,17 @@
                 // the container battery under the flipped polarity --
                 // the complete battery passes, the alias-cycle refusal
                 // included).
-                "\\$visited\\[\\$aliasDefinition->id] = true;"
+                "\\$visited\\[\\$aliasDefinition->id] = true;",
+                // The rebind walk's visited marks are the same
+                // isset-only bookkeeping: the cycle arm reads
+                // isset() alone, which answers the same question for
+                // true and false alike, so each mark's polarity is the
+                // walk's documentation, never an observable distinction
+                // (verified by running the registry battery under the
+                // flipped polarity -- the complete battery passes, the
+                // cycle and sibling arms included).
+                "\\$seen = \\[\\$reboundId => true\\];",
+                "\\$seen\\[\\$aliasId] = true;"
             ]
         },
         // The series count's float cast in

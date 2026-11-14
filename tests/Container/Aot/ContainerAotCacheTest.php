@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zef\Framework\Container\AliasDefinition;
+use Zef\Framework\Container\Aot\AotAliasRides;
 use Zef\Framework\Container\Aot\AotArguments;
 use Zef\Framework\Container\Aot\AotArtifact;
 use Zef\Framework\Container\Aot\AotArtifactCalls;
@@ -18,6 +19,8 @@ use Zef\Framework\Container\Aot\AotArtifactEntry;
 use Zef\Framework\Container\Aot\AotArtifactEnvelope;
 use Zef\Framework\Container\Aot\AotArtifactIds;
 use Zef\Framework\Container\Aot\AotArtifactLazies;
+use Zef\Framework\Container\Aot\AotArtifactRides;
+use Zef\Framework\Container\Aot\AotArtifactTags;
 use Zef\Framework\Container\Aot\AotBuildEntry;
 use Zef\Framework\Container\Aot\AotClosureEntry;
 use Zef\Framework\Container\Aot\AotClosures;
@@ -76,6 +79,9 @@ use Zef\Test\Support\Container\Aot\Window;
 #[CoversClass(AotArtifactEntry::class)]
 #[CoversClass(AotArtifactEnvelope::class)]
 #[CoversClass(AotArtifactLazies::class)]
+#[CoversClass(AotArtifactRides::class)]
+#[CoversClass(AotArtifactTags::class)]
+#[CoversClass(AotAliasRides::class)]
 #[CoversClass(AotArtifactIds::class)]
 #[CoversClass(AotBuildEntry::class)]
 #[CoversClass(AotClosureEntry::class)]
@@ -122,6 +128,36 @@ final class ContainerAotCacheTest extends TestCase
         self::assertSame(['frame.house' => ['app.house']], $artifact->tags());
         self::assertSame([], $artifact->lazy());
         self::assertCount(7, $artifact->entries());
+    }
+
+    public function testTheAliasRideIndexSurvivesTheRoundTripWhole(): void
+    {
+        // #770's boundary half: the envelope carries the ride index
+        // the load lane marks from, so the zero-planning boot's
+        // re-registration invalidation reaches the alias lane.
+        $containerAotCache = new ContainerAotCache($this->file);
+
+        $definitions = [
+            new InstanceDefinition('app.window', Window::class),
+            new AliasDefinition('app.pane', 'app.window'),
+            new AliasDefinition('app.sill', 'app.pane'),
+        ];
+
+        $containerAotCache->dump(
+            'digest-of-the-configuration',
+            AotEntries::all($definitions),
+            [],
+            [],
+            [],
+            AotAliasRides::all($definitions),
+        );
+
+        $artifact = $containerAotCache->load();
+
+        self::assertSame(
+            ['app.pane' => 'app.window', 'app.sill' => 'app.pane'],
+            $artifact->aliasRides(),
+        );
     }
 
     public function testAMultiTagIndexSurvivesTheRoundTripWhole(): void
@@ -173,6 +209,7 @@ final class ContainerAotCacheTest extends TestCase
             ['frame.house' => ['app.window']],
             [],
             [],
+            ['app.pane' => 'app.window'],
         );
 
         $expectedLines = [
@@ -216,6 +253,9 @@ final class ContainerAotCacheTest extends TestCase
             "  'lifetime' => 'singleton',",
             '),',
             '    ],',
+            "    'aliasRides' => array (",
+            "  'app.pane' => 'app.window',",
+            '),',
             '];',
             '',
         ];
@@ -518,151 +558,195 @@ final class ContainerAotCacheTest extends TestCase
                 "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the 'lazy' key is missing.",
             ],
+            'missing aliasRides key' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                . " 'entries' => []];",
+                "The container AOT artifact '{$file}' is malformed: the 'aliasRides' key is missing.",
+            ],
             'unknown envelope key' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [], 'entries' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                . " 'entries' => [],"
                 . " 'extra' => 1];",
                 "The container AOT artifact '{$file}' is malformed: unknown envelope key extra.",
             ],
             'digest not a string' => [
-                "<?php return ['digest' => 1, 'unreferenced' => [], 'tags' => [], 'lazy' => [], 'entries' => []];",
+                "<?php return ['digest' => 1, 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                . " 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the digest must be a non-empty string.",
             ],
             'unreferenced not a list' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => ['a' => 'b'], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => ['a' => 'b'], 'tags' => [],"
+                . " 'lazy' => [],"
                 . " 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the unreferenced report must be a list of "
                 . 'identifiers.',
             ],
             'unreferenced not strings' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [1], 'tags' => [], 'lazy' => [], 'entries' => []];",
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [1], 'tags' => [],"
+                . " 'lazy' => [], 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the unreferenced report must be a list of "
                 . 'identifiers.',
             ],
             'tags not a map' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => 'nope', 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => 'nope',"
+                . " 'lazy' => [],"
                 . " 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the tag index must be a map.",
             ],
             'tag key not a string' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [7 => ['x']], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [7 => ['x']],"
+                . " 'lazy' => [],"
                 . " 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the tag index keys must be non-empty tag strings.",
             ],
             'tag ids not a list' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => ['t' => 'id'], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => ['t' => 'id'],"
+                . " 'lazy' => [],"
                 . " 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the tag index for 't' must be a list of "
                 . 'identifiers.',
             ],
             'lazy not a map' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => 'nope',"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [],"
+                . " 'lazy' => 'nope',"
                 . " 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the lazy map must be a map.",
             ],
             'lazy key not a string' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [7 => 'a'],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [],"
+                . " 'lazy' => [7 => 'a'],"
                 . " 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the lazy map keys must be non-empty service"
                 . ' identifiers.',
             ],
             'lazy class unknown' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [],"
                 . " 'lazy' => ['a' => 'NoSuchClassAnywhere'], 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the lazy map for 'a' must name an existing"
                 . ' class.',
             ],
             'lazy class not a string' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => ['a' => 7],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [],"
+                . " 'lazy' => ['a' => 7],"
                 . " 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the lazy map for 'a' must name an existing"
                 . ' class.',
             ],
             'lazy class the empty string' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [],"
                 . " 'lazy' => ['a' => ''], 'entries' => []];",
                 "The container AOT artifact '{$file}' is malformed: the lazy map for 'a' must name an existing"
                 . ' class.',
             ],
-            'entries not a map' => [
+            'alias rides not a map' => [
                 "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                . " 'aliasRides' => 'nope', 'entries' => []];",
+                "The container AOT artifact '{$file}' is malformed: the alias ride index must be a map.",
+            ],
+            'alias ride key not a string' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                . " 'aliasRides' => [7 => 'a'], 'entries' => []];",
+                "The container AOT artifact '{$file}' is malformed: the alias ride index keys must be non-empty"
+                . ' service identifiers.',
+            ],
+            'alias ride key the empty string' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                . " 'aliasRides' => ['' => 'a'], 'entries' => []];",
+                "The container AOT artifact '{$file}' is malformed: the alias ride index keys must be non-empty"
+                . ' service identifiers.',
+            ],
+            'alias ride target not a string' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                . " 'aliasRides' => ['a' => 7], 'entries' => []];",
+                "The container AOT artifact '{$file}' is malformed: the alias ride index for 'a' must name a"
+                . ' non-empty target identifier.',
+            ],
+            'alias ride target the empty string' => [
+                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                . " 'aliasRides' => ['a' => ''], 'entries' => []];",
+                "The container AOT artifact '{$file}' is malformed: the alias ride index for 'a' must name a"
+                . ' non-empty target identifier.',
+            ],
+            'entries not a map' => [
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => 'nope'];",
                 "The container AOT artifact '{$file}' is malformed: the entries must be a map.",
             ],
             'entry not a map' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => 'nope']];",
                 "The artifact entry for service 'a' is malformed.",
             ],
             'entry missing kind' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => []]];",
                 "The artifact entry for service 'a' is malformed.",
             ],
             'unknown kind' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => ['kind' => 'weird', 'lifetime' => 'singleton']]];",
                 "The artifact entry for service 'a' carries the unknown entry kind 'weird' (known kinds: closure,"
                 . ' build).',
             ],
             'unknown lifetime' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => ['kind' => 'closure', 'closure' => function () {},"
                 . " 'lifetime' => 'eternal']]];",
                 "The artifact entry for service 'a' carries the unknown lifetime 'eternal'.",
             ],
             'closure entry not a closure' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => ['kind' => 'closure', 'closure' => 'nope', 'lifetime' => 'singleton']]];",
                 "The artifact entry for service 'a' is malformed.",
             ],
             'closure entry extra keys' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => ['kind' => 'closure', 'closure' => function () {},"
                 . " 'lifetime' => 'singleton', 'factory' => 'x']]];",
                 "The artifact entry for service 'a' is malformed.",
             ],
             'build entry missing keys' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => ['kind' => 'build', 'factory' => 'T::m', 'lifetime' => 'singleton']]];",
                 "The artifact entry for service 'a' is malformed.",
             ],
             'build factory empty' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => ['kind' => 'build', 'factory' => '', 'arguments' => [], 'calls' => [],"
                 . " 'lifetime' => 'singleton']]];",
                 "The artifact entry for service 'a' member 'factory' must be a non-empty string, string given.",
             ],
             'build calls malformed' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => ['kind' => 'build', 'factory' => 'T::m', 'arguments' => [],"
                 . " 'calls' => ['nope'], 'lifetime' => 'singleton']]];",
                 "The artifact entry for service 'a' is malformed.",
             ],
             'entry key not a string' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => [5 => ['kind' => 'closure', 'closure' => function () {},"
                 . " 'lifetime' => 'singleton']]];",
                 "The artifact entry for service '5' is malformed.",
             ],
             'entry key empty' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['' => ['kind' => 'closure', 'closure' => function () {},"
                 . " 'lifetime' => 'singleton']]];",
                 "The artifact entry for service '' is malformed.",
             ],
             'entry an offset-accessible object' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => new \\ArrayObject(['kind' => 'build'])]];",
                 "The artifact entry for service 'a' is malformed.",
             ],
             'build arguments not a list' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => ['kind' => 'build', 'factory' => 'T::m',"
                 . " 'arguments' => ['style' => 'x'], 'calls' => [], 'lifetime' => 'singleton']]];",
                 "The artifact entry for service 'a' member 'arguments' must be a list, array given.",
             ],
             'call arguments not a list' => [
-                "<?php return ['digest' => 'd', 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
+                "<?php return ['digest' => 'd', 'aliasRides' => [], 'unreferenced' => [], 'tags' => [], 'lazy' => [],"
                 . " 'entries' => ['a' => ['kind' => 'build', 'factory' => 'T::m', 'arguments' => [],"
                 . " 'calls' => [['method' => 'stamp', 'arguments' => ['serial' => 'x']]],"
                 . " 'lifetime' => 'singleton']]];",
