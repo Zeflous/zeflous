@@ -110,17 +110,17 @@ final class ETagCompressionCompositionTest extends TestCase
     }
 
     /**
-     * @param StreamInterface $body the handler's answer body
+     * @param StreamInterface $stream the handler's answer body
      */
-    private function conditionalPipeline(StreamInterface $body): ResponseInterface
+    private function conditionalPipeline(StreamInterface $stream): ResponseInterface
     {
-        $conditional = new ETagMiddleware();
+        $eTagMiddleware = new ETagMiddleware();
 
         return $this->compression()->process(
             $this->request(),
             new MiddlewareHandler(
-                $conditional,
-                new FixedResponseHandler(new Response(200, [], $body)),
+                $eTagMiddleware,
+                new FixedResponseHandler(new Response(200, [], $stream)),
             ),
         );
     }
