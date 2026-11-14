@@ -425,3 +425,22 @@ N2/n2 bergerak aneh — membuang operand yang terakhir kalinya mengecilkan
 n2 bisa MEMPERBURUK rasio; yang menurunkan D adalah menghilangkan
 operator-UNIK terakhir pemakaiannya (kasus `??` satu-satunya di
 NamespaceFallbacks) atau memindahkan volume ke unit lain.
+
+## Ronda gate keempat: baris ignore tertelan (PR #829, CI Infection)
+
+Ronde keempat: CI Infection memerah dengan TIGA escape TrueValue —
+satu milik slice ini (regex ignore mengeja `\$alias->id` sementara
+rector menamai ulang variabel jadi `\$aliasDefinition` di ronde
+penyelesaian format — regex tak lagi cocok), dan DUA milik keluarga
+telemetry (`\$emittedTypes[...]`) yang ignore-nya terdokumentasi.
+Diagnosis: edit python slice ini pada entri TrueValue TERTELAN baris
+regex `emittedTypes` yang lama (old_str mengandung dua baris,
+new_str hanya menulis ulang satu + tambahan baru) — ignore
+terdokumentasi hilang tanpa suara, mutant "lahir kembali" sebagai
+escape. Preseden #824 lesson diperluas: bukan hanya kunci duplikat
+yang melucuti ignore — edit TUPLE baris pada file ini harus
+diaudit dengan diff penuh terhadap main sebelum commit
+(`git diff origin/main -- infection.json5` kini langkah wajib slice).
+Perbaikan: baris dipulihkan + regex slice mengeja nama variabel
+pasca-rector; diff penuh terhadap main dijamin = satu tambahan
+saja.
