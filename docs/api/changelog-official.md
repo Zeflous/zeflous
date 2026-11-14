@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- fix\(packaging\): the mbstring extension joins the platform block \(issue \#774\) [\#842](https://github.com/Zeflous/zeflous/pull/842) ([mbetixz](https://github.com/mbetixz))
+- fix\(cli\): the entrypoint owns its exit-code contract's final arm \(issue \#773\) [\#839](https://github.com/Zeflous/zeflous/pull/839) ([mbetixz](https://github.com/mbetixz))
 - fix\(console\): the directory verb joins the collision vocabulary \(issue \#772\) [\#836](https://github.com/Zeflous/zeflous/pull/836) ([mbetixz](https://github.com/mbetixz))
 - fix\(http\): the conditional read consumed non-seekable body rides onward as its seekable snapshot \(issue \#771\) [\#833](https://github.com/Zeflous/zeflous/pull/833) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the rebind invalidation reaches the alias lane \(issue \#770\) [\#832](https://github.com/Zeflous/zeflous/pull/832) ([mbetixz](https://github.com/mbetixz))
