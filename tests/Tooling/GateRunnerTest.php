@@ -559,7 +559,7 @@ final class GateRunnerTest extends TestCase
     {
         file_put_contents(
             $this->root . '/composer.json',
-            '{"require":{"php":"^8.4"},"require-dev":{"phpunit/phpunit":"^13.4"}}',
+            '{"require":{"php":"^8.4","ext-mbstring":"*"},"require-dev":{"phpunit/phpunit":"^13.4"}}',
         );
         file_put_contents(
             $this->root . '/composer.lock',
@@ -574,7 +574,10 @@ final class GateRunnerTest extends TestCase
 
     public function testZeroDependencyGateFailsOnAProductionPackage(): void
     {
-        file_put_contents($this->root . '/composer.json', '{"require":{"php":"^8.4"}}');
+        file_put_contents(
+            $this->root . '/composer.json',
+            '{"require":{"php":"^8.4","ext-mbstring":"*"}}',
+        );
         file_put_contents(
             $this->root . '/composer.lock',
             '{"packages":[{"name":"monolog/monolog"}]}',
@@ -590,14 +593,33 @@ final class GateRunnerTest extends TestCase
     {
         file_put_contents(
             $this->root . '/composer.json',
-            '{"require":{"php":"^8.4","psr/log":"^3.0"}}',
+            '{"require":{"php":"^8.4","ext-mbstring":"*","psr/log":"^3.0"}}',
         );
         file_put_contents($this->root . '/composer.lock', '{"packages":[]}');
 
         $gateResult = $this->runner()->run('zero-deps', []);
 
         self::assertFalse($gateResult->passed);
-        self::assertStringContainsString('expected exactly {"php": "^8.4"}', $gateResult->message);
+        self::assertStringContainsString(
+            'expected exactly {"php": "^8.4", "ext-mbstring": "*"}',
+            $gateResult->message,
+        );
+    }
+
+    /**
+     * Issue #774's own posture over the runner's own channel: the
+     * manifest spelling php alone -- the extension undeclared -- refuses
+     * through the gate runner exactly like any other narrowed manifest.
+     */
+    public function testZeroDependencyGateFailsWhenTheExtensionIsUndeclared(): void
+    {
+        file_put_contents($this->root . '/composer.json', '{"require":{"php":"^8.4"}}');
+        file_put_contents($this->root . '/composer.lock', '{"packages":[]}');
+
+        $gateResult = $this->runner()->run('zero-deps', []);
+
+        self::assertFalse($gateResult->passed);
+        self::assertStringContainsString('expected exactly {"php": "^8.4", "ext-mbstring": "*"}', $gateResult->message);
     }
 
     public function testZeroDependencyGateThrowsWhenComposerJsonIsMissing(): void

@@ -81,20 +81,26 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
      */
     public static function provideTheDecisionMatrixCases(): iterable
     {
-        yield 'holds: the php platform alone keeps the lane green' => [
-            ['php' => '^8.4'],
+        yield 'holds: the php platform with its declared extension keeps the lane green' => [
+            ['php' => '^8.4', 'ext-mbstring' => '*'],
             [],
             true,
         ];
 
+        yield 'refuses: the php platform alone — the extension undeclared — fails the lane (issue #774)' => [
+            ['php' => '^8.4'],
+            [],
+            false,
+        ];
+
         yield 'holds: any extra require entry fails the lane' => [
-            ['php' => '^8.4', 'monolog/monolog' => '^3.0'],
+            ['php' => '^8.4', 'ext-mbstring' => '*', 'monolog/monolog' => '^3.0'],
             [],
             false,
         ];
 
         yield 'holds: a changed php constraint fails the lane' => [
-            ['php' => '^8.3'],
+            ['php' => '^8.3', 'ext-mbstring' => '*'],
             [],
             false,
         ];
@@ -106,13 +112,13 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
         ];
 
         yield 'holds: a single locked production package fails the lane' => [
-            ['php' => '^8.4'],
+            ['php' => '^8.4', 'ext-mbstring' => '*'],
             [['name' => 'monolog/monolog']],
             false,
         ];
 
         yield 'holds: two locked production packages fail the lane' => [
-            ['php' => '^8.4'],
+            ['php' => '^8.4', 'ext-mbstring' => '*'],
             [['name' => 'monolog/monolog'], ['name' => 'psr/log']],
             false,
         ];
@@ -132,7 +138,8 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
         );
 
         self::assertSame(
-            'Zero-dependency gate PASSED: composer.json require is {"php": "^8.4"} and composer.lock packages is [].',
+            'Zero-dependency gate PASSED: composer.json require is {"php": "^8.4", "ext-mbstring": "*"}'
+            . ' and composer.lock packages is [].',
             $gateResult->message,
         );
     }
@@ -148,23 +155,26 @@ final class ZeroDependencyScopeCorpusTest extends TestCase
     public static function provideTheFenceCases(): iterable
     {
         yield 'outside: a require-dev section never reaches the verdict' => [
-            '{"name":"zeflous/zeflous","require":{"php":"^8.4"},"require-dev":{"phpunit/phpunit":"^11.0"}}',
+            '{"name":"zeflous/zeflous","require":{"php":"^8.4",'
+            . '"ext-mbstring":"*"},"require-dev":{"phpunit/phpunit":"^11.0"}}',
             '{"content-hash":"abc123","packages":[],"packages-dev":[]}',
         ];
 
         yield 'outside: a locked packages-dev tree never reaches the verdict' => [
-            '{"name":"zeflous/zeflous","require":{"php":"^8.4"}}',
+            '{"name":"zeflous/zeflous","require":{"php":"^8.4","ext-mbstring":"*"}}',
             '{"content-hash":"abc123","packages":[],"packages-dev":[{"name":"phpunit/phpunit","version":"11.0.0"}]}',
         ];
     }
 
     /**
      * The ratchet odometer: the corpus is complete when the family counts
-     * hold, so the scope cannot widen or narrow quietly.
+     * hold, so the scope cannot widen or narrow quietly -- the #774
+     * re-spelling itself moved a refusal arm in with the widening, exactly
+     * the same-diff move this odometer exists to force.
      */
     public function testTheCorpusCountsAreTheRatchet(): void
     {
-        self::assertCount(6, [...self::provideTheDecisionMatrixCases()]);
+        self::assertCount(7, [...self::provideTheDecisionMatrixCases()]);
         self::assertCount(2, [...self::provideTheFenceCases()]);
     }
 }

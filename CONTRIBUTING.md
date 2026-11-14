@@ -325,11 +325,12 @@ read-only. This keeps every delivered revision reproducible and reviewable.
 
 A CI gate **MUST** assert the zero-dependency invariant on every pull request:
 
-- `composer.json` → `require` equals `{ "php": "^8.4" }`; and
-- `composer.lock` → `packages` equals `[]`.
+- `composer.json` → `require` equals the platform block `{ "php": "^8.4", "ext-mbstring": "*" }` — the environment contract, never a dependency: the PHP version floor the engine rides and the mbstring extension the runtime's own multibyte grammar needs (~330 `mb_*` call sites; issue #774: an undeclared hard requirement is a silent fatality that waits for the first request on a build without it — declared, the refusal moves to `composer install`, where the operator can read it); and
+- `composer.lock` → `packages` equals `[]` — zero Composer **packages** is the dependency invariant this rule has always owned.
 
 The gate fails the build if either assertion is violated, so a runtime
-dependency can never be introduced silently. This is the enforcement arm of
+dependency can never be introduced silently — and neither can the platform
+contract quietly narrow back to the undeclared spelling. This is the enforcement arm of
 [rule 1](#1-zero-composer--zero-vendor-at-production-runtime).
 
 ### 17. Error-system and configuration-system integration is mandatory
