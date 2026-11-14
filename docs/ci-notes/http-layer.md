@@ -730,3 +730,44 @@ dijawabnya, `MiddlewareHandler` — adapter middleware→handler untuk tes kompo
   18 error, 3 syntax — SAMA PERSIS dua sisi); local mutation:zones gagal IDENTIK dua sisi
   (99.80% vs 99.80%) — kondisi flake lokal terdokumentasi, engine CI membunuhnya (preseden
   PR-H/K/L/M).
+
+## Audit fix — KDD-H19 (issue #771: representasi non-seekable bertahan sebagai snapshot)
+
+**H19 — setengah #303 yang tidak bisa di-rewind diganti dengan yang setara, bukan dibiarkan kosong.**
+Doktrin audit #303 menyebut "the shared stream flows on to the emitter, which must still
+ship the full representation" — dan pemulihannya adalah rewind kursor (seekable). Stream
+non-seekable TIDAK punya kursor untuk dipulihkan: begitu `RepresentationBody::read()`
+mengonsumsinya `(string)`, respons yang dioper ke depan adalah cangkang kosong berheader
+sukses. Setiap pembaca body berikutnya menjawab sisa "tidak ada apa-apa" — komposisi
+opt-in `ETagMiddleware` di depan `CompressionMiddleware` (repro issue #771): body piped
+4096 byte dijawab `200`, `Content-Encoding: gzip`, `ETag` hash-representasi-penuh, tapi
+body wire adalah gzip dari string kosong (~20 byte) — korupsi senyap yang akan
+disimpan cache downstream justru karena semua header bilang sukses. Tanpa pembaca body
+di depannya, keluarga kompresi membaca non-seekable utuh dengan jalan sendiri (walk
+chunk-nya tidak pernah konsumsi-tanpa-pulih) — cacatnya selalu stream yang
+sudah-terkonsumsi mengalir terus, bukan engine-nya.
+
+Perbaikan jujur untuk setengah yang tak-bisa-rewind adalah PENGGANTIAN, bukan pemulihan:
+`RepresentationSnapshot::answer($response, $stream, $content)` — lengan seekable
+mengembalikan respons apa adanya (restorasinya adalah rewind yang read sudah lakukan,
+instance stream sendiri dipertahankan); lengan non-seekable menukar body respons dengan
+`Stream::fromString($content)` — snapshot seekable `php://temp` berisi PERSIS byte yang
+read konsumsi, kursor di awal, menunggangi postur memory-allowance yang sama seperti
+tujuan keluarga kompresi (payload di memori sampai jatahnya lalu tumpah ke disk, jadi
+snapshot body streamed besar tidak pernah jadi alokasi besar). Satu file baru satu
+pertanyaan — idiom archeology-split H15/CP8; orchestrator ETag hanya bertambah satu
+baris pemanggilan, tidak menambah operator baru ke file yang sibuk.
+
+Baterai pembunuhnya tiga lapis: (1) pin unit — snapshot di-assert utuh (konten,
+seekable, `tell() === 0`, instance diganti `assertNotSame`) DAN setengah seekable
+di-assert TIDAK tersentuh (`assertSame` instance body — kill untuk flip lengan seekable:
+mutan yang menukar seekable juga akan gagal pin instance ini); boundary kosong di-pin
+jujur (body non-seekable kosong dijawab snapshot kosong yang known-size — bukan stream
+unknown-size yang gate keluarga kompresi akan admitted); (2) pin komposisi — repro
+issue #771 sebagai regresi: ETag→Compression atas non-seekable 4096 byte menjawab
+`gzdecode(wire) === payload` penuh, plus kontrol (kompresi sendirian atas body sama —
+utuh, membuktikan cacat bukan di walk engine); (3) end-to-end kill untuk
+MethodCallRemoval pemanggilan `answer()` — tanpa swap, body terkonsumsi mengalir ke
+CompressedBody yang sudah-EOF dan gzdecode ≠ payload. ETag tetap hash representasi
+TAK-terkompresi (validator deskripsi representasi, bukan wire-nya) — spelling repro
+dipertahankan.
