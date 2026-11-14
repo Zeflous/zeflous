@@ -15,6 +15,7 @@ use Zef\Framework\Http\IfModifiedSince;
 use Zef\Framework\Http\IfNoneMatch;
 use Zef\Framework\Http\NotModifiedResponse;
 use Zef\Framework\Http\RepresentationBody;
+use Zef\Framework\Http\RepresentationSnapshot;
 use Zef\Framework\Http\RequestPreconditions;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
@@ -32,6 +33,7 @@ use Zef\Test\Support\Http\NonSeekableBody;
 #[CoversClass(NotModifiedResponse::class)]
 #[CoversClass(RequestPreconditions::class)]
 #[CoversClass(RepresentationBody::class)]
+#[CoversClass(RepresentationSnapshot::class)]
 #[CoversClass(StrongEtag::class)]
 #[CoversClass(IfNoneMatch::class)]
 #[CoversClass(IfModifiedSince::class)]
@@ -128,14 +130,69 @@ final class ETagMiddlewareTest extends TestCase
         self::assertSame('hello', (string) $body, 'the full representation is still readable downstream');
     }
 
-    public function testANonSeekableBodyIsConsumedWithoutRewinding(): void
+    /**
+     * Issue #771: the non-seekable half of audit #303's doctrine. A
+     * stream that cannot rewind cannot be restored in place -- the read
+     * consumed it -- so the representation survives the reading through
+     * replacement: the response's body rides onward as a seekable
+     * snapshot of exactly the bytes read, cursor at the start, where
+     * every later body reader (the compression engine, the emitter)
+     * reads the representation whole instead of the nothing a consumed
+     * non-seekable stream leaves behind.
+     */
+    public function testAConsumedNonSeekableBodyRidesOnwardAsItsSeekableSnapshot(): void
     {
-        $response = new ETagMiddleware()->process(
-            $this->request(),
-            $this->handler(new Response(200, [], new NonSeekableBody('payload'))),
-        );
+        $inner = new Response(200, [], new NonSeekableBody('payload'));
+
+        $response = new ETagMiddleware()->process($this->request(), $this->handler($inner));
 
         self::assertSame($this->etagOf('payload'), $response->getHeaderLine('ETag'));
+
+        $body = $response->getBody();
+        self::assertNotSame($inner->getBody(), $body, 'the consumed stream is replaced, never reused');
+        self::assertSame('payload', (string) $body, 'the full representation still rides onward');
+        self::assertTrue($body->isSeekable(), 'the snapshot is seekable where the source was not');
+        self::assertSame(0, $body->tell(), 'the snapshot cursor starts at the beginning');
+    }
+
+    /**
+     * The seekable half stays untouched: its restoration is the cursor
+     * rewind the read already performed, so the response keeps its own
+     * stream instance -- the snapshot swap is the non-seekable half's
+     * alone (the kill for the seekable arm of {@see RepresentationSnapshot}).
+     */
+    public function testASeekableBodiedAnswerKeepsItsOwnStreamInstance(): void
+    {
+        $inner = new Response(200, [], 'hello');
+
+        $response = new ETagMiddleware()->process($this->request(), $this->handler($inner));
+
+        self::assertSame(
+            $inner->getBody(),
+            $response->getBody(),
+            'a seekable stream is restored in place, never swapped for a snapshot',
+        );
+    }
+
+    /**
+     * The empty boundary of the same doctrine: an empty non-seekable
+     * body yields no validator, and its snapshot is the known-empty
+     * seekable answer -- a body the compression family's threshold
+     * refuses on its own terms, not an unknown-size stream the gate
+     * would admit.
+     */
+    public function testAnEmptyNonSeekableBodyIsAnsweredByItsOwnEmptySnapshot(): void
+    {
+        $inner = new Response(200, [], new NonSeekableBody(''));
+
+        $response = new ETagMiddleware()->process($this->request(), $this->handler($inner));
+
+        self::assertFalse($response->hasHeader('ETag'), 'no bytes means no computed validator');
+
+        $body = $response->getBody();
+        self::assertTrue($body->isSeekable());
+        self::assertSame(0, $body->getSize());
+        self::assertSame('', (string) $body);
     }
 
     public function testAnEmptyBodiedResponseCarriesNoValidator(): void
