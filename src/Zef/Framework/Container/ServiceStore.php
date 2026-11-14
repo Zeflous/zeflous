@@ -143,6 +143,24 @@ final readonly class ServiceStore
             || $this->factoryRegistrations->has($id);
     }
 
+    /**
+     * The sharing policy the identifier's own registration carries --
+     * the read-only probe behind {@see Container::lifetime()}: the
+     * registration core's per-definition policy, the singleton every
+     * pre-lifetime registration and every memoised answer already had,
+     * or null for an identifier the store does not carry (the
+     * covering fallback's policy, or nobody's, is the caller's next
+     * question, not this unit's).
+     */
+    public function lifetime(string $id): ?ServiceLifetime
+    {
+        if ($this->factoryRegistrations->has($id)) {
+            return $this->factoryRegistrations->lifetime($id);
+        }
+
+        return $this->singletonMemo->has($id) ? ServiceLifetime::SINGLETON : null;
+    }
+
     public function resolve(string $id, Container $container): mixed
     {
         return $this->serviceResolutions->resolve($id, $container);

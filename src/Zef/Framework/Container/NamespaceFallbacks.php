@@ -106,6 +106,20 @@ final class NamespaceFallbacks
     }
 
     /**
+     * The covering fallback's sharing policy -- the lifetime probe's
+     * fallback half ({@see ContainerAnswers::lifetime()}),
+     * the one read that lets a declared alias to a fallback-covered
+     * target ride the prefix's own policy ({@see AliasLifetimes}).
+     * An identifier no fallback covers answers null.
+     */
+    public function lifetime(string $id): ?ServiceLifetime
+    {
+        $entry = $this->covering($id);
+
+        return $entry === null ? null : $entry['lifetime'];
+    }
+
+    /**
      * Resolves the identifier through its covering fallback -- the
      * get() miss path's own resolution. An identifier no fallback
      * covers is the miss itself, refused exactly as the store refuses

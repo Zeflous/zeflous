@@ -15,6 +15,11 @@ namespace Zef\Framework\Container;
  *
  * has() answers the PSR-11 letter exactly: whether get() will refuse
  * the identifier -- the store's registrations or a covering fallback.
+ * lifetime() answers the same totality as a sharing-policy read: the
+ * registered lane's policy, the covering fallback's, or null for the
+ * identifiers no lane answers -- the compile pipeline's alias
+ * alignment ({@see AliasLifetimes}) is the caller that needs a leaf
+ * target's policy spelled as data.
  */
 final readonly class ContainerAnswers
 {
@@ -43,5 +48,15 @@ final readonly class ContainerAnswers
     public function carries(string $id): bool
     {
         return $this->serviceStore->has($id) || $this->namespaceFallbacks->covers($id);
+    }
+
+    /**
+     * The sharing policy the identifier's answering lane carries --
+     * the store's registration, the covering fallback's prefix, or
+     * null for an identifier no lane answers.
+     */
+    public function lifetime(string $id): ?ServiceLifetime
+    {
+        return $this->serviceStore->lifetime($id) ?? $this->namespaceFallbacks->lifetime($id);
     }
 }

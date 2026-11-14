@@ -288,3 +288,68 @@ infection.json5, grep dulu kunci yang sudah ada** — file ini bukan
 daftar yang boleh ditumpuki; dan ketika mutant "baru" muncul di
 file yang tak tersentuh, curigai konfigurasi sebelum menyalahkan
 test.
+
+## KDD-B14..B19: alias menunggangi lifetime target-nya (#769)
+
+- **B14 (refusal grammar akhirnya jujur — alias transparency jadi kode)**:
+  `AliasShape` menolak kunci `lifetime` dengan klaim "an alias is
+  transparent: it rides the lifetime of its target" — tapi kompiler
+  mendaftarkan closure alias di bawah lane singleton default, sehingga
+  memo alias men-PIN jawaban pertama target transient selamanya:
+  `get(alias) === get(alias)` true sementara `get(target)` fresh tiap
+  kali. Pesan refusal dan perilaku adalah kebalikan satu sama lain
+  (temuan audit A-C1). Fix = opsi #1 issue: stage planning baru
+  `AliasLifetimes::align` meng-rewrite tiap alias biasa ke kebijakan
+  sharing target-nya SEBELUM validasi graph dan sebelum apply dekorator
+  — pesan itu kini menyatakan kebenaran yang boot instal.
+- **B15 (posisi stage: contextual→alignment→decorators→graph)**:
+  urutan bukan arbitrasi. Sebelum graph karena `LifetimeCaptures` kini
+  membaca lifetime yang sudah selaras: alias→target request jadi edge
+  request→request yang legal (dulu ditolak boot sebagai "singleton
+  mekanis menangkap request"), dan singleton yang bergantung pada
+  alias→request ditolak dengan nama alias — capture senyap lintas edge
+  alias (singleton pin instance scope lewat memo alias) jadi verdict
+  jujur di boot. Sebelum decorators karena wrapper dan base re-homed
+  dibangun dari lifetime deklarasi — alias yang selaras lebih dulu
+  membuat seluruh rantai dekorasi konsisten membawa kebijakan target.
+- **B16 (`@contextual:` skip = kontrak lain, bukan escape)**:
+  alias sintetis lane contextual SENGAJA membawa lifetime konsumen
+  (`ContextualSet` — rantai rewrite harus berperilaku persis seperti
+  referensi langsung konsumen→target). Itu kontrak yang berbeda dari
+  transparansi; alignment melewati prefix `@contextual:` yang lane itu
+  miliki. Alias biasa yang menargetkan sintetis contextual menunggangi
+  lifetime deklarasinya langsung (tanpa re-align — walk menghormati
+  target yang ditemukannya).
+- **B17 (probe lifetime = totalitas has(), precedence store>fallback)**:
+  leaf target (tidak ada di set) butuh baca kebijakan: `Container::
+  lifetime(?ServiceLifetime)` — pelebaran kelima fasad (probe read-only
+  di balik `ContainerAnswers` → `ServiceStore::lifetime` → registrasi;
+  `??` → `NamespaceFallbacks::lifetime` = kebijakan prefix covering).
+  Invariant yang di-pin test: precedence probe = precedence `answer()`
+  (registrasi menang atas fallback yang juga men-cover — mutant
+  Coalesce-swap dibunuh test overlap), dan paritas `has ⟺ lifetime !==
+  null` atas lane-lane campuran. Memo-only menjawab singleton
+  (konstruksi: memo hanya terisi dari lane singleton).
+- **B18 (walk: transitive, order-bebas, toleran siklus)**:
+  rantai `a→b→c` semua menunggangi kebijakan `c` apa pun urutan
+  deklarasi (walk atas set utuh + memo, bukan fold urutan). Target
+  tak-terdeclare tapi ter-carried container → kebijakan registrasinya
+  sendiri. Target tak-dikenal DAN siklus dibiarkan untuk verdict graph
+  satu stage kemudian (alignment menilai lifetime saja, tidak pernah
+  validitas set) — arm siklus `isset($visited)` menjamin terminasi.
+  Mutant kelas isset-only bookkeeping (`TrueValue` pada mark) dan
+  memo-early-return (`ReturnRemoval`) = ekuivalen terdokumentasi di
+  `infection.json5` mengikuti preseden `DefinitionCycles::visit` dan
+  `$seenParameters` (komentar baris demi baris di entri masing-masing).
+- **B19 (AOT generation 3 bump = staleness semantics, bukan shape)**:
+  entri `closure` artifact membake `lifetime` per definisi — dump baru
+  otomatis membake lifetime selaras, tapi artifact LAMA membake pin
+  singleton untuk alias target-transient: artifact yang secara diam
+  melayani semantik lama. `AotDigest::ARTIFACT_GENERATION` 2→3 (digest
+  melipat generation → setiap artifact lama proven-stale → boot
+  recompile + re-dump, jalur graceful yang sudah ada). Hex pin
+  `testTheFoldSpellsItsCanonicalFormStably` ikut bergerak — perubahan
+  LOUD yang persis test itu jaga agar tak bergerak diam-diam. Round-trip
+  test baru: boot kedua dari artifact menjawab transient-ride fresh
+  (`get(alias) !== get(alias)` di lane zero-planning).
+

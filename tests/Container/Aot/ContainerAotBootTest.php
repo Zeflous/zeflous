@@ -224,6 +224,38 @@ final class ContainerAotBootTest extends TestCase
         );
     }
 
+    public function testATransientTargetAliasRidesItsPolicyThroughTheArtifactRoundTrip(): void
+    {
+        // #769's AOT half: the artifact bakes the alignment's lifetime,
+        // so the zero-planning boot answers the same fresh-per-call ride
+        // the full lane does -- and the generation bump the semantics
+        // forced is what proves every pre-alignment artifact stale.
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $config = $this->config(['enabled' => true]);
+        $config['services']['app.work'] = ['class' => Window::class, 'lifetime' => 'transient'];
+        $config['services']['app.work.alias'] = ['alias' => 'app.work'];
+
+        $first = $containerBootstrapper->bootstrap(new Config($config), new Container());
+        self::assertNotSame(
+            $first->get('app.work.alias'),
+            $first->get('app.work.alias'),
+            'the full lane answers the transient ride',
+        );
+
+        $second = $containerBootstrapper->bootstrap(new Config($config), new Container());
+
+        $secondOutcome = $second->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $secondOutcome);
+        self::assertSame(AotLane::ArtifactLoaded, $secondOutcome->lane);
+        self::assertNotSame(
+            $second->get('app.work.alias'),
+            $second->get('app.work.alias'),
+            'the artifact lane answers the same ride through the baked lifetime',
+        );
+    }
+
     public function testTheFirstBootDumpsAndTheSecondLoads(): void
     {
         $containerAotCache = new ContainerAotCache($this->artifactFile);

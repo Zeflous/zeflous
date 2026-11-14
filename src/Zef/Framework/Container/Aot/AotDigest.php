@@ -52,9 +52,16 @@ final readonly class AotDigest
 {
     /**
      * The artifact boundary's format generation this digest folds --
-     * bump it whenever the envelope or an entry shape changes.
+     * bump it whenever the envelope or an entry shape changes, and
+     * whenever the *semantics* of what an entry carries changes: the
+     * third generation's reason is #769 -- a `closure` entry's
+     * `lifetime` member changed meaning for aliases (the alignment
+     * stage now writes the target's policy where older dumps wrote the
+     * singleton pin), so every artifact of the second generation is
+     * proven stale and the boot recompiles and re-dumps rather than
+     * running lifetimes the new planning no longer stands behind.
      */
-    public const int ARTIFACT_GENERATION = 2;
+    public const int ARTIFACT_GENERATION = 3;
 
     /**
      * Folds the source maps, the framework version and the artifact

@@ -176,12 +176,15 @@ final class AotDigestTest extends TestCase
      * stability across processes and releases -- every type-tagged
      * prefix, map name, the version and the artifact generation fold
      * into one SHA-256 whose literal value the lane promises not to
-     * change silently.
+     * change silently. (The generation-3 re-pin is #769's own loud
+     * change: the alias-lifetime alignment changed what a `closure`
+     * entry's `lifetime` member means, and the pinned hexes moved with
+     * the generation the digest folds.).
      */
     public function testTheFoldSpellsItsCanonicalFormStably(): void
     {
         self::assertSame(
-            '522b16cf8d0237b464c78b738b701cbcd116db6351de9c83a57cb35b3b2ec654',
+            '3396a47d5e1b3a36847e3498aaa4dbccd1c7491af990e500891994448610e1bf',
             AotDigest::over([
                 'framework.services' => ['x' => ['factory' => 'A::b']],
                 'services' => ['a' => ['class' => 'C', 'arguments' => [1, '1', 1.5, true, false, null,
@@ -193,7 +196,7 @@ final class AotDigestTest extends TestCase
         );
 
         self::assertSame(
-            '224db7de00e29302a8352bbab0b33e186061311797d096a9b765f324c70ba7db',
+            '14f4f81021a5466e8bfbac4d9d64d601dd8f5ab1a536a1531643ac38cb9b44ff',
             AotDigest::over([], '1'),
         );
     }

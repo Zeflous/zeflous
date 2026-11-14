@@ -23,12 +23,15 @@ use Zef\Framework\Container\Autowiring\AutowireCompilerPass;
  * births appended), the autoconfiguration apply second (the tags the
  * declarations earned merged in), the contextual-binding apply third
  * (each consumer's dependency reference rewritten through its binding's
- * synthetic alias), the decoration apply fourth (each decorated target
- * re-homed and wrapped, the tags travelling with the original
+ * synthetic alias), the alias-lifetime alignment fourth (every ordinary
+ * alias rewritten to its target's sharing policy -- the grammar's own
+ * transparency claim made the truth the boot installs, the {@see
+ * AliasLifetimes} surgery), the decoration apply fifth (each decorated
+ * target re-homed and wrapped, the tags travelling with the original
  * identifier), the reference graph proven resolvable, acyclic and
- * lifetime-honest fifth, the namespace tree sealed over the planned set's
+ * lifetime-honest sixth, the namespace tree sealed over the planned set's
  * public identifiers and the scope policy enforced against the graph
- * sixth ({@see NamespaceTree}, {@see NamespaceScopes} -- area 9's
+ * seventh ({@see NamespaceTree}, {@see NamespaceScopes} -- area 9's
  * namespace half, staged where the reference staged its own radix
  * pass: after the graph validator, because the policy reads the edges
  * the validator proved), and the tag index walked out of the planned
@@ -80,6 +83,8 @@ final readonly class ContainerCompilePipeline
         $planned = Autoconfiguration::apply($autowireResult->definitions, $autoconfigMap);
 
         $planned = ContextualBindings::apply($planned, $contextualMap);
+
+        $planned = AliasLifetimes::align($planned, $container);
 
         $planned = Decorators::apply($planned, $decoratorMap);
 
