@@ -105,6 +105,27 @@ final class ConsoleCommandsTest extends TestCase
         ]);
     }
 
+    /**
+     * Issue #772: the `list` verb is the shadowable one of all -- the
+     * CLI's own directory intercept answers it ahead of the declared
+     * seam -- so its declaration refuses here exactly like every other
+     * builtin's: the vocabulary without `list` let the declaration ride
+     * advertised-but-unreachable, the exact lie this refusal exists to
+     * prevent.
+     */
+    public function testTheListVerbCollisionRefusesNamingTheVerb(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessageIs(
+            "The command 'list' collides with the framework's own verb;"
+            . " the CLI's builtin branch would shadow the declaration.",
+        );
+
+        new ConsoleCommands([
+            ['name' => 'list', 'description' => 'Shadow the directory.', 'service' => 'a'],
+        ]);
+    }
+
     public function testTheCollisionJudgementAnswersOnTheFirstCollidingEntry(): void
     {
         // The collision is judged per entry as the table is walked, so
