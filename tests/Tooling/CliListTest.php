@@ -12,7 +12,7 @@ use Zef\Test\Support\Tooling\CliListText;
 /**
  * The CLI directory command's text view ({@see CliListText}): the
  * whole table pinned line by line -- the size-headed header, the
- * framework's own sixteen verbs with their one-line purposes in the
+ * framework's own seventeen verbs with their one-line purposes in the
  * vocabulary's own order, the declared section spelled even when
  * empty, and every line's two-space indent and two-space verb
  * separator carried verbatim, so the rendering is a surface a script
@@ -38,7 +38,7 @@ final class CliListTest extends TestCase
         ]);
 
         self::assertSame(
-            "Zef commands -- 16 framework, 2 declared\n"
+            "Zef commands -- 17 framework, 2 declared\n"
             . "framework:\n"
             . "  errors:replay  Replay one recorded error snapshot against a local target.\n"
             . "  container:inventory  Inspect the booted container's service inventory.\n"
@@ -47,6 +47,7 @@ final class CliListTest extends TestCase
             . "  route:tree  Render the booted radix route tree.\n"
             . "  route:openapi  Export the booted route table as an OpenAPI document.\n"
             . "  route:postman  Export the booted route table as a Postman collection.\n"
+            . "  list  Answer the command directory: the framework verbs and the declared commands.\n"
             . "  storage:map  Answer the storage layout's lane map for a declared root.\n"
             . "  migrations:status  Answer the applied, pending and declared migration counts.\n"
             . "  migrations:run  Apply the pending migrations through the wired runner.\n"
@@ -72,7 +73,7 @@ final class CliListTest extends TestCase
     public function testTheEmptyRegistryAnswersTheHonestEmptyDirectory(): void
     {
         self::assertSame(
-            "Zef commands -- 16 framework, 0 declared\n"
+            "Zef commands -- 17 framework, 0 declared\n"
             . "framework:\n"
             . "  errors:replay  Replay one recorded error snapshot against a local target.\n"
             . "  container:inventory  Inspect the booted container's service inventory.\n"
@@ -81,6 +82,7 @@ final class CliListTest extends TestCase
             . "  route:tree  Render the booted radix route tree.\n"
             . "  route:openapi  Export the booted route table as an OpenAPI document.\n"
             . "  route:postman  Export the booted route table as a Postman collection.\n"
+            . "  list  Answer the command directory: the framework verbs and the declared commands.\n"
             . "  storage:map  Answer the storage layout's lane map for a declared root.\n"
             . "  migrations:status  Answer the applied, pending and declared migration counts.\n"
             . "  migrations:run  Apply the pending migrations through the wired runner.\n"

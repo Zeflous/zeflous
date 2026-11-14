@@ -54,6 +54,16 @@ without the vocabulary grows a silent shadow surface the next
 declaration collides with — the pin cannot see it, so the verb's
 addition to `FrameworkVerbs` is the maintainer's own recorded step.
 
+The audit found that step missed exactly once (issue #772, the
+A-E1 finding): the `list` intercept — the builtin ahead of the
+declared seam that answers the CLI's own directory — never made it
+into the vocabulary, so the directory counted sixteen while the CLI
+answered seventeen, and a host's `list` declaration rode the registry
+advertised-but-unreachable, precisely the lie the refusal exists to
+prevent. The vocabulary carries `list` now, pinned by its own
+correspondence and collision tests, and the directory counts what
+the CLI answers.
+
 ## KDD-CR4: `list` answers from the DECLARED table, dispatch resolves the ONE handler — the CLI's own laziness posture
 
 The events wiring composes its dispatcher eagerly at the first
