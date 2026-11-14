@@ -187,6 +187,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix: give the changelog lane's seven runner-dependent mutants their deterministic observation [#824](https://github.com/Zeflous/zeflous/pull/824) ([mbetixz](https://github.com/mbetixz))
 - fix(router): the replay failure is the cache's own corruption shape (issue #768) [#826](https://github.com/Zeflous/zeflous/pull/826) ([mbetixz](https://github.com/mbetixz))
 - fix(container): the alias rides its target's lifetime for real (issue #769) [#829](https://github.com/Zeflous/zeflous/pull/829) ([mbetixz](https://github.com/mbetixz))
+- fix(container): the rebind invalidation reaches the alias lane (issue #770) [#832](https://github.com/Zeflous/zeflous/pull/832) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
