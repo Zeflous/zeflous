@@ -11,6 +11,7 @@ use Zef\Framework\Container\Container;
 use Zef\Framework\Container\ContainerAnswers;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\FallbackConstructions;
+use Zef\Framework\Container\FallbackSingletons;
 use Zef\Framework\Container\InterceptorsMap;
 use Zef\Framework\Container\ListenersMap;
 use Zef\Framework\Container\NamespaceBuiltRefusals;
@@ -38,6 +39,7 @@ use Zef\Test\Support\Container\Namespaces\NamespacedService;
 #[CoversClass(NamespaceCoverings::class)]
 #[CoversClass(NamespaceFallbackGrammar::class)]
 #[CoversClass(FallbackConstructions::class)]
+#[CoversClass(FallbackSingletons::class)]
 #[CoversClass(ContainerAnswers::class)]
 #[CoversClass(NamespaceBuiltRefusals::class)]
 final class NamespaceFallbacksTest extends TestCase

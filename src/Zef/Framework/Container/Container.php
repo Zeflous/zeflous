@@ -27,7 +27,12 @@ use Psr\Container\ContainerInterface;
  * the store owns that reach-through too. The lazy registry's accessor is
  * the fourth: the boot's lanes mark the identifiers the resolution lanes
  * defer behind native proxies ({@see LazyIdentities}), and the facade that
- * owns the store owns that reach-through too.
+ * owns the store owns that reach-through too. The lifetime probe is the
+ * fifth: the compile pipeline's alias alignment reads a leaf target's
+ * sharing policy through it ({@see AliasLifetimes}), and the facade that
+ * owns the store owns the read -- the same totality has() answers with, so
+ * an identifier the container answers for never reads as unknown to the
+ * one stage that needs its policy.
  */
 final readonly class Container implements ContainerInterface
 {
@@ -167,6 +172,22 @@ final readonly class Container implements ContainerInterface
     public function has(string $id): bool
     {
         return $this->containerAnswers->carries($id);
+    }
+
+    /**
+     * The sharing policy an identifier's own registration carries --
+     * the read-only probe the compile pipeline's alias alignment
+     * consults for a leaf target ({@see AliasLifetimes}): the
+     * registered lane's policy, the namespace fallback's covering
+     * prefix's, or null for an identifier no lane answers -- the same
+     * totality has() answers with, one introspection read the facade
+     * that owns the store owns. A resolved-and-memoised singleton
+     * reads as the singleton it memoised as, its registration and its
+     * memo never disagreeing.
+     */
+    public function lifetime(string $id): ?ServiceLifetime
+    {
+        return $this->containerAnswers->lifetime($id);
     }
 
     #[Override]

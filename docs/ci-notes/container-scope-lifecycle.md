@@ -288,3 +288,159 @@ infection.json5, grep dulu kunci yang sudah ada** — file ini bukan
 daftar yang boleh ditumpuki; dan ketika mutant "baru" muncul di
 file yang tak tersentuh, curigai konfigurasi sebelum menyalahkan
 test.
+
+## KDD-B14..B19: alias menunggangi lifetime target-nya (#769)
+
+- **B14 (refusal grammar akhirnya jujur — alias transparency jadi kode)**:
+  `AliasShape` menolak kunci `lifetime` dengan klaim "an alias is
+  transparent: it rides the lifetime of its target" — tapi kompiler
+  mendaftarkan closure alias di bawah lane singleton default, sehingga
+  memo alias men-PIN jawaban pertama target transient selamanya:
+  `get(alias) === get(alias)` true sementara `get(target)` fresh tiap
+  kali. Pesan refusal dan perilaku adalah kebalikan satu sama lain
+  (temuan audit A-C1). Fix = opsi #1 issue: stage planning baru
+  `AliasLifetimes::align` meng-rewrite tiap alias biasa ke kebijakan
+  sharing target-nya SEBELUM validasi graph dan sebelum apply dekorator
+  — pesan itu kini menyatakan kebenaran yang boot instal.
+- **B15 (posisi stage: contextual→alignment→decorators→graph)**:
+  urutan bukan arbitrasi. Sebelum graph karena `LifetimeCaptures` kini
+  membaca lifetime yang sudah selaras: alias→target request jadi edge
+  request→request yang legal (dulu ditolak boot sebagai "singleton
+  mekanis menangkap request"), dan singleton yang bergantung pada
+  alias→request ditolak dengan nama alias — capture senyap lintas edge
+  alias (singleton pin instance scope lewat memo alias) jadi verdict
+  jujur di boot. Sebelum decorators karena wrapper dan base re-homed
+  dibangun dari lifetime deklarasi — alias yang selaras lebih dulu
+  membuat seluruh rantai dekorasi konsisten membawa kebijakan target.
+- **B16 (`@contextual:` skip = kontrak lain, bukan escape)**:
+  alias sintetis lane contextual SENGAJA membawa lifetime konsumen
+  (`ContextualSet` — rantai rewrite harus berperilaku persis seperti
+  referensi langsung konsumen→target). Itu kontrak yang berbeda dari
+  transparansi; alignment melewati prefix `@contextual:` yang lane itu
+  miliki. Alias biasa yang menargetkan sintetis contextual menunggangi
+  lifetime deklarasinya langsung (tanpa re-align — walk menghormati
+  target yang ditemukannya).
+- **B17 (probe lifetime = totalitas has(), precedence store>fallback)**:
+  leaf target (tidak ada di set) butuh baca kebijakan: `Container::
+  lifetime(?ServiceLifetime)` — pelebaran kelima fasad (probe read-only
+  di balik `ContainerAnswers` → `ServiceStore::lifetime` → registrasi;
+  `??` → `NamespaceFallbacks::lifetime` = kebijakan prefix covering).
+  Invariant yang di-pin test: precedence probe = precedence `answer()`
+  (registrasi menang atas fallback yang juga men-cover — mutant
+  Coalesce-swap dibunuh test overlap), dan paritas `has ⟺ lifetime !==
+  null` atas lane-lane campuran. Memo-only menjawab singleton
+  (konstruksi: memo hanya terisi dari lane singleton).
+- **B18 (walk: transitive, order-bebas, toleran siklus)**:
+  rantai `a→b→c` semua menunggangi kebijakan `c` apa pun urutan
+  deklarasi (walk atas set utuh + memo, bukan fold urutan). Target
+  tak-terdeclare tapi ter-carried container → kebijakan registrasinya
+  sendiri. Target tak-dikenal DAN siklus dibiarkan untuk verdict graph
+  satu stage kemudian (alignment menilai lifetime saja, tidak pernah
+  validitas set) — arm siklus `isset($visited)` menjamin terminasi.
+  Mutant kelas isset-only bookkeeping (`TrueValue` pada mark) dan
+  memo-early-return (`ReturnRemoval`) = ekuivalen terdokumentasi di
+  `infection.json5` mengikuti preseden `DefinitionCycles::visit` dan
+  `$seenParameters` (komentar baris demi baris di entri masing-masing).
+- **B19 (AOT generation 3 bump = staleness semantics, bukan shape)**:
+  entri `closure` artifact membake `lifetime` per definisi — dump baru
+  otomatis membake lifetime selaras, tapi artifact LAMA membake pin
+  singleton untuk alias target-transient: artifact yang secara diam
+  melayani semantik lama. `AotDigest::ARTIFACT_GENERATION` 2→3 (digest
+  melipat generation → setiap artifact lama proven-stale → boot
+  recompile + re-dump, jalur graceful yang sudah ada). Hex pin
+  `testTheFoldSpellsItsCanonicalFormStably` ikut bergerak — perubahan
+  LOUD yang persis test itu jaga agar tak bergerak diam-diam. Round-trip
+  test baru: boot kedua dari artifact menjawab transient-ride fresh
+  (`get(alias) !== get(alias)` di lane zero-planning).
+
+
+## Ronda gate: pelajaran attribution ke-lima (#769, Sonar 92.9%)
+
+Ronde pertama PR #829 memerah di SonarCloud: new-code coverage 92.9%
+(required 95%), padahal `composer coverage:gate` lokal hijau 98.57%.
+Akar masalahnya bukan kode yang tak ter-cover — runtime probe membuktikan
+`NamespaceFallbacks::lifetime()` dieksekusi dan menjawab TRANSIENT —
+melainkan **`requireCoverageMetadata="true"` di phpunit.xml.dist**: hit
+dari sebuah test hanya ter-atribusi ke kelas-kelas di daftar
+`#[CoversClass]`-nya. Tiga file test baru slice ini hanya men-list
+subjek utamanya; kolaborator rantai probe (ServiceStore →
+FactoryRegistrations/SingletonMemo → NamespaceFallbacks →
+NamespaceCoverings) terbaca NOL di clover meski dieksekusi — persis
+pelajaran #439 (covers-filter) dan #487 (boot lanes missing) yang
+lupakan dirinya sendiri kembali. Fix: daftar covers ketiga baterai
+diperluas ke setiap kolaborator yang diamatiri asersinya (probe battery
++7 kelas, alignment battery +10, boot battery +12 — mekanik request
+scope dan graph verdict yang asersi boot-level bacanya langsung).
+Clover setelahnya: `NamespaceFallbacks::lifetime` count 5, baris tak
+ter-cover 0, gate naik 98.57% → 98.58%. Efek samping yang sehat:
+infection scoped membaca attribution yang sama — 89 → 93 mutant
+(rewrite if/else menambah mutant cabang) semuanya tetap MSI 100/100
+0 escape. Pelajaran ke-lima untuk kanon attribution battery:
+**test baru yang menyentuh rantai kolaborator baru wajib men-list
+rantainya sejak lahir** — hijau lokal gate lama tidak menutup
+celah Sonar yang membaca clover yang sama.
+
+## Ronda gate kedua: difficulty ceiling dan siklus dependensi (#769, archeology 6 temuan)
+
+Ronde kedua PR #829 memerah di PhpCodeArcheology: enam temuan
+error-level — file/kelas `AliasLifetimes` (42.50), `ServiceStore`
+(28.88), dan `NamespaceFallbacks` (21.09) melewati difficulty
+ceiling 20 (`php-codearch-config.yaml`, difficulty = Halstead:
+n1/2 × N2/n2 — volume operator/operand, BUKAN cabang siklikomatis).
+Diagnosis lokal awalnya terbaca "0 temuan" karena
+`composer archeology:gate` membaca report basi direktori build —
+pelajaran #445/#647 replayed: analisis fresh sebelum gate. Tiga
+perbaikan, masing-masing question-honest:
+
+- **Split walk jadi empat unit pertanyaan** (preseden #647 "seams
+  split the QUESTIONS"): `AliasLifetimes` fold stage (12.57),
+  `AliasChains` satu-alias ride (17.14), `AliasTargets` kebijakan
+  satu target (16.00), `ContextualSynthetics` vocabulary guard
+  `@contextual:` (1.25 — preseden `DecoratorLayers::occupies`).
+- **Probe store-half pindah ke inti registrasi**: `ContainerAnswers::
+  lifetime` membaca `ServiceStore::factoryRegistrations()` (accessor
+  yang sudah ada) → `FactoryRegistrations::sharingPolicy` (null saat
+  tak terdaftar; arm memo di-drop karena unreachable — `set()` menulis
+  pasangan bersama dan melupakan memo, lane singleton hanya mengisi
+  yang registrasinya ada) — `ServiceStore` kembali ke baseline 16.39
+  tanpa menyentuh jalurnya.
+- **Fallback-half dipindah ke unit walk coverage**: `NamespaceCoverings`
+  bertambah `entry()` + `lifetime()` (15.75/17.00), `FallbackSingletons`
+  diekstrak dari arm singleton `resolve()` (5.25) — registry turun ke
+  18.28/19.20.
+
+Ronde ketiga kecil tapi tajam: kelas `AliasChains ↔ AliasTargets`
+saling rekursif = temuan **circular dependency** error-level baru.
+Perbaikan: arah rekursi dipecah satu-arah — `AliasTargets::ridden`
+menjawab kebijakan leaf ATAU menyerahkan definisi alias-kelanjutan
+(union `ServiceLifetime|AliasDefinition`), `AliasChains` yang memegang
+rekursi; memo walk di-drop (guard perf murni; rantai boot-time
+pendek-bound) sehingga entri ignore `ReturnRemoval` yang tadinya
+dibutuhkan ikut HILUS dari infection.json5 — hanya ignore TrueValue
+isset-blind yang tersisa. Pelajaran sampingan: mutant
+`PublicVisibility` `longestPrefix` lolos karena pemanggil eksternalnya
+hilang bersama refactor — visibility dititikan ulang jadi private
+(jujur terhadap call graph baru). Dan pelajaran formulanya: D = n1/2 ×
+N2/n2 bergerak aneh — membuang operand yang terakhir kalinya mengecilkan
+n2 bisa MEMPERBURUK rasio; yang menurunkan D adalah menghilangkan
+operator-UNIK terakhir pemakaiannya (kasus `??` satu-satunya di
+NamespaceFallbacks) atau memindahkan volume ke unit lain.
+
+## Ronda gate keempat: baris ignore tertelan (PR #829, CI Infection)
+
+Ronde keempat: CI Infection memerah dengan TIGA escape TrueValue —
+satu milik slice ini (regex ignore mengeja `\$alias->id` sementara
+rector menamai ulang variabel jadi `\$aliasDefinition` di ronde
+penyelesaian format — regex tak lagi cocok), dan DUA milik keluarga
+telemetry (`\$emittedTypes[...]`) yang ignore-nya terdokumentasi.
+Diagnosis: edit python slice ini pada entri TrueValue TERTELAN baris
+regex `emittedTypes` yang lama (old_str mengandung dua baris,
+new_str hanya menulis ulang satu + tambahan baru) — ignore
+terdokumentasi hilang tanpa suara, mutant "lahir kembali" sebagai
+escape. Preseden #824 lesson diperluas: bukan hanya kunci duplikat
+yang melucuti ignore — edit TUPLE baris pada file ini harus
+diaudit dengan diff penuh terhadap main sebelum commit
+(`git diff origin/main -- infection.json5` kini langkah wajib slice).
+Perbaikan: baris dipulihkan + regex slice mengeja nama variabel
+pasca-rector; diff penuh terhadap main dijamin = satu tambahan
+saja.

@@ -1916,7 +1916,17 @@
                 // under the flipped polarity -- the complete battery
                 // passes, the repeated-label refusal included).
                 ".*\\$seenParameters\\[\\$parameter] = true.*",
-                "\\$emittedTypes\\[\\$metricName( \\. '_sum')?\\] = true;"
+                "\\$emittedTypes\\[\\$metricName( \\. '_sum')?\\] = true;",
+                // The alias chain walk's open-id mark is the same
+                // isset-only bookkeeping: the cycle arm reads
+                // isset(\$visited[\$aliasDefinition->id]) alone, which
+                // answers the same question for true and false alike,
+                // so the mark's polarity is the walk's documentation,
+                // never an observable distinction (verified by running
+                // the container battery under the flipped polarity --
+                // the complete battery passes, the alias-cycle refusal
+                // included).
+                "\\$visited\\[\\$aliasDefinition->id] = true;"
             ]
         },
         // The series count's float cast in
