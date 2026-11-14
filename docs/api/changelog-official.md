@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(http\): the conditional read consumed non-seekable body rides onward as its seekable snapshot \(issue \#771\) [\#833](https://github.com/Zeflous/zeflous/pull/833) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the rebind invalidation reaches the alias lane \(issue \#770\) [\#832](https://github.com/Zeflous/zeflous/pull/832) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the alias rides its target's lifetime for real \(issue \#769\) [\#829](https://github.com/Zeflous/zeflous/pull/829) ([mbetixz](https://github.com/mbetixz))
 - fix\(router\): the replay failure is the cache's own corruption shape \(issue \#768\) [\#826](https://github.com/Zeflous/zeflous/pull/826) ([mbetixz](https://github.com/mbetixz))
