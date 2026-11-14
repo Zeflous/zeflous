@@ -104,6 +104,26 @@ without a config directory at all falls through to the CLI's existing
 final usage (the inherited posture every builtin verb carries too);
 a config directory that does not exist is the usage refusal naming it.
 
+The audit found that "existing final usage" was a claim the prose made
+and the entrypoint never owned in code (issue #773, the A-E2 finding):
+the dispatch's fall-through ended the script with no branch at all —
+`php bin/zef bogus` exited 0 with no output, the worst answer a
+wrapping script can read (success where nothing was done), and the
+seam's skip-guards (the inline dispatch's vestige: they judged the
+positional grammar the `DeclaredCommands` seam now judges for itself)
+swallowed the empty and flag-shaped positional arms into the same
+silent zero, leaving the seam's own usage refusal for the empty
+positional unreachable from the entrypoint. The entrypoint owns its
+contract's final arm now: the seam answers every non-empty verb (its
+refusals covering the positional-defect arms), and the unanswerable
+invocation — a naked invocation, or the seam's defensive null —
+answers the usage on STDERR and exits 2, the vocabulary
+`CommandHandler` itself spells. Pinned by subprocess tests over the
+real entrypoint (`tests/Scripts/EntrypointExitCodeTest.php`): the
+unanswerable verb, the naked invocation, the flag-shaped positional
+and the unknown verb over a real directory, each answering exit 2
+with the words that name the mistake.
+
 ## KDD-CR7: what the slice deliberately does not carry
 
 The per-module migrations fold (the Fase 2 fold beside this one), the

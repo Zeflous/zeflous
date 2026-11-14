@@ -179,10 +179,16 @@ if (in_array($command, ['http:dump', 'http:headers'], true)) {
 // resolves the ONE handler the operator's verb declared through the
 // booted container, fail-closed, and passes the handler's own exit code
 // through verbatim: the framework owns the boot and the resolution, the
-// handler owns everything after.
-$dispatchConfigDirectory = $argv[2] ?? '';
-
-if ($command !== '' && $dispatchConfigDirectory !== '' && !str_starts_with($dispatchConfigDirectory, '--')) {
+// handler owns everything after. Every non-empty verb reaches the seam
+// (issue #773): the seam's own refusals answer the positional-defect
+// arms -- an empty or flag-shaped configuration-directory positional is
+// the usage refusal naming it, exit 2 -- never the silent zero the
+// skip-guards once answered those arms with (the guards were the inline
+// dispatch's vestige: the positional grammar was then judged here, and
+// the seam that inherited the judgement left the arms it no longer
+// judged to the fall-through, whose exit the CLI's own contract
+// forbids).
+if ($command !== '') {
     requireFrameworkAutoloader();
 
     $dispatchOutcome = DeclaredCommands::run($command, $arguments);
@@ -209,3 +215,19 @@ if ($command === 'errors:report' || $command === 'errors:clear') {
 
     exit($outcome->exitCode);
 }
+
+// The CLI's own exit-code contract's final arm (issue #773): a verb
+// neither the framework's own branches nor the declared-command seam
+// answered -- an empty verb spelling, or the seam's defensive null for
+// a framework verb the branches above somehow declined to dispatch -- is
+// the operator's own arguments being wrong, the usage defect the
+// CommandHandler vocabulary spells exit 2: the unanswerable invocation
+// answers the usage on STDERR and exits 2, never the silent success the
+// fall-through answered with (KDD-CR6 claimed this final usage existed;
+// the audit found the claim was prose the entrypoint never owned in
+// code -- `php bin/zef bogus` exited 0 with no output at all, the worst
+// answer a wrapping script can read: success where nothing was done).
+fwrite(STDERR, "Usage: bin/zef <command> <config-directory> [args...]\n");
+fwrite(STDERR, "Run 'bin/zef list <config-directory>' to see the commands.\n");
+
+exit(2);
