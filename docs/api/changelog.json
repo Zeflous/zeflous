@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-13T17:38:07Z",
+  "as_of": "2026-11-14T04:24:28Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 326,
+  "unreleased_count": 327,
   "versions": [
     {
       "version": "Unreleased",
@@ -7041,6 +7041,52 @@
                 "sha": "b3f7ed6b259fd91d11e8835513d8af4f25b8cc4e",
                 "short_sha": "b3f7ed6",
                 "subject": "docs(roadmap): the replay-failure slice recorded and the pin refreshed (#826 rides section 10's row, the compiled route tree cache's own family lane; the status meter's pin points at the substantive commit af4c69be)"
+              }
+            ]
+          },
+          {
+            "pr": 829,
+            "title": "fix(container): the alias rides its target's lifetime for real (issue #769)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-14T04:24:28Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/829",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6d71f7d28837a88e9176b4e5eb0aec8ddcf6f2f8",
+                "short_sha": "6d71f7d",
+                "subject": "fix(container): the alias rides its target's lifetime for real (issue #769)"
+              },
+              {
+                "sha": "1005994d9845830faba6c6ae9095532897b35580",
+                "short_sha": "1005994",
+                "subject": "docs(roadmap): the alias-lifetime slice recorded and the pin refreshed (#829 rides section 1's row, the container's scope & lifecycle family lane; the status meter's pin points at the substantive commit 6d71f7d2)"
+              },
+              {
+                "sha": "c43517814ad05f8b88f72cfff218f7281392af3d",
+                "short_sha": "c435178",
+                "subject": "fix(test): the alias-lifetime batteries list their whole probe chain (PR #829's Sonar round)"
+              },
+              {
+                "sha": "1096ab85c6122a350115826941d3d8fec6fb5825",
+                "short_sha": "1096ab8",
+                "subject": "fix(container): the alignment's walk splits into question units under the difficulty ceiling (PR #829's archeology round)"
+              },
+              {
+                "sha": "9615994ae70aacd86e5201bd3c277786322a4019",
+                "short_sha": "9615994",
+                "subject": "docs(roadmap): drop the row's repeated probe phrase the document gate caught (PR #829's third round)"
+              },
+              {
+                "sha": "a720e05537160ef238e0bfe5480e42f059bac010",
+                "short_sha": "a720e05",
+                "subject": "fix(mutation): restore the swallowed emittedTypes ignore and match the renamed mark (PR #829's infection round)"
+              },
+              {
+                "sha": "fa4796289e91e3bec53dad4ab699f9bb0d4e9558",
+                "short_sha": "fa47962",
+                "subject": "docs(roadmap): the pin rides the slice's latest substantive commit (PR #829's queue round)"
               }
             ]
           }
@@ -22025,6 +22071,52 @@
               "sha": "b3f7ed6b259fd91d11e8835513d8af4f25b8cc4e",
               "short_sha": "b3f7ed6",
               "subject": "docs(roadmap): the replay-failure slice recorded and the pin refreshed (#826 rides section 10's row, the compiled route tree cache's own family lane; the status meter's pin points at the substantive commit af4c69be)"
+            }
+          ]
+        },
+        {
+          "pr": 829,
+          "title": "fix(container): the alias rides its target's lifetime for real (issue #769)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-14T04:24:28Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/829",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6d71f7d28837a88e9176b4e5eb0aec8ddcf6f2f8",
+              "short_sha": "6d71f7d",
+              "subject": "fix(container): the alias rides its target's lifetime for real (issue #769)"
+            },
+            {
+              "sha": "1005994d9845830faba6c6ae9095532897b35580",
+              "short_sha": "1005994",
+              "subject": "docs(roadmap): the alias-lifetime slice recorded and the pin refreshed (#829 rides section 1's row, the container's scope & lifecycle family lane; the status meter's pin points at the substantive commit 6d71f7d2)"
+            },
+            {
+              "sha": "c43517814ad05f8b88f72cfff218f7281392af3d",
+              "short_sha": "c435178",
+              "subject": "fix(test): the alias-lifetime batteries list their whole probe chain (PR #829's Sonar round)"
+            },
+            {
+              "sha": "1096ab85c6122a350115826941d3d8fec6fb5825",
+              "short_sha": "1096ab8",
+              "subject": "fix(container): the alignment's walk splits into question units under the difficulty ceiling (PR #829's archeology round)"
+            },
+            {
+              "sha": "9615994ae70aacd86e5201bd3c277786322a4019",
+              "short_sha": "9615994",
+              "subject": "docs(roadmap): drop the row's repeated probe phrase the document gate caught (PR #829's third round)"
+            },
+            {
+              "sha": "a720e05537160ef238e0bfe5480e42f059bac010",
+              "short_sha": "a720e05",
+              "subject": "fix(mutation): restore the swallowed emittedTypes ignore and match the renamed mark (PR #829's infection round)"
+            },
+            {
+              "sha": "fa4796289e91e3bec53dad4ab699f9bb0d4e9558",
+              "short_sha": "fa47962",
+              "subject": "docs(roadmap): the pin rides the slice's latest substantive commit (PR #829's queue round)"
             }
           ]
         }
