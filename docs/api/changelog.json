@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-14T15:57:06Z",
+  "as_of": "2026-11-14T17:19:33Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 331,
+  "unreleased_count": 332,
   "versions": [
     {
       "version": "Unreleased",
@@ -7266,6 +7266,57 @@
                 "sha": "7d55daefc0752c2203012cbd51c7d3253efa8606",
                 "short_sha": "7d55dae",
                 "subject": "docs(roadmap): the pin rides the terminal-spacing correction's head"
+              }
+            ]
+          },
+          {
+            "pr": 842,
+            "title": "fix(packaging): the mbstring extension joins the platform block (issue #774)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-14T17:19:33Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/842",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "897d2b9cf88bf6fd81afedcd3e297e980af6c592",
+                "short_sha": "897d2b9",
+                "subject": "fix(packaging): the mbstring extension joins the platform block (issue #774)"
+              },
+              {
+                "sha": "f551187332e8441e0013f3d92063948fc2b7c6da",
+                "short_sha": "f551187",
+                "subject": "test(packaging): the platform block's matrix pinned over the gate"
+              },
+              {
+                "sha": "e5844d84620dd28794908becc882024a60c77d49",
+                "short_sha": "e5844d8",
+                "subject": "docs(packaging): the mbstring declaration recorded as the platform block's KDD"
+              },
+              {
+                "sha": "a432631235866ad914b29120f257314dc46a7f16",
+                "short_sha": "a432631",
+                "subject": "test(packaging): the platform block's spellings ride the house width"
+              },
+              {
+                "sha": "59b22dcce6326d046afb8cd5249050a3e6c37baf",
+                "short_sha": "59b22dc",
+                "subject": "chore: merge main (the #839 landing) into fix/issue-774-mbstring-declaration"
+              },
+              {
+                "sha": "95fb34e505e33e7444dc9702046ad0e0a7f1d2ba",
+                "short_sha": "95fb34e",
+                "subject": "docs(roadmap): the mbstring-declaration slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "fdec57936570b8514f9bfde4ca6d6110d11fd8d2",
+                "short_sha": "fdec579",
+                "subject": "test(packaging): the gate runner's own manifest fixtures ride the block"
+              },
+              {
+                "sha": "3042048d9ec4db363e5f6085043b8f78918fa82c",
+                "short_sha": "3042048",
+                "subject": "docs(roadmap): the pin rides the runner-fixture correction's head"
               }
             ]
           }
@@ -22475,6 +22526,57 @@
               "sha": "7d55daefc0752c2203012cbd51c7d3253efa8606",
               "short_sha": "7d55dae",
               "subject": "docs(roadmap): the pin rides the terminal-spacing correction's head"
+            }
+          ]
+        },
+        {
+          "pr": 842,
+          "title": "fix(packaging): the mbstring extension joins the platform block (issue #774)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-14T17:19:33Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/842",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "897d2b9cf88bf6fd81afedcd3e297e980af6c592",
+              "short_sha": "897d2b9",
+              "subject": "fix(packaging): the mbstring extension joins the platform block (issue #774)"
+            },
+            {
+              "sha": "f551187332e8441e0013f3d92063948fc2b7c6da",
+              "short_sha": "f551187",
+              "subject": "test(packaging): the platform block's matrix pinned over the gate"
+            },
+            {
+              "sha": "e5844d84620dd28794908becc882024a60c77d49",
+              "short_sha": "e5844d8",
+              "subject": "docs(packaging): the mbstring declaration recorded as the platform block's KDD"
+            },
+            {
+              "sha": "a432631235866ad914b29120f257314dc46a7f16",
+              "short_sha": "a432631",
+              "subject": "test(packaging): the platform block's spellings ride the house width"
+            },
+            {
+              "sha": "59b22dcce6326d046afb8cd5249050a3e6c37baf",
+              "short_sha": "59b22dc",
+              "subject": "chore: merge main (the #839 landing) into fix/issue-774-mbstring-declaration"
+            },
+            {
+              "sha": "95fb34e505e33e7444dc9702046ad0e0a7f1d2ba",
+              "short_sha": "95fb34e",
+              "subject": "docs(roadmap): the mbstring-declaration slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "fdec57936570b8514f9bfde4ca6d6110d11fd8d2",
+              "short_sha": "fdec579",
+              "subject": "test(packaging): the gate runner's own manifest fixtures ride the block"
+            },
+            {
+              "sha": "3042048d9ec4db363e5f6085043b8f78918fa82c",
+              "short_sha": "3042048",
+              "subject": "docs(roadmap): the pin rides the runner-fixture correction's head"
             }
           ]
         }
