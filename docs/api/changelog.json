@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-14T04:24:28Z",
+  "as_of": "2026-11-14T12:57:36Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 327,
+  "unreleased_count": 329,
   "versions": [
     {
       "version": "Unreleased",
@@ -7087,6 +7087,88 @@
                 "sha": "fa4796289e91e3bec53dad4ab699f9bb0d4e9558",
                 "short_sha": "fa47962",
                 "subject": "docs(roadmap): the pin rides the slice's latest substantive commit (PR #829's queue round)"
+              }
+            ]
+          },
+          {
+            "pr": 832,
+            "title": "fix(container): the rebind invalidation reaches the alias lane (issue #770)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-14T10:55:28Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/832",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d16072833bd9a54ca8d9342962547f5665a87055",
+                "short_sha": "d160728",
+                "subject": "fix(container): the rebind's invalidation reaches the alias lane (issue #770)"
+              },
+              {
+                "sha": "1edf553b46d08761b25c774b72070b90a23b87fe",
+                "short_sha": "1edf553",
+                "subject": "docs(roadmap): the alias-stale-memo slice recorded and the pin refreshed"
+              }
+            ]
+          },
+          {
+            "pr": 833,
+            "title": "fix(http): the conditional read consumed non-seekable body rides onward as its seekable snapshot (issue #771)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-14T12:57:36Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/833",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "eb2f6081ed659d9ca395a396e43649f7cd20b8fc",
+                "short_sha": "eb2f608",
+                "subject": "fix(http): the conditional read's consumed non-seekable body rides onward as its seekable snapshot (issue #771)"
+              },
+              {
+                "sha": "edd552a20f2c1bf9edb183ffb7c913a2431a83a6",
+                "short_sha": "edd552a",
+                "subject": "test(http): the snapshot's unit pins and the issue #771 composition battery"
+              },
+              {
+                "sha": "b12a31229bc09471a44abef75d49ef383d59fcde",
+                "short_sha": "b12a312",
+                "subject": "docs(http): the non-seekable snapshot decision recorded as KDD-H19"
+              },
+              {
+                "sha": "9bff0e11de0c3884546dc55ee91be7357dd57c55",
+                "short_sha": "9bff0e1",
+                "subject": "docs(roadmap): the non-seekable-snapshot slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "95c150eb89722bda63e3b2aedcefb91280aee073",
+                "short_sha": "95c150e",
+                "subject": "docs(roadmap): the pin rides the slice's latest substantive commit (PR #833's queue round)"
+              },
+              {
+                "sha": "7db92e726a8da2bc3199df4a160b19788f27dd54",
+                "short_sha": "7db92e7",
+                "subject": "test(http): the composition battery rides the issue's real pipeline order"
+              },
+              {
+                "sha": "c3a8254611370bc872303d7adff7604649839e29",
+                "short_sha": "c3a8254",
+                "subject": "docs(roadmap): the pin rides the corrected battery's head"
+              },
+              {
+                "sha": "2930525f66aa98bdf34a3dbf8ab2afc02b87b7d3",
+                "short_sha": "2930525",
+                "subject": "test(http): the battery's own names ride the rector contract"
+              },
+              {
+                "sha": "ecd4af77be3f7b6c939a39fa04ea627195743405",
+                "short_sha": "ecd4af7",
+                "subject": "docs(roadmap): the pin rides the battery's rector-named head"
+              },
+              {
+                "sha": "657e23581c626dfdef02680c652494d3894ea293",
+                "short_sha": "657e235",
+                "subject": "docs(roadmap): the history's meter rides the slice's recorded row"
               }
             ]
           }
@@ -22117,6 +22199,88 @@
               "sha": "fa4796289e91e3bec53dad4ab699f9bb0d4e9558",
               "short_sha": "fa47962",
               "subject": "docs(roadmap): the pin rides the slice's latest substantive commit (PR #829's queue round)"
+            }
+          ]
+        },
+        {
+          "pr": 832,
+          "title": "fix(container): the rebind invalidation reaches the alias lane (issue #770)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-14T10:55:28Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/832",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d16072833bd9a54ca8d9342962547f5665a87055",
+              "short_sha": "d160728",
+              "subject": "fix(container): the rebind's invalidation reaches the alias lane (issue #770)"
+            },
+            {
+              "sha": "1edf553b46d08761b25c774b72070b90a23b87fe",
+              "short_sha": "1edf553",
+              "subject": "docs(roadmap): the alias-stale-memo slice recorded and the pin refreshed"
+            }
+          ]
+        },
+        {
+          "pr": 833,
+          "title": "fix(http): the conditional read consumed non-seekable body rides onward as its seekable snapshot (issue #771)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-14T12:57:36Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/833",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "eb2f6081ed659d9ca395a396e43649f7cd20b8fc",
+              "short_sha": "eb2f608",
+              "subject": "fix(http): the conditional read's consumed non-seekable body rides onward as its seekable snapshot (issue #771)"
+            },
+            {
+              "sha": "edd552a20f2c1bf9edb183ffb7c913a2431a83a6",
+              "short_sha": "edd552a",
+              "subject": "test(http): the snapshot's unit pins and the issue #771 composition battery"
+            },
+            {
+              "sha": "b12a31229bc09471a44abef75d49ef383d59fcde",
+              "short_sha": "b12a312",
+              "subject": "docs(http): the non-seekable snapshot decision recorded as KDD-H19"
+            },
+            {
+              "sha": "9bff0e11de0c3884546dc55ee91be7357dd57c55",
+              "short_sha": "9bff0e1",
+              "subject": "docs(roadmap): the non-seekable-snapshot slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "95c150eb89722bda63e3b2aedcefb91280aee073",
+              "short_sha": "95c150e",
+              "subject": "docs(roadmap): the pin rides the slice's latest substantive commit (PR #833's queue round)"
+            },
+            {
+              "sha": "7db92e726a8da2bc3199df4a160b19788f27dd54",
+              "short_sha": "7db92e7",
+              "subject": "test(http): the composition battery rides the issue's real pipeline order"
+            },
+            {
+              "sha": "c3a8254611370bc872303d7adff7604649839e29",
+              "short_sha": "c3a8254",
+              "subject": "docs(roadmap): the pin rides the corrected battery's head"
+            },
+            {
+              "sha": "2930525f66aa98bdf34a3dbf8ab2afc02b87b7d3",
+              "short_sha": "2930525",
+              "subject": "test(http): the battery's own names ride the rector contract"
+            },
+            {
+              "sha": "ecd4af77be3f7b6c939a39fa04ea627195743405",
+              "short_sha": "ecd4af7",
+              "subject": "docs(roadmap): the pin rides the battery's rector-named head"
+            },
+            {
+              "sha": "657e23581c626dfdef02680c652494d3894ea293",
+              "short_sha": "657e235",
+              "subject": "docs(roadmap): the history's meter rides the slice's recorded row"
             }
           ]
         }

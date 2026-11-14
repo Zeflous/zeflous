@@ -54,6 +54,16 @@ without the vocabulary grows a silent shadow surface the next
 declaration collides with — the pin cannot see it, so the verb's
 addition to `FrameworkVerbs` is the maintainer's own recorded step.
 
+The audit found that step missed exactly once (issue #772, the
+A-E1 finding): the `list` intercept — the builtin ahead of the
+declared seam that answers the CLI's own directory — never made it
+into the vocabulary, so the directory counted sixteen while the CLI
+answered seventeen, and a host's `list` declaration rode the registry
+advertised-but-unreachable, precisely the lie the refusal exists to
+prevent. The vocabulary carries `list` now, pinned by its own
+correspondence and collision tests, and the directory counts what
+the CLI answers.
+
 ## KDD-CR4: `list` answers from the DECLARED table, dispatch resolves the ONE handler — the CLI's own laziness posture
 
 The events wiring composes its dispatcher eagerly at the first
@@ -93,6 +103,26 @@ step from the mistake to the directory that would have named it. A verb
 without a config directory at all falls through to the CLI's existing
 final usage (the inherited posture every builtin verb carries too);
 a config directory that does not exist is the usage refusal naming it.
+
+The audit found that "existing final usage" was a claim the prose made
+and the entrypoint never owned in code (issue #773, the A-E2 finding):
+the dispatch's fall-through ended the script with no branch at all —
+`php bin/zef bogus` exited 0 with no output, the worst answer a
+wrapping script can read (success where nothing was done), and the
+seam's skip-guards (the inline dispatch's vestige: they judged the
+positional grammar the `DeclaredCommands` seam now judges for itself)
+swallowed the empty and flag-shaped positional arms into the same
+silent zero, leaving the seam's own usage refusal for the empty
+positional unreachable from the entrypoint. The entrypoint owns its
+contract's final arm now: the seam answers every non-empty verb (its
+refusals covering the positional-defect arms), and the unanswerable
+invocation — a naked invocation, or the seam's defensive null —
+answers the usage on STDERR and exits 2, the vocabulary
+`CommandHandler` itself spells. Pinned by subprocess tests over the
+real entrypoint (`tests/Scripts/EntrypointExitCodeTest.php`): the
+unanswerable verb, the naked invocation, the flag-shaped positional
+and the unknown verb over a real directory, each answering exit 2
+with the words that name the mistake.
 
 ## KDD-CR7: what the slice deliberately does not carry
 
