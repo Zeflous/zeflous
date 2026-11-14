@@ -35,7 +35,12 @@ use Closure;
  * for identifiers nobody declared. The lazy lane's registry is the
  * third ({@see LazyIdentities}): the boot's own post-install marks,
  * consulted by the resolution lanes and cleared by a `set()`
- * re-registration together with the memo.
+ * re-registration together with the memo. The alias ride registry is
+ * the fourth ({@see AliasRides}): the install lanes' own marks, and
+ * the reverse index a `set()` re-registration walks so every alias
+ * riding the re-registered id -- transitively, the same identity the
+ * alias grammar claims -- is forgotten with it (#770: the memo
+ * contract's "must never answer again" reaches the alias lane).
  *
  * @phpstan-type Factory Closure(Container): mixed
  */
@@ -53,6 +58,10 @@ final readonly class ServiceStore
 
     private NamespaceFallbacks $namespaceFallbacks;
 
+    private AliasRides $aliasRides;
+
+    private RebindInvalidations $rebindInvalidations;
+
     public function __construct(
         CycleGuard $cycleGuard = new CycleGuard(),
     ) {
@@ -60,6 +69,7 @@ final readonly class ServiceStore
         $this->factoryRegistrations = new FactoryRegistrations();
         $this->requestInstances = new RequestInstances($this);
         $this->interceptions = new Interceptions();
+        $this->aliasRides = new AliasRides();
         $resolutionFrames = new ResolutionFrames();
         $this->namespaceFallbacks = new NamespaceFallbacks($cycleGuard, $this->interceptions, $resolutionFrames);
         $this->serviceResolutions = new ServiceResolutions(
@@ -70,6 +80,14 @@ final readonly class ServiceStore
             $this->interceptions,
             new LazyDeferrals(),
             $resolutionFrames,
+        );
+
+        // Wired last, over the collaborators the walk consults: the
+        // rebind's whole invalidation in its own unit.
+        $this->rebindInvalidations = new RebindInvalidations(
+            $this->aliasRides,
+            $this->singletonMemo,
+            $this->serviceResolutions,
         );
     }
 
@@ -125,6 +143,16 @@ final readonly class ServiceStore
     }
 
     /**
+     * The alias ride registry the install lanes mark and a `set()`
+     * re-registration walks ({@see Container::markAliasRide()} for the
+     * facade's own reach-through).
+     */
+    public function aliasRides(): AliasRides
+    {
+        return $this->aliasRides;
+    }
+
+    /**
      * @param Closure(Container): mixed $factory
      */
     public function set(
@@ -133,8 +161,12 @@ final readonly class ServiceStore
         ServiceLifetime $serviceLifetime = ServiceLifetime::SINGLETON,
     ): void {
         $this->factoryRegistrations->set($id, $factory, $serviceLifetime);
-        $this->singletonMemo->forget($id);
-        $this->serviceResolutions->forgetLazy($id);
+
+        // The whole invalidation a rebind owes -- the riding aliases'
+        // memo slots first (#770: the memo contract's "must never answer
+        // again" reaches the alias lane), then the id's own ride mark,
+        // memo and lazy mark -- one walk in its own unit.
+        $this->rebindInvalidations->forget($id);
     }
 
     public function has(string $id): bool

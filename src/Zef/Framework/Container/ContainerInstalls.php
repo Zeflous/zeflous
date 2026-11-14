@@ -28,6 +28,18 @@ final readonly class ContainerInstalls
     {
         foreach ($definitions as $definition) {
             $container->set($definition->id, $this->definitionCompiler->compile($definition), $definition->lifetime);
+
+            // The ride mark rides the install itself: whatever
+            // identifier the pipeline's surgery left on an alias --
+            // an ordinary declaration, a decoration's re-homed
+            // `@decor:` base, a contextual lane's synthetic -- the
+            // graph the re-registration invalidation walks is the
+            // graph this loop installs (#770).
+            if (!$definition instanceof AliasDefinition) {
+                continue;
+            }
+
+            $container->markAliasRide($definition->id, $definition->target);
         }
     }
 }

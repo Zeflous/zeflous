@@ -116,6 +116,23 @@ final readonly class Container implements ContainerInterface
     }
 
     /**
+     * Marks a registered alias identifier as riding its target -- the
+     * install lanes' own bookkeeping mark ({@see ContainerInstalls}
+     * for the compile lane's, {@see AotBootLane} for the artifact
+     * lane's), the same posture {@see markLazy()} takes for the lazy
+     * lane's registry. The registry is the reverse index a `set()`
+     * re-registration walks so every alias riding the re-registered
+     * identifier -- transitively, the identity the alias grammar
+     * claims is the target's own -- is forgotten with it (#770); a
+     * `set()` re-registration of the alias identifier itself drops
+     * its mark.
+     */
+    public function markAliasRide(string $aliasId, string $targetId): void
+    {
+        $this->serviceStore->aliasRides()->record($aliasId, $targetId);
+    }
+
+    /**
      * Answers a subset locator over the named identifiers (ROADMAP
      * area 10's service locator): a light read-only PSR-11 view whose
      * resolution delegates to this container's own lanes -- the same

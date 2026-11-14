@@ -80,7 +80,17 @@ final readonly class AotBootLane
 
         // The compile lane's own order ({@see
         // LazyMarking::marks()}): mark after the install loop, arm
-        // before the warmup.
+        // before the warmup. The ride marks are the same posture --
+        // the compile lane's {@see ContainerInstalls} marks them
+        // inside its own install loop, and this lane bakes the map
+        // the same way the lazy map bakes, because rebuilding the
+        // walk from the parsed declarations would not survive the
+        // decoration lane's re-homing (#770: a rebinded target must
+        // never leave an alias lane serving the stale instance).
+        foreach ($aotArtifact->aliasRides() as $aliasId => $targetId) {
+            $container->markAliasRide($aliasId, $targetId);
+        }
+
         foreach ($aotArtifact->lazy() as $id => $class) {
             $container->markLazy($id, $class);
         }
