@@ -7,10 +7,18 @@ namespace Zef\Test\Support\Tooling;
 /**
  * Anti-regression zero-dependency gate (CONTRIBUTING.md rules 1 and 16).
  *
- * ZEF ships zero Composer runtime dependencies: `composer.json` `require` must
- * be exactly `{"php": "^8.4"}` and `composer.lock` production `packages` must
- * stay empty. This gate fails the build when either invariant is violated, so
- * a runtime dependency can never be introduced silently.
+ * ZEF ships zero Composer runtime packages: `composer.json` `require` must
+ * be exactly the platform block `{"php": "^8.4", "ext-mbstring": "*"}` and
+ * `composer.lock` production `packages` must stay empty. The platform block
+ * is the environment contract, not a dependency: the PHP version floor the
+ * engine rides and the mbstring extension the runtime's own multibyte
+ * grammar needs (issue #774: ~330 `mb_*` call sites rode an extension the
+ * manifest never declared -- a fresh install on a build without it fated
+ * the first request, the worst failure class there is; declared, the
+ * refusal moves to `composer install`, where the operator can read it).
+ * This gate fails the build when either invariant is violated, so a
+ * runtime dependency can never be introduced silently -- and neither can
+ * the extension contract quietly narrow back to undeclared.
  *
  * The manifest pair is the gate's whole input ({@see ComposerManifest}): the
  * dev channels pass by construction because the input type carries no field
@@ -22,8 +30,8 @@ namespace Zef\Test\Support\Tooling;
  */
 final readonly class ZeroDependencyGate
 {
-    /** The exact production requirement block the framework allows. */
-    private const array EXPECTED_REQUIRE = ['php' => '^8.4'];
+    /** The exact production platform block the framework allows. */
+    private const array EXPECTED_REQUIRE = ['php' => '^8.4', 'ext-mbstring' => '*'];
 
     public function evaluate(ComposerManifest $composerManifest): GateResult
     {
@@ -33,7 +41,7 @@ final readonly class ZeroDependencyGate
             $encoded = json_encode($composerManifest->require, \JSON_UNESCAPED_SLASHES);
 
             $failures[] = \sprintf(
-                'composer.json require is %s, expected exactly {"php": "^8.4"}',
+                'composer.json require is %s, expected exactly {"php": "^8.4", "ext-mbstring": "*"}',
                 \is_string($encoded) ? $encoded : '<unencodable>',
             );
         }
@@ -47,7 +55,7 @@ final readonly class ZeroDependencyGate
 
         if ($failures === []) {
             return GateResult::passed(
-                'Zero-dependency gate PASSED: composer.json require is {"php": "^8.4"}'
+                'Zero-dependency gate PASSED: composer.json require is {"php": "^8.4", "ext-mbstring": "*"}'
                 . ' and composer.lock packages is [].',
             );
         }

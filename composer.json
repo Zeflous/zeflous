@@ -27,7 +27,8 @@
         "docs": "https://github.com/Zeflous/zeflous/blob/main/ROADMAP.md"
     },
     "require": {
-        "php": "^8.4"
+        "php": "^8.4",
+        "ext-mbstring": "*"
     },
     "require-dev": {
         "code-lts/doctum": "^5.6",
@@ -179,7 +180,7 @@
     },
     "scripts-descriptions": {
         "test": "Run the PHPUnit test suite.",
-        "zero-deps": "Assert the zero-dependency invariant: composer.json require is exactly {php: ^8.4} and composer.lock packages is empty.",
+        "zero-deps": "Assert the zero-dependency invariant: composer.json require is exactly the platform block {php: ^8.4, ext-mbstring: *} and composer.lock packages is empty.",
         "coverage": "Run PHPUnit with a text coverage report.",
         "coverage:gate": "Run PHPUnit coverage (pcov) and enforce the 90% line-coverage gate.",
         "format": "Apply php-cs-fixer formatting.",
