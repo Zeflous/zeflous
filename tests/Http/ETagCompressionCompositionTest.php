@@ -27,12 +27,14 @@ use Zef\Test\Support\Http\NonSeekableBody;
 
 /**
  * The conditional-GET and compression families composed (issue #771's
- * reproduction battery): a body-reading middleware ahead of the
- * compression engine, over a body the stream cannot rewind. The
- * conditional read consumes the representation to hash it; the wire
- * answer must then carry the whole representation -- not the gzip of
- * the nothing a consumed non-seekable stream leaves behind, a
- * corruption every header called success while it happened.
+ * reproduction battery): the conditional read sits inside the
+ * compression family -- the handler's answer flows through the
+ * body-reading middleware first, then the engine -- over a body the
+ * stream cannot rewind. The conditional read consumes the
+ * representation to hash it; the wire answer must then carry the
+ * whole representation -- not the gzip of the nothing a consumed
+ * non-seekable stream leaves behind, a corruption every header called
+ * success while it happened.
  *
  * @internal
  */
@@ -75,7 +77,7 @@ final class ETagCompressionCompositionTest extends TestCase
 
     /**
      * The control half of the reproduction: without the body-reading
-     * middleware ahead of it, the compression family reads a
+     * middleware inside it, the compression family reads a
      * non-seekable body whole on its own -- the defect was always the
      * consumed stream flowing on, never the engine's own walk.
      */
@@ -114,10 +116,10 @@ final class ETagCompressionCompositionTest extends TestCase
     {
         $conditional = new ETagMiddleware();
 
-        return $conditional->process(
+        return $this->compression()->process(
             $this->request(),
             new MiddlewareHandler(
-                $this->compression(),
+                $conditional,
                 new FixedResponseHandler(new Response(200, [], $body)),
             ),
         );
@@ -133,8 +135,9 @@ final class ETagCompressionCompositionTest extends TestCase
 
     private function request(): ServerRequest
     {
-        $message = (new ServerRequest('GET', new Uri('https://app.example.com/stream')))
-            ->withHeader('Accept-Encoding', 'gzip');
+        $message = new ServerRequest('GET', new Uri('https://app.example.com/stream'))
+            ->withHeader('Accept-Encoding', 'gzip')
+        ;
         self::assertInstanceOf(ServerRequest::class, $message, 'the with* chain must preserve the request type.');
 
         return $message;

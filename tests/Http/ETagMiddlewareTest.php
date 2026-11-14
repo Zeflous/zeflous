@@ -150,9 +150,9 @@ final class ETagMiddlewareTest extends TestCase
 
         $body = $response->getBody();
         self::assertNotSame($inner->getBody(), $body, 'the consumed stream is replaced, never reused');
-        self::assertSame('payload', (string) $body, 'the full representation still rides onward');
         self::assertTrue($body->isSeekable(), 'the snapshot is seekable where the source was not');
         self::assertSame(0, $body->tell(), 'the snapshot cursor starts at the beginning');
+        self::assertSame('payload', (string) $body, 'the full representation still rides onward');
     }
 
     /**
