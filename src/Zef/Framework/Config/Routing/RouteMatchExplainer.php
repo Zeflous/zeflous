@@ -52,17 +52,20 @@ final class RouteMatchExplainer
         $requestHost = RouteHostRequest::canonicalise($host);
         $hostSelected = RouteHostSelection::select($walked, $requestHost);
         $versionSelected = RouteVersionSelection::select($hostSelected, $version);
-        $matchResult = $versionSelected === []
-            ? ($hostSelected === []
-                ? MatchResult::notFound()
-                : RouteVersionMiss::answer($method, $hostSelected))
-            : RouteMethodAnswer::resolve($method, $versionSelected, $captured, $requestHost, $accept);
+        $matchResult = self::matchResult(
+            $method,
+            $hostSelected,
+            $versionSelected,
+            $captured,
+            $requestHost,
+            $accept,
+        );
 
         return match (true) {
             $walked === [] => self::pathMissExplanation($radixNode, $path),
             $hostSelected === [] => RouteMatchExplanation::hostMiss(\count($walked), 0),
-            $versionSelected === [] && $matchResult->isMethodNotAllowed() => RouteMatchExplanation::versionMissMethodRefusal(
-                $matchResult->allowedMethods(),
+            $versionSelected === [] && $matchResult->isMethodNotAllowed() => self::missRefusalExplanation(
+                $matchResult,
                 \count($walked),
                 \count($hostSelected),
             ),
@@ -91,6 +94,35 @@ final class RouteMatchExplainer
     }
 
     /**
+     * The pipeline's own result, mirrored fold for fold: the version
+     * selection's miss answering through the miss fold when the
+     * candidates stand (#794), the method answer resolving otherwise
+     * -- the same spelling {@see RouteMatchPipeline} runs, extracted
+     * here so the match expression the explanation arms read stays
+     * one spelling per outcome.
+     *
+     * @param list<CompiledRoute> $hostSelected    the host bucket's answer
+     * @param list<CompiledRoute> $versionSelected the version selection's answer
+     * @param list<string>        $captured        the values the walk captured
+     */
+    private static function matchResult(
+        string $method,
+        array $hostSelected,
+        array $versionSelected,
+        array $captured,
+        ?string $requestHost,
+        ?string $accept,
+    ): MatchResult {
+        if ($versionSelected !== []) {
+            return RouteMethodAnswer::resolve($method, $versionSelected, $captured, $requestHost, $accept);
+        }
+
+        return $hostSelected === []
+            ? MatchResult::notFound()
+            : RouteVersionMiss::answer($method, $hostSelected);
+    }
+
+    /**
      * The path-stage miss and its neighborhood, folded out of the
      * pipeline's answer so the match expression stays one spelling
      * per outcome.
@@ -102,6 +134,23 @@ final class RouteMatchExplainer
         return RouteMatchExplanation::pathMiss(
             $neighborhood['prefix'],
             $neighborhood['patterns'],
+        );
+    }
+
+    /**
+     * The version-stage miss whose method judgement answered the 405
+     * (#794): the counts and the miss fold's own payload, folded out
+     * of the match expression so the arm stays one spelling too.
+     */
+    private static function missRefusalExplanation(
+        MatchResult $matchResult,
+        int $pathSurvivors,
+        int $hostSurvivors,
+    ): RouteMatchExplanation {
+        return RouteMatchExplanation::versionMissMethodRefusal(
+            $matchResult->allowedMethods(),
+            $pathSurvivors,
+            $hostSurvivors,
         );
     }
 }

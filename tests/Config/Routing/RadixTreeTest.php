@@ -651,6 +651,46 @@ final class RadixTreeTest extends TestCase
         self::assertFalse($radixTree->match('GET', '/api', null, null, 'v9')->isFound());
     }
 
+    /**
+     * A blank request version is no version at all: the unversioned
+     * fallback answers, the whitespace spelling never treated as an
+     * explicit intent the routes must fail.
+     */
+    public function testABlankRequestVersionTakesTheUnversionedFallback(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'version' => 'v1', 'method' => ['GET'], 'handler' => 'V1@show'],
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'Plain@show'],
+        ]);
+
+        self::assertSame(
+            'Plain@show',
+            $radixTree->match('GET', '/api', null, null, '')->route()->handler(),
+        );
+        self::assertSame(
+            'Plain@show',
+            $radixTree->match('GET', '/api', null, null, '   ')->route()->handler(),
+        );
+    }
+
+    /**
+     * A request version the grammar cannot parse fails closed exactly
+     * as an unknown one does -- and the miss's method judgement runs
+     * for it too, so the wrong method still answers the 405.
+     */
+    public function testAnUnparsableRequestVersionFailsClosedLikeAnUnknownOne(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'version' => 'v1', 'method' => ['GET'], 'handler' => 'V1@show'],
+        ]);
+
+        self::assertFalse($radixTree->match('GET', '/api', null, null, '../v1')->isFound());
+
+        $methodNotAllowed = $radixTree->match('POST', '/api', null, null, '../v1');
+        self::assertTrue($methodNotAllowed->isMethodNotAllowed());
+        self::assertSame(['GET'], $methodNotAllowed->allowedMethods());
+    }
+
     public function testAVersionlessRequestTakesTheUnversionedRouteAmongVersionedOnes(): void
     {
         $radixTree = RadixTree::compile([
