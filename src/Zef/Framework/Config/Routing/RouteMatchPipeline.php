@@ -9,7 +9,12 @@ namespace Zef\Framework\Config\Routing;
  * {@see RadixTree::match()} -- the path walk settles candidates,
  * {@see RouteHostSelection} picks the highest-precedence host
  * bucket, {@see RouteVersionSelection} narrows by API version, and
- * {@see RouteMethodAnswer} judges the method. The tree owns the
+ * {@see RouteMethodAnswer} judges the method. A version selection
+ * that emptied while the path's candidates stand answers through the
+ * miss fold's own method judgement ({@see RouteVersionMiss}, #794) --
+ * the wrong method is named with its 405 and Allow regardless of the
+ * version, and only a method the path answers leaves the version
+ * itself as the fail-closed miss. The tree owns the
  * seams; this fold owns the sequence between them.
  *
  * The counting twin of the same sequence is {@see
@@ -39,10 +44,13 @@ final class RouteMatchPipeline
 
         $requestHost = RouteHostRequest::canonicalise($host);
         $routes = RouteHostSelection::select($routes, $requestHost);
+        $candidates = $routes;
         $routes = RouteVersionSelection::select($routes, $version);
 
         if ($routes === []) {
-            return MatchResult::notFound();
+            return $candidates === []
+                ? MatchResult::notFound()
+                : RouteVersionMiss::answer($method, $candidates);
         }
 
         return RouteMethodAnswer::resolve($method, $routes, $captured, $requestHost, $accept);

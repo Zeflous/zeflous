@@ -151,3 +151,48 @@ difficulty 19.17. The lesson stands next to the campaign's earlier ones:
 the difficulty gate rewards redistributing *between* classes, not
 proliferating methods *within* one, and a `match (true)` refold is not
 free the way a branch split is.
+
+## KDD-VP1 — one policy for every spelling of the path (issue #794)
+
+The audit's asymmetry: a path carrying only unversioned routes quietly
+ignored an explicit request version and matched anyway, while a path
+carrying versioned routes failed the same unknown version closed --
+two answers for one request shape, and the docblock ("the fallback
+only when no explicit version was supplied") describing only the
+second. Worse, a versioned request whose version no route answered
+*and* whose method no route answered collapsed into a bare 404: the
+client could not tell a wrong version from a wrong method.
+
+The fix enforces the docblock's own policy uniformly: an explicit
+version is a binding intent whether the path carries versioned
+routes, unversioned ones, or both -- `RouteVersionSelection::select`
+answers the unversioned fallback only a versionless request, and an
+explicit version selects only the versioned routes answering it (the
+unknown spelling failing closed exactly as before, now on both
+shapes). The empty selection's answer is no longer a bare 404: the
+pipeline routes it through the new `RouteVersionMiss` fold -- the
+method judgement over the whole candidate set -- so a method no
+candidate answers reports the 405 with the Allow every route at the
+path answers (`RouteAllowedMethods`, extracted from
+`RouteMethodAnswer`'s private walk because the miss shares the
+payload), while a method the path does answer leaves the version
+itself as the fail-closed 404 that never serves a route at a version
+the request did not name and never advertises which versions would
+have answered.
+
+The diagnostic twin stays the twin: `RouteMatchExplainer` runs the
+same miss fold over the same candidates, and its new
+`versionMissMethodRefusal` explanation carries the 405's outcome and
+Allow payload under the *version* stage's own name -- the narrowing
+that emptied is what failed -- so the match/explain outcome
+equivalence holds on the new arm (the battery gained the mirrored
+provider case). The debug header's bounded summary renders the arm
+for free: `stage=version survivors=path:2,host:2,version:0
+allowed=GET`.
+
+The battery pins the three faces the audit asked for: the pair on an
+all-unversioned path (the unknown version now failing closed where it
+used to match, the versionless request keeping the fallback), the
+mixed/unmixed wrong-method pairs (both answering the 405 with Allow:
+GET), and the fail-closed half (a method the path answers never
+serving behind a version miss).

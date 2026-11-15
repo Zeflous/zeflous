@@ -11,7 +11,9 @@ namespace Zef\Framework\Config\Routing;
  * Several routes may share one pattern -- the registry admits them only
  * with disjoint method sets -- so the leaf's candidates are narrowed by
  * method here, and a path that matched while no candidate answers the
- * method reports every method those candidates do answer, sorted.
+ * method reports every method those candidates do answer, sorted
+ * ({@see RouteAllowedMethods} -- the payload the version miss's own
+ * method judgement shares, #794).
  *
  * @internal
  */
@@ -46,29 +48,6 @@ final class RouteMethodAnswer
             }
         }
 
-        return MatchResult::methodNotAllowed(self::allowedMethods($routes));
-    }
-
-    /**
-     * Every method the candidates answer, upper-cased, de-duplicated and
-     * sorted -- the method-not-allowed answer of a matched path.
-     *
-     * @param list<CompiledRoute> $routes
-     *
-     * @return list<string>
-     */
-    private static function allowedMethods(array $routes): array
-    {
-        $allowedMethods = [];
-
-        foreach ($routes as $route) {
-            foreach ($route->methods() as $method) {
-                $allowedMethods[$method] = $method;
-            }
-        }
-
-        sort($allowedMethods, \SORT_STRING);
-
-        return $allowedMethods;
+        return MatchResult::methodNotAllowed(RouteAllowedMethods::of($routes));
     }
 }

@@ -15,13 +15,16 @@ namespace Zef\Framework\Config\Routing;
  * method-and-accept answer ({@see RouteMethodAnswer}) -- the same
  * units, the same order, the same inputs, so the explanation's
  * outcome is the match's outcome by construction (the suite pins
- * the equivalence). What the explainer adds is the counting between
- * the folds -- how many candidates each stage kept -- and, when a
- * stage emptied the set, the stage's own name and the payload its
- * refusal carries: the neighborhood for a path-stage miss
- * ({@see RouteMatchNeighborhood}), the allowed methods for a
- * method-stage refusal, the producible media types for an
- * accept-stage refusal.
+ * the equivalence). The version stage's miss answers through the
+ * same miss fold the match runs ({@see RouteVersionMiss}, #794), so
+ * the equivalence holds on the new arm too. What the explainer adds
+ * is the counting between the folds -- how many candidates each
+ * stage kept -- and, when a stage emptied the set, the stage's own
+ * name and the payload its refusal carries: the neighborhood for a
+ * path-stage miss ({@see RouteMatchNeighborhood}), the allowed
+ * methods for a method-stage refusal or a version-stage miss whose
+ * method judgement answered the 405, the producible media types for
+ * an accept-stage refusal.
  *
  * A found match explains itself as found, carrying only the stage
  * counts -- the diagnostic twin of a successful match has no failure
@@ -49,11 +52,20 @@ final class RouteMatchExplainer
         $requestHost = RouteHostRequest::canonicalise($host);
         $hostSelected = RouteHostSelection::select($walked, $requestHost);
         $versionSelected = RouteVersionSelection::select($hostSelected, $version);
-        $matchResult = RouteMethodAnswer::resolve($method, $versionSelected, $captured, $requestHost, $accept);
+        $matchResult = $versionSelected === []
+            ? ($hostSelected === []
+                ? MatchResult::notFound()
+                : RouteVersionMiss::answer($method, $hostSelected))
+            : RouteMethodAnswer::resolve($method, $versionSelected, $captured, $requestHost, $accept);
 
         return match (true) {
             $walked === [] => self::pathMissExplanation($radixNode, $path),
             $hostSelected === [] => RouteMatchExplanation::hostMiss(\count($walked), 0),
+            $versionSelected === [] && $matchResult->isMethodNotAllowed() => RouteMatchExplanation::versionMissMethodRefusal(
+                $matchResult->allowedMethods(),
+                \count($walked),
+                \count($hostSelected),
+            ),
             $versionSelected === [] => RouteMatchExplanation::versionMiss(
                 \count($walked),
                 \count($hostSelected),
