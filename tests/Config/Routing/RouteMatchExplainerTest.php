@@ -15,6 +15,7 @@ use Zef\Framework\Config\Routing\RouteMatchDescent;
 use Zef\Framework\Config\Routing\RouteMatchExplainer;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Config\Routing\RouteMatchNeighborhood;
+use Zef\Framework\Config\Routing\RouteMatchStages;
 use Zef\Framework\Config\Routing\RouteMatchSummary;
 use Zef\Framework\Config\Routing\RouteSubtreePatterns;
 use Zef\Framework\Config\Routing\RouteVersionMiss;
@@ -33,6 +34,7 @@ use Zef\Framework\Config\Routing\RouteVersionMiss;
  */
 #[CoversClass(RouteMatchExplanation::class)]
 #[CoversClass(RouteMatchExplainer::class)]
+#[CoversClass(RouteMatchStages::class)]
 #[CoversClass(RouteVersionMiss::class)]
 #[CoversClass(RouteAllowedMethods::class)]
 #[CoversClass(RouteMatchDescent::class)]

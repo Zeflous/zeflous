@@ -14,14 +14,12 @@ namespace Zef\Framework\Config\Routing;
  * miss fold's own method judgement ({@see RouteVersionMiss}, #794) --
  * the wrong method is named with its 405 and Allow regardless of the
  * version, and only a method the path answers leaves the version
- * itself as the fail-closed miss. The tree owns the
- * seams; this fold owns the sequence between them.
+ * itself as the fail-closed miss.
  *
- * The counting twin of the same sequence is {@see
- * RouteMatchExplainer} -- the same folds, staged and counted, for
- * the development surface. This fold carries no counting: it is
- * the hot path the engine's own benchmarks pin, and every stage
- * hands its answer to the next without recording anything.
+ * The stages the order runs answer through {@see RouteMatchStages}
+ * (the shared spelling the counting twin destructures too); this
+ * fold is the hot path's thin reader of the result member -- the
+ * tree owns the seams, the stages fold owns the sequence.
  *
  * @internal
  */
@@ -39,20 +37,6 @@ final class RouteMatchPipeline
         ?string $accept = null,
         ?string $version = null,
     ): MatchResult {
-        $captured = [];
-        $routes = new RouteMatcher()->walk($radixNode, $path, 0, $captured);
-
-        $requestHost = RouteHostRequest::canonicalise($host);
-        $routes = RouteHostSelection::select($routes, $requestHost);
-        $candidates = $routes;
-        $routes = RouteVersionSelection::select($routes, $version);
-
-        if ($routes === []) {
-            return $candidates === []
-                ? MatchResult::notFound()
-                : RouteVersionMiss::answer($method, $candidates);
-        }
-
-        return RouteMethodAnswer::resolve($method, $routes, $captured, $requestHost, $accept);
+        return RouteMatchStages::run($radixNode, $method, $path, $host, $accept, $version)['result'];
     }
 }

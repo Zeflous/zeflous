@@ -190,6 +190,23 @@ provider case). The debug header's bounded summary renders the arm
 for free: `stage=version survivors=path:2,host:2,version:0
 allowed=GET`.
 
+The gate rounds the fold went through (the C6 lessons replayed on
+the router's own tree): the nested ternary Sonar refused and the
+125-character line phpcs refused both fold out; the covers-filter
+lesson (KDD C4) surfaced again -- Sonar's twelve uncovered lines
+were the new collaborators no `#[CoversClass]` list named, the
+attribution fixed by naming them; and the archeology difficulty
+ceiling (20) refused the explainer's grown mirror (31.89 -- the
+helper's six parameters carried the operand mass exactly the way
+C4 said they would), the redistribution the gate forced being the
+one the lesson prescribes: the mirror folds into `RouteMatchStages`
+-- the shared staged product both the hot path's `match()` and the
+explainer's `explain()` read -- so the diagnostic twin runs the
+matcher's own spelling *literally* (by construction, not by a copy
+that can drift), the pipeline becomes its thin result reader
+(difficulty 2.38), and the explainer keeps only the counting and
+the outcome arms (16.00, the stages fold itself at 16.43).
+
 The battery pins the three faces the audit asked for: the pair on an
 all-unversioned path (the unknown version now failing closed where it
 used to match, the versionless request keeping the fallback), the
