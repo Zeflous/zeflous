@@ -10,12 +10,15 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RadixTree;
+use Zef\Framework\Config\Routing\RouteAllowedMethods;
 use Zef\Framework\Config\Routing\RouteMatchDescent;
 use Zef\Framework\Config\Routing\RouteMatchExplainer;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Config\Routing\RouteMatchNeighborhood;
+use Zef\Framework\Config\Routing\RouteMatchStages;
 use Zef\Framework\Config\Routing\RouteMatchSummary;
 use Zef\Framework\Config\Routing\RouteSubtreePatterns;
+use Zef\Framework\Config\Routing\RouteVersionMiss;
 
 /**
  * The route match explanation, on its own terms: the staged
@@ -31,6 +34,9 @@ use Zef\Framework\Config\Routing\RouteSubtreePatterns;
  */
 #[CoversClass(RouteMatchExplanation::class)]
 #[CoversClass(RouteMatchExplainer::class)]
+#[CoversClass(RouteMatchStages::class)]
+#[CoversClass(RouteVersionMiss::class)]
+#[CoversClass(RouteAllowedMethods::class)]
 #[CoversClass(RouteMatchDescent::class)]
 #[CoversClass(RouteMatchNeighborhood::class)]
 #[CoversClass(RouteMatchSummary::class)]
@@ -159,6 +165,35 @@ final class RouteMatchExplainerTest extends TestCase
         self::assertSame('stage=version survivors=path:1,host:1,version:0', $explanation->summary());
     }
 
+    /**
+     * The #794 arm: a version-stage miss whose method judgement
+     * answered the 405 -- the stage stays the version's own (the
+     * narrowing that emptied is what failed) while the outcome and
+     * the Allow payload carry the method verdict the miss fold
+     * answered with, so the diagnostic twin keeps its equivalence with
+     * the match on the new arm.
+     */
+    public function testExplainsAVersionMissWhoseMethodJudgementAnsweredThe405(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'version' => 'v1', 'method' => ['GET'], 'handler' => 'V1@show'],
+            ['path' => '/api', 'version' => 'v2', 'method' => ['GET'], 'handler' => 'V2@show'],
+        ]);
+
+        $explanation = $radixTree->explain('POST', '/api', null, null, 'v9');
+
+        self::assertSame(RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED, $explanation->outcome());
+        self::assertSame(RouteMatchExplanation::STAGE_VERSION, $explanation->failedStage());
+        self::assertSame(['GET'], $explanation->allowedMethods());
+        self::assertSame(2, $explanation->pathSurvivors());
+        self::assertSame(2, $explanation->hostSurvivors());
+        self::assertSame(0, $explanation->versionSurvivors());
+        self::assertSame(
+            'stage=version survivors=path:2,host:2,version:0 allowed=GET',
+            $explanation->summary(),
+        );
+    }
+
     public function testExplainsAMethodRefusalWithTheAllowedMethods(): void
     {
         $radixTree = RadixTree::compile([
@@ -234,6 +269,8 @@ final class RouteMatchExplainerTest extends TestCase
         yield 'a host-claimed match' => ['GET', '/a', 'api.example.com', null, null];
 
         yield 'a version miss' => ['GET', '/b', null, null, 'v3'];
+
+        yield 'a version miss with a wrong method' => ['POST', '/b', null, null, 'v9'];
 
         yield 'a version-selected match' => ['GET', '/b', null, null, 'v2'];
 

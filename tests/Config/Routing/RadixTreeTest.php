@@ -17,6 +17,7 @@ use Zef\Framework\Config\Routing\RouteAcceptMatch;
 use Zef\Framework\Config\Routing\RouteAcceptNegotiator;
 use Zef\Framework\Config\Routing\RouteAcceptRange;
 use Zef\Framework\Config\Routing\RouteAcceptRanges;
+use Zef\Framework\Config\Routing\RouteAllowedMethods;
 use Zef\Framework\Config\Routing\RouteFields;
 use Zef\Framework\Config\Routing\RouteHostAmbiguities;
 use Zef\Framework\Config\Routing\RouteHostBinding;
@@ -31,6 +32,7 @@ use Zef\Framework\Config\Routing\RouteHostRequest;
 use Zef\Framework\Config\Routing\RouteHostSelection;
 use Zef\Framework\Config\Routing\RouteMatcher;
 use Zef\Framework\Config\Routing\RouteMatchPipeline;
+use Zef\Framework\Config\Routing\RouteMatchStages;
 use Zef\Framework\Config\Routing\RouteMethodAnswer;
 use Zef\Framework\Config\Routing\RouteMethodClaims;
 use Zef\Framework\Config\Routing\RouteNodeInserter;
@@ -41,6 +43,7 @@ use Zef\Framework\Config\Routing\RouteTableCompiler;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
 use Zef\Framework\Config\Routing\RouteVersion;
+use Zef\Framework\Config\Routing\RouteVersionMiss;
 use Zef\Framework\Config\Routing\RouteVersionSelection;
 use Zef\Framework\Config\Routing\SegmentCapture;
 use Zef\Framework\Config\Routing\SharedPrefixLength;
@@ -54,6 +57,9 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(RadixTree::class)]
 #[CoversClass(RouteTableCompiler::class)]
 #[CoversClass(RouteMatchPipeline::class)]
+#[CoversClass(RouteMatchStages::class)]
+#[CoversClass(RouteVersionMiss::class)]
+#[CoversClass(RouteAllowedMethods::class)]
 #[CoversClass(RadixNode::class)]
 #[CoversClass(RouteTreeBuilder::class)]
 #[CoversClass(RouteTableRegistry::class)]
@@ -584,13 +590,111 @@ final class RadixTreeTest extends TestCase
         self::assertSame('XV@show', $radixTree->match('GET', '/xv', 'acme.example.com', null, '1')->route()->handler());
     }
 
-    public function testAnUnversionedRouteRemainsTheFallbackForAnUnknownExplicitVersion(): void
+    /**
+     * The #794 symmetry, one policy for every spelling of the path: an
+     * explicit version is a binding intent, never quietly ignored
+     * because the path happens to carry only unversioned routes -- the
+     * unversioned fallback answers only a request that supplied no
+     * version, exactly the docblock's own words.
+     */
+    public function testAnUnknownExplicitVersionFailsClosedOnAnAllUnversionedPath(): void
     {
         $radixTree = RadixTree::compile([
             ['path' => '/api', 'method' => ['GET'], 'handler' => 'Plain@show'],
         ]);
 
-        self::assertSame('Plain@show', $radixTree->match('GET', '/api', null, null, 'v9')->route()->handler());
+        self::assertFalse(
+            $radixTree->match('GET', '/api', null, null, 'v9')->isFound(),
+            'an explicit version no route answers is never quietly dropped',
+        );
+        self::assertSame(
+            'Plain@show',
+            $radixTree->match('GET', '/api')->route()->handler(),
+            'the versionless request keeps the unversioned fallback',
+        );
+    }
+
+    /**
+     * The #794 differentiation: a version miss with a method no
+     * candidate answers reports the 405 the method deserves, with the
+     * Allow every route at the path answers -- whether the path's
+     * routes are all versioned or mixed, the client is never left
+     * guessing whether the method or the version was wrong.
+     */
+    public function testAVersionMissWithAWrongMethodAnswersThe405TheMethodDeserves(): void
+    {
+        $versioned = RadixTree::compile([
+            ['path' => '/api', 'version' => 'v1', 'method' => ['GET'], 'handler' => 'V1@show'],
+            ['path' => '/api', 'version' => 'v2', 'method' => ['GET'], 'handler' => 'V2@show'],
+        ]);
+
+        $methodNotAllowed = $versioned->match('POST', '/api', null, null, 'v9');
+        self::assertTrue($methodNotAllowed->isMethodNotAllowed());
+        self::assertSame(['GET'], $methodNotAllowed->allowedMethods());
+
+        $mixed = RadixTree::compile([
+            ['path' => '/api', 'version' => 'v1', 'method' => ['GET'], 'handler' => 'V1@show'],
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'Plain@show'],
+        ]);
+
+        $mixedNotAllowed = $mixed->match('POST', '/api', null, null, 'v9');
+        self::assertTrue($mixedNotAllowed->isMethodNotAllowed());
+        self::assertSame(['GET'], $mixedNotAllowed->allowedMethods());
+    }
+
+    /**
+     * The #794 fail-closed half: a version miss whose method the path
+     * does answer stays the version's own refusal -- never a route at
+     * a version the request did not name, and never an advertisement
+     * of which versions would have answered.
+     */
+    public function testAVersionMissWithAMethodThePathAnswersFailsClosed(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'version' => 'v1', 'method' => ['GET'], 'handler' => 'V1@show'],
+        ]);
+
+        self::assertFalse($radixTree->match('GET', '/api', null, null, 'v9')->isFound());
+    }
+
+    /**
+     * A blank request version is no version at all: the unversioned
+     * fallback answers, the whitespace spelling never treated as an
+     * explicit intent the routes must fail.
+     */
+    public function testABlankRequestVersionTakesTheUnversionedFallback(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'version' => 'v1', 'method' => ['GET'], 'handler' => 'V1@show'],
+            ['path' => '/api', 'method' => ['GET'], 'handler' => 'Plain@show'],
+        ]);
+
+        self::assertSame(
+            'Plain@show',
+            $radixTree->match('GET', '/api', null, null, '')->route()->handler(),
+        );
+        self::assertSame(
+            'Plain@show',
+            $radixTree->match('GET', '/api', null, null, '   ')->route()->handler(),
+        );
+    }
+
+    /**
+     * A request version the grammar cannot parse fails closed exactly
+     * as an unknown one does -- and the miss's method judgement runs
+     * for it too, so the wrong method still answers the 405.
+     */
+    public function testAnUnparsableRequestVersionFailsClosedLikeAnUnknownOne(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/api', 'version' => 'v1', 'method' => ['GET'], 'handler' => 'V1@show'],
+        ]);
+
+        self::assertFalse($radixTree->match('GET', '/api', null, null, '../v1')->isFound());
+
+        $methodNotAllowed = $radixTree->match('POST', '/api', null, null, '../v1');
+        self::assertTrue($methodNotAllowed->isMethodNotAllowed());
+        self::assertSame(['GET'], $methodNotAllowed->allowedMethods());
     }
 
     public function testAVersionlessRequestTakesTheUnversionedRouteAmongVersionedOnes(): void

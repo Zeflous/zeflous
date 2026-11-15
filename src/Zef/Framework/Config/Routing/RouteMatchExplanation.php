@@ -170,6 +170,37 @@ final readonly class RouteMatchExplanation
     }
 
     /**
+     * The explanation of a version-stage miss whose method judgement
+     * answered the 405 (#794): the version selection emptied while the
+     * path's candidates stood, and the miss fold judged the *method*
+     * over them -- a method no candidate answers is named with every
+     * method the path's routes do answer, so the client is never left
+     * guessing whether the method or the version was wrong. The stage
+     * stays the version's own -- the narrowing that emptied is what
+     * failed -- while the outcome carries the method verdict the miss
+     * fold answered with.
+     *
+     * @param list<string> $allowedMethods every method the path's routes answer
+     */
+    public static function versionMissMethodRefusal(
+        array $allowedMethods,
+        int $pathSurvivors,
+        int $hostSurvivors,
+    ): self {
+        return new self(
+            self::OUTCOME_METHOD_NOT_ALLOWED,
+            self::STAGE_VERSION,
+            $pathSurvivors,
+            $hostSurvivors,
+            0,
+            '',
+            [],
+            $allowedMethods,
+            [],
+        );
+    }
+
+    /**
      * The explanation of a refusal the method answer gave: the path
      * matched, and the methods it answers exclude the request's own.
      *

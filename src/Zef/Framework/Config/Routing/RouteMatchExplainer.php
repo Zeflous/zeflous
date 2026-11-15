@@ -9,19 +9,19 @@ namespace Zef\Framework\Config\Routing;
  * matcher's own pipeline, staged and counted -- the diagnostic twin
  * of {@see RadixTree::match()}, never a second opinion.
  *
- * The pipeline is the matcher's, fold for fold: the path walk
- * ({@see RouteMatcher}), the host bucket ({@see RouteHostSelection}),
- * the version selection ({@see RouteVersionSelection}) and the
- * method-and-accept answer ({@see RouteMethodAnswer}) -- the same
- * units, the same order, the same inputs, so the explanation's
- * outcome is the match's outcome by construction (the suite pins
- * the equivalence). What the explainer adds is the counting between
- * the folds -- how many candidates each stage kept -- and, when a
- * stage emptied the set, the stage's own name and the payload its
- * refusal carries: the neighborhood for a path-stage miss
- * ({@see RouteMatchNeighborhood}), the allowed methods for a
- * method-stage refusal, the producible media types for an
- * accept-stage refusal.
+ * The pipeline is the matcher's, literally: the stages the engine's
+ * own order runs ({@see RouteMatchStages} -- the path walk, the host
+ * bucket, the version selection, and the miss-or-method answer) are
+ * the ones this twin destructures and counts, so the explanation's
+ * outcome is the match's outcome by construction (the suite pins the
+ * equivalence), including the version stage's miss fold (#794).
+ * What the explainer adds is the counting between the stages -- how
+ * many candidates each kept -- and, when a stage emptied the set, the
+ * stage's own name and the payload its refusal carries: the
+ * neighborhood for a path-stage miss ({@see RouteMatchNeighborhood}),
+ * the allowed methods for a method-stage refusal or a version-stage
+ * miss whose method judgement answered the 405, the producible media
+ * types for an accept-stage refusal.
  *
  * A found match explains itself as found, carrying only the stage
  * counts -- the diagnostic twin of a successful match has no failure
@@ -44,16 +44,29 @@ final class RouteMatchExplainer
         ?string $accept = null,
         ?string $version = null,
     ): RouteMatchExplanation {
-        $captured = [];
-        $walked = new RouteMatcher()->walk($radixNode, $path, 0, $captured);
-        $requestHost = RouteHostRequest::canonicalise($host);
-        $hostSelected = RouteHostSelection::select($walked, $requestHost);
-        $versionSelected = RouteVersionSelection::select($hostSelected, $version);
-        $matchResult = RouteMethodAnswer::resolve($method, $versionSelected, $captured, $requestHost, $accept);
+        [
+            'result' => $matchResult,
+            'host' => $hostSelected,
+            'version' => $versionSelected,
+            'walked' => $walked,
+        ] = RouteMatchStages::run(
+            $radixNode,
+            $method,
+            $path,
+            $host,
+            $accept,
+            $version,
+        );
 
         return match (true) {
             $walked === [] => self::pathMissExplanation($radixNode, $path),
             $hostSelected === [] => RouteMatchExplanation::hostMiss(\count($walked), 0),
+            $versionSelected === []
+                && $matchResult->isMethodNotAllowed() => RouteMatchExplanation::versionMissMethodRefusal(
+                    $matchResult->allowedMethods(),
+                    \count($walked),
+                    \count($hostSelected),
+                ),
             $versionSelected === [] => RouteMatchExplanation::versionMiss(
                 \count($walked),
                 \count($hostSelected),
