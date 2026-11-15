@@ -18,13 +18,28 @@ use Zef\Test\Support\Tooling\StorageMap;
 
 /**
  * The one autoloader every CLI command rides: Composer's mapping when the
- * install is present, otherwise the zero-dependency spelling -- the same
- * mapping composer.json itself declares, spelled by hand: the framework's
- * runtime tree, the PSR contract trees it type-checks against, the
- * files-include bootstrap that publishes ZEF_FRAMEWORK_ROOT, and the
- * tooling support classes under tests/ (the gate engine's home since the
- * src tree became runtime-only code), so a bare install still loads all
- * of them.
+ * install is present, and the hand-spelled fallback in every case -- the
+ * same mapping composer.json itself declares: the framework's runtime
+ * tree, the PSR contract trees it type-checks against, the files-include
+ * bootstrap that publishes ZEF_FRAMEWORK_ROOT, and the tooling support
+ * classes under tests/ (the gate engine's home since the src tree became
+ * runtime-only code), so a bare install still loads all of them.
+ *
+ * The arms used to be exclusive -- a vendor-present install returned
+ * after Composer's mapping alone -- and that early return was the defect
+ * the consumption audit named (issue #775): the autoloader an install
+ * answers with maps the runtime tree and nothing else (`autoload-dev`
+ * never runs for a dependency consumption), so a checkout installed
+ * `--no-dev` left every verb's twelve tooling classes unmapped and the
+ * first invocation fataled with a Class-not-found the operator could do
+ * nothing with. The fallback registers unconditionally now: Composer's
+ * loader keeps answering everything it maps (the root checkout's full
+ * mapping, the dependency install's production prefixes), and the
+ * fallback answers the one prefix no dependency install maps -- the
+ * tooling tree the distribution already ships beside the runtime tree.
+ * An install genuinely narrowed past the tooling tree is refused
+ * honestly (exit 1, the operational vocabulary) instead: the words name
+ * the install shape and the way out.
  *
  * Extracted from nine per-command copies that had drifted from one pasted
  * block (#717): the loading strategy now changes in exactly one place,
@@ -36,16 +51,29 @@ function requireFrameworkAutoloader(): void
     $autoload = __DIR__ . '/../vendor/autoload.php';
     if (is_file($autoload)) {
         require_once $autoload;
-
-        return;
+    } else {
+        // The fallback mirrors composer.json exactly -- measured: the pasted
+        // original mapped `Zef\Framework\` to `src/`, a path no framework
+        // class has ever lived at, so the fallback had been unable to load a
+        // single framework class since its birth in `fdb0f46`, uncaught
+        // because no test exercises a vendor-less tree.
+        require_once __DIR__ . '/../src/autoload.php';
     }
 
-    // The fallback mirrors composer.json exactly -- measured: the pasted
-    // original mapped `Zef\Framework\` to `src/`, a path no framework
-    // class has ever lived at, so the fallback had been unable to load a
-    // single framework class since its birth in `fdb0f46`, uncaught
-    // because no test exercises a vendor-less tree.
-    require_once __DIR__ . '/../src/autoload.php';
+    // The tooling tree every verb rides: the distribution ships it beside
+    // the runtime tree, so the fallback below answers the prefix a
+    // dependency install never maps -- but an install narrowed past it is
+    // the operational refusal, never the fatal.
+    $toolingDirectory = __DIR__ . '/../tests/Support/Tooling';
+
+    if (!is_dir($toolingDirectory)) {
+        fwrite(STDERR, 'An install without its tooling tree (tests/Support/Tooling/)'
+            . ' cannot answer any bin/zef verb: the classes every command rides are'
+            . ' absent. Install a distribution that ships the full repository tree, or'
+            . " run the CLI from the framework's own checkout.\n");
+
+        exit(1);
+    }
 
     spl_autoload_register(static function (string $class): void {
         $bases = [
