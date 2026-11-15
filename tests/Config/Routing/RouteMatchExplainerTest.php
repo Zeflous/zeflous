@@ -10,12 +10,14 @@ use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RadixTree;
+use Zef\Framework\Config\Routing\RouteAllowedMethods;
 use Zef\Framework\Config\Routing\RouteMatchDescent;
 use Zef\Framework\Config\Routing\RouteMatchExplainer;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Config\Routing\RouteMatchNeighborhood;
 use Zef\Framework\Config\Routing\RouteMatchSummary;
 use Zef\Framework\Config\Routing\RouteSubtreePatterns;
+use Zef\Framework\Config\Routing\RouteVersionMiss;
 
 /**
  * The route match explanation, on its own terms: the staged
@@ -31,6 +33,8 @@ use Zef\Framework\Config\Routing\RouteSubtreePatterns;
  */
 #[CoversClass(RouteMatchExplanation::class)]
 #[CoversClass(RouteMatchExplainer::class)]
+#[CoversClass(RouteVersionMiss::class)]
+#[CoversClass(RouteAllowedMethods::class)]
 #[CoversClass(RouteMatchDescent::class)]
 #[CoversClass(RouteMatchNeighborhood::class)]
 #[CoversClass(RouteMatchSummary::class)]

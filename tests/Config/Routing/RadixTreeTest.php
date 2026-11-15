@@ -17,6 +17,7 @@ use Zef\Framework\Config\Routing\RouteAcceptMatch;
 use Zef\Framework\Config\Routing\RouteAcceptNegotiator;
 use Zef\Framework\Config\Routing\RouteAcceptRange;
 use Zef\Framework\Config\Routing\RouteAcceptRanges;
+use Zef\Framework\Config\Routing\RouteAllowedMethods;
 use Zef\Framework\Config\Routing\RouteFields;
 use Zef\Framework\Config\Routing\RouteHostAmbiguities;
 use Zef\Framework\Config\Routing\RouteHostBinding;
@@ -41,6 +42,7 @@ use Zef\Framework\Config\Routing\RouteTableCompiler;
 use Zef\Framework\Config\Routing\RouteTableRegistry;
 use Zef\Framework\Config\Routing\RouteTreeBuilder;
 use Zef\Framework\Config\Routing\RouteVersion;
+use Zef\Framework\Config\Routing\RouteVersionMiss;
 use Zef\Framework\Config\Routing\RouteVersionSelection;
 use Zef\Framework\Config\Routing\SegmentCapture;
 use Zef\Framework\Config\Routing\SharedPrefixLength;
@@ -54,6 +56,8 @@ use Zef\Framework\Exception\InvariantViolationException;
 #[CoversClass(RadixTree::class)]
 #[CoversClass(RouteTableCompiler::class)]
 #[CoversClass(RouteMatchPipeline::class)]
+#[CoversClass(RouteVersionMiss::class)]
+#[CoversClass(RouteAllowedMethods::class)]
 #[CoversClass(RadixNode::class)]
 #[CoversClass(RouteTreeBuilder::class)]
 #[CoversClass(RouteTableRegistry::class)]
