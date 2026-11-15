@@ -375,6 +375,13 @@ rewritten and never run — it waits untouched for the configuration
 that can fold again (the bypass lane's own discipline: never run, let
 the full lane answer).
 
+The round the gate taught: `ParameterValues::toArray()` was a
+baselined `PossiblyUnusedMethod` (the report-and-test surface with no
+in-project consumer); the tenth map made the fingerprint its
+sanctioned consumer, so the baseline entry retired with the fold --
+the C5 precedent in reverse, the code outgrowing the baseline rather
+than the baseline absorbing the code.
+
 The battery: `ContainerDumpLaneTest` (the unit order pins — the
 digest degrade fires before the plan is consulted, renderable and
 unrenderable plan both) and `ContainerAotBootTest` (the boot-level
