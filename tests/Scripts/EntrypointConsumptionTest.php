@@ -61,6 +61,25 @@ final class EntrypointConsumptionTest extends TestCase
      */
     private array $directories = [];
 
+    #[Override]
+    protected function tearDown(): void
+    {
+        foreach ($this->files as $file) {
+            if (is_file($file) || is_link($file)) {
+                unlink($file);
+            }
+        }
+
+        foreach (array_reverse($this->directories) as $directory) {
+            if (is_dir($directory) && !is_link($directory)) {
+                rmdir($directory);
+            }
+        }
+
+        $this->files = [];
+        $this->directories = [];
+    }
+
     /**
      * The audit's own reproduction shape: a checkout whose generated
      * autoloader maps the production prefixes alone -- the `--no-dev`
@@ -124,8 +143,8 @@ final class EntrypointConsumptionTest extends TestCase
      */
     public function testTheManifestPublishesTheEntrypointBinary(): void
     {
-        $manifest = \json_decode(
-            (string) \file_get_contents(\dirname(__DIR__, 2) . '/composer.json'),
+        $manifest = json_decode(
+            (string) file_get_contents(\dirname(__DIR__, 2) . '/composer.json'),
             true,
             512,
             \JSON_THROW_ON_ERROR,
@@ -133,25 +152,6 @@ final class EntrypointConsumptionTest extends TestCase
 
         self::assertIsArray($manifest);
         self::assertSame(['bin/zef'], $manifest['bin'] ?? null);
-    }
-
-    #[Override]
-    protected function tearDown(): void
-    {
-        foreach ($this->files as $file) {
-            if (is_file($file) || is_link($file)) {
-                unlink($file);
-            }
-        }
-
-        foreach (\array_reverse($this->directories) as $directory) {
-            if (is_dir($directory) && !is_link($directory)) {
-                rmdir($directory);
-            }
-        }
-
-        $this->files = [];
-        $this->directories = [];
     }
 
     /**
@@ -168,28 +168,28 @@ final class EntrypointConsumptionTest extends TestCase
     private function checkoutTree(bool $withTooling): string
     {
         $root = \dirname(__DIR__, 2);
-        $tree = \sys_get_temp_dir() . '/zef-consumption-' . \uniqid('', false);
+        $tree = sys_get_temp_dir() . '/zef-consumption-' . uniqid('', false);
 
         $this->directories[] = $tree;
         $this->directories[] = $tree . '/bin';
-        \mkdir($tree . '/bin', 0o777, true);
+        mkdir($tree . '/bin', 0o777, true);
 
         $this->files[] = $tree . '/bin/zef';
-        \copy($root . '/bin/zef', $tree . '/bin/zef');
+        copy($root . '/bin/zef', $tree . '/bin/zef');
 
         $this->files[] = $tree . '/src';
-        \symlink($root . '/src', $tree . '/src');
+        symlink($root . '/src', $tree . '/src');
 
         if ($withTooling) {
             $this->files[] = $tree . '/tests';
-            \symlink($root . '/tests', $tree . '/tests');
+            symlink($root . '/tests', $tree . '/tests');
         }
 
         $this->directories[] = $tree . '/vendor';
-        \mkdir($tree . '/vendor');
+        mkdir($tree . '/vendor');
 
         $this->files[] = $tree . '/vendor/autoload.php';
-        \file_put_contents(
+        file_put_contents(
             $tree . '/vendor/autoload.php',
             $this->productionAutoloader($tree),
         );
@@ -209,7 +209,7 @@ final class EntrypointConsumptionTest extends TestCase
     private function vendoredTree(): string
     {
         $root = \dirname(__DIR__, 2);
-        $tree = \sys_get_temp_dir() . '/zef-vendored-' . \uniqid('', false);
+        $tree = sys_get_temp_dir() . '/zef-vendored-' . uniqid('', false);
         $package = $tree . '/vendor/zeflous/zeflous';
 
         $this->directories[] = $tree;
@@ -217,19 +217,19 @@ final class EntrypointConsumptionTest extends TestCase
         $this->directories[] = $tree . '/vendor/zeflous';
         $this->directories[] = $package;
         $this->directories[] = $package . '/bin';
-        \mkdir($package . '/bin', 0o777, true);
+        mkdir($package . '/bin', 0o777, true);
 
         $this->files[] = $package . '/bin/zef';
-        \copy($root . '/bin/zef', $package . '/bin/zef');
+        copy($root . '/bin/zef', $package . '/bin/zef');
 
         $this->files[] = $package . '/src';
-        \symlink($root . '/src', $package . '/src');
+        symlink($root . '/src', $package . '/src');
 
         $this->files[] = $package . '/tests';
-        \symlink($root . '/tests', $package . '/tests');
+        symlink($root . '/tests', $package . '/tests');
 
         $this->files[] = $tree . '/vendor/autoload.php';
-        \file_put_contents(
+        file_put_contents(
             $tree . '/vendor/autoload.php',
             $this->productionAutoloader($package),
         );
@@ -253,11 +253,11 @@ final class EntrypointConsumptionTest extends TestCase
     private function productionAutoloader(string $packageBase): string
     {
         $bases = [
-            'Zef\\Framework\\' => $packageBase . '/src/Zef/Framework/',
-            'Psr\\Container\\' => $packageBase . '/src/Contracts/Psr/Container/',
-            'Psr\\Http\\Message\\' => $packageBase . '/src/Contracts/Psr/Http/Message/',
-            'Psr\\Http\\Server\\' => $packageBase . '/src/Contracts/Psr/Http/Server/',
-            'Psr\\Log\\' => $packageBase . '/src/Contracts/Psr/Log/',
+            'Zef\Framework\\' => $packageBase . '/src/Zef/Framework/',
+            'Psr\Container\\' => $packageBase . '/src/Contracts/Psr/Container/',
+            'Psr\Http\Message\\' => $packageBase . '/src/Contracts/Psr/Http/Message/',
+            'Psr\Http\Server\\' => $packageBase . '/src/Contracts/Psr/Http/Server/',
+            'Psr\Log\\' => $packageBase . '/src/Contracts/Psr/Log/',
         ];
 
         $lines = [
@@ -265,7 +265,7 @@ final class EntrypointConsumptionTest extends TestCase
             '',
             'declare(strict_types=1);',
             '',
-            '$bases = ' . \var_export($bases, true) . ';',
+            '$bases = ' . var_export($bases, true) . ';',
             'spl_autoload_register(static function (string $class) use ($bases): void {',
             '    foreach ($bases as $prefix => $base) {',
             '        if (!str_starts_with($class, $prefix)) {',
@@ -284,10 +284,10 @@ final class EntrypointConsumptionTest extends TestCase
             '    }',
             '});',
             '',
-            'require_once ' . \var_export($packageBase . '/src/autoload.php', true) . ';',
+            'require_once ' . var_export($packageBase . '/src/autoload.php', true) . ';',
         ];
 
-        return \implode("\n", $lines) . "\n";
+        return implode("\n", $lines) . "\n";
     }
 
     /**
