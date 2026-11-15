@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(router\): the version selection's one policy and the miss's method judgement \(issue \#794\) [\#850](https://github.com/Zeflous/zeflous/pull/850) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the answers the artifact bakes fold into the digest \(issue \#793\) [\#849](https://github.com/Zeflous/zeflous/pull/849) ([mbetixz](https://github.com/mbetixz))
 - fix\(entrypoint\): the autoload answers the dependency consumption \(issue \#775\) [\#845](https://github.com/Zeflous/zeflous/pull/845) ([mbetixz](https://github.com/mbetixz))
 - fix\(packaging\): the mbstring extension joins the platform block \(issue \#774\) [\#842](https://github.com/Zeflous/zeflous/pull/842) ([mbetixz](https://github.com/mbetixz))
