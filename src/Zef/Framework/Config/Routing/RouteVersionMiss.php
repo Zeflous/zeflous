@@ -41,8 +41,8 @@ final class RouteVersionMiss
      */
     public static function answer(string $method, array $candidates): MatchResult
     {
-        foreach ($candidates as $route) {
-            if ($route->answersMethod($method)) {
+        foreach ($candidates as $candidate) {
+            if ($candidate->answersMethod($method)) {
                 return MatchResult::notFound();
             }
         }
