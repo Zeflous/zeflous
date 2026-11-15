@@ -18,13 +18,27 @@ use Zef\Test\Support\Tooling\StorageMap;
 
 /**
  * The one autoloader every CLI command rides: Composer's mapping when the
- * install is present, otherwise the zero-dependency spelling -- the same
- * mapping composer.json itself declares, spelled by hand: the framework's
- * runtime tree, the PSR contract trees it type-checks against, the
- * files-include bootstrap that publishes ZEF_FRAMEWORK_ROOT, and the
- * tooling support classes under tests/ (the gate engine's home since the
- * src tree became runtime-only code), so a bare install still loads all
- * of them.
+ * install is present, and the hand-spelled fallback in every case -- the
+ * same mapping composer.json itself declares: the framework's runtime
+ * tree, the PSR contract trees it type-checks against, the files-include
+ * bootstrap that publishes ZEF_FRAMEWORK_ROOT, and the tooling support
+ * classes under tests/ (the gate engine's home since the src tree became
+ * runtime-only code), so a bare install still loads all of them.
+ *
+ * The arms used to be exclusive -- a vendor-present install returned
+ * after Composer's mapping alone -- and that early return was the defect
+ * the consumption audit named (issue #775): the autoloader an install
+ * answers with maps the runtime tree and nothing else (`autoload-dev`
+ * never runs for a dependency consumption), so a checkout installed
+ * `--no-dev` left every verb's twelve tooling classes unmapped and the
+ * first invocation fataled with a Class-not-found the operator could do
+ * nothing with. The fallback registers unconditionally now: Composer's
+ * loader keeps answering everything it maps (the root checkout's full
+ * mapping, the dependency install's production prefixes), and the
+ * fallback answers the one prefix no dependency install maps -- the
+ * tooling tree the distribution already ships beside the runtime tree
+ * (the entrypoint's own install-shape refusal, ahead of every branch,
+ * owns the tree that genuinely carries none).
  *
  * Extracted from nine per-command copies that had drifted from one pasted
  * block (#717): the loading strategy now changes in exactly one place,
@@ -36,16 +50,14 @@ function requireFrameworkAutoloader(): void
     $autoload = __DIR__ . '/../vendor/autoload.php';
     if (is_file($autoload)) {
         require_once $autoload;
-
-        return;
+    } else {
+        // The fallback mirrors composer.json exactly -- measured: the pasted
+        // original mapped `Zef\Framework\` to `src/`, a path no framework
+        // class has ever lived at, so the fallback had been unable to load a
+        // single framework class since its birth in `fdb0f46`, uncaught
+        // because no test exercises a vendor-less tree.
+        require_once __DIR__ . '/../src/autoload.php';
     }
-
-    // The fallback mirrors composer.json exactly -- measured: the pasted
-    // original mapped `Zef\Framework\` to `src/`, a path no framework
-    // class has ever lived at, so the fallback had been unable to load a
-    // single framework class since its birth in `fdb0f46`, uncaught
-    // because no test exercises a vendor-less tree.
-    require_once __DIR__ . '/../src/autoload.php';
 
     spl_autoload_register(static function (string $class): void {
         $bases = [
@@ -87,6 +99,23 @@ $command = $argv[1] ?? '';
  * @var list<string> $arguments
  */
 $arguments = array_slice($argv, 2);
+
+// The entrypoint's own install-shape refusal, ahead of every branch
+// (issue #775): the tooling support classes every verb rides live under
+// tests/ (the gate engine's home since the src tree became runtime-only
+// code), the tree the distribution already ships beside the runtime tree
+// -- an install genuinely narrowed past it is the operational refusal
+// (exit 1, the vocabulary CommandHandler itself spells), the words naming
+// the install shape and the way out, instead of the fatal the
+// Class-not-found once answered with.
+if (!is_dir(__DIR__ . '/../tests/Support/Tooling')) {
+    fwrite(STDERR, 'An install without its tooling tree (tests/Support/Tooling/)'
+        . ' cannot answer any bin/zef verb: the classes every command rides are'
+        . ' absent. Install a distribution that ships the full repository tree, or'
+        . " run the CLI from the framework's own checkout.\n");
+
+    exit(1);
+}
 
 if ($command === 'errors:replay') {
     requireFrameworkAutoloader();
