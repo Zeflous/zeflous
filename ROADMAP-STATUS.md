@@ -13,7 +13,7 @@ see how far the code has moved against the roadmap.
 | 🟡 Partial | A working slice exists; the rest of the area is still open. |
 | ⬜ Not started | No code yet. |
 
-**Last updated:** 2026-11-16 · `main` @ `e183f2aa`
+**Last updated:** 2026-11-16 · `main` @ `ebfd9d35`
 
 ---
 
