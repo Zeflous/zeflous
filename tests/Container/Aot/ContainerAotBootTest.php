@@ -8,6 +8,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
+use stdClass;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Aot\AotArguments;
 use Zef\Framework\Container\Aot\AotArtifact;
@@ -213,7 +214,7 @@ final class ContainerAotBootTest extends TestCase
         $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
 
         $config = $this->config(['enabled' => true]);
-        $config['services']['app.live'] = ['value' => new \stdClass()];
+        $config['services']['app.live'] = ['value' => new stdClass()];
 
         $container = $containerBootstrapper->bootstrap(new Config($config), new Container());
 
@@ -228,7 +229,7 @@ final class ContainerAotBootTest extends TestCase
         self::assertFalse($containerAotCache->exists());
 
         $live = $container->get('app.live');
-        self::assertInstanceOf(\stdClass::class, $live, 'the full lane answered the live value');
+        self::assertInstanceOf(stdClass::class, $live, 'the full lane answered the live value');
     }
 
     /**
@@ -251,7 +252,7 @@ final class ContainerAotBootTest extends TestCase
 
         $artifactBefore = (string) file_get_contents($this->artifactFile);
 
-        $config['services']['app.live'] = ['value' => new \stdClass()];
+        $config['services']['app.live'] = ['value' => new stdClass()];
         $second = $containerBootstrapper->bootstrap(new Config($config), new Container());
 
         $outcome = $second->get(FrameworkDefaults::AOT_SERVICE);
@@ -267,7 +268,7 @@ final class ContainerAotBootTest extends TestCase
             (string) file_get_contents($this->artifactFile),
             'the stale artifact is never rewritten by the degraded dump',
         );
-        self::assertInstanceOf(\stdClass::class, $second->get('app.live'));
+        self::assertInstanceOf(stdClass::class, $second->get('app.live'));
     }
 
     public function testAnEnumDefaultedServiceSurvivesTheArtifactRoundTrip(): void

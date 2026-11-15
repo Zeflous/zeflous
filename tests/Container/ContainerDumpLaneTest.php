@@ -7,6 +7,7 @@ namespace Zef\Test\Container;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Aot\AotOutcome;
 use Zef\Framework\Container\Aot\ContainerAotCache;
@@ -239,7 +240,7 @@ final class ContainerDumpLaneTest extends TestCase
             'aot' => ['enabled' => true],
             'container' => ['mode' => $mode],
             'services' => [
-                'app.live' => ['value' => new \stdClass()],
+                'app.live' => ['value' => new stdClass()],
             ],
         ]));
     }
