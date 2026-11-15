@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-14T17:19:33Z",
+  "as_of": "2026-11-15T15:48:25Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 332,
+  "unreleased_count": 333,
   "versions": [
     {
       "version": "Unreleased",
@@ -7317,6 +7317,77 @@
                 "sha": "3042048d9ec4db363e5f6085043b8f78918fa82c",
                 "short_sha": "3042048",
                 "subject": "docs(roadmap): the pin rides the runner-fixture correction's head"
+              }
+            ]
+          },
+          {
+            "pr": 845,
+            "title": "fix(entrypoint): the autoload answers the dependency consumption (issue #775)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-15T15:48:25Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/845",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1247c51b2c3a66c0f6dee3e1b506352cf1f44d2c",
+                "short_sha": "1247c51",
+                "subject": "fix(entrypoint): the autoload answers the dependency consumption (issue #775)"
+              },
+              {
+                "sha": "d465b0f0175108f3d81d7c17ee709d1a4ff1d548",
+                "short_sha": "d465b0f",
+                "subject": "test(entrypoint): the consumption postures pinned over synthetic installs"
+              },
+              {
+                "sha": "3b7890cf68b3b75bd0c9e55564143999f043f503",
+                "short_sha": "3b7890c",
+                "subject": "docs(entrypoint): the consumption posture decision recorded"
+              },
+              {
+                "sha": "71fd66f3d56576754f8a586e5dd0b460ad45f869",
+                "short_sha": "71fd66f",
+                "subject": "docs(roadmap): the consumption posture's slice recorded and the pin refreshed"
+              },
+              {
+                "sha": "15a71377d9b4fe2f002f4f8251ebeb20641bb52f",
+                "short_sha": "15a7137",
+                "subject": "test(entrypoint): the vendored nesting joins the teardown ledger and the house spelling"
+              },
+              {
+                "sha": "aed39e7f706ddc4dd2d4ee8f2ff070c67dc1d9a0",
+                "short_sha": "aed39e7",
+                "subject": "docs(roadmap): the pin rides the vendored-nesting correction's head"
+              },
+              {
+                "sha": "87defb82776016c60843225ade29e9b2e0e4f537",
+                "short_sha": "87defb8",
+                "subject": "test(entrypoint): the battery rides the house spelling"
+              },
+              {
+                "sha": "4b9b469a6edd43301737fa8995e75befde8404bc",
+                "short_sha": "4b9b469",
+                "subject": "docs(roadmap): the pin rides the house-spelling correction's head"
+              },
+              {
+                "sha": "75d87385cce739a885047b4f59c28fed844e63fe",
+                "short_sha": "75d8738",
+                "subject": "test(entrypoint): the teardown guards ride the early-exit spelling"
+              },
+              {
+                "sha": "fb40e7683e2d24c80bd50b0a3f0e5e0cb3d1cb4b",
+                "short_sha": "fb40e76",
+                "subject": "docs(roadmap): the pin rides the early-exit correction's head"
+              },
+              {
+                "sha": "7ed501c4e22351440aade323a0838242265b685b",
+                "short_sha": "7ed501c",
+                "subject": "fix(entrypoint): the install-shape refusal rides the entrypoint's own arm"
+              },
+              {
+                "sha": "cd9e808fe85ddb833e5f7bc57c18f268ba18db1b",
+                "short_sha": "cd9e808",
+                "subject": "docs(roadmap): the pin rides the install-shape arm's head"
               }
             ]
           }
@@ -22577,6 +22648,77 @@
               "sha": "3042048d9ec4db363e5f6085043b8f78918fa82c",
               "short_sha": "3042048",
               "subject": "docs(roadmap): the pin rides the runner-fixture correction's head"
+            }
+          ]
+        },
+        {
+          "pr": 845,
+          "title": "fix(entrypoint): the autoload answers the dependency consumption (issue #775)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-15T15:48:25Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/845",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1247c51b2c3a66c0f6dee3e1b506352cf1f44d2c",
+              "short_sha": "1247c51",
+              "subject": "fix(entrypoint): the autoload answers the dependency consumption (issue #775)"
+            },
+            {
+              "sha": "d465b0f0175108f3d81d7c17ee709d1a4ff1d548",
+              "short_sha": "d465b0f",
+              "subject": "test(entrypoint): the consumption postures pinned over synthetic installs"
+            },
+            {
+              "sha": "3b7890cf68b3b75bd0c9e55564143999f043f503",
+              "short_sha": "3b7890c",
+              "subject": "docs(entrypoint): the consumption posture decision recorded"
+            },
+            {
+              "sha": "71fd66f3d56576754f8a586e5dd0b460ad45f869",
+              "short_sha": "71fd66f",
+              "subject": "docs(roadmap): the consumption posture's slice recorded and the pin refreshed"
+            },
+            {
+              "sha": "15a71377d9b4fe2f002f4f8251ebeb20641bb52f",
+              "short_sha": "15a7137",
+              "subject": "test(entrypoint): the vendored nesting joins the teardown ledger and the house spelling"
+            },
+            {
+              "sha": "aed39e7f706ddc4dd2d4ee8f2ff070c67dc1d9a0",
+              "short_sha": "aed39e7",
+              "subject": "docs(roadmap): the pin rides the vendored-nesting correction's head"
+            },
+            {
+              "sha": "87defb82776016c60843225ade29e9b2e0e4f537",
+              "short_sha": "87defb8",
+              "subject": "test(entrypoint): the battery rides the house spelling"
+            },
+            {
+              "sha": "4b9b469a6edd43301737fa8995e75befde8404bc",
+              "short_sha": "4b9b469",
+              "subject": "docs(roadmap): the pin rides the house-spelling correction's head"
+            },
+            {
+              "sha": "75d87385cce739a885047b4f59c28fed844e63fe",
+              "short_sha": "75d8738",
+              "subject": "test(entrypoint): the teardown guards ride the early-exit spelling"
+            },
+            {
+              "sha": "fb40e7683e2d24c80bd50b0a3f0e5e0cb3d1cb4b",
+              "short_sha": "fb40e76",
+              "subject": "docs(roadmap): the pin rides the early-exit correction's head"
+            },
+            {
+              "sha": "7ed501c4e22351440aade323a0838242265b685b",
+              "short_sha": "7ed501c",
+              "subject": "fix(entrypoint): the install-shape refusal rides the entrypoint's own arm"
+            },
+            {
+              "sha": "cd9e808fe85ddb833e5f7bc57c18f268ba18db1b",
+              "short_sha": "cd9e808",
+              "subject": "docs(roadmap): the pin rides the install-shape arm's head"
             }
           ]
         }
