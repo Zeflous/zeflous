@@ -27,7 +27,8 @@ final class RouteMatchStages
      * walked candidates, the host bucket's selection, the version
      * selection, and the match result the sequence settled on.
      *
-     * @return array{walked: list<CompiledRoute>, host: list<CompiledRoute>, version: list<CompiledRoute>, result: MatchResult}
+     * @return array{walked: list<CompiledRoute>, host: list<CompiledRoute>,
+     *               version: list<CompiledRoute>, result: MatchResult}
      */
     public static function run(
         RadixNode $radixNode,
