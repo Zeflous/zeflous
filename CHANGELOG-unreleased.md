@@ -193,6 +193,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(cli): the entrypoint owns its exit-code contract's final arm (issue #773) [#839](https://github.com/Zeflous/zeflous/pull/839) ([mbetixz](https://github.com/mbetixz))
 - fix(packaging): the mbstring extension joins the platform block (issue #774) [#842](https://github.com/Zeflous/zeflous/pull/842) ([mbetixz](https://github.com/mbetixz))
 - fix(entrypoint): the autoload answers the dependency consumption (issue #775) [#845](https://github.com/Zeflous/zeflous/pull/845) ([mbetixz](https://github.com/mbetixz))
+- fix(container): the answers the artifact bakes fold into the digest (issue #793) [#849](https://github.com/Zeflous/zeflous/pull/849) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
