@@ -36,10 +36,9 @@ use Zef\Test\Support\Tooling\StorageMap;
  * loader keeps answering everything it maps (the root checkout's full
  * mapping, the dependency install's production prefixes), and the
  * fallback answers the one prefix no dependency install maps -- the
- * tooling tree the distribution already ships beside the runtime tree.
- * An install genuinely narrowed past the tooling tree is refused
- * honestly (exit 1, the operational vocabulary) instead: the words name
- * the install shape and the way out.
+ * tooling tree the distribution already ships beside the runtime tree
+ * (the entrypoint's own install-shape refusal, ahead of every branch,
+ * owns the tree that genuinely carries none).
  *
  * Extracted from nine per-command copies that had drifted from one pasted
  * block (#717): the loading strategy now changes in exactly one place,
@@ -58,21 +57,6 @@ function requireFrameworkAutoloader(): void
         // single framework class since its birth in `fdb0f46`, uncaught
         // because no test exercises a vendor-less tree.
         require_once __DIR__ . '/../src/autoload.php';
-    }
-
-    // The tooling tree every verb rides: the distribution ships it beside
-    // the runtime tree, so the fallback below answers the prefix a
-    // dependency install never maps -- but an install narrowed past it is
-    // the operational refusal, never the fatal.
-    $toolingDirectory = __DIR__ . '/../tests/Support/Tooling';
-
-    if (!is_dir($toolingDirectory)) {
-        fwrite(STDERR, 'An install without its tooling tree (tests/Support/Tooling/)'
-            . ' cannot answer any bin/zef verb: the classes every command rides are'
-            . ' absent. Install a distribution that ships the full repository tree, or'
-            . " run the CLI from the framework's own checkout.\n");
-
-        exit(1);
     }
 
     spl_autoload_register(static function (string $class): void {
@@ -115,6 +99,23 @@ $command = $argv[1] ?? '';
  * @var list<string> $arguments
  */
 $arguments = array_slice($argv, 2);
+
+// The entrypoint's own install-shape refusal, ahead of every branch
+// (issue #775): the tooling support classes every verb rides live under
+// tests/ (the gate engine's home since the src tree became runtime-only
+// code), the tree the distribution already ships beside the runtime tree
+// -- an install genuinely narrowed past it is the operational refusal
+// (exit 1, the vocabulary CommandHandler itself spells), the words naming
+// the install shape and the way out, instead of the fatal the
+// Class-not-found once answered with.
+if (!is_dir(__DIR__ . '/../tests/Support/Tooling')) {
+    fwrite(STDERR, 'An install without its tooling tree (tests/Support/Tooling/)'
+        . ' cannot answer any bin/zef verb: the classes every command rides are'
+        . ' absent. Install a distribution that ships the full repository tree, or'
+        . " run the CLI from the framework's own checkout.\n");
+
+    exit(1);
+}
 
 if ($command === 'errors:replay') {
     requireFrameworkAutoloader();
