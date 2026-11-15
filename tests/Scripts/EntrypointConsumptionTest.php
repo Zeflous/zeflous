@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Scripts;
 
+use Override;
 use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
@@ -124,7 +125,7 @@ final class EntrypointConsumptionTest extends TestCase
     public function testTheManifestPublishesTheEntrypointBinary(): void
     {
         $manifest = \json_decode(
-            \file_get_contents(\dirname(__DIR__, 2) . '/composer.json') ?: '{}',
+            (string) \file_get_contents(\dirname(__DIR__, 2) . '/composer.json'),
             true,
             512,
             \JSON_THROW_ON_ERROR,
@@ -134,6 +135,7 @@ final class EntrypointConsumptionTest extends TestCase
         self::assertSame(['bin/zef'], $manifest['bin'] ?? null);
     }
 
+    #[Override]
     protected function tearDown(): void
     {
         foreach ($this->files as $file) {
@@ -212,6 +214,7 @@ final class EntrypointConsumptionTest extends TestCase
 
         $this->directories[] = $tree;
         $this->directories[] = $tree . '/vendor';
+        $this->directories[] = $tree . '/vendor/zeflous';
         $this->directories[] = $package;
         $this->directories[] = $package . '/bin';
         \mkdir($package . '/bin', 0o777, true);
