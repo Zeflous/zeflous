@@ -65,15 +65,19 @@ final class EntrypointConsumptionTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->files as $file) {
-            if (is_file($file) || is_link($file)) {
-                unlink($file);
+            if (!is_file($file) && !is_link($file)) {
+                continue;
             }
+
+            unlink($file);
         }
 
         foreach (array_reverse($this->directories) as $directory) {
-            if (is_dir($directory) && !is_link($directory)) {
-                rmdir($directory);
+            if (!is_dir($directory) || is_link($directory)) {
+                continue;
             }
+
+            rmdir($directory);
         }
 
         $this->files = [];
