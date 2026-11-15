@@ -58,6 +58,18 @@ final readonly class AotOutcome
         . 'the full lane answered this boot and laid no artifact down';
 
     /**
+     * The note a digest-refused dump leaves behind (#792): the source
+     * configuration carried a value the fingerprint cannot fold -- a
+     * configuration the artifact cannot honestly carry either, the
+     * digest's own doctrine -- so the full lane answered this boot
+     * and laid no artifact down. The render refusal names the plan;
+     * this one names the configuration the plan was parsed from.
+     */
+    private const string UNDIGESTIBLE_NOTE
+        = 'the configuration carries a value the AOT digest cannot fold -- '
+        . 'the full lane answered this boot and laid no artifact down';
+
+    /**
      * @param list<string> $unreferenced the unreferenced identifiers, in
      *                                   declaration order
      */
@@ -122,6 +134,21 @@ final readonly class AotOutcome
     public static function artifactUnrenderable(array $unreferenced, int $definitions): self
     {
         return self::fullCompiled(self::UNRENDERABLE_NOTE, $unreferenced, $definitions);
+    }
+
+    /**
+     * The digest-refused dump's boot answer (#792): the fingerprint
+     * refused to fold the source configuration, so the compile lane
+     * answered by skipping the artifact write before the plan was
+     * ever consulted -- the note the re-registered
+     * {@see ContainerRegistrations} outcome carries for a
+     * configuration the digest cannot carry.
+     *
+     * @param list<string> $unreferenced the full pipeline's own report
+     */
+    public static function configUndigestible(array $unreferenced, int $definitions): self
+    {
+        return self::fullCompiled(self::UNDIGESTIBLE_NOTE, $unreferenced, $definitions);
     }
 
     /**

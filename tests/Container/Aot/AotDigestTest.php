@@ -113,6 +113,22 @@ final class AotDigestTest extends TestCase
                 'contextual' => ['billing' => []],
             ],
         ];
+
+        // #793: the parsed parameter values carry the provider answers
+        // the raw declarations never spell -- the same knob with a
+        // different computed answer must be a different digest, or the
+        // frozen dump-time answer rides a matching one.
+        yield 'the parameters.values map' => [
+            'parameters.values',
+            [
+                ...self::SOURCES,
+                'parameters.values' => ['db.host' => 'localhost'],
+            ],
+            [
+                ...self::SOURCES,
+                'parameters.values' => ['db.host' => 'elsewhere'],
+            ],
+        ];
     }
 
     public function testTheFrameworkVersionCarriesItsWeight(): void

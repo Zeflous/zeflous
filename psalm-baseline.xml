@@ -207,11 +207,6 @@
       <code><![CDATA[stats]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Container/ParameterValues.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[toArray]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Zef/Framework/Container/ReflectionMemo.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[count]]></code>
