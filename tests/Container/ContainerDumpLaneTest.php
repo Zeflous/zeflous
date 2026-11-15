@@ -144,6 +144,72 @@ final class ContainerDumpLaneTest extends TestCase
         self::assertInstanceOf(AotOutcome::class, $outcome);
     }
 
+    /**
+     * The #792 crash order: the source configuration carries a live
+     * object the digest cannot fold, and the fingerprint -- evaluated
+     * inside the dump's own refusal boundary -- degrades before the
+     * plan is ever consulted, whatever the plan itself carries. The
+     * renderable plan here pins the order: an older spelling computed
+     * the fingerprint as the degrade call's argument, and the refusal
+     * escaped the lane and crashed the boot instead.
+     */
+    public function testAnUndigestibleConfigurationDegradesBeforeThePlanIsConsulted(): void
+    {
+        $containerDumpLane = new ContainerDumpLane();
+        $container = new Container();
+
+        $containerDumpLane->layDown(
+            $container,
+            $this->plan(),
+            $this->knobsCarryingALiveObject('production'),
+            new ContainerAotCache($this->file),
+        );
+
+        self::assertFileDoesNotExist($this->file, 'no artifact for a configuration the digest refuses');
+        $outcome = $container->get(ContainerServices::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $outcome);
+        self::assertSame(
+            'the configuration carries a value the AOT digest cannot fold -- '
+            . 'the full lane answered this boot and laid no artifact down',
+            $outcome->note,
+        );
+    }
+
+    /**
+     * The same refusal with an unrenderable plan behind it still names
+     * the configuration, not the plan: the digest is the first thing
+     * the dump asks for, so its refusal is the note the boot answers
+     * with -- the order is the observable, not an implementation
+     * detail.
+     */
+    public function testAnUndigestibleConfigurationNamesItselfOverTheUnrenderablePlan(): void
+    {
+        $containerDumpLane = new ContainerDumpLane();
+        $container = new Container();
+        $containerCompilePlan = new ContainerCompilePlan(
+            [new InstanceDefinition('app.unrenderable', EnumHouse::class, [new PlainSink()])],
+            ServiceTagIndex::fromDefinitions([]),
+            [],
+            new NamespaceRadixTree(['ids' => [], 'children' => []], [], 0, 0, 0),
+        );
+
+        $containerDumpLane->layDown(
+            $container,
+            $containerCompilePlan,
+            $this->knobsCarryingALiveObject('production'),
+            new ContainerAotCache($this->file),
+        );
+
+        self::assertFileDoesNotExist($this->file);
+        $outcome = $container->get(ContainerServices::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $outcome);
+        self::assertSame(
+            'the configuration carries a value the AOT digest cannot fold -- '
+            . 'the full lane answered this boot and laid no artifact down',
+            $outcome->note,
+        );
+    }
+
     private function plan(): ContainerCompilePlan
     {
         return new ContainerCompilePlan(
@@ -159,6 +225,22 @@ final class ContainerDumpLaneTest extends TestCase
         return ContainerKnobs::parsed(new Config([
             'aot' => ['enabled' => true],
             'container' => ['mode' => $mode],
+        ]));
+    }
+
+    /**
+     * The lane-legitimate configuration #792 named: a value shape
+     * carrying a live object the full lane answers happily and the
+     * digest's data-only grammar refuses to fold.
+     */
+    private function knobsCarryingALiveObject(string $mode): ContainerKnobs
+    {
+        return ContainerKnobs::parsed(new Config([
+            'aot' => ['enabled' => true],
+            'container' => ['mode' => $mode],
+            'services' => [
+                'app.live' => ['value' => new \stdClass()],
+            ],
         ]));
     }
 }

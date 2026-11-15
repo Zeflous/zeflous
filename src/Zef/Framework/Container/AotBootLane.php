@@ -6,6 +6,7 @@ namespace Zef\Framework\Container;
 
 use Zef\Framework\Container\Aot\AotArtifact;
 use Zef\Framework\Container\Aot\AotDefinitions;
+use Zef\Framework\Container\Aot\AotException;
 use Zef\Framework\Container\Aot\ContainerAotCache;
 use Zef\Framework\ContainerKnobs;
 
@@ -21,13 +22,22 @@ use Zef\Framework\ContainerKnobs;
  * artifact's closures through the container's own public surface and
  * answers true; a mismatch is *proven* staleness -- the artifact is
  * never run -- and answers false, leaving the fresh compile and the
- * fresh dump to the full lane.
+ * fresh dump to the full lane. A configuration whose digest cannot
+ * fold at all ({@see AotException}, the refusal #792 routed to the
+ * degrade) answers false the same conservative way: an artifact that
+ * can never be proven fresh is never run, the foldable mismatch's
+ * own verdict taken one step stricter -- while the artifact's own
+ * load refusals (a torn or malformed payload) stay fail-closed,
+ * exactly the corrupt-artifact contract the envelope owns.
  */
 final readonly class AotBootLane
 {
     /**
      * Whether the artifact answered the boot: probe, and on a digest
-     * match install everything the artifact carries.
+     * match install everything the artifact carries -- the digest
+     * comparison inside its own refusal boundary (#792), so an
+     * unfoldable fingerprint answers the probe instead of crashing
+     * it.
      */
     public function answers(
         Container $container,
@@ -36,7 +46,18 @@ final readonly class AotBootLane
     ): bool {
         $aotArtifact = $containerAotCache->load();
 
-        if ($aotArtifact->digest() !== $containerKnobs->fingerprint()) {
+        // The comparison's own operands, never the load: a digest
+        // the live configuration cannot fold can never match, so the
+        // honest probe answer is false -- the full lane answers this
+        // boot and (its own dump half degrades) no artifact is ever
+        // run or laid down on a configuration the boundary refuses.
+        try {
+            $matches = $aotArtifact->digest() === $containerKnobs->fingerprint();
+        } catch (AotException) {
+            return false;
+        }
+
+        if (!$matches) {
             return false;
         }
 

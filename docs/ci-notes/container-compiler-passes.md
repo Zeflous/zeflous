@@ -324,3 +324,63 @@ the campaign's playbook:
 
 The final validation family's per-class difficulty band: 8-19, every
 method individually under 14, the gate at zero.
+
+## C6.10 — The digest refusal degrades on both seams (issue #792)
+
+The audit's crash: `layDown()` spelled
+`dumpPlanOrDegrade($plan, $knobs->fingerprint())` — the fingerprint
+evaluated *as an argument*, so PHP computed it before the call could
+enter its own degrade. A lane-legitimate configuration (a value shape
+carrying a live object — the full lane answers it happily, the lazy
+fingerprint's own doctrine C6.2) refused the digest
+(`AotRefusals::notDigestible`, plain `AotException`), and the refusal
+escaped the lane and crashed the production boot at its dump tail —
+the exact contract the lane's own docblock refuses ("degrading — never
+crashing — on a plan the boundary cannot render"): the plan-level
+degrade was tested, the digest-order crash was not.
+
+The fix threads one invariant through both seams that compute the
+fingerprint:
+
+- **`ContainerDumpLane::layDown()`** — the digest is computed inside
+  its own refusal boundary *before* the plan is consulted: an
+  `AotException` from the fingerprint routes to the degraded outcome
+  (`ContainerRegistrations::digestDegradedOutcome`, the same
+  re-registered `framework.aot` answer the render refusal's degrade
+  takes) and no artifact is laid down. The environmental refusals the
+  dump itself still raises (an unwritable cache, a missing directory)
+  stay uncaught — the operator's to fix, exactly the docblock's own
+  split. The ORDER is the observable the battery pins twice: a
+  renderable plan behind an unfoldable configuration still names the
+  configuration (the digest is the first thing the dump asks for), and
+  an unrenderable plan behind it names the configuration too — never
+  the plan the digest never reached.
+- **`AotBootLane::answers()`** — the probe's digest comparison rides
+  the same boundary: a configuration whose fingerprint cannot fold can
+  never *prove* an artifact fresh, so the probe answers false — the
+  foldable mismatch's "proven staleness — never run" verdict taken one
+  step stricter, unprovability treated as the conservative miss it is.
+  The artifact's own load refusals (a torn or malformed payload) stay
+  fail-closed outside the catch: the corrupt-artifact contract the
+  envelope owns is not the digest's to swallow.
+
+The honest note split: the render refusal names the *plan*
+("the plan carries a value the artifact boundary cannot render"),
+the digest refusal names the *configuration* ("the configuration
+carries a value the AOT digest cannot fold") — `AotOutcome`'s
+`configUndigestible` factory the outcome vocabulary's newest member, a
+host reading `framework.aot` can tell which of the two degrades
+answered. The stale artifact a degraded probe leaves behind is never
+rewritten and never run — it waits untouched for the configuration
+that can fold again (the bypass lane's own discipline: never run, let
+the full lane answer).
+
+The battery: `ContainerDumpLaneTest` (the unit order pins — the
+digest degrade fires before the plan is consulted, renderable and
+unrenderable plan both) and `ContainerAotBootTest` (the boot-level
+degrade — the #792 reproduction itself, live object + `aot.enabled` +
+production + cache wired — and the probe degrade over an artifact a
+data-only boot already laid down, its bytes asserted untouched). The
+regression the crash exposed is the class the whole file guards
+against: a degrade path tested is not a degrade contract kept — the
+*order* the two refusals arrive in was the untested half.

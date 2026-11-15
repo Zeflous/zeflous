@@ -111,6 +111,30 @@ final readonly class ContainerRegistrations
     }
 
     /**
+     * The digest-refused dump's re-registered boot answer (#792): the
+     * fingerprint refusal the compile lane answered by skipping the
+     * artifact write -- the same-identifier rebind the render refusal's
+     * own degrade takes, carrying the note that names the source
+     * configuration rather than the plan.
+     *
+     * @param ContainerCompilePlan $containerCompilePlan the plan the lane
+     *                                                   compiled (the report and
+     *                                                   the count ride along)
+     */
+    public static function digestDegradedOutcome(
+        Container $container,
+        ContainerCompilePlan $containerCompilePlan,
+    ): void {
+        $container->set(
+            ContainerServices::AOT_SERVICE,
+            static fn (): AotOutcome => AotOutcome::configUndigestible(
+                $containerCompilePlan->unreferenced,
+                \count($containerCompilePlan->definitions),
+            ),
+        );
+    }
+
+    /**
      * The tags lane's read side.
      */
     private static function tagsLocator(Container $container, ServiceTagIndex $serviceTagIndex): void

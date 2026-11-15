@@ -198,6 +198,78 @@ final class ContainerAotBootTest extends TestCase
         self::assertInstanceOf(PlainSink::class, $house->sink, 'the full lane answered the defaulted construction');
     }
 
+    /**
+     * The #792 digest half: a lane-legitimate configuration carrying
+     * a live object (the value shape the full lane answers happily)
+     * refuses the fingerprint, and the dump degrades -- the boot
+     * survives, the outcome note names the configuration the digest
+     * cannot fold, and no artifact is laid down. The render-refusal
+     * test above names the plan; this one names the source the plan
+     * was parsed from.
+     */
+    public function testAConfigurationTheDigestCannotFoldDegradesTheDumpWithoutCrashingTheBoot(): void
+    {
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $config = $this->config(['enabled' => true]);
+        $config['services']['app.live'] = ['value' => new \stdClass()];
+
+        $container = $containerBootstrapper->bootstrap(new Config($config), new Container());
+
+        $outcome = $container->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $outcome);
+        self::assertSame(AotLane::FullCompile, $outcome->lane);
+        self::assertSame(
+            'the configuration carries a value the AOT digest cannot fold -- '
+            . 'the full lane answered this boot and laid no artifact down',
+            $outcome->note,
+        );
+        self::assertFalse($containerAotCache->exists());
+
+        $live = $container->get('app.live');
+        self::assertInstanceOf(\stdClass::class, $live, 'the full lane answered the live value');
+    }
+
+    /**
+     * The #792 probe half: the artifact a data-only boot laid down is
+     * probed by the next boot whose configuration now carries a live
+     * object -- the digest that cannot fold can never prove the
+     * artifact fresh, so the probe answers false without crashing and
+     * the full lane answers the boot. The stale artifact is never run
+     * and never rewritten: it waits untouched for the configuration
+     * that can fold again.
+     */
+    public function testAnUnfoldableDigestDegradesTheProbeWhenAnArtifactIsPresent(): void
+    {
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $config = $this->config(['enabled' => true]);
+        $containerBootstrapper->bootstrap(new Config($config), new Container());
+        self::assertTrue($containerAotCache->exists());
+
+        $artifactBefore = (string) file_get_contents($this->artifactFile);
+
+        $config['services']['app.live'] = ['value' => new \stdClass()];
+        $second = $containerBootstrapper->bootstrap(new Config($config), new Container());
+
+        $outcome = $second->get(FrameworkDefaults::AOT_SERVICE);
+        self::assertInstanceOf(AotOutcome::class, $outcome);
+        self::assertSame(AotLane::FullCompile, $outcome->lane);
+        self::assertSame(
+            'the configuration carries a value the AOT digest cannot fold -- '
+            . 'the full lane answered this boot and laid no artifact down',
+            $outcome->note,
+        );
+        self::assertSame(
+            $artifactBefore,
+            (string) file_get_contents($this->artifactFile),
+            'the stale artifact is never rewritten by the degraded dump',
+        );
+        self::assertInstanceOf(\stdClass::class, $second->get('app.live'));
+    }
+
     public function testAnEnumDefaultedServiceSurvivesTheArtifactRoundTrip(): void
     {
         // The one object shape the boundary CAN spell: the enum case
