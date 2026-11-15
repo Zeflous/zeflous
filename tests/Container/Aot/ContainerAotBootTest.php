@@ -302,7 +302,9 @@ final class ContainerAotBootTest extends TestCase
 
             putenv(RuntimeAnswerProvider::ANSWER_ENV . '=first');
             $first = $containerBootstrapper->bootstrap(new Config($config), new Container());
-            self::assertSame('first', $first->get('app.runtime')->answer);
+            $firstHouse = $first->get('app.runtime');
+            self::assertInstanceOf(RuntimeAnswerHouse::class, $firstHouse);
+            self::assertSame('first', $firstHouse->answer);
             self::assertTrue($containerAotCache->exists(), 'the first boot laid the artifact down');
 
             putenv(RuntimeAnswerProvider::ANSWER_ENV . '=second');
@@ -314,9 +316,11 @@ final class ContainerAotBootTest extends TestCase
                 $secondOutcome->lane,
                 'the changed answer proves the artifact stale -- the frozen dump-time answer is never served',
             );
+            $secondHouse = $second->get('app.runtime');
+            self::assertInstanceOf(RuntimeAnswerHouse::class, $secondHouse);
             self::assertSame(
                 'second',
-                $second->get('app.runtime')->answer,
+                $secondHouse->answer,
                 'the full lane answered the fresh provider answer',
             );
 
@@ -328,7 +332,9 @@ final class ContainerAotBootTest extends TestCase
                 $thirdOutcome->lane,
                 'the re-dumped artifact matches the unchanged answer and keeps the fast path',
             );
-            self::assertSame('second', $third->get('app.runtime')->answer);
+            $thirdHouse = $third->get('app.runtime');
+            self::assertInstanceOf(RuntimeAnswerHouse::class, $thirdHouse);
+            self::assertSame('second', $thirdHouse->answer);
         } finally {
             if ($previousEnvironment === false) {
                 putenv(RuntimeAnswerProvider::ANSWER_ENV);
