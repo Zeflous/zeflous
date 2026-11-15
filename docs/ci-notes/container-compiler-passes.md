@@ -324,3 +324,114 @@ the campaign's playbook:
 
 The final validation family's per-class difficulty band: 8-19, every
 method individually under 14, the gate at zero.
+
+## C6.10 — The digest refusal degrades on both seams (issue #792)
+
+The audit's crash: `layDown()` spelled
+`dumpPlanOrDegrade($plan, $knobs->fingerprint())` — the fingerprint
+evaluated *as an argument*, so PHP computed it before the call could
+enter its own degrade. A lane-legitimate configuration (a value shape
+carrying a live object — the full lane answers it happily, the lazy
+fingerprint's own doctrine C6.2) refused the digest
+(`AotRefusals::notDigestible`, plain `AotException`), and the refusal
+escaped the lane and crashed the production boot at its dump tail —
+the exact contract the lane's own docblock refuses ("degrading — never
+crashing — on a plan the boundary cannot render"): the plan-level
+degrade was tested, the digest-order crash was not.
+
+The fix threads one invariant through both seams that compute the
+fingerprint:
+
+- **`ContainerDumpLane::layDown()`** — the digest is computed inside
+  its own refusal boundary *before* the plan is consulted: an
+  `AotException` from the fingerprint routes to the degraded outcome
+  (`ContainerRegistrations::digestDegradedOutcome`, the same
+  re-registered `framework.aot` answer the render refusal's degrade
+  takes) and no artifact is laid down. The environmental refusals the
+  dump itself still raises (an unwritable cache, a missing directory)
+  stay uncaught — the operator's to fix, exactly the docblock's own
+  split. The ORDER is the observable the battery pins twice: a
+  renderable plan behind an unfoldable configuration still names the
+  configuration (the digest is the first thing the dump asks for), and
+  an unrenderable plan behind it names the configuration too — never
+  the plan the digest never reached.
+- **`AotBootLane::answers()`** — the probe's digest comparison rides
+  the same boundary: a configuration whose fingerprint cannot fold can
+  never *prove* an artifact fresh, so the probe answers false — the
+  foldable mismatch's "proven staleness — never run" verdict taken one
+  step stricter, unprovability treated as the conservative miss it is.
+  The artifact's own load refusals (a torn or malformed payload) stay
+  fail-closed outside the catch: the corrupt-artifact contract the
+  envelope owns is not the digest's to swallow.
+
+The honest note split: the render refusal names the *plan*
+("the plan carries a value the artifact boundary cannot render"),
+the digest refusal names the *configuration* ("the configuration
+carries a value the AOT digest cannot fold") — `AotOutcome`'s
+`configUndigestible` factory the outcome vocabulary's newest member, a
+host reading `framework.aot` can tell which of the two degrades
+answered. The stale artifact a degraded probe leaves behind is never
+rewritten and never run — it waits untouched for the configuration
+that can fold again (the bypass lane's own discipline: never run, let
+the full lane answer).
+
+The round the gate taught: `ParameterValues::toArray()` was a
+baselined `PossiblyUnusedMethod` (the report-and-test surface with no
+in-project consumer); the tenth map made the fingerprint its
+sanctioned consumer, so the baseline entry retired with the fold --
+the C5 precedent in reverse, the code outgrowing the baseline rather
+than the baseline absorbing the code.
+
+The battery: `ContainerDumpLaneTest` (the unit order pins — the
+digest degrade fires before the plan is consulted, renderable and
+unrenderable plan both) and `ContainerAotBootTest` (the boot-level
+degrade — the #792 reproduction itself, live object + `aot.enabled` +
+production + cache wired — and the probe degrade over an artifact a
+data-only boot already laid down, its bytes asserted untouched). The
+regression the crash exposed is the class the whole file guards
+against: a degrade path tested is not a degrade contract kept — the
+*order* the two refusals arrive in was the untested half.
+
+## C6.11 — The answers the artifact bakes fold into the digest (issue #793)
+
+The audit's silent staleness: the providers compute their answers at
+every parse (runtime-derived values -- env vars, time, hostname -- the
+raw knob's declarations never spell), the materialised `@value:`
+services bake those answers into the artifact's value entries, but the
+digest folded only the nine raw source maps — declarations, not
+answers. A provider declaration set that never changes kept the digest
+matching forever, so the artifact lane installed the dump-time answer
+and threw this boot's fresh one away: the artifact -- documented as
+"an acceleration, never a source of truth" -- *became* the source of
+truth for provider answers the moment the digest matched. The
+env-folded literals were safe all along (they flow through the
+configuration layer onto the folded knob); the computed answers were
+the one input the digest could not see.
+
+The fix is the honest invalidation, not a live-resolution seam:
+`ContainerKnobs::fingerprint()` folds a tenth source map,
+`parameters.values` -- the parsed, dot-addressed values map the
+compile pass itself reads (`ParameterValues::toArray()`), the provider
+answers included. A changed answer now *moves the digest*: the probe
+answers false (proven staleness), the full lane compiles the fresh
+answer, and the dump re-lays the artifact under the new digest. The
+unchanged answer keeps the fast path -- the three-boot battery pins
+exactly that lifecycle (dump under answer one, bypass and fresh answer
+two, artifact-loaded answer two again). The choice against the
+alternative the issue also offered (excluding provider-backed
+addresses from the bake, resolving them live at boot) is the choice
+the whole artifact already makes for every input it carries: the
+digest decides what the artifact may accelerate, and the artifact
+carries the answer only while this boot's own parse agrees it is the
+answer. The provider run stays where it always was -- the parse
+computes answers for every boot, both lanes, before the lane choice
+is even made.
+
+No `ARTIFACT_GENERATION` bump: the generation is for semantics the
+digest cannot see (envelope and entry shapes); a source map joining
+the fold changes the fold's output for *every* configuration, so
+every artifact of the nine-map era is proven stale by the mismatch
+itself. The digest docblock's source-map count walks nine -> ten
+(along the way the stale "eight" the `over()` docblock still carried
+-- the count had drifted twice as the lanes added their maps -- is
+corrected to the one number both docblocks now share).
