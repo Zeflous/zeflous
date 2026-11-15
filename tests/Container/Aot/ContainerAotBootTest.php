@@ -65,6 +65,8 @@ use Zef\Test\Support\Container\Injector\MockGateway;
 use Zef\Test\Support\Container\Injector\PaymentGateway;
 use Zef\Test\Support\Container\Injector\StripeGateway;
 use Zef\Test\Support\Container\Parameters\ConnectionHouse;
+use Zef\Test\Support\Container\Parameters\RuntimeAnswerHouse;
+use Zef\Test\Support\Container\Parameters\RuntimeAnswerProvider;
 
 /**
  * The compile/dump lane's boot behaviour: the two lanes the
@@ -269,6 +271,71 @@ final class ContainerAotBootTest extends TestCase
             'the stale artifact is never rewritten by the degraded dump',
         );
         self::assertInstanceOf(stdClass::class, $second->get('app.live'));
+    }
+
+    /**
+     * The #793 staleness closure, three boots over one declaration
+     * set whose provider answer is environment-derived: the digest
+     * folds the parsed parameter values (the computed answers), so a
+     * changed answer is *proven* staleness -- the artifact is bypassed
+     * and the fresh answer is compiled and re-dumped -- while an
+     * unchanged one keeps the fast path. The declarations never
+     * change: only the answer does, and that alone must move the
+     * digest.
+     */
+    public function testAChangedProviderAnswerIsProvenStaleInsteadOfServedFrozen(): void
+    {
+        $previousEnvironment = getenv(RuntimeAnswerProvider::ANSWER_ENV);
+
+        try {
+            $containerAotCache = new ContainerAotCache($this->artifactFile);
+            $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+            $config = $this->config(['enabled' => true]);
+            $config['parameters']['providers'] = [
+                'runtime.answer' => RuntimeAnswerProvider::class,
+            ];
+            $config['services']['app.runtime'] = [
+                'class' => RuntimeAnswerHouse::class,
+                'autowire' => true,
+            ];
+
+            putenv(RuntimeAnswerProvider::ANSWER_ENV . '=first');
+            $first = $containerBootstrapper->bootstrap(new Config($config), new Container());
+            self::assertSame('first', $first->get('app.runtime')->answer);
+            self::assertTrue($containerAotCache->exists(), 'the first boot laid the artifact down');
+
+            putenv(RuntimeAnswerProvider::ANSWER_ENV . '=second');
+            $second = $containerBootstrapper->bootstrap(new Config($config), new Container());
+            $secondOutcome = $second->get(FrameworkDefaults::AOT_SERVICE);
+            self::assertInstanceOf(AotOutcome::class, $secondOutcome);
+            self::assertSame(
+                AotLane::ArtifactBypassed,
+                $secondOutcome->lane,
+                'the changed answer proves the artifact stale -- the frozen dump-time answer is never served',
+            );
+            self::assertSame(
+                'second',
+                $second->get('app.runtime')->answer,
+                'the full lane answered the fresh provider answer',
+            );
+
+            $third = $containerBootstrapper->bootstrap(new Config($config), new Container());
+            $thirdOutcome = $third->get(FrameworkDefaults::AOT_SERVICE);
+            self::assertInstanceOf(AotOutcome::class, $thirdOutcome);
+            self::assertSame(
+                AotLane::ArtifactLoaded,
+                $thirdOutcome->lane,
+                'the re-dumped artifact matches the unchanged answer and keeps the fast path',
+            );
+            self::assertSame('second', $third->get('app.runtime')->answer);
+        } finally {
+            if ($previousEnvironment === false) {
+                putenv(RuntimeAnswerProvider::ANSWER_ENV);
+            } else {
+                putenv(RuntimeAnswerProvider::ANSWER_ENV . '=' . $previousEnvironment);
+            }
+        }
     }
 
     public function testAnEnumDefaultedServiceSurvivesTheArtifactRoundTrip(): void

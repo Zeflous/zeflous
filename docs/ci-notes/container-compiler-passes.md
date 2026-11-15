@@ -384,3 +384,47 @@ data-only boot already laid down, its bytes asserted untouched). The
 regression the crash exposed is the class the whole file guards
 against: a degrade path tested is not a degrade contract kept — the
 *order* the two refusals arrive in was the untested half.
+
+## C6.11 — The answers the artifact bakes fold into the digest (issue #793)
+
+The audit's silent staleness: the providers compute their answers at
+every parse (runtime-derived values -- env vars, time, hostname -- the
+raw knob's declarations never spell), the materialised `@value:`
+services bake those answers into the artifact's value entries, but the
+digest folded only the nine raw source maps — declarations, not
+answers. A provider declaration set that never changes kept the digest
+matching forever, so the artifact lane installed the dump-time answer
+and threw this boot's fresh one away: the artifact -- documented as
+"an acceleration, never a source of truth" -- *became* the source of
+truth for provider answers the moment the digest matched. The
+env-folded literals were safe all along (they flow through the
+configuration layer onto the folded knob); the computed answers were
+the one input the digest could not see.
+
+The fix is the honest invalidation, not a live-resolution seam:
+`ContainerKnobs::fingerprint()` folds a tenth source map,
+`parameters.values` -- the parsed, dot-addressed values map the
+compile pass itself reads (`ParameterValues::toArray()`), the provider
+answers included. A changed answer now *moves the digest*: the probe
+answers false (proven staleness), the full lane compiles the fresh
+answer, and the dump re-lays the artifact under the new digest. The
+unchanged answer keeps the fast path -- the three-boot battery pins
+exactly that lifecycle (dump under answer one, bypass and fresh answer
+two, artifact-loaded answer two again). The choice against the
+alternative the issue also offered (excluding provider-backed
+addresses from the bake, resolving them live at boot) is the choice
+the whole artifact already makes for every input it carries: the
+digest decides what the artifact may accelerate, and the artifact
+carries the answer only while this boot's own parse agrees it is the
+answer. The provider run stays where it always was -- the parse
+computes answers for every boot, both lanes, before the lane choice
+is even made.
+
+No `ARTIFACT_GENERATION` bump: the generation is for semantics the
+digest cannot see (envelope and entry shapes); a source map joining
+the fold changes the fold's output for *every* configuration, so
+every artifact of the nine-map era is proven stale by the mismatch
+itself. The digest docblock's source-map count walks nine -> ten
+(along the way the stale "eight" the `over()` docblock still carried
+-- the count had drifted twice as the lanes added their maps -- is
+corrected to the one number both docblocks now share).

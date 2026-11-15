@@ -35,7 +35,12 @@ use Zef\Framework\Container\ServiceDefinition;
  * only when a lane actually asks -- a configuration that carries live
  * objects (a legitimate full-lane declaration) never pays the
  * data-only demand the fingerprint's grammar makes unless the AOT knob
- * is on.
+ * is on. The fold covers the parsed parameter values, not just the
+ * raw knob: the provider answers are computed at every parse
+ * (runtime-derived values the declarations never spell), and the
+ * artifact bakes them as its value entries -- so the answers fold too
+ * (#793), a changed answer is proven staleness instead of a frozen
+ * value served behind a matching digest.
  */
 final readonly class ContainerKnobs
 {
@@ -95,8 +100,13 @@ final readonly class ContainerKnobs
     /**
      * The source configuration's fingerprint: the number that decides
      * whether an artifact still describes the configuration it was
-     * dumped from -- nine source maps and the framework version, folded
-     * only on the lane that asked.
+     * dumped from -- ten source maps and the framework version, folded
+     * only on the lane that asked. The tenth map is the parsed
+     * parameter values themselves (#793): the provider answers the
+     * parse computed -- runtime-derived values the raw knob's
+     * declarations never spell -- are exactly what the artifact bakes
+     * as its value entries, so the digest must fold them or a changed
+     * answer rides a matching digest into the frozen dump-time one.
      *
      * @return non-empty-string the SHA-256 fingerprint
      */
@@ -107,6 +117,7 @@ final readonly class ContainerKnobs
                 'framework.services' => $this->config->get('framework.services'),
                 'services' => $this->config->get('services'),
                 'parameters' => $this->config->get('parameters'),
+                'parameters.values' => $this->parameters->values()->toArray(),
                 'tags' => $this->config->get('tags'),
                 'contextual' => $this->config->get('contextual'),
                 'decorators' => $this->config->get('decorators'),

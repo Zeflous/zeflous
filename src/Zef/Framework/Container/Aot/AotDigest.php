@@ -9,8 +9,12 @@ namespace Zef\Framework\Container\Aot;
  * the definition-source maps, the one number that decides whether an
  * artifact still describes the configuration it was dumped from.
  *
- * The digest folds the nine source maps (the framework's own
- * registrations, the host's declarations, the parameters, the
+ * The digest folds the ten source maps (the framework's own
+ * registrations, the host's declarations, the parameters, the parsed
+ * parameter values -- the provider answers the artifact bakes, #793's
+ * staleness closure: a runtime-derived answer is what the value
+ * entries carry, so a changed one must be proven stale rather than
+ * served frozen behind a declarations-only digest -- the
  * autoconfiguration rules, the contextual bindings, the decoration
  * chains, the interception entries, the listener entries and the
  * namespace scope policy) plus the framework
@@ -65,7 +69,12 @@ final readonly class AotDigest
      * invalidation walks), so every artifact of the third generation
      * is proven stale and the boot recompiles and re-dumps rather
      * than running an install whose rides the new invalidation never
-     * reaches.
+     * reaches. The tenth source map (#793, the parsed parameter
+     * values carrying the provider answers) needed no bump of its own:
+     * the fold's output changes for every configuration the moment a
+     * source map joins it, so every artifact of the nine-map fold is
+     * proven stale by the digest mismatch itself -- the generation is
+     * for semantics the digest cannot see, not for inputs it can.
      */
     public const int ARTIFACT_GENERATION = 4;
 
@@ -73,7 +82,7 @@ final readonly class AotDigest
      * Folds the source maps, the framework version and the artifact
      * generation into one digest.
      *
-     * @param array<string, mixed> $sources the eight source maps under
+     * @param array<string, mixed> $sources the ten source maps under
      *                                      their own keys, in the one
      *                                      fixed order the caller builds
      * @param string               $version the framework version the dump
