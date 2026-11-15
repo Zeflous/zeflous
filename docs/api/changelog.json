@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-15T15:48:25Z",
+  "as_of": "2026-11-15T21:25:29Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 333,
+  "unreleased_count": 334,
   "versions": [
     {
       "version": "Unreleased",
@@ -7388,6 +7388,67 @@
                 "sha": "cd9e808fe85ddb833e5f7bc57c18f268ba18db1b",
                 "short_sha": "cd9e808",
                 "subject": "docs(roadmap): the pin rides the install-shape arm's head"
+              }
+            ]
+          },
+          {
+            "pr": 849,
+            "title": "fix(container): the answers the artifact bakes fold into the digest (issue #793)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-15T21:25:29Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/849",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "88edab3040164addfbd42441486d9a989f397e82",
+                "short_sha": "88edab3",
+                "subject": "fix(container): the digest refusal degrades on both AOT seams (issue #792)"
+              },
+              {
+                "sha": "bd63a1fcf076cc40d8284d045dc814511cd836d2",
+                "short_sha": "bd63a1f",
+                "subject": "docs(roadmap): the pin rides the digest-refusal degrade's head (#848)"
+              },
+              {
+                "sha": "c711e7d93f7e501fcfb46f0b6c06274605ede8c6",
+                "short_sha": "c711e7d",
+                "subject": "fix(tests): the stdClass spellings join the imports the fixer asks for"
+              },
+              {
+                "sha": "c63523aad5827e45365ab2b44243a0b6c51d3da4",
+                "short_sha": "c63523a",
+                "subject": "fix(container): the answers the artifact bakes fold into the digest (issue #793)"
+              },
+              {
+                "sha": "282f99b6f7c2bba91a7f7bbf891908745385ac27",
+                "short_sha": "282f99b",
+                "subject": "docs(roadmap): the pin rides the provider-answers digest's head (#849)"
+              },
+              {
+                "sha": "70371bb3a90890c4a91a86e86608df30d3325452",
+                "short_sha": "70371bb",
+                "subject": "docs(roadmap): the history rows rejoin their table (the blank lines the inserter left detached them from the section's count)"
+              },
+              {
+                "sha": "7a2301917c001549d4d6800b36a6e2b8809f93f5",
+                "short_sha": "7a23019",
+                "subject": "fix(tests): the runtime houses answer through their asserted type (phpstan judges the tests too)"
+              },
+              {
+                "sha": "15528b05d0fd869790a969e907891b18dc4c467f",
+                "short_sha": "15528b0",
+                "subject": "docs(roadmap): the pin rides the review round's head (#849)"
+              },
+              {
+                "sha": "7d94cff4a5fb40193b885a9267523be416297d0c",
+                "short_sha": "7d94cff",
+                "subject": "fix(container): the retired baseline entry rides the tenth map (the fingerprint became toArray's sanctioned consumer, the C5 precedent in reverse)"
+              },
+              {
+                "sha": "679034195f586a373a7558c714214675eb3d2397",
+                "short_sha": "6790341",
+                "subject": "docs(roadmap): the pin rides the baseline round's head (#849)"
               }
             ]
           }
@@ -22719,6 +22780,67 @@
               "sha": "cd9e808fe85ddb833e5f7bc57c18f268ba18db1b",
               "short_sha": "cd9e808",
               "subject": "docs(roadmap): the pin rides the install-shape arm's head"
+            }
+          ]
+        },
+        {
+          "pr": 849,
+          "title": "fix(container): the answers the artifact bakes fold into the digest (issue #793)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-15T21:25:29Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/849",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "88edab3040164addfbd42441486d9a989f397e82",
+              "short_sha": "88edab3",
+              "subject": "fix(container): the digest refusal degrades on both AOT seams (issue #792)"
+            },
+            {
+              "sha": "bd63a1fcf076cc40d8284d045dc814511cd836d2",
+              "short_sha": "bd63a1f",
+              "subject": "docs(roadmap): the pin rides the digest-refusal degrade's head (#848)"
+            },
+            {
+              "sha": "c711e7d93f7e501fcfb46f0b6c06274605ede8c6",
+              "short_sha": "c711e7d",
+              "subject": "fix(tests): the stdClass spellings join the imports the fixer asks for"
+            },
+            {
+              "sha": "c63523aad5827e45365ab2b44243a0b6c51d3da4",
+              "short_sha": "c63523a",
+              "subject": "fix(container): the answers the artifact bakes fold into the digest (issue #793)"
+            },
+            {
+              "sha": "282f99b6f7c2bba91a7f7bbf891908745385ac27",
+              "short_sha": "282f99b",
+              "subject": "docs(roadmap): the pin rides the provider-answers digest's head (#849)"
+            },
+            {
+              "sha": "70371bb3a90890c4a91a86e86608df30d3325452",
+              "short_sha": "70371bb",
+              "subject": "docs(roadmap): the history rows rejoin their table (the blank lines the inserter left detached them from the section's count)"
+            },
+            {
+              "sha": "7a2301917c001549d4d6800b36a6e2b8809f93f5",
+              "short_sha": "7a23019",
+              "subject": "fix(tests): the runtime houses answer through their asserted type (phpstan judges the tests too)"
+            },
+            {
+              "sha": "15528b05d0fd869790a969e907891b18dc4c467f",
+              "short_sha": "15528b0",
+              "subject": "docs(roadmap): the pin rides the review round's head (#849)"
+            },
+            {
+              "sha": "7d94cff4a5fb40193b885a9267523be416297d0c",
+              "short_sha": "7d94cff",
+              "subject": "fix(container): the retired baseline entry rides the tenth map (the fingerprint became toArray's sanctioned consumer, the C5 precedent in reverse)"
+            },
+            {
+              "sha": "679034195f586a373a7558c714214675eb3d2397",
+              "short_sha": "6790341",
+              "subject": "docs(roadmap): the pin rides the baseline round's head (#849)"
             }
           ]
         }
