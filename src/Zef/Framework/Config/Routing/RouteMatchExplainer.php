@@ -49,16 +49,24 @@ final class RouteMatchExplainer
             'host' => $hostSelected,
             'version' => $versionSelected,
             'walked' => $walked,
-        ] = RouteMatchStages::run($radixNode, $method, $path, $host, $accept, $version);
+        ] = RouteMatchStages::run(
+            $radixNode,
+            $method,
+            $path,
+            $host,
+            $accept,
+            $version,
+        );
 
         return match (true) {
             $walked === [] => self::pathMissExplanation($radixNode, $path),
             $hostSelected === [] => RouteMatchExplanation::hostMiss(\count($walked), 0),
-            $versionSelected === [] && $matchResult->isMethodNotAllowed() => RouteMatchExplanation::versionMissMethodRefusal(
-                $matchResult->allowedMethods(),
-                \count($walked),
-                \count($hostSelected),
-            ),
+            $versionSelected === []
+                && $matchResult->isMethodNotAllowed() => RouteMatchExplanation::versionMissMethodRefusal(
+                    $matchResult->allowedMethods(),
+                    \count($walked),
+                    \count($hostSelected),
+                ),
             $versionSelected === [] => RouteMatchExplanation::versionMiss(
                 \count($walked),
                 \count($hostSelected),
