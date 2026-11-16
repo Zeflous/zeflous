@@ -14,27 +14,33 @@ use Zef\Framework\Http\HostAuthority;
 use Zef\Framework\Http\HttpException;
 use Zef\Framework\Http\IngressBody;
 use Zef\Framework\Http\IngressProbe;
+use Zef\Framework\Http\InMemorySessionAdapter;
 use Zef\Framework\Http\LimitedInputStream;
 use Zef\Framework\Http\MaskedPrefix;
 use Zef\Framework\Http\RequestBodyPolicy;
 use Zef\Framework\Http\RequestFactory;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\ServerValues;
+use Zef\Framework\Http\SessionMiddleware;
+use Zef\Framework\Http\SessionPolicy;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\TrustedHosts;
 use Zef\Framework\Http\TrustedProxyMatcher;
 use Zef\Framework\Http\TrustedRequestHost;
+use Zef\Framework\Http\TrustedRequestScheme;
 use Zef\Framework\Http\Uri;
 use Zef\Test\Support\Http\ForeignServerRequest;
 use Zef\Test\Support\Http\LyingSizeStream;
 use Zef\Test\Support\Http\NonSeekableBody;
 use Zef\Test\Support\Http\RecordingStream;
+use Zef\Test\Support\Http\SessionWritingHandler;
 
 /**
  * @internal
  */
 #[CoversClass(RequestFactory::class)]
 #[CoversClass(TrustedRequestHost::class)]
+#[CoversClass(TrustedRequestScheme::class)]
 #[CoversClass(TrustedHosts::class)]
 #[CoversClass(TrustedProxyMatcher::class)]
 #[CoversClass(CidrAddress::class)]
@@ -564,6 +570,97 @@ final class RequestFactoryIngressTest extends TestCase
             'Request body exceeds configured size limit.',
             static function () use ($request): void {
                 RequestFactory::validateIngress($request, [], [], new RequestBodyPolicy(4));
+            },
+        );
+    }
+
+    /**
+     * The #797 repro spelled as the assertion the repro wanted: the
+     * TLS-terminating topology -- the proxy answering the client's TLS
+     * while forwarding plain http -- arms the security posture the
+     * request's own scheme would silently disarm. The forwarded claim
+     * the trusted peer carries rewrites the scheme at the ingress, and
+     * the session cookie's `Secure` attribute the rewritten scheme
+     * derives appears on the outbound Set-Cookie line.
+     */
+    public function testTheForwardedSchemeArmsTheSecureCookiePostureBehindATlsTerminatingProxy(): void
+    {
+        $arrival = $this->trustedRequest(
+            ['REMOTE_ADDR' => '10.1.2.3'],
+            ['x-forwarded-proto' => ['https']],
+            'http://api.example.com/users',
+        );
+
+        $guarded = RequestFactory::validateIngress(
+            $arrival,
+            self::TRUSTED_HOSTS,
+            self::TRUSTED_PROXIES,
+            new RequestBodyPolicy(64),
+        );
+
+        self::assertSame('https', $guarded->getUri()->getScheme());
+
+        $response = new SessionMiddleware(new SessionPolicy(), new InMemorySessionAdapter(1800))->process(
+            $guarded,
+            new SessionWritingHandler(),
+        );
+
+        self::assertMatchesRegularExpression(
+            '/^zef_session=[A-Za-z0-9_-]{43}; Path=\/; SameSite=Lax; Secure; HttpOnly$/D',
+            $response->getHeaderLine('Set-Cookie'),
+            'the forwarded claim arms the Secure attribute the request own scheme would have dropped',
+        );
+    }
+
+    /**
+     * The untrusted twin: the same forwarded claim from a peer outside
+     * the trusted list changes nothing -- the scheme stays the request's
+     * own `http` and the cookie posture stays disarmed, because a
+     * spoofed claim never reached the comparison (#797).
+     */
+    public function testAnUntrustedPeerSForwardedSchemeClaimChangesNothing(): void
+    {
+        $arrival = $this->trustedRequest(
+            ['REMOTE_ADDR' => '192.0.2.9'],
+            ['x-forwarded-proto' => ['https']],
+            'http://api.example.com/users',
+        );
+
+        $guarded = RequestFactory::validateIngress(
+            $arrival,
+            self::TRUSTED_HOSTS,
+            self::TRUSTED_PROXIES,
+            new RequestBodyPolicy(64),
+        );
+
+        self::assertSame('http', $guarded->getUri()->getScheme());
+    }
+
+    /**
+     * The operator-data refusal: a trusted proxy claiming a value the
+     * scheme grammar cannot carry fails closed with the header named --
+     * the proxy the operator vouched for spelling nonsense is a
+     * deployment defect, never a silent `http` that disarms the posture
+     * the claim was supposed to arm (#797).
+     */
+    public function testATrustedProxySNonsenseForwardedSchemeClaimRefusesLoudly(): void
+    {
+        $arrival = $this->trustedRequest(
+            ['REMOTE_ADDR' => '10.1.2.3'],
+            ['x-forwarded-proto' => ['banana']],
+            'http://api.example.com/users',
+        );
+
+        $this->assertThrows(
+            'The X-Forwarded-Proto claim a trusted proxy delivered must be http or https, '
+            . '\'banana\' given.',
+            static function () use ($arrival): void {
+                RequestFactory::validateIngress(
+                    $arrival,
+                    self::TRUSTED_HOSTS,
+                    self::TRUSTED_PROXIES,
+                    new RequestBodyPolicy(64),
+                );
             },
         );
     }

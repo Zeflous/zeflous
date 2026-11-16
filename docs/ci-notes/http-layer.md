@@ -771,3 +771,41 @@ MethodCallRemoval pemanggilan `answer()` — tanpa swap, body terkonsumsi mengal
 CompressedBody yang sudah-EOF dan gzdecode ≠ payload. ETag tetap hash representasi
 TAK-terkompresi (validator deskripsi representasi, bukan wire-nya) — spelling repro
 dipertahankan.
+
+## Fase 3 — KDD-H15 (trusted-proxy scheme, the forwarded protocol claim, #797)
+
+**H15 — paruh ketiga gerbang ingress: scheme efektif.** Audit #797: tidak ada jalur
+kode yang membaca `X-Forwarded-Proto`, sehingga topologi produksi paling umum
+(LB/proxy TLS-terminating → FastCGI http) membuat `SetCookie` `Secure`, HSTS, dan
+cookie CSRF kehilangan posturnya — skema request diturunkan HANYA dari state
+`HTTPS` miliknya sendiri (`ServerUri::scheme()`). Paruh baru mengikuti disiplin
+dua paruh yang sudah ada (KDD-H14):
+
+- **Fold** (`TrustedRequestScheme::effective()/apply()`): klaim hanya dibaca bila
+  `REMOTE_ADDR` cocok daftar proxy terpercaya DAN header hadir; nilai TERAKHIR
+  list ter-appended yang mengklaim (posisi yang proxy terpercaya tulis — walk
+  yang sama `TrustedRequestHost` jalankan); fold case-insensitive (`HTTPS`
+  dijawab `https`); klaim bersifat dua arah (http→https DAN https→http — klaim
+  otoritatif, bukan hint upgrade-only); peer tak-percaya atau list kosong =
+  skema sendiri, instance request tidak di-rewrite.
+- **Refusal operator-data**: proxy terpercaya yang mengeja nilai selain
+  `http`/`https` gagal-tutup dengan header dinamai — proxy yang di-vouch
+  operator mengeja omong kosong adalah cacat deployment yang harus terlihat,
+  bukan `http` senyap yang melucuti postur keamanan yang hendak dipersenjatai
+  klaim itu.
+- **Titik aplikasi** (`RequestFactory::validateIngress()`): fold berjalan
+  SEBELUM body guard dan me-rewrite URI request yang dikembalikan — semua
+  konsumen skema di downstream (atribut `Secure` cookie session/CSRF via
+  `SessionSettlement`/`CsrfMiddleware`, arm HSTS via
+  `ToggledSecurityHeaders`) membaca skema URI, jadi satu rewrite di ingress
+  mempersenjatai ketiganya. Ekstraksi SAPI (`ServerUri`) sengaja TIDAK
+  menyentuh header forwarded (keputusan policy proxy terpercaya milik slice
+  keamanan, bukan default ekstraksi) — docblock-nya tetap.
+- **Pins**: baterai unit sembilan-test (peer tak-percaya tak pernah dibaca,
+  upgrade http→https, twin simetris https→http, nilai terakhir list,
+  fold case, klaim absen, list kosong, refusal nonsense dengan pesan
+  penuh, rewrite URI hanya saat skema bergerak + instance sama saat tidak);
+  tiga pin ingress (repro #797 sebagai asersi yang diinginkannya — klaim
+  terpercaya `https` me-rewrite skema dan cookie session keluar membawa
+  `Secure; HttpOnly`, twin tak-percaya tidak mengubah apa pun, refusal
+  nonsense melalui gerbang penuh).
