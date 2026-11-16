@@ -7,6 +7,7 @@ namespace Zef\Test\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\CorrelationId;
+use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\Uri;
@@ -16,6 +17,7 @@ use Zef\Test\Support\Http\ForeignServerRequest;
  * @internal
  */
 #[CoversClass(CorrelationId::class)]
+#[CoversClass(ErrorRequestContext::class)]
 #[CoversClass(ServerRequest::class)]
 final class CorrelationIdTest extends TestCase
 {
@@ -83,6 +85,46 @@ final class CorrelationIdTest extends TestCase
         self::assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $first);
         self::assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $second);
         self::assertNotSame($first, $second);
+    }
+
+    /**
+     * The boundary's mint answers every ask while its context rides the
+     * request (#796): the identifier a claimless request's boundary minted
+     * is the identifier every inner lane's consult names -- not a fresh one
+     * per call, which is the cross-lane join the audit found broken.
+     */
+    public function testTheBoundarySMintAnswersEveryAskOnceTheContextRidesTheRequest(): void
+    {
+        $errorRequestContext = new ErrorRequestContext('minted-at-the-boundary');
+        $carrying = $this->requestWithClaim('')->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
+
+        self::assertSame(
+            'minted-at-the-boundary',
+            CorrelationId::for($carrying),
+            'the consult answers the boundary mint, not a fresh generation',
+        );
+        self::assertSame(
+            CorrelationId::for($carrying),
+            CorrelationId::for($carrying),
+            'two asks inside one boundary window name one identifier',
+        );
+    }
+
+    /**
+     * The mint consult ignores the mutable trace id: a valid W3C trace id
+     * may replace the context's trace spelling, but the correlation
+     * identifier the response stamps and the records join on never moves
+     * (#796) -- the trace lane and the request-id lane stay two facts.
+     */
+    public function testTheMintConsultIgnoresTheMutableTraceId(): void
+    {
+        $errorRequestContext = new ErrorRequestContext('minted-at-the-boundary');
+        $errorRequestContext->setTraceId(str_repeat('a', 32));
+
+        $carrying = $this->requestWithClaim('')->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
+
+        self::assertSame('minted-at-the-boundary', CorrelationId::for($carrying));
+        self::assertSame(str_repeat('a', 32), $errorRequestContext->traceId());
     }
 
     private function requestWithClaim(string $claim): ServerRequest

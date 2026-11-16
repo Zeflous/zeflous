@@ -20,12 +20,16 @@ use Psr\Log\LoggerInterface;
  * path -- user identifiers, IP addresses, user-agent strings, query
  * strings and request bodies are deliberately excluded -- with the
  * path capped at the same 2048 characters. The correlation
- * identifier rides the request's own claim grammar ({@see
- * CorrelationId::for()}): a request that claimed an `X-Request-ID`
- * records under the claim the response echoes, so the slow-request
- * record joins the error lane's records on the same identifier;
- * a request that claimed none records under a fresh one, exactly
- * as the error lane's own records do. A trace id is deliberately
+ * identifier rides the boundary's own mint ({@see
+ * CorrelationId::for()} consulting the {@see ErrorRequestContext}
+ * the outer boundary stamps, #796): a request that claimed an
+ * `X-Request-ID` records under the claim the response echoes, and a
+ * request that claimed none records under the boundary's minted
+ * identifier the response stamps -- the same identifier either way,
+ * so the slow-request record joins the error lane's records and the
+ * response's own `X-Request-ID` on one joinable key instead of each
+ * lane minting a fresh one a claimless request could never
+ * correlate. A trace id is deliberately
  * absent for the same reason the diagnostic lane's records omit
  * it: the record correlates through the request id alone.
  *

@@ -292,6 +292,13 @@ final class SlowRequestMiddlewareTest extends TestCase
         );
     }
 
+    /**
+     * The bare-construction posture: outside an error boundary's window
+     * the claimless request still mints its own fresh identifier at the
+     * record's consult -- the joinable spelling the boundary's window
+     * consults is the composition's own pin (#796, the identity tests
+     * the error boundary's battery carries).
+     */
     public function testTheRecordCarriesAGeneratedRequestIdentifierWhenNoneWasClaimed(): void
     {
         $recordingLogger = new RecordingLogger();
@@ -307,7 +314,7 @@ final class SlowRequestMiddlewareTest extends TestCase
         self::assertMatchesRegularExpression(
             '/^[0-9a-f]{32}$/D',
             $requestId,
-            "an unclaimed request records under a fresh identifier, exactly as the error lane's records do",
+            'an unclaimed bare request records under a fresh identifier, the boundary-less fallback posture',
         );
     }
 

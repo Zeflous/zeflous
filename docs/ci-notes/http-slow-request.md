@@ -158,3 +158,32 @@ message-lane doctrine ("a stored record's origin is readable without
 its context") — the writer already carries the exception lane's
 `'Request failed'` and the diagnostic lane's `'Native diagnostic'`
 spellings, and this family names its own the same way.
+
+## KDD-SR9 — the mint-once join: the record consults the boundary's own identifier (#796)
+
+The audit's finding: `CorrelationId::for()` mints a fresh 32-hex token on
+every call a claimless request makes, so the error boundary's mint (id A,
+stamped on the response's `X-Request-ID` and carried by every error-lane
+record) and the slow-request record's mint (id B, an independent consult)
+named two different identifiers for the same request — the cross-lane join
+the family's own docblock promised was broken exactly in the traffic shape
+that dominates production (no client claim). The fix rides the carrier the
+boundary already writes: `ErrorRequestContext` gains an immutable
+`correlationId` (the boundary's mint at construction, distinct from the
+MUTABLE `traceId` a valid W3C id may replace — two facts, two members),
+and `CorrelationId::for()` consults it before the claim grammar. One mint
+per request: the boundary stamps the context before the inner pipeline
+runs, so every inner lane's consult — the slow-request record's included
+— answers the identifier the response carries, and the join holds by
+construction inside a boundary window. The claim grammar still governs
+where no context rides (bare constructions, the process boundary, the
+facts memo): the boundary-less posture keeps its claim-or-mint answer,
+and the identity tests live in the boundary's own battery
+(`testTheSlowRequestRecordJoinsTheResponseStampOnTheBoundarySMint`
+asserts the record's `request_id` and the response's stamp are the SAME
+string — identity, not the pattern match the audit flagged as too weak —
+with the claimed twin pinning the claim arm and
+`testTheMintConsultIgnoresTheMutableTraceId` pinning the two-member
+separation). The composition is the house stack's own (the boundary
+outermost, `app/configs/middleware.php`'s own doctrine), so the default
+deployment's join is the one the fix carries.

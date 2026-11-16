@@ -51,6 +51,8 @@ use Zef\Framework\Http\RequestBodyPolicy;
 use Zef\Framework\Http\RequestFactory;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\SlowRequestMiddleware;
+use Zef\Framework\Http\SlowRequestPolicy;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Middleware\ErrorFaultMetricsRecorder;
@@ -67,6 +69,8 @@ use Zef\Test\Support\Exception\ForgedTraceIdException;
 use Zef\Test\Support\Exception\ThrowingStatusException;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Http\ForeignResponse;
+use Zef\Test\Support\Http\MiddlewareHandler;
+use Zef\Test\Support\Http\SteppingClock;
 use Zef\Test\Support\Http\ThrowingHandler;
 use Zef\Test\Support\Log\FailingLogger;
 use Zef\Test\Support\Log\RecordingLogger;
@@ -1081,6 +1085,75 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
             @rmdir($directory);
         }
+    }
+
+    /**
+     * The mint-once join the audit's repro asked for (#796): a claimless
+     * request's slow-request record and its response's `X-Request-ID`
+     * stamp name ONE identifier -- the boundary's own mint, consulted
+     * through the context the boundary stamped -- instead of the record
+     * minting a fresh id the response never carries. Identity, not a
+     * pattern match: the join is the fact under test.
+     */
+    public function testTheSlowRequestRecordJoinsTheResponseStampOnTheBoundarySMint(): void
+    {
+        $recordingLogger = new RecordingLogger();
+        $steppingClock = new SteppingClock(step: 1_000_000_000);
+        $slowRequestMiddleware = new SlowRequestMiddleware(
+            new SlowRequestPolicy(enabled: true, thresholdMs: 1),
+            $recordingLogger,
+            $steppingClock->now(),
+        );
+
+        $response = $this->middleware($recordingLogger)->process(
+            new ServerRequest('GET', new Uri('https://app.example.test/slow')),
+            new MiddlewareHandler(
+                $slowRequestMiddleware,
+                new FixedResponseHandler(new Response(200)),
+            ),
+        );
+
+        $stamped = $response->getHeaderLine('X-Request-ID');
+        self::assertNotSame('', $stamped, 'the boundary stamped its mint on the response');
+
+        $requestId = $recordingLogger->calls[0][2]['request_id'] ?? null;
+        self::assertIsString($requestId);
+        self::assertSame(
+            $stamped,
+            $requestId,
+            'the slow-request record joins the response stamp on the boundary mint',
+        );
+    }
+
+    /**
+     * The claimed join held before and holds now (#796): a request that
+     * claimed an `X-Request-ID` records under the claim the response
+     * echoes -- the boundary consult's claim arm, unchanged.
+     */
+    public function testTheSlowRequestRecordJoinsTheResponseStampOnTheClaim(): void
+    {
+        $recordingLogger = new RecordingLogger();
+        $steppingClock = new SteppingClock(step: 1_000_000_000);
+        $slowRequestMiddleware = new SlowRequestMiddleware(
+            new SlowRequestPolicy(enabled: true, thresholdMs: 1),
+            $recordingLogger,
+            $steppingClock->now(),
+        );
+
+        $response = $this->middleware($recordingLogger)->process(
+            $this->requestWithClaim(self::CLAIMED_ID),
+            new MiddlewareHandler(
+                $slowRequestMiddleware,
+                new FixedResponseHandler(new Response(200)),
+            ),
+        );
+
+        self::assertSame(self::CLAIMED_ID, $response->getHeaderLine('X-Request-ID'));
+        self::assertSame(
+            self::CLAIMED_ID,
+            $recordingLogger->calls[0][2]['request_id'],
+            'the slow-request record joins the response stamp on the claim',
+        );
     }
 
     public function testHtmlDebugPageIncludesSanitizedDeveloperContextAndSecurityHeaders(): void
