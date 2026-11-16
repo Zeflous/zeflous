@@ -17,6 +17,7 @@ use Zef\Test\Support\Http\ForeignServerRequest;
  * @internal
  */
 #[CoversClass(CorrelationId::class)]
+#[CoversClass(ErrorRequestContext::class)]
 #[CoversClass(ServerRequest::class)]
 final class CorrelationIdTest extends TestCase
 {
