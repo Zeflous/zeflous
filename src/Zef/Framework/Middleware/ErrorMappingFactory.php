@@ -6,11 +6,21 @@ namespace Zef\Framework\Middleware;
 
 use Zef\Framework\AppEnvironment;
 use Zef\Framework\Config\Config;
-use Zef\Framework\Config\ConfigException;
+use Zef\Framework\Http\StrictToggles;
 use Zef\Framework\Logging\JsonLineLogger;
 use Zef\Framework\Telemetry\MeterInterface;
 
 /** Builds the global error boundary from the frozen configuration.
+ *
+ * The boolean knobs read through the strict toggle seam every
+ * config-driven family shares ({@see StrictToggles}): a native bool
+ * passes through, the environment overlay's string spellings
+ * (`APP_HTTP__ERROR_HANDLING__DEBUG=true` -- {@see \Zef\Framework\Config\Merge\EnvSource}
+ * passing values through as the environment carries them) fold through
+ * the one closed vocabulary, and a nonsense spelling halts the boot with
+ * the knob named (#798) -- the same grammar the observability families'
+ * own policies already read `observability.metrics enabled` through, so
+ * one knob spells one answer whichever seam reads it.
  *
  * The replay section's own read, validation, and wiring lives in its
  * {@see ErrorReplayWiring} fold -- the configuration family's per-key
@@ -25,17 +35,17 @@ final class ErrorMappingFactory
 {
     public static function fromConfig(Config $config, ?MeterInterface $meter = null): ErrorMappingMiddleware
     {
-        $debug = $config->get('http.error_handling.debug', false);
-        if (!\is_bool($debug)) {
-            throw new ConfigException('http.error_handling.debug must be a boolean.');
-        }
+        $debug = StrictToggles::read(
+            $config->get('http.error_handling.debug', false),
+            'http.error_handling debug',
+        );
 
         $logAddress = ErrorStorageWiring::logAddress($config);
 
-        $metricsEnabled = $config->get('observability.metrics.enabled', false);
-        if (!\is_bool($metricsEnabled)) {
-            throw new ConfigException('observability.metrics.enabled must be a boolean.');
-        }
+        $metricsEnabled = StrictToggles::read(
+            $config->get('observability.metrics.enabled', false),
+            'observability.metrics enabled',
+        );
 
         $debugAllowed = AppEnvironment::isDevelopment();
 

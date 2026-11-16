@@ -8,6 +8,7 @@ use Zef\Framework\AppEnvironment;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Http\StrictToggles;
 use Zef\Framework\Logging\JsonLineLogger;
 use Zef\Framework\Telemetry\MeterInterface;
 
@@ -17,7 +18,12 @@ use Zef\Framework\Telemetry\MeterInterface;
  * ErrorMappingFactory}'s knob discipline one seam over: the same
  * `http.error_handling` knobs (the disclosure-gated debug posture, the
  * JSONL log path, the metrics enablement) answer the same here, because
- * both boundaries feed the same records to the same sinks. The boundary
+ * both boundaries feed the same records to the same sinks. The boolean
+ * knobs read through the strict toggle seam the error family shares with
+ * every config-driven family ({@see StrictToggles}, #798): the
+ * environment overlay's string spellings fold through the one closed
+ * vocabulary, so one knob spells one answer whichever boundary's seam
+ * reads it. The boundary
  * itself owns the SAPI honesty fold the meter answers to ({@see
  * ProcessErrorBoundary}'s construction): a CLI process boots without
  * the counter, because a synthetic request's fabricated method would
@@ -54,17 +60,17 @@ final class ProcessErrorBoundaryFactory
         ?MeterInterface $meter = null,
         string $sapi = \PHP_SAPI,
     ): ProcessErrorBoundary {
-        $debug = $config->get('http.error_handling.debug', false);
-        if (!\is_bool($debug)) {
-            throw new ConfigException('http.error_handling.debug must be a boolean.');
-        }
+        $debug = StrictToggles::read(
+            $config->get('http.error_handling.debug', false),
+            'http.error_handling debug',
+        );
 
         $logPath = ErrorStorageWiring::logAddress($config);
 
-        $metricsEnabled = $config->get('observability.metrics.enabled', false);
-        if (!\is_bool($metricsEnabled)) {
-            throw new ConfigException('observability.metrics.enabled must be a boolean.');
-        }
+        $metricsEnabled = StrictToggles::read(
+            $config->get('observability.metrics.enabled', false),
+            'observability.metrics enabled',
+        );
 
         $debugAllowed = AppEnvironment::isDevelopment();
 
@@ -78,17 +84,17 @@ final class ProcessErrorBoundaryFactory
 
     /**
      * Whether the frozen configuration asks the boot seam to install the
-     * process boundary -- the knob's single validation point.
+     * process boundary -- the knob's single validation point, reading
+     * through the strict toggle seam the family shares (#798): the
+     * environment overlay's string spellings fold, a nonsense spelling
+     * halts the boot with the knob named.
      */
     public static function wantsInstallation(Config $config): bool
     {
-        $processBoundary = $config->get('http.error_handling.process_boundary', false);
-
-        if (!\is_bool($processBoundary)) {
-            throw new ConfigException('http.error_handling.process_boundary must be a boolean.');
-        }
-
-        return $processBoundary;
+        return StrictToggles::read(
+            $config->get('http.error_handling.process_boundary', false),
+            'http.error_handling process_boundary',
+        );
     }
 
     /**
