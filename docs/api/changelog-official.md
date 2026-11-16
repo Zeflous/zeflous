@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(http\): the slow-request record joins the response stamp on the boundary's own mint \(issue \#796\) [\#856](https://github.com/Zeflous/zeflous/pull/856) ([mbetixz](https://github.com/mbetixz))
 - fix\(errors\): the family boolean knobs fold through the one vocabulary \(issue \#798\) [\#855](https://github.com/Zeflous/zeflous/pull/855) ([mbetixz](https://github.com/mbetixz))
 - fix\(router\): the version selection's one policy and the miss's method judgement \(issue \#794\) [\#850](https://github.com/Zeflous/zeflous/pull/850) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the answers the artifact bakes fold into the digest \(issue \#793\) [\#849](https://github.com/Zeflous/zeflous/pull/849) ([mbetixz](https://github.com/mbetixz))
