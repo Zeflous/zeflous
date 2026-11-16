@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-15T21:25:29Z",
+  "as_of": "2026-11-15T23:09:10Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 334,
+  "unreleased_count": 335,
   "versions": [
     {
       "version": "Unreleased",
@@ -7449,6 +7449,97 @@
                 "sha": "679034195f586a373a7558c714214675eb3d2397",
                 "short_sha": "6790341",
                 "subject": "docs(roadmap): the pin rides the baseline round's head (#849)"
+              }
+            ]
+          },
+          {
+            "pr": 850,
+            "title": "fix(router): the version selection's one policy and the miss's method judgement (issue #794)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-15T23:09:10Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/850",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "60d56083bd15471d06afceda1c9307c3eff58108",
+                "short_sha": "60d5608",
+                "subject": "fix(router): the version selection's one policy and the miss's method judgement (issue #794)"
+              },
+              {
+                "sha": "35d991d7faf3d1c35371f7647d5e09c4708f5023",
+                "short_sha": "35d991d",
+                "subject": "docs(roadmap): the pin rides the version policy's head (#850)"
+              },
+              {
+                "sha": "6fde9919fc734f9994f5be486a5ca26b2a7adba7",
+                "short_sha": "6fde991",
+                "subject": "fix(router): the explainer's mirror folds out and the version arms gain their pins (the Sonar and phpcs round)"
+              },
+              {
+                "sha": "0378e36d51300b0b975604663912667d8f3c4503",
+                "short_sha": "0378e36",
+                "subject": "docs(roadmap): the pin rides the review round's head (#850)"
+              },
+              {
+                "sha": "244be59f76d9a32a5cb200e44af8b44efa216b50",
+                "short_sha": "244be59",
+                "subject": "fix(router): the miss's loop variable names its own type (the rector round)"
+              },
+              {
+                "sha": "a639b31faf26a7a37ffc917c1e7670ffc20e0eaa",
+                "short_sha": "a639b31",
+                "subject": "docs(roadmap): the pin rides the rector round's head (#850)"
+              },
+              {
+                "sha": "dbb1a28a8d3d7be56fd98dd47a6271e62fe87f74",
+                "short_sha": "dbb1a28",
+                "subject": "test(router): the new folds join the covers lists they ride (the attribution the covers-filter lesson taught, Sonar's 12 uncovered lines were the collaborators no covers list named)"
+              },
+              {
+                "sha": "6efb58026e787b03a371211b5e7d815e0ec952b2",
+                "short_sha": "6efb580",
+                "subject": "docs(roadmap): the pin rides the covers round's head (#850)"
+              },
+              {
+                "sha": "2fb42430f6e98a2373e6da72834a58a63e1f60fb",
+                "short_sha": "2fb4243",
+                "subject": "fix(router): the mirror folds into the shared stages product (the archeology gate's difficulty round)"
+              },
+              {
+                "sha": "2a03c80ecc15beaff4adc8eafc25e5e7eb47257c",
+                "short_sha": "2a03c80",
+                "subject": "docs(roadmap): the pin rides the archeology round's head (#850)"
+              },
+              {
+                "sha": "5949990bb13ef658571bb3acb50f60114926fae4",
+                "short_sha": "5949990",
+                "subject": "fix(router): the stages product's shape annotation wraps within the line budget"
+              },
+              {
+                "sha": "6e4e303747db9e56caacc473f0b67398a8004482",
+                "short_sha": "6e4e303",
+                "subject": "docs(roadmap): the pin rides the line-budget round's head (#850)"
+              },
+              {
+                "sha": "e183f2aaf000211dd9138932136879c42e7895ec",
+                "short_sha": "e183f2a",
+                "subject": "Merge remote-tracking branch 'origin/main' into fix/issue-794-version-policy"
+              },
+              {
+                "sha": "a81ec7e85d319b9fca32bccb9411d5c6d6c62b3f",
+                "short_sha": "a81ec7e",
+                "subject": "docs(roadmap): the pin rides the main-update merge's head (#850)"
+              },
+              {
+                "sha": "ebfd9d35bbf94885d164dcfebf77162312c25960",
+                "short_sha": "ebfd9d3",
+                "subject": "fix(router): the twin's destructured stages call wraps within the line budget (the phpcs round the fixer's own line rule does not judge)"
+              },
+              {
+                "sha": "1d931ddc03402da3bb637776d67668d78505eb35",
+                "short_sha": "1d931dd",
+                "subject": "docs(roadmap): the pin rides the phpcs round's head (#850)"
               }
             ]
           }
@@ -22841,6 +22932,97 @@
               "sha": "679034195f586a373a7558c714214675eb3d2397",
               "short_sha": "6790341",
               "subject": "docs(roadmap): the pin rides the baseline round's head (#849)"
+            }
+          ]
+        },
+        {
+          "pr": 850,
+          "title": "fix(router): the version selection's one policy and the miss's method judgement (issue #794)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-15T23:09:10Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/850",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "60d56083bd15471d06afceda1c9307c3eff58108",
+              "short_sha": "60d5608",
+              "subject": "fix(router): the version selection's one policy and the miss's method judgement (issue #794)"
+            },
+            {
+              "sha": "35d991d7faf3d1c35371f7647d5e09c4708f5023",
+              "short_sha": "35d991d",
+              "subject": "docs(roadmap): the pin rides the version policy's head (#850)"
+            },
+            {
+              "sha": "6fde9919fc734f9994f5be486a5ca26b2a7adba7",
+              "short_sha": "6fde991",
+              "subject": "fix(router): the explainer's mirror folds out and the version arms gain their pins (the Sonar and phpcs round)"
+            },
+            {
+              "sha": "0378e36d51300b0b975604663912667d8f3c4503",
+              "short_sha": "0378e36",
+              "subject": "docs(roadmap): the pin rides the review round's head (#850)"
+            },
+            {
+              "sha": "244be59f76d9a32a5cb200e44af8b44efa216b50",
+              "short_sha": "244be59",
+              "subject": "fix(router): the miss's loop variable names its own type (the rector round)"
+            },
+            {
+              "sha": "a639b31faf26a7a37ffc917c1e7670ffc20e0eaa",
+              "short_sha": "a639b31",
+              "subject": "docs(roadmap): the pin rides the rector round's head (#850)"
+            },
+            {
+              "sha": "dbb1a28a8d3d7be56fd98dd47a6271e62fe87f74",
+              "short_sha": "dbb1a28",
+              "subject": "test(router): the new folds join the covers lists they ride (the attribution the covers-filter lesson taught, Sonar's 12 uncovered lines were the collaborators no covers list named)"
+            },
+            {
+              "sha": "6efb58026e787b03a371211b5e7d815e0ec952b2",
+              "short_sha": "6efb580",
+              "subject": "docs(roadmap): the pin rides the covers round's head (#850)"
+            },
+            {
+              "sha": "2fb42430f6e98a2373e6da72834a58a63e1f60fb",
+              "short_sha": "2fb4243",
+              "subject": "fix(router): the mirror folds into the shared stages product (the archeology gate's difficulty round)"
+            },
+            {
+              "sha": "2a03c80ecc15beaff4adc8eafc25e5e7eb47257c",
+              "short_sha": "2a03c80",
+              "subject": "docs(roadmap): the pin rides the archeology round's head (#850)"
+            },
+            {
+              "sha": "5949990bb13ef658571bb3acb50f60114926fae4",
+              "short_sha": "5949990",
+              "subject": "fix(router): the stages product's shape annotation wraps within the line budget"
+            },
+            {
+              "sha": "6e4e303747db9e56caacc473f0b67398a8004482",
+              "short_sha": "6e4e303",
+              "subject": "docs(roadmap): the pin rides the line-budget round's head (#850)"
+            },
+            {
+              "sha": "e183f2aaf000211dd9138932136879c42e7895ec",
+              "short_sha": "e183f2a",
+              "subject": "Merge remote-tracking branch 'origin/main' into fix/issue-794-version-policy"
+            },
+            {
+              "sha": "a81ec7e85d319b9fca32bccb9411d5c6d6c62b3f",
+              "short_sha": "a81ec7e",
+              "subject": "docs(roadmap): the pin rides the main-update merge's head (#850)"
+            },
+            {
+              "sha": "ebfd9d35bbf94885d164dcfebf77162312c25960",
+              "short_sha": "ebfd9d3",
+              "subject": "fix(router): the twin's destructured stages call wraps within the line budget (the phpcs round the fixer's own line rule does not judge)"
+            },
+            {
+              "sha": "1d931ddc03402da3bb637776d67668d78505eb35",
+              "short_sha": "1d931dd",
+              "subject": "docs(roadmap): the pin rides the phpcs round's head (#850)"
             }
           ]
         }
