@@ -55,7 +55,7 @@ final class CorrelationId
             $serverRequest->getAttribute(ErrorRequestContext::ATTRIBUTE),
         );
 
-        if ($requestContext !== null) {
+        if ($requestContext instanceof ErrorRequestContext) {
             return $requestContext->correlationId();
         }
 

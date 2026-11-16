@@ -94,8 +94,8 @@ final class CorrelationIdTest extends TestCase
      */
     public function testTheBoundarySMintAnswersEveryAskOnceTheContextRidesTheRequest(): void
     {
-        $requestContext = new ErrorRequestContext('minted-at-the-boundary');
-        $carrying = $this->requestWithClaim('')->withAttribute(ErrorRequestContext::ATTRIBUTE, $requestContext);
+        $errorRequestContext = new ErrorRequestContext('minted-at-the-boundary');
+        $carrying = $this->requestWithClaim('')->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
 
         self::assertSame(
             'minted-at-the-boundary',
@@ -117,12 +117,13 @@ final class CorrelationIdTest extends TestCase
      */
     public function testTheMintConsultIgnoresTheMutableTraceId(): void
     {
-        $requestContext = new ErrorRequestContext('minted-at-the-boundary');
-        $requestContext->setTraceId(str_repeat('a', 32));
-        $carrying = $this->requestWithClaim('')->withAttribute(ErrorRequestContext::ATTRIBUTE, $requestContext);
+        $errorRequestContext = new ErrorRequestContext('minted-at-the-boundary');
+        $errorRequestContext->setTraceId(str_repeat('a', 32));
+
+        $carrying = $this->requestWithClaim('')->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
 
         self::assertSame('minted-at-the-boundary', CorrelationId::for($carrying));
-        self::assertSame(str_repeat('a', 32), $requestContext->traceId());
+        self::assertSame(str_repeat('a', 32), $errorRequestContext->traceId());
     }
 
     private function requestWithClaim(string $claim): ServerRequest
