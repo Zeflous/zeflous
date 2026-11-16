@@ -12,6 +12,7 @@ use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Container\Container;
 use Zef\Framework\FrameworkDefaults;
+use Zef\Framework\Http\HttpException;
 use Zef\Framework\Middleware\ProcessBoundaryRecords;
 use Zef\Framework\Middleware\ProcessErrorBoundary;
 use Zef\Framework\Middleware\ProcessErrorBoundaryFactory;
@@ -100,24 +101,78 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
         );
     }
 
-    public function testTheKnobRefusesANonBooleanSpelling(): void
+    public function testTheKnobRefusesANonsenseSpelling(): void
     {
-        $this->assertConfigException(
-            'http.error_handling.process_boundary must be a boolean.',
+        $this->assertToggleRefusal(
+            'http.error_handling process_boundary',
             static fn (): bool => ProcessErrorBoundaryFactory::wantsInstallation(
-                new Config(['http' => ['error_handling' => ['process_boundary' => 'yes']]]),
+                new Config(['http' => ['error_handling' => ['process_boundary' => 'maybe']]]),
             ),
         );
     }
 
-    public function testTheDebugKnobRefusesANonBooleanSpelling(): void
+    /**
+     * The environment overlay's own spellings answer the installation ask
+     * (#798): `APP_HTTP__ERROR_HANDLING__PROCESS_BOUNDARY=yes` arms the
+     * boundary a native `true` does, through the one vocabulary every
+     * config-driven family folds into.
+     */
+    public function testTheKnobFoldsTheEnvironmentOverlaySpellings(): void
     {
-        $this->assertConfigException(
-            'http.error_handling.debug must be a boolean.',
+        foreach (['1', 'true', 'on', 'yes'] as $truth) {
+            self::assertTrue(
+                ProcessErrorBoundaryFactory::wantsInstallation(
+                    new Config(['http' => ['error_handling' => ['process_boundary' => $truth]]]),
+                ),
+                "The spelling '{$truth}' must arm the boundary.",
+            );
+        }
+
+        foreach (['0', 'false', 'off', 'no', ''] as $falsehood) {
+            self::assertFalse(
+                ProcessErrorBoundaryFactory::wantsInstallation(
+                    new Config(['http' => ['error_handling' => ['process_boundary' => $falsehood]]]),
+                ),
+                "The spelling '{$falsehood}' must keep the boundary off.",
+            );
+        }
+    }
+
+    public function testTheDebugKnobRefusesANonsenseSpelling(): void
+    {
+        $this->assertToggleRefusal(
+            'http.error_handling debug',
             static fn (): ProcessErrorBoundary => ProcessErrorBoundaryFactory::fromConfig(
-                new Config(['http' => ['error_handling' => ['debug' => 'true']]]),
+                new Config(['http' => ['error_handling' => ['debug' => 'ture']]]),
             ),
         );
+    }
+
+    /**
+     * The debug knob's environment overlay spellings fold (#798): the
+     * constructed boundary answers the disclosure-gated posture a native
+     * `true` declares, observed through the local-environment answer
+     * carrying the uncaught throwable's own words.
+     */
+    public function testTheDebugKnobFoldsTheEnvironmentOverlaySpellings(): void
+    {
+        putenv('APP_ENV=local');
+
+        try {
+            $output = $this->uncaughtAnswerOutput(new Config([
+                'http' => ['error_handling' => ['debug' => 'true', 'log_path' => $this->logPath]],
+            ]));
+
+            self::assertStringContainsString(
+                'The worker observed an impossible state.',
+                $output,
+                'The folded overlay spelling arms the disclosure posture.',
+            );
+        } finally {
+            if (is_file($this->logPath)) {
+                unlink($this->logPath);
+            }
+        }
     }
 
     public function testTheLogPathKnobRefusesANonStringSpelling(): void
@@ -130,13 +185,46 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
         );
     }
 
-    public function testTheMetricsKnobRefusesANonBooleanSpelling(): void
+    public function testTheMetricsKnobRefusesANonsenseSpelling(): void
     {
-        $this->assertConfigException(
-            'observability.metrics.enabled must be a boolean.',
+        $this->assertToggleRefusal(
+            'observability.metrics enabled',
             static fn (): ProcessErrorBoundary => ProcessErrorBoundaryFactory::fromConfig(
-                new Config(['observability' => ['metrics' => ['enabled' => 'on']]]),
+                new Config(['observability' => ['metrics' => ['enabled' => 'maybe']]]),
             ),
+        );
+    }
+
+    /**
+     * The metrics knob's environment overlay spellings fold through the
+     * same seam `MetricsPolicy` already reads it through (#798): one
+     * knob, one grammar, whichever boundary's factory reads it -- the
+     * counter wired only under the folded truth spellings, silent under
+     * the folded falsehood ones.
+     */
+    public function testTheMetricsKnobFoldsTheEnvironmentOverlaySpellings(): void
+    {
+        $armedMeter = new CounterMeter();
+        $this->uncaughtAnswerOutput(new Config([
+            'http' => ['error_handling' => ['log_path' => $this->logPath]],
+            'observability' => ['metrics' => ['enabled' => 'on']],
+        ]), $armedMeter);
+        self::assertNotSame(
+            [],
+            $armedMeter->snapshot(),
+            "The folded 'on' spelling wires the counter.",
+        );
+        unlink($this->logPath);
+
+        $disarmedMeter = new CounterMeter();
+        $this->uncaughtAnswerOutput(new Config([
+            'http' => ['error_handling' => ['log_path' => $this->logPath]],
+            'observability' => ['metrics' => ['enabled' => 'off']],
+        ]), $disarmedMeter);
+        self::assertSame(
+            [],
+            $disarmedMeter->snapshot(),
+            "The folded 'off' spelling keeps the counter silent.",
         );
     }
 
@@ -289,12 +377,12 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
         );
     }
 
-    public function testTheResolverRefusesANonBooleanKnob(): void
+    public function testTheResolverRefusesANonsenseKnob(): void
     {
-        $this->assertConfigException(
-            'http.error_handling.process_boundary must be a boolean.',
+        $this->assertToggleRefusal(
+            'http.error_handling process_boundary',
             static fn (): ?ProcessErrorBoundary => ProcessErrorBoundaryFactory::resolveForInstallation(
-                new Config(['http' => ['error_handling' => ['process_boundary' => 'yes']]]),
+                new Config(['http' => ['error_handling' => ['process_boundary' => 'maybe']]]),
                 new Container(),
             ),
         );
@@ -333,6 +421,27 @@ final class ProcessErrorBoundaryFactoryTest extends TestCase
             self::fail('The malformed knob must fail closed.');
         } catch (ConfigException $configException) {
             self::assertSame($expectedMessage, $configException->getMessage());
+        }
+    }
+
+    /**
+     * The strict toggle seam's own refusal: the family message every
+     * config-driven family's knob refusal shares (#798), the knob named
+     * in the family-qualified spelling the seam folds under.
+     *
+     * @param callable():mixed $construction the construction that must fail closed
+     */
+    private function assertToggleRefusal(string $knob, callable $construction): void
+    {
+        try {
+            $construction();
+            self::fail('The nonsense toggle spelling must fail closed.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                "The {$knob} knob must be a boolean or one of the boolean string "
+                . 'spellings (true/false, on/off, yes/no, 1/0), string given.',
+                $httpException->getMessage(),
+            );
         }
     }
 

@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-11-16 · `main` @ `ebfd9d35`
+**Last updated:** 2026-11-16 · `main` @ `bd985bbe`
 
 **How to read this file**
 
@@ -25,7 +25,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Container | 22 |
 | HTTP Layer | 37 |
 | Middleware Pipeline | 1 |
-| Error Handling | 6 |
+| Error Handling | 7 |
 | Kernel & Platform | 14 |
 | Quality Gates & Tooling | 31 |
 | CI / Supply chain | 43 (incl. auto-merge + Sonar lanes) |
@@ -37,7 +37,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Event source | 4 |
 | Adapters layer | 22 |
 | Module integration | 4 |
-| **Total merged PRs** | **260** |
+| **Total merged PRs** | **261** |
 
 ---
 
@@ -126,6 +126,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | fix(errors): harden the failure visibility, log bounds and CLI display (the follow-up audit battery over #444's merged state: the envelope's double-failure fallback now names the construction failure's class on the SAPI log; the log context gate carries the replay sanitizer's full credential vocabulary — `passwd` and `csrf` spellings included; non-finite float context values answer their diagnostic spelling through a `NonFiniteFloat` leaf so one NAN can no longer silence the whole record; the PSR-3 message clamps at a 2048-byte `mb_strcut` bound whose three-byte edge is pinned; the CLI report strips control bytes from its display; the record writers' character-offset walk audited and retired as a documented contract) | #508 | 2026-10-21 | `ac481f40d4` |
 | feat(errors): add the process error boundary (the error system's integration lane — the composition's second error face, installed around the PHP process itself rather than around a request: the native diagnostic arm owning the engine's suppression contract and converting the abort severities into the typed `NativeErrorException` lane, the uncaught throwable arm answering RFC 9457 while a client listens or a bounded control-byte-stripped CLI sink line when the SAPI answers no client, the shutdown arm witnessing the fatal family only `error_get_last()` can see through `ProcessBoundaryFatals`' shape grammar over `DiagnosticSeverity::isFatalAtShutdown()`'s one-source mask; the boot seam installs it when the `http.error_handling.process_boundary` knob asks, the service registering under `http.errors.process_boundary` in the profile's own catalogue; redistributed into seven cohesive folds — the shell, the transmission lane, the record fold, the three arm bodies, the witness grammar — with the registrar observation seam the SapiTransmitter sink doctrine taught, the SAPI-honest metrics fold, and the double 2048 bounds retired because every reading lane owns its own) | #513 | 2026-10-21 | `22a2560724` |
 | fix(errors): bound the replay snapshot directory (the error-replay lane's retention seam — the round-2 audit's finding C-1 answered: every save now prunes the storage down to a configured snapshot bound, oldest first, distributed across three cohesive folds — ReplayRetention owns the bound's admission and the one-slice pruning walk, ReplaySnapshotAge owns the ordering witness (the filesystem's own modification instant; an unstattable entry answers 0 and sorts as the oldest garbage), and ErrorReplayWiring owns the configuration's read/validation/wiring so the factory's own seam stays under the architecture ceilings; the bound rides the frozen configuration as `http.error_handling.replay_max_snapshots`, integer >= 1, fail-closed below one, the `DEFAULT_MAX_SNAPSHOTS` const shared by the wiring and the reference profile, documented with the retention contract that replaces the manual "clear it under your local retention policy" instruction) | #577 | 2026-10-24 | `5368a20` |
+| fix(errors): the family's boolean knobs fold through the one vocabulary (issue #798 -- the audit's boolean env-overlay finding: `StrictToggles` folds the environment overlay's string spellings for every config-driven family, but the error family's four construction seams carried six `is_bool` gates demanding native bool while `EnvSource` passes env values through as the raw strings the environment carries, so `APP_HTTP__ERROR_HANDLING__DEBUG=true` -- the spelling style the observability config's own docblock advertises -- halted the boot with a type refusal naming neither the vocabulary nor the alternative, and `observability.metrics.enabled` answered two grammars depending on which seam asked (`MetricsPolicy` folds it, the error family's factories refused it); all six gates now read through `StrictToggles::read()` with the knob named in the seam's family-qualified spelling (`http.error_handling debug`, `observability.metrics enabled` character-identical to `MetricsPolicy`'s -- one knob, one answer, whichever seam reads it), the refusal carrying the seam's own `HttpException` with the vocabulary and the given type spelled, the retired gates' pins flipping shape (nonsense spellings still fail closed, the overlay spellings now assert the armed posture: `wantsInstallation()` true for `1/true/on/yes` and false for `0/false/off/no/''`, the replay lane writing its snapshot for a `'on'` overlay, the boot seam's installation ask observed through the rebind guard that only fires when the knob answered true, and the disclosure/toolbar/metrics observables armed under the folded spellings); `DatabaseQueryLogKnobs` deliberately stays unfolded (the Database layer's ruleset may depend on nothing but the exception root, the `AotToggles` duplicate-vocabulary trade its own slice -- KDD-ET4 records the boundary); KDD-ET1..ET4 in `docs/ci-notes/error-toggle-grammar.md`) | #855 | 2026-11-16 | `bd985bbe` |
 
 ## 4. Kernel & Platform
 

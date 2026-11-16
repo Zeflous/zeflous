@@ -9,8 +9,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Zef\Framework\Config\Config;
-use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Http\ErrorRequestContext;
+use Zef\Framework\Http\HttpException;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\StreamSnapshot;
@@ -233,10 +233,54 @@ final class DebugToolbarMiddlewareTest extends TestCase
 
     public function testFactoryRejectsInvalidDebugConfiguration(): void
     {
-        $this->expectException(ConfigException::class);
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The http.error_handling debug knob must be a boolean or one of the boolean string '
+                . 'spellings (true/false, on/off, yes/no, 1/0), string given.',
+        );
+
         DebugToolbarFactory::fromConfig(new Config([
-            'http' => ['error_handling' => ['debug' => 'yes']],
+            'http' => ['error_handling' => ['debug' => 'ture']],
         ]));
+    }
+
+    /**
+     * The environment overlay's own spellings fold through the strict
+     * toggle seam (#798): `APP_HTTP__ERROR_HANDLING__DEBUG=yes` arms the
+     * same disclosure-gated toolbar posture a native `true` does -- the
+     * toolbar still only renders in a development environment, the double
+     * APP_ENV gate unchanged, observed through the profiler markup the
+     * armed toolbar splices.
+     */
+    public function testTheDebugKnobFoldsTheEnvironmentOverlaySpellings(): void
+    {
+        $previous = getenv('APP_ENV');
+        putenv('APP_ENV=local');
+
+        try {
+            $response = DebugToolbarFactory::fromConfig(new Config([
+                'http' => ['error_handling' => ['debug' => 'yes']],
+            ]))->process(
+                $this->request('text/html'),
+                new FixedResponseHandler(new Response(
+                    200,
+                    ['Content-Type' => 'text/html'],
+                    '<html><body>overlay spelled page</body></html>',
+                )),
+            );
+
+            self::assertStringContainsString(
+                'ZEF Profiler',
+                (string) $response->getBody(),
+                'The folded overlay spelling arms the toolbar.',
+            );
+        } finally {
+            if ($previous === false) {
+                putenv('APP_ENV');
+            } else {
+                putenv('APP_ENV=' . $previous);
+            }
+        }
     }
 
     /**

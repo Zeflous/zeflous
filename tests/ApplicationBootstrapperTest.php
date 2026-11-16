@@ -23,6 +23,7 @@ use Zef\Framework\FrameworkDefaults;
 use Zef\Framework\Health\HealthChecker;
 use Zef\Framework\Http\BodyParserMiddleware;
 use Zef\Framework\Http\CompressionMiddleware;
+use Zef\Framework\Http\HttpException;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\SessionMiddleware;
@@ -666,16 +667,42 @@ final class ApplicationBootstrapperTest extends TestCase
         }
     }
 
-    public function testTheProcessBoundaryKnobRefusesANonBooleanSpelling(): void
+    public function testTheProcessBoundaryKnobRefusesANonsenseSpelling(): void
     {
         try {
             new ApplicationBootstrapper()->boot($this->temporaryConfigs([
-                'http.php' => '<?php return ["error_handling" => ["process_boundary" => "yes"]];',
+                'http.php' => '<?php return ["error_handling" => ["process_boundary" => "maybe"]];',
             ]));
-            self::fail('A non-boolean process boundary knob must halt the boot.');
+            self::fail('A nonsense toggle spelling must halt the boot.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                'The http.error_handling process_boundary knob must be a boolean or one of the boolean string '
+                    . 'spellings (true/false, on/off, yes/no, 1/0), string given.',
+                $httpException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * The environment overlay's own spellings answer the installation
+     * ask through the one vocabulary every config-driven family folds
+     * into (#798): a `process_boundary => 'on'` boot asks for the
+     * boundary exactly as a native `true` does -- observed through the
+     * rebind guard the installation walk runs, which only fires when the
+     * knob answered true.
+     */
+    public function testTheProcessBoundaryKnobFoldsTheEnvironmentOverlaySpellings(): void
+    {
+        try {
+            new ApplicationBootstrapper()->boot($this->temporaryConfigs([
+                'http.php' => '<?php return ["error_handling" => ["process_boundary" => "on"]];',
+                'services.php' => '<?php return ["http.errors.process_boundary" => ["value" => "not-a-boundary"]];',
+            ]));
+            self::fail('A knob asking for the boundary cannot be answered by something else.');
         } catch (ConfigException $configException) {
             self::assertSame(
-                'http.error_handling.process_boundary must be a boolean.',
+                'The "http.errors.process_boundary" service must resolve to a'
+                    . ' Zef\Framework\Middleware\ProcessErrorBoundary instance, "string" given.',
                 $configException->getMessage(),
             );
         }

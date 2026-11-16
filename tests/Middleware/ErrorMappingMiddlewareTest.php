@@ -986,10 +986,101 @@ final class ErrorMappingMiddlewareTest extends TestCase
 
     public function testFactoryRejectsNonBooleanDebugConfiguration(): void
     {
-        $this->expectException(ConfigException::class);
+        $this->expectException(HttpException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'The http.error_handling debug knob must be a boolean or one of the boolean string '
+                . 'spellings (true/false, on/off, yes/no, 1/0), string given.',
+        );
+
         ErrorMappingFactory::fromConfig(new Config([
-            'http' => ['error_handling' => ['debug' => 'true']],
+            'http' => ['error_handling' => ['debug' => 'ture']],
         ]));
+    }
+
+    /**
+     * The environment overlay's own spellings fold through the strict
+     * toggle seam (#798): `APP_HTTP__ERROR_HANDLING__DEBUG=true` arms the
+     * same disclosure posture a native `true` does, instead of halting
+     * the boot with a type refusal -- the spellings the observability
+     * config's own docblock advertises for the neighbouring knobs,
+     * observed through the local-environment answer carrying the
+     * developer context the armed posture discloses.
+     */
+    public function testTheDebugKnobFoldsTheEnvironmentOverlaySpellings(): void
+    {
+        $previousEnvironment = getenv('APP_ENV');
+        putenv('APP_ENV=local');
+
+        try {
+            $middleware = ErrorMappingFactory::fromConfig(new Config([
+                'http' => ['error_handling' => ['debug' => 'true']],
+            ]));
+
+            $response = $middleware->process(
+                new ServerRequest('GET', new Uri('https://app.example.test/overlay')),
+                new ThrowingHandler(new RuntimeException('overlay spelled failure')),
+            );
+
+            self::assertStringContainsString(
+                'overlay spelled failure',
+                (string) $response->getBody(),
+                'The folded overlay spelling arms the disclosure posture.',
+            );
+        } finally {
+            if ($previousEnvironment === false) {
+                putenv('APP_ENV');
+            } else {
+                putenv('APP_ENV=' . $previousEnvironment);
+            }
+        }
+    }
+
+    /**
+     * The replay lane's own toggle folds the same way (#798): an
+     * `APP_HTTP__ERROR_HANDLING__REPLAY_ENABLED=on` overlay arms the
+     * capture a native `true` does, observed through the snapshot the
+     * armed lane writes for one failing request -- the environment
+     * overlay's spellings answering the whole error family, not just
+     * the two knobs the audit cited.
+     */
+    public function testTheReplayKnobFoldsTheEnvironmentOverlaySpellings(): void
+    {
+        $previousEnvironment = getenv('APP_ENV');
+        $directory = sys_get_temp_dir() . '/zef-replay-overlay-mw-' . bin2hex(random_bytes(8));
+        mkdir($directory, 0o700);
+
+        try {
+            putenv('APP_ENV=local');
+            $middleware = ErrorMappingFactory::fromConfig(new Config([
+                'http' => [
+                    'error_handling' => [
+                        'debug' => 'true',
+                        'replay_enabled' => 'on',
+                        'replay_path' => $directory,
+                    ],
+                ],
+            ]));
+
+            $serverRequest = new ServerRequest('GET', new Uri('https://app.example.test/overlay'));
+
+            $middleware->process($serverRequest, new ThrowingHandler(new RuntimeException('overlay failure')));
+
+            $snapshots = glob($directory . '/*.json');
+            self::assertIsArray($snapshots);
+            self::assertCount(1, $snapshots, 'the folded overlay spelling armed the replay capture');
+        } finally {
+            if ($previousEnvironment === false) {
+                putenv('APP_ENV');
+            } else {
+                putenv('APP_ENV=' . $previousEnvironment);
+            }
+
+            foreach ((array) glob($directory . '/*.json') as $snapshot) {
+                @unlink((string) $snapshot);
+            }
+
+            @rmdir($directory);
+        }
     }
 
     public function testHtmlDebugPageIncludesSanitizedDeveloperContextAndSecurityHeaders(): void
