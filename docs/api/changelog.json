@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-15T23:09:10Z",
+  "as_of": "2026-11-16T15:18:37Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 335,
+  "unreleased_count": 336,
   "versions": [
     {
       "version": "Unreleased",
@@ -7540,6 +7540,27 @@
                 "sha": "1d931ddc03402da3bb637776d67668d78505eb35",
                 "short_sha": "1d931dd",
                 "subject": "docs(roadmap): the pin rides the phpcs round's head (#850)"
+              }
+            ]
+          },
+          {
+            "pr": 855,
+            "title": "fix(errors): the family boolean knobs fold through the one vocabulary (issue #798)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-16T15:18:37Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/855",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "bd985bbee6d011af08c9c0014cc4682d9380794f",
+                "short_sha": "bd985bb",
+                "subject": "fix(errors): the family's boolean knobs fold through the one vocabulary (issue #798)"
+              },
+              {
+                "sha": "5feea62b067e8a27fc917ea6b438c21219cfcd08",
+                "short_sha": "5feea62",
+                "subject": "docs(roadmap): the pin rides the toggle grammar's head (#855)"
               }
             ]
           }
@@ -23023,6 +23044,27 @@
               "sha": "1d931ddc03402da3bb637776d67668d78505eb35",
               "short_sha": "1d931dd",
               "subject": "docs(roadmap): the pin rides the phpcs round's head (#850)"
+            }
+          ]
+        },
+        {
+          "pr": 855,
+          "title": "fix(errors): the family boolean knobs fold through the one vocabulary (issue #798)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-16T15:18:37Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/855",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "bd985bbee6d011af08c9c0014cc4682d9380794f",
+              "short_sha": "bd985bb",
+              "subject": "fix(errors): the family's boolean knobs fold through the one vocabulary (issue #798)"
+            },
+            {
+              "sha": "5feea62b067e8a27fc917ea6b438c21219cfcd08",
+              "short_sha": "5feea62",
+              "subject": "docs(roadmap): the pin rides the toggle grammar's head (#855)"
             }
           ]
         }
