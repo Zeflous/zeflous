@@ -10,6 +10,15 @@ use Psr\Http\Message\ServerRequestInterface;
  * Mutable, request-scoped correlation between the outer error boundary and
  * inner tracing middleware. The object is shared by reference through PSR-7
  * request attributes, never stored on a persistent worker service.
+ *
+ * The construction identifier is the boundary's own mint ({@see
+ * CorrelationId}) carried immutably: the trace id may later be replaced by
+ * a valid W3C one ({@see self::setTraceId()}), but the request's
+ * correlation identifier -- the one the boundary stamps on the response
+ * and consults for every record the request's own lanes write -- never
+ * changes after the boundary mints it (#796: the slow-request record joins
+ * the error lane's records on the identifier the response carries, and
+ * the mutable trace id must never masquerade as it).
  */
 final class ErrorRequestContext
 {
@@ -23,8 +32,11 @@ final class ErrorRequestContext
 
     private readonly int $startedAt;
 
+    private readonly string $correlationId;
+
     public function __construct(private string $traceId)
     {
+        $this->correlationId = $traceId;
         $this->startedAt = (int) hrtime(true);
     }
 
@@ -53,6 +65,17 @@ final class ErrorRequestContext
     public function traceId(): string
     {
         return $this->traceId;
+    }
+
+    /**
+     * The boundary's own mint, carried immutably: the identifier the
+     * response's `X-Request-ID` carries and every request-scoped record
+     * ({@see CorrelationId::for()}) consults, never the mutable trace id
+     * a valid W3C one may replace it with.
+     */
+    public function correlationId(): string
+    {
+        return $this->correlationId;
     }
 
     public function recordQuery(): void
