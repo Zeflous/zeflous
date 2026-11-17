@@ -28,14 +28,17 @@ namespace Zef\Framework\Config\Routing;
  * debug header ({@see \Zef\Framework\Middleware\RouteDebugMiddleware})
  * and `route:test` verb carry the diagnostic the audit asked for.
  *
- * The entry map's key is the method, a NUL separator and the owning
- * host's own spelling (the host-agnostic claim's empty spelling) --
- * the sort over that key IS the deterministic order (the method
- * ascending, then the owning host ascending with the host-agnostic
- * claim first among its own method's peers, because a shorter key
- * sorts before its own extensions) and the duplicate fold IS the same
- * map (two routes behind one claim spelling answer one entry). No
- * comparator, no seen-set: one vocabulary owns both disciplines.
+ * The entry map is the nested tuple (method => owning host => entry),
+ * the KDD-HW7 lesson replayed on this fold's own key: no separator
+ * grammar can alias two different (method, host) tuples onto one
+ * string, and no concat mutant has a target. The two `ksort`s spell
+ * the deterministic order -- the method ascending, then the owning
+ * host ascending with the host-agnostic claim (the empty spelling)
+ * first among its own method's peers -- and the nested key IS the
+ * duplicate fold (two routes behind one claim spelling answer one
+ * entry). The selected identity map carries the route itself as its
+ * value, never a bare `true`: a boolean nobody reads is a mutant
+ * target, the identity the map holds is not.
  *
  * @internal
  */
@@ -62,26 +65,36 @@ final class RouteHostShadowedMethods
             return [];
         }
 
-        $selectedRouteIds = [];
+        $selectedRoutes = [];
 
         foreach ($selected as $route) {
-            $selectedRouteIds[spl_object_id($route)] = true;
+            $selectedRoutes[spl_object_id($route)] = $route;
         }
 
         $shadowedMethods = [];
 
         foreach ($walked as $route) {
-            if (isset($selectedRouteIds[spl_object_id($route)])) {
+            if (isset($selectedRoutes[spl_object_id($route)])) {
                 continue;
             }
 
             foreach (RouteHostShadowedRoute::entries($route, $requestHost) as $entry) {
-                $shadowedMethods[$entry['method'] . "\x00" . ($entry['host'] ?? '')] = $entry;
+                $shadowedMethods[$entry['method']][$entry['host'] ?? ''] = $entry;
             }
         }
 
         ksort($shadowedMethods, \SORT_STRING);
 
-        return array_values($shadowedMethods);
+        $entries = [];
+
+        foreach ($shadowedMethods as $hosts) {
+            ksort($hosts, \SORT_STRING);
+
+            foreach ($hosts as $entry) {
+                $entries[] = $entry;
+            }
+        }
+
+        return $entries;
     }
 }

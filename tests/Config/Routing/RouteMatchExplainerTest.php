@@ -676,8 +676,8 @@ final class RouteMatchExplainerTest extends TestCase
     {
         $radixTree = RadixTree::compile([
             ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
-            ['path' => '/x', 'method' => ['POST', 'DELETE'], 'handler' => 'Agnostic@write'],
             ['path' => '/x', 'method' => ['POST'], 'handler' => 'Tenant@create', 'host' => '{tenant}.example.com'],
+            ['path' => '/x', 'method' => ['POST', 'DELETE'], 'handler' => 'Agnostic@write'],
         ]);
 
         $explanation = $radixTree->explain('PUT', '/x', 'api.example.com');

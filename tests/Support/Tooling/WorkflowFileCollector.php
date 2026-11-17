@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Zef\Test\Support\Tooling;
 
-use DirectoryIterator;
+use FilesystemIterator;
+use SplFileInfo;
+use Zef\Framework\Config\Loader\SortedDirectoryEntries;
 
 /**
  * Collects the GitHub Actions workflow files that the concurrency gate audits.
@@ -15,7 +17,10 @@ use DirectoryIterator;
  * Only the top level of `.github/workflows` is collected, mirroring GitHub's
  * own workflow discovery: nested directories are ignored by GitHub Actions,
  * so collecting them would audit files that never run. The walk is a plain
- * directory iteration with an extension filter -- deliberately NOT a glob
+ * directory iteration with an extension filter, walked in the sorted name
+ * order the loader lane's order fold answers (the KDD-MO6 discipline:
+ * the readdir order a host answers is the host's, and every skip below
+ * observes the same order everywhere) -- deliberately NOT a glob
  * pattern, because a checkout root carrying glob metacharacters
  * (`/build/ci[2]/repo`) would make the pattern match nothing and the audit
  * would report its own absence as a pass. A file that cannot be read
@@ -50,7 +55,24 @@ final readonly class WorkflowFileCollector
             return $workflows;
         }
 
-        foreach (new DirectoryIterator($directory) as $file) {
+        $entries = [];
+
+        foreach (new FilesystemIterator($directory, FilesystemIterator::SKIP_DOTS) as $file) {
+            \assert($file instanceof SplFileInfo, 'the iterator answers its children as SplFileInfo');
+
+            $entries[] = $file;
+        }
+
+        // The sorted walk (the KDD-MO6 lesson replayed, second host): the
+        // filesystem's own readdir order is host-owned, so the two skip
+        // guards below observe the same entry order on every host -- a
+        // non-yml sibling and a subdirectory both sort before the
+        // workflow files behind them in the killing fixtures, and a
+        // mutant that turns either skip into a truncated walk always
+        // loses the files after it. The order fold is a pure static
+        // call -- no function-call removal can silence it -- whose own
+        // contract the loader lane already tests without a filesystem.
+        foreach (SortedDirectoryEntries::inNameOrder($entries) as $file) {
             if ($file->isDir()) {
                 continue;
             }

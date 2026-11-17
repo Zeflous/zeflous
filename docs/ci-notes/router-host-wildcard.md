@@ -169,6 +169,26 @@ dimensions and the `route:test` answer read) extracted from the value
 object it never belonged to, no exclusion added, the spellings still
 owned by the explanation the fold translates into.
 
+The infection gate answered with the mutation adversary's own lesson
+set, all killed by construction or by fresh observation, zero new
+ignores: the entry key's `method . "\x00" . host` concat was exactly
+the separator grammar KDD-HW7 had already retired once (three concat
+mutants targeting a key no legal grammar could make observable), so
+the map became the nested tuple (method => host => entry) and the
+mutants lost their target; the selected-identity map's `true` value
+(nobody reads it) became the route itself; the two `ksort`s became
+observable by re-declaring the order pin's fixture so the insertion
+order is NOT the sorted order (the multi-method agnostic route
+declared after the {tenant} claim -- a table whose insertion was
+already sorted made the sort invisible, the classic unkillable-by-
+fixture mistake). And the one pre-existing escape -- the workflow
+collector's `continue`-to-`break` (a #824-class runner-dependent
+mutant that escapes whenever the filesystem iterates the non-yml
+sibling last) -- was retired by construction: the loop's skip guards
+became one positive condition, a shape with no `continue` to mutate
+into a truncated walk, the order-luck test beside it kept as the
+behavioural pin.
+
 The OpenAPI consequence is documented where the audit read it: the
 `servers` list's entry presence does not promise every operation is
 reachable on it (the specificity shadowing rule applies, `x-zef-host`

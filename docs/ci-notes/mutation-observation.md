@@ -169,3 +169,37 @@ mutant-bearing files (`DirectoryLoader` + `SortedDirectoryEntries` +
 (the batch's own mechanism, observed directly) · the three new
 observation tests plus the narrowed glob and the renamed fixtures green
 · `ci:static` EXIT-0 · psalm EXIT-0 · progpilot `[]`.
+
+## The third batch: the workflow collector's skip guards, killed by the walk's own order (2026-11-18)
+
+PR #863 (the router host-shadow round, a tree that never touched the
+collector) reddened `CI Infection` with the collector's
+extension-filter `continue` escaped: the same class as KDD-MO6's
+`DirectoryLoader` dotfile skip, one lane over, waiting for its own
+host to answer readdir with the non-yml sibling last. The killing
+test's own comment still claimed "fresh directories iterate in
+creation order" -- the premise MO6 already retired for the loader;
+a fresh directory's readdir order is the filesystem's hash, not the
+creation order.
+
+**KDD-MO8: the collector joins the sorted-walk discipline, and the
+positive-guard detour is named for the record.** The first attempted
+fix was the combined positive guard (`!isDir() && yml-or-yaml`) -- no
+`continue` to mutate at all -- and it failed the coding standard
+twice over: the Slevomat early-exit sniff demands the guard-continue
+shape in a loop's trailing position, and the combined condition is
+the nesting the standard exists to refuse. The honest fix is the one
+MO6 already blessed for the loader: the walk hands its collected
+entries to `SortedDirectoryEntries::inNameOrder()` -- the loader
+lane's own pure fold, a static call no function-call removal can
+silence, its contract already tested without a filesystem -- and the
+skip guards keep their standard-compliant shape over the sorted
+order, so their mutants are judged by the walk's own order on every
+host: `0-stray.txt` sorts before `a.yml` (the extension skip's kill,
+the stray test's premise now true), and the nested-directory
+fixture renamed to `0-nested` so the isDir skip's kill rides the same
+discipline (a subdirectory sorting before the workflow files it
+would otherwise survive behind). The output-order fold
+(`SortedWorkflowMap::over`) keeps its own seam and its own direct
+test -- two questions, two folds, the b821ed17 separation intact.
+
