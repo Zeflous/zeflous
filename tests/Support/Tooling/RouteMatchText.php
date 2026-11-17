@@ -18,6 +18,13 @@ use Zef\Framework\Config\Routing\RouteMatchExplanation;
  *
  * Pure presentation over {@see RouteMatchAnswer}'s pair, reading the
  * engines' own readers -- never a second judgement of the match.
+ *
+ * The #795 shadowed line: a 405 whose `Allow` names only the winning
+ * claim's methods also names the methods the same path answers
+ * through the host claims the specificity dropped -- each entry
+ * `METHOD@HOST`, the host-agnostic claim spelled `METHOD@*` -- so the
+ * operator sees the cross-bucket answer the dispatch surface
+ * deliberately does not carry.
  */
 final readonly class RouteMatchText
 {
@@ -73,6 +80,13 @@ final readonly class RouteMatchText
 
         if ($explanation->allowedMethods() !== []) {
             $lines[] = '  allowed:     ' . implode(',', $explanation->allowedMethods());
+        }
+
+        if ($explanation->shadowedMethods() !== []) {
+            $lines[] = '  shadowed:    ' . implode(',', array_map(
+                static fn (array $entry): string => $entry['method'] . '@' . ($entry['host'] ?? '*'),
+                $explanation->shadowedMethods(),
+            ));
         }
 
         if ($explanation->producibleMediaTypes() !== []) {

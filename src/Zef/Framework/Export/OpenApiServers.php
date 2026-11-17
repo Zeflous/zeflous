@@ -30,6 +30,24 @@ use Zef\Framework\Config\Routing\RouteHostLabelKinds;
  * path-relative `/`, is then the honest statement: the paths are
  * server-relative exactly as the table declares them).
  *
+ * The servers list's own reachability boundary, named (#795): a
+ * server entry's presence does NOT promise every operation in the
+ * document is reachable on it. The engine's host selection is
+ * either/or by specificity ({@see \Zef\Framework\Config\Routing\RouteHostSelection})
+ * -- an exact-host claim that wins a path shadows the
+ * host-agnostic routes and the lower-specificity claims for that
+ * same path at that host, for every method. A consumer reading
+ * `servers: [api.example.com]` and an operation whose
+ * `x-zef-host` is absent (the host-agnostic claim) must apply the
+ * rule itself: the operation answers the path on every host EXCEPT
+ * the hosts whose own claims won that path -- at api.example.com
+ * the winning claim's methods are the answer, and the shadowed
+ * methods surface in the routing diagnostics, never in the
+ * document's own operation list. The export carries the table's
+ * claims verbatim; it does not restate the selection rule per
+ * operation, because the rule has one owner and the export is not
+ * it.
+ *
  * @internal consumed through {@see OpenApiDocument}
  */
 final readonly class OpenApiServers

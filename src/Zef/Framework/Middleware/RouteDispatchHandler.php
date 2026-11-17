@@ -48,6 +48,18 @@ use Zef\Framework\Exception\ZefException;
  * extracted, so the refusal reports what the client asked, not what the
  * matcher happened to re-derive.
  *
+ * The 405's `Allow` payload is the SELECTED claim's methods (#795):
+ * a host-exact claim that wins the path shadows the lower claims'
+ * methods at that host for the whole path, so the header names the
+ * methods dispatchable at the request host -- the honest spelling for
+ * the resource as dispatched, never the cross-bucket union that would
+ * invite a retry the table would refuse again. The cross-bucket
+ * diagnostic (which methods the same path answers behind the other
+ * host claims) is the explanation lane's own answer
+ * ({@see \Zef\Framework\Config\Routing\RouteMatchExplanation::shadowedMethods()}),
+ * spelled for the development surface and the `route:test` verb, not
+ * for the production response.
+ *
  * @internal
  */
 final readonly class RouteDispatchHandler implements RequestHandlerInterface

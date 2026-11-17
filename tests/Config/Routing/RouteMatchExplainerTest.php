@@ -11,6 +11,8 @@ use Zef\Framework\Config\Routing\CompiledRoute;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RadixTree;
 use Zef\Framework\Config\Routing\RouteAllowedMethods;
+use Zef\Framework\Config\Routing\RouteHostShadowedMethods;
+use Zef\Framework\Config\Routing\RouteHostShadowedRoute;
 use Zef\Framework\Config\Routing\RouteMatchDescent;
 use Zef\Framework\Config\Routing\RouteMatchExplainer;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
@@ -37,6 +39,8 @@ use Zef\Framework\Config\Routing\RouteVersionMiss;
 #[CoversClass(RouteMatchStages::class)]
 #[CoversClass(RouteVersionMiss::class)]
 #[CoversClass(RouteAllowedMethods::class)]
+#[CoversClass(RouteHostShadowedMethods::class)]
+#[CoversClass(RouteHostShadowedRoute::class)]
 #[CoversClass(RouteMatchDescent::class)]
 #[CoversClass(RouteMatchNeighborhood::class)]
 #[CoversClass(RouteMatchSummary::class)]
@@ -486,6 +490,287 @@ final class RouteMatchExplainerTest extends TestCase
         self::assertSame(
             RouteMatchExplanation::OUTCOME_NOT_FOUND,
             RouteMatchExplanation::outcomeOf(MatchResult::notFound()),
+        );
+    }
+
+    /**
+     * The #795 sharp edge's own diagnostic: a host-exact claim that
+     * wins the path shadows the host-agnostic routes for the whole
+     * path at that host, so the 405's own payload names the claim's
+     * methods alone -- and the explanation carries the shadowed other
+     * half, the method behind the dropped claim, with the host
+     * spelling that owns it (null: the host-agnostic claim).
+     */
+    public function testAMethodRefusalCarriesTheShadowedMethodBehindTheDroppedAgnosticClaim(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Agnostic@create'],
+        ]);
+
+        $explanation = $radixTree->explain('POST', '/x', 'api.example.com');
+
+        self::assertSame(RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED, $explanation->outcome());
+        self::assertSame(RouteMatchExplanation::STAGE_METHOD, $explanation->failedStage());
+        self::assertSame(['GET'], $explanation->allowedMethods());
+        self::assertSame(
+            [['method' => 'POST', 'host' => null]],
+            $explanation->shadowedMethods(),
+            "the agnostic claim's method is the shadow the exact claim cast over the path",
+        );
+        self::assertSame(
+            'stage=method survivors=path:2,host:1,version:1 allowed=GET shadowed=POST@*',
+            $explanation->summary(),
+        );
+    }
+
+    /**
+     * A found match never carries a shadow -- the diagnostic twin of
+     * a successful match has no failure to attribute, and a shadowed
+     * payload on it would be the second opinion this class refuses
+     * to be.
+     */
+    public function testAFoundMatchCarriesNoShadowedMethods(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Agnostic@create'],
+        ]);
+
+        $explanation = $radixTree->explain('POST', '/x', 'other.example.com');
+
+        self::assertTrue($explanation->isFound());
+        self::assertSame([], $explanation->shadowedMethods());
+        self::assertSame('stage=none survivors=path:2,host:1,version:1', $explanation->summary());
+    }
+
+    /**
+     * The lower-specificity co-matching claims join the shadow with
+     * their own host spellings -- a claim that answers the request
+     * host but lost the specificity bucket is exactly as shadowed as
+     * the agnostic fallback.
+     */
+    public function testAMethodRefusalCarriesTheLowerSpecificityClaimsInTheShadow(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['DELETE'], 'handler' => 'Tenant@destroy', 'host' => '{tenant}.example.com'],
+        ]);
+
+        $explanation = $radixTree->explain('POST', '/x', 'api.example.com');
+
+        self::assertSame(
+            [['method' => 'DELETE', 'host' => '{tenant}.example.com']],
+            $explanation->shadowedMethods(),
+        );
+        self::assertSame(
+            'stage=method survivors=path:2,host:1,version:1 allowed=GET shadowed=DELETE@{tenant}.example.com',
+            $explanation->summary(),
+        );
+    }
+
+    /**
+     * A route whose host claim does not answer the request host is
+     * NOT in the shadow -- it is elsewhere, and naming it would
+     * pretend a method one host-hop away belongs to this request's
+     * answer.
+     */
+    public function testTheShadowExcludesRoutesThatDoNotAnswerTheRequestHost(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['PUT'], 'handler' => 'Elsewhere@put', 'host' => 'other.example.com'],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Agnostic@create'],
+        ]);
+
+        $explanation = $radixTree->explain('POST', '/x', 'api.example.com');
+
+        self::assertSame(
+            [['method' => 'POST', 'host' => null]],
+            $explanation->shadowedMethods(),
+            'the elsewhere host claim never joins the shadow the request host judged',
+        );
+    }
+
+    /**
+     * A method refusal without host shadowing carries no shadowed
+     * payload at all -- the summary line gains no token, the honest
+     * empty answer.
+     */
+    public function testAMethodRefusalWithoutHostShadowingCarriesNoShadowedMethods(): void
+    {
+        $explanation = $this->table()->explain('DELETE', '/posts');
+
+        self::assertSame(RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED, $explanation->outcome());
+        self::assertSame(['POST'], $explanation->allowedMethods());
+        self::assertSame([], $explanation->shadowedMethods());
+        self::assertSame(
+            'stage=method survivors=path:1,host:1,version:1 allowed=POST',
+            $explanation->summary(),
+        );
+    }
+
+    /**
+     * The agnostic fallback's own selection shadows nothing: the
+     * host-claiming routes it ignored answer a different host, and a
+     * host that claimed nothing cannot have cast a shadow.
+     */
+    public function testTheAgnosticFallbackSelectionCarriesNoShadowedMethods(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Exact@create', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Agnostic@show'],
+        ]);
+
+        $explanation = $radixTree->explain('PUT', '/x', 'other.example.com');
+
+        self::assertSame(RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED, $explanation->outcome());
+        self::assertSame(['GET'], $explanation->allowedMethods());
+        self::assertSame(
+            [],
+            $explanation->shadowedMethods(),
+            'the exact claim ignored by the fallback answers another host -- elsewhere, not shadowed',
+        );
+        self::assertSame(
+            'stage=method survivors=path:2,host:1,version:1 allowed=GET',
+            $explanation->summary(),
+        );
+    }
+
+    /**
+     * The shadow dedupes: two routes behind one claim spelling (the
+     * versioned and the unversioned twin of one method+host pair)
+     * answer one shadowed entry, not two.
+     */
+    public function testTheShadowDedupesTheSameMethodBehindOneClaimSpelling(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Tenant@create', 'host' => '{tenant}.example.com'],
+            [
+                'path' => '/x',
+                'method' => ['POST'],
+                'handler' => 'TenantV2@create',
+                'host' => '{tenant}.example.com',
+                'version' => 'v2',
+            ],
+        ]);
+
+        $explanation = $radixTree->explain('POST', '/x', 'api.example.com');
+
+        self::assertSame(
+            [['method' => 'POST', 'host' => '{tenant}.example.com']],
+            $explanation->shadowedMethods(),
+            'one claim spelling, one shadowed entry, however many routes declare behind it',
+        );
+    }
+
+    /**
+     * The shadow's deterministic order: the method ascending, then
+     * the owning host ascending with the host-agnostic claim first
+     * among its own method's peers.
+     */
+    public function testTheShadowSortsByMethodThenHostWithTheAgnosticClaimFirst(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['POST', 'DELETE'], 'handler' => 'Agnostic@write'],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Tenant@create', 'host' => '{tenant}.example.com'],
+        ]);
+
+        $explanation = $radixTree->explain('PUT', '/x', 'api.example.com');
+
+        self::assertSame(
+            [
+                ['method' => 'DELETE', 'host' => null],
+                ['method' => 'POST', 'host' => null],
+                ['method' => 'POST', 'host' => '{tenant}.example.com'],
+            ],
+            $explanation->shadowedMethods(),
+        );
+        self::assertSame(
+            'stage=method survivors=path:3,host:1,version:1 allowed=GET'
+            . ' shadowed=DELETE@*,POST@*,POST@{tenant}.example.com',
+            $explanation->summary(),
+        );
+    }
+
+    /**
+     * The #794 fold's own twin: a version miss whose method judgement
+     * answered the 405 carries the shadow too -- its allowed methods
+     * are the host-selected set's, and the shadow is the other half
+     * of the same host selection.
+     */
+    public function testAVersionMissMethodRefusalCarriesTheShadowedMethodsToo(): void
+    {
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/x',
+                'method' => ['GET'],
+                'handler' => 'Exact@show',
+                'host' => 'api.example.com',
+                'version' => 'v1',
+            ],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Agnostic@create'],
+        ]);
+
+        $explanation = $radixTree->explain('POST', '/x', 'api.example.com', null, 'v9');
+
+        self::assertSame(RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED, $explanation->outcome());
+        self::assertSame(RouteMatchExplanation::STAGE_VERSION, $explanation->failedStage());
+        self::assertSame(['GET'], $explanation->allowedMethods());
+        self::assertSame(
+            [['method' => 'POST', 'host' => null]],
+            $explanation->shadowedMethods(),
+        );
+        self::assertSame(
+            'stage=version survivors=path:2,host:1,version:0 allowed=GET shadowed=POST@*',
+            $explanation->summary(),
+        );
+    }
+
+    /**
+     * The summary's clamp honors the shadowed entry: a host spelling
+     * long enough to cross the candidate budget is clamped by
+     * characters with the marker spelled, never byte-sliced.
+     */
+    public function testTheSummaryClampsAnOverlongShadowedEntryToTheCandidateBudget(): void
+    {
+        $requestHost = 'api.' . str_repeat('l', 63) . '.example.com';
+        $longClaim = '{' . str_repeat('p', 64) . '}.' . str_repeat('l', 63) . '.example.com';
+
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => $requestHost],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Long@create', 'host' => $longClaim],
+        ]);
+
+        $explanation = $radixTree->explain('PUT', '/x', $requestHost);
+
+        $entry = 'POST@' . $longClaim;
+
+        self::assertSame(
+            'stage=method survivors=path:2,host:1,version:1 allowed=GET'
+            . ' shadowed=' . mb_substr($entry, 0, 128) . '...',
+            $explanation->summary(),
+            "a co-matching claim's own spelling is the entry the budget clamps, characters kept whole",
+        );
+    }
+
+    /**
+     * The fold's own guard: an empty selection shadows nothing -- no
+     * claim won the path, so no claim cast a shadow over it.
+     */
+    public function testAnEmptySelectionAnswersNoShadowedMethods(): void
+    {
+        $agnostic = CompiledRoute::fromArray([
+            'path' => '/x',
+            'method' => ['POST'],
+            'handler' => 'Agnostic@create',
+        ]);
+
+        self::assertSame(
+            [],
+            RouteHostShadowedMethods::of([$agnostic], [], 'api.example.com'),
         );
     }
 

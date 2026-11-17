@@ -108,6 +108,70 @@ methods now coexist and stay separately selectable, and the host dimension
 of the tuple is pinned: two routes on the same host and method claim
 different paths without a false collision.
 
+## KDD-HW8 — the 405's diagnostics stop hiding the shadowed methods (#795)
+
+The audit's sharp edge: `RouteHostSelection`'s either/or contract means a
+claim that wins the specificity bucket owns the whole path at its host for
+EVERY method -- the host-agnostic routes and the lower-specificity
+co-matching claims for the same path are dropped from consideration
+entirely. The dispatch half of that is correct and stays: `POST /x` behind
+a host-agnostic claim is genuinely not dispatchable at an exact-claimed
+host, so the 405's own `Allow` naming the winning claim's methods alone is
+the honest spelling for the resource as dispatched (the mirror test
+`testExactHostRouteTakesPrecedenceOverHostAgnosticFallback` pins it). What
+the audit filed was the OTHER half's absence: the dropped claims' methods
+were invisible everywhere -- an API consumer reading `Allow: GET` could
+not tell a host-exact claim from a table that answers one method, the
+`route:test` verb explained the 405 without the shadow, and the OpenAPI
+servers list said nothing about the reachability rule.
+
+The fix follows the issue's own union-with-host-marker direction, on the
+diagnostic side only: `RouteHostShadowedMethods` answers the methods the
+same path answers through the routes the host stage dropped, each entry
+carrying the host claim that owns it (null: the host-agnostic claim), and
+the explanation lane carries it -- `RouteMatchExplanation::shadowedMethods()`
+on both spellings of the method refusal (the method answer's own and #794's
+version-miss method judgement, whose allowed list is the host-selected
+set's and therefore bites by the same shadow), `RouteMatchSummary`'s
+bounded `shadowed=METHOD@HOST` token (`*` for the agnostic claim, each
+entry clamped to the candidate budget), the debug header's dev line, and
+the `route:test` text/JSON forms (the JSON field always present, spelled
+as its own empty answer, so a consumer's schema stays stable). The
+response's own `Allow` header deliberately does NOT carry the union: a
+client that retried a shadowed method at the same host would meet the
+405 again -- the header invites what dispatches, the diagnostic names
+what hides.
+
+The fold's judgment replays the selection's own predicates on the dropped
+routes: agnostic claims answer every host; host-claiming routes answer
+only request hosts their claim matches (`CompiledRoute::hostParameters()`
+-- the same fold the bucket judged by, canonical request host and all); a
+route whose claim does not answer the request host contributes nothing --
+it is merely elsewhere, and naming it would pretend a method one host-hop
+away belongs to this request's answer. The empty-selection guard answers
+nothing: no claim won the path, no claim cast a shadow over it. The entry
+map's key -- the method, a NUL separator, the owning host's own spelling
+(the agnostic claim's empty spelling) -- owns both the deterministic
+order (method ascending, then host ascending, the agnostic claim first
+among its method's peers because a shorter key sorts before its own
+extensions; no comparator, the `RouteMethodClaims` tuple lesson applied to
+a sort key) and the duplicate fold (two routes behind one claim spelling
+answer one entry). `RouteHostShadowedRoute` -- the per-route entry fold --
+is its own unit because the archeology difficulty ceiling scores a class
+carrying both the selection diff and the entry judgment above 20: the
+`ForwardedProtocolClaim` lesson (#797) replayed, the vocabulary a fold
+consults belongs to its own unit.
+
+The OpenAPI consequence is documented where the audit read it: the
+`servers` list's entry presence does not promise every operation is
+reachable on it (the specificity shadowing rule applies, `x-zef-host`
+carries the claim, the rule has one owner and the export is not it --
+`OpenApiServers`' docblock), and the dispatch half's own Allow semantics
+are named on `RouteDispatchHandler`. The covers-filter lesson rode the
+split: `RouteHostShadowedRoute` joins `RouteHostShadowedMethods` on the
+explainer test's covers list, or mutation testing reads the collaborator
+as unattributed.
+
 ## The authority posture
 
 "Full authority parsing" ends at an honest boundary rather than a widened
@@ -136,7 +200,19 @@ named patterns, wildcard/named composition, the 405-not-fallthrough rule
 across the exact/wildcard boundary, the request host spelled as a pattern
 (`{...}` and `*`) answering a runtime miss, the same-host method claims on
 different paths, the IPv4 literal, the refused port, and the refused
-partial-label spellings (`a*.example.com`). `tests/Router/RouterTest.php` pins the facade surface —
+partial-label spellings (`a*.example.com`); #795's own pin
+(`testTheExactHostClaimShadowsTheAgnosticMethodClaimForTheWholePath`)
+spells the audit's exact repro -- the exact claim's 405 `Allow` against the
+cross-host dispatch of the method it shadowed. `tests/Config/Routing/RouteMatchExplainerTest.php`
+carries the shadow's own battery: the agnostic and lower-specificity
+entries with their host markers, the elsewhere exclusion, the
+fallback-without-shadow, the dedupe behind one claim spelling, the
+method-then-host order with the agnostic claim first, the version-miss
+refusal carrying the shadow, the budget clamp over an overlong co-matching
+claim spelling, and the empty-selection guard. `tests/Middleware/RouteDebugMiddlewareTest.php`
+pins the dev header's `shadowed=` token end to end, and
+`tests/Tooling/RouteMatchTest.php` pins the `route:test` text and JSON
+forms. `tests/Router/RouterTest.php` pins the facade surface —
 wildcard matching through `Router::match()` and the `absoluteUrl()`
 refusal. `tests/Config/Routing/RouteTreeCacheTest.php` carries a
 wildcard-host entry through the dump/load round trip against
