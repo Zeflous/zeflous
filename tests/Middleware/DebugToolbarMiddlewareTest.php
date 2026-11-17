@@ -373,6 +373,32 @@ final class DebugToolbarMiddlewareTest extends TestCase
         self::assertStringContainsString('Trace: trace-context-duration', $body);
     }
 
+    public function testTheErrorContextTraceIdWinsOverTheCorrelationIdFallback(): void
+    {
+        // The context's trace id and its correlation id are DIFFERENT
+        // spellings here (setTraceId replaced the constructor's id, the
+        // correlation id kept it), so the toolbar's `Trace:` line must
+        // carry the trace id -- a coalesce that read the correlation id
+        // first would stamp the constructor's spelling instead.
+        HrtimeFunctionDoubles::define([2_000_000_000, 12_000_000_000]);
+
+        $errorRequestContext = new ErrorRequestContext('correlation-id-source');
+        $errorRequestContext->setTraceId('1234567890abcdef1234567890abcdef');
+
+        $response = new DebugToolbarMiddleware(true)->process(
+            $this->request('text/html')->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext),
+            new FixedResponseHandler(new Response(
+                200,
+                ['Content-Type' => 'text/html'],
+                '<html><body>context carries the trace</body></html>',
+            )),
+        );
+
+        $body = (string) $response->getBody();
+        self::assertStringContainsString('Trace: 1234567890abcdef1234567890abcdef', $body);
+        self::assertStringNotContainsString('Trace: correlation-id-source', $body);
+    }
+
     private function request(string $accept): ServerRequest
     {
         $request = new ServerRequest('GET', new Uri('https://app.example.test/'))

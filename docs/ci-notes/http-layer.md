@@ -771,3 +771,100 @@ MethodCallRemoval pemanggilan `answer()` — tanpa swap, body terkonsumsi mengal
 CompressedBody yang sudah-EOF dan gzdecode ≠ payload. ETag tetap hash representasi
 TAK-terkompresi (validator deskripsi representasi, bukan wire-nya) — spelling repro
 dipertahankan.
+
+## Fase 3 — KDD-H15 (trusted-proxy scheme, the forwarded protocol claim, #797)
+
+**H15 — paruh ketiga gerbang ingress: scheme efektif.** Audit #797: tidak ada jalur
+kode yang membaca `X-Forwarded-Proto`, sehingga topologi produksi paling umum
+(LB/proxy TLS-terminating → FastCGI http) membuat `SetCookie` `Secure`, HSTS, dan
+cookie CSRF kehilangan posturnya — skema request diturunkan HANYA dari state
+`HTTPS` miliknya sendiri (`ServerUri::scheme()`). Paruh baru mengikuti disiplin
+dua paruh yang sudah ada (KDD-H14):
+
+- **Fold** (`TrustedRequestScheme::effective()/apply()`): klaim hanya dibaca bila
+  `REMOTE_ADDR` cocok daftar proxy terpercaya DAN header hadir; nilai TERAKHIR
+  list ter-appended yang mengklaim (posisi yang proxy terpercaya tulis — walk
+  yang sama `TrustedRequestHost` jalankan); fold case-insensitive (`HTTPS`
+  dijawab `https`); klaim bersifat dua arah (http→https DAN https→http — klaim
+  otoritatif, bukan hint upgrade-only); peer tak-percaya atau list kosong =
+  skema sendiri, instance request tidak di-rewrite.
+- **Refusal operator-data**: proxy terpercaya yang mengeja nilai selain
+  `http`/`https` gagal-tutup dengan header dinamai — proxy yang di-vouch
+  operator mengeja omong kosong adalah cacat deployment yang harus terlihat,
+  bukan `http` senyap yang melucuti postur keamanan yang hendak dipersenjatai
+  klaim itu.
+- **Titik aplikasi** (`RequestFactory::validateIngress()`): fold berjalan
+  SEBELUM body guard dan me-rewrite URI request yang dikembalikan — semua
+  konsumen skema di downstream (atribut `Secure` cookie session/CSRF via
+  `SessionSettlement`/`CsrfMiddleware`, arm HSTS via
+  `ToggledSecurityHeaders`) membaca skema URI, jadi satu rewrite di ingress
+  mempersenjatai ketiganya. Ekstraksi SAPI (`ServerUri`) sengaja TIDAK
+  menyentuh header forwarded (keputusan policy proxy terpercaya milik slice
+  keamanan, bukan default ekstraksi) — docblock-nya tetap.
+- **Pins**: baterai unit sembilan-test (peer tak-percaya tak pernah dibaca,
+  upgrade http→https, twin simetris https→http, nilai terakhir list,
+  fold case, klaim absen, list kosong, refusal nonsense dengan pesan
+  penuh, rewrite URI hanya saat skema bergerak + instance sama saat tidak);
+  tiga pin ingress (repro #797 sebagai asersi yang diinginkannya — klaim
+  terpercaya `https` me-rewrite skema dan cookie session keluar membawa
+  `Secure; HttpOnly`, twin tak-percaya tidak mengubah apa pun, refusal
+  nonsense melalui gerbang penuh).
+- **Pelajaran ronde gate (difficulty ceiling, PR #859)**: draf pertama melipat
+  policy fold DAN kosakata klaim (walk list ter-appended, fold case, judgment
+  http/https, refusal) dalam SATU file `TrustedRequestScheme` — gerbang
+  arkeologi menolaknya: `php-codearch-config.yaml` `tooComplex.difficulty: 20`
+  dijawab Halstead 22,86 (satu-satunya file yang melanggar di seluruh repo;
+  lintasan SARIF merah dengan temuan level-error file DAN kelas). Kesalahan
+  bukan pada ukuran file (135 baris, LLOC 41 — jauh di bawah `tooLong`) tapi
+  pada KEPADATAN kosakata: difficulty = (operator-unik/2) × (operand-total/
+  operand-unik), jadi satu file yang memuat dua kosakata berbeda (policy
+  proxy-terpercaya + grammar klaim) melampaui langit-langit meski tiap fungsi
+  kecil. Perbaikanannya bukan melemahkan gate melainkan memecah kosakata —
+  `ForwardedProtocolClaim` kini memiliki judgment atas teks klaim itu sendiri
+  (walk `lastForwardedValue`, `mb_strtolower`, `match` http/https, refusal
+  dengan nilai dinamai), `TrustedRequestScheme` menyimpan keputusan
+  proxy-terpercaya (peer mana yang boleh mengklaim, rewrite URI saat skema
+  bergerak). Difficulty hasil: 7,88 dan 16,89 — tetangga `TrustedRequestHost`
+  hidup di 17,11, jadi 16,89 normal untuk kepadatan policy-separuh (margin
+  disiplin: jangan melipat kosakata baru ke file policy). Baterai klaim
+  enam-pin langsung ditambahkan (fold case, `http` dijawab `http`, nilai
+  terakhir list, trim whitespace, refusal nonsense pesan-penuh, klaim kosong
+  hadir-tapi-kosong refused) — edge "header hadir tapi kosong" yang sebelumnya
+  hanya tersirat kini ter-pin eksplisit di level kosakata. Preseden bagi ronde
+  berikutnya: gerbang menghakimi kepadatan per file, fold dan words berpisah
+  SEJAK DRAFT PERTAMA (preseden struktural seluruh layer ini — grammar,
+  vocabulary, policy selalu kelas terpisah).
+- **Pelajaran ronde gate lanjutan (rector + ratchet psalm, PR #859)**: dua
+  gerbang lain ikut menagih pada ronde yang sama. (1) `rector:check` menolak
+  ejaan kutip-escape `'\''` — `SimplifyQuoteEscapeRector` menuntut
+  `"'" . $claim . "'"` (nilai string tetap byte-identik, hanya ejaan);
+  `RenameVariableToMatchMethodCallReturnTypeRector` menamai variabel hasil
+  `withUri()` `$request` mengikuti tipe kembalian. Keduanya diterapkan pada
+  file ronde ini DAN dua test ronde sebelumnya yang ternyata juga melanggar
+  (CI Static ronde sebelumnya tidak pernah hijau sampai rector — catatan
+  jujur). (2) `psalm --no-cache` menolak `UnusedBaselineEntry`: fold baru
+  kini MEMANGGIL `RequestInterface::withUri()` dan `UriInterface::withScheme()`
+  sehingga dua entri `PossiblyUnusedMethod` di `psalm-baseline.xml` basi —
+  gerbang ratchet memaksa penghapusan entri yang sudah terpakai (baseline
+  menyusut, bukan tumbuh — arah ratchet yang benar).
+- **Pelajaran ronde mutasi (tiga mutant dibunuh segar, PR #859)**: ronde
+  ini memaparkan tiga mutant yang lolos dan tidak di-ignore melainkan
+  dibunuh pin segar (preseden lane injector). (a) `MBString`
+  (`mb_strtolower`→`strtolower`) di `ForwardedProtocolClaim`: pin fold
+  multibyte — ejaan fullwidth `HTTPＳ` dijawab refusal yang menamai ejaan
+  TER-FOLD (`'httpｓ'`) dalam pesan; fold byte-murni
+  meninggalkan huruf fullwidth sehingga pesan membawa ejaan tak-terfold —
+  asersi pesan-penuh membedakan keduanya. (b) `Coalesce` terbalik di
+  `DebugToolbarMiddleware` (`CorrelationId::for($request) ?? traceId`):
+  konstruktor `ErrorRequestContext` menamai correlationId == traceId
+  sehingga tes lama (trace = id konstruktor) tak bisa membedakan urutan —
+  pin baru mengganti traceId lewat `setTraceId()` (32-hex W3C, ≠ correlation
+  id) sehingga `Trace:` wajib membawa trace id; `CorrelationId::for()`
+  tidak pernah null (konteks hadir → correlationId-nya), jadi koales
+  terbalik menjawab correlation id. (c) `Continue_`→`break` di
+  `WorkflowFileCollector`: fixture stray non-yml dibuat PERTAMA di depan
+  file workflow (direktori fresh iterasi sesuai urutan pembuatan — urutan
+  yang sudah dinaiki fixture suite ini) sehingga `break` membutakan audit
+  terhadap semua workflow di belakangnya. Ketiganya diverifikasi dengan
+  mutasi terapan-manual + suite terarah gagal (teknik verifikasi KDD lane
+  Sapi/upload), lalu dibalik.

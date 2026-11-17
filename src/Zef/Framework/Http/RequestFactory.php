@@ -161,7 +161,13 @@ final class RequestFactory
      *
      * The trusted-host half runs only when an allow-list is configured (an
      * empty list means pinning is not configured, not "trust nothing");
-     * the body half always runs.
+     * the body half always runs. The scheme half (#797) applies the
+     * trusted proxy's forwarded protocol claim before the body guard, so
+     * the request the ingress answers carries the effective scheme every
+     * downstream security posture -- the `Secure` cookie attribute, HSTS
+     * -- derives from: behind a TLS-terminating proxy the request's own
+     * HTTPS state says `http`, and the security posture would silently
+     * disarm without the claim's correction.
      *
      * @api host applications and persistent-worker runtimes call this guard
      *      on requests they constructed themselves, outside the analysed
@@ -173,12 +179,16 @@ final class RequestFactory
      * @param list<string>           $trustedProxies    the trusted proxy entries
      * @param RequestBodyPolicy      $requestBodyPolicy the ingress policy the request body serves
      *
-     * @return ServerRequestInterface the request to dispatch (its body guarded,
-     *                                non-seekable bodies replaced by their probed
-     *                                contents -- see {@see IngressBody::guard()})
+     * @return ServerRequestInterface the request to dispatch (its scheme
+     *                                carrying the trusted proxy's claim, its
+     *                                body guarded, non-seekable bodies replaced
+     *                                by their probed contents -- see {@see
+     *                                IngressBody::guard()})
      *
      * @throws HttpException when either host form is untrusted, the request
-     *                       carries no host, or the body exceeds the policy
+     *                       carries no host, a trusted proxy's forwarded
+     *                       protocol claim refuses the scheme grammar, or the
+     *                       body exceeds the policy
      */
     public static function validateIngress(
         ServerRequestInterface $serverRequest,
@@ -190,7 +200,9 @@ final class RequestFactory
             TrustedRequestHost::assert($serverRequest, $trustedHosts, $trustedProxies);
         }
 
-        return IngressBody::guard($serverRequest, $requestBodyPolicy);
+        $effectiveScheme = TrustedRequestScheme::apply($serverRequest, $trustedProxies);
+
+        return IngressBody::guard($effectiveScheme, $requestBodyPolicy);
     }
 
     /**
