@@ -17,6 +17,7 @@ use Zef\Framework\Config\Routing\RouteMatchDescent;
 use Zef\Framework\Config\Routing\RouteMatchExplainer;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
 use Zef\Framework\Config\Routing\RouteMatchNeighborhood;
+use Zef\Framework\Config\Routing\RouteMatchOutcome;
 use Zef\Framework\Config\Routing\RouteMatchStages;
 use Zef\Framework\Config\Routing\RouteMatchSummary;
 use Zef\Framework\Config\Routing\RouteSubtreePatterns;
@@ -36,6 +37,7 @@ use Zef\Framework\Config\Routing\RouteVersionMiss;
  */
 #[CoversClass(RouteMatchExplanation::class)]
 #[CoversClass(RouteMatchExplainer::class)]
+#[CoversClass(RouteMatchOutcome::class)]
 #[CoversClass(RouteMatchStages::class)]
 #[CoversClass(RouteVersionMiss::class)]
 #[CoversClass(RouteAllowedMethods::class)]
@@ -473,7 +475,7 @@ final class RouteMatchExplainerTest extends TestCase
     {
         self::assertSame(
             RouteMatchExplanation::OUTCOME_FOUND,
-            RouteMatchExplanation::outcomeOf(MatchResult::found(CompiledRoute::fromArray([
+            RouteMatchOutcome::of(MatchResult::found(CompiledRoute::fromArray([
                 'path' => '/users',
                 'method' => ['GET'],
                 'handler' => 'Users@index',
@@ -481,15 +483,15 @@ final class RouteMatchExplainerTest extends TestCase
         );
         self::assertSame(
             RouteMatchExplanation::OUTCOME_METHOD_NOT_ALLOWED,
-            RouteMatchExplanation::outcomeOf(MatchResult::methodNotAllowed(['GET'])),
+            RouteMatchOutcome::of(MatchResult::methodNotAllowed(['GET'])),
         );
         self::assertSame(
             RouteMatchExplanation::OUTCOME_NOT_ACCEPTABLE,
-            RouteMatchExplanation::outcomeOf(MatchResult::notAcceptable(['application/json'])),
+            RouteMatchOutcome::of(MatchResult::notAcceptable(['application/json'])),
         );
         self::assertSame(
             RouteMatchExplanation::OUTCOME_NOT_FOUND,
-            RouteMatchExplanation::outcomeOf(MatchResult::notFound()),
+            RouteMatchOutcome::of(MatchResult::notFound()),
         );
     }
 

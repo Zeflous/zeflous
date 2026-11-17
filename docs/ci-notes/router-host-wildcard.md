@@ -160,7 +160,14 @@ answer one entry). `RouteHostShadowedRoute` -- the per-route entry fold --
 is its own unit because the archeology difficulty ceiling scores a class
 carrying both the selection diff and the entry judgment above 20: the
 `ForwardedProtocolClaim` lesson (#797) replayed, the vocabulary a fold
-consults belongs to its own unit.
+consults belongs to its own unit. The round's own gate replay also
+taught the method-count twin of that lesson: `shadowedMethods()` pushed
+`RouteMatchExplanation` to 21 methods, over Sonar's S1448 ceiling (20
+authorized), and the honest fix was the same split -- `RouteMatchOutcome`
+(`of()`, the MatchResult-to-spelling fold the span's status, the meter's
+dimensions and the `route:test` answer read) extracted from the value
+object it never belonged to, no exclusion added, the spellings still
+owned by the explanation the fold translates into.
 
 The OpenAPI consequence is documented where the audit read it: the
 `servers` list's entry presence does not promise every operation is

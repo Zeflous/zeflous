@@ -411,19 +411,4 @@ final readonly class RouteMatchExplanation
     {
         return RouteMatchSummary::render($this);
     }
-
-    /**
-     * The outcome a match result settled on, in this vocabulary's
-     * own closed spellings -- the fold the span's status and the
-     * meter's dimensions both read, so the vocabulary has one owner.
-     */
-    public static function outcomeOf(MatchResult $matchResult): string
-    {
-        return match (true) {
-            $matchResult->isFound() => self::OUTCOME_FOUND,
-            $matchResult->isMethodNotAllowed() => self::OUTCOME_METHOD_NOT_ALLOWED,
-            $matchResult->isNotAcceptable() => self::OUTCOME_NOT_ACCEPTABLE,
-            default => self::OUTCOME_NOT_FOUND,
-        };
-    }
 }

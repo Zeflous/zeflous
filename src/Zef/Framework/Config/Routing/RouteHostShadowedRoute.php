@@ -35,25 +35,25 @@ final class RouteHostShadowedRoute
      * One dropped route's entries: the methods it answers, each with
      * the host claim that owns it.
      *
-     * @param CompiledRoute $route       a route the host stage did not select
-     * @param null|string   $requestHost the request host the selection judged
+     * @param CompiledRoute $compiledRoute a route the host stage did not select
+     * @param null|string   $requestHost   the request host the selection judged
      *
      * @return list<array{method: string, host: null|string}> the route's
      *                                                        shadow entries, empty
      *                                                        when the route is
      *                                                        merely elsewhere
      */
-    public static function entries(CompiledRoute $route, ?string $requestHost): array
+    public static function entries(CompiledRoute $compiledRoute, ?string $requestHost): array
     {
-        $host = $route->host();
+        $host = $compiledRoute->host();
 
-        if ($host !== null && $route->hostParameters($requestHost) === null) {
+        if ($host !== null && $compiledRoute->hostParameters($requestHost) === null) {
             return [];
         }
 
         $entries = [];
 
-        foreach ($route->methods() as $method) {
+        foreach ($compiledRoute->methods() as $method) {
             $entries[] = ['method' => $method, 'host' => $host];
         }
 

@@ -7,6 +7,7 @@ namespace Zef\Framework\Middleware;
 use Throwable;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
+use Zef\Framework\Config\Routing\RouteMatchOutcome;
 use Zef\Framework\Telemetry\SpanInterface;
 use Zef\Framework\Telemetry\TracerInterface;
 
@@ -80,7 +81,7 @@ final readonly class RouteMatchSpan
      */
     public function recordAnswer(MatchResult $matchResult): void
     {
-        $outcome = RouteMatchExplanation::outcomeOf($matchResult);
+        $outcome = RouteMatchOutcome::of($matchResult);
         $attributes = ['router.match.outcome' => $outcome];
 
         if ($matchResult->isFound()) {

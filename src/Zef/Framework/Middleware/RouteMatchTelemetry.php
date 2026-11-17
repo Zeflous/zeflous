@@ -8,7 +8,7 @@ use Closure;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 use Zef\Framework\Config\Routing\MatchResult;
-use Zef\Framework\Config\Routing\RouteMatchExplanation;
+use Zef\Framework\Config\Routing\RouteMatchOutcome;
 use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Framework\Telemetry\TelemetryClockInterface;
 use Zef\Framework\Telemetry\TracerInterface;
@@ -96,7 +96,7 @@ final readonly class RouteMatchTelemetry
         }
 
         $durationNs = $this->telemetryClock->monotonicNs() - $startedNs;
-        $outcome = RouteMatchExplanation::outcomeOf($matchResult);
+        $outcome = RouteMatchOutcome::of($matchResult);
 
         $routeMatchSpan->recordAnswer($matchResult);
         $routeMatchSpan->end();
