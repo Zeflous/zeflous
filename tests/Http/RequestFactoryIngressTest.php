@@ -653,7 +653,7 @@ final class RequestFactoryIngressTest extends TestCase
 
         $this->assertThrows(
             'The X-Forwarded-Proto claim a trusted proxy delivered must be http or https, '
-            . '\'banana\' given.',
+            . "'banana' given.",
             static function () use ($arrival): void {
                 RequestFactory::validateIngress(
                     $arrival,

@@ -20,18 +20,15 @@ use Psr\Http\Message\ServerRequestInterface;
  * and honouring it is the same trusted-proxy policy decision the
  * forwarded Host ({@see TrustedRequestHost}) and the forwarded For
  * ({@see ClientAddress}) already carry: an untrusted peer's claim is
- * never read, and of a comma-separated appended list only the LAST value
- * can claim trust -- under the standard appending proxy that is the
- * position the trusted proxy wrote, every entry before it is
- * client-supplied.
+ * never read, and of the comma-separated appended list only the last
+ * value can claim trust -- the walk and the vocabulary judgement the
+ * claim's own text carries live in {@see ForwardedProtocolClaim}.
  *
  * The claim is operator data, not client input: a trusted proxy claiming
- * a value that is neither `http` nor `https` (case-insensitively folded)
- * refuses loudly with the header named, the same fail-closed posture the
- * forwarded Host's grammar judgement carries -- a proxy the operator
- * vouched for spelling nonsense is a deployment defect the operator
- * must see, never a silent `http` that disarms the security posture the
- * claim was supposed to arm.
+ * a value that is neither `http` nor `https` refuses loudly with the
+ * value named -- a proxy the operator vouched for spelling nonsense is a
+ * deployment defect the operator must see, never a silent `http` that
+ * disarms the security posture the claim was supposed to arm.
  */
 final class TrustedRequestScheme
 {
@@ -64,15 +61,7 @@ final class TrustedRequestScheme
             return self::own($serverRequest);
         }
 
-        $claim = mb_strtolower(self::lastForwardedValue($serverRequest->getHeaderLine('X-Forwarded-Proto')));
-
-        return match ($claim) {
-            'http', 'https' => $claim,
-            default => throw new HttpException(
-                'The X-Forwarded-Proto claim a trusted proxy delivered must be http or https, '
-                . '\'' . $claim . '\' given.',
-            ),
-        };
+        return ForwardedProtocolClaim::effective($serverRequest->getHeaderLine('X-Forwarded-Proto'));
     }
 
     /**
@@ -101,10 +90,10 @@ final class TrustedRequestScheme
             return $serverRequest;
         }
 
-        $rewritten = $serverRequest->withUri($serverRequest->getUri()->withScheme($effective));
-        \assert($rewritten instanceof ServerRequestInterface, 'withUri() must preserve the request type.');
+        $request = $serverRequest->withUri($serverRequest->getUri()->withScheme($effective));
+        \assert($request instanceof ServerRequestInterface, 'withUri() must preserve the request type.');
 
-        return $rewritten;
+        return $request;
     }
 
     /**
@@ -118,18 +107,5 @@ final class TrustedRequestScheme
         $scheme = $serverRequest->getUri()->getScheme();
 
         return $scheme === 'https' ? 'https' : 'http';
-    }
-
-    /**
-     * Answers the last value of a comma-separated forwarded list: the
-     * appended end is the position the trusted proxy vouches for, every
-     * earlier entry is client-supplied and claims nothing -- the same
-     * walk {@see TrustedRequestHost} runs over the forwarded Host.
-     */
-    private static function lastForwardedValue(string $value): string
-    {
-        $candidates = explode(',', $value);
-
-        return mb_trim($candidates[\count($candidates) - 1]);
     }
 }

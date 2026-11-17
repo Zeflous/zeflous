@@ -100,4 +100,32 @@ final class WorkflowFileCollectorTest extends TestCase
 
         self::assertSame([], $workflows);
     }
+
+    public function testAStrayNonWorkflowFileNeverEndsTheWalk(): void
+    {
+        // The extension filter SKIPS a non-yml sibling, it never
+        // terminates the iteration: the stray text file is created FIRST
+        // (fresh directories iterate in creation order, the order this
+        // suite's own fixtures already ride), so a walk that broke at it
+        // would leave the collection empty and the concurrency audit
+        // blind to every workflow file behind it.
+        $root = (string) tempnam(sys_get_temp_dir(), 'zef-wf-skip-');
+        unlink($root);
+        mkdir($root . '/.github/workflows', 0o777, true);
+        file_put_contents($root . '/.github/workflows/0-stray.txt', 'stray');
+        file_put_contents($root . '/.github/workflows/a.yml', "name: A\n");
+
+        try {
+            $workflows = new WorkflowFileCollector($root)->collect();
+
+            self::assertSame(['a.yml'], array_keys($workflows));
+            self::assertSame("name: A\n", $workflows['a.yml']);
+        } finally {
+            unlink($root . '/.github/workflows/0-stray.txt');
+            unlink($root . '/.github/workflows/a.yml');
+            rmdir($root . '/.github/workflows');
+            rmdir($root . '/.github');
+            rmdir($root);
+        }
+    }
 }

@@ -107,7 +107,7 @@ final class TrustedRequestSchemeTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 'The X-Forwarded-Proto claim a trusted proxy delivered must be http or https, '
-                . '\'banana\' given.',
+                . "'banana' given.",
                 $httpException->getMessage(),
             );
         }

@@ -18,7 +18,6 @@
   <file src="src/Contracts/Psr/Http/Message/RequestInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[withRequestTarget]]></code>
-      <code><![CDATA[withUri]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Contracts/Psr/Http/Message/ResponseFactoryInterface.php">
@@ -84,7 +83,6 @@
       <code><![CDATA[withPath]]></code>
       <code><![CDATA[withPort]]></code>
       <code><![CDATA[withQuery]]></code>
-      <code><![CDATA[withScheme]]></code>
       <code><![CDATA[withUserInfo]]></code>
     </PossiblyUnusedMethod>
   </file>
