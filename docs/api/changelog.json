@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-16T15:18:37Z",
+  "as_of": "2026-11-17T07:46:58Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 336,
+  "unreleased_count": 338,
   "versions": [
     {
       "version": "Unreleased",
@@ -7561,6 +7561,88 @@
                 "sha": "5feea62b067e8a27fc917ea6b438c21219cfcd08",
                 "short_sha": "5feea62",
                 "subject": "docs(roadmap): the pin rides the toggle grammar's head (#855)"
+              }
+            ]
+          },
+          {
+            "pr": 856,
+            "title": "fix(http): the slow-request record joins the response stamp on the boundary's own mint (issue #796)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-16T17:15:19Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/856",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "72a6a88c19ab6b179118cde4a17556daf9c64036",
+                "short_sha": "72a6a88",
+                "subject": "fix(http): the slow-request record joins the response stamp on the boundary's own mint (issue #796)"
+              },
+              {
+                "sha": "51d0bce99e8512753a1ad9d79b30952f4ed0c850",
+                "short_sha": "51d0bce",
+                "subject": "docs(roadmap): the pin rides the correlation join's head (#856)"
+              },
+              {
+                "sha": "026f58d42b934a1810f8cc46115602da1e067bd7",
+                "short_sha": "026f58d",
+                "subject": "fix(http): the consult spells the exclusive type control the rector round named (issue #796)"
+              },
+              {
+                "sha": "6a3bd8ec58fa5b5917ccdb1018933e289ad9a55c",
+                "short_sha": "6a3bd8e",
+                "subject": "docs(roadmap): the pin rides the rector round's head (#856)"
+              },
+              {
+                "sha": "42219c56e6b18cea3b9157d77fd7ae53a600bfb9",
+                "short_sha": "42219c5",
+                "subject": "docs(roadmap): the pin names the rector round's own code commit (#856)"
+              },
+              {
+                "sha": "7ec6fc6f7426319edfdd46767d7844d56b8f765f",
+                "short_sha": "7ec6fc6",
+                "subject": "test(http): the mint consult's collaborator joins the covers list it rides (the covers-filter lesson, Sonar's uncovered lines were the getter no covers list named)"
+              },
+              {
+                "sha": "6954c2752df911cbb2db740617033928f2b02370",
+                "short_sha": "6954c27",
+                "subject": "docs(roadmap): the pin rides the covers round's head (#856)"
+              },
+              {
+                "sha": "59f00494a8151eec14ae40cbde8dee557e603daf",
+                "short_sha": "59f0049",
+                "subject": "docs(roadmap): the covers round's pin names the covers round's own code commit (#856)"
+              }
+            ]
+          },
+          {
+            "pr": 859,
+            "title": "fix(http): the trusted proxy's forwarded protocol claim arms the scheme posture (issue #797)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-17T07:46:58Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/859",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ec8d0a241659b117a1c81c7881e298ff5f3f208d",
+                "short_sha": "ec8d0a2",
+                "subject": "fix(http): the trusted proxy's forwarded protocol claim arms the scheme posture (issue #797)"
+              },
+              {
+                "sha": "a5dcfc589d8a2a45d388a7d8df8607487654a789",
+                "short_sha": "a5dcfc5",
+                "subject": "docs(roadmap): the pin rides the forwarded-scheme round's head (#859)"
+              },
+              {
+                "sha": "80dc708c7473e3d35e7985bb7fa2a422016c41a5",
+                "short_sha": "80dc708",
+                "subject": "refactor(http): the forwarded protocol claim vocabulary takes its own collaborator (the archeology difficulty ceiling, issue #797)"
+              },
+              {
+                "sha": "378b45a2e7cae3fbec505fdcd6b348d50258dfc2",
+                "short_sha": "378b45a",
+                "subject": "docs(roadmap): the pin rides the forwarded-scheme round's difficulty-split head (#859)"
               }
             ]
           }
@@ -23065,6 +23147,88 @@
               "sha": "5feea62b067e8a27fc917ea6b438c21219cfcd08",
               "short_sha": "5feea62",
               "subject": "docs(roadmap): the pin rides the toggle grammar's head (#855)"
+            }
+          ]
+        },
+        {
+          "pr": 856,
+          "title": "fix(http): the slow-request record joins the response stamp on the boundary's own mint (issue #796)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-16T17:15:19Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/856",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "72a6a88c19ab6b179118cde4a17556daf9c64036",
+              "short_sha": "72a6a88",
+              "subject": "fix(http): the slow-request record joins the response stamp on the boundary's own mint (issue #796)"
+            },
+            {
+              "sha": "51d0bce99e8512753a1ad9d79b30952f4ed0c850",
+              "short_sha": "51d0bce",
+              "subject": "docs(roadmap): the pin rides the correlation join's head (#856)"
+            },
+            {
+              "sha": "026f58d42b934a1810f8cc46115602da1e067bd7",
+              "short_sha": "026f58d",
+              "subject": "fix(http): the consult spells the exclusive type control the rector round named (issue #796)"
+            },
+            {
+              "sha": "6a3bd8ec58fa5b5917ccdb1018933e289ad9a55c",
+              "short_sha": "6a3bd8e",
+              "subject": "docs(roadmap): the pin rides the rector round's head (#856)"
+            },
+            {
+              "sha": "42219c56e6b18cea3b9157d77fd7ae53a600bfb9",
+              "short_sha": "42219c5",
+              "subject": "docs(roadmap): the pin names the rector round's own code commit (#856)"
+            },
+            {
+              "sha": "7ec6fc6f7426319edfdd46767d7844d56b8f765f",
+              "short_sha": "7ec6fc6",
+              "subject": "test(http): the mint consult's collaborator joins the covers list it rides (the covers-filter lesson, Sonar's uncovered lines were the getter no covers list named)"
+            },
+            {
+              "sha": "6954c2752df911cbb2db740617033928f2b02370",
+              "short_sha": "6954c27",
+              "subject": "docs(roadmap): the pin rides the covers round's head (#856)"
+            },
+            {
+              "sha": "59f00494a8151eec14ae40cbde8dee557e603daf",
+              "short_sha": "59f0049",
+              "subject": "docs(roadmap): the covers round's pin names the covers round's own code commit (#856)"
+            }
+          ]
+        },
+        {
+          "pr": 859,
+          "title": "fix(http): the trusted proxy's forwarded protocol claim arms the scheme posture (issue #797)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-17T07:46:58Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/859",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ec8d0a241659b117a1c81c7881e298ff5f3f208d",
+              "short_sha": "ec8d0a2",
+              "subject": "fix(http): the trusted proxy's forwarded protocol claim arms the scheme posture (issue #797)"
+            },
+            {
+              "sha": "a5dcfc589d8a2a45d388a7d8df8607487654a789",
+              "short_sha": "a5dcfc5",
+              "subject": "docs(roadmap): the pin rides the forwarded-scheme round's head (#859)"
+            },
+            {
+              "sha": "80dc708c7473e3d35e7985bb7fa2a422016c41a5",
+              "short_sha": "80dc708",
+              "subject": "refactor(http): the forwarded protocol claim vocabulary takes its own collaborator (the archeology difficulty ceiling, issue #797)"
+            },
+            {
+              "sha": "378b45a2e7cae3fbec505fdcd6b348d50258dfc2",
+              "short_sha": "378b45a",
+              "subject": "docs(roadmap): the pin rides the forwarded-scheme round's difficulty-split head (#859)"
             }
           ]
         }
