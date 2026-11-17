@@ -217,6 +217,77 @@ final class RouteMatchTest extends TestCase
         self::assertSame([], $explanation['producibleMediaTypes']);
     }
 
+    /**
+     * The #795 shadowed methods in the operator's answer: a 405 whose
+     * `Allow` names the winning claim's methods alone also names the
+     * methods the same path answers behind the host claims the
+     * specificity dropped -- the agnostic claim spelled `POST@*`,
+     * the host-claimed ones with their own spellings.
+     */
+    public function testAMethodNotAllowedAnswerSpellsTheShadowedMethods(): void
+    {
+        $answer = RouteMatchAnswer::answered(
+            Router::fromRoutes([
+                ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+                ['path' => '/x', 'method' => ['POST'], 'handler' => 'Agnostic@create'],
+                [
+                    'path' => '/x',
+                    'method' => ['DELETE'],
+                    'handler' => 'Tenant@destroy',
+                    'host' => '{tenant}.example.com',
+                ],
+            ]),
+            'PUT',
+            '/x',
+            'api.example.com',
+        );
+
+        self::assertSame(
+            "match method_not_allowed\n"
+            . "  stage:       method\n"
+            . "  survivors:   path 3, host 1, version 1\n"
+            . "  allowed:     GET\n"
+            . "  shadowed:    DELETE@{tenant}.example.com,POST@*\n",
+            RouteMatchText::rendered($answer),
+        );
+    }
+
+    /**
+     * The shadowed methods in the JSON form: every entry the method
+     * and the host claim that owns it (null: the host-agnostic
+     * claim), the field always present so a consumer's schema is
+     * stable across every outcome.
+     */
+    public function testTheJsonAnswerCarriesTheShadowedMethodsWithTheirHostClaims(): void
+    {
+        $router = Router::fromRoutes([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Agnostic@create'],
+        ]);
+
+        $refusal = $this->decoded(
+            RouteMatchJson::rendered(RouteMatchAnswer::answered($router, 'POST', '/x', 'api.example.com')),
+        );
+
+        self::assertSame('method_not_allowed', $refusal['outcome']);
+
+        $refusalExplanation = $this->mapAt($refusal['explanation']);
+
+        self::assertSame(['GET'], $refusalExplanation['allowedMethods']);
+        self::assertSame(
+            [['method' => 'POST', 'host' => null]],
+            $this->mapAt($refusalExplanation['shadowedMethods']),
+        );
+
+        $found = $this->decoded(
+            RouteMatchJson::rendered(RouteMatchAnswer::answered($router, 'POST', '/x', 'other.example.com')),
+        );
+
+        $foundExplanation = $this->mapAt($found['explanation']);
+
+        self::assertSame([], $foundExplanation['shadowedMethods']);
+    }
+
     private function router(): Router
     {
         $table = require \dirname(__DIR__, 2) . '/tests/Scripts/fixtures/configs/routes.php';

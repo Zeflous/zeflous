@@ -78,6 +78,30 @@ final class RouteDebugMiddlewareTest extends TestCase
         );
     }
 
+    /**
+     * The #795 shadowed methods on the dev surface: a 405 whose
+     * `Allow` names only the winning claim's methods also discloses
+     * the methods the same path answers behind the host claims the
+     * specificity dropped, each with the host spelling that owns it.
+     */
+    public function testStampsTheShadowedMethodsOnAMethodRefusalBehindAHostClaim(): void
+    {
+        $routeDebugMiddleware = new RouteDebugMiddleware(Router::fromRoutes([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Agnostic@create'],
+        ]));
+
+        $response = $routeDebugMiddleware->process(
+            $this->request('POST', '/x'),
+            new FixedResponseHandler($this->response(405)),
+        );
+
+        self::assertSame(
+            'stage=method survivors=path:2,host:1,version:1 allowed=GET shadowed=POST@*',
+            $response->getHeaderLine(RouteDebugMiddleware::DEBUG_HEADER),
+        );
+    }
+
     public function testStampsTheProducibleMediaTypesOnANegotiationRefusal(): void
     {
         $response = $this->middleware()->process(

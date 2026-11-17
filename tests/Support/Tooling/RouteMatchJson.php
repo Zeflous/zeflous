@@ -13,9 +13,11 @@ use Zef\Framework\Config\Routing\RouteMatchExplanation;
  * own record shape, {@see RouteListJson}) with its captured
  * parameters, and the explanation's own fields (the failing stage,
  * the narrowing the pipeline performed, the deepest shared prefix,
- * the capped candidate patterns, the allowed methods, the producible
- * media types) -- every field always present, the irrelevant ones
- * spelled as their own empty answers, so a consumer's schema is
+ * the capped candidate patterns, the allowed methods, the #795
+ * shadowed methods -- each entry the method and the host claim that
+ * owns it, the host-agnostic claim spelled `null` -- and the
+ * producible media types) -- every field always present, the irrelevant
+ * ones spelled as their own empty answers, so a consumer's schema is
  * stable across every outcome.
  */
 final readonly class RouteMatchJson
@@ -41,6 +43,7 @@ final readonly class RouteMatchJson
                 'sharedPrefix' => $explanation->sharedPrefix(),
                 'candidatePatterns' => $explanation->neighborPatterns(),
                 'allowedMethods' => $explanation->allowedMethods(),
+                'shadowedMethods' => $explanation->shadowedMethods(),
                 'producibleMediaTypes' => $explanation->producibleMediaTypes(),
             ],
         ]);

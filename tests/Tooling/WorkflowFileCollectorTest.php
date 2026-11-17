@@ -56,8 +56,8 @@ final class WorkflowFileCollectorTest extends TestCase
 
     public function testIgnoresNestedWorkflowDirectoriesLikeGitHubDoes(): void
     {
-        mkdir($this->root . '/.github/workflows/nested', 0o777, true);
-        file_put_contents($this->root . '/.github/workflows/nested/c.yml', "name: C\n");
+        mkdir($this->root . '/.github/workflows/0-nested', 0o777, true);
+        file_put_contents($this->root . '/.github/workflows/0-nested/c.yml', "name: C\n");
 
         try {
             $workflows = new WorkflowFileCollector($this->root)->collect();
@@ -65,8 +65,8 @@ final class WorkflowFileCollectorTest extends TestCase
             self::assertArrayNotHasKey('c.yml', $workflows);
             self::assertSame(['a.yaml', 'b.yml'], array_keys($workflows));
         } finally {
-            unlink($this->root . '/.github/workflows/nested/c.yml');
-            rmdir($this->root . '/.github/workflows/nested');
+            unlink($this->root . '/.github/workflows/0-nested/c.yml');
+            rmdir($this->root . '/.github/workflows/0-nested');
         }
     }
 
@@ -104,11 +104,12 @@ final class WorkflowFileCollectorTest extends TestCase
     public function testAStrayNonWorkflowFileNeverEndsTheWalk(): void
     {
         // The extension filter SKIPS a non-yml sibling, it never
-        // terminates the iteration: the stray text file is created FIRST
-        // (fresh directories iterate in creation order, the order this
-        // suite's own fixtures already ride), so a walk that broke at it
-        // would leave the collection empty and the concurrency audit
-        // blind to every workflow file behind it.
+        // terminates the iteration: the walk is sorted by name
+        // (KDD-MO6), and `0-stray.txt` sorts before `a.yml` on every
+        // host, so a walk that broke at it would leave the collection
+        // empty and the concurrency audit blind to every workflow file
+        // behind it -- the same deterministic order the subdirectory
+        // skip (`0-nested`) rides in its own test.
         $root = (string) tempnam(sys_get_temp_dir(), 'zef-wf-skip-');
         unlink($root);
         mkdir($root . '/.github/workflows', 0o777, true);

@@ -17,7 +17,11 @@ namespace Zef\Framework\Config\Routing;
  * by characters, never byte-sliced), the control bytes a request
  * path could carry stripped, and the closed vocabularies (stage
  * names, method names) rendered as-is -- the dev surface must not
- * become the reflection surface.
+ * become the reflection surface. The #795 shadowed-methods token
+ * rides the same discipline: each entry is the method and the host
+ * claim that owns it (the host-agnostic claim rendered as the `*`
+ * spelling), the whole entry clamped to the candidate budget because
+ * a host claim, unlike a method name, is not a closed vocabulary.
  *
  * @internal
  */
@@ -60,6 +64,16 @@ final class RouteMatchSummary
 
         if ($routeMatchExplanation->allowedMethods() !== []) {
             $tokens[] = 'allowed=' . implode(',', $routeMatchExplanation->allowedMethods());
+        }
+
+        if ($routeMatchExplanation->shadowedMethods() !== []) {
+            $tokens[] = 'shadowed=' . implode(',', array_map(
+                static fn (array $entry): string => self::clamped(
+                    $entry['method'] . '@' . ($entry['host'] ?? '*'),
+                    self::CANDIDATE_BUDGET,
+                ),
+                $routeMatchExplanation->shadowedMethods(),
+            ));
         }
 
         if ($routeMatchExplanation->producibleMediaTypes() !== []) {

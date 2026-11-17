@@ -384,6 +384,37 @@ final class RadixTreeTest extends TestCase
         ]);
     }
 
+    /**
+     * The #795 sharp edge, spelled exactly as the audit filed it: the
+     * host-exact claim wins the whole path for every method, so the
+     * same request the agnostic claim would answer elsewhere is a 405
+     * at the exact host -- and the 405's own Allow names the claim's
+     * methods alone (the shadowed methods behind the dropped claim
+     * live in the explanation lane, not in the dispatch payload).
+     */
+    public function testTheExactHostClaimShadowsTheAgnosticMethodClaimForTheWholePath(): void
+    {
+        $radixTree = RadixTree::compile([
+            ['path' => '/x', 'method' => ['GET'], 'handler' => 'Exact@show', 'host' => 'api.example.com'],
+            ['path' => '/x', 'method' => ['POST'], 'handler' => 'Agnostic@create'],
+        ]);
+
+        $shadowedMethod = $radixTree->match('POST', '/x', 'api.example.com');
+        self::assertTrue($shadowedMethod->isMethodNotAllowed());
+        self::assertSame(['GET'], $shadowedMethod->allowedMethods());
+
+        self::assertSame(
+            'Agnostic@create',
+            $radixTree->match('POST', '/x', 'www.example.com')->route()->handler(),
+            'the same request at another host dispatches the claim the exact host shadowed',
+        );
+
+        self::assertSame(
+            'Exact@show',
+            $radixTree->match('GET', '/x', 'api.example.com')->route()->handler(),
+        );
+    }
+
     public function testExactHostRouteTakesPrecedenceOverHostAgnosticFallback(): void
     {
         $radixTree = RadixTree::compile([

@@ -19,9 +19,15 @@ namespace Zef\Framework\Config\Routing;
  * the request path still descends into and the route patterns that
  * live under it ({@see RouteMatchNeighborhood}), the "what you
  * probably meant" of a 404. A method-stage miss carries the sorted
- * methods the matched path does answer; an accept-stage miss the
- * media types the matched route does produce -- the same payloads
- * {@see MatchResult} carries for the rendered refusal.
+ * methods the matched path does answer; since #795 it also carries
+ * the host-shadowed methods -- the methods the same path answers
+ * through the routes the host specificity dropped, each with the
+ * host claim that owns it, the diagnostic union across the buckets
+ * the response's own `Allow` header (the selected claim's methods,
+ * the honest dispatch spelling) deliberately refuses to be; an
+ * accept-stage miss the media types the matched route does produce
+ * -- the same payloads {@see MatchResult} carries for the rendered
+ * refusal.
  *
  * The outcome vocabulary is the closed set the router's own metrics
  * and headers spell ({@see self::OUTCOME_*}): found, not_found,
@@ -68,11 +74,15 @@ final readonly class RouteMatchExplanation
     public const string STAGE_ACCEPT = 'accept';
 
     /**
-     * @param list<string> $neighborPatterns     the patterns under the deepest
-     *                                           shared static prefix (path stage)
-     * @param list<string> $allowedMethods       the methods a matched path answers
-     * @param list<string> $producibleMediaTypes the media types a matched route
-     *                                           produces
+     * @param list<string>                                   $neighborPatterns     the patterns under the deepest
+     *                                                                             shared static prefix (path stage)
+     * @param list<string>                                   $allowedMethods       the methods a matched path answers
+     * @param list<array{method: string, host: null|string}> $shadowedMethods
+     *                                                                             the methods the same path answers
+     *                                                                             through the host claims the
+     *                                                                             specificity selection dropped
+     * @param list<string>                                   $producibleMediaTypes the media types a matched route
+     *                                                                             produces
      */
     private function __construct(
         private string $outcome,
@@ -83,6 +93,7 @@ final readonly class RouteMatchExplanation
         private string $sharedPrefix,
         private array $neighborPatterns,
         private array $allowedMethods,
+        private array $shadowedMethods,
         private array $producibleMediaTypes,
     ) {
     }
@@ -99,6 +110,7 @@ final readonly class RouteMatchExplanation
             $hostSurvivors,
             $versionSurvivors,
             '',
+            [],
             [],
             [],
             [],
@@ -126,6 +138,7 @@ final readonly class RouteMatchExplanation
             $neighborPatterns,
             [],
             [],
+            [],
         );
     }
 
@@ -143,6 +156,7 @@ final readonly class RouteMatchExplanation
             0,
             $versionSurvivors,
             '',
+            [],
             [],
             [],
             [],
@@ -166,6 +180,7 @@ final readonly class RouteMatchExplanation
             [],
             [],
             [],
+            [],
         );
     }
 
@@ -180,10 +195,15 @@ final readonly class RouteMatchExplanation
      * failed -- while the outcome carries the method verdict the miss
      * fold answered with.
      *
-     * @param list<string> $allowedMethods every method the path's routes answer
+     * @param list<string>                                   $allowedMethods  every method the path's routes answer
+     * @param list<array{method: string, host: null|string}> $shadowedMethods
+     *                                                                        the methods the same path answers
+     *                                                                        through the host claims the
+     *                                                                        specificity selection dropped
      */
     public static function versionMissMethodRefusal(
         array $allowedMethods,
+        array $shadowedMethods,
         int $pathSurvivors,
         int $hostSurvivors,
     ): self {
@@ -196,6 +216,7 @@ final readonly class RouteMatchExplanation
             '',
             [],
             $allowedMethods,
+            $shadowedMethods,
             [],
         );
     }
@@ -204,10 +225,21 @@ final readonly class RouteMatchExplanation
      * The explanation of a refusal the method answer gave: the path
      * matched, and the methods it answers exclude the request's own.
      *
-     * @param list<string> $allowedMethods
+     * The 405's own `Allow` stays the selected claim's methods (the
+     * honest spelling for the resource as dispatched at the request
+     * host -- a method the host specificity dropped is not
+     * dispatchable there); the shadowed methods are the diagnostic
+     * other half (#795): the methods the same path answers through the
+     * claims the selection dropped, each carrying the host claim
+     * that owns it.
+     *
+     * @param list<string>                                   $allowedMethods  the selected claim's methods
+     * @param list<array{method: string, host: null|string}> $shadowedMethods
+     *                                                                        the methods behind the dropped claims
      */
     public static function methodRefusal(
         array $allowedMethods,
+        array $shadowedMethods,
         int $pathSurvivors,
         int $hostSurvivors,
         int $versionSurvivors,
@@ -221,6 +253,7 @@ final readonly class RouteMatchExplanation
             '',
             [],
             $allowedMethods,
+            $shadowedMethods,
             [],
         );
     }
@@ -245,6 +278,7 @@ final readonly class RouteMatchExplanation
             $hostSurvivors,
             $versionSurvivors,
             '',
+            [],
             [],
             [],
             $producibleMediaTypes,
@@ -336,6 +370,25 @@ final readonly class RouteMatchExplanation
     }
 
     /**
+     * The methods the same path answers through the host claims the
+     * specificity selection dropped -- carried by a method-stage
+     * refusal (either spelling: the method answer's own, and the
+     * version miss's method judgement), each entry the method and
+     * the host claim that owns it (null: the host-agnostic claim). The
+     * response's own `Allow` header deliberately stays the selected
+     * claim's methods ({@see RouteAllowedMethods}) -- the shadowed
+     * list is the diagnostic union across the buckets, never the
+     * dispatch answer -- so a client reading the header is never
+     * invited to retry a method the table would refuse again (#795).
+     *
+     * @return list<array{method: string, host: null|string}>
+     */
+    public function shadowedMethods(): array
+    {
+        return $this->shadowedMethods;
+    }
+
+    /**
      * The media types the matched route produces -- carried by an
      * accept-stage refusal.
      *
@@ -357,20 +410,5 @@ final readonly class RouteMatchExplanation
     public function summary(): string
     {
         return RouteMatchSummary::render($this);
-    }
-
-    /**
-     * The outcome a match result settled on, in this vocabulary's
-     * own closed spellings -- the fold the span's status and the
-     * meter's dimensions both read, so the vocabulary has one owner.
-     */
-    public static function outcomeOf(MatchResult $matchResult): string
-    {
-        return match (true) {
-            $matchResult->isFound() => self::OUTCOME_FOUND,
-            $matchResult->isMethodNotAllowed() => self::OUTCOME_METHOD_NOT_ALLOWED,
-            $matchResult->isNotAcceptable() => self::OUTCOME_NOT_ACCEPTABLE,
-            default => self::OUTCOME_NOT_FOUND,
-        };
     }
 }

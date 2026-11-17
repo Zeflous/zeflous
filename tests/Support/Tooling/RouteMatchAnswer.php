@@ -6,6 +6,7 @@ namespace Zef\Test\Support\Tooling;
 
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteMatchExplanation;
+use Zef\Framework\Config\Routing\RouteMatchOutcome;
 use Zef\Framework\Router\Router;
 
 /**
@@ -17,7 +18,7 @@ use Zef\Framework\Router\Router;
  * RouteMatchExplanation}: the failing stage, the narrowing the
  * pipeline performed, the deepest shared prefix and the candidate
  * patterns). The outcome fold is the explanation family's own
- * vocabulary owner ({@see RouteMatchExplanation::outcomeOf()}), so
+ * vocabulary owner ({@see RouteMatchOutcome::of()}), so
  * the answer, its text and its JSON all spell the outcomes
  * identically.
  *
@@ -54,7 +55,7 @@ final readonly class RouteMatchAnswer
         $matchResult = $router->match($method, $path, $host, $accept, $version);
 
         return new self(
-            RouteMatchExplanation::outcomeOf($matchResult),
+            RouteMatchOutcome::of($matchResult),
             $matchResult,
             $router->tree()->explain($method, $path, $host, $accept, $version),
         );

@@ -21,7 +21,12 @@ namespace Zef\Framework\Config\Routing;
  * neighborhood for a path-stage miss ({@see RouteMatchNeighborhood}),
  * the allowed methods for a method-stage refusal or a version-stage
  * miss whose method judgement answered the 405, the producible media
- * types for an accept-stage refusal.
+ * types for an accept-stage refusal, and -- for the method-stage
+ * refusals (#795) -- the host-shadowed methods ({@see
+ * RouteHostShadowedMethods}): the methods the same path answers
+ * through the routes the host specificity dropped, the diagnostic
+ * union across the buckets the 405's own `Allow` deliberately
+ * refuses to be.
  *
  * A found match explains itself as found, carrying only the stage
  * counts -- the diagnostic twin of a successful match has no failure
@@ -58,12 +63,15 @@ final class RouteMatchExplainer
             $version,
         );
 
+        $shadowedMethods = RouteHostShadowedMethods::of($walked, $hostSelected, $host);
+
         return match (true) {
             $walked === [] => self::pathMissExplanation($radixNode, $path),
             $hostSelected === [] => RouteMatchExplanation::hostMiss(\count($walked), 0),
             $versionSelected === []
                 && $matchResult->isMethodNotAllowed() => RouteMatchExplanation::versionMissMethodRefusal(
                     $matchResult->allowedMethods(),
+                    $shadowedMethods,
                     \count($walked),
                     \count($hostSelected),
                 ),
@@ -73,6 +81,7 @@ final class RouteMatchExplainer
             ),
             $matchResult->isMethodNotAllowed() => RouteMatchExplanation::methodRefusal(
                 $matchResult->allowedMethods(),
+                $shadowedMethods,
                 \count($walked),
                 \count($hostSelected),
                 \count($versionSelected),
