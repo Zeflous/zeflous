@@ -87,10 +87,10 @@ final class RouteHostShadowedMethods
 
         $entries = [];
 
-        foreach ($shadowedMethods as $hosts) {
-            ksort($hosts, \SORT_STRING);
+        foreach ($shadowedMethods as $shadowedMethod) {
+            ksort($shadowedMethod, \SORT_STRING);
 
-            foreach ($hosts as $entry) {
+            foreach ($shadowedMethod as $entry) {
                 $entries[] = $entry;
             }
         }
