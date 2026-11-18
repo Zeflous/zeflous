@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-17T23:38:42Z",
+  "as_of": "2026-11-18T00:50:22Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 339,
+  "unreleased_count": 340,
   "versions": [
     {
       "version": "Unreleased",
@@ -11482,6 +11482,27 @@
                 "sha": "5d62604257045f2bf5a8fb9cca841b7f8cd03902",
                 "short_sha": "5d62604",
                 "subject": "docs(roadmap): the priorities lane's pin rides the refreshed ledger"
+              }
+            ]
+          },
+          {
+            "pr": 864,
+            "title": "docs(roadmap): the audit's five sentences meet the code they describe (issue #789)",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-11-18T00:50:22Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/864",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "75619495ce556383d79903c4cb39d1ae1984a002",
+                "short_sha": "7561949",
+                "subject": "docs(roadmap): the audit's five sentences meet the code they describe (issue #789)"
+              },
+              {
+                "sha": "8831b7400cf926dcc5284545956c531737143a8c",
+                "short_sha": "8831b74",
+                "subject": "docs(roadmap): the pin rides the sentence-correction round's head (#864)"
               }
             ]
           }
@@ -23331,6 +23352,27 @@
               "sha": "d069747107994a94fa9f575c3a42d15f548d9af4",
               "short_sha": "d069747",
               "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's rector-verified head (#863)"
+            }
+          ]
+        },
+        {
+          "pr": 864,
+          "title": "docs(roadmap): the audit's five sentences meet the code they describe (issue #789)",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-11-18T00:50:22Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/864",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "75619495ce556383d79903c4cb39d1ae1984a002",
+              "short_sha": "7561949",
+              "subject": "docs(roadmap): the audit's five sentences meet the code they describe (issue #789)"
+            },
+            {
+              "sha": "8831b7400cf926dcc5284545956c531737143a8c",
+              "short_sha": "8831b74",
+              "subject": "docs(roadmap): the pin rides the sentence-correction round's head (#864)"
             }
           ]
         }
