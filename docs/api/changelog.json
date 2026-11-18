@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-18T08:29:59Z",
+  "as_of": "2026-11-18T10:34:50Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 341,
+  "unreleased_count": 342,
   "versions": [
     {
       "version": "Unreleased",
@@ -7720,6 +7720,47 @@
                 "sha": "a541aed6d172b30af0b7dddcdeff817ab4718a70",
                 "short_sha": "a541aed",
                 "subject": "docs(roadmap): the status pin rides the anchor-hardening round's fix head (#867)"
+              }
+            ]
+          },
+          {
+            "pr": 870,
+            "title": "fix(router): the unparsable Accept header is answered as absence, not refusal (issue #782)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-18T10:34:50Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/870",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d088772301156579008c94e849ab4e1a78ff8ab2",
+                "short_sha": "d088772",
+                "subject": "fix(router): the unparsable Accept header is answered as absence, not refusal (issue #782)"
+              },
+              {
+                "sha": "94454b2da777d09733241e2af22afb9c32c6ee60",
+                "short_sha": "94454b2",
+                "subject": "docs(roadmap): the pin rides the accept-boundary round's fix head (#870)"
+              },
+              {
+                "sha": "dfd563664b067896776d30540ca1a24eccd76e1f",
+                "short_sha": "dfd5636",
+                "subject": "fix(router): the negotiator's verdict accumulates instead of returning four times (issue #782)"
+              },
+              {
+                "sha": "2dd4082b93e49a655a195f117b03bb3cad6cb4bc",
+                "short_sha": "2dd4082",
+                "subject": "docs(roadmap): the pin rides the accept-boundary round's s1142-verified head (#870)"
+              },
+              {
+                "sha": "8f049728520160ddfa2b7f2343fdf8c948edc9c8",
+                "short_sha": "8f04972",
+                "subject": "test(router): the parse's boundary mutants meet their kills (issue #782)"
+              },
+              {
+                "sha": "15629e4556aa66c73643b90ff6a5d278f5fb8d20",
+                "short_sha": "15629e4",
+                "subject": "docs(roadmap): the pin rides the accept-boundary round's mutation-verified head (#870)"
               }
             ]
           }
@@ -23425,6 +23466,47 @@
               "sha": "a541aed6d172b30af0b7dddcdeff817ab4718a70",
               "short_sha": "a541aed",
               "subject": "docs(roadmap): the status pin rides the anchor-hardening round's fix head (#867)"
+            }
+          ]
+        },
+        {
+          "pr": 870,
+          "title": "fix(router): the unparsable Accept header is answered as absence, not refusal (issue #782)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-18T10:34:50Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/870",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d088772301156579008c94e849ab4e1a78ff8ab2",
+              "short_sha": "d088772",
+              "subject": "fix(router): the unparsable Accept header is answered as absence, not refusal (issue #782)"
+            },
+            {
+              "sha": "94454b2da777d09733241e2af22afb9c32c6ee60",
+              "short_sha": "94454b2",
+              "subject": "docs(roadmap): the pin rides the accept-boundary round's fix head (#870)"
+            },
+            {
+              "sha": "dfd563664b067896776d30540ca1a24eccd76e1f",
+              "short_sha": "dfd5636",
+              "subject": "fix(router): the negotiator's verdict accumulates instead of returning four times (issue #782)"
+            },
+            {
+              "sha": "2dd4082b93e49a655a195f117b03bb3cad6cb4bc",
+              "short_sha": "2dd4082",
+              "subject": "docs(roadmap): the pin rides the accept-boundary round's s1142-verified head (#870)"
+            },
+            {
+              "sha": "8f049728520160ddfa2b7f2343fdf8c948edc9c8",
+              "short_sha": "8f04972",
+              "subject": "test(router): the parse's boundary mutants meet their kills (issue #782)"
+            },
+            {
+              "sha": "15629e4556aa66c73643b90ff6a5d278f5fb8d20",
+              "short_sha": "15629e4",
+              "subject": "docs(roadmap): the pin rides the accept-boundary round's mutation-verified head (#870)"
             }
           ]
         }

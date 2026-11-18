@@ -200,6 +200,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(http): the trusted proxy's forwarded protocol claim arms the scheme posture (issue #797) [#859](https://github.com/Zeflous/zeflous/pull/859) ([mbetixz](https://github.com/mbetixz))
 - fix(router): the 405's diagnostics name the methods the host specificity shadowed (issue #795) [#863](https://github.com/Zeflous/zeflous/pull/863) ([mbetixz](https://github.com/mbetixz))
 - fix(event): the grammar anchors pin to the true string end (issue #786) [#867](https://github.com/Zeflous/zeflous/pull/867) ([mbetixz](https://github.com/mbetixz))
+- fix(router): the unparsable Accept header is answered as absence, not refusal (issue #782) [#870](https://github.com/Zeflous/zeflous/pull/870) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
