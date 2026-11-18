@@ -214,3 +214,22 @@ The mutation ledger follows the coverage: a line the covers filter
 drops is a line infection never mutates, so the newly declared seams
 brought 21 fresh mutants with them — all killed by the same round's
 tests, none ignored.
+
+## KDD tambahan (ronde audit #784): klaim XXE dikoreksi ke observable yang benar
+
+Temuan 2 audit HTTP: docblock `XmlBodyParser` mengklaim dokumen ber-
+external-entity "fails the parse -> MalformedBodyException" -- kenyataannya
+(`LIBXML_NONET` tanpa `LIBXML_NOENT`, tanpa `PARSEHUGE`) dokumen tersebut
+ter-parse sukses dengan entity tak ter-resolve: menjawab string kosong di
+tree, isi `file:///etc/passwd` tidak pernah masuk. Postur keamanannya benar
+(tidak ada substitusi = tidak ada eksfiltrasi XXE); yang salah adalah
+observable yang didokumentasikan, dan koreksinya menegaskan dua observable
+yang pin KDD-BP4 dan baterai test sudah pegang sejak lane ini lahir:
+`testAnExternalEntityIsNeverLoaded` (parse sukses, resolve ke kosong) dan
+`testAnEntityAmplificationDocumentIsRefusedByTheEngineCeilings` (rantai
+billion-laughs yang melewati langit-langit teks engine sendiri yang JUGA
+dijawab refusal -- penolakan itu milik langit-langit amplifikasi, bukan
+milik entity eksternal). ROADMAP-STATUS dan KDD-BP4 sudah mengeja postur
+yang jujur; koreksi ini menutup celah docblock terakhir yang masih
+mengklaim kebalikannya. Perilaku tidak berubah, tidak ada test baru yang
+bisa menaikkan pin (kedua observable sudah dipin) -- lipatan dokumen.

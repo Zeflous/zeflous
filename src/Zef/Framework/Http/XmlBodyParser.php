@@ -32,9 +32,14 @@ use SimpleXMLElement;
  * tree), `LIBXML_NONET` on every parse (no network fetch a DTD or
  * entity reference could trigger), and no `LIBXML_PARSEHUGE` (the
  * libxml depth, text-node and entity-amplification ceilings stay in
- * force). An entity-bearing document that tries to resolve an external
- * reference fails the parse and answers {@see MalformedBodyException}
- * like any other malformed body (KDD-BP4).
+ * force). An entity-bearing document that references an external
+ * entity parses with the entity resolving to empty in the tree -- the
+ * `file:///etc/passwd` content never enters it, the observable the
+ * never-`NOENT` posture actually answers -- while the refusal the
+ * parse does answer belongs to the amplification ceilings: an
+ * entity-expansion chain crossing the engine's own text limit fails
+ * and answers {@see MalformedBodyException} like any other malformed
+ * body (KDD-BP4 pins both observables).
  *
  * The internal-errors mode is process-global engine state, so the
  * parse restores the prior mode in a finally: a persistent worker
