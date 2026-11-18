@@ -354,6 +354,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(contributing): the coverage measurement contract pins one sanctioned invocation [#736](https://github.com/Zeflous/zeflous/pull/736) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): the Partial lanes gain their production order and definitions of done [#738](https://github.com/Zeflous/zeflous/pull/738) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): the audit's five sentences meet the code they describe (issue #789) [#864](https://github.com/Zeflous/zeflous/pull/864) ([mbetixz](https://github.com/mbetixz))
+- docs(container): the extractor's reflection claim meets the code it describes (issue #783) [#880](https://github.com/Zeflous/zeflous/pull/880) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
