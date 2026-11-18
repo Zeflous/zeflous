@@ -14,6 +14,15 @@ namespace Zef\Framework\Container;
  * reference into a closure-registered service is a leaf edge (the host
  * application's own behaviour, exactly as it is without the declarative
  * format) and is skipped: only definition-to-definition edges can cycle.
+ *
+ * One edge is not declared but derived: a class-named factory target whose
+ * identifier the planned set also carries resolves as a service at call
+ * time (the runtime precedence -- a registered identifier shadows an
+ * equally-named class), so the edge the resolution will actually walk is
+ * an edge the graph proves here, its cycles and its lifetime captures
+ * exactly like a declared reference's -- the judgment its own unit
+ * ({@see FactoryShadows}), the #783 audit's finding: the runtime used to
+ * discover what the boot never walked.
  */
 final readonly class DefinitionEdges
 {
@@ -32,17 +41,28 @@ final readonly class DefinitionEdges
         $edges = [];
         foreach ($definitions as $definition) {
             foreach (DefinitionReferences::of($definition) as $target) {
-                if (!isset($byId[$target]) && !$container->has($target)) {
+                if (isset($byId[$target])) {
+                    $edges[$definition->id][] = $target;
+
+                    continue;
+                }
+
+                if (!$container->has($target)) {
                     throw new DefinitionException(
                         "Service '{$definition->id}' references the unknown service '{$target}'.",
                     );
                 }
+            }
 
-                if (!isset($byId[$target])) {
-                    continue;
-                }
+            // The derived edge: the class-named factory target the planned
+            // set carries resolves as a service at call time, so its edge is
+            // collected beside the declared references -- the static-call
+            // spelling only ever runs for a target no planned definition
+            // owns ({@see FactoryShadows} keeps the judgment).
+            $shadow = FactoryShadows::target($definition, $byId);
 
-                $edges[$definition->id][] = $target;
+            if ($shadow !== null) {
+                $edges[$definition->id][] = $shadow;
             }
         }
 

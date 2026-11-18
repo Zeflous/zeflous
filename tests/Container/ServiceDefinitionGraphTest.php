@@ -6,6 +6,7 @@ namespace Zef\Test\Container;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Config\Config;
 use Zef\Framework\Container\AliasDefinition;
 use Zef\Framework\Container\ArgumentNames;
 use Zef\Framework\Container\Container;
@@ -19,6 +20,7 @@ use Zef\Framework\Container\MethodCall;
 use Zef\Framework\Container\ServiceDefinitionGraph;
 use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ValueDefinition;
+use Zef\Framework\ContainerBootstrapper;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Container\ExternalFactory;
 use Zef\Test\Support\Container\Greeter;
@@ -181,6 +183,112 @@ final class ServiceDefinitionGraphTest extends TestCase
                 $definitionException->getMessage(),
             );
         }
+    }
+
+    public function testAClassNamedFactoryTargetThePlannedSetAlsoCarriesIsADerivedEdge(): void
+    {
+        // The audit's own repro (#783, finding 6): the factory target
+        // names an existing class AND an identifier the planned set
+        // carries -- the runtime precedence resolves the service, so
+        // the cycle it closes is the boot's to refuse, not the
+        // resolution's to discover mid-flight.
+        try {
+            ServiceDefinitionGraph::validate([
+                new FactoryDefinition('app.label', ExternalFactory::class . '::build', []),
+                new InstanceDefinition(ExternalFactory::class, Greeter::class, [['service' => 'app.label']]),
+            ], new Container());
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.label' is part of a circular reference chain: app.label -> "
+                . ExternalFactory::class . ' -> app.label.',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheDerivedEdgeIsCollectedForAPlannedClassNamedTarget(): void
+    {
+        $edges = DefinitionEdges::collect([
+            new FactoryDefinition('app.label', ExternalFactory::class . '::build', []),
+            new InstanceDefinition(ExternalFactory::class, Greeter::class),
+        ], new Container());
+
+        self::assertSame([ExternalFactory::class], $edges['app.label']);
+    }
+
+    public function testTheDerivedEdgeCarriesTheCaptureDisciplineToo(): void
+    {
+        // A dependency the runtime will walk is a dependency all the
+        // same: the class-named factory target, planned with a request
+        // lifetime, is the capture the boot refuses before a single
+        // resolution -- the derived edge rides every discipline the
+        // declared references ride.
+        try {
+            ServiceDefinitionGraph::validate([
+                new FactoryDefinition('app.label', ExternalFactory::class . '::build', []),
+                new InstanceDefinition(
+                    ExternalFactory::class,
+                    Greeter::class,
+                    [],
+                    ServiceLifetime::REQUEST,
+                ),
+            ], new Container());
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.label' (singleton) depends on the request-scoped service '"
+                . ExternalFactory::class . "': a request-scoped instance cannot be captured beyond its scope -- "
+                . "give '" . ExternalFactory::class . "' a singleton or transient lifetime, "
+                . "or make 'app.label' request-scoped.",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAClosureRegisteredClassNamedTargetStaysALeafEdge(): void
+    {
+        // The leaf doctrine unchanged: the closure-registered shadow
+        // takes the instance lane at call time, but the host's own
+        // registration is a leaf the graph does not pretend to prove --
+        // the derived edge exists only over the planned set, the edges
+        // the boot itself owns.
+        $container = new Container();
+        $container->set(
+            ExternalFactory::class,
+            static fn (): ExternalFactory => new ExternalFactory('leaf'),
+        );
+
+        ServiceDefinitionGraph::validate([
+            new FactoryDefinition('app.label', ExternalFactory::class . '::build', []),
+        ], $container);
+
+        self::addToAssertionCount(1);
+    }
+
+    public function testThePlannedShadowResolvesThroughTheRealBootAsTheInstanceLane(): void
+    {
+        // The boot-level pin: the planned definition shadowing its own
+        // class name resolves as a service -- the factory's product
+        // built from the instance, never the static call (the method
+        // reads its own state, so a static spelling would be the
+        // engine's own refusal, not an answer).
+        $config = new Config([
+            'services' => [
+                ExternalFactory::class => [
+                    'class' => ExternalFactory::class,
+                    'arguments' => ['instance'],
+                ],
+                'app.label' => [
+                    'factory' => ExternalFactory::class . '::build',
+                    'arguments' => ['widget'],
+                ],
+            ],
+        ]);
+
+        $container = new ContainerBootstrapper()->bootstrap($config, new Container());
+
+        self::assertSame('instance:widget', $container->get('app.label'));
     }
 
     public function testValueDefinitionsCarryNoEdges(): void
