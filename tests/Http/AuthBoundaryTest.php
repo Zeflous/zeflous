@@ -20,6 +20,7 @@ use Zef\Framework\Http\AuthStatus;
 use Zef\Framework\Http\AuthVerdict;
 use Zef\Framework\Http\HttpException;
 use Zef\Framework\Http\ReplayDecision;
+use Zef\Framework\Http\ReservedPrincipalName;
 use Zef\Test\Support\Http\RecordingCredentialProvider;
 use Zef\Test\Support\Http\RecordingReplayProtector;
 
@@ -34,6 +35,7 @@ use Zef\Test\Support\Http\RecordingReplayProtector;
  */
 #[CoversClass(AuthBoundary::class)]
 #[CoversClass(AuthFailure::class)]
+#[CoversClass(ReservedPrincipalName::class)]
 #[CoversClass(AuthAdmission::class)]
 #[CoversClass(AuthContext::class)]
 #[CoversClass(AuthResult::class)]
@@ -193,6 +195,142 @@ final class AuthBoundaryTest extends TestCase
         self::assertTrue(
             $this->recordingCredentialProvider->resolutions[0][0]->isAnonymous(),
             'the credential-less request resolves through the anonymous handle',
+        );
+    }
+
+    public function testAPresentedCredentialUnderTheReservedAnonymousNameIsRefusedAsMalformedMetadata(): void
+    {
+        // Issue #785's finding 4: the anonymous principal's name is
+        // reserved for the anonymous resolution -- a provider that
+        // resolves a presented credential under it would steer an
+        // authenticated principal into the policy's anonymous branch
+        // and its blanket allowance, so the boundary refuses the
+        // metadata malformation before the policy or protector runs.
+        $this->recordingCredentialProvider->result = new AuthResult(
+            AuthStatus::AUTHENTICATED,
+            new AuthContext('anonymous', 'static-bearer', 'route', 'api', null),
+        );
+
+        $admission = $this->admit();
+
+        self::assertSame(AuthVerdict::DENY, $admission->verdict);
+        self::assertSame(AuthFailure::MALFORMED_METADATA, $admission->failure);
+        self::assertNull($admission->context);
+        self::assertSame([], $this->recordingReplayProtector->checks, 'no policy or protector ran');
+    }
+
+    /**
+     * @dataProvider provideTheReservedAnonymousNameFoldIsRefusedCases
+     */
+    #[DataProvider('provideTheReservedAnonymousNameFoldIsRefusedCases')]
+    public function testTheReservedAnonymousNameFoldIsRefused(string $principalId): void
+    {
+        $this->recordingCredentialProvider->result = new AuthResult(
+            AuthStatus::AUTHENTICATED,
+            new AuthContext($principalId, 'static-bearer', 'route', 'api', null),
+        );
+
+        $admission = $this->admit();
+
+        self::assertSame(
+            AuthFailure::MALFORMED_METADATA,
+            $admission->failure,
+            'the reference folds the principal id before the anonymous comparison, so every fold is reserved',
+        );
+    }
+
+    /**
+     * @return iterable<non-empty-string, array{string}>
+     */
+    public static function provideTheReservedAnonymousNameFoldIsRefusedCases(): iterable
+    {
+        yield 'upper case' => ['ANONYMOUS'];
+
+        yield 'mixed case' => ['AnOnYmOuS'];
+    }
+
+    public function testTheAnonymousHandleMayStillAnswerTheReservedName(): void
+    {
+        // The doctrine's other half: the credential-less resolution
+        // keeps the name -- the anonymous handle the boundary itself
+        // constructed is the one spelling a provider may legitimately
+        // answer `anonymous` for.
+        $this->recordingCredentialProvider->result = new AuthResult(
+            AuthStatus::AUTHENTICATED,
+            new AuthContext('anonymous', 'anonymous', 'route', 'public', null),
+        );
+
+        $authBoundary = new AuthBoundary(
+            $this->recordingCredentialProvider,
+            new AllowScopePolicy('api', true),
+            $this->recordingReplayProtector,
+        );
+
+        $admission = $authBoundary->admit(null, new AuthRequest('POST /health', '/health', 'POST'), self::NOW);
+
+        self::assertSame(AuthVerdict::ALLOW, $admission->verdict);
+        self::assertSame(AuthFailure::NONE, $admission->failure);
+        self::assertCount(1, $this->recordingReplayProtector->checks, 'the full gauntlet ran');
+    }
+
+    public function testAnExplicitlyPassedAnonymousHandleIsTheAnonymousResolutionToo(): void
+    {
+        // The discriminator is the handle's own anonymous state, not
+        // the argument's nullness: a caller passing the anonymous
+        // handle explicitly travels the anonymous resolution, and a
+        // provider answering it with the reserved name stays allowed.
+        $this->recordingCredentialProvider->result = new AuthResult(
+            AuthStatus::AUTHENTICATED,
+            new AuthContext('anonymous', 'anonymous', 'route', 'public', null),
+        );
+
+        $authBoundary = new AuthBoundary(
+            $this->recordingCredentialProvider,
+            new AllowScopePolicy('api', true),
+            $this->recordingReplayProtector,
+        );
+
+        $admission = $authBoundary->admit(
+            AuthCredential::anonymous(),
+            new AuthRequest('POST /health', '/health', 'POST'),
+            self::NOW,
+        );
+
+        self::assertSame(AuthVerdict::ALLOW, $admission->verdict);
+    }
+
+    public function testTheReservedNameFoldIsCaseInsensitive(): void
+    {
+        self::assertTrue(ReservedPrincipalName::isClaimedBy('anonymous'));
+        self::assertTrue(ReservedPrincipalName::isClaimedBy('ANONYMOUS'));
+        self::assertTrue(ReservedPrincipalName::isClaimedBy('AnOnYmOuS'));
+    }
+
+    public function testTheReservedNameFoldKeepsOtherSpellings(): void
+    {
+        self::assertFalse(ReservedPrincipalName::isClaimedBy('service'));
+        self::assertFalse(ReservedPrincipalName::isClaimedBy(' anon'));
+        self::assertFalse(ReservedPrincipalName::isClaimedBy('anonymous-2'));
+    }
+
+    public function testTheAnonymousHandleKeepsTheReservedName(): void
+    {
+        self::assertFalse(
+            ReservedPrincipalName::claimedBeyondTheAnonymousResolution(
+                AuthCredential::anonymous(),
+                'anonymous',
+            ),
+            "the anonymous resolution is the reserved name's own spelling",
+        );
+    }
+
+    public function testAPresentedHandleClaimsTheReservedNameBeyondTheResolution(): void
+    {
+        self::assertTrue(
+            ReservedPrincipalName::claimedBeyondTheAnonymousResolution(
+                new AuthCredential('table-token-from-the-test-suite', 'bearer', \PHP_INT_MAX),
+                'ANONYMOUS',
+            ),
         );
     }
 

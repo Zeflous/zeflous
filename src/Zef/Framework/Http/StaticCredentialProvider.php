@@ -37,6 +37,16 @@ use Override;
  * authentication-failed refusal); on, a credential-less safe method
  * resolves as the anonymous principal, read-only by the middleware's
  * early 401 for unsafe methods.
+ *
+ * The table principal's name cannot claim the anonymous principal's
+ * reserved name (issue #785's finding 4): the boundary refuses a
+ * presented credential resolved under the `anonymous` fold as
+ * malformed metadata, and the framework's own table would hit that
+ * refusal on every request a token authenticated -- so the
+ * misspelling halts the boot here, with the remediation spelled
+ * out, the same posture the empty-token table already carries. The
+ * fold is the one vocabulary every reader shares ({@see
+ * ReservedPrincipalName}).
  */
 final readonly class StaticCredentialProvider implements CredentialProviderInterface
 {
@@ -67,6 +77,12 @@ final readonly class StaticCredentialProvider implements CredentialProviderInter
     ) {
         if ($this->validTokens === []) {
             throw new HttpException('The security.auth static token table requires at least one token.');
+        }
+
+        if (ReservedPrincipalName::isClaimedBy($principalId)) {
+            throw new HttpException(
+                "The security.auth static table principal cannot claim the anonymous principal's reserved name.",
+            );
         }
 
         $this->tableContext = new AuthContext(

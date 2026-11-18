@@ -145,6 +145,24 @@ final class StaticCredentialProviderTest extends TestCase
         }
     }
 
+    public function testTheReservedAnonymousPrincipalIsRefusedAtComposition(): void
+    {
+        // Issue #785's finding 4: the table principal cannot claim the
+        // anonymous principal's reserved name -- the boundary would
+        // refuse every token-authenticated request as malformed
+        // metadata, so the misspelling halts the boot here with the
+        // remediation spelled out instead.
+        try {
+            new StaticCredentialProvider([self::FIRST_TOKEN], 'ANONYMOUS');
+            self::fail('The bound must halt the reading.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                "The security.auth static table principal cannot claim the anonymous principal's reserved name.",
+                $httpException->getMessage(),
+            );
+        }
+    }
+
     public function testAnOverLongScopeIsRefusedAtComposition(): void
     {
         try {

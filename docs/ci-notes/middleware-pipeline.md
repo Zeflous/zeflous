@@ -247,3 +247,39 @@ disiplin "detected at boot" yang audit #783 temukan (temuan 6).
   layanan yang VALID melalui collect (deklarasi tetap satu-satunya edge,
   `assertArrayNotHasKey` untuk bayangan nol). Entri covers bukan
   formalitas -- ia alat yang menyingkap celah asli.
+
+## KDD-M13: peta entri `middleware.stack` ditutup seperti peta keluarga (issue #785,
+temuan 3 audit HTTP, 2026-11-19)
+
+Grammar entri (KDD-M2) sengaja menolak bentuk ganda kunci-shape, tapi peta
+entri middleware sendiri HANYA membaca `service`/`id`/`priority` dan
+mengabaikan sisanya senyap: typo `prioriti` jatuh ke default prioritas-0
+tanpa satu sinyal boot — persis kelas kegagalan yang sensus strict-knob
+keluarga HTTP tolak ("a typo'd key must never fall through to the default
+posture unnoticed", KDD-SC3).
+
+- **Penutupan di `MiddlewareDefinition::fromArray()`**: kunci di luar
+  `service`, `id`, `priority` ditolak `MiddlewareException` dengan daftar
+  kunci dikenal dieja (gaya `StrictKnobs::rejectUnknown()`), kunci non-
+  string dieja tipenya (`get_debug_type`). Urutan tetap: kunci `service`
+  wajib dulu (pesan kegagalan entri-tanpa-layanan tak berubah, tes lama
+  tetap hijau), lalu sensus kunci, lalu prioritas — penolakan kunci tak
+  dikenal terjadi SEBELUM prioritas dibaca, jadi entri `['service' => x,
+  'prioriti' => 1]` gagal pada sensus, bukan pada prioritas-default.
+- **Bukan widening kebijakan**: `group`/`tags` referensi tetap TIDAK
+  diport (keputusan KDD-M2 berdiri) — yang berubah adalah pengejaan
+  penolakannya: dulu senyap, kini fail-closed dieja.
+- **Ronde archeology-nya sendiri, tercatat**: bentuk pertama (loop
+  sensus inline di `fromArray`) menaikkan difficulty kelas
+  `MiddlewareDefinition` 13,75 -> 23,19 melanggar langit 20 -- sensus
+  diekstrak ke unitnya sendiri ({@see StrictEntryKeys} -- sensus
+  strict-knob sebagai unit berdiri sendiri, pola `FactoryShadows`),
+  `KNOWN_KEYS` pindah ke unitnya, kelas kembali ke 15,86 dan CC
+  `fromArray` turun dari 11 ke 9; `AuthBoundary` mengalami pelajaran
+  yang sama pada ronde autentikasi (lihat KDD-AU1 di
+  `docs/ci-notes/security-runtime.md`). Tebakan mental Halstead
+  meleset, ukur setiap reshape -- pelajaran KDD-M12 terulang persis.
+- **Rumah mutant**: lengan `in_array` pada tes kunci-tak-dikenal
+  (string `prioriti`, kunci `int`, `group`) plus tes kosakata-lengkap
+  (`service`+`id`+`priority` semua hadir) dan tes nama-entri (pesan
+  membawa nama layanan entri); ejaan pesan dipin `assertSame` penuh.

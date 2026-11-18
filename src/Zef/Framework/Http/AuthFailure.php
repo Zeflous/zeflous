@@ -21,13 +21,17 @@ namespace Zef\Framework\Http;
  * which internal check refused it; the status code already carries
  * every signal the client can act on).
  *
- * `MALFORMED_METADATA` is contract vocabulary only: the
- * authenticated-without-context result it answered in the reference is
+ * `MALFORMED_METADATA` is contract vocabulary with exactly one live
+ * boundary arm (issue #785's finding 4): the shape it answered in the
+ * reference -- the authenticated-without-context result -- is
  * unreachable through {@see AuthResult}'s constructor invariant in
- * both implementations, so no boundary arm produces it -- it stays in
- * the enum the way `STALE` stays in {@see ReplayDecision}, as the
- * closed vocabulary an application-supplied boundary arm could
- * legitimately answer.
+ * both implementations, so the reference's arm stayed dead and this
+ * port refused dead arms; the arm {@see AuthBoundary} now answers
+ * with it (a provider resolving a *presented* credential under the
+ * `anonymous` principal's reserved name) is the one shape that
+ * legitimately earns the value -- the metadata a provider vouched
+ * for is malformed, and the taxonomy needs no new vocabulary to
+ * refuse it.
  */
 enum AuthFailure: string
 {

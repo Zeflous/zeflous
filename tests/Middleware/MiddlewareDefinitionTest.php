@@ -9,11 +9,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Middleware\MiddlewareDefinition;
 use Zef\Framework\Middleware\MiddlewareException;
+use Zef\Framework\Middleware\StrictEntryKeys;
 
 /**
  * @internal
  */
 #[CoversClass(MiddlewareDefinition::class)]
+#[CoversClass(StrictEntryKeys::class)]
 #[CoversClass(MiddlewareException::class)]
 final class MiddlewareDefinitionTest extends TestCase
 {
@@ -166,5 +168,60 @@ final class MiddlewareDefinitionTest extends TestCase
         $definition = MiddlewareDefinition::fromArray(['service' => 'app.auth', 'priority' => null]);
 
         self::assertSame(0, $definition->priority);
+    }
+
+    public function testAnUnknownKeyIsRejectedRatherThanDefaulted(): void
+    {
+        // Issue #785's finding 3: a typo'd key must never fall through
+        // to the default unnoticed -- the entry that carries `prioriti`
+        // is refused with the known list spelled out, not silently
+        // defaulted to the priority-0 posture the operator never wrote.
+        try {
+            MiddlewareDefinition::fromArray(['service' => 'app.auth', 'prioriti' => 500]);
+            self::fail('Expected a MiddlewareException to be thrown.');
+        } catch (MiddlewareException $middlewareException) {
+            self::assertSame(
+                "Middleware 'app.auth' carries the unknown key 'prioriti' (known keys: service, id, priority).",
+                $middlewareException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnknownKeySpellsItsTypeWhenNotAString(): void
+    {
+        try {
+            MiddlewareDefinition::fromArray(['service' => 'app.auth', 0 => 500]);
+            self::fail('Expected a MiddlewareException to be thrown.');
+        } catch (MiddlewareException $middlewareException) {
+            self::assertSame(
+                "Middleware 'app.auth' carries the unknown key 'int' (known keys: service, id, priority).",
+                $middlewareException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheWholeKnownVocabularyCarries(): void
+    {
+        $definition = MiddlewareDefinition::fromArray([
+            'service' => 'app.auth',
+            'id' => 'app.shadowed',
+            'priority' => 100,
+        ]);
+
+        self::assertSame('app.auth', $definition->serviceId);
+        self::assertSame(100, $definition->priority);
+    }
+
+    public function testTheUnknownKeyRefusalNamesItsEntry(): void
+    {
+        try {
+            MiddlewareDefinition::fromArray(['id' => 'app.auth', 'group' => 'web']);
+            self::fail('Expected a MiddlewareException to be thrown.');
+        } catch (MiddlewareException $middlewareException) {
+            self::assertSame(
+                "Middleware 'app.auth' carries the unknown key 'group' (known keys: service, id, priority).",
+                $middlewareException->getMessage(),
+            );
+        }
     }
 }

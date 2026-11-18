@@ -16,6 +16,15 @@ namespace Zef\Framework\Middleware;
  *   `priority` orders the pipeline HIGHEST FIRST, ties keep declaration
  *   order; a non-numeric priority is rejected rather than defaulted.
  *
+ * The map form is closed exactly as the strict-knob census closes a
+ * family map ({@see \Zef\Framework\Http\StrictKnobs}'s own doctrine,
+ * issue #785's finding 3): an entry carrying any key other than
+ * `service`, `id` and `priority` is rejected with the known list
+ * spelled out rather than silently defaulted -- a typo'd `prioriti`
+ * must never fall through to the priority-0 default unnoticed, the
+ * operator believing their knob is live while the default's is (the
+ * class of failure the strict reading exists to prevent).
+ *
  * The reference repository's `group` and `tags` keys are deliberately NOT
  * ported: they were parsed, validated and then explicitly reserved for
  * future use (its issue #174 note) -- carrying dead keys forward would be
@@ -54,6 +63,8 @@ final readonly class MiddlewareDefinition
                 "A middleware stack entry requires a non-empty 'service' (or 'id') key.",
             );
         }
+
+        StrictEntryKeys::rejectUnknown($entry, $service);
 
         $priority = $entry['priority'] ?? 0;
         if (!is_numeric($priority)) {

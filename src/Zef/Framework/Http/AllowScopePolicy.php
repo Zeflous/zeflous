@@ -22,7 +22,10 @@ use Override;
  * comma-separated, entries trimmed, empty entries dropped, compared
  * byte-for-byte (scope tokens are case-sensitive, the way RFC 6749
  * holds them). The principal fold is the reference's own
- * case-insensitive anonymous comparison.
+ * case-insensitive anonymous comparison, spelled through the one
+ * vocabulary every reader of the name shares ({@see
+ * ReservedPrincipalName} -- the boundary's reserved-name refusal and
+ * the static table's composition halt hold the same answer).
  */
 final readonly class AllowScopePolicy implements AuthorizationPolicyInterface
 {
@@ -41,7 +44,7 @@ final readonly class AllowScopePolicy implements AuthorizationPolicyInterface
     #[Override]
     public function authorize(AuthContext $authContext, AuthRequest $authRequest): AuthorizationResult
     {
-        if (mb_strtolower($authContext->principalId) === 'anonymous' && $this->allowAnonymous) {
+        if (ReservedPrincipalName::isClaimedBy($authContext->principalId) && $this->allowAnonymous) {
             return new AuthorizationResult(AuthVerdict::ALLOW, 'anonymous-allowed');
         }
 

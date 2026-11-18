@@ -22,9 +22,13 @@ use Psr\Http\Message\ServerRequestInterface;
  * failures the fail-closed 503 with a one-second retry window (the
  * rate-limit family's own outage posture -- the reference answered
  * the provider's unavailability with a 401 the client could only
- * retry identically), and the malformed-metadata failure -- the
- * contract vocabulary no boundary arm produces -- the 500 that an
- * invariant break honestly is.
+ * retry identically), and the malformed-metadata failure -- the one
+ * live boundary arm being the reserved-name refusal ({@see
+ * AuthBoundary}, issue #785's finding 4) -- the 500 that an invariant
+ * break honestly is: a provider vouching for a presented credential
+ * under the anonymous principal's reserved name is a wiring error
+ * the client cannot act on, surfaced to the operator rather than
+ * masquerading as a client error.
  *
  * The challenges are RFC 6750's own spellings: a bare `Bearer` when
  * no credential was presented (the client needs to know the scheme
