@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-18T00:50:22Z",
+  "as_of": "2026-11-18T08:29:59Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 340,
+  "unreleased_count": 341,
   "versions": [
     {
       "version": "Unreleased",
@@ -7694,6 +7694,32 @@
                 "sha": "d069747107994a94fa9f575c3a42d15f548d9af4",
                 "short_sha": "d069747",
                 "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's rector-verified head (#863)"
+              }
+            ]
+          },
+          {
+            "pr": 867,
+            "title": "fix(event): the grammar anchors pin to the true string end (issue #786)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-18T08:29:59Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/867",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f7e8c8c044ac4fb0e0398a1a9189ff08ecc6dc9a",
+                "short_sha": "f7e8c8c",
+                "subject": "fix(event): the grammar anchors pin to the true string end (issue #786)"
+              },
+              {
+                "sha": "e28eed4c028a327df05ea27f4d19ca3d44d0e933",
+                "short_sha": "e28eed4",
+                "subject": "docs(roadmap): the pin rides the anchor-hardening round's head (#867)"
+              },
+              {
+                "sha": "a541aed6d172b30af0b7dddcdeff817ab4718a70",
+                "short_sha": "a541aed",
+                "subject": "docs(roadmap): the status pin rides the anchor-hardening round's fix head (#867)"
               }
             ]
           }
@@ -23373,6 +23399,32 @@
               "sha": "8831b7400cf926dcc5284545956c531737143a8c",
               "short_sha": "8831b74",
               "subject": "docs(roadmap): the pin rides the sentence-correction round's head (#864)"
+            }
+          ]
+        },
+        {
+          "pr": 867,
+          "title": "fix(event): the grammar anchors pin to the true string end (issue #786)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-18T08:29:59Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/867",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f7e8c8c044ac4fb0e0398a1a9189ff08ecc6dc9a",
+              "short_sha": "f7e8c8c",
+              "subject": "fix(event): the grammar anchors pin to the true string end (issue #786)"
+            },
+            {
+              "sha": "e28eed4c028a327df05ea27f4d19ca3d44d0e933",
+              "short_sha": "e28eed4",
+              "subject": "docs(roadmap): the pin rides the anchor-hardening round's head (#867)"
+            },
+            {
+              "sha": "a541aed6d172b30af0b7dddcdeff817ab4718a70",
+              "short_sha": "a541aed",
+              "subject": "docs(roadmap): the status pin rides the anchor-hardening round's fix head (#867)"
             }
           ]
         }
