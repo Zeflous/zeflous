@@ -24,7 +24,11 @@ use InvalidArgumentException;
  * JSON key or a log line ambiguous later. A listener that is not
  * the application's own service -- a closure, a throwaway object
  * -- has no identity worth spelling, and the durable admission
- * refuses it by class name rather than guessing one.
+ * refuses it by class name rather than guessing one. The anchor
+ * carries the `D` modifier (#786): PCRE's bare `$` also matches
+ * immediately before a final newline, so an identity ending in one
+ * was grammar-legal while the canonical spelling silently carried a
+ * control byte -- the same anchor lesson the name grammar learned.
  */
 final readonly class ListenerIdentity
 {
@@ -46,7 +50,7 @@ final readonly class ListenerIdentity
             );
         }
 
-        if (preg_match('/^[A-Za-z][A-Za-z0-9._-]*$/', $identity) !== 1) {
+        if (preg_match('/^[A-Za-z][A-Za-z0-9._-]*$/D', $identity) !== 1) {
             throw new InvalidArgumentException(
                 'A listener identity must start with a letter and continue'
                 . ' with letters, digits, dots, dashes or underscores, got'

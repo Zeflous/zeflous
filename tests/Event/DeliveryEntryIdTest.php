@@ -34,6 +34,30 @@ final class DeliveryEntryIdTest extends TestCase
         );
     }
 
+    /**
+     * The #786 anchor pin, the audit's sweep finding the fourth
+     * instance its list did not name: PCRE's bare `$` also matches
+     * immediately before a final newline, so an id spelled
+     * `32-hex\n` was grammar-legal while the canonical spelling
+     * silently carried a control byte. The `D` modifier pins the
+     * anchor to the true end.
+     */
+    public function testATrailingNewlineIsRefusedByTheGrammar(): void
+    {
+        $hex = str_repeat('a', 32);
+
+        try {
+            new DeliveryEntryId($hex . "\n");
+            self::fail('A trailing newline is not a grammar-legal id.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'A delivery entry id must be exactly 32 lowercase hexadecimal'
+                . " characters, got '" . $hex . "\n'.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
     public function testAWellFormedIdIsAcceptedAndSpelled(): void
     {
         $deliveryEntryId = new DeliveryEntryId('0123456789abcdef0123456789abcdef');

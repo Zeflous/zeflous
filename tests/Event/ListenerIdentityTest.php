@@ -34,6 +34,33 @@ final class ListenerIdentityTest extends TestCase
         self::assertSame('a0-b_c.d', $listenerIdentity->spelling());
     }
 
+    /**
+     * The #786 anchor pin: PCRE's bare `$` also matches immediately
+     * before a final newline, so an identity ending in one was
+     * grammar-legal while the canonical spelling silently carried a
+     * control byte -- and the same spelling slips through the length
+     * ceiling (`a` x63 + `\n` is 64 characters). The `D` modifier
+     * pins the anchor to the true end.
+     */
+    public function testATrailingNewlineIsRefusedByTheGrammar(): void
+    {
+        try {
+            new ListenerIdentity("listener.created\n");
+            self::fail('A trailing newline is not a grammar-legal identity.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'A listener identity must start with a letter and continue'
+                . ' with letters, digits, dots, dashes or underscores, got'
+                . " 'listener.created\n'.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+
+        $this->expectException(InvalidArgumentException::class);
+
+        new ListenerIdentity(str_repeat('a', 63) . "\n");
+    }
+
     public function testTheEmptyIdentityIsRefused(): void
     {
         try {

@@ -141,3 +141,29 @@ Deliberately not in this slice, each a named future slice:
   advanced roadmap sections above the enterprise phases.
 - **Module system `events` knob** — the module-integration lane's
   own slice, lands with its reader (ED11).
+
+## ED13 — The anchor's `D` modifier: no grammar-legal control byte (#786)
+
+The audit's live repro: `new EventName("user.created\n")` was accepted
+-- PCRE's bare `$` also matches immediately before a final newline, so
+every grammar the family shared (`EventName`, `EventPattern`'s prefix,
+`ListenerIdentity`) admitted a trailing control byte into its CANONICAL
+spelling, and the length ceiling was no guard at all (`a` x63 + `\n`
+is 64 characters, ceiling-legal, the grammar the only wall left). The
+stored spelling was never byte-equals the operator's input, so a later
+`is not defined` refusal named a name the operator could not see.
+
+The fix is the house's own anchor discipline, applied to the family in
+full: the `D` modifier on all three grammars -- the same hardening the
+correlation id's claim grammar took first (`CorrelationId::CLAIM_GRAMMAR`,
+the header-injection newline that would have ridden the response's own
+`X-Request-ID` field line) and the CLI/Zeek lanes repeated
+(`CliCommandName`, `ModuleName`, `ZefException`). The audit's list named
+three grammars; the sweep found the fourth instance it did not name --
+`DeliveryEntryId`, the durable lane's own hex spelling, whose trailing
+newline rode the same anchor -- and it joined the fix in the same
+round, because the defect class is the anchor, not the list. Four pins
+land with the fix: each grammar's trailing-newline refusal with its
+full message spelled, the name's ceiling-bypass twin, and the
+pattern-prefix spelling (`user\n.*`) that carries the newline INSIDE
+the pattern so the prefix check is the only judge.

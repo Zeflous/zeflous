@@ -50,6 +50,27 @@ final class EventPatternTest extends TestCase
         self::assertSame($maximal, new EventPattern($maximal)->spelling());
     }
 
+    /**
+     * The #786 anchor pin: PCRE's bare `$` also matches immediately
+     * before a final newline, so a pattern whose PREFIX ended in one
+     * (`user\n.*`) was grammar-legal while the canonical spelling
+     * silently carried a control byte. The `D` modifier pins the
+     * anchor to the true end.
+     */
+    public function testAPrefixEndingInANewlineIsRefusedByTheGrammar(): void
+    {
+        try {
+            new EventPattern("user\n.*");
+            self::fail('A prefix ending in a newline is not a grammar-legal spelling.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "An event pattern's prefix must start with a letter and continue"
+                . " with letters, digits, dots, dashes or underscores, got 'user\n'.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
     public function testAnEmptyPatternIsRefused(): void
     {
         try {
