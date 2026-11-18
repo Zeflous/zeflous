@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(router\): the unparsable Accept header is answered as absence, not refusal \(issue \#782\) [\#870](https://github.com/Zeflous/zeflous/pull/870) ([mbetixz](https://github.com/mbetixz))
 - fix\(event\): the grammar anchors pin to the true string end \(issue \#786\) [\#867](https://github.com/Zeflous/zeflous/pull/867) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): the audit's five sentences meet the code they describe \(issue \#789\) [\#864](https://github.com/Zeflous/zeflous/pull/864) ([mbetixz](https://github.com/mbetixz))
 - fix\(router\): the 405's diagnostics name the methods the host specificity shadowed \(issue \#795\) [\#863](https://github.com/Zeflous/zeflous/pull/863) ([mbetixz](https://github.com/mbetixz))
