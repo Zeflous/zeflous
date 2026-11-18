@@ -268,3 +268,58 @@ has nothing to convert.
   same environment class as the DirectoryLoader readdir flake:
   recorded, not fixed here — the fix belongs to the stream's own
   campaign.
+
+## L.7 — The answered identifier refuses the late mark (issue #783)
+
+The audit's silent no-op, named: `markLazy()` on an identifier that had
+already resolved was accepted without a sound and never took effect --
+`ServiceResolutions` answers the singleton memo before the match that
+consults the lazy registry, so a mark landing after the memo held a
+plainly-resolved instance was a mark the resolution lanes would never
+read. The hardest class of bug to diagnose, exactly as the audit said:
+no refusal, no proxy, no observable difference, just a deferral the
+host believes it declared.
+
+The fix is the marking step's own third guard ({@see LazyMarking}):
+an identifier whose answer the memo already carries refuses the mark
+(`LazyRefusals::alreadyAnswered()`, the seam and both ways out in the
+message -- mark before the first resolution, or re-register through
+`set()`, which forgets the memo, and mark again). The store answers
+the guard's own question through a narrow read (`ServiceStore::
+memoised()`, the memo's totality -- deliberately not a `has()`
+spelling: registration totality answers a different question), and
+the facade hands the verdict to the marking with the registries it
+already threads.
+
+The boundary is drawn where the no-op actually lives, not around the
+resolution:
+
+- **The idempotent re-mark stays legal.** A mark that landed before
+  the resolution answers a proxy, and the memo holds that proxy --
+  the deferral IS in effect. Re-marking behind the same class after
+  the memoised proxy (the boot's own repeat spelling) changes
+  nothing, so the guard allows it: the refusal fires only when the
+  registry does not already carry the mark (`classOf === null`).
+  A re-mark behind a *different* class keeps its own older refusal,
+  the class disagreement.
+- **A transient may be marked after a resolution.** The refusal is
+  the memo's, not the resolution's: a transient never memoises
+  anywhere, so its late mark takes honest effect -- every further
+  resolution answers a fresh proxy, the already-built instance stays
+  in the caller's hands.
+- **The boot lanes are immune by order, not by exemption.** Both
+  lanes (the compile lane's and the artifact lane's) mark after the
+  install loop and before the warmup -- the memo is empty at the
+  walk, so the boot's own marks never meet the guard. The order the
+  lanes already kept for the interception arming carries the new
+  guard for free.
+
+The refusal leaves nothing behind: no mark in the registry, the
+memoised instance still answering -- the battery pins the repro and
+its message, the clean refusal state, the named way out walked end to
+end (re-register, mark, deferral answered), and the transient
+boundary. The mutant homes: the guard's own arm dies on the repro
+test, the flipped registry arm (`!== null`) on the idempotent re-mark
+the older battery already pinned, the store's verdict both ways on
+the first-mark and the repro tests -- every mutant of the round lands
+where the boundary made the difference visible.

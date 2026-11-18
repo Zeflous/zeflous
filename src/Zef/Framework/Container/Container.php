@@ -105,14 +105,25 @@ final readonly class Container implements ContainerInterface
      * declarative `lazy` key ({@see LazyKey}), the composition root's
      * own deferral request beside the grammar's. The identifier must
      * already carry a registration, and a request lifetime refuses
-     * (its deferred materialisation could not name its scope); a
-     * `set()` re-registration forgets the mark with the memo.
+     * (its deferred materialisation could not name its scope); an
+     * identifier already resolved refuses too -- its memoised answer
+     * would answer every resolution before the registry is consulted,
+     * a mark that never takes effect (#783) -- unless the registry
+     * already carries the same mark, the idempotent re-mark whose
+     * memoised answer IS the proxy. A `set()` re-registration
+     * forgets the mark with the memo.
      *
      * @param class-string $class
      */
     public function markLazy(string $id, string $class): void
     {
-        LazyMarking::mark($this->serviceStore->factoryRegistrations(), $this->lazyIdentities, $id, $class);
+        LazyMarking::mark(
+            $this->serviceStore->factoryRegistrations(),
+            $this->lazyIdentities,
+            $id,
+            $class,
+            $this->serviceStore->memoised($id),
+        );
     }
 
     /**

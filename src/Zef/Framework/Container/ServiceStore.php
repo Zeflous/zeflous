@@ -153,6 +153,21 @@ final readonly class ServiceStore
     }
 
     /**
+     * The singleton memo's own totality for the marking guard
+     * ({@see LazyMarking}): whether the identifier's answer is
+     * already memoised -- the question the lazy mark asks before it
+     * lands, because a memo the resolution lanes answer before the
+     * registry is consulted is a mark that would never take effect
+     * (#783's silent no-op). The reach-through the facade's own mark
+     * step takes; not a `has()` spelling -- registration totality
+     * answers a different question.
+     */
+    public function memoised(string $id): bool
+    {
+        return $this->singletonMemo->has($id);
+    }
+
+    /**
      * @param Closure(Container): mixed $factory
      */
     public function set(

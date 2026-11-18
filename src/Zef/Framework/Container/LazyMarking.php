@@ -12,9 +12,14 @@ namespace Zef\Framework\Container;
  * one spelling for both.
  *
  * The guards are the identifiers that cannot defer: an identifier
- * with no registration to defer behind, and a request-lifetime
+ * with no registration to defer behind, a request-lifetime
  * registration whose materialisation could not name its scope
- * ({@see LazyRefusals}). The registry itself keeps the marks
+ * ({@see LazyRefusals}), and -- the audit's silent no-op (#783) --
+ * an identifier whose answer the memo already carries, whose mark
+ * the resolution lanes would answer before consulting (the registry
+ * consulted behind the same class is the idempotent re-mark, the
+ * boot's own repeat spelling: the memo holds the proxy, the
+ * deferral already in effect). The registry itself keeps the marks
  * ({@see LazyIdentities}); a `set()` re-registration forgets them
  * with the memo ({@see ServiceStore::set()}).
  */
@@ -31,6 +36,7 @@ final readonly class LazyMarking
         LazyIdentities $lazyIdentities,
         string $id,
         string $class,
+        bool $answerAlreadyMemoised,
     ): void {
         if (!$factoryRegistrations->has($id)) {
             throw LazyRefusals::unknownService($id, $class);
@@ -38,6 +44,10 @@ final readonly class LazyMarking
 
         if ($factoryRegistrations->lifetime($id) === ServiceLifetime::REQUEST) {
             throw LazyRefusals::lifetimeCannotDefer($id);
+        }
+
+        if ($answerAlreadyMemoised && $lazyIdentities->classOf($id) === null) {
+            throw LazyRefusals::alreadyAnswered($id, $class);
         }
 
         $lazyIdentities->mark($id, $class);

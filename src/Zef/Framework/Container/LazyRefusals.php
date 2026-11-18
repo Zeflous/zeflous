@@ -117,6 +117,17 @@ final readonly class LazyRefusals
         );
     }
 
+    public static function alreadyAnswered(string $id, string $class): DefinitionException
+    {
+        return new DefinitionException(
+            "Service '{$id}' cannot be marked lazy behind the class '{$class}': the identifier "
+            . 'has already been resolved and its answer is memoised -- the resolution lanes '
+            . 'answer the memo before the registry is consulted, so the mark would never take '
+            . 'effect (mark the identifier before its first resolution, or re-register it '
+            . 'through set() -- which forgets the memo -- and mark again).',
+        );
+    }
+
     public static function classDisagreement(string $id, string $marked, string $class): DefinitionException
     {
         return new DefinitionException(
