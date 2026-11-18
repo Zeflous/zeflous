@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(http\): the anonymous name is the anonymous resolution's own and the entry map is closed \(issue \#785\) [\#884](https://github.com/Zeflous/zeflous/pull/884) ([mbetixz](https://github.com/mbetixz))
 - docs\(http\): the audit's three docblock claims meet the code they describe \(issue \#784\) [\#883](https://github.com/Zeflous/zeflous/pull/883) ([mbetixz](https://github.com/mbetixz))
 - docs\(container\): the extractor's reflection claim meets the code it describes \(issue \#783\) [\#880](https://github.com/Zeflous/zeflous/pull/880) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the shadowed factory target's edge is the boot's to prove \(issue \#783\) [\#878](https://github.com/Zeflous/zeflous/pull/878) ([mbetixz](https://github.com/mbetixz))
