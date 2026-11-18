@@ -349,6 +349,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): record the database follow-up landings and the view half's first answer in the not-yet ledger [#699](https://github.com/Zeflous/zeflous/pull/699) ([mbetixz](https://github.com/mbetixz))
 - docs(contributing): the coverage measurement contract pins one sanctioned invocation [#736](https://github.com/Zeflous/zeflous/pull/736) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): the Partial lanes gain their production order and definitions of done [#738](https://github.com/Zeflous/zeflous/pull/738) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): the audit's five sentences meet the code they describe (issue #789) [#864](https://github.com/Zeflous/zeflous/pull/864) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 
