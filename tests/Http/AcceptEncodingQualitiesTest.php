@@ -161,7 +161,7 @@ final class AcceptEncodingQualitiesTest extends TestCase
         self::assertSame(
             ['gzip' => 1.0],
             $qualities,
-            'the member past the 8192-byte ceiling is never parsed, and a truncated token cannot smuggle itself in',
+            'the member past the 8192-character ceiling is never parsed, and a truncated token cannot be smuggled in',
         );
     }
 

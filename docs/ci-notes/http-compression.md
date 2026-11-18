@@ -18,7 +18,7 @@ green at ~58.3 μs per compressed 5.6 KB answer (±0.23%, 500 revs).
 |---|---|
 | `CompressionKnobs` / `CompressionPolicy` | the strict knob reading (`http.compression`: `enabled`, `minimum_bytes` 1..1048576, `level` 1..9) |
 | `HttpFamilies` | the `http` map's family census — the second family is the moment the census exists (KDD-CP10) |
-| `AcceptEncodingQualities` | the `Accept-Encoding` grammar (bounded 8192, coding→q map, weight-grammar OWS read, malformed members skipped) |
+| `AcceptEncodingQualities` | the `Accept-Encoding` grammar (bounded 8192 characters, coding→q map, weight-grammar OWS read, malformed members skipped) |
 | `CompressionCapabilities` | what the family's fold can produce (gzip+deflate over the bundled zlib engine; `br` unadmitted until the fold speaks it) |
 | `CompressionNegotiator` | the preference walk: roadmap order `br` > `gzip` > `deflate`, ∩ client grant ∩ capability |
 | `ContentCoding` | the vocabulary: preference table + zlib windows (`gzip`=31, `deflate`=15 — the RFC 9110 zlib reading) |
@@ -191,3 +191,28 @@ The XML body-parser strategy (Phase 3.1), the cookie/session abstraction
 inspector and header validator (Phase 4.2), and the worker-context
 adapter (the shim roadmap's Phase 2.2 — the ecosystem §5.1 lane's own
 dependency decision). The readiness matrix's Compression row is closed.
+
+## KDD tambahan (ronde audit #784): skala karakter dan `q=` pertama dikoreksi ke kode
+
+Temuan 3+4 audit HTTP pada fold grammar `AcceptEncodingQualities`:
+
+- **Plafon 8192 adalah karakter, bukan byte** -- docblock menulis
+  "bounded at 8192 bytes" sementara fold membaca
+  `mb_substr(mb_strtolower(...), 0, 8192)`: skala karakter, sehingga
+  ejaan obs-text multi-byte (empat byte per karakter) membuat berat
+  byte bacaan ter-batas mencapai empat kali lipat dari jumlah byte yang
+  diklaim kalimat lama. Skala karakter adalah yang sengaja dipin kampanye
+  mutasi KDD-CP7 (test `é` membunuh mutant byte-scale, test `İ` membunuh
+  fold pemanjang) dan baterai parser media-range sendiri
+  (`testTheHeaderIsBoundedAtEightThousandOneHundredNinetyTwoCharacters`) --
+  koreksinya menegaskan skala karakter di docblock kelas, konstanta, dan
+  pesan assertion test `testTheReadIsBounded`.
+- **`q=` pertama yang menang, bukan terakhir** -- docblock kelas dan
+  `quality()` menulis "the last `q=`" sementara foreach menjawab match
+  pertama (`gzip;q=0.5;q=0.8` -> 0.5) -- walk yang sama dengan parser
+  media-range dan pin `testTheFirstQualityParameterWins`. Docblock
+  dikoreksi ke first; `q= 1` yang tetap ditolak tidak tersentuh.
+
+Perilaku tidak berubah, tidak ada mutant baru (docblock dan pesan test
+bukan jalur logika) -- lipatan dokumen, pasangan langsung ronde
+refleksi-per-deklarasi container (#783, PR #880).

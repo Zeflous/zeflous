@@ -11,29 +11,36 @@ namespace Zef\Framework\Http;
  * same bounded read, the same member walk, the same quality
  * arithmetic.
  *
- * The header is bounded at 8192 bytes before the first byte of
- * parsing, exactly as the media-range parser is: an `Accept-Encoding`
- * line is a handful of short members in every real deployment, and a
- * megabyte spelling is an attacker's probe, not a client's
- * preference. Members that are not a coding token -- empty members,
- * a coding with forbidden characters -- are skipped, not fatal: the
- * legacy engines skip silently and so does the media-range parser,
- * because a refusal here would turn a sloppy client into a failed
- * request over a preference the server can satisfy without it.
+ * The header is bounded at 8192 characters before the first member
+ * of parsing, exactly as the media-range parser is bounded -- the
+ * ceiling counts characters, the scale the fold's own `mb_substr`
+ * counts (a multibyte obs-text spelling rides up to four bytes per
+ * admitted character, so the byte weight of a bounded read can reach
+ * four times the byte count the character ceiling spells): an
+ * `Accept-Encoding` line is a handful of short members in every real
+ * deployment, and a megabyte spelling is an attacker's probe, not a
+ * client's preference. Members that are not a coding token -- empty
+ * members, a coding with forbidden characters -- are skipped, not
+ * fatal: the legacy engines skip silently and so does the media-range
+ * parser, because a refusal here would turn a sloppy client into a
+ * failed request over a preference the server can satisfy without
+ * it.
  *
- * A coding's quality is the last `q=` parameter that follows it, in
- * the three-decimal grammar the media-range parser accepts; a member
- * with no quality parameter is 1.0. A repeated coding keeps its
- * highest quality -- the same max-fold the media-range parser
- * applies, so `gzip;q=0.1, gzip` reads as 1.0, never as the 0.1 an
- * earlier member wished on it. The parameters may carry the weight
- * grammar's own optional whitespace around the semicolons (`gzip ;
- * q=0.5` is the member `gzip;q=0.5` spells): each parameter is
- * trimmed before the `q=` match and the token before its own match,
- * exactly as the media-range parser trims its own -- while the value
- * stays anchored at the equals sign (`q= 1` is the refusal it always
- * was, because the grammar's OWS lives around the parameter, never
- * inside its value).
+ * A coding's quality is the first `q=` parameter that follows it, in
+ * the three-decimal grammar the media-range parser accepts -- a
+ * degenerate member spelling two `q=`s reads its first
+ * (`gzip;q=0.5;q=0.8` answers 0.5, the media-range parser's own
+ * walk); a member with no quality parameter is 1.0. A repeated coding
+ * keeps its highest quality -- the same max-fold the media-range
+ * parser applies, so `gzip;q=0.1, gzip` reads as 1.0, never as the
+ * 0.1 an earlier member wished on it. The parameters may carry the
+ * weight grammar's own optional whitespace around the semicolons
+ * (`gzip ; q=0.5` is the member `gzip;q=0.5` spells): each parameter
+ * is trimmed before the `q=` match and the token before its own
+ * match, exactly as the media-range parser trims its own -- while the
+ * value stays anchored at the equals sign (`q= 1` is the refusal it
+ * always was, because the grammar's OWS lives around the parameter,
+ * never inside its value).
  *
  * The map keeps zero qualities and the `identity` and `*` spellings:
  * whether a zero excludes a coding and whether a wildcard accepts one
@@ -42,7 +49,7 @@ namespace Zef\Framework\Http;
  */
 final class AcceptEncodingQualities
 {
-    /** The header read's byte ceiling. */
+    /** The header read's character ceiling. */
     private const int HEADER_LIMIT = 8192;
 
     /**
@@ -95,8 +102,8 @@ final class AcceptEncodingQualities
      *                               parameters, each trimmed of the
      *                               weight grammar's own OWS
      *
-     * @return float the last `q=` parameter's value, or 1.0 when the member
-     *               carries none
+     * @return float the first `q=` parameter's value, or 1.0 when the
+     *               member carries none
      */
     private static function quality(array $segments): float
     {
