@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-18T18:20:24Z",
+  "as_of": "2026-11-18T20:37:17Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 345,
+  "unreleased_count": 346,
   "versions": [
     {
       "version": "Unreleased",
@@ -11668,6 +11668,27 @@
                 "sha": "c1b8e54694ba36af58df99461a50cb11cba8e26d",
                 "short_sha": "c1b8e54",
                 "subject": "docs(roadmap): the pin rides the reflection-claim round's documents head (#880)"
+              }
+            ]
+          },
+          {
+            "pr": 883,
+            "title": "docs(http): the audit's three docblock claims meet the code they describe (issue #784)",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-11-18T20:37:17Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/883",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cbc85de252d9a196826c8fe17b12503a0b354351",
+                "short_sha": "cbc85de",
+                "subject": "docs(http): the audit's three docblock claims meet the code they describe (issue #784)"
+              },
+              {
+                "sha": "c8fc1cf519f04cea30fc5b18e1bb8fa5fae5efb5",
+                "short_sha": "c8fc1cf",
+                "subject": "docs(roadmap): the pin rides the docblock-claim round's documents head (#883)"
               }
             ]
           }
@@ -23703,6 +23724,27 @@
               "sha": "c1b8e54694ba36af58df99461a50cb11cba8e26d",
               "short_sha": "c1b8e54",
               "subject": "docs(roadmap): the pin rides the reflection-claim round's documents head (#880)"
+            }
+          ]
+        },
+        {
+          "pr": 883,
+          "title": "docs(http): the audit's three docblock claims meet the code they describe (issue #784)",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-11-18T20:37:17Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/883",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cbc85de252d9a196826c8fe17b12503a0b354351",
+              "short_sha": "cbc85de",
+              "subject": "docs(http): the audit's three docblock claims meet the code they describe (issue #784)"
+            },
+            {
+              "sha": "c8fc1cf519f04cea30fc5b18e1bb8fa5fae5efb5",
+              "short_sha": "c8fc1cf",
+              "subject": "docs(roadmap): the pin rides the docblock-claim round's documents head (#883)"
             }
           ]
         }
