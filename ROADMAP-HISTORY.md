@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-11-18 · `main` @ `98ace0d0`
+**Last updated:** 2026-11-18 · `main` @ `d74b5177`
 
 **How to read this file**
 
@@ -22,7 +22,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 
 | Roadmap area | Completed items |
 |---|---|
-| Container | 24 |
+| Container | 25 |
 | HTTP Layer | 39 |
 | Middleware Pipeline | 1 |
 | Error Handling | 7 |
@@ -37,7 +37,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Event source | 5 |
 | Adapters layer | 22 |
 | Module integration | 4 |
-| **Total merged PRs** | **269** |
+| **Total merged PRs** | **270** |
 
 ---
 
@@ -71,6 +71,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | fix(container): the answers the artifact bakes fold into the digest (issue #793 -- providers compute their answers at every parse (runtime-derived values -- env vars, time, hostname -- the raw knob's declarations never spell), the materialised `@value:` services bake those answers into the artifact's value entries, but the digest folded only the nine raw source maps -- declarations, not answers -- so a declaration set that never changed kept the digest matching forever and the artifact lane installed the dump-time answer, throwing the boot's fresh one away: for provider answers the artifact became the source of truth it is documented never to be; the fix is the honest invalidation -- `ContainerKnobs::fingerprint()` folds a tenth source map, `parameters.values`, the parsed dot-addressed values map the compile pass itself reads, provider answers included: a changed answer moves the digest, the probe answers false, the full lane compiles the fresh answer and re-dumps, an unchanged answer keeps the fast path (the three-boot battery pins the lifecycle: dump under answer one, bypass and fresh answer two, artifact-loaded answer two again); no `ARTIFACT_GENERATION` bump -- a source map joining the fold re-digests every configuration, the mismatch itself proving every nine-map-era artifact stale; KDD C6.11 in `docs/ci-notes/container-compiler-passes.md`) | #849 | 2026-11-16 | `7d94cff4` |
 | fix(container): the lazy mark on an answered identifier refuses instead of landing silently (issue #783, the container audit's finding 1 -- `markLazy()` on an identifier that had already resolved was accepted without a sound and never took effect: `ServiceResolutions` answers the singleton memo before the match that consults the lazy registry, so a mark landing after the memo held a plainly-resolved instance was a mark the resolution lanes would never read; the marking step's own third guard refuses it (`LazyRefusals::alreadyAnswered`, the seam and both ways out in the message -- mark before the first resolution, or re-register through `set()`, which forgets the memo, and mark again), the store answering the guard's question through a narrow read (`ServiceStore::memoised`, deliberately not a `has()` spelling); the boundary sits where the no-op lives, not around the resolution -- the same-class re-mark behind a memoised proxy stays the idempotent spelling (`classOf === null` the guard's own arm), a transient never memoises so its late mark still takes honest effect, and both boot lanes immune by the marks-before-warm order they already keep; the battery pins the repro and its message, the clean refusal state, the named way out walked end to end, and the transient boundary; KDD L.7 in `docs/ci-notes/container-lazy.md`) | #875 | 2026-11-18 | `b5fd575c` |
 | fix(container): the shadowed factory target's edge is the boot's to prove (issue #783, the container audit's finding 6 -- a factory target naming an existing class whose identifier the planned set also carries resolves through the instance lane at call time (the runtime precedence `FactoryClosures` spells: a registered service identifier shadows an equally-named class), but the boot graph skipped the class-named target's edge entirely, so cycles and lifetime captures on that lane were discovered mid-resolution -- the detected-at-boot discipline weakened exactly where the audit found it; the fix is the derived edge: the judgment its own unit (`FactoryShadows::target()` -- null unless the target is class-named and the planned set carries its identifier), collected by `DefinitionEdges` beside the declared references so `DefinitionCycles` and `LifetimeCaptures` prove it with zero new seams; the static-call form, the closure-registered leaf and the inventory's context-free declared view unchanged -- `DefinitionReferences` byte-identical; the collection loop condensed to one `isset` with the positive arm first; the battery pins the audit's cycle repro with the walked chain, the capture refusal over the derived edge, the collect-level unit pin, the leaf doctrine and the boot-level instance-lane precedence; the round's own archeology answer -- the first inline shape measured 25.33 against the pinned-strict 20, the extracted judgment landing 18.33 -- recorded in KDD-M12) | #878 | 2026-11-18 | `98ace0d0` |
+| docs(container): the extractor's reflection claim meets the code it describes (issue #783, the container audit's finding 5 -- the docblock promised 'never again for a class whose spec is already extracted' while no per-class memo exists in the code: two definitions pointing at one class pay the reflection read twice at boot; the claim restated to the per-declaration honesty (exactly once per definition per boot, never per resolution -- the guarantee the code actually keeps), the boundary named (a boot-only cost the runtime lanes never inherit, their reflection economics living in the area-11 `ReflectionMemo`), the absent memo documented as a deliberate absence rather than a promise, `ConstructorSpecs`' twin claim following the same correction ('the one reflection read the lane ever pays' -- for the declaration, not the class); no counting test can pin the double (the extractor is final readonly) and no behaviour changed -- a documents fold, recorded in the lane's own KDD) | #880 | 2026-11-18 | `d74b5177` |
 
 ## 2. HTTP Layer
 

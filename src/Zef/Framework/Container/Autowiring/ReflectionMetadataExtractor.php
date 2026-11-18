@@ -13,8 +13,12 @@ use ReflectionClass;
  * Reflection lives HERE and only here (the github v2.9 compile-pass
  * discipline this lane ports): the planner, the graph and the runtime
  * resolution all consume the pure specs, so the reflection cost of a
- * definition is paid exactly once per boot -- never per resolution, and
- * never again for a class whose spec is already extracted. Union and
+ * definition is paid exactly once per boot -- never per resolution
+ * (#783's honesty correction: never *again* is not among the
+ * guarantees; no per-class memo exists, so two definitions pointing at
+ * one class pay the read twice at boot -- a boot-only cost the runtime
+ * lanes never inherit, their own reflection economics living in
+ * {@see \Zef\Framework\Container\ReflectionMemo}). Union and
  * intersection types answer their honest unsupported-reason (a parameter
  * admitting several types names no single binding); attributes are read
  * through {@see AutowireAttributes}, their own constructors validating

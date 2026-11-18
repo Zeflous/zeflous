@@ -14,7 +14,10 @@ use ReflectionClass;
  * An interface, abstract class, enum or private constructor parading as
  * a `class` shape is the boot-time refusal it always deserved to be;
  * everything that survives answers its constructor's pure spec list --
- * the one reflection read the lane ever pays for the class.
+ * the one reflection read the lane ever pays for the declaration (#783's
+ * honesty correction: a *second* declaration of the same class pays its
+ * own read; no per-class memo exists, and the boot-only cost never
+ * reaches a resolution).
  */
 final readonly class ConstructorSpecs
 {
