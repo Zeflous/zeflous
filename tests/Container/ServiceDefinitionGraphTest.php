@@ -219,6 +219,22 @@ final class ServiceDefinitionGraphTest extends TestCase
         self::assertSame([ExternalFactory::class], $edges['app.label']);
     }
 
+    public function testAServiceNamedFactoryTargetStaysTheDeclaredEdgeAlone(): void
+    {
+        // The shadow judgment's own negative: a service-named target is
+        // the declared edge the references walk already owns -- the
+        // derived edge answers null for it, whatever the planned set
+        // carries (the class-named spelling is the only target the
+        // runtime precedence could shadow).
+        $edges = DefinitionEdges::collect([
+            new FactoryDefinition('app.label', 'app.builder::build', []),
+            new FactoryDefinition('app.builder', ExternalFactory::class . '::make', []),
+        ], new Container());
+
+        self::assertSame(['app.builder'], $edges['app.label']);
+        self::assertArrayNotHasKey('app.builder', $edges, 'a class-named target nobody planned is no edge');
+    }
+
     public function testTheDerivedEdgeCarriesTheCaptureDisciplineToo(): void
     {
         // A dependency the runtime will walk is a dependency all the

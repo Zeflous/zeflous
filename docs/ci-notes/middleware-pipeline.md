@@ -239,4 +239,11 @@ disiplin "detected at boot" yang audit #783 temukan (temuan 6).
   ke daftar `#[CoversClass]`, dan kolaborator baru tanpa entrinya membaca
   nol betapapun sering dipanggil. Kolaborator baru = entrinya sendiri di
   berkas cakupan (covers) baterai yang menguji unitnya, bukan warisan
-  atribusi pemanggilnya.
+  atribusi pemanggilnya. Entrinya lalu MEMBEKALKAN celah nyata yang
+  atribusi-nol selama ini sembunyikan: lengan target-bukan-kelas dari
+  penilaian (return null) tidak pernah diinjak baterai mana pun -- semua
+  ejaan non-kelas di graf lama melempar dulu di jalan deklarasi (target
+  tak dikenal) -- sehingga baterai butuh tes sendiri: target bernama-
+  layanan yang VALID melalui collect (deklarasi tetap satu-satunya edge,
+  `assertArrayNotHasKey` untuk bayangan nol). Entri covers bukan
+  formalitas -- ia alat yang menyingkap celah asli.
