@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): the audit's five sentences meet the code they describe \(issue \#789\) [\#864](https://github.com/Zeflous/zeflous/pull/864) ([mbetixz](https://github.com/mbetixz))
 - fix\(router\): the 405's diagnostics name the methods the host specificity shadowed \(issue \#795\) [\#863](https://github.com/Zeflous/zeflous/pull/863) ([mbetixz](https://github.com/mbetixz))
 - fix\(http\): the trusted proxy's forwarded protocol claim arms the scheme posture \(issue \#797\) [\#859](https://github.com/Zeflous/zeflous/pull/859) ([mbetixz](https://github.com/mbetixz))
 - fix\(http\): the slow-request record joins the response stamp on the boundary's own mint \(issue \#796\) [\#856](https://github.com/Zeflous/zeflous/pull/856) ([mbetixz](https://github.com/mbetixz))
