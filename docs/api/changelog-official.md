@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- docs\(container\): the extractor's reflection claim meets the code it describes \(issue \#783\) [\#880](https://github.com/Zeflous/zeflous/pull/880) ([mbetixz](https://github.com/mbetixz))
+- fix\(container\): the shadowed factory target's edge is the boot's to prove \(issue \#783\) [\#878](https://github.com/Zeflous/zeflous/pull/878) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the lazy mark on an answered identifier refuses instead of landing silently \(issue \#783\) [\#875](https://github.com/Zeflous/zeflous/pull/875) ([mbetixz](https://github.com/mbetixz))
 - fix\(router\): the unparsable Accept header is answered as absence, not refusal \(issue \#782\) [\#870](https://github.com/Zeflous/zeflous/pull/870) ([mbetixz](https://github.com/mbetixz))
 - fix\(event\): the grammar anchors pin to the true string end \(issue \#786\) [\#867](https://github.com/Zeflous/zeflous/pull/867) ([mbetixz](https://github.com/mbetixz))
