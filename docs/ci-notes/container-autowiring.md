@@ -153,3 +153,22 @@ permukaan publik `set()`, Container layer bebas Config).
   rantai = `CycleGuard` #380.
 - Grammar 4-shape + graph dua-waktu + instalasi `set()`: keluarga #328
   (KDD-M2..M4) yang tidak disentuh — lane ini tumbuh DI ATASNYA.
+
+## KDD tambahan (ronde audit #783): klaim refleksi per-kelas jujur
+
+Temuan 5 audit Container: docblock `ReflectionMetadataExtractor`
+mengklaim "never again for a class whose spec is already extracted" --
+tidak ada memo per-class di kode; dua definisi yang menunjuk satu kelas
+membayar refleksi dua kali saat boot. Klaimnya dikoreksi ke kejujuran
+per-deklarasi (sekali per definisi per boot, tidak pernah per resolusi),
+batasnya dinamai: biaya boot-only yang tak pernah diwarisi jalur
+runtime (ekonomi refleksi runtime hidup di `ReflectionMemo`, area 11 --
+per-lane, bukan lintas-lane), dan memo per-class yang tak ada
+didokumentasikan sebagai ketiadaan yang disengaja, bukan janji.
+
+- **Tidak ada tes penghitung, dan itu sendiri jujur**: `final readonly`
+  menutup jalur double-test (`extract()` tak bisa dibungkus penghitung
+  tanpa mengubah kelasnya), dan koreksi klaim tidak mengubah perilaku
+  apa pun yang bisa diamati -- lipatan ini adalah lipatan dokumen.
+- `ConstructorSpecs` ikut dikoreksi ("the one reflection read the lane
+  ever pays" untuk *the declaration*, bukan *the class*).
