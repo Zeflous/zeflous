@@ -38,9 +38,12 @@ final class RouteAcceptNegotiator
 
         $ranges = RouteAcceptRanges::parse($accept);
 
-        if ($ranges === []) {
-            return true;
-        }
+        // The empty parse seeds the verdict permitted -- the boundary of
+        // issue #782, folded into the accumulator instead of a fourth
+        // return: a header that expressed nothing permits everything, and
+        // only a declared media type no parsed range permits can change
+        // that answer, so the return reads the accumulated verdict alone.
+        $permitted = $ranges === [];
 
         foreach ($produces as $produce) {
             $segments = explode('/', $produce, 2);
@@ -53,11 +56,9 @@ final class RouteAcceptNegotiator
 
             [$type, $subtype] = $segments;
 
-            if (RouteAcceptMatch::accepts($ranges, $type, $subtype)) {
-                return true;
-            }
+            $permitted = $permitted || RouteAcceptMatch::accepts($ranges, $type, $subtype);
         }
 
-        return false;
+        return $permitted;
     }
 }

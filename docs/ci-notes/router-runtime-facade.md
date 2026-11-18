@@ -259,3 +259,32 @@ verdicts are the CI lanes' to answer on this checkout (no pcov driver
 in the sandbox's portable engine), the changed-set mutants the new
 guard would wake -- the empty-list comparison, the removed trim arm,
 the null and no-produces arms -- each facing the pin that kills it.
+
+## KDD-AN2 — the round's own gate answer: the accumulator, not the fourth return
+
+The CI round answered before the mutation lanes did: SonarCloud's php:S1142
+refused the negotiator's grown four returns (the fast exit, the new
+empty-parse boundary, the loop's first-match early return, the final
+refusal), and the house's own recorded idiom for exactly this refusal --
+"<=3 return per method, combined via a result variable" (the radix-engine
+lane's S1142 round) -- names the fix. The boundary folds into the verdict
+the loop already accumulates: the empty parse SEEDS the verdict permitted
+(a header that expressed nothing permits everything), each declared media
+type joins with `||` over its `RouteAcceptMatch` answer, and the single
+tail return reads the accumulated verdict alone -- the shape
+`RouteAcceptMatch` itself already wears (the quality verdict tracked and
+returned once).
+
+The refold buys back more than the return count: the produces validation
+runs for every present header again (the fourth-return spelling skipped it
+whenever the parse came back empty, so a garbage header silenced the
+route-field defense), and the produces side gains the twin pin the ranges
+side already had -- a later DECLARED media type still negotiating after a
+non-matching one, the battery that kills the `||`-to-`&&` mutant the
+accumulator woke.
+
+The mutation surface the refold adds: the seed comparison (killed by the
+`banana` repro both directions -- a flipped seed sends the garbage header
+back to the 406 lane), the seed operand removal (same kill), the `||`
+operand (the later-declaration twin above), and the accumulated return
+itself (every 406 pin the family already carries).

@@ -112,6 +112,13 @@ final class RouteAcceptNegotiationTest extends TestCase
         self::assertTrue($radixTree->match('GET', '/profile', null, 'application/json, */*')->isFound());
     }
 
+    public function testALaterDeclaredMediaTypeStillNegotiatesAfterANonMatchingOne(): void
+    {
+        $radixTree = $this->treeProducing('application/json', 'text/plain');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, 'text/plain')->isFound());
+    }
+
     public function testEquallySpecificRangesKeepTheBestQuality(): void
     {
         $radixTree = $this->treeProducing('text/plain');
