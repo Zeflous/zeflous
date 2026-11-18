@@ -213,3 +213,114 @@ used to match, the versionless request keeping the fallback), the
 mixed/unmixed wrong-method pairs (both answering the 405 with Allow:
 GET), and the fail-closed half (a method the path answers never
 serving behind a version miss).
+
+## KDD-AN1 — the unparsable header is absence, not refusal (issue #782)
+
+The audit's availability finding: one garbage `Accept` header closed
+the entire route table. `RouteAcceptRanges::parse()` skipped every
+invalid range -- the docblock's own doctrine, "an untrusted header is
+runtime data, not a defect" -- and the skipped-to-empty list then
+reached `RouteAcceptMatch::accepts()`, whose honest zero-quality
+answer read as a total refusal: `Accept: banana` answered 406 on every
+route that declares `produces`, while the absent header
+(`accept === null`) permits everything. The doctrine answered the
+entry-level question (skip, don't throw) and never answered the
+boundary question it created: what IS a header whose every entry was
+skipped?
+
+The fix names the boundary in the negotiator: a header that parses to
+no range expresses nothing, so nothing is enforced -- the empty parse
+result is answered exactly like the absent header, and the blank-header
+short-circuit folds into the same seam, one judgment for "no
+preference expressed" wherever it comes from (absent, whitespace,
+separators, all-garbage). The boundary is the grammar, not the mood:
+one valid range decides the whole header (`banana, text/html` against
+an `application/json` route still answers the 406, and a well-formed
+all-media zero-quality refusal still closes the table), so the new
+leniency cannot be reached by a header that said anything at all --
+only by a header that said nothing.
+
+The battery pins the boundary from both sides: the audit's own repro
+(`banana` answers found), the separator-only and whitespace-only
+spellings (previously the trim seam, now the same empty-parse seam),
+the type-wildcard-with-concrete-subtype alone (previously a 406 the
+audit named, now expresses-nothing), the multibyte quality value
+alone (the skip's own end state) and beside a valid zero-quality
+exclusion (the skip pinned with teeth: had the multibyte quality
+parsed, the range's specificity would have overridden the exclusion),
+the mixed garbage-plus-valid header (the valid range still decides),
+and the well-formed total refusal (unchanged).
+
+Verification: the static lanes all pass locally (lint, PHPStan with
+the ratchet, Psalm level 1, Deptrac, the fixer and phpcs, the
+duplication and mess gates, the roadmap gate) with the full suite
+green (7680 tests, 18905 assertions); the coverage and mutation
+verdicts are the CI lanes' to answer on this checkout (no pcov driver
+in the sandbox's portable engine), the changed-set mutants the new
+guard would wake -- the empty-list comparison, the removed trim arm,
+the null and no-produces arms -- each facing the pin that kills it.
+
+## KDD-AN2 — the round's own gate answer: the accumulator, not the fourth return
+
+The CI round answered before the mutation lanes did: SonarCloud's php:S1142
+refused the negotiator's grown four returns (the fast exit, the new
+empty-parse boundary, the loop's first-match early return, the final
+refusal), and the house's own recorded idiom for exactly this refusal --
+"<=3 return per method, combined via a result variable" (the radix-engine
+lane's S1142 round) -- names the fix. The boundary folds into the verdict
+the loop already accumulates: the empty parse SEEDS the verdict permitted
+(a header that expressed nothing permits everything), each declared media
+type joins with `||` over its `RouteAcceptMatch` answer, and the single
+tail return reads the accumulated verdict alone -- the shape
+`RouteAcceptMatch` itself already wears (the quality verdict tracked and
+returned once).
+
+The refold buys back more than the return count: the produces validation
+runs for every present header again (the fourth-return spelling skipped it
+whenever the parse came back empty, so a garbage header silenced the
+route-field defense), and the produces side gains the twin pin the ranges
+side already had -- a later DECLARED media type still negotiating after a
+non-matching one, the battery that kills the `||`-to-`&&` mutant the
+accumulator woke.
+
+The mutation surface the refold adds: the seed comparison (killed by the
+`banana` repro both directions -- a flipped seed sends the garbage header
+back to the 406 lane), the seed operand removal (same kill), the `||`
+operand (the later-declaration twin above), and the accumulated return
+itself (every 406 pin the family already carries).
+
+## KDD-AN3 — the boundary unmasked the parse's own mutants (issue #782)
+
+The Infection round answered with five escapes, all of them in the parse
+the boundary sits on, none of them new code: the mutants that used to be
+killed by the 406-on-garbage pins the boundary itself retired. The
+`mb_strtolower`-to-`strtolower` mutant of the media-range fold had been
+killed by the Kelvin-sign test asserting the folded range MATCHES (a
+skipped Kelvin range meant 406); under the boundary, a skipped Kelvin
+range means found -- the same verdict as the folded match, the mutant
+gratuitously green. The three operand mutants of the wildcard guard and
+its `continue` had been killed the same way: a `*/json` the guard
+stopped parsing used to close the table, so any mutant that let it
+through answered differently; under the boundary, a `*/json` the guard
+skips and a `*/json` a mutant lets live agree whenever the route's
+produced subtype is `json`, and the `continue`-to-`break` mutant's
+truncated parse lands on the empty list, which now permits.
+
+The kills move to where the boundary made the difference visible
+anyway -- the folded range's PRESENCE, not the garbage's absence:
+- the Kelvin-folded exclusion (`\u{212A}/type;q=0` against a `k/type`
+  route answers the 406 only when the fold happened -- an unfolded
+  spelling is the empty parse, which permits);
+- the wildcard-with-concrete-subtype against an UNRELATED declaration
+  (`*/json` against a `text/plain` route answers found only when the
+  entry was skipped -- a live `*/json` range does not cover `plain`);
+- the skipped entry's shadow (`*/json, text/*;q=0` against a
+  `text/plain` route answers the exclusion's 406 only when the walk
+  reached the second entry -- a `break` truncates to the empty parse,
+  which permits).
+
+The lesson for the lane's ledger: a boundary that turns a failure mode
+into a benign mode retires the tests that killed mutants THROUGH that
+failure mode; every mutant whose kill rode the retired arm needs a new
+home, or MSI drops below the floor by exactly the mutants nobody
+re-homed. The battery is the re-homing.

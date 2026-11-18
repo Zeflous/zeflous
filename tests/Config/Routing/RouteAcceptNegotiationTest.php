@@ -19,8 +19,12 @@ use Zef\Framework\Config\Routing\RouteProduces;
  * (wildcard placement, quality grammar, parameter spacing), the
  * most-specific-range-wins rule (a specific q=0 exclusion cannot be
  * overridden by a wildcard, and equally specific ranges keep the best
- * quality), and the declared produces grammar (case folding included --
- * the Kelvin sign folds to ASCII `k` under mb_strtolower only).
+ * quality), the declared produces grammar (case folding included --
+ * the Kelvin sign folds to ASCII `k` under mb_strtolower only), and the
+ * unparsable-header boundary (issue #782): a header that parses to no
+ * range expresses nothing, so the route answers as if no Accept was sent
+ * -- while one valid range beside the garbage still decides, and a
+ * well-formed all-media zero-quality refusal still refuses everything.
  *
  * @internal
  */
@@ -31,11 +35,67 @@ use Zef\Framework\Config\Routing\RouteProduces;
 #[CoversClass(RouteProduces::class)]
 final class RouteAcceptNegotiationTest extends TestCase
 {
-    public function testATypeWildcardWithAConcreteSubtypeIsNotARange(): void
+    public function testAFullyUnparsableAcceptHeaderPermitsEveryDeclaration(): void
     {
         $radixTree = $this->treeProducing('application/json');
 
-        self::assertTrue($radixTree->match('GET', '/profile', null, '*/json')->isNotAcceptable());
+        self::assertTrue($radixTree->match('GET', '/profile', null, 'banana')->isFound());
+    }
+
+    public function testAGarbageEntryBesideAValidRangeLeavesTheRangeDeciding(): void
+    {
+        $radixTree = $this->treeProducing('application/json');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, 'banana, text/html')->isNotAcceptable());
+    }
+
+    public function testAValidAllMediaZeroQualityRefusalStillClosesTheTable(): void
+    {
+        $radixTree = $this->treeProducing('application/json');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, '*/*;q=0')->isNotAcceptable());
+    }
+
+    public function testASeparatorOnlyAcceptHeaderExpressesNothing(): void
+    {
+        $radixTree = $this->treeProducing('application/json');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, ', ,')->isFound());
+    }
+
+    public function testAWhitespaceOnlyAcceptHeaderExpressesNothing(): void
+    {
+        $radixTree = $this->treeProducing('application/json');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, '   ')->isFound());
+    }
+
+    public function testATypeWildcardWithAConcreteSubtypeAloneExpressesNothing(): void
+    {
+        $radixTree = $this->treeProducing('application/json');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, '*/json')->isFound());
+    }
+
+    public function testATypeWildcardWithAConcreteSubtypeExpressesNothingForUnrelatedMediaTypes(): void
+    {
+        $radixTree = $this->treeProducing('text/plain');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, '*/json')->isFound());
+    }
+
+    public function testASkippedWildcardSubtypeDoesNotHideAValidExclusion(): void
+    {
+        $radixTree = $this->treeProducing('text/plain');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, '*/json, text/*;q=0')->isNotAcceptable());
+    }
+
+    public function testAKelvinFoldedExclusionRefusesWhatAnUnfoldedSpellingWouldPermit(): void
+    {
+        $radixTree = $this->treeProducing('k/type');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, "\u{212A}/type;q=0")->isNotAcceptable());
     }
 
     public function testASpecificZeroQualityExclusionIsNotOverriddenByTheAllMediaWildcard(): void
@@ -71,6 +131,13 @@ final class RouteAcceptNegotiationTest extends TestCase
         $radixTree = $this->treeProducing('text/plain');
 
         self::assertTrue($radixTree->match('GET', '/profile', null, 'application/json, */*')->isFound());
+    }
+
+    public function testALaterDeclaredMediaTypeStillNegotiatesAfterANonMatchingOne(): void
+    {
+        $radixTree = $this->treeProducing('application/json', 'text/plain');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, 'text/plain')->isFound());
     }
 
     public function testEquallySpecificRangesKeepTheBestQuality(): void
@@ -145,11 +212,20 @@ final class RouteAcceptNegotiationTest extends TestCase
         self::assertTrue($radixTree->match('GET', '/profile', null, '*/json, application/json')->isFound());
     }
 
-    public function testAQualityParameterWithAMultibyteValueInvalidatesTheRange(): void
+    public function testAMultibyteQualityValueSkipsItsRangeSoAValidExclusionDecides(): void
     {
         $radixTree = $this->treeProducing('k/type');
 
-        self::assertTrue($radixTree->match('GET', '/profile', null, "\u{212A}/type; Q=\u{0130}")->isNotAcceptable());
+        self::assertTrue(
+            $radixTree->match('GET', '/profile', null, "\u{212A}/type; q=\u{0130}, */*;q=0")->isNotAcceptable(),
+        );
+    }
+
+    public function testAMultibyteQualityValueAloneExpressesNothing(): void
+    {
+        $radixTree = $this->treeProducing('k/type');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, "\u{212A}/type; Q=\u{0130}")->isFound());
     }
 
     public function testEquallySpecificRangesKeepTheLastExcludedQualityOut(): void
