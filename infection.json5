@@ -820,7 +820,26 @@
                 // preg_match grammar fold is not an MBString target:
                 // its D-flag pin lives in the trailing-newline test.
                 // This ignore is scoped to that single method.
-                "Zef\\Framework\\View\\ViewName::__construct"
+                "Zef\\Framework\\View\\ViewName::__construct",
+                // The auth family's reserved-name fold reads the one
+                // word 'anonymous' against the principal id (issue
+                // #785's finding 4): the word spells no k and no i,
+                // and the only single-character lower-case landings
+                // into ASCII the Unicode case map carries are the
+                // Kelvin sign's k and the Turkish capital I's
+                // two-character i-dot -- so no principal id can fold
+                // into the reserved word under the character map
+                // without also folding under the byte map, and every
+                // fold-divergent id fails to equal 'anonymous' under
+                // both spellings (verified by running the family
+                // battery under the manually applied mutation -- the
+                // complete battery passes, the case folds the
+                // boundary, policy and table pins carry included).
+                // The unit owns the family's whole fold: the policy's
+                // branch, the boundary's refusal and the table's
+                // composition halt all spell it through this one
+                // method. This ignore is scoped to that single method.
+                "Zef\\Framework\\Http\\ReservedPrincipalName::isClaimedBy"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",

@@ -249,11 +249,18 @@ write the same increment, losing one). The port keeps the contract and
 replaces the bug: one `apcu_inc` step per request (atomic per key, the
 TTL initialising a fresh counter at one) plus one `apcu_add`-claimed
 reset epoch per window (set-only-if-absent, so the window's first
-request fixes the epoch everyone else reads). The documented residual:
-counter and epoch are two keys written in two steps, so a window
-boundary can skew by microseconds -- the skew only ever *lengthens* the
-reported `Retry-After` (conservative), never shortens it, and the
-aggregate count per window stays exact.
+request fixes the epoch everyone else reads). The documented residual
+(amended by issue #785's finding 2, 2026-11-19): counter and epoch are
+two keys written in two steps, so a window boundary can skew by
+microseconds -- the counter key outlives the epoch by exactly the skew,
+and a request landing inside that gap reads the new epoch against the
+old window's still-living count. The skew only ever *lengthens* the
+reported `Retry-After` (conservative), never shortens it; the aggregate
+count per window, however, is **not exact across that boundary** -- the
+new epoch's first verdicts can carry the previous window's tail (the
+limiter's own docblock claimed exactness until the audit's micro-race
+walked the two-key timeline; the honest directional claim is the
+conservatism, not the count).
 
 **KDD-RL4 -- The in-memory store's sweep is capacity-triggered, with
 identical verdicts.** The reference swept every bucket on every check
@@ -313,6 +320,90 @@ limiters -- the port makes the seam family-wide (the requirement
 "clock injectable" taken literally), so the window arithmetic is
 deterministic under test for all three stores and no store's
 `Retry-After` derivation is untestable by construction.
+
+## The decisions (KDD-AU, the auth family's audit round, issue #785)
+
+The authentication family (#357) carried its decisions in the code's own
+docblocks and the history row; this round -- the http auth/rate-limit
+audit (A-M1..A-M12, checkout `091e5c85`) -- lands the first standing
+record here, beside the security families it shares the runtime with.
+
+**KDD-AU1 -- The anonymous principal's name is reserved for the
+anonymous resolution (finding 4).** The authorization policy finds the
+anonymous branch by folding the *context's principal id*
+(`AllowScopePolicy`, the reference's own case-insensitive comparison --
+a proxy the policy cannot escape: it never sees the handle the
+credential travelled under). A custom provider that resolves a
+*presented* credential into a principal named `anonymous` (any fold)
+would steer an authenticated principal into that branch and its
+blanket allowance, with no scope ever consulted. The fix rides the one
+collaborator that holds both facts: the boundary refuses the resolution
+as `MALFORMED_METADATA` -- the taxonomy's contract vocabulary, whose
+reference application (authenticated-without-context) was unreachable,
+gaining its one live arm here instead of a new enum value (a wiring
+error answers the 500 it honestly is; the client cannot act on a valid
+token the wiring refuses, so no 401 masquerade). The discriminator is
+the handle's own anonymous state, never the argument's nullness: a
+caller passing `AuthCredential::anonymous()` explicitly travels the
+anonymous resolution and keeps the name. Belt and braces on the
+framework's own wiring: `StaticCredentialProvider`'s composition halts
+on a table principal that claims the reserved name (the same
+fail-closed boot posture as the empty-token table) -- the boundary
+refusal covers every custom provider, the composition refusal keeps the
+shipped table from ever needing it.
+
+The fold itself stands as its own single-question unit
+(`ReservedPrincipalName` -- the `FactoryShadows::target()` idiom, a
+judgment three call sites share: the policy's branch, the boundary's
+refusal, the table's composition halt), which the round's archeology
+gate demanded: the first form (the fold inline in the boundary's
+`admit()`) measured class difficulty 21.94 against the ceiling of 20
+the family borrows -- the extraction brought the boundary to 19.43
+with the unit at 8.75, the same lesson the pipeline lane's KDD-M13
+recorded in the same round.
+
+The unit's own fold carries the KDD-SC8 argument as its method-scoped
+ignore entry in `infection.json5` (the MBString mutator's rewrite
+`mb_strtolower` -> `strtolower`): the reserved word spells no `k` and
+no `i`, and the Unicode case map's only single-character lower-case
+landings into ASCII are the Kelvin sign's `k` and the Turkish capital
+I's two-character `i-dot` -- so every fold-divergent principal id
+fails to equal `anonymous` under both spellings, the zone is
+value-equivalent by construction (verified by running the family
+battery under the manually applied mutation -- the complete battery
+passes, the case-fold pins the boundary, policy and table batteries
+carry).
+
+**KDD-AU2 -- The APCu docblock answers the availability and exactness
+questions the code actually owns (findings 1 and 2).** The limiter's
+docblock promised a factory availability check that never ran and a
+count exactness the two-key timeline never held. Both claims are now
+the code's own: availability is the deployment's to guarantee (no
+`function_exists` branch, KDD-RL1's own doctrine -- the extension's
+absence surfaces per-request through the middleware's catch-all
+fail-closed 503, never a boot halt with a remediation), and the
+boundary skew is spelled honestly (conservative direction, count
+straddling the epoch rollover -- KDD-RL3's amended residual). No
+behaviour changed: the audit's disposition was docblock honesty, the
+same round the #784 lane gave the compression and body-parser
+families.
+
+**KDD-AU3 -- The middleware entry map is closed like a family map
+(finding 3, recorded with the pipeline lane).** The `middleware.stack`
+entry grammar silently ignored unknown keys -- a typo'd `prioriti`
+fell through to the priority-0 default unnoticed, exactly the class of
+failure the strict-knob census refuses ("a typo'd key must never fall
+through to the default posture unnoticed"). `MiddlewareDefinition::
+fromArray()` now rejects unknown keys with the known list spelled out
+(`service`, `id`, `priority`) -- the entry-level closing of KDD-SC3's
+own doctrine, recorded in full in `docs/ci-notes/middleware-pipeline.md`
+(KDD-M13). The audit's remaining findings are informational posture
+(documented properties, no code change): the IP-only rate-limit key with
+the unparsed peer's shared `0.0.0.0` bucket, the raw replay-id bytes
+in APCu, the static table's residual index timing, the wall-clock auth
+seam, the consume-before-handler replay order, and the redis store's
+three-command non-atomicity -- each stays the documented operational
+awareness the audit recorded, none a strict-reading violation.
 
 ## Legacy attribution
 

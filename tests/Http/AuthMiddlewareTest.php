@@ -206,6 +206,33 @@ final class AuthMiddlewareTest extends TestCase
         self::assertFalse($response->hasHeader('WWW-Authenticate'), "the outage is not the client's credential");
     }
 
+    public function testAPresentedCredentialUnderTheReservedAnonymousNameAnswersTheFiveHundred(): void
+    {
+        // Issue #785's finding 4: a provider that vouches for a
+        // presented credential under the anonymous principal's
+        // reserved name would steer an authenticated principal into
+        // the policy's anonymous branch and its blanket allowance --
+        // the boundary refuses it as the wiring error it is, and the
+        // middleware surfaces the invariant break the 500 it honestly
+        // is rather than masquerading as a client error.
+        $middleware = $this->middlewareOver(
+            $this->providerAnswering(new AuthResult(
+                AuthStatus::AUTHENTICATED,
+                new AuthContext('AnOnYmOuS', 'custom-provider', 'route', 'api', null),
+            )),
+        );
+
+        $response = $middleware->process($this->request('POST', self::TOKEN), $this->fixedResponseHandler);
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertSame('Internal Server Error', $this->envelope($response)['message']);
+        self::assertFalse(
+            $response->hasHeader('WWW-Authenticate'),
+            'the reserved-name refusal is a wiring error, not an authentication question',
+        );
+        self::assertFalse($response->hasHeader('Retry-After'), 'the invariant break is not an outage');
+    }
+
     public function testAnAuthorizationRefusalCarriesTheInsufficientScopeChallenge(): void
     {
         $middleware = $this->middleware(requiredScope: 'admin');
