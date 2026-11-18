@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(router\): the 405's diagnostics name the methods the host specificity shadowed \(issue \#795\) [\#863](https://github.com/Zeflous/zeflous/pull/863) ([mbetixz](https://github.com/mbetixz))
 - fix\(http\): the trusted proxy's forwarded protocol claim arms the scheme posture \(issue \#797\) [\#859](https://github.com/Zeflous/zeflous/pull/859) ([mbetixz](https://github.com/mbetixz))
 - fix\(http\): the slow-request record joins the response stamp on the boundary's own mint \(issue \#796\) [\#856](https://github.com/Zeflous/zeflous/pull/856) ([mbetixz](https://github.com/mbetixz))
 - fix\(errors\): the family boolean knobs fold through the one vocabulary \(issue \#798\) [\#855](https://github.com/Zeflous/zeflous/pull/855) ([mbetixz](https://github.com/mbetixz))
