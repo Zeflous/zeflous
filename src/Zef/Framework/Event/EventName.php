@@ -19,7 +19,11 @@ use InvalidArgumentException;
  * domain conventions the roadmap spells (`user.created`,
  * `order.paid`) while keeping every name printable, comparable and
  * free of whitespace, control bytes and signature spellings that
- * would make a wildcard match ambiguous later.
+ * would make a wildcard match ambiguous later. The anchor carries the
+ * `D` modifier (#786): PCRE's bare `$` also matches immediately before
+ * a final newline, so `user.created\n` was a grammar-legal spelling
+ * whose canonical form silently carried a control byte -- the same
+ * anchor lesson the correlation id's claim grammar learned first.
  */
 final readonly class EventName
 {
@@ -41,7 +45,7 @@ final readonly class EventName
             );
         }
 
-        if (preg_match('/^[A-Za-z][A-Za-z0-9._-]*$/', $name) !== 1) {
+        if (preg_match('/^[A-Za-z][A-Za-z0-9._-]*$/D', $name) !== 1) {
             throw new InvalidArgumentException(
                 'An event name must start with a letter and continue with'
                 . " letters, digits, dots, dashes or underscores, got '{$name}'.",

@@ -23,7 +23,11 @@ use InvalidArgumentException;
  * not definable: the name book's define verb refuses the star by the
  * shared grammar, and a wildcard subscription is its own contract --
  * the events it matches are the events the application defines, each
- * carrying each definition's own validated shape.
+ * carrying each definition's own validated shape. The prefix grammar
+ * carries the same `D` anchor the name grammar gained (#786): PCRE's
+ * bare `$` also matches immediately before a final newline, so a
+ * prefix spelled `user.*` over an input ending `user.created\n` was
+ * grammar-legal with a control byte riding its canonical spelling.
  */
 final readonly class EventPattern
 {
@@ -62,7 +66,7 @@ final readonly class EventPattern
             );
         }
 
-        if ($prefix === '' || preg_match('/^[A-Za-z][A-Za-z0-9._-]*$/', $prefix) !== 1) {
+        if ($prefix === '' || preg_match('/^[A-Za-z][A-Za-z0-9._-]*$/D', $prefix) !== 1) {
             throw new InvalidArgumentException(
                 "An event pattern's prefix must start with a letter and continue"
                 . " with letters, digits, dots, dashes or underscores, got '{$prefix}'.",

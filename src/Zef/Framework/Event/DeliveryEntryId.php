@@ -33,10 +33,16 @@ final readonly class DeliveryEntryId
     /**
      * @throws InvalidArgumentException when the spelling is not
      *                                  thirty-two lowercase hexadecimal characters
+     *
+     * The anchor carries the `D` modifier (#786): PCRE's bare `$`
+     * also matches immediately before a final newline, so an id
+     * spelled `32-hex\n` was grammar-legal while the canonical
+     * spelling silently carried a control byte -- the same anchor
+     * lesson the event name grammar learned
      */
     public function __construct(string $id)
     {
-        if (preg_match('/^[0-9a-f]{' . self::HEX_LENGTH . '}$/', $id) !== 1) {
+        if (preg_match('/^[0-9a-f]{' . self::HEX_LENGTH . '}$/D', $id) !== 1) {
             throw new InvalidArgumentException(
                 'A delivery entry id must be exactly ' . self::HEX_LENGTH
                 . " lowercase hexadecimal characters, got '" . $id . "'.",

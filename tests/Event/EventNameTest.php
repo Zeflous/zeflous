@@ -123,6 +123,39 @@ final class EventNameTest extends TestCase
         new EventName("user\ncreated");
     }
 
+    /**
+     * The #786 anchor pin: PCRE's bare `$` also matches immediately
+     * before a final newline, so a trailing one was grammar-legal while
+     * the canonical spelling silently carried a control byte -- and it
+     * slipped through the length ceiling too (`a` x63 + `\n` is 64
+     * characters, ceiling-legal, so the grammar was the only guard
+     * left). The `D` modifier pins the anchor to the true end.
+     */
+    public function testATrailingNewlineIsRefusedByTheGrammarAndTheLengthCeilingBypass(): void
+    {
+        try {
+            new EventName("user.created\n");
+            self::fail('A trailing newline is not a grammar-legal spelling.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'An event name must start with a letter and continue with'
+                . " letters, digits, dots, dashes or underscores, got 'user.created\n'.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
+
+        try {
+            new EventName(str_repeat('a', 63) . "\n");
+            self::fail('A ceiling-legal spelling ending in a newline is not grammar-legal.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertStringContainsString(
+                "got 'a",
+                $invalidArgumentException->getMessage(),
+                'the ceiling-legal spelling is refused by the grammar alone',
+            );
+        }
+    }
+
     public function testAMultibyteSpellingWithinTheCharacterCeilingIsRefusedByTheGrammar(): void
     {
         // 33 two-byte characters: 33 characters (within the ceiling
