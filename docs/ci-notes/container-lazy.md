@@ -323,3 +323,18 @@ test, the flipped registry arm (`!== null`) on the idempotent re-mark
 the older battery already pinned, the store's verdict both ways on
 the first-mark and the repro tests -- every mutant of the round lands
 where the boundary made the difference visible.
+
+The round's own gate answer: PhpCodeArcheology's strict lane refused
+the first shape -- the store's Halstead difficulty crossed the
+pinned-strict 20 (`19.38 → 20.63`, the marking read's four operand
+occurrences against a class that sat 0.62 under the threshold). The
+resolution rides the mechanism this ledger already records: the four
+new-able collaborators (`SingletonMemo`, `FactoryRegistrations`,
+`Interceptions`, `AliasRides`) promote into constructor parameters --
+readonly property defaults cannot take `new` in initializers,
+promoted parameters can -- collapsing four assignment statements into
+the signature they were copying, and the class lands at `14.58` with
+the vocabulary the promotion genuinely carries. The difficulty saga's
+own rule held: extract or simplify, never game -- a constructor that
+stops re-stating its own signature is a design improvement the metric
+merely notices.

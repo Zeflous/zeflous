@@ -46,30 +46,22 @@ use Closure;
  */
 final readonly class ServiceStore
 {
-    private SingletonMemo $singletonMemo;
-
-    private FactoryRegistrations $factoryRegistrations;
-
     private ServiceResolutions $serviceResolutions;
 
     private RequestInstances $requestInstances;
 
-    private Interceptions $interceptions;
-
     private NamespaceFallbacks $namespaceFallbacks;
-
-    private AliasRides $aliasRides;
 
     private RebindInvalidations $rebindInvalidations;
 
     public function __construct(
+        private SingletonMemo $singletonMemo = new SingletonMemo(),
+        private FactoryRegistrations $factoryRegistrations = new FactoryRegistrations(),
+        private Interceptions $interceptions = new Interceptions(),
+        private AliasRides $aliasRides = new AliasRides(),
         CycleGuard $cycleGuard = new CycleGuard(),
     ) {
-        $this->singletonMemo = new SingletonMemo();
-        $this->factoryRegistrations = new FactoryRegistrations();
         $this->requestInstances = new RequestInstances($this);
-        $this->interceptions = new Interceptions();
-        $this->aliasRides = new AliasRides();
         $resolutionFrames = new ResolutionFrames();
         $this->namespaceFallbacks = new NamespaceFallbacks($cycleGuard, $this->interceptions, $resolutionFrames);
         $this->serviceResolutions = new ServiceResolutions(
