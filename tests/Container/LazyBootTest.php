@@ -354,6 +354,85 @@ final class LazyBootTest extends TestCase
         }
     }
 
+    public function testAMarkAfterAResolvedAnswerRefusesInsteadOfDeferringSilently(): void
+    {
+        // The audit's own repro (#783): an identifier marked after its
+        // resolution -- the memo's answer would answer every
+        // resolution before the registry is consulted, a mark that
+        // never takes effect. The refusal names the seam and the way
+        // out; a mark the lane cannot honour is a mark it does not
+        // accept.
+        $container = new Container();
+        $container->set(
+            'app.engine',
+            static fn (): HeavyEngine => new HeavyEngine(new EngineFuel(), 5),
+        );
+        $engine = $container->get('app.engine');
+        self::assertSame(1, HeavyEngine::$constructions, 'the eager resolution built the instance');
+
+        try {
+            $container->markLazy('app.engine', HeavyEngine::class);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.engine' cannot be marked lazy behind the class '"
+                . HeavyEngine::class . "': the identifier has already been resolved and its answer is "
+                . 'memoised -- the resolution lanes answer the memo before the registry is consulted, '
+                . 'so the mark would never take effect (mark the identifier before its first resolution, '
+                . 'or re-register it through set() -- which forgets the memo -- and mark again).',
+                $definitionException->getMessage(),
+            );
+        }
+
+        // The refusal leaves nothing behind: no mark in the registry,
+        // the memoised instance still answering.
+        self::assertNull($container->lazyIdentities()->classOf('app.engine'));
+        self::assertSame($engine, $container->get('app.engine'));
+
+        // The way out the refusal names: re-register through set() --
+        // the memo and any mark forgotten together -- then mark again,
+        // and the deferral takes effect on the fresh registration.
+        $container->set(
+            'app.engine',
+            static fn (): HeavyEngine => new HeavyEngine(new EngineFuel(), 5),
+        );
+        $container->markLazy('app.engine', HeavyEngine::class);
+        self::assertSame(HeavyEngine::class, $container->lazyIdentities()->classOf('app.engine'));
+
+        $deferred = $container->get('app.engine');
+        self::assertInstanceOf(HeavyEngine::class, $deferred);
+        self::assertSame(1, HeavyEngine::$constructions, 'the fresh registration defers its construction');
+        self::assertSame(5, $deferred->thrust());
+        self::assertSame(2, HeavyEngine::$constructions);
+    }
+
+    public function testATransientMayBeMarkedAfterAResolution(): void
+    {
+        // The refusal is the memo's, not the resolution's: a transient
+        // never memoises anywhere, so a mark after a resolution still
+        // takes effect -- every further resolution answers a fresh
+        // proxy, and the already-built instance stays where it was
+        // answered, in the caller's own hands.
+        $container = new Container();
+        $container->set(
+            'app.engine',
+            static fn (): HeavyEngine => new HeavyEngine(new EngineFuel(), 5),
+            ServiceLifetime::TRANSIENT,
+        );
+        $eager = $container->get('app.engine');
+        self::assertInstanceOf(HeavyEngine::class, $eager);
+        self::assertSame(1, HeavyEngine::$constructions);
+
+        $container->markLazy('app.engine', HeavyEngine::class);
+
+        $deferred = $container->get('app.engine');
+        self::assertInstanceOf(HeavyEngine::class, $deferred);
+        self::assertSame(1, HeavyEngine::$constructions, 'the transient answers a fresh proxy');
+        self::assertSame(5, $deferred->thrust());
+        self::assertSame(2, HeavyEngine::$constructions);
+        self::assertSame(5, $eager->thrust());
+    }
+
     public function testANonObjectFactoryAnswerBehindALazyMarkRefuses(): void
     {
         $container = new Container();

@@ -46,30 +46,22 @@ use Closure;
  */
 final readonly class ServiceStore
 {
-    private SingletonMemo $singletonMemo;
-
-    private FactoryRegistrations $factoryRegistrations;
-
     private ServiceResolutions $serviceResolutions;
 
     private RequestInstances $requestInstances;
 
-    private Interceptions $interceptions;
-
     private NamespaceFallbacks $namespaceFallbacks;
-
-    private AliasRides $aliasRides;
 
     private RebindInvalidations $rebindInvalidations;
 
     public function __construct(
+        private SingletonMemo $singletonMemo = new SingletonMemo(),
+        private FactoryRegistrations $factoryRegistrations = new FactoryRegistrations(),
+        private Interceptions $interceptions = new Interceptions(),
+        private AliasRides $aliasRides = new AliasRides(),
         CycleGuard $cycleGuard = new CycleGuard(),
     ) {
-        $this->singletonMemo = new SingletonMemo();
-        $this->factoryRegistrations = new FactoryRegistrations();
         $this->requestInstances = new RequestInstances($this);
-        $this->interceptions = new Interceptions();
-        $this->aliasRides = new AliasRides();
         $resolutionFrames = new ResolutionFrames();
         $this->namespaceFallbacks = new NamespaceFallbacks($cycleGuard, $this->interceptions, $resolutionFrames);
         $this->serviceResolutions = new ServiceResolutions(
@@ -150,6 +142,21 @@ final readonly class ServiceStore
     public function aliasRides(): AliasRides
     {
         return $this->aliasRides;
+    }
+
+    /**
+     * The singleton memo's own totality for the marking guard
+     * ({@see LazyMarking}): whether the identifier's answer is
+     * already memoised -- the question the lazy mark asks before it
+     * lands, because a memo the resolution lanes answer before the
+     * registry is consulted is a mark that would never take effect
+     * (#783's silent no-op). The reach-through the facade's own mark
+     * step takes; not a `has()` spelling -- registration totality
+     * answers a different question.
+     */
+    public function memoised(string $id): bool
+    {
+        return $this->singletonMemo->has($id);
     }
 
     /**
