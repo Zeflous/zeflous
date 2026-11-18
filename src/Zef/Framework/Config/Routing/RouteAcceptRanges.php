@@ -8,7 +8,10 @@ namespace Zef\Framework\Config\Routing;
  * The Accept header's media ranges, parsed once into the shape negotiation
  * needs ({@see RouteAcceptRange}): type, subtype, quality and specificity per
  * range. Unparsable ranges and invalid quality values are skipped -- an
- * untrusted header is runtime data, not a defect.
+ * untrusted header is runtime data, not a defect -- and a header whose every
+ * range is skipped parses to the empty list, which the negotiator treats as
+ * the absent header (issue #782): nothing was expressed, so nothing is
+ * enforced.
  *
  * @internal
  */

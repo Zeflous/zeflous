@@ -213,3 +213,49 @@ used to match, the versionless request keeping the fallback), the
 mixed/unmixed wrong-method pairs (both answering the 405 with Allow:
 GET), and the fail-closed half (a method the path answers never
 serving behind a version miss).
+
+## KDD-AN1 — the unparsable header is absence, not refusal (issue #782)
+
+The audit's availability finding: one garbage `Accept` header closed
+the entire route table. `RouteAcceptRanges::parse()` skipped every
+invalid range -- the docblock's own doctrine, "an untrusted header is
+runtime data, not a defect" -- and the skipped-to-empty list then
+reached `RouteAcceptMatch::accepts()`, whose honest zero-quality
+answer read as a total refusal: `Accept: banana` answered 406 on every
+route that declares `produces`, while the absent header
+(`accept === null`) permits everything. The doctrine answered the
+entry-level question (skip, don't throw) and never answered the
+boundary question it created: what IS a header whose every entry was
+skipped?
+
+The fix names the boundary in the negotiator: a header that parses to
+no range expresses nothing, so nothing is enforced -- the empty parse
+result is answered exactly like the absent header, and the blank-header
+short-circuit folds into the same seam, one judgment for "no
+preference expressed" wherever it comes from (absent, whitespace,
+separators, all-garbage). The boundary is the grammar, not the mood:
+one valid range decides the whole header (`banana, text/html` against
+an `application/json` route still answers the 406, and a well-formed
+all-media zero-quality refusal still closes the table), so the new
+leniency cannot be reached by a header that said anything at all --
+only by a header that said nothing.
+
+The battery pins the boundary from both sides: the audit's own repro
+(`banana` answers found), the separator-only and whitespace-only
+spellings (previously the trim seam, now the same empty-parse seam),
+the type-wildcard-with-concrete-subtype alone (previously a 406 the
+audit named, now expresses-nothing), the multibyte quality value
+alone (the skip's own end state) and beside a valid zero-quality
+exclusion (the skip pinned with teeth: had the multibyte quality
+parsed, the range's specificity would have overridden the exclusion),
+the mixed garbage-plus-valid header (the valid range still decides),
+and the well-formed total refusal (unchanged).
+
+Verification: the static lanes all pass locally (lint, PHPStan with
+the ratchet, Psalm level 1, Deptrac, the fixer and phpcs, the
+duplication and mess gates, the roadmap gate) with the full suite
+green (7680 tests, 18905 assertions); the coverage and mutation
+verdicts are the CI lanes' to answer on this checkout (no pcov driver
+in the sandbox's portable engine), the changed-set mutants the new
+guard would wake -- the empty-list comparison, the removed trim arm,
+the null and no-produces arms -- each facing the pin that kills it.
