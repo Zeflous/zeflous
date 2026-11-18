@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-17T07:46:58Z",
+  "as_of": "2026-11-17T23:38:42Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 338,
+  "unreleased_count": 339,
   "versions": [
     {
       "version": "Unreleased",
@@ -7643,6 +7643,57 @@
                 "sha": "378b45a2e7cae3fbec505fdcd6b348d50258dfc2",
                 "short_sha": "378b45a",
                 "subject": "docs(roadmap): the pin rides the forwarded-scheme round's difficulty-split head (#859)"
+              }
+            ]
+          },
+          {
+            "pr": 863,
+            "title": "fix(router): the 405's diagnostics name the methods the host specificity shadowed (issue #795)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-17T23:38:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/863",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3450e0872794a9a317098cb8f689ce96e057f111",
+                "short_sha": "3450e08",
+                "subject": "fix(router): the 405's diagnostics name the methods the host specificity shadowed (issue #795)"
+              },
+              {
+                "sha": "4b44b7e6e962e2a3bfa6ac792dca9b3c6c609396",
+                "short_sha": "4b44b7e",
+                "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's head (#863)"
+              },
+              {
+                "sha": "7c37ba7b17740fb8deb114a3fc2c485660c88d30",
+                "short_sha": "7c37ba7",
+                "subject": "refactor(router): the outcome vocabulary takes its own unit (the Sonar method-count ceiling, issue #795)"
+              },
+              {
+                "sha": "c48179eb56a46240d4361d149ec8eed89add7854",
+                "short_sha": "c48179e",
+                "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's vocabulary-split head (#863)"
+              },
+              {
+                "sha": "9b5abca9cdf7911cf184b805d9907cd4757580bd",
+                "short_sha": "9b5abca",
+                "subject": "fix(tooling): the collector's skip guards observe the sorted walk's own order (issue #795)"
+              },
+              {
+                "sha": "a8b2187effafef1d5bddcb24791c5a823db70859",
+                "short_sha": "a8b2187",
+                "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's mutation-gate head (#863)"
+              },
+              {
+                "sha": "de1ac0edd4c4862d5dd5f30d7ac11a99037170f7",
+                "short_sha": "de1ac0e",
+                "subject": "refactor(router): the flatten loop's value name matches its map (the runner's rector rule, issue #795)"
+              },
+              {
+                "sha": "d069747107994a94fa9f575c3a42d15f548d9af4",
+                "short_sha": "d069747",
+                "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's rector-verified head (#863)"
               }
             ]
           }
@@ -23229,6 +23280,57 @@
               "sha": "378b45a2e7cae3fbec505fdcd6b348d50258dfc2",
               "short_sha": "378b45a",
               "subject": "docs(roadmap): the pin rides the forwarded-scheme round's difficulty-split head (#859)"
+            }
+          ]
+        },
+        {
+          "pr": 863,
+          "title": "fix(router): the 405's diagnostics name the methods the host specificity shadowed (issue #795)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-17T23:38:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/863",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3450e0872794a9a317098cb8f689ce96e057f111",
+              "short_sha": "3450e08",
+              "subject": "fix(router): the 405's diagnostics name the methods the host specificity shadowed (issue #795)"
+            },
+            {
+              "sha": "4b44b7e6e962e2a3bfa6ac792dca9b3c6c609396",
+              "short_sha": "4b44b7e",
+              "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's head (#863)"
+            },
+            {
+              "sha": "7c37ba7b17740fb8deb114a3fc2c485660c88d30",
+              "short_sha": "7c37ba7",
+              "subject": "refactor(router): the outcome vocabulary takes its own unit (the Sonar method-count ceiling, issue #795)"
+            },
+            {
+              "sha": "c48179eb56a46240d4361d149ec8eed89add7854",
+              "short_sha": "c48179e",
+              "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's vocabulary-split head (#863)"
+            },
+            {
+              "sha": "9b5abca9cdf7911cf184b805d9907cd4757580bd",
+              "short_sha": "9b5abca",
+              "subject": "fix(tooling): the collector's skip guards observe the sorted walk's own order (issue #795)"
+            },
+            {
+              "sha": "a8b2187effafef1d5bddcb24791c5a823db70859",
+              "short_sha": "a8b2187",
+              "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's mutation-gate head (#863)"
+            },
+            {
+              "sha": "de1ac0edd4c4862d5dd5f30d7ac11a99037170f7",
+              "short_sha": "de1ac0e",
+              "subject": "refactor(router): the flatten loop's value name matches its map (the runner's rector rule, issue #795)"
+            },
+            {
+              "sha": "d069747107994a94fa9f575c3a42d15f548d9af4",
+              "short_sha": "d069747",
+              "subject": "docs(roadmap): the pin rides the host-shadowed-allow round's rector-verified head (#863)"
             }
           ]
         }
