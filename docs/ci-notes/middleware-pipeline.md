@@ -230,3 +230,13 @@ disiplin "detected at boot" yang audit #783 temukan (temuan 6).
   tiap tes collect; lengan `class_exists` pada tes bentuk-static lama; lengan
   `isset` pada repro siklus audit + tes unit collect; lengan append pada
   semuanya.
+- **Dua ronde gerbang CI, tercatat:** (a) Slevomat `EarlyExitNotUsed` pada
+  blok derivatif — ejaan pembalik (`if ($shadow === null) { continue; }`)
+  yang PHPCBF sarankan, semantik identik. (b) `new_coverage` SonarCloud
+  ERROR dengan seluruh berkas baru terbaca nol — padahal baris pemanggilnya
+  terukur `count=22` di clover yang sama: pelajaran covers-filter #439
+  TERULANG PADA BERKAS BARU — `requireCoverageMetadata` hanya mengatribusikan
+  ke daftar `#[CoversClass]`, dan kolaborator baru tanpa entrinya membaca
+  nol betapapun sering dipanggil. Kolaborator baru = entrinya sendiri di
+  berkas cakupan (covers) baterai yang menguji unitnya, bukan warisan
+  atribusi pemanggilnya.

@@ -61,9 +61,11 @@ final readonly class DefinitionEdges
             // owns ({@see FactoryShadows} keeps the judgment).
             $shadow = FactoryShadows::target($definition, $byId);
 
-            if ($shadow !== null) {
-                $edges[$definition->id][] = $shadow;
+            if ($shadow === null) {
+                continue;
             }
+
+            $edges[$definition->id][] = $shadow;
         }
 
         return $edges;

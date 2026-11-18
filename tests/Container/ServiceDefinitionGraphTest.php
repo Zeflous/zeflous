@@ -15,6 +15,7 @@ use Zef\Framework\Container\DefinitionEdges;
 use Zef\Framework\Container\DefinitionException;
 use Zef\Framework\Container\DefinitionReferences;
 use Zef\Framework\Container\FactoryDefinition;
+use Zef\Framework\Container\FactoryShadows;
 use Zef\Framework\Container\InstanceDefinition;
 use Zef\Framework\Container\MethodCall;
 use Zef\Framework\Container\ServiceDefinitionGraph;
@@ -31,6 +32,7 @@ use Zef\Test\Support\Container\Greeter;
 #[CoversClass(ServiceDefinitionGraph::class)]
 #[CoversClass(DefinitionCycles::class)]
 #[CoversClass(DefinitionEdges::class)]
+#[CoversClass(FactoryShadows::class)]
 #[CoversClass(DefinitionReferences::class)]
 #[CoversClass(ArgumentNames::class)]
 final class ServiceDefinitionGraphTest extends TestCase
