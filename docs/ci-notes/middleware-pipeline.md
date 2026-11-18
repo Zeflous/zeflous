@@ -197,3 +197,53 @@ dibalik:
   yang tercatat di `docs/ci-notes/router-error-integration.md`). Kedua
   catatan tetap berdiri berdampingan: M6 mencatat keputusan saat porting,
   M11 mencatat pembalikannya beserta alasannya.
+
+## KDD-M12: bayangan target factory bernama-kelas masuk graf boot (issue #783,
+temuan 6 audit Container, 2026-11-18)
+
+Graf dua-waktu keluarga #328 (KDD-M2..M4) mengumpulkan edge dari referensi
+yang DIDEKLARASIKAN — tapi presedensi runtime ({@see FactoryClosures}: "a
+registered service identifier shadows an equally-named class") memilih jalur
+instance untuk target factory yang NAMA KELASNYA sekaligus id yang direncanakan
+set. Edge itu tidak pernah dideklarasikan, maka tidak pernah dikumpulkan:
+siklus dan tangkapan hidup di jalur itu baru ketahuan saat resolusi — lemahnya
+disiplin "detected at boot" yang audit #783 temukan (temuan 6).
+
+- **Edge derivatif, unitnya sendiri**: penilaiannya ({@see FactoryShadows::
+  target()} — null kecuali target bernama-kelas DAN idnya di set yang
+  direncanakan) berdiri sebagai kolaborator archeology-sized sendiri,
+  dipanggil `DefinitionEdges::collect()` di samping referensi deklarasi —
+  siklus (`DefinitionCycles`) dan tangkapan (`LifetimeCaptures`) mengonsumsi
+  edge yang sama, jadi kedua disiplin ikut tanpa jahitan baru.
+- **Ruang negatif tetap:** bentuk static-call tak tersentuh (target
+  bernama-kelas yang tak dimiliki definisi mana pun — tes lama tetap hijau),
+  bayangan closure-registered tetap leaf (perilaku host sendiri), dan tampilan
+  deklaratif `DefinitionReferences` (inventory) tak berubah — view
+  context-free-nya tidak dipenggal untuk fitur graf.
+- **Ronde archeology-nya sendiri**: `DefinitionEdges` duduk di 17,50 terhadap
+  langit 20 yang dipin; bentuk pertama blok inline terukur 25,33 — penilaian
+  diekstrak ke unitnya, loop dikondensasi (SATU `isset` dengan cabang positif
+  lebih dulu, bukan dua `isset` dengan `&&`), dan hasilnya 18,33 — pelajaran
+  lane autowiring terulang: tebakan mental Halstead meleset ±30%, ukur setiap
+  reshape.
+- **Rumah mutant**: lengan instanceof mati pada definisi non-factory di
+  tiap tes collect; lengan `class_exists` pada tes bentuk-static lama; lengan
+  `isset` pada repro siklus audit + tes unit collect; lengan append pada
+  semuanya.
+- **Dua ronde gerbang CI, tercatat:** (a) Slevomat `EarlyExitNotUsed` pada
+  blok derivatif — ejaan pembalik (`if ($shadow === null) { continue; }`)
+  yang PHPCBF sarankan, semantik identik. (b) `new_coverage` SonarCloud
+  ERROR dengan seluruh berkas baru terbaca nol — padahal baris pemanggilnya
+  terukur `count=22` di clover yang sama: pelajaran covers-filter #439
+  TERULANG PADA BERKAS BARU — `requireCoverageMetadata` hanya mengatribusikan
+  ke daftar `#[CoversClass]`, dan kolaborator baru tanpa entrinya membaca
+  nol betapapun sering dipanggil. Kolaborator baru = entrinya sendiri di
+  berkas cakupan (covers) baterai yang menguji unitnya, bukan warisan
+  atribusi pemanggilnya. Entrinya lalu MEMBEKALKAN celah nyata yang
+  atribusi-nol selama ini sembunyikan: lengan target-bukan-kelas dari
+  penilaian (return null) tidak pernah diinjak baterai mana pun -- semua
+  ejaan non-kelas di graf lama melempar dulu di jalan deklarasi (target
+  tak dikenal) -- sehingga baterai butuh tes sendiri: target bernama-
+  layanan yang VALID melalui collect (deklarasi tetap satu-satunya edge,
+  `assertArrayNotHasKey` untuk bayangan nol). Entri covers bukan
+  formalitas -- ia alat yang menyingkap celah asli.
