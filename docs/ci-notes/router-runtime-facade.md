@@ -288,3 +288,39 @@ The mutation surface the refold adds: the seed comparison (killed by the
 back to the 406 lane), the seed operand removal (same kill), the `||`
 operand (the later-declaration twin above), and the accumulated return
 itself (every 406 pin the family already carries).
+
+## KDD-AN3 — the boundary unmasked the parse's own mutants (issue #782)
+
+The Infection round answered with five escapes, all of them in the parse
+the boundary sits on, none of them new code: the mutants that used to be
+killed by the 406-on-garbage pins the boundary itself retired. The
+`mb_strtolower`-to-`strtolower` mutant of the media-range fold had been
+killed by the Kelvin-sign test asserting the folded range MATCHES (a
+skipped Kelvin range meant 406); under the boundary, a skipped Kelvin
+range means found -- the same verdict as the folded match, the mutant
+gratuitously green. The three operand mutants of the wildcard guard and
+its `continue` had been killed the same way: a `*/json` the guard
+stopped parsing used to close the table, so any mutant that let it
+through answered differently; under the boundary, a `*/json` the guard
+skips and a `*/json` a mutant lets live agree whenever the route's
+produced subtype is `json`, and the `continue`-to-`break` mutant's
+truncated parse lands on the empty list, which now permits.
+
+The kills move to where the boundary made the difference visible
+anyway -- the folded range's PRESENCE, not the garbage's absence:
+- the Kelvin-folded exclusion (`\u{212A}/type;q=0` against a `k/type`
+  route answers the 406 only when the fold happened -- an unfolded
+  spelling is the empty parse, which permits);
+- the wildcard-with-concrete-subtype against an UNRELATED declaration
+  (`*/json` against a `text/plain` route answers found only when the
+  entry was skipped -- a live `*/json` range does not cover `plain`);
+- the skipped entry's shadow (`*/json, text/*;q=0` against a
+  `text/plain` route answers the exclusion's 406 only when the walk
+  reached the second entry -- a `break` truncates to the empty parse,
+  which permits).
+
+The lesson for the lane's ledger: a boundary that turns a failure mode
+into a benign mode retires the tests that killed mutants THROUGH that
+failure mode; every mutant whose kill rode the retired arm needs a new
+home, or MSI drops below the floor by exactly the mutants nobody
+re-homed. The battery is the re-homing.

@@ -77,6 +77,27 @@ final class RouteAcceptNegotiationTest extends TestCase
         self::assertTrue($radixTree->match('GET', '/profile', null, '*/json')->isFound());
     }
 
+    public function testATypeWildcardWithAConcreteSubtypeExpressesNothingForUnrelatedMediaTypes(): void
+    {
+        $radixTree = $this->treeProducing('text/plain');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, '*/json')->isFound());
+    }
+
+    public function testASkippedWildcardSubtypeDoesNotHideAValidExclusion(): void
+    {
+        $radixTree = $this->treeProducing('text/plain');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, '*/json, text/*;q=0')->isNotAcceptable());
+    }
+
+    public function testAKelvinFoldedExclusionRefusesWhatAnUnfoldedSpellingWouldPermit(): void
+    {
+        $radixTree = $this->treeProducing('k/type');
+
+        self::assertTrue($radixTree->match('GET', '/profile', null, "\u{212A}/type;q=0")->isNotAcceptable());
+    }
+
     public function testASpecificZeroQualityExclusionIsNotOverriddenByTheAllMediaWildcard(): void
     {
         $radixTree = $this->treeProducing('application/json');
