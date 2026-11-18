@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-18T10:34:50Z",
+  "as_of": "2026-11-18T14:11:25Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 342,
+  "unreleased_count": 343,
   "versions": [
     {
       "version": "Unreleased",
@@ -7761,6 +7761,42 @@
                 "sha": "15629e4556aa66c73643b90ff6a5d278f5fb8d20",
                 "short_sha": "15629e4",
                 "subject": "docs(roadmap): the pin rides the accept-boundary round's mutation-verified head (#870)"
+              }
+            ]
+          },
+          {
+            "pr": 875,
+            "title": "fix(container): the lazy mark on an answered identifier refuses instead of landing silently (issue #783)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-18T14:11:25Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/875",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "7ac86b30442cc5d6e3cdeafe649d4493ab502aee",
+                "short_sha": "7ac86b3",
+                "subject": "fix(container): the lazy mark on an answered identifier refuses instead of landing silently (issue #783)"
+              },
+              {
+                "sha": "9457ad02f493ed00447f3fe6b9c522f9a981feaf",
+                "short_sha": "9457ad0",
+                "subject": "docs(roadmap): the pin rides the answered-identifier round's fix head (#875)"
+              },
+              {
+                "sha": "b5fd575c9779e925c7589076c4f1e341592bf44f",
+                "short_sha": "b5fd575",
+                "subject": "refactor(container): the store's new-able collaborators promote into the constructor (the archeology difficulty ceiling, issue #783)"
+              },
+              {
+                "sha": "4cbd0eb849fd3d39f71b1470cae494cb895c9153",
+                "short_sha": "4cbd0eb",
+                "subject": "docs(roadmap): the pin rides the answered-identifier round's archeology-verified head (#875)"
+              },
+              {
+                "sha": "788521e1c67866c17f1f4b8eebbd9ea62201a64a",
+                "short_sha": "788521e",
+                "subject": "docs(roadmap): the landing row joins its table's contiguous block (#875)"
               }
             ]
           }
@@ -23507,6 +23543,42 @@
               "sha": "15629e4556aa66c73643b90ff6a5d278f5fb8d20",
               "short_sha": "15629e4",
               "subject": "docs(roadmap): the pin rides the accept-boundary round's mutation-verified head (#870)"
+            }
+          ]
+        },
+        {
+          "pr": 875,
+          "title": "fix(container): the lazy mark on an answered identifier refuses instead of landing silently (issue #783)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-18T14:11:25Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/875",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "7ac86b30442cc5d6e3cdeafe649d4493ab502aee",
+              "short_sha": "7ac86b3",
+              "subject": "fix(container): the lazy mark on an answered identifier refuses instead of landing silently (issue #783)"
+            },
+            {
+              "sha": "9457ad02f493ed00447f3fe6b9c522f9a981feaf",
+              "short_sha": "9457ad0",
+              "subject": "docs(roadmap): the pin rides the answered-identifier round's fix head (#875)"
+            },
+            {
+              "sha": "b5fd575c9779e925c7589076c4f1e341592bf44f",
+              "short_sha": "b5fd575",
+              "subject": "refactor(container): the store's new-able collaborators promote into the constructor (the archeology difficulty ceiling, issue #783)"
+            },
+            {
+              "sha": "4cbd0eb849fd3d39f71b1470cae494cb895c9153",
+              "short_sha": "4cbd0eb",
+              "subject": "docs(roadmap): the pin rides the answered-identifier round's archeology-verified head (#875)"
+            },
+            {
+              "sha": "788521e1c67866c17f1f4b8eebbd9ea62201a64a",
+              "short_sha": "788521e",
+              "subject": "docs(roadmap): the landing row joins its table's contiguous block (#875)"
             }
           ]
         }
