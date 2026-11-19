@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\CompiledRoute;
+use Zef\Framework\Config\Routing\RouteConstraintAnchoring;
 use Zef\Framework\Config\Routing\RouteConstraintCompilability;
 use Zef\Framework\Config\Routing\RouteConstraintDeclarations;
 use Zef\Framework\Config\Routing\RouteConstraints;
@@ -17,6 +18,7 @@ use Zef\Framework\Config\Routing\RouteEntryCollections;
 use Zef\Framework\Config\Routing\RouteEntryDeprecation;
 use Zef\Framework\Config\Routing\RouteEntryMeta;
 use Zef\Framework\Config\Routing\RouteEntryShape;
+use Zef\Framework\Exception\InternalException;
 
 /**
  * @internal
@@ -30,6 +32,7 @@ use Zef\Framework\Config\Routing\RouteEntryShape;
 #[CoversClass(RouteConstraints::class)]
 #[CoversClass(RouteConstraintCompilability::class)]
 #[CoversClass(RouteConstraintDeclarations::class)]
+#[CoversClass(RouteConstraintAnchoring::class)]
 final class CompiledRouteTest extends TestCase
 {
     public function testCompilesAMinimalEntry(): void
@@ -89,6 +92,119 @@ final class CompiledRouteTest extends TestCase
         self::assertFalse($compiledRoute->constraints()->check('id', "42\n"));
         self::assertFalse($compiledRoute->constraints()->check('id', "42\n\n"));
         self::assertTrue($compiledRoute->constraints()->check('id', '42'));
+    }
+
+    public function testAConstraintPatternCarryingItsOwnDelimiterCompilesAndMatches(): void
+    {
+        // A `/` inside a declared pattern is a legitimate PCRE (a regex
+        // may match a slash), and the first spelling wrapped every
+        // pattern in the `/^(?:...)\z/` delimiter verbatim, so the first
+        // `/` inside the pattern closed the delimiter early and the
+        // compilability probe refused a pattern the engine could have
+        // compiled, with a message that named no delimiter. The
+        // anchoring now escapes its own delimiter, so the pattern's own
+        // grammar -- never the wrapper's spelling -- decides the probe.
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/users/{id}',
+            'method' => ['GET'],
+            'handler' => 'Users@show',
+            'constraints' => ['id' => '[a-z]+/[0-9]+'],
+        ]);
+
+        self::assertSame('[a-z]+/[0-9]+', $compiledRoute->constraints()->pattern('id'));
+        self::assertTrue($compiledRoute->constraints()->check('id', 'abc/42'));
+        self::assertFalse($compiledRoute->constraints()->check('id', 'abc'));
+    }
+
+    public function testAConstraintPatternOpeningWithItsOwnDelimiterCompilesFromTheFirstByte(): void
+    {
+        // The walk's own opening boundary: a pattern that STARTS with
+        // the delimiter meets the counter before any backslash run
+        // exists -- the zeroth run is even, so the very first `/` the
+        // pattern spells is a delimiter the wrapper must escape. A
+        // spelling that misread the opening run as already escaped
+        // would close the wrapper's own delimiter at the pattern's
+        // first byte and the probe would refuse a pattern the engine
+        // could have compiled -- the boundary that pins the walk's
+        // start, not just its middle.
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/users/{id}',
+            'method' => ['GET'],
+            'handler' => 'Users@show',
+            'constraints' => ['id' => '/[0-9]+'],
+        ]);
+
+        self::assertSame('/[0-9]+', $compiledRoute->constraints()->pattern('id'));
+        self::assertTrue($compiledRoute->constraints()->check('id', '/42'));
+        self::assertFalse($compiledRoute->constraints()->check('id', '42'));
+    }
+
+    public function testAnAlreadyEscapedDelimiterInThePatternKeepsItsOwnSpelling(): void
+    {
+        // The anchoring walk's own escape grammar: a backslash escapes
+        // exactly the byte that follows it, so a pattern's OWN `\/`
+        // spelling (the pattern author already escaped the slash)
+        // stays verbatim, and the even backslash run of a literal
+        // backslash before a slash (the `\\/` spelling) leaves the
+        // slash unescaped -- the walk escapes it. Two different
+        // pattern spellings, two different anchored forms, both
+        // compiling: the wrapper never rewrites the pattern's own
+        // escape decisions.
+        $escaped = CompiledRoute::fromArray([
+            'path' => '/users/{id}',
+            'method' => ['GET'],
+            'handler' => 'Users@show',
+            'constraints' => ['id' => '[a-z]+\/[0-9]+'],
+        ]);
+
+        self::assertTrue($escaped->constraints()->check('id', 'abc/42'));
+        self::assertFalse($escaped->constraints()->check('id', 'abc'));
+
+        $literalBackslash = CompiledRoute::fromArray([
+            'path' => '/users/{id}',
+            'method' => ['GET'],
+            'handler' => 'Users@show',
+            'constraints' => ['id' => '[a-z]+\\\/[0-9]+'],
+        ]);
+
+        self::assertTrue($literalBackslash->constraints()->check('id', 'abc\/42'));
+        self::assertFalse($literalBackslash->constraints()->check('id', 'abc/42'));
+    }
+
+    public function testTheConstraintEnginesOwnFailureAnswersADiagnosticNotARejection(): void
+    {
+        // The engine unable to answer is not the segment's own verdict:
+        // a runtime PCRE failure (the backtrack limit a catastrophic
+        // pattern's hostile segment exhausts) read as a constraint
+        // rejection answered 404 with no diagnostic anywhere, so the
+        // ReDoS-shaped request closed silently. `preg_match`'s `false`
+        // answer now carries its own typed refusal -- the
+        // internal-fault signal naming the parameter and the PCRE
+        // error, never the segment value. The walk deliberately runs
+        // under a starved backtrack budget: the diagnostic is the
+        // engine's own resource bound, not the pattern's.
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/users/{id}',
+            'method' => ['GET'],
+            'handler' => 'Users@show',
+            'constraints' => ['id' => '(a|a)+c?'],
+        ]);
+
+        $previous = ini_set('pcre.backtrack_limit', '100');
+
+        try {
+            $compiledRoute->constraints()->check('id', 'aaaaaaaaaaaaaaaaaaaab');
+
+            self::fail("the engine's own failure must answer the diagnostic, never a verdict");
+        } catch (InternalException $internalException) {
+            self::assertSame(
+                'The constraint engine could not judge the parameter "id" (PCRE error 2).',
+                $internalException->getMessage(),
+                "the diagnostic names the parameter and the engine's own error, never the segment value",
+            );
+        } finally {
+            ini_set('pcre.backtrack_limit', (string) $previous);
+        }
     }
 
     public function testTheDeclaredConstraintPatternIsReadableVerbatim(): void

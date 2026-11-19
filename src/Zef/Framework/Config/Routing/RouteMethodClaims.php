@@ -53,13 +53,12 @@ final class RouteMethodClaims
         $host = $compiledRoute->host();
         $path = $compiledRoute->path()->canonical();
         $version = $compiledRoute->version();
-        $hostClaimScope = $path . '|' . ($version ?? '*');
         $hostKey = $host ?? '';
         $versionKey = $version ?? '*';
 
         foreach ($compiledRoute->methods() as $method) {
             if ($host !== null) {
-                $this->routeHostClaims->claim($hostClaimScope, $method, $host, $pattern);
+                $this->routeHostClaims->claim($path, $versionKey, $method, $host, $pattern);
             }
 
             $registeredBy = $this->claims[$hostKey][$versionKey][$path][$method] ?? null;

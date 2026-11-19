@@ -13,25 +13,35 @@ use Zef\Framework\Config\ConfigException;
  * ({@see RouteHostAmbiguities}) is refused as an ambiguity rather than
  * silently resolved by registration order.
  *
+ * THE CLAIM SCOPE IS A NESTED TUPLE, NEVER A CONCATENATED KEY (issue
+ * #799, finding 3): the first spelling joined the path and the
+ * version with a `|` separator, collision-free only because the
+ * version grammar happens to refuse the pipe while the path grammar
+ * lets a static segment carry one -- the safety borrowed from a
+ * sibling grammar the scope never owned. The claims map is the
+ * path => version => method walk itself, so no separator grammar
+ * can alias two different scopes onto one string, the same
+ * discipline the method claims map beside it already spells.
+ *
  * @internal
  */
 final class RouteHostClaims
 {
     /**
-     * The claims: scope (path + version) => method => the declared host
+     * The claims: path => version => method => the declared host
      * patterns, in declaration order.
      *
-     * @var array<string, array<string, list<array{host: string, pattern: string}>>>
+     * @var array<string, array<string, array<string, list<array{host: string, pattern: string}>>>>
      */
     private array $claims = [];
 
     /**
-     * Claims a host pattern on one scope and method, refusing an
-     * equal-specificity overlap with an earlier claim.
+     * Claims a host pattern on one path + version scope and method,
+     * refusing an equal-specificity overlap with an earlier claim.
      */
-    public function claim(string $scope, string $method, string $host, string $pattern): void
+    public function claim(string $path, string $version, string $method, string $host, string $pattern): void
     {
-        $conflict = RouteHostAmbiguities::conflicting($host, $this->claims[$scope][$method] ?? []);
+        $conflict = RouteHostAmbiguities::conflicting($host, $this->claims[$path][$version][$method] ?? []);
 
         if ($conflict !== null) {
             throw new ConfigException(
@@ -45,6 +55,6 @@ final class RouteHostClaims
             );
         }
 
-        $this->claims[$scope][$method][] = ['host' => $host, 'pattern' => $pattern];
+        $this->claims[$path][$version][$method][] = ['host' => $host, 'pattern' => $pattern];
     }
 }

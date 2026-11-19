@@ -196,6 +196,28 @@ final class RouteAcceptNegotiationTest extends TestCase
         ]);
     }
 
+    public function testTheMatchTimeWalkNeverMeetsTheGrammarTheCompileSeamRefuses(): void
+    {
+        // The compile seam's own judgement (the test above): a produces
+        // entry that is not a type/subtype pair never reaches the
+        // match-time walk, so the arm the first spelling threw from was
+        // dead code wearing a contract the match pipeline contradicts
+        // (match-time inputs never raise). The dead arm now answers the
+        // doctrine the skipped ranges do: the ungrammatical produce
+        // contributes nothing to the verdict, and the well-formed half
+        // decides alone -- an entry the grammar refused at compile being
+        // answered here would be a raise, not a verdict.
+        self::assertFalse(
+            RouteAcceptNegotiator::accepts('text/html', ['a/b/c']),
+            'the produce the grammar never admits expresses nothing, so the header decides nothing permitted',
+        );
+
+        self::assertTrue(
+            RouteAcceptNegotiator::accepts('text/html', ['a/b/c', 'text/html']),
+            'the well-formed half of the declarations still decides the verdict on its own',
+        );
+    }
+
     public function testASpecificRangeOutranksAWildcardSubtypeOfTheSameType(): void
     {
         $radixTree = $this->treeProducing('application/json');
