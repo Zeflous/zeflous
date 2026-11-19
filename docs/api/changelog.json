@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-18T20:37:17Z",
+  "as_of": "2026-11-18T22:51:36Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 346,
+  "unreleased_count": 347,
   "versions": [
     {
       "version": "Unreleased",
@@ -7838,6 +7838,27 @@
                 "sha": "9bbc930f3c787e7c5bd95144c19ee2c54f24ca4a",
                 "short_sha": "9bbc930",
                 "subject": "docs(roadmap): the pin rides the shadowed-target round's coverage-verified head (#878)"
+              }
+            ]
+          },
+          {
+            "pr": 884,
+            "title": "fix(http): the anonymous name is the anonymous resolution's own and the entry map is closed (issue #785)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-18T22:51:36Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/884",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "cfcb29d4b8a2aff73fb47d946869cc098a8083de",
+                "short_sha": "cfcb29d",
+                "subject": "fix(http): the anonymous name is the anonymous resolution's own and the entry map is closed (issue #785)"
+              },
+              {
+                "sha": "32a5df42bb59ce4f03f7caf43a6ba35ad97daade",
+                "short_sha": "32a5df4",
+                "subject": "docs(roadmap): the pin rides the auth audit round's fix head (#884)"
               }
             ]
           }
@@ -23745,6 +23766,27 @@
               "sha": "c8fc1cf519f04cea30fc5b18e1bb8fa5fae5efb5",
               "short_sha": "c8fc1cf",
               "subject": "docs(roadmap): the pin rides the docblock-claim round's documents head (#883)"
+            }
+          ]
+        },
+        {
+          "pr": 884,
+          "title": "fix(http): the anonymous name is the anonymous resolution's own and the entry map is closed (issue #785)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-18T22:51:36Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/884",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "cfcb29d4b8a2aff73fb47d946869cc098a8083de",
+              "short_sha": "cfcb29d",
+              "subject": "fix(http): the anonymous name is the anonymous resolution's own and the entry map is closed (issue #785)"
+            },
+            {
+              "sha": "32a5df42bb59ce4f03f7caf43a6ba35ad97daade",
+              "short_sha": "32a5df4",
+              "subject": "docs(roadmap): the pin rides the auth audit round's fix head (#884)"
             }
           ]
         }
