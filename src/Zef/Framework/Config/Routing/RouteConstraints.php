@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Config\Routing;
 
+use Zef\Framework\Exception\InternalException;
+
 /**
  * The parameter constraints of one route, validated and anchored at
  * compile time.
@@ -23,7 +25,17 @@ namespace Zef\Framework\Config\Routing;
  * matches before a trailing newline, an end the captured value did
  * not reach). At match time {@see self::check()} is the single seam
  * -- one anchored `preg_match` per captured value, and `true` when
- * the parameter carries no constraint at all. The read side answers
+ * the parameter carries no constraint at all. THE ENGINE'S OWN
+ * FAILURE IS A DIAGNOSTIC, NEVER A SILENT REJECTION (issue #799,
+ * finding 2): a runtime PCRE failure -- the backtrack limit a
+ * catastrophic pattern's hostile segment exhausts -- is the engine
+ * unable to answer, not the segment's own verdict, and the first
+ * spelling read it as a constraint rejection, so the ReDoS-shaped
+ * request answered 404 with no diagnostic anywhere; `preg_match`'s
+ * `false` answer now carries its own typed refusal (an
+ * {@see InternalException}, the internal-fault signal whose message
+ * names the parameter and the PCRE error -- never the segment
+ * value, runtime data stays runtime data). The read side answers
  * the same truth for tooling: {@see self::pattern()} hands the
  * declared pattern (verbatim, unanchored) to the export folds, so an
  * OpenAPI parameter schema renders the route's own constraint -- the
@@ -72,6 +84,10 @@ final readonly class RouteConstraints
     /**
      * Whether a captured segment value satisfies the parameter's
      * constraint; a parameter without a constraint accepts any value.
+     *
+     * @throws InternalException when the constraint engine cannot answer
+     *                           (a runtime PCRE failure, the backtrack limit
+     *                           a hostile segment may exhaust)
      */
     public function check(string $name, string $value): bool
     {
@@ -79,6 +95,16 @@ final readonly class RouteConstraints
             return true;
         }
 
-        return preg_match($this->patterns[$name], $value) === 1;
+        $verdict = preg_match($this->patterns[$name], $value);
+
+        if ($verdict === false) {
+            throw new InternalException(\sprintf(
+                'The constraint engine could not judge the parameter "%s" (PCRE error %d).',
+                $name,
+                preg_last_error(),
+            ));
+        }
+
+        return $verdict === 1;
     }
 }

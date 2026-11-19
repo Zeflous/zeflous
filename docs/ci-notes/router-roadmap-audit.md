@@ -72,3 +72,107 @@ Do not copy the reference repository's Router collaborators wholesale. Reuse the
 ## Verification limits
 
 The hosted GitHub connector is the available repository surface for this run. A local clone previously failed because GitHub DNS resolution was unavailable; therefore no local `composer ci:strict`, PHP test suite, static analysis, mutation run, or benchmark is claimed. CI results must be read from the PR head after each pushed commit. PR #512 remains Draft until the implemented scope and required gates are reviewed.
+
+## KDD-RA1 — the match-time arm the compile grammar already owns is gone (issue #799, finding 1)
+
+`RouteAcceptNegotiator::accepts()` carried a dead `ConfigException` throw
+for a `produces` entry that is not a type/subtype pair — dead because
+`RouteProduces::normalize()` refuses that entry at compile, before any
+route exists, so the match-time walk never meets one. The arm's contract
+contradicted the match pipeline's own doctrine (`RadixTree`: match-time
+inputs never raise; a `ConfigException` is a route table defect's words):
+had the arm ever been reached, the throw would have escaped through a
+boundary that does not hold it. The arm now answers the doctrine the
+skipped ranges beside it already spell: an ungrammatical produce
+contributes nothing to the verdict, and the well-formed half decides
+alone. The compile-time refusal (the two-slash produces entry and its
+grammar test) is unchanged — registration is the moment to judge it,
+and the honest spelling of an unreachable raise is its removal, never a
+second owner.
+
+## KDD-RA2 — the anchoring escapes its own delimiter, and the engine's failure answers a diagnostic (issue #799, finding 2)
+
+Two halves of the constraint lane's own honesty. THE DELIMITER: the
+first spelling wrapped every declared pattern in the `/^(?:...)\z/`
+delimiter verbatim, so a pattern carrying a `/` of its own (a regex may
+legitimately match a slash) closed the delimiter early and the
+compilability probe refused a pattern the engine could have compiled,
+with a message that named no delimiter. The anchoring now walks the
+pattern byte-wise and escapes every `/` no preceding backslash already
+escaped (an even backslash run leaves the slash unescaped — the
+delimiter to escape; an odd run has already escaped it — the pattern's
+own spelling, kept verbatim), so the wrapper's grammar never decides
+the probe: the pattern's own grammar does. THE DIAGNOSTIC: at match
+time `RouteConstraints::check()` read a runtime PCRE failure — the
+backtrack limit a catastrophic pattern's hostile segment exhausts — as
+an ordinary constraint rejection, so the ReDoS-shaped request answered
+404 with no diagnostic anywhere; the engine unable to answer is not the
+segment's verdict. `preg_match`'s `false` now carries its own typed
+refusal: an `InternalException` (the internal-fault signal whose author
+owns the message) naming the parameter and the PCRE error — never the
+segment value, runtime data stays runtime data. The pinned repro runs
+under a starved backtrack budget with the alternation shape
+(`(a|a)+c?` — the identical-branch alternation that defeats PCRE2's
+auto-possessification, where the textbook `(a+)+b` shape completes
+cleanly), so the arm the diagnostic answers is exercised, not assumed.
+
+## KDD-RA3 — the host claim scope is a nested tuple, never a borrowed separator (issue #799, finding 3)
+
+`RouteMethodClaims` built the host-claim scope as
+`$path . '|' . ($version ?? '*')` — collision-free only because the
+version grammar happens to refuse the pipe while the path grammar lets
+a static segment carry one: the safety borrowed from a sibling grammar
+the scope never owned, the exact hazard the claims map's own docblock
+names ("no separator grammar can alias two different tuples onto one
+string") for the method claims it already spelled as a nested tuple.
+`RouteHostClaims::claim()` now takes the path and the version as its
+own arguments and the claims map walks path => version => method, so
+the scope identity is the tuple itself and no separator grammar —
+current or future — can alias two scopes onto one string. The
+pipe-carrying static segment pins the discipline end to end: the
+path registers, claims its host scope beside the exact-host twin and
+the versioned twin, and matches.
+
+## KDD-RA4 — the engine's capability lane answers: de-scoped, explicitly (issue #799, finding 4, completing #782's finding 6)
+
+The audit named four idiom gaps a migration from another framework
+would meet, and the lane's decision is an explicit de-scope — each with
+its own reason, recorded here so the roadmap's promise never silently
+outgrows the engine's grammar:
+
+- **Multi-segment catch-all (`/files/{path}`)** — de-scoped: a
+  parameter captures exactly one segment, because a parameter boundary
+  and a slash boundary must agree for a captured value to stay
+  decodable (`PathSegment`'s own doctrine). A catch-all would capture
+  across slash boundaries, so its values would need re-encoding before
+  any nested path grammar (dispatcher, URL generator) could read them
+  back — a second grammar the engine does not own. The idiom answers
+  at the host seam (prefix groups + a parameterised host) or the
+  handler's own suffix walk, both already supported.
+- **Optional parameter (`{param?}`)** — de-scoped: two routes spell the
+  optional half explicitly (`/users` and `/users/{id?}` becomes two
+  declarations), because the one-segment-one-parameter grammar and the
+  decodable-capture doctrine above make an optional segment a third
+  grammar shape (a tree node both ending the path and continuing it)
+  whose weights and precedence the declarative spellings already own
+  without it.
+- **Auto-OPTIONS** — de-scoped: the engine's posture is explicit
+  declaration, not synthesis — a 405 names the methods the matching
+  routes actually answer (the `Allow` union the method-claims family
+  already computes), and an OPTIONS the operator never declared is a
+  claim about the resource the engine must not invent. The route that
+  wants to answer OPTIONS declares it; `Allow` stays honest.
+- **Query-string generation** — de-scoped: the URL generator's
+  vocabulary is the route's own identity — the path and host parameters
+  the grammar captures; extra parameters and query strings are the
+  caller's own encoding, and refusing extras (the generator's current
+  behaviour) is the identity boundary, not a gap. RFC-wise the query is
+  not the route's identity; `http_build_query` beside the generator is
+  the host's own fold.
+
+The per-call allocations the same finding names (`new RouteMatcher()`
+per match, `new RouteUrlGenerator()` per url) stay acknowledged, not
+amended: the roadmap's zero-allocation promise is a target the current
+capture/result construction does not yet satisfy, and the honest record
+is this note's own line — the measurement lane (`CI Bench`, the
+`phpbench.json` suites) owns the number, and no claim here outruns it.

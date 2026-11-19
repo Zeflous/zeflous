@@ -369,6 +369,61 @@ final class RadixTreeTest extends TestCase
         ]);
     }
 
+    public function testAPipeCarryingStaticSegmentKeepsItsOwnHostClaimScope(): void
+    {
+        // The claim scope is a nested tuple, never a concatenated key:
+        // the first spelling joined the path and the version with a
+        // `|` separator, collision-free only because the version
+        // grammar happens to refuse the pipe while the path grammar
+        // lets a static segment carry one -- the safety borrowed from
+        // a sibling grammar the scope never owned. The pipe-carrying
+        // paths claim their own scopes (no false alias, no false
+        // ambiguity), and the version dimension stays its own axis:
+        // the unversioned and the versioned spellings of one
+        // pipe-carrying path are two claims, never one concatenated
+        // string's accident.
+        $radixTree = RadixTree::compile([
+            [
+                'path' => '/tag|next',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@tag',
+            ],
+            [
+                'path' => '/tag|next',
+                'host' => 'admin.example.com',
+                'method' => ['GET'],
+                'handler' => 'Admin@tag',
+            ],
+            [
+                'path' => '/tag',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@plain',
+            ],
+            [
+                'path' => '/tag|next',
+                'host' => '{tenant}.example.com',
+                'method' => ['GET'],
+                'handler' => 'Tenant@versioned',
+                'version' => 'v1',
+            ],
+        ]);
+
+        self::assertSame('Tenant@tag', $radixTree->match('GET', '/tag|next', 'x.example.com')->route()->handler());
+        self::assertSame('Admin@tag', $radixTree->match('GET', '/tag|next', 'admin.example.com')->route()->handler());
+        self::assertSame('Tenant@plain', $radixTree->match('GET', '/tag', 'y.example.com')->route()->handler());
+        self::assertSame(
+            'Tenant@versioned',
+            $radixTree->match('GET', '/tag|next', 'z.example.com', null, 'v1')->route()->handler(),
+        );
+        self::assertSame(
+            'Tenant@tag',
+            $radixTree->match('GET', '/tag|next', 'w.example.com')->route()->handler(),
+            'the unversioned claim stays its own scope beside the versioned one',
+        );
+    }
+
     public function testRejectsHostParameterNameCollisionsWithPathParameters(): void
     {
         $this->expectException(ConfigException::class);
