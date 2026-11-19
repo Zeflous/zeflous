@@ -176,3 +176,47 @@ amended: the roadmap's zero-allocation promise is a target the current
 capture/result construction does not yet satisfy, and the honest record
 is this note's own line — the measurement lane (`CI Bench`, the
 `phpbench.json` suites) owns the number, and no claim here outruns it.
+
+## KDD-RA5 — the round's own gate: the anchoring leaves the declarations' fold, and its counter meets its kills (issue #799, the gate round)
+
+The landing lane's own answer to its red `CI Infection` and
+`CI Static` runs: the round's four escaped mutants and two
+error-level architecture findings, answered at their own seams rather
+than argued away.
+
+THE EXTRACTION (the two architecture findings): the anchoring walk
+lived inside `RouteConstraintDeclarations` as a private fold, and the
+archeology gate scored the declarations' own difficulty over the
+ceiling with it (`RouteConstraintAnchoring` now owns the single
+question in its own class — the delimiter escape is a vocabulary of
+its own, and the declarations' validation reads it through the same
+one-line call the probe always did).
+
+THE COUNTER'S KILLS: the walk's backslash-run counter now dies by its
+own boundary pins instead of escaping — the pattern that OPENS with
+the delimiter (`/[0-9]+` declared and compiled) kills the counter's
+initial zero (a misread opening run would close the wrapper's own
+delimiter at the pattern's first byte), and the round's own
+delimiter-carrying pattern kills the run-reset zero. The counter's
+parity question (`% 2 === 0`) is the one thing the walk never lets a
+test observe through sign — PHP's modulo answers parity faithfully
+under either sign, so the increment's `--` rewrite is value-equivalent
+by construction and rides the `Increment` ledger, scoped by a
+whole-line source regex.
+
+THE SPLIT'S DOCTRINE: the walk spells its byte split
+`mb_str_split($pattern, 1, '8bit')` — the house's byte-semantics
+doctrine (the encoding argument owns the byte semantics), honest to
+the walk's own docblock: the PCRE grammar is byte-wise, and the
+character-map default would group a multi-byte sequence into one step
+(a broken lead byte could swallow the very backslash the grammar
+counts). The mutant's `str_split($pattern, 1)` answers the same
+single-byte units for every byte string there is — the equivalence
+the `MBString` ledger entry carries, verified by the complete suite
+under the manually applied rewrite.
+
+THE LEDGER'S OWN LESSON rides the same round and lives in
+`docs/ci-notes/mutation-observation.md` (KDD-MO9): the view family's
+flushed-tail ignore had never matched anything — the matcher anchors
+every source regex to a whole diff line, and the substring spelling
+the #787 round landed rode main's rounding tolerance undetected.

@@ -22,16 +22,19 @@ use Zef\Framework\Config\ConfigException;
  * the verbatim declarations the export reads
  * ({@see RouteConstraints::pattern()}).
  *
- * THE ANCHORING ESCAPES ITS OWN DELIMITER (issue #799, finding 2):
- * a declared pattern may carry a `/` of its own -- a regex that
+ * THE ANCHORING ESCAPES ITS OWN DELIMITER (issue #799, finding
+ * 2): a declared pattern may carry a `/` of its own -- a regex that
  * matches a slash is a legitimate PCRE -- and the first spelling
  * wrapped every pattern in the `/^(?:...)\z/` delimiter verbatim, so
  * the first `/` inside the pattern closed the delimiter early and
  * the compilability probe refused a pattern the engine could have
  * compiled, with a message that named no delimiter. The anchoring
- * walk escapes every delimiter the pattern carries that no
- * preceding backslash already escaped, so the probe's refusal is
- * the pattern's own grammar and never the wrapper's spelling.
+ * walk that answers it lives in its own fold ({@see
+ * RouteConstraintAnchoring} -- the delimiter escape is a single
+ * question with its own vocabulary, and the declarations' own
+ * difficulty stays under the ceiling only without it), so the
+ * probe's refusal is the pattern's own grammar and never the
+ * wrapper's spelling.
  *
  * @internal consumed through {@see RouteConstraints}
  */
@@ -63,7 +66,7 @@ final readonly class RouteConstraintDeclarations
                 );
             }
 
-            $anchored = self::anchored($pattern);
+            $anchored = RouteConstraintAnchoring::anchored($pattern);
 
             if (!RouteConstraintCompilability::probe($anchored)) {
                 throw new ConfigException(
@@ -80,41 +83,5 @@ final readonly class RouteConstraintDeclarations
         }
 
         return [$patterns, $declared];
-    }
-
-    /**
-     * Wraps one declared pattern in its fully anchored spelling, with
-     * every unescaped delimiter the pattern carries escaped: the
-     * wrapper's own `/` grammar must never close at a delimiter the
-     * pattern itself spelled. The walk is byte-wise because the PCRE
-     * grammar is -- a backslash escapes exactly the byte that follows
-     * it, so an even run of backslashes leaves the following `/`
-     * unescaped (the delimiter to escape) and an odd run has already
-     * escaped it (the pattern's own spelling, kept verbatim).
-     *
-     * @return non-empty-string the anchored, delimiter-escaped pattern
-     */
-    private static function anchored(string $pattern): string
-    {
-        $wrapped = '/^(?:';
-        $backslashes = 0;
-
-        foreach (mb_str_split($pattern) as $byte) {
-            if ($byte === '\\') {
-                ++$backslashes;
-                $wrapped .= $byte;
-
-                continue;
-            }
-
-            if ($byte === '/' && $backslashes % 2 === 0) {
-                $wrapped .= '\\';
-            }
-
-            $backslashes = 0;
-            $wrapped .= $byte;
-        }
-
-        return $wrapped . ')\z/';
     }
 }

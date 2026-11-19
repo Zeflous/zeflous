@@ -860,7 +860,29 @@
                 // branch, the boundary's refusal and the table's
                 // composition halt all spell it through this one
                 // method. This ignore is scoped to that single method.
-                "Zef\\Framework\\Http\\ReservedPrincipalName::isClaimedBy"
+                "Zef\\Framework\\Http\\ReservedPrincipalName::isClaimedBy",
+                // The router round's anchoring fold splits the declared
+                // pattern by BYTE -- the PCRE grammar's own unit, its
+                // backslash-run counting honest only when every byte
+                // is one step (issue #799's gate round): the house's
+                // byte-semantics doctrine spells the split
+                // `mb_str_split($pattern, 1, '8bit')`, and the
+                // mutant's `str_split($pattern, 1)` answers the same
+                // single-byte units for every byte string there is
+                // ('8bit' IS the single-byte map -- one byte, one
+                // character, no grouping the character-map default
+                // could make and no broken lead byte could swallow a
+                // backslash the byte map counts; verified by running
+                // the complete suite under the manually applied
+                // mutation -- 7759 tests pass, and by the byte-map
+                // equivalence probed over ASCII, multibyte and
+                // invalid-sequence payloads, every spelling the walk
+                // can ever see agreeing unit-for-unit). The
+                // neighbouring anchored-concat and counter arms stay
+                // under their mutators: the delimiter pins kill every
+                // one of their spellings. This ignore is scoped to
+                // that single method.
+                "Zef\\Framework\\Config\\Routing\\RouteConstraintAnchoring::anchored"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",
@@ -1297,6 +1319,30 @@
                 "\\$written = fwrite\\(\\$dest, mb_substr\\(\\$chunk, \\$offset, \\$length - \\$offset, '8bit'\\)\\);"
             ]
         },
+        // The router round's anchoring fold carries the one counter
+        // whose sign the walk can never observe (issue #799's gate
+        // round): the backslash-run counter's only read is the parity
+        // question (`$backslashes % 2 === 0`), and PHP's modulo
+        // answers parity faithfully under either sign (-1 % 2 = -1,
+        // -2 % 2 = 0), so the decremented walk counts the same even
+        // and odd runs the incremented one does and escapes the same
+        // delimiter every run spells -- verified by running the full
+        // suite under the manually applied mutation (the complete
+        // suite passes, 7759 tests, the delimiter-carrying,
+        // opening-delimiter and already-escaped pins included). The
+        // counter's own bounds stay under their mutators and die by
+        // their own boundary pins: the initial zero is killed by the
+        // pattern that OPENS with the delimiter, the run-reset zero
+        // by the pattern that carries one after an unescaped byte.
+        // The neighbouring comparison and concat arms stay under
+        // their mutators: the delimiter pins kill every one of their
+        // spellings. Scoped by source regex to that single line --
+        // whole-line, the matcher's own anchoring lesson above.
+        "Increment": {
+            "ignoreSourceCodeByRegex": [
+                "\\+\\+\\$backslashes;"
+            ]
+        },
         "DecrementInteger": {
             // The replay window's default literal: the knob's only
             // observable face is the TTL the round-up hands the store, and
@@ -1519,9 +1565,23 @@
         // Scoped by source regex to that single comparison; the
         // neighbouring level arm stays under the mutator and its
         // mutants are killed by the innocent-below pin.
+        //
+        // The ignore's own spelling learned its lesson the hard way
+        // (the router round #799's gate round): the matcher anchors
+        // every source regex to a WHOLE diff line (`^-\s*<regex>$`
+        // with the `m` and `u` flags), so the substring the first
+        // spelling carried matched nothing and the documented
+        // equivalent kept escaping on every run -- main's own green
+        // runs carried it, riding the rounding a single escaped
+        // mutant never breaches (one escape in ~21,400 tested rounds
+        // the MSI to 100.00 at the runner's own precision). The
+        // whole-line spelling below is the one the matcher answers
+        // (verified against the mutant's own diff); the equivalence
+        // itself re-verified by the full suite green under the
+        // manually applied flip.
         "LessThanOrEqualTo": {
             "ignoreSourceCodeByRegex": [
-                "ob_get_length\\(\\) <= \\$caller"
+                "if \\(ob_get_level\\(\\) !== \\$entry \\|\\| ob_get_length\\(\\) <= \\$caller\\) \\{"
             ]
         },
         "ReturnRemoval": {

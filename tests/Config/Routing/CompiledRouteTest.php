@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Config\Routing\CompiledRoute;
+use Zef\Framework\Config\Routing\RouteConstraintAnchoring;
 use Zef\Framework\Config\Routing\RouteConstraintCompilability;
 use Zef\Framework\Config\Routing\RouteConstraintDeclarations;
 use Zef\Framework\Config\Routing\RouteConstraints;
@@ -31,6 +32,7 @@ use Zef\Framework\Exception\InternalException;
 #[CoversClass(RouteConstraints::class)]
 #[CoversClass(RouteConstraintCompilability::class)]
 #[CoversClass(RouteConstraintDeclarations::class)]
+#[CoversClass(RouteConstraintAnchoring::class)]
 final class CompiledRouteTest extends TestCase
 {
     public function testCompilesAMinimalEntry(): void
@@ -112,6 +114,29 @@ final class CompiledRouteTest extends TestCase
         self::assertSame('[a-z]+/[0-9]+', $compiledRoute->constraints()->pattern('id'));
         self::assertTrue($compiledRoute->constraints()->check('id', 'abc/42'));
         self::assertFalse($compiledRoute->constraints()->check('id', 'abc'));
+    }
+
+    public function testAConstraintPatternOpeningWithItsOwnDelimiterCompilesFromTheFirstByte(): void
+    {
+        // The walk's own opening boundary: a pattern that STARTS with
+        // the delimiter meets the counter before any backslash run
+        // exists -- the zeroth run is even, so the very first `/` the
+        // pattern spells is a delimiter the wrapper must escape. A
+        // spelling that misread the opening run as already escaped
+        // would close the wrapper's own delimiter at the pattern's
+        // first byte and the probe would refuse a pattern the engine
+        // could have compiled -- the boundary that pins the walk's
+        // start, not just its middle.
+        $compiledRoute = CompiledRoute::fromArray([
+            'path' => '/users/{id}',
+            'method' => ['GET'],
+            'handler' => 'Users@show',
+            'constraints' => ['id' => '/[0-9]+'],
+        ]);
+
+        self::assertSame('/[0-9]+', $compiledRoute->constraints()->pattern('id'));
+        self::assertTrue($compiledRoute->constraints()->check('id', '/42'));
+        self::assertFalse($compiledRoute->constraints()->check('id', '42'));
     }
 
     public function testAnAlreadyEscapedDelimiterInThePatternKeepsItsOwnSpelling(): void

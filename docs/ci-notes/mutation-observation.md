@@ -203,3 +203,47 @@ would otherwise survive behind). The output-order fold
 (`SortedWorkflowMap::over`) keeps its own seam and its own direct
 test -- two questions, two folds, the b821ed17 separation intact.
 
+
+## The fourth batch: the flushed-tail ignore never matched, and the ledger learned whole lines (2026-11-19)
+
+The router round #799's gate round found the mutation ledger's own
+defect while paying its own escapes: `CI Infection` on the branch head
+failed with four escaped mutants, three of them the round's own new
+anchoring code — but the fourth was the view family's flushed-tail
+trim (`ViewFlushedTail::discard`, `ob_get_length() <= $caller`), a
+mutant the #787 round had already documented as its one equivalent
+and "carried on the LessThanOrEqualTo ledger scoped by source
+regex". The ledger entry had never matched anything.
+
+**The diagnosis.** The matcher (`DiffSourceCodeMatcher`) anchors
+every `ignoreSourceCodeByRegex` entry to a WHOLE diff line — the
+pattern it builds is `^-\s*<regex>$` with the `m` and `u` flags, so
+the regex must spell the entire minus-line from `if (` to the trailing
+`{`. The #787 round's entry spelled only the comparison substring
+(`ob_get_length\(\) <= \$caller`), which matched nothing: the mutant
+kept escaping on every run. The escape was invisible because the
+rounding tolerance absorbs exactly one escape — one escaped mutant in
+~21,400 rounds the MSI to 100.00 at the runner's own precision, so
+`main`'s own green runs carried the documented-but-ignored equivalent
+for days, and any future round that escaped even one mutant of its
+own would breach the budget and find the round red for a reason that
+pre-dated it.
+
+**KDD-MO9: an ignore entry that matches nothing is an escape you
+already have.** The whole-line anchoring is the matcher's contract,
+not a style preference: an `ignoreSourceCodeByRegex` entry must spell
+the complete mutated line (or a full-line pattern that covers it),
+verified against the mutant's own diff before it lands — the same
+verification discipline the equivalence itself carries. A substring
+entry does not fail loudly; it silently disarms the ignore it was
+meant to arm. The flushed-tail entry now spells the whole guard line,
+verified against the mutant's diff, and the equivalence re-verified
+by the full suite green under the manually applied flip.
+
+The round's own three escapes paid the same discipline at their own
+seams, not the ledger's: the anchoring's extraction into its own fold
+(the archeology gate's two error-level findings answered by the same
+move), the counter's boundary pins for both of its zeros, the parity
+equivalence riding a whole-line `Increment` entry, and the byte-split
+equivalence riding the `MBString` ledger scoped to the anchoring fold
+(KDD-RA5 in `docs/ci-notes/router-roadmap-audit.md`).
