@@ -40,7 +40,7 @@ namespace Zef\Framework\Adapters\Session;
  * landed, the blast radius of a single defect record was the whole
  * store.
  */
-final class SessionSweep
+final readonly class SessionSweep
 {
     /**
      * The sweep cadence: the save-riding pruning runs at most once
@@ -55,10 +55,10 @@ final class SessionSweep
      * @param SessionRecordRetirement $sessionRecordRetirement one record's own retirement judgement
      */
     public function __construct(
-        private readonly SessionRecordScan $sessionRecordScan,
-        private readonly SessionRecordFiles $sessionRecordFiles,
-        private readonly SessionSweepCadence $sessionSweepCadence,
-        private readonly SessionRecordRetirement $sessionRecordRetirement,
+        private SessionRecordScan $sessionRecordScan,
+        private SessionRecordFiles $sessionRecordFiles,
+        private SessionSweepCadence $sessionSweepCadence,
+        private SessionRecordRetirement $sessionRecordRetirement,
     ) {
     }
 

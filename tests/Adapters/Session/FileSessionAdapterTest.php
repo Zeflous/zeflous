@@ -310,7 +310,7 @@ final class FileSessionAdapterTest extends TestCase
         self::assertSame(
             '1070',
             mb_trim((string) file_get_contents($this->directory . '/.sweep-cadence')),
-            'the marker carries the last sweep\'s own reading',
+            "the marker carries the last sweep's own reading",
         );
     }
 
@@ -829,7 +829,7 @@ final class FileSessionAdapterTest extends TestCase
         );
         self::assertFileExists(
             $this->directory . '/.quarantine/unreadable.json',
-            'the lane keeps the operator\'s story',
+            "the lane keeps the operator's story",
         );
         self::assertSame(
             '{"data":{},"written_at":1}',
@@ -854,7 +854,7 @@ final class FileSessionAdapterTest extends TestCase
         );
         self::assertFileExists(
             $this->directory . '/.quarantine/corrupt.json',
-            'the lane keeps the operator\'s story',
+            "the lane keeps the operator's story",
         );
         self::assertSame(
             'not json at all',

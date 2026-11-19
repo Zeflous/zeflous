@@ -425,17 +425,17 @@ final class CounterMeterTest extends TestCase
         self::assertSame(
             3,
             $snapshot[MeterSlot::key('app.cardinality.alpha', ['zef.cardinality.bucket' => 'overflow'])]['count'],
-            'A\'s bucket rides through B\'s collapse: its folded sibling plus the two collapses it already held',
+            "A's bucket rides through B's collapse: its folded sibling plus the two collapses it already held",
         );
         self::assertSame(
             1,
             $snapshot[MeterSlot::key('app.cardinality.beta', ['zef.cardinality.bucket' => 'overflow'])]['count'],
-            'B\'s fresh identity answers its own overflow bucket',
+            "B's fresh identity answers its own overflow bucket",
         );
         self::assertArrayNotHasKey(
             MeterSlot::key('app.cardinality.alpha', ['ordinal' => 1022]),
             $snapshot,
-            'the casualty B\'s room cost was A\'s newest non-bucket series, never A\'s bucket',
+            "the casualty B's room cost was A's newest non-bucket series, never A's bucket",
         );
     }
 
@@ -469,7 +469,7 @@ final class CounterMeterTest extends TestCase
         self::assertSame(
             1024,
             $bucketCount,
-            'the cascade retires every series into its own metric\'s bucket, the count never lost on the way',
+            "the cascade retires every series into its own metric's bucket, the count never lost on the way",
         );
 
         $counterMeter->increment('app.cardinality.freshfamily', 1);
@@ -613,6 +613,19 @@ final class CounterMeterTest extends TestCase
             MeterSlot::key('app.custom', ['k' => 'a/b é']),
             'the name, the separator, and the unescaped rendering the exposition splits back on',
         );
+    }
+
+    public function testTheOverflowFoldSplitsTheNameHalfAtItsOwnCharacters(): void
+    {
+        // The overflow fold's own twin pin ({@see
+        // OtlpMetricKeyTest}'s multibyte lane): the name half a
+        // composite key carries keeps the character-offset
+        // discipline -- a byte-offset fold would truncate the
+        // two-byte `é` mid-name, the split landing at the pipe's
+        // byte spelling instead of its character one, and the
+        // collapse's own ride onto its metric's bucket would lose
+        // its way.
+        self::assertSame('métric', MeterOverflow::nameOf('métric|{"k":"v"}'));
     }
 
     public function testTheMeterCarriesTheSnapshotTheExpositionRenders(): void
