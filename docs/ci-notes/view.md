@@ -231,6 +231,85 @@ at MSI 100/100 (102 mutants over the three files, 98 killed, the
 four equivalents ignored), the full static battery green, psalm
 EXIT-0, archeology 0 error-level findings.
 
+## KDD-VW7: the audit's two view answers (issue #787 -- the leak and the doctrine)
+
+The database/view audit (#787) carried two view-side findings, and
+both answer in one lane:
+
+- **Finding 1 -- the flushed-tail leak, trimmed.** The scope's
+  docblock claimed "a crash at ANY nesting depth leaves no partial
+  output and no open buffer behind", but the FLUSH path is not a
+  crash: a template that calls `ob_end_flush()` on the engine's
+  buffer pushes its partial output into the CALLER's own open
+  buffer below, and the discipline refusal -- which fires -- could
+  only refuse the answer, never recall the bytes already landed.
+  The caller's buffer content length is now taken before the open
+  (`is_int` over `ob_get_length()`'s int-when-buffered answer: a
+  level-zero caller holds no buffer, and the false arm the driver
+  answers there is the no-buffer signal itself), and the refusal
+  path walks `ViewFlushedTail::discard()`: when the
+  caller's own buffer carries more than it owned, the tail is
+  trimmed and the prefix re-echoed, `ob_clean()` -- never
+  `ob_end_clean()` -- so the caller's buffering choice keeps its
+  buffer IDENTITY (the fold trims the buffer's contents, it does
+  not close the caller's buffer and open a stranger in its place).
+  The audit's own repro is the pin: `caller-prefix` in the buffer,
+  a flushing template between, and the buffer must answer
+  `caller-prefix` again -- level untouched, the leaked
+  `partial-leak` tail gone. Two residuals are pinned as the
+  refusals they are: a template that flushes PAST the engine's
+  walls closes the caller's own buffer (the INNOCENT buffer below
+  it must survive the refusal with its own bytes -- the level
+  arm's own pin, `innocent-below-victimab` asserted byte-exact,
+  never a re-cut slice sized to the closed buffer's length), a
+  level-zero caller already received the partial in the output
+  itself (the honest spelling is to open a buffer before
+  rendering when the caller's output must stay atomic --
+  recorded, not worked around), and the empty leak (a template
+  that flushed zero bytes) is the boundary where the trim is the
+  no-op itself -- the one documented equivalent the round carries
+  on the ledger (`LessThanOrEqualTo`, scoped by source regex to
+  that single comparison). The silent-path pin holds the trim
+  inert: a caller with a buffer renders a quiet template and both
+  the level and the content come back exactly as they went in.
+- **Finding 6 -- the escaping doctrine, honestly spelled.** The
+  face's docblock claimed the engine "hands the discipline to its
+  authors" as if the fold were enforcement; the truth the port
+  already spells two-tier in `ViewVariables` carries through to
+  the template's own hand: ESCAPING IS OPT-IN AT EACH
+  INTERPOLATION. Every value that crosses the `escape()` fold is
+  HTML-safe; a value that never crosses it echoes raw -- one
+  missed `escape()` is one XSS hole, and the docblock now says
+  exactly that (a future Twig answer satisfies the posture
+  natively through auto-escape-on-output, and needs no face verb
+  for it).
+- **The fold under the archeology ceiling.** The trim's first
+  spelling lived inline in `ViewRenderScope` and pushed the file
+  to difficulty 23.68 against the ceiling of 20; the extraction
+  (`ViewFlushedTail`, its own single-question unit) brings the
+  scope to 17.21 and the fold to 5.69 -- the same reshape the
+  ceiling demanded of the boundary lane (#884's 21.94 -> 19.43
+  idiom, recorded in KDD-M13).
+
+The verification battery: the full suite green (the five new
+pins ride `ViewRenderScopeTest`), PHPStan max, Psalm EXIT-0,
+php-cs-fixer, Rector, Deptrac, phpcpd and phpmd clean, archeology
+0 error-level findings. The mutation round rode the CI lane (the
+sandbox carries no coverage extension) and its first round escaped
+five trim-guard mutants plus two scope-arms -- every escape
+answered in this round: the innocent-below pin kills the level
+arm's every spelling (the `||`/`&&` flip, the early-return
+removal, the `!==` flip), the multibyte pin kills the byte-cut
+operand set, the `is_int` spelling kills the caller-read arms the
+first spelling could only carry as equivalents (the correlated
+`$entry > 0`/`(int)` arms the level-zero no-op made unkillable --
+the false answer IS the no-buffer signal, so the predicate the
+ternary flips is the killable spelling), and the empty-leak
+boundary is the one documented equivalent (verified by the family
+battery green under the manually applied `<` flip). The
+restructure that made the arms killable also made them honest:
+the trim now spells exactly what it reads.
+
 ## The named follow-ups
 
 - The `views` configuration wiring family (the composition seam that

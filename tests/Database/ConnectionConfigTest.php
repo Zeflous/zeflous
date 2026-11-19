@@ -115,21 +115,61 @@ final class ConnectionConfigTest extends TestCase
         ConnectionDsn::of('pgsql', 'db.local', null, 'app', null);
     }
 
-    public function testANetworkDriverDbnameIsNotHeldToTheSqlitePrintableRule(): void
+    public function testANetworkDriverDbnameCarriesItsOwnPrintableRule(): void
     {
         // The printable-ASCII path rule is SQLite's (its DSN IS the
         // path); the network drivers' dbname travels inside the DSN
-        // string the server validates -- the lanes own their own
-        // rules, and the boundary between them is pinned here.
-        $config = ConnectionConfig::fromArray([
+        // string the driver's own parser reads, so it carries its own
+        // rule -- printable ASCII without the DSN's own `;` separator
+        // (issue #787's finding 4), and the boundary between the two
+        // lanes' rules is pinned here.
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessageIsOrContains(
+            "Database name (dbname) for driver 'mysql' must be printable ASCII without"
+            . " the ';' separator (1-64 characters).",
+        );
+
+        ConnectionConfig::fromArray([
             'driver' => 'mysql',
             'host' => 'db.local',
             'dbname' => "\x01app",
             'user' => 'app',
             'password' => 'secret',
         ]);
+    }
 
-        self::assertSame("mysql:host=db.local;port=3306;dbname=\x01app;charset=utf8mb4", $config->dsn());
+    public function testANetworkDriverDbnameRefusesTheDsnSeparator(): void
+    {
+        // The `;` is the DSN's own clause separator: a dbname that
+        // carries it would split the DSN the driver reads -- the one
+        // byte the network rule exists to refuse.
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessageIsOrContains(
+            "Database name (dbname) for driver 'pgsql' must be printable ASCII without"
+            . " the ';' separator (1-64 characters).",
+        );
+
+        ConnectionConfig::fromArray([
+            'driver' => 'pgsql',
+            'host' => 'db.local',
+            'dbname' => 'app;host=other',
+        ]);
+    }
+
+    public function testAnOrdinaryNetworkDbnameFlowsToTheDsn(): void
+    {
+        // The rule's positive half: an ordinary printable dbname flows
+        // into the DSN exactly as it always did -- the grammar refuses
+        // the bytes that would corrupt the DSN, nothing else.
+        $config = ConnectionConfig::fromArray([
+            'driver' => 'mysql',
+            'host' => 'db.local',
+            'dbname' => 'app_db',
+            'user' => 'app',
+            'password' => 'secret',
+        ]);
+
+        self::assertSame('mysql:host=db.local;port=3306;dbname=app_db;charset=utf8mb4', $config->dsn());
     }
 
     public function testUnknownDriverRejected(): void
@@ -319,9 +359,47 @@ final class ConnectionConfigTest extends TestCase
     public function testNonStringCharsetRejected(): void
     {
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessageIsOrContains('Charset must be a string or null.');
+        $this->expectExceptionMessageIsOrContains(
+            'Charset must be letters, digits, underscore, dash or dot (1-64 characters), or null (got: int)',
+        );
 
         ConnectionConfig::fromArray(['driver' => 'mysql', 'host' => 'h', 'dbname' => 'app', 'charset' => 8]);
+    }
+
+    public function testACharsetCarryingTheDsnBreakersIsRefused(): void
+    {
+        // Issue #787's finding 4, the audit's own spelling: the free
+        // charset string flowed verbatim into the DSN's quoted options
+        // clause -- a `'` and a `;` would break the clauses apart and
+        // reach the driver's own option parsing as new options.
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessageIsOrContains(
+            'Charset must be letters, digits, underscore, dash or dot (1-64 characters),'
+            . " or null (got: 'UTF8' --search_path=x')",
+        );
+
+        ConnectionConfig::fromArray([
+            'driver' => 'pgsql',
+            'host' => 'db.local',
+            'dbname' => 'app',
+            'charset' => "UTF8' --search_path=x",
+        ]);
+    }
+
+    public function testEveryEncodingsWordCarries(): void
+    {
+        // The grammar's positive half: the words every engine's
+        // encoding vocabulary spells all carry.
+        foreach (['utf8', 'utf8mb4', 'UTF-8', 'latin1', 'UNICODE'] as $charset) {
+            $config = ConnectionConfig::fromArray([
+                'driver' => 'mysql',
+                'host' => 'db.local',
+                'dbname' => 'app',
+                'charset' => $charset,
+            ]);
+
+            self::assertSame($charset, $config->charset);
+        }
     }
 
     public function testNonArrayOptionsRejected(): void

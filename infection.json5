@@ -385,8 +385,11 @@
                 // whitespace-led heads included). The spelling keeps
                 // the mb_ forms precisely because the automated mb_str
                 // migration rewrites the plain ones. This ignore is
-                // scoped to that single method.
-                "Zef\\Framework\\Adapters\\Database\\PdoUnboundedAudit::operation",
+                // scoped to that single method (the fold moved to
+                // PdoUnboundedSignals when the emission body became
+                // its own raw fold -- issue #787's finding 5 split;
+                // the judgment the ignore documents is unchanged).
+                "Zef\\Framework\\Adapters\\Database\\PdoUnboundedSignals::operation",
                 // The Postman collection's identifier formatting is the
                 // router lane's own RedactionCandidate measurement, spelled
                 // for the hash family: the SHA-1 hex digest hash() answers
@@ -821,6 +824,24 @@
                 // its D-flag pin lives in the trailing-newline test.
                 // This ignore is scoped to that single method.
                 "Zef\\Framework\\View\\ViewName::__construct",
+                // The view family's flushed-tail trim reads the caller's
+                // own buffer by its BYTE length (issue #787's finding
+                // 1): ob_get_length() answers bytes, so the cut is
+                // spelled mb_substr($contents, 0, $caller, '8bit') --
+                // the '8bit' encoding IS byte semantics (the
+                // BodyBudget class already proved the argument), and
+                // the mutant's plain substr cuts the same bytes for
+                // every possible buffer content. The byte-exact
+                // semantics are pinned by the multibyte-prefix test
+                // (a character-count cut would leave the flushed
+                // tail's own bytes behind as a corrupted residue), so
+                // a future spelling that loses the '8bit' argument
+                // reddens the suite; the mb_ form stays because the
+                // house's own formatter doctrine (MbStrFunctions)
+                // rewrites every substr to its mb_ twin. The
+                // neighbouring ob_* calls are not MBString targets.
+                // This ignore is scoped to that single method.
+                "Zef\\Framework\\Adapters\\View\\ViewFlushedTail::discard",
                 // The auth family's reserved-name fold reads the one
                 // word 'anonymous' against the principal id (issue
                 // #785's finding 4): the word spells no k and no i,
@@ -1484,6 +1505,25 @@
         // engine's narrowest for this mutator; the try's own return
         // stays under the mutator and its removal is killed by every
         // injection test, though the engine no longer asks it here.
+        // The view family's flushed-tail trim keeps the empty-leak
+        // boundary (issue #787's finding 1): `ob_get_length() ===
+        // $caller` is the leak that flushed ZERO bytes, and the trim
+        // the boundary would run is the no-op itself -- ob_clean()
+        // followed by re-echoing the buffer's whole content answers
+        // the same bytes, the same level, the same buffer identity, so
+        // the `<` mutant and the `<=` honest arm are value-equivalent
+        // at exactly that boundary and divergent nowhere else (the
+        // multibyte and innocent-below pins kill every other operand
+        // mutation the guard carries). Verified by construction and by
+        // the family battery green under the manually applied flip.
+        // Scoped by source regex to that single comparison; the
+        // neighbouring level arm stays under the mutator and its
+        // mutants are killed by the innocent-below pin.
+        "LessThanOrEqualTo": {
+            "ignoreSourceCodeByRegex": [
+                "ob_get_length\\(\\) <= \\$caller"
+            ]
+        },
         "ReturnRemoval": {
             "ignore": [
                 // The hook drain's empty-queue early return: the fall-

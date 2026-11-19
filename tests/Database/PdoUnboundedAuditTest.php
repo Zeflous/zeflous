@@ -6,13 +6,18 @@ namespace Zef\Test\Database;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoQueryRun;
 use Zef\Framework\Adapters\Database\PdoUnboundedAudit;
+use Zef\Framework\Adapters\Database\PdoUnboundedSignals;
 use Zef\Framework\Database\SqlQuery;
+use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Test\Support\Log\RecordingLogger;
+use Zef\Test\Support\Log\ThrowingLogger;
 use Zef\Test\Support\Telemetry\RecordingMeter;
+use Zef\Test\Support\Telemetry\ThrowingMeter;
 
 /**
  * Pins the unbounded-statement audit emission: the optional counter
@@ -27,6 +32,7 @@ use Zef\Test\Support\Telemetry\RecordingMeter;
  * @internal
  */
 #[CoversClass(PdoUnboundedAudit::class)]
+#[CoversClass(PdoUnboundedSignals::class)]
 #[CoversClass(PdoQueryRun::class)]
 #[CoversClass(PdoConnection::class)]
 final class PdoUnboundedAuditTest extends TestCase
@@ -99,7 +105,6 @@ final class PdoUnboundedAuditTest extends TestCase
         $connection = $this->auditedConnection($recordingMeter, $recordingLogger);
 
         $connection->execute(new SqlQuery('UPDATE audit_rows SET v = ? WHERE id = ?', ['y', 1]));
-
         self::assertSame([], $recordingMeter->increments, 'a bounded UPDATE is not an audit event');
         self::assertSame([], $recordingLogger->calls);
     }
@@ -111,6 +116,55 @@ final class PdoUnboundedAuditTest extends TestCase
         $affected = $connection->execute(new SqlQuery('DELETE FROM audit_rows', unbounded: true));
 
         self::assertSame(1, $affected, 'the null seams are the honest void, never a failure');
+    }
+
+    public function testTheNullMeterSeamAnswersTheRecordWithoutTheCounter(): void
+    {
+        // The raw emission fold's own nullseam pin (the
+        // PdoQuerySignals::emit() shape): the fold carries NO
+        // containment, so a seam spelled without its nullsafe arm
+        // answers its own error under the direct call -- the null
+        // meter never costs the WARN record its delivery.
+        $recordingLogger = new RecordingLogger();
+
+        PdoUnboundedSignals::emit(null, $recordingLogger, new SqlQuery('DELETE FROM t'), 3);
+
+        self::assertCount(1, $recordingLogger->calls, 'the WARN record answers without a meter');
+        self::assertSame('warning', $recordingLogger->calls[0][0]);
+        self::assertSame(
+            'Unbounded delete executed (allowUnbounded): 3 row(s) affected',
+            $recordingLogger->calls[0][1],
+        );
+    }
+
+    public function testTheNullLoggerSeamAnswersTheCounterWithoutTheRecord(): void
+    {
+        // The fold's second nullseam arm: the null logger never
+        // costs the counter its increment.
+        $recordingMeter = new RecordingMeter();
+
+        PdoUnboundedSignals::emit($recordingMeter, null, new SqlQuery('DELETE FROM t'), 3);
+
+        self::assertCount(1, $recordingMeter->increments, 'the counter answers without a logger');
+        self::assertSame(1, $recordingMeter->increments[0]['value']);
+        self::assertSame(['op' => 'delete'], $recordingMeter->increments[0]['attributes']);
+    }
+
+    public function testASeamThatThrowsNeverTaintsTheStatementsOwnAnswer(): void
+    {
+        // Issue #787's finding 5: the emission runs AFTER a statement
+        // already executed, so a meter or logger that throws must not
+        // turn the caller's successful write into a post-effect
+        // exception -- the observation is never worth the query's own
+        // answer, the same containment the measured window's emissions
+        // carry.
+        $throwingMeter = new ThrowingMeter();
+        $throwingLogger = new ThrowingLogger();
+        $connection = $this->auditedConnection($throwingMeter, $throwingLogger);
+
+        $affected = $connection->execute(new SqlQuery('UPDATE audit_rows SET v = ?', ['z'], true));
+
+        self::assertSame(1, $affected, 'the throwing seams never taint the answer');
     }
 
     public function testAFetchVerbNeverEmits(): void
@@ -126,8 +180,8 @@ final class PdoUnboundedAuditTest extends TestCase
     }
 
     private function auditedConnection(
-        ?RecordingMeter $recordingMeter,
-        ?RecordingLogger $recordingLogger,
+        ?MeterInterface $recordingMeter,
+        ?LoggerInterface $recordingLogger,
     ): PdoConnection {
         $pdoConnection = new PdoConnection(
             ConnectionConfig::fromArray(self::SQLITE),

@@ -20,10 +20,12 @@ use Zef\Framework\Adapters\Database\ConnectionPort;
 use Zef\Framework\Adapters\Database\PdoAttributes;
 use Zef\Framework\Adapters\Database\PdoConnect;
 use Zef\Framework\Adapters\Database\PdoConnection;
+use Zef\Framework\Adapters\Database\PdoFetchOne;
 use Zef\Framework\Adapters\Database\PdoHandle;
 use Zef\Framework\Adapters\Database\PdoIdentity;
 use Zef\Framework\Adapters\Database\PdoIsolation;
 use Zef\Framework\Adapters\Database\PdoPrimitive;
+use Zef\Framework\Adapters\Database\PdoQueryRun;
 use Zef\Framework\Adapters\Database\PdoRows;
 use Zef\Framework\Adapters\Database\PdoStatementRun;
 use Zef\Framework\Adapters\Database\PdoTransactionDepth;
@@ -53,6 +55,8 @@ use Zef\Test\Support\Database\RecordingPdo;
 #[CoversClass(PdoConnection::class)]
 #[CoversClass(PdoHandle::class)]
 #[CoversClass(PdoConnect::class)]
+#[CoversClass(PdoQueryRun::class)]
+#[CoversClass(PdoFetchOne::class)]
 #[CoversClass(ConnectionConfig::class)]
 #[CoversClass(ConnectionDsn::class)]
 #[CoversClass(ConnectionFields::class)]

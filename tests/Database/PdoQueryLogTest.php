@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
+use Zef\Framework\Adapters\Database\PdoFetchOne;
 use Zef\Framework\Adapters\Database\PdoQueryLog;
 use Zef\Framework\Adapters\Database\PdoQueryLogArming;
 use Zef\Framework\Adapters\Database\PdoQueryOperation;
@@ -42,6 +43,7 @@ use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 #[CoversClass(PdoQuerySignals::class)]
 #[CoversClass(PdoQueryOperation::class)]
 #[CoversClass(PdoQueryRun::class)]
+#[CoversClass(PdoFetchOne::class)]
 #[CoversClass(PdoQueryLogArming::class)]
 #[CoversClass(PdoConnection::class)]
 final class PdoQueryLogTest extends TestCase
@@ -107,6 +109,42 @@ final class PdoQueryLogTest extends TestCase
             1000.0,
             $recordingLogger->calls[0][2]['elapsed_ms'],
             "the per-query record carries the statement's own span, never the clock epoch",
+        );
+    }
+
+    public function testAMeasuredSingleRowFetchAnswersItsOwnRecord(): void
+    {
+        // The single-row verb's own measured window (issue #787's
+        // finding 3): the cursor's one step rides the same bracket
+        // the list verb holds -- the opening reading before the
+        // statement, the emission in the finally seam the throw
+        // path shares, the record answering with the statement's
+        // own span, never the clock epoch a lost opening reading
+        // would answer.
+        $recordingMeter = new RecordingMeter();
+        $recordingLogger = new RecordingLogger();
+        $connection = $this->loggedConnection($recordingMeter, $recordingLogger, 100);
+
+        $row = $connection->fetchOne(new SqlQuery('SELECT v FROM logged'));
+
+        self::assertSame(['v' => 'seeded'], $row);
+
+        self::assertCount(1, $recordingMeter->observations, 'the single row observes its own duration');
+        self::assertSame(
+            ['db.statement.operation' => 'select'],
+            $recordingMeter->observations[0]['attributes'],
+        );
+        self::assertSame('select', $recordingLogger->calls[0][2]['op']);
+        self::assertGreaterThan(0.0, $recordingMeter->observations[0]['value']);
+        self::assertLessThan(
+            1.0,
+            $recordingMeter->observations[0]['value'],
+            'the single-row window measured the statement, not the clock epoch',
+        );
+        self::assertLessThan(
+            1000.0,
+            $recordingLogger->calls[0][2]['elapsed_ms'],
+            "the single-row record carries the statement's own span, never the clock epoch",
         );
     }
 
