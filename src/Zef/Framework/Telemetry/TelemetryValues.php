@@ -46,7 +46,7 @@ final class TelemetryValues
         return match (true) {
             \is_string($value) => TelemetrySanitizer::string($value),
             \is_int($value), \is_bool($value), $value === null => $value,
-            \is_float($value) => self::floatValue($value),
+            \is_float($value) => TelemetryFloatForm::value($value),
             \is_array($value) => self::arrayValue($value, $depth),
             default => get_debug_type($value),
         };
@@ -55,10 +55,17 @@ final class TelemetryValues
     /**
      * Sanitises an attribute map: the sensitive keys are dropped
      * outright -- refused, not marked, because a recorded credential
-     * never exists to be redacted -- and every kept value answers the
-     * value sanitisation.
+     * never exists to be redacted (the judgement reads the caller's
+     * own spelling, never the budgeted fold: a credential key
+     * truncated under its fragment is still a credential key) -- and
+     * every kept value answers the value sanitisation under its own
+     * budgeted key ({@see TelemetrySanitizer::key()}). The declared
+     * key union is the walk's own honest range -- PHP's own array
+     * grammar coerces a numeric string key to the int it spells, and
+     * a host's array literal can carry one -- the census coerces back
+     * to the string every identity grammar renders.
      *
-     * @param array<string, mixed> $attributes
+     * @param array<array-key, mixed> $attributes
      *
      * @return array<string, mixed>
      */
@@ -66,33 +73,17 @@ final class TelemetryValues
     {
         $sanitized = [];
 
-        foreach (array_keys($attributes) as $key) {
-            if (TelemetrySanitizer::isSensitiveKey($key)) {
+        foreach ($attributes as $key => $value) {
+            $name = TelemetrySanitizer::key((string) $key);
+
+            if ($name === '' || TelemetrySanitizer::isSensitiveKey((string) $key)) {
                 continue;
             }
 
-            $sanitized[$key] = self::value($attributes[$key]);
+            $sanitized[$name] = self::value($value);
         }
 
         return $sanitized;
-    }
-
-    /**
-     * Answers the float's JSON-safe form: the NaN and infinities the
-     * encoder's grammar refuses -- and a bare cast would spell into
-     * an engine warning -- answer their literal string forms instead.
-     */
-    private static function floatValue(float $number): float|string
-    {
-        if (is_nan($number)) {
-            return 'NAN';
-        }
-
-        if (is_infinite($number)) {
-            return $number === \INF ? 'INF' : '-INF';
-        }
-
-        return $number;
     }
 
     /**
@@ -116,9 +107,13 @@ final class TelemetryValues
         $walked = [];
 
         foreach (array_keys(\array_slice($value, 0, self::ENTRY_BUDGET, true)) as $key) {
-            $name = (string) $key;
+            $name = TelemetrySanitizer::key((string) $key);
 
-            if (TelemetrySanitizer::isSensitiveKey($name)) {
+            if ($name === '') {
+                continue;
+            }
+
+            if (TelemetrySanitizer::isSensitiveKey((string) $key)) {
                 $walked[$name] = '[REDACTED]';
 
                 continue;

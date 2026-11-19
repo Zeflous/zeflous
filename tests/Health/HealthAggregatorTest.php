@@ -212,10 +212,12 @@ final class HealthAggregatorTest extends TestCase
         $healthChecker->add(new FixedHealthCheck('cache', true));
         $healthChecker->add(new FixedHealthCheck('queue', true));
 
-        // The readings: 1_000_000_000 at the start, 1_500_000_000 before the
-        // first probe (under the 1s deadline over 1_000_000_000), and
-        // 2_000_000_000 before the second -- exactly at the deadline.
-        $report = $this->aggregator($healthChecker, epoch: 1_000_000_000, step: 500_000_000)
+        // The readings: 1_000_000_000 at the start; 1_400_000_000
+        // before the first probe and 1_800_000_000 after it -- under
+        // the 1s deadline over 1_000_000_000, so the first probe
+        // answers its own verdict; 2_200_000_000 before the second
+        // -- exactly past the deadline, the skip it owns.
+        $report = $this->aggregator($healthChecker, epoch: 1_000_000_000, step: 400_000_000)
             ->aggregate(1000)
         ;
 
@@ -228,7 +230,44 @@ final class HealthAggregatorTest extends TestCase
             $report['checks'][1]['message'],
             'a probe at the deadline is skipped -- the boundary is inclusive',
         );
-        self::assertSame(1500.0, $report['tookMs']);
+        self::assertSame(1600.0, $report['tookMs']);
+    }
+
+    /**
+     * The probe that answers past the deadline (issue #788, finding
+     * 3): the skip marker bounds the probes that never RAN -- the
+     * probe that ran and ate the whole budget answers its own
+     * overrun marker, down, because the response was already over
+     * budget while it ran and the probe that ate the budget is the
+     * reason the scrape degrades.
+     */
+    public function testAProbeThatAnswersPastTheDeadlineAnswersTheOverrunMarker(): void
+    {
+        $healthChecker = new HealthChecker();
+        $healthChecker->add(new FixedHealthCheck('cache', true));
+        $healthChecker->add(new FixedHealthCheck('queue', true));
+
+        // The readings: 0 at the start; 400_000_000 before the first
+        // probe (under the 500ms deadline over 0) and 800_000_000
+        // after it -- past the deadline, the overrun the healthy
+        // probe itself now answers; 1_200_000_000 before the second
+        // -- the skip the remaining probe owns.
+        $report = $this->aggregator($healthChecker, epoch: 0, step: 400_000_000)
+            ->aggregate(500)
+        ;
+
+        self::assertSame(HealthStatuses::STATUS_DEGRADED, $report['status']);
+        self::assertSame('down', $report['checks'][0]['status']);
+        self::assertSame(
+            'overran the scrape deadline: the answer the deadline can no longer vouch for',
+            $report['checks'][0]['message'],
+            'the probe that ate the whole budget answers its own overrun, never the green verdict',
+        );
+        self::assertSame(
+            'skipped: overall health deadline exceeded',
+            $report['checks'][1]['message'],
+            'the probe behind the overrunner is the skip the deadline owns',
+        );
     }
 
     public function testTheElapsedReportingCarriesThreeDecimals(): void

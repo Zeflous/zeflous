@@ -21,7 +21,9 @@ use Zef\Framework\Contracts\HealthCheckInterface;
  * interruption of a hung probe. Without a runner the probe runs
  * directly (no interruption possible for synchronous code); pair the
  * scrape with the {@see HealthAggregator}'s own overall deadline to
- * bound the response anyway.
+ * bound the probes that ANSWER -- the hung one is the runner's own
+ * question, the honest residual the aggregator's doctrine spells
+ * (issue #788, finding 3).
  *
  * OUTCOME CONTAINMENT: a runner timeout or a crashing probe answers
  * `false` -- never a throw -- so the aggregate's status math stays

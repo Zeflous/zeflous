@@ -311,6 +311,53 @@ final class OtlpHttpJsonExporterTest extends TestCase
         }
     }
 
+    /**
+     * The redirect is not a delivery (issue #788, finding 4): the
+     * transport's own context refuses the engine's redirect
+     * following (`follow_location` refused, the OTLP/HTTP spec's own
+     * posture), so the 3xx an address answers arrives as the final
+     * answer -- and the triage reads it as the transient failure it
+     * is, never the delivery the first spelling silently counted.
+     */
+    public function testAnUnfollowedRedirectIsNotADelivery(): void
+    {
+        $this->otlpMockServer = new OtlpMockServer(status: 302);
+        $endpoint = $this->otlpMockServer->start();
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter($endpoint, ['service.name' => 'svc'], 500);
+
+        try {
+            $otlpHttpJsonExporter->export([$this->record('misdirected')]);
+            self::fail('A 302 answer must not be counted as a delivery.');
+        } catch (OtlpExporterException $otlpExporterException) {
+            self::assertSame(
+                'OTLP exporter transient rejection: the unfollowed 3xx is not a delivery.',
+                $otlpExporterException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * The 304 a caching proxy strands on a POST is the same
+     * misdirection: not followed, not delivered -- the batch the
+     * first spelling silently lost now names its own loss.
+     */
+    public function testAStrandedNotModifiedAnswerIsNotADeliveryEither(): void
+    {
+        $this->otlpMockServer = new OtlpMockServer(status: 304);
+        $endpoint = $this->otlpMockServer->start();
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter($endpoint, ['service.name' => 'svc'], 500);
+
+        try {
+            $otlpHttpJsonExporter->export([$this->record('stranded')]);
+            self::fail('A 304 answer must not be counted as a delivery.');
+        } catch (OtlpExporterException $otlpExporterException) {
+            self::assertSame(
+                'OTLP exporter transient rejection: the unfollowed 3xx is not a delivery.',
+                $otlpExporterException->getMessage(),
+            );
+        }
+    }
+
     public function testASlowCollectorTimesTheExchangeOut(): void
     {
         $this->otlpMockServer = new OtlpMockServer(delayMs: 400);

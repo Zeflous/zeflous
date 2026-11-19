@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Telemetry;
 
+use InvalidArgumentException;
+
 /**
  * The metrics lane's own contract: the bounded counter/observation
  * surface the campaign's metrics family lands, exactly where the
@@ -36,12 +38,22 @@ interface MeterInterface
     /**
      * Counts an event against a name: the counter's monotonic total.
      *
+     * The monotonic posture is the contract's own: a negative
+     * increment is refused ({@see CounterMeter} throws), because the
+     * exposition families that render the total -- the OTLP payload's
+     * `isMonotonic: true`, the Prometheus render's `# TYPE counter`
+     * -- declare it monotonic and a rewound count is a lie both
+     * readers pay for.
+     *
      * @param string              $name       the metric name, the dotted
      *                                        namespace the framework's own
      *                                        series carry
      *                                        (`zef.http.errors.total`)
-     * @param float|int           $value      the increment, one by default
+     * @param float|int           $value      the increment, one by default;
+     *                                        never negative
      * @param array<string,mixed> $attributes the series' dimensions
+     *
+     * @throws InvalidArgumentException when the increment is negative
      */
     public function increment(string $name, float|int $value = 1, array $attributes = []): void;
 

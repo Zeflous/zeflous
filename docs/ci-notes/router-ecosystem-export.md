@@ -283,3 +283,21 @@ development endpoint (the composition lane, exactly how it widened
 to `Telemetry` for the correlation family); `Tooling` widens for
 the two CLI renderers (read-side composition over the same boot,
 the inspection lane's own doctrine).
+
+## KDD-EX7 — the one-200 posture is the honest scope, recorded as awareness (issue #788, finding 9)
+
+The telemetry/audit round's ninth finding (info-level, the same
+operational-awareness posture the #787 round carried for its own
+info rows): the OpenAPI export answers exactly one 200 response
+per operation -- `OpenApiResponses` carries no 405/404/4xx generics
+-- which the audit itself calls honest against the docblock (the
+export describes the route table's own truth, and a generic error
+envelope no route declares would be the overclaim). The finding's
+actionable half was the `StorageLane` docblock honesty: the
+uploads lane's prose claimed `UploadedTarget` "answers for" the
+lane while the class never references it -- the roadmap's own
+status spells the uploads writer as the open P1 slice -- and the
+docblock now names the lane as the named reservation it is. The
+response-vocabulary widening (405/404 generics for the methods
+the table itself refuses) stays a recorded follow-up of the export
+family's own roadmap slice, not a defect this round fixes.

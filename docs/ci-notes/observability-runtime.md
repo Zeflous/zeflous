@@ -786,3 +786,130 @@ module handlers (KDD-OB36), and the engine services installed
 through the profile's first instance-shape declarations -- follow
 this repository's own family discipline, not the reference's
 arrival shape.
+
+**KDD-OB46 -- The eviction folds its casualty: the count survives
+the collapse (issue #788, finding 1).** The overflow posture's
+first spelling made the room a fresh identity's bucket needs by
+dropping the newest series outright (`array_slice($data, 0, -1,
+true)`) -- and the audit's live repro pinned the contradiction: at
+a full table of metric A's series, metric B's fresh identity could
+evict A's overflow BUCKET (the newest series the insertion order
+held), and A's collapsed count vanished from the snapshot while the
+table's own docblock promised "the count still adds up". The
+eviction now folds every casualty onto its own metric's overflow
+bucket: a casualty whose bucket exists MERGES onto it (count and
+sum advanced together -- the integer staying integer, the float
+joining as the float, the same coercion `MeterCount::advanced`
+spells for the accumulation path), a casualty whose bucket is
+absent SEEDS it in the slot the casualty freed (the net zero the
+next casualty pays for), and a fold bucket is never the next
+casualty's pick, so the walk retires one non-bucket series per
+iteration and ends bounded. The pathological table of ONLY
+overflow buckets -- a world of a thousand collapsed names -- keeps
+the honest residual: the newest bucket is dropped, its count lost,
+the world the operator already chose when every series collapsed;
+the walk answers that world with the same one-slot drop the
+original spelling visited on healthy tables. THE ARCHEOLOGY
+RESHAPE the ceiling demanded (the class-level Halstead over 20 the
+gate refuses): the overflow posture's machinery left the table for
+its own folds exactly the way the gate's discipline always answers
+-- the bucket's IDENTITY grammar (`MeterOverflow` -- the dimensions,
+the composite key, the name half of a series key, and the
+newest-non-bucket casualty pick), the room-making WALK
+(`MeterEviction` -- the bounded loop, the ceiling arriving as a
+parameter so the fold never closes a cycle back to the table), and
+the casualty's FOLD (`MeterFold` -- the merge and the seed, one
+method), with the table itself back under the ceiling carrying the
+accumulation and the bound alone.
+
+**KDD-OB47 -- The monotonic total refuses its rewind, and the
+identity's keys carry their own budget (issue #788, findings 5 and
+7).** The counter accepted negative increments while the exports
+declared the total monotonic -- `isMonotonic: true` on the OTLP
+payload, `# TYPE counter` on the Prometheus render -- and
+Prometheus reads a count that drops as a reset, answering `rate()`
+garbage over it: the exposition's own declarations were lies the
+engine let a caller write. `increment()` now refuses the negative
+increment outright (the plain `InvalidArgumentException` -- the
+contract's own @throws) while `observe()` keeps its signed
+measurements honestly (a reading below zero is a reading, never a
+rewound total). THE KEY BUDGET: the values clamped at 2048 bytes
+while the caller spelled the attribute KEY at any length it liked
+-- 1024 series over arbitrary keys is the memory amplification
+the series ceiling exists to refuse -- so the key the series
+identity renders under answers the same string census the values
+do, at its own 256-byte budget (`TelemetrySanitizer::key()`, the
+hygiene unit's fourth census): two keys the caller spelled distinct
+but sharing their budgeted prefix fold into the one identity, the
+ceiling's own honest answer to unbounded identity spellings. The
+SENSITIVITY judgement stays the caller's own spelling, never the
+budgeted fold: a credential key truncated under its own fragment
+is still a credential key, refused before the budget ever runs.
+The empty key answers no dimension at all -- the census carries
+nothing for it -- and the recorded float's JSON-safe form became
+its own fold (`TelemetryFloatForm`) for the same ceiling the
+`TelemetryValues` file's aggregate vocabulary crossed.
+
+**KDD-OB48 -- The redirect is not a delivery (issue #788,
+finding 4).** The transport's triage `match` spelled its delivery
+arm as the `default` -- a 304, a 300, every unfollowed 3xx counted
+as delivered, and the batch was silently lost to an address that
+misdirected it. The OTLP/HTTP spec's own posture -- a client
+SHOULD NOT follow a redirect automatically -- is now spelled in
+the transport's own stream context (`follow_location` refused, the
+engine's own following declined), and the triage reads the 2xx
+alone as delivery: a 3xx is the ADDRESS's own misdirection, riding
+the transient side (the payload was never refused -- that is the
+4xx's own judgement -- and the address that moved may move back;
+the retry budget the host declares is the honest bound on how
+long the lane chases a misdirecting address, and the exhaustion
+the operator hears), the oddballs below 200 held to the same
+transient side, the 429 and the 5xx family where the retry spec
+itself puts them, and the 4xx permanent. The transport's
+`Content-Length` header also carried the finding 6 spelling
+(`mb_strlen`'s codepoints where the wire wants bytes -- the
+encoder's ASCII escaping made the two agree today) and reads
+`strlen($json)` now, the byte-count identity the session and
+delivery staging folds spell beside it (KDD-SF14, KDD-DU14).
+
+**KDD-OB49 -- The probe that answers past the deadline is the
+overrun the budget cannot vouch for (issue #788, finding 3).**
+The overall deadline's first spelling checked the clock only
+BEFORE running a probe -- the skip marker bounded the probes that
+never ran, and the aggregator's own docblock overclaimed the
+response "can no longer block forever" when a hung sync probe
+still held its slot indefinitely. Two answers landed. THE OVERRUN
+MARKER: the probe judgement now reads the clock again AFTER the
+probe answers -- a probe that lands at or past the deadline
+answers `down` with the overrun message, never the green verdict
+the deadline can no longer vouch for (the response was already
+over budget while it ran, and the probe that ate the budget is the
+reason the scrape degrades). THE HONEST RESIDUAL, spelled where
+the overclaim stood: the deadline bounds the probes that ANSWER,
+never the one that never does -- interrupting a hung synchronous
+probe is the `TimeoutHealthCheck` runner seam the host's
+composition owns (the async runtime's timeout primitive), and the
+aggregator's doctrine now names that boundary instead of
+overstating the bound. The stepped-clock arithmetic the deadline
+suite froze walked with the change: every deadline-scraped probe
+now costs its before-and-after readings, and the frozen timelines
+re-pinned with their own comments.
+
+**KDD-OB50 -- The info findings, recorded as operational awareness
+(issue #788, findings 8 and 9).** Two info-level findings stay
+awareness rather than code, the same posture the #787 round
+carried for its own info rows. THE LOGGER: `JsonLineLogger` /
+`JsonLineFormatter` carry no PSR-3 placeholder interpolation
+(`log('User {id}', ['id' => 7])` writes the literal `{id}`) and no
+level threshold (a debug line is written in production exactly as
+an emergency is) -- the logger is the dependency-free JSONL sink
+the family's contracts spell, and the interpolation and threshold
+questions belong to the logging family's own slice, not this
+round's bug fixes. THE EXPORT: the OpenAPI export answers exactly
+one 200 response per operation (`OpenApiResponses` -- no 405/404
+generics), which the audit itself calls honest against the
+docblock; the `StorageLane` docblock's claim that the uploads lane
+"answers for `UploadedTarget`" was NOT honest (the class never
+references the lane -- the roadmap's own status spells the uploads
+writer as the open P1 slice) and the docblock now names the lane
+as the reservation it is, never a writer it does not hold.

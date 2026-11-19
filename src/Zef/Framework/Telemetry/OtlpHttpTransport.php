@@ -29,6 +29,21 @@ use InvalidArgumentException;
  * a "come back later" the lane's own backoff addresses, not a
  * payload it should drop on the floor.
  *
+ * THE REDIRECT IS NOT A DELIVERY (issue #788, finding 4): the
+ * OTLP/HTTP spec's own posture -- a client SHOULD NOT follow a
+ * redirect automatically -- is spelled in the context itself
+ * (`follow_location` refused), so the 3xx an address answers is
+ * the address's own misdirection, never a delivery the lane counts
+ * (the first spelling's `default` arm counted 304/300 and every
+ * unfollowed 3xx as delivered -- the batch silently lost). The
+ * misdirection rides the transient side: the payload was never
+ * refused (that is the 4xx's own judgement), and the address that
+ * moved may move back -- the retry budget the host declares is the
+ * honest bound on how long the lane chases an address that
+ * misdirects, and the exhaustion the operator hears. The oddballs
+ * below 200 -- a 1xx a proxy strands as the final answer -- are not
+ * deliveries either: the same transient side owns them.
+ *
  * The JSON encode carries the byte-substitution doctrine the
  * repository's own failure lanes already answer ({@see
  * \Zef\Framework\Logging\JsonLineFormatter}, the HTTP family's
@@ -91,6 +106,7 @@ final readonly class OtlpHttpTransport
                 'content' => $json,
                 'timeout' => max(0.01, $this->timeoutMs / 1000),
                 'ignore_errors' => true,
+                'follow_location' => 0,
             ],
         ]);
 
@@ -143,7 +159,13 @@ final readonly class OtlpHttpTransport
         match (true) {
             $status >= 500 || $status === 429 => throw new OtlpExporterException('OTLP exporter transient rejection.'),
             $status >= 400 => throw new InvalidArgumentException('OTLP exporter permanent rejection.'),
-            default => null,
+            $status >= 300 => throw new OtlpExporterException(
+                'OTLP exporter transient rejection: the unfollowed 3xx is not a delivery.',
+            ),
+            $status >= 200 => null,
+            default => throw new OtlpExporterException(
+                'OTLP exporter transient rejection: the unfollowed 3xx is not a delivery.',
+            ),
         };
     }
 }

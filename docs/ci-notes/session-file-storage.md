@@ -346,3 +346,63 @@ for the lost-update repro, `SessionLaneMarkerChild` over the pure
 sidecar protocol for the blocking causality), and the factory test's
 teardown learned the dot-aware removal walk the companion rides
 (the plain glob never sees a leading-dot artefact).
+
+## KDD-SF14 — the store's own cadence and the defect's own blast radius (issue #788, findings 2 and 6)
+
+The telemetry/storage audit's second finding named two costs the
+sweep's first spelling carried, and both answers moved the sweep's
+own state out of the process and into the store. THE CADENCE: the
+last-sweep reading lived in an instance field (`$lastSweepAt = 0`),
+but the adapter is composed per request
+(`SessionFactory::fromConfig` over the profile's `http.session`
+registration -- every save-bearing request builds its own adapter
+over the same directory), so the field reset with every composition
+and EVERY save-bearing request paid the full store walk while the
+sixty-second cadence promised one walk a minute. The reading is the
+store's own artefact now (`SessionSweepCadence`): a leading-dot
+`.sweep-cadence` marker file -- the scans' own blind spot, the same
+dot-grammar the staging files and lock sidecars ride -- laid down
+through the one-rename discipline the record writes carry, read at
+arm time, and answered fail-open: a marker that is absent,
+unreadable, or operator-corrupted answers zero, and zero is the
+walk the store pays. THE HONEST POSTURE: the cadence is a cost
+bound, never a correctness one -- the worst case a missing marker
+can inflict is one extra walk, never a missed one -- and that
+posture decides both failure arms: the marker's WRITE is
+best-effort (a marker the store cannot lay down leaves the next
+save sweeping again, the degraded-but-correct cadence -- never a
+refusal that would brick the very saves the cadence exists to
+cheapen), while its READ degrades toward the walk, never away from
+it.
+
+THE BLAST RADIUS: the walk's fail-closed decode refusal (KDD-SF6)
+rode the save whose own record had already landed -- ONE truncated
+or foreign file in the record namespace, and every subsequent
+save-bearing request on the store failed with the record's own
+refusal. The defect's own boundary is the record it sits in: the
+load path's refusal stays loud for the session whose defect it
+owns, but the sweep now retires the defect out of the record
+namespace instead of throwing on it
+(`SessionRecordQuarantine` -- the `.quarantine/` subdirectory the
+delivery store's own quarantine lane spelled first, the move
+preserving the file's content verbatim for the operator, the
+leading-dot grammar keeping the lane invisible to every scan). The
+walk carries on past the quarantined record -- the abandoned
+records behind it still retire in the same pass -- and the store
+keeps serving. The lane's own filesystem refusals (the unopenable
+lane, the unmovable record) stay loud exactly as the record
+writes' own refusals do: the store's real inability to act is the
+store's own failure to name, never a record's defect.
+
+THE BYTE-COUNT IDENTITY (the audit's finding 6, the session half):
+the staging write's length check compared the bytes
+`file_put_contents` laid down against `mb_strlen`'s CODEPOINTS --
+a pairing that only agreed because the record encoder ASCII-escapes
+every multibyte byte away (`JSON_UNESCAPED_UNICODE` never joins the
+record encode); the day an unescaped flag joins, the check would
+refuse every multibyte record it successfully wrote. The honest
+spelling is `strlen($json)` -- bytes against bytes -- and the
+sibling finding carries the same fix in the durable delivery
+store's own staging fold (KDD-DU14). The OTLP transport's
+`Content-Length` header carried the same codepoint spelling and
+rides the same fix (KDD-OB48).

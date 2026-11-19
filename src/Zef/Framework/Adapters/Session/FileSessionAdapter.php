@@ -91,6 +91,8 @@ final readonly class FileSessionAdapter implements SessionAdapterInterface
                 $sessionRecordFiles,
                 $sessionRecordDecoder,
                 $idleTimeout,
+                new SessionSweepCadence($resolvedDirectory),
+                new SessionRecordQuarantine($resolvedDirectory),
             ),
             $clock,
         );

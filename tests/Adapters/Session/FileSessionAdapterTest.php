@@ -19,12 +19,14 @@ use Zef\Framework\Adapters\Session\SessionRecordExchange;
 use Zef\Framework\Adapters\Session\SessionRecordFiles;
 use Zef\Framework\Adapters\Session\SessionRecordLoad;
 use Zef\Framework\Adapters\Session\SessionRecordLock;
+use Zef\Framework\Adapters\Session\SessionRecordQuarantine;
 use Zef\Framework\Adapters\Session\SessionRecordScan;
 use Zef\Framework\Adapters\Session\SessionRecordShape;
 use Zef\Framework\Adapters\Session\SessionRecordStaging;
 use Zef\Framework\Adapters\Session\SessionRecordValues;
 use Zef\Framework\Adapters\Session\SessionStoreDirectory;
 use Zef\Framework\Adapters\Session\SessionSweep;
+use Zef\Framework\Adapters\Session\SessionSweepCadence;
 use Zef\Test\Support\Adapters\Session\MutableSessionClock;
 use Zef\Test\Support\Adapters\Session\SessionFileDoubleState;
 
@@ -34,9 +36,13 @@ use Zef\Test\Support\Adapters\Session\SessionFileDoubleState;
  * the record, the sliding expiry's lazy refusal at load with its
  * boundary pinned both sides, the idempotent destroy honest under
  * the concurrent-retirement window, the cadenced sweep that
- * retires the abandoned, the fail-closed decode of a corrupt or
- * hand-edited record, the depth ceiling honoured at the write so
- * every written record reads back, the read-modify-write lane the
+ * retires the abandoned (the cadence the STORE's own marker
+ * carries across the per-request composition, and the defect
+ * record quarantined into its lane instead of bricking the
+ * store's saves -- issue #788, finding 2), the fail-closed decode
+ * of a corrupt or hand-edited record at the LOAD the session's own
+ * request pays, the depth ceiling honoured at the write so every
+ * written record reads back, the read-modify-write lane the
  * issue #781 finding demanded (the load holding the sibling-refused
  * sidecar lane through the save that releases it, the refused walk
  * releasing it on the way out, the one-lane-per-instance posture,
@@ -62,6 +68,8 @@ use Zef\Test\Support\Adapters\Session\SessionFileDoubleState;
 #[CoversClass(SessionRecordShape::class)]
 #[CoversClass(SessionRecordStaging::class)]
 #[CoversClass(SessionRecordValues::class)]
+#[CoversClass(SessionSweepCadence::class)]
+#[CoversClass(SessionRecordQuarantine::class)]
 #[CoversClass(SessionStoreDirectory::class)]
 #[CoversClass(SessionSweep::class)]
 final class FileSessionAdapterTest extends TestCase
@@ -240,6 +248,151 @@ final class FileSessionAdapterTest extends TestCase
             $this->directory . '/stranded.json',
             'the cadence fully elapsed runs the walk',
         );
+    }
+
+    /**
+     * The cadence survives the per-request composition the factory
+     * answers (issue #788, finding 2): every save-bearing request
+     * builds its own adapter over the same store, so the
+     * instance-field cadence the first spelling carried reset with
+     * every composition -- every request paid a full store walk
+     * while the sixty-second cadence promised one walk a minute.
+     * The store's own marker is what answers now.
+     */
+    public function testTheSweepCadenceSurvivesThePerRequestMappingComposition(): void
+    {
+        $mutableSessionClock = new MutableSessionClock(1000);
+
+        file_put_contents(
+            $this->directory . '/stranded.json',
+            '{"data":{"user":1},"written_at":500}',
+        );
+
+        new FileSessionAdapter($this->directory, 30, $mutableSessionClock->now(...))
+            ->save('first', ['user' => 7])
+        ;
+
+        self::assertFileDoesNotExist(
+            $this->directory . '/stranded.json',
+            "the first request's sweep retired the abandoned record",
+        );
+
+        file_put_contents(
+            $this->directory . '/second-stranded.json',
+            '{"data":{"user":2},"written_at":1010}',
+        );
+
+        $mutableSessionClock->advanceTo(1010);
+        new FileSessionAdapter($this->directory, 30, $mutableSessionClock->now(...))
+            ->save('second', ['user' => 8])
+        ;
+
+        self::assertFileExists(
+            $this->directory . '/second-stranded.json',
+            "the fresh composition inside the cadence rides no walk: the store's own marker answers",
+        );
+
+        $mutableSessionClock->advanceTo(1070);
+        new FileSessionAdapter($this->directory, 30, $mutableSessionClock->now(...))
+            ->save('third', ['user' => 9])
+        ;
+
+        self::assertFileDoesNotExist(
+            $this->directory . '/second-stranded.json',
+            'the cadence fully elapsed, the next composition walks',
+        );
+        self::assertFileExists(
+            $this->directory . '/.sweep-cadence',
+            "the marker the cadence rides is the store's own artefact",
+        );
+        self::assertSame(
+            '1070',
+            mb_trim((string) file_get_contents($this->directory . '/.sweep-cadence')),
+            'the marker carries the last sweep\'s own reading',
+        );
+    }
+
+    /**
+     * The marker's read is fail-open by design: an operator-corrupted
+     * or non-numeric marker answers zero, and zero is the walk the
+     * store pays -- the cadence is a cost bound, never a correctness
+     * one, so the worst case a corrupted marker can inflict is one
+     * extra walk, never a missed one.
+     */
+    public function testACorruptedMarkerAnswersTheWalkTheStorePays(): void
+    {
+        $mutableSessionClock = new MutableSessionClock(2000);
+
+        file_put_contents($this->directory . '/.sweep-cadence', 'not a reading');
+        file_put_contents(
+            $this->directory . '/abandoned.json',
+            '{"data":{"user":1},"written_at":1000}',
+        );
+
+        new FileSessionAdapter($this->directory, 30, $mutableSessionClock->now(...))
+            ->save('fresh', ['user' => 7])
+        ;
+
+        self::assertFileDoesNotExist(
+            $this->directory . '/abandoned.json',
+            'the corrupted marker answers zero, the walk the store pays',
+        );
+    }
+
+    /**
+     * The marker's write is best-effort for the same reason: a marker
+     * the store cannot lay down leaves the next save sweeping again --
+     * the degraded-but-correct cadence, never a refusal that would
+     * brick the very saves the cadence exists to cheapen.
+     */
+    public function testAMarkerTheStoreCannotLayDownLeavesTheNextSaveSweeping(): void
+    {
+        $mutableSessionClock = new MutableSessionClock(3000);
+
+        // The sequence answers the first rename (the save's own record)
+        // with the engine's passthrough and the second (the marker's)
+        // with the refusal: the record landed, the marker did not.
+        SessionFileDoubleState::$renameAnswers = [null, false];
+
+        new FileSessionAdapter($this->directory, 30, $mutableSessionClock->now(...))
+            ->save('first', ['user' => 7])
+        ;
+
+        self::assertFileExists(
+            $this->directory . '/first.json',
+            'the save landed: the marker write never fails the save it rides',
+        );
+        self::assertFileDoesNotExist(
+            $this->directory . '/.sweep-cadence',
+            'the marker the store could not lay down is simply absent',
+        );
+    }
+
+    /**
+     * The lane's own filesystem refusal stays loud: the quarantine
+     * move itself failing is the store's own failure to name, never a
+     * record's defect -- the honest refusal, spelled on the save whose
+     * own record already landed.
+     */
+    public function testAQuarantineTheStoreCannotMakeIsTheNamedRefusal(): void
+    {
+        file_put_contents($this->directory . '/corrupt.json', 'not json at all');
+
+        // The sequence answers the save's own record rename with the
+        // engine passthrough, the marker's with the best-effort
+        // refusal the cadence shrugs off, and the quarantine's with
+        // the refusal the store must name.
+        SessionFileDoubleState::$renameAnswers = [null, false, false];
+
+        try {
+            $this->adapter(1800, 1000)->save('present', ['user' => 7]);
+            self::fail('The quarantine the store cannot make was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                "The session file store cannot quarantine the record 'corrupt'.",
+                $invalidArgumentException->getMessage(),
+            );
+        }
     }
 
     public function testASaveRefusesABagTheRecordCannotCarry(): void
@@ -569,35 +722,90 @@ final class FileSessionAdapterTest extends TestCase
         self::addToAssertionCount(1);
     }
 
-    public function testTheSweepRefusesARecordItCannotRead(): void
+    public function testTheSweepQuarantinesARecordItCannotRead(): void
     {
+        // The store-wide blast radius the first spelling carried
+        // (issue #788, finding 2): a record the sweep cannot read was
+        // a refusal the whole save paid -- one unreadable file and
+        // every save-bearing request on the store failed. The sweep
+        // now retires the defect into the quarantine lane, content
+        // preserved, and the store keeps serving. The stale-listing
+        // double scopes the walk to the one defect record the read
+        // double refuses, so the save's own record rides outside it.
         file_put_contents($this->directory . '/unreadable.json', '{"data":{},"written_at":1}');
+        SessionFileDoubleState::$scandirAnswer = ['unreadable.json'];
         SessionFileDoubleState::$fileGetContentsAnswer = false;
 
-        try {
-            $this->adapter(1800, 1000)->save('zzz-present', ['user' => 7]);
-            self::fail('The unreadable sweep record was not refused.');
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            self::assertSame(
-                "The session file store cannot read the record 'unreadable'.",
-                $invalidArgumentException->getMessage(),
-            );
-        }
+        $this->adapter(1800, 1000)->save('zzz-present', ['user' => 7]);
+
+        self::assertFileExists(
+            $this->directory . '/zzz-present.json',
+            'the save landed: the defect record never bricked the store',
+        );
+        self::assertFileDoesNotExist(
+            $this->directory . '/unreadable.json',
+            'the defect record left the record namespace',
+        );
+        self::assertFileExists(
+            $this->directory . '/.quarantine/unreadable.json',
+            'the lane keeps the operator\'s story',
+        );
+        self::assertSame(
+            '{"data":{},"written_at":1}',
+            file_get_contents($this->directory . '/.quarantine/unreadable.json'),
+            'the lane preserves the content verbatim',
+        );
     }
 
-    public function testTheSweepRefusesAnUndecodableRecord(): void
+    public function testTheSweepQuarantinesAnUndecodableRecord(): void
     {
         file_put_contents($this->directory . '/corrupt.json', 'not json at all');
 
-        try {
-            $this->adapter(1800, 1000)->save('present', ['user' => 7]);
-            self::fail('The undecodable sweep record was not refused.');
-        } catch (InvalidArgumentException $invalidArgumentException) {
-            self::assertStringStartsWith(
-                "The session record 'corrupt' is not valid JSON: ",
-                $invalidArgumentException->getMessage(),
-            );
-        }
+        $this->adapter(1800, 1000)->save('present', ['user' => 7]);
+
+        self::assertFileExists(
+            $this->directory . '/present.json',
+            'the save landed: the undecodable record never bricked the store',
+        );
+        self::assertFileDoesNotExist(
+            $this->directory . '/corrupt.json',
+            'the defect record left the record namespace',
+        );
+        self::assertFileExists(
+            $this->directory . '/.quarantine/corrupt.json',
+            'the lane keeps the operator\'s story',
+        );
+        self::assertSame(
+            'not json at all',
+            file_get_contents($this->directory . '/.quarantine/corrupt.json'),
+            'the lane preserves the content verbatim',
+        );
+        self::assertNull(
+            $this->adapter(30, 1000)->load('corrupt'),
+            'the quarantined record answers the miss every retired record answers',
+        );
+    }
+
+    /**
+     * The walk the quarantine serves carries on: a defect record
+     * quarantined mid-walk never ends the sweep, so the abandoned
+     * records behind it still retire in the same walk.
+     */
+    public function testTheWalkCarriesOnPastTheQuarantinedRecord(): void
+    {
+        file_put_contents($this->directory . '/corrupt.json', 'not json at all');
+        file_put_contents(
+            $this->directory . '/abandoned.json',
+            '{"data":{"user":1},"written_at":500}',
+        );
+
+        $this->adapter(300, 1000)->save('present', ['user' => 7]);
+
+        self::assertFileExists($this->directory . '/.quarantine/corrupt.json');
+        self::assertFileDoesNotExist(
+            $this->directory . '/abandoned.json',
+            'the records behind the defect still retired in the same walk',
+        );
     }
 
     public function testADirectoryNamedLikeARecordIsSkippedByTheScanAndAnswersAMiss(): void

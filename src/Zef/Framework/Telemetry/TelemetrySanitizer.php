@@ -21,10 +21,11 @@ namespace Zef\Framework\Telemetry;
  * the auth boundary refuses it outright ({@see
  * \Zef\Framework\Http\AuthAttributes}), the correlation table
  * digests it into pointers ({@see CorrelationRedaction}), and the
- * recording surface drops it before it exists. The three censuses
+ * recording surface drops it before it exists. The four censuses
  * are this class's own: the key fragments ({@see
- * self::isSensitiveKey()}), the pair vocabulary ({@see
- * self::redact()}) and the value budget ({@see self::string()}).
+ * self::isSensitiveKey()}), the key budget ({@see self::key()}),
+ * the pair vocabulary ({@see self::redact()}) and the value
+ * budget ({@see self::string()}).
  *
  * The key census normalises before it judges -- underscores and
  * spaces fold to the hyphen, the fold is the multi-byte one the
@@ -58,6 +59,15 @@ final class TelemetrySanitizer
 {
     /** The ellipsis that marks a truncated string's cut. */
     private const string ELLIPSIS = '…';
+
+    /**
+     * The attribute key's own byte budget (issue #788, finding 7):
+     * the values clamp at 2048 bytes while the caller spelled the
+     * key at any length it liked -- no bound at all over the series
+     * ceiling's own memory story -- so the key the series identity
+     * renders under answers the same census at its own budget.
+     */
+    private const int KEY_BUDGET = 256;
 
     /**
      * The key fragments a recording refuses outright: the
@@ -146,6 +156,31 @@ final class TelemetrySanitizer
             self::SENSITIVE_KEY_FRAGMENTS,
             static fn (string $fragment): bool => str_contains($normalized, $fragment),
         );
+    }
+
+    /**
+     * The key's own census: the budgeted spelling every recorded
+     * key answers (issue #788, finding 7) -- the control bytes the
+     * protocols refuse stripped, invalid UTF-8 scrubbed, and a key
+     * longer than its own budget truncated at a character boundary
+     * under it, the ellipsis marking the cut. The values clamp at
+     * 2048 bytes while the caller spelled the key at any length it
+     * liked -- no bound at all over the series ceiling's own memory
+     * story -- so the key the series identity renders under answers
+     * the same string census the values do, at its own budget: two
+     * keys the caller spelled distinct but sharing their budgeted
+     * prefix fold into the one identity, the ceiling's own honest
+     * answer to unbounded identity spellings.
+     *
+     * The judgement the SENSITIVITY census answers stays this
+     * method's caller's own question: the sensitive key is judged
+     * on the caller's full spelling, never the budgeted fold (a
+     * credential key truncated under its fragment is still a
+     * credential key).
+     */
+    public static function key(string $key): string
+    {
+        return self::string($key, self::KEY_BUDGET);
     }
 
     /**

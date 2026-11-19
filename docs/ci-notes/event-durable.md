@@ -365,3 +365,17 @@ already spells: the non-finite spelling is now its own fold
 sign), `leafKind` keeps its three returns, and the single
 ternary that remains is not a nested one. The third seam, not a
 wider method.
+
+## KDD-DU14 — the byte-count identity (issue #788, finding 6, the delivery half)
+
+The audit's sixth finding named the staging write's length check:
+`file_put_contents(...)` answers BYTES, the check compared them
+against `mb_strlen($json)`'s CODEPOINTS -- a pairing that only
+agreed because the delivery record encoder ASCII-escapes every
+multibyte byte away. The honest spelling is `strlen($json)` --
+bytes against bytes -- with the same fix carried by the session
+store's own staging fold (KDD-SF14) and the OTLP transport's
+`Content-Length` header (KDD-OB48). The check is a write-identity
+assertion, not a payload clamp: it exists to name the partial write
+the engine could answer, and a partial write is a partial count of
+bytes.

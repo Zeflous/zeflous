@@ -23,7 +23,11 @@ namespace Zef\Framework\Storage;
  * - `temp` -- the transient scratch a process may leave behind
  *   between requests without anyone mourning it.
  * - `uploads` -- the inbound files a host's uploaded-file moves
- *   land in, the lane `UploadedTarget` answers for.
+ *   land in: a named reservation the roadmap's own open slice
+ *   keeps (issue #788, finding 9's honesty: `UploadedTarget` does
+ *   not reference the lane -- the writer the lane waits for is
+ *   the uploads slice ROADMAP-STATUS spells as open, so the lane
+ *   names the reservation, never a writer it does not hold).
  * - `replay` -- the error lane's private request snapshots.
  * - `sessions` -- the session file driver's identifier-keyed bags.
  * - `queue` -- the durable event delivery store's entries and
