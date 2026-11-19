@@ -36,6 +36,22 @@ use Zef\Framework\View\ViewName;
  * no partial output and no open buffer behind. The discipline check
  * is also the `ob_start()` failure answer: a buffer that could not
  * open leaves the level at the entry, and the check refuses.
+ *
+ * The FLUSH path is the discipline's own leak, and it is trimmed
+ * (issue #787's finding 1): a template that flushes the engine's
+ * buffer (`ob_end_flush()`) pushes its partial output into the
+ * caller's own open buffer below -- the level check refuses it, but
+ * the bytes already landed. The caller's prefix length is therefore
+ * taken before the open, and the refusal path trims the leaked tail
+ * through the discipline's own fold ({@see ViewFlushedTail}) -- the
+ * caller's buffer cleaned and its own prefix re-echoed, the buffer
+ * instance itself surviving, so the corrupted response
+ * the leak would have shipped never leaves the engine. One residual
+ * the discipline cannot recall: a caller with NO buffer open (the
+ * level-zero entry) already received the partial in the output
+ * itself -- the refusal still fires, the bytes are gone, and the
+ * honest spelling is to open a buffer before rendering when the
+ * caller's output must stay atomic.
  */
 final class ViewRenderScope
 {
@@ -55,6 +71,7 @@ final class ViewRenderScope
     public static function render(string $file, TemplateFace $templateFace, array $data, ViewName $viewName): string
     {
         $entry = ob_get_level();
+        $caller = $entry > 0 ? (int) ob_get_length() : null;
 
         ob_start();
 
@@ -78,6 +95,8 @@ final class ViewRenderScope
             while (ob_get_level() > $entry) {
                 ob_end_clean();
             }
+
+            ViewFlushedTail::discard($entry, $caller);
         }
 
         return $answer;

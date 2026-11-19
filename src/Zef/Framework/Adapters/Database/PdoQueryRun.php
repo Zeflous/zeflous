@@ -10,10 +10,12 @@ use Zef\Framework\Database\SqlQuery;
 use Zef\Framework\Telemetry\MeterInterface;
 
 /**
- * The data verbs' orchestration: the statement run, its observability
+ * The bulk data verbs' orchestration: the statement run, its observability
  * emissions answering around it -- the {@see PdoTransactionRun}
- * lineage over the connection's two data verbs, so the verbs that
- * delegate here keep their own volume honest, one delegation each.
+ * lineage over the connection's execute and fetchAll verbs, so the
+ * verbs that delegate here keep their own volume honest, one
+ * delegation each (the single-row fetch verb lives its own fold,
+ * {@see PdoFetchOne}, the archeology ceiling's own demand).
  *
  * The measured window brackets the statement's OWN work only: the
  * opening reading before it, the emission in the finally seam the

@@ -232,3 +232,46 @@ end-to-end rule-17 path pinned twice: the fold level (declaration ->
 wiring -> adapter -> real SQLite socket) and the boot level (the silent
 profile boots without running a wiring factory; the declared profile answers
 `database.connection` as one shared instance through the container).
+
+## KDD-DW9: the audit emission's containment (issue #787 -- best-effort, the info rows)
+
+The audit finding (5): `PdoUnboundedAudit::emit()` ran its meter
+increment and WARN record AFTER the statement had already
+executed, with no containment -- a logger or meter that threw
+would turn the caller's SUCCESSFUL unbounded write into a
+post-effect exception, the exact failure the measured window's
+own emissions refuse (`PdoQueryLog::end()`: "the observation is
+never worth the query's own answer"). The emission is now wrapped
+in the same containment: the record is dropped and the throw
+swallowed, the statement's own answer untainted -- pinned by the
+throwing-seams test (a `ThrowingMeter` and `ThrowingLogger`, both
+refusing, and the affected-row count answering through them
+untouched).
+
+The audit's three info rows stay informational posture --
+documented operational awareness, no code change:
+
+- **The persistent-connection freshness residual.** The heal drops
+  the handle, but `ATTR_PERSISTENT` can hand back the same pooled
+  socket from the driver's own pool -- there is no ping/liveness
+  check on the healed ask. The healing lane's recorded direction
+  (KDD-CH5's socket-pooling parking) owns the question; a
+  liveness probe would need a per-driver spelling the port does
+  not promise today.
+- **The `'0'` identity fold.** `PdoIdentity` folds the driver's
+  `'0'` spelling into null alongside `''`/`false` -- a PostgreSQL
+  sequence START 0 can legally answer `'0'` as a real identity,
+  and the port reports it absent. The fold is the honest default
+  the port always spelled (a null contract over the driver's
+  falsy spellings); a per-driver identity grammar would be its own
+  slice, never a silent widening of the fold.
+- **The WHERE-fragment precedence.** `where(a)->where(b)->orWhere(c)`
+  composes `a AND b OR c` under SQL's own precedence, not
+  left-to-right; the `ConditionGroup` lane (`whereNested`) is the
+  explicit spelling for the grouping intent, and a build-time
+  precedence warning would fire on every legitimate flat query --
+  the tree lane is the honest answer, already shipped.
+
+The verification battery rides the audit lane's own
+(KDD-DB11): full suite green, static battery clean, the
+mutation verdict on CI.

@@ -821,6 +821,24 @@
                 // its D-flag pin lives in the trailing-newline test.
                 // This ignore is scoped to that single method.
                 "Zef\\Framework\\View\\ViewName::__construct",
+                // The view family's flushed-tail trim reads the caller's
+                // own buffer by its BYTE length (issue #787's finding
+                // 1): ob_get_length() answers bytes, so the cut is
+                // spelled mb_substr($contents, 0, $caller, '8bit') --
+                // the '8bit' encoding IS byte semantics (the
+                // BodyBudget class already proved the argument), and
+                // the mutant's plain substr cuts the same bytes for
+                // every possible buffer content. The byte-exact
+                // semantics are pinned by the multibyte-prefix test
+                // (a character-count cut would leave the flushed
+                // tail's own bytes behind as a corrupted residue), so
+                // a future spelling that loses the '8bit' argument
+                // reddens the suite; the mb_ form stays because the
+                // house's own formatter doctrine (MbStrFunctions)
+                // rewrites every substr to its mb_ twin. The
+                // neighbouring ob_* calls are not MBString targets.
+                // This ignore is scoped to that single method.
+                "Zef\\Framework\\Adapters\\View\\ViewFlushedTail::discard",
                 // The auth family's reserved-name fold reads the one
                 // word 'anonymous' against the principal id (issue
                 // #785's finding 4): the word spells no k and no i,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Adapters\Database;
 
 use Psr\Log\LoggerInterface;
+use Throwable;
 use Zef\Framework\Database\SqlQuery;
 use Zef\Framework\Telemetry\MeterInterface;
 
@@ -32,6 +33,14 @@ use Zef\Framework\Telemetry\MeterInterface;
  * UPDATE-prefixed statement audits as 'update', every other
  * unbounded statement as 'delete' -- the two verbs the lean
  * builder's unbounded surface carries.
+ *
+ * The emission is best-effort, contained the way the measured
+ * window's own emissions are ({@see PdoQueryLog::end()} -- "the
+ * observation is never worth the query's own answer", issue #787's
+ * finding 5): the audit runs AFTER a statement already executed, so
+ * a meter or logger that throws would turn the caller's successful
+ * write into a post-effect exception -- the record is dropped, the
+ * throw swallowed, the statement's own answer untainted.
  *
  * @internal
  */
@@ -62,14 +71,19 @@ final class PdoUnboundedAudit
         SqlQuery $sqlQuery,
         int $affected,
     ): void {
-        $operation = self::operation($sqlQuery->sql);
+        try {
+            $operation = self::operation($sqlQuery->sql);
 
-        $meter?->increment(self::SERIES, 1, ['op' => $operation]);
+            $meter?->increment(self::SERIES, 1, ['op' => $operation]);
 
-        $logger?->warning(
-            'Unbounded ' . $operation . ' executed (allowUnbounded): ' . $affected . ' row(s) affected',
-            ['sql' => $sqlQuery->sql, 'rows' => $affected, 'op' => $operation],
-        );
+            $logger?->warning(
+                'Unbounded ' . $operation . ' executed (allowUnbounded): ' . $affected . ' row(s) affected',
+                ['sql' => $sqlQuery->sql, 'rows' => $affected, 'op' => $operation],
+            );
+        } catch (Throwable) {
+            // Best-effort: the statement already executed, and the
+            // observation is never worth the query's own answer.
+        }
     }
 
     /**

@@ -21,11 +21,15 @@ use Zef\Framework\View\ViewName;
  * The ESCAPE fold is the tree's one spelling of HTML-safe text
  * (`htmlspecialchars` over `ENT_QUOTES | ENT_SUBSTITUTE` and UTF-8),
  * the same line the browser error page's own renderer spells
- * privately: the native answer's escaping doctrine is the
- * template's own discipline -- every interpolated value crosses
- * this fold -- and the fold is the one way the answer hands that
- * discipline to its authors (a future Twig answer satisfies the
- * port's escaping posture natively through its own
+ * privately -- but the native answer's escaping is the template
+ * author's own discipline, OPT-IN AT EACH INTERPOLATION: every value
+ * that crosses this fold is HTML-safe, and a value that never
+ * crosses it echoes raw (issue #787's finding 6 -- `<?= $userInput ?>`
+ * ships its bytes verbatim; one missed `escape()` is one XSS hole,
+ * the two-tier posture {@see ViewVariables} spells for the bag carries
+ * through to the template's own hand). The fold is the one way the
+ * answer hands that discipline to its authors (a future Twig answer
+ * satisfies the port's escaping posture natively through its own
  * auto-escape-on-output, and needs no face verb for it).
  *
  * The PARTIAL verb takes the extension-free name and the data bag

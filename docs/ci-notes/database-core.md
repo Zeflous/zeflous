@@ -376,3 +376,59 @@ mutants MSI 100/100, and the bench lane's fourth subject
 (`benchMysqlQuotedSelectWithLike`, 10.5us -- the Ansi select's own
 economics, the grammar's validation pass costing the same over either
 quoting).
+
+## KDD-DB11: the audit's core answers (issue #787 -- the cursor and the grammar)
+
+The database/view audit (#787) carried two core findings, and
+both answer in one lane:
+
+- **Finding 3 -- fetchOne's cursor step.** The single-row verb was
+  spelled `fetchAll(...)[0] ?? null`: a million-row SELECT paid a
+  million rows of memory to answer its first row, because the list
+  verb's `fetchAll()` materialised the whole result set before the
+  index ever ran. `PdoConnection::fetchOne()` now delegates to
+  `PdoFetchOne::fetch()` -- the statement pair, the cursor's own
+  `fetch()` step, the `false` answer folded to the port's null, and
+  the one row narrowed through the same `PdoRows` contract the list
+  verb holds (the false/true bind pins already ride the verb, so
+  the narrowing's own observable never moved). The heal-and-propagate
+  window (`PdoHealing::around`) rides the verb exactly as it always
+  did; the query-log window brackets the one row the cursor paid.
+- **Finding 4 -- the DSN's own grammar.** `charset` and `dbname`
+  were the two knobs that flowed into the DSN string unchecked:
+  host/port/driver carried their grammar walls, while
+  `charset=UTF8' --search_path=x` and `dbname=app;host=other`
+  travelled verbatim into the clause-delimited string the driver's
+  own parser reads. Both knobs now carry their own walls:
+  `ConnectionFields::readCharset()` (letters, digits, underscore,
+  dash, dot; one to sixty-four characters -- `utf8`, `utf8mb4`,
+  `UTF-8`, `latin1`, `UNICODE` all carry, the positive half pinned)
+  and the network drivers' dbname rule (printable ASCII without
+  the `;` separator, the byte that would split the DSN's clauses),
+  each refusal spelling the knob it refused with the got-value
+  named. SQLite's path rule is untouched -- the lanes own their own
+  rules, and the boundary is pinned from both sides.
+- **Finding 2 -- already answered.** The audit's MySQL ESCAPE
+  finding (`whereLike(..., escapeWildcards: true)` emitting the
+  unterminated-literal `ESCAPE '\\'`) is the finding the #778 lane
+  closed when the driver dialect vocabulary landed
+  (`IdentifierQuoting::likeEscapeClause()`: the pipe on MySQL, the
+  backslash on Ansi -- KDD-DB10, pinned in
+  `IdentifierQuotingTest`). The audit's checkout predates the lane;
+  no new work rides this PR for it.
+
+The audit's info rows (the persistent-connection freshness
+posture, the `'0'` identity fold, the WHERE-fragment precedence)
+stay informational posture in the wiring lane's record
+(KDD-DW9) -- documented operational awareness, no code change.
+
+The verification battery: the full suite green (the six new pins
+ride `ConnectionConfigTest` and `PdoConnectionTest`), PHPStan max,
+Psalm EXIT-0, php-cs-fixer, Rector, Deptrac, phpcpd and phpmd
+clean, archeology 0 error-level findings. One archeology reshape
+rides the record: the fetchOne verb's first spelling pushed
+`PdoQueryRun` to difficulty 24.95 against the ceiling of 20, and
+the extraction (`PdoFetchOne`, its own fold over the
+single-row verb) brings the run to 14.70 and the fold to 10.00.
+The mutation verdict rides the CI lane (the sandbox carries no
+coverage extension).

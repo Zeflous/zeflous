@@ -101,7 +101,11 @@ final readonly class PdoConnection implements ConnectionInterface
     #[Override]
     public function fetchOne(SqlQuery $sqlQuery): ?array
     {
-        return $this->fetchAll($sqlQuery)[0] ?? null;
+        return PdoHealing::around(
+            $this->pdoHandle,
+            $this->pdoTransactions,
+            fn (): ?array => PdoFetchOne::fetch($this->pdoHandle->pdo(), $this->pdoQueryLog, $sqlQuery),
+        );
     }
 
     #[Override]

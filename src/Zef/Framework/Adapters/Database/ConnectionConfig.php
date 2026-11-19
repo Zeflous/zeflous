@@ -53,7 +53,7 @@ final readonly class ConnectionConfig
 
         $user = ConnectionFields::readOptionalString($config, 'user', 'User');
         $password = ConnectionFields::readOptionalString($config, 'password', 'Password');
-        $charset = ConnectionFields::readOptionalString($config, 'charset', 'Charset');
+        $charset = ConnectionFields::readCharset($config);
         if ($charset === null && $driver === 'mysql') {
             $charset = 'utf8mb4';
         }

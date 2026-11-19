@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Zef\Framework\Adapters\View\TemplateFace;
+use Zef\Framework\Adapters\View\ViewFlushedTail;
 use Zef\Framework\Adapters\View\ViewRenderScope;
 use Zef\Framework\View\ViewException;
 use Zef\Framework\View\ViewName;
@@ -28,6 +29,7 @@ use Zef\Test\Support\Adapters\View\RecordingViewEngine;
  * @internal
  */
 #[CoversClass(ViewRenderScope::class)]
+#[CoversClass(ViewFlushedTail::class)]
 final class ViewRenderScopeTest extends TestCase
 {
     private string $directory;
@@ -160,6 +162,142 @@ final class ViewRenderScopeTest extends TestCase
         } finally {
             self::assertSame($entry, ob_get_level(), 'A crashed render left a buffer behind.');
         }
+    }
+
+    public function testAFlushingTemplateDoesNotLeakItsPartialIntoTheCallersBuffer(): void
+    {
+        // Issue #787's finding 1, the audit's own repro: a template
+        // that flushes the engine's buffer pushes its partial output
+        // into the caller's own open buffer below -- the discipline
+        // refusal fires, and the trim must remove exactly the leaked
+        // tail so the corrupted response never leaves the engine.
+        $file = $this->template('flusher', "<?php echo 'partial-leak'; ob_end_flush(); ?>tail");
+
+        ob_start();
+        echo 'caller-prefix';
+
+        $entry = ob_get_level();
+
+        try {
+            ViewRenderScope::render($file, $this->templateFace, [], new ViewName('flusher'));
+            self::fail('The buffer-flushing template was not refused.');
+        } catch (ViewException $viewException) {
+            self::assertSame(
+                "The view template 'flusher' disturbed the engine's output buffering"
+                . ' discipline.',
+                $viewException->getMessage(),
+            );
+        } finally {
+            self::assertSame($entry, ob_get_level(), "The caller's own buffer level moved.");
+            self::assertSame(
+                'caller-prefix',
+                (string) ob_get_contents(),
+                "the flushed partial must be trimmed from the caller's buffer",
+            );
+        }
+
+        ob_end_clean();
+    }
+
+    public function testAFlushingTemplateThatClosedTheCallersOwnBufferIsStillRefused(): void
+    {
+        // The trim's own residual, pinned as the refusal it is: a
+        // template that flushes PAST the engine's walls closes the
+        // caller's own buffer below -- the engine cannot reopen the
+        // caller's buffering choice on its behalf, so nothing is left
+        // to trim, and the discipline refusal is the whole answer the
+        // engine still owns.
+        $file = $this->template('deep', "<?php echo 'a'; ob_end_flush(); ob_end_flush(); ?>b");
+
+        $entry = ob_get_level();
+        $caller = (int) ob_get_length();
+
+        ob_start();
+        echo 'victim';
+
+        try {
+            ViewRenderScope::render($file, $this->templateFace, [], new ViewName('deep'));
+            self::fail('The past-flushing template was not refused.');
+        } catch (ViewException) {
+            // the discipline refusal is the expectation
+        } finally {
+            // the observable residual itself: the caller's own buffer
+            // was closed by the past-flushing template (the level sits
+            // at the entry, not the entry-plus-one the caller opened).
+            self::assertSame(
+                $entry,
+                ob_get_level(),
+                "the past-flushing template closed the caller's own buffer",
+            );
+
+            // restore the entry-level buffer's own prefix so this test
+            // leaves the suite's buffering exactly as it found it.
+            while (ob_get_level() > $entry) {
+                ob_end_clean();
+            }
+
+            if (ob_get_level() === $entry && ob_get_length() > $caller) {
+                $preserved = mb_substr((string) ob_get_contents(), 0, $caller);
+
+                ob_clean();
+                echo $preserved;
+            }
+        }
+    }
+
+    public function testTheCallersOwnBufferSurvivesASilentRender(): void
+    {
+        // The trim is inert on the disciplined paths: a caller with a
+        // buffer renders a silent template and both the level and the
+        // content come back exactly as they went in.
+        $file = $this->template('quiet', 'ok');
+
+        ob_start();
+        echo 'answer-';
+
+        $entry = ob_get_level();
+
+        $answer = ViewRenderScope::render($file, $this->templateFace, [], new ViewName('quiet'));
+
+        self::assertSame('ok', $answer);
+        self::assertSame($entry, ob_get_level());
+        self::assertSame('answer-', (string) ob_get_contents());
+
+        ob_end_clean();
+    }
+
+    public function testAFlushingTemplateLeavesAMultibyteCallersPrefixByteExact(): void
+    {
+        // The trim's own semantics, the byte-exact half: ob_get_length()
+        // answers BYTES, so the prefix the trim keeps is the caller's
+        // first N bytes -- a multibyte caller prefix (the two CJK
+        // characters here carry six bytes of the twenty-three the
+        // prefix owns) must come back out of the surgery
+        // byte-identical, never cut at a character count that would
+        // leave the flushed tail's own bytes behind as a corrupted
+        // residue.
+        $file = $this->template('multibyte-flusher', "<?php echo 'leak'; ob_end_flush(); ?>tail");
+
+        ob_start();
+        echo ' panggilan-' . "\u{4e2d}\u{6587}" . '-awal';
+
+        $entry = ob_get_level();
+
+        try {
+            ViewRenderScope::render($file, $this->templateFace, [], new ViewName('multibyte-flusher'));
+            self::fail('The buffer-flushing template was not refused.');
+        } catch (ViewException) {
+            // the discipline refusal is the expectation
+        } finally {
+            self::assertSame($entry, ob_get_level());
+            self::assertSame(
+                ' panggilan-' . "\u{4e2d}\u{6587}" . '-awal',
+                (string) ob_get_contents(),
+                'the multibyte prefix must survive the trim byte-exact',
+            );
+        }
+
+        ob_end_clean();
     }
 
     private function template(string $name, string $source): string
