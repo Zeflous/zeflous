@@ -17,12 +17,19 @@ use Closure;
  * ({@see HealthProbe}'s own containment), and the scrape as a whole
  * is bounded ({@see self::aggregate()}'s overall deadline): once the
  * wall-clock budget has passed, the remaining probes are marked down
- * with the skip marker instead of extending the response -- a
- * hanging sync probe can still hold its own slot, but the response
- * as a whole can no longer block forever, the property the load
- * balancers polling `/health` depend on. The clock behind the
- * deadline is {@see HealthScrapeClock}, the injectable monotonic
- * seam the suite freezes exactly.
+ * with the skip marker instead of extending the response, and a
+ * probe that ANSWERS past the deadline is itself marked down with
+ * the overrun marker -- the answer the deadline can no longer vouch
+ * for (issue #788, finding 3). THE HONEST RESIDUAL: the deadline
+ * bounds the probes that ANSWER, never the one that never does -- a
+ * hung synchronous probe holds its own slot until it returns, and
+ * interrupting it is the {@see TimeoutHealthCheck} runner seam the
+ * host's composition owns (pass the async runtime's timeout
+ * primitive for a REAL interruption); the aggregate's own bound is
+ * the honest one it can carry, spelled here so the property the
+ * load balancers polling `/health` depend on is never overstated.
+ * The clock behind the deadline is {@see HealthScrapeClock}, the
+ * injectable monotonic seam the suite freezes exactly.
  *
  * THE ZERO-PROBE POSTURE IS DEGRADED, NEVER GREEN: a requested group
  * whose probe list is empty is a wiring failure (a health registry

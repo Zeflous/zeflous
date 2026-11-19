@@ -7,7 +7,8 @@
  * layout fold calls scandir, file_exists and unlink, the sweep and
  * the load read through file_get_contents, the read-modify-write
  * lane's own fold opens its sidecar through fopen and takes its
- * lock through flock, and the directory fold calls realpath and
+ * lock through flock, the quarantine fold opens its lane through
+ * mkdir, and the directory fold calls realpath and
  * fileperms -- so PHP resolves them in the namespace first. These
  * doubles shadow the global calls, answer the engine's own result
  * by default, and expose the failure arms the tests arm
@@ -15,8 +16,9 @@
  * unfinalisable record, an unremovable record, an unscannable
  * root, an unreadable record, an unresolvable directory,
  * unreadable permissions, an unopenable sidecar companion, an
- * untakeable sidecar lock), without the PHP warnings the engine's
- * own failure answers would otherwise emit.
+ * untakeable sidecar lock, an unopenable quarantine lane), without
+ * the PHP warnings the engine's own failure answers would
+ * otherwise emit.
  *
  * The rename double's armed answers carry one rule the delivery
  * boundary's own doubles spelled first (see {@see
@@ -54,6 +56,7 @@ use function file_put_contents as engine_file_put_contents;
 use function fileperms as engine_fileperms;
 use function flock as engine_flock;
 use function fopen as engine_fopen;
+use function mkdir as engine_mkdir;
 use function realpath as engine_realpath;
 use function rename as engine_rename;
 use function scandir as engine_scandir;
@@ -115,6 +118,15 @@ function scandir(string $directory, int $sorting_order = \SCANDIR_SORT_ASCENDING
     }
 
     return engine_scandir($directory, $sorting_order);
+}
+
+function mkdir(string $directory, int $permissions = 0o777, bool $recursive = false): bool
+{
+    if (SessionFileDoubleState::$mkdirAnswer !== null) {
+        return SessionFileDoubleState::$mkdirAnswer;
+    }
+
+    return engine_mkdir($directory, $permissions, $recursive);
 }
 
 function file_get_contents(string $filename): false|string

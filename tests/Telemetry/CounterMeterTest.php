@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Zef\Test\Telemetry;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\MeterCount;
 use Zef\Framework\Telemetry\MeterDimensions;
+use Zef\Framework\Telemetry\MeterEviction;
+use Zef\Framework\Telemetry\MeterFold;
+use Zef\Framework\Telemetry\MeterOverflow;
 use Zef\Framework\Telemetry\MeterSlot;
 use Zef\Framework\Telemetry\MeterTable;
 
@@ -26,6 +30,9 @@ use Zef\Framework\Telemetry\MeterTable;
 #[CoversClass(CounterMeter::class)]
 #[CoversClass(MeterSlot::class)]
 #[CoversClass(MeterTable::class)]
+#[CoversClass(MeterOverflow::class)]
+#[CoversClass(MeterEviction::class)]
+#[CoversClass(MeterFold::class)]
 #[CoversClass(MeterDimensions::class)]
 #[CoversClass(MeterCount::class)]
 final class CounterMeterTest extends TestCase
@@ -57,6 +64,67 @@ final class CounterMeterTest extends TestCase
         $series = $counterMeter->snapshot()[MeterSlot::key('zef.custom.duration', [])];
         self::assertSame(2, $series['count']);
         self::assertSame(2.0, $series['sum']);
+    }
+
+    /**
+     * The monotonic export contract (issue #788, finding 5): the OTLP
+     * payload declares `isMonotonic: true` and the Prometheus render
+     * spells `# TYPE counter` -- a negative increment would make both
+     * declarations lies, and Prometheus would read the drop as a
+     * reset and answer `rate()` garbage over it. The counter refuses
+     * it outright.
+     */
+    public function testTheNegativeIncrementIsRefused(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.custom.requests', 5);
+
+        try {
+            $counterMeter->increment('zef.custom.requests', -1);
+            self::fail('A negative increment must be refused: the exported total is monotonic.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The counter refuses a negative increment: the exported total is monotonic.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+
+        self::assertSame(
+            5,
+            $counterMeter->snapshot()[MeterSlot::key('zef.custom.requests', [])]['count'],
+            'the refused increment never landed',
+        );
+    }
+
+    /**
+     * The refusal's own boundary: zero is not a negative -- the
+     * monotonic refusal refuses the REWIND, never the no-op, and an
+     * increment of zero lands as the count it already owned.
+     */
+    public function testTheZeroIncrementIsTheNoOpTheMonotonicTotalAlreadyOwns(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.custom.requests', 5);
+        $counterMeter->increment('zef.custom.requests', 0);
+
+        $series = $counterMeter->snapshot()[MeterSlot::key('zef.custom.requests', [])];
+        self::assertSame(5, $series['count'], 'the zero increment is the no-op the total already owns');
+        self::assertSame(5.0, $series['sum'], 'the zero measurement adds nothing to the sum either');
+    }
+
+    /**
+     * The observation series is the honest sibling: a measurement
+     * below zero is a reading the histogram-style series records
+     * with its sign, never a rewound total.
+     */
+    public function testTheNegativeObservationStillRecords(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->observe('zef.custom.temperature', -7.5);
+
+        $series = $counterMeter->snapshot()[MeterSlot::key('zef.custom.temperature', [])];
+        self::assertSame(1, $series['count']);
+        self::assertSame(-7.5, $series['sum']);
     }
 
     public function testTheFractionalAdvanceJoinsTheCountAsAFloat(): void
@@ -283,14 +351,26 @@ final class CounterMeterTest extends TestCase
         $snapshot = $counterMeter->snapshot();
         self::assertCount(1024, $snapshot, 'the ceiling holds, the overflow bucket included');
         self::assertSame(
-            1,
+            2,
             $snapshot[MeterSlot::key('app.cardinality.probe', ['zef.cardinality.bucket' => 'overflow'])]['count'],
-            "the series past the ceiling collapse into the bucket that carries the cardinality's name",
+            'the collapse folds its casualty onto the bucket: the evicted sibling rides along, the count still adds up',
         );
         self::assertArrayNotHasKey(
             MeterSlot::key('app.cardinality.probe', ['ordinal' => 1023]),
             $snapshot,
-            'the newest casualty is evicted to make the bucket room',
+            'the newest casualty is retired to make the bucket room',
+        );
+
+        $totalCount = 0;
+
+        foreach ($snapshot as $series) {
+            $totalCount += $series['count'];
+        }
+
+        self::assertSame(
+            1025,
+            $totalCount,
+            'every one of the 1025 increments is still counted after the collapse',
         );
     }
 
@@ -325,14 +405,102 @@ final class CounterMeterTest extends TestCase
 
         $snapshot = $counterMeter->snapshot();
         self::assertSame(
-            2,
+            3,
             $snapshot[MeterSlot::key('app.cardinality.probe', ['zef.cardinality.bucket' => 'overflow'])]['count'],
-            'the bucket absorbs its own later collapses without evicting for them',
+            'the bucket absorbs its own later collapses: the folded casualty plus the two',
         );
         self::assertArrayHasKey(
             MeterSlot::key('app.cardinality.probe', ['ordinal' => 0]),
             $snapshot,
             'the eviction the first collapse paid is the only one',
+        );
+    }
+
+    /**
+     * The audit's live repro (issue #788, finding 1): a fresh identity
+     * on metric B needs room at a full table whose newest series is
+     * metric A's overflow bucket -- the first spelling dropped that
+     * bucket outright, and A's collapsed count vanished while the
+     * docblock promised the count still adds up. The eviction now
+     * skips the buckets and folds its casualty onto its own metric's
+     * bucket, so B's room is paid by A's newest non-bucket series and
+     * A's bucket keeps its count.
+     */
+    public function testTheCrossMetricCollapseFoldsOntoTheCasualtysOwnBucket(): void
+    {
+        $counterMeter = new CounterMeter();
+
+        for ($i = 0; $i < 1024; ++$i) {
+            $counterMeter->increment('app.cardinality.alpha', 1, ['ordinal' => $i]);
+        }
+
+        $counterMeter->increment('app.cardinality.alpha', 1, ['ordinal' => 1024]);
+        $counterMeter->increment('app.cardinality.beta', 1, ['ordinal' => 0]);
+
+        $snapshot = $counterMeter->snapshot();
+        self::assertSame(
+            3,
+            $snapshot[MeterSlot::key('app.cardinality.alpha', ['zef.cardinality.bucket' => 'overflow'])]['count'],
+            "A's bucket rides through B's collapse: its folded sibling plus the two collapses it already held",
+        );
+        self::assertSame(
+            3.0,
+            $snapshot[MeterSlot::key('app.cardinality.alpha', ['zef.cardinality.bucket' => 'overflow'])]['sum'],
+            "A's bucket carries the sum the same folds carried: each collapse's reading advanced onto it",
+        );
+        self::assertSame(
+            1,
+            $snapshot[MeterSlot::key('app.cardinality.beta', ['zef.cardinality.bucket' => 'overflow'])]['count'],
+            "B's fresh identity answers its own overflow bucket",
+        );
+        self::assertArrayNotHasKey(
+            MeterSlot::key('app.cardinality.alpha', ['ordinal' => 1022]),
+            $snapshot,
+            "the casualty B's room cost was A's newest non-bucket series, never A's bucket",
+        );
+    }
+
+    /**
+     * The pathological table the folding walk cannot answer for free:
+     * every series already collapsed, one more distinct name arriving
+     * -- the world of a thousand collapsed names the operator already
+     * chose. The honest residual is the newest bucket dropped, its
+     * count lost, spelled by the eviction's own bounded walk.
+     */
+    public function testTheAllBucketWorldDropsTheNewestBucketHonestly(): void
+    {
+        $counterMeter = new CounterMeter();
+
+        for ($i = 0; $i < 1024; ++$i) {
+            $counterMeter->increment("app.cardinality.family{$i}", 1);
+        }
+
+        $counterMeter->increment('app.cardinality.family0', 1, ['ordinal' => 0]);
+
+        $bucketCount = 0;
+
+        foreach ($counterMeter->snapshot() as $series) {
+            if ($series['attributes'] !== ['zef.cardinality.bucket' => 'overflow']) {
+                continue;
+            }
+
+            ++$bucketCount;
+        }
+
+        self::assertSame(
+            1024,
+            $bucketCount,
+            "the cascade retires every series into its own metric's bucket, the count never lost on the way",
+        );
+
+        $counterMeter->increment('app.cardinality.freshfamily', 1);
+
+        $snapshot = $counterMeter->snapshot();
+        self::assertCount(1024, $snapshot, 'the ceiling holds through the all-bucket residual');
+        self::assertSame(
+            1,
+            $snapshot[MeterSlot::key('app.cardinality.freshfamily', ['zef.cardinality.bucket' => 'overflow'])]['count'],
+            'the fresh name answers its own bucket',
         );
     }
 
@@ -466,6 +634,19 @@ final class CounterMeterTest extends TestCase
             MeterSlot::key('app.custom', ['k' => 'a/b é']),
             'the name, the separator, and the unescaped rendering the exposition splits back on',
         );
+    }
+
+    public function testTheOverflowFoldSplitsTheNameHalfAtItsOwnCharacters(): void
+    {
+        // The overflow fold's own twin pin ({@see
+        // OtlpMetricKeyTest}'s multibyte lane): the name half a
+        // composite key carries keeps the character-offset
+        // discipline -- a byte-offset fold would truncate the
+        // two-byte `é` mid-name, the split landing at the pipe's
+        // byte spelling instead of its character one, and the
+        // collapse's own ride onto its metric's bucket would lose
+        // its way.
+        self::assertSame('métric', MeterOverflow::nameOf('métric|{"k":"v"}'));
     }
 
     public function testTheMeterCarriesTheSnapshotTheExpositionRenders(): void

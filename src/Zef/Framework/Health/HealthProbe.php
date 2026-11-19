@@ -15,17 +15,26 @@ use Zef\Framework\Contracts\HealthCheckInterface;
  *
  * THE CONTAINMENT IS THE POINT: a crashing probe degrades to `down`
  * with the failure's class named -- a probe that throws is itself an
- * observation about the dependency it owns -- and a probe past the
- * scrape's deadline is skipped, `down` with the skip marker. The
- * boolean seam carries no message, so a probe that is simply down
- * answers the empty message -- the seam's own honest shape.
+ * observation about the dependency it owns -- a probe past the
+ * scrape's deadline is skipped, `down` with the skip marker, and a
+ * probe that ANSWERS past the deadline is itself `down` with the
+ * overrun marker (issue #788, finding 3): the answer the deadline
+ * can no longer vouch for -- the response was already over budget
+ * while it ran, and the probe that ate the budget is the reason the
+ * scrape degrades. The record vocabulary is the {@see
+ * HealthVerdicts} fold's own; the boolean seam carries no message,
+ * so a probe that is simply down answers the empty message -- the
+ * seam's own honest shape.
  */
 final class HealthProbe
 {
     /**
      * Judges one probe under the scrape's overall deadline: the
      * deadline read first (a probe at the deadline is skipped -- the
-     * boundary is inclusive), then the probe itself, contained.
+     * boundary is inclusive), then the probe itself, contained, and
+     * the deadline read again after the answer -- a probe that
+     * returns past the deadline is the overrun the scrape's own
+     * budget cannot vouch for.
      *
      * @param HealthCheckInterface $healthCheck       the probe to judge
      * @param null|int             $deadline          the scrape's wall-clock deadline, nanoseconds
@@ -40,28 +49,21 @@ final class HealthProbe
     ): array {
         $name = ProbeName::sanitized($healthCheck->name());
 
-        if ($deadline !== null && $healthScrapeClock->now() >= $deadline) {
-            return [
-                'name' => $name,
-                'status' => HealthStatuses::STATUS_DOWN,
-                'message' => 'skipped: overall health deadline exceeded',
-            ];
+        $before = $deadline === null ? null : $healthScrapeClock->now();
+
+        if ($before !== null && $before >= $deadline) {
+            return HealthVerdicts::skipped($name);
         }
 
         try {
             $healthy = $healthCheck->isHealthy();
         } catch (Throwable $throwable) {
-            return [
-                'name' => $name,
-                'status' => HealthStatuses::STATUS_DOWN,
-                'message' => 'probe failure: ' . mb_substr($throwable::class, 0, 128),
-            ];
+            return HealthVerdicts::probeFailure($name, $throwable);
         }
 
-        return [
-            'name' => $name,
-            'status' => $healthy ? HealthStatuses::STATUS_UP : HealthStatuses::STATUS_DOWN,
-            'message' => '',
-        ];
+        $after = $deadline === null ? null : $healthScrapeClock->now();
+        $overran = $after !== null && $after >= $deadline;
+
+        return HealthVerdicts::answered($name, $healthy, $overran);
     }
 }

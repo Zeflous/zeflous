@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Telemetry;
 
+use InvalidArgumentException;
 use Override;
 
 /**
@@ -14,12 +15,19 @@ use Override;
  *
  * THE ENGINE IS THE ACCUMULATION over the {@see MeterTable}'s bound
  * and the {@see MeterDimensions}' name policy: `increment()` counts
- * events (the counter -- a monotonic total), `observe()` records
- * measurements against a name (the histogram-style series -- a count
- * plus a sum), and `snapshot()` answers the table the exposition
- * renders. The two counting methods share the one accumulation path
- * -- the counter's count and sum advance together, the observation's
- * count advances by one and its sum by the measured value.
+ * events (the counter -- a monotonic total, and a negative increment
+ * is refused outright because the exposition's own declarations --
+ * `isMonotonic: true` on the OTLP payload, `# TYPE counter` on the
+ * Prometheus render -- would otherwise be lies: Prometheus reads a
+ * count that drops as a reset and answers `rate()` garbage over it
+ * (issue #788, finding 5)), `observe()` records measurements against
+ * a name (the histogram-style series -- a count plus a sum, the
+ * measured value honestly signed: a measurement below zero is a
+ * reading, never a rewound total), and `snapshot()` answers the
+ * table the exposition renders. The two counting methods share the
+ * one accumulation path -- the counter's count and sum advance
+ * together, the observation's count advances by one and its sum by
+ * the measured value.
  *
  * Ported from the reference implementation (legacy `zef-main`
  * `Framework/Observability/CounterMeter.php` and its
@@ -47,6 +55,12 @@ final readonly class CounterMeter implements MeterInterface
     #[Override]
     public function increment(string $name, float|int $value = 1, array $attributes = []): void
     {
+        if ($value < 0) {
+            throw new InvalidArgumentException(
+                'The counter refuses a negative increment: the exported total is monotonic.',
+            );
+        }
+
         $this->accumulate($name, $value, (float) $value, $attributes);
     }
 

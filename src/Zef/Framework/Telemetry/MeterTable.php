@@ -17,12 +17,14 @@ namespace Zef\Framework\Telemetry;
  * (a request path, a user handle) turns one metric into millions of
  * series under load. The bound answers the overflow the honest way:
  * the series past the ceiling collapse into the overflow bucket
- * ({@see self::OVERFLOW_ATTRIBUTES}), the newest casualty evicted to
- * make room, so the count still adds up and the cardinality still
- * has a name the exposition can carry (`zef.cardinality.bucket =
- * overflow`) instead of an OOM the process answers with. An
- * established series still counts past the ceiling -- a table at its
- * bound never refuses the identities it already holds.
+ * ({@see MeterOverflow}), the room the bucket needs made by the
+ * eviction that folds its casualty ({@see MeterEviction} over
+ * {@see MeterFold}), so the count still adds up and the cardinality
+ * still has a name the exposition can carry
+ * (`zef.cardinality.bucket = overflow`) instead of an OOM the
+ * process answers with. An established series still counts past
+ * the ceiling -- a table at its bound never refuses the identities
+ * it already holds.
  */
 final class MeterTable
 {
@@ -31,13 +33,6 @@ final class MeterTable
      * than this, the overflow bucket included.
      */
     private const int MAX_SERIES = 1024;
-
-    /**
-     * The overflow bucket's own dimensions: the series the cardinality
-     * past the ceiling collapses into, carrying the name the exposition
-     * can show.
-     */
-    private const array OVERFLOW_ATTRIBUTES = ['zef.cardinality.bucket' => 'overflow'];
 
     /** @var array<string,array{count:float|int,sum:float,attributes:array<string,mixed>}> */
     private array $data = [];
@@ -110,20 +105,15 @@ final class MeterTable
 
     /**
      * The overflow posture for a fresh identity at a full table: the
-     * identity collapses into the overflow bucket, the newest
-     * casualty evicted to make the bucket room (the bucket itself is
-     * never its own casualty).
+     * identity collapses into the overflow bucket, the room the
+     * bucket needs made by the eviction that folds its casualty
+     * ({@see MeterEviction}'s own walk -- the bucket itself is never
+     * its own casualty).
      */
     private function overflow(string $name): MeterSlot
     {
-        $overflowKey = MeterSlot::key($name, self::OVERFLOW_ATTRIBUTES);
-        if (!isset($this->data[$overflowKey])) {
-            // The eviction drops the newest series the table holds: the
-            // slice keeps every key but the last, over the insertion order
-            // the table's own writes laid down.
-            $this->data = \array_slice($this->data, 0, -1, true);
-        }
+        $this->data = MeterEviction::dataWithRoomFor($this->data, $name, self::MAX_SERIES);
 
-        return MeterSlot::named($name, self::OVERFLOW_ATTRIBUTES);
+        return MeterSlot::named($name, MeterOverflow::attributes());
     }
 }

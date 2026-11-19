@@ -34,6 +34,14 @@ final class DeliveryStaging
     {
         $staging = \dirname($destination) . \DIRECTORY_SEPARATOR . '.' . basename($destination);
 
+        // The byte-count identity the honest check carries: the bytes
+        // the write laid down against the bytes the JSON string IS
+        // (issue #788, finding 6 -- the first spelling compared the
+        // written bytes against `mb_strlen`'s CODEPOINTS, a pairing
+        // that only agreed because the encoder ASCII-escapes every
+        // multibyte byte away; the day an unescaped flag joins the
+        // encode, the check would refuse every multibyte record it
+        // successfully wrote).
         if (file_put_contents($staging, $json, \LOCK_EX) !== mb_strlen($json)) {
             throw new InvalidArgumentException(
                 "The delivery store cannot write the record '" . basename($destination) . "'.",

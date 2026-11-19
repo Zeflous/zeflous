@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Zef\Framework\Telemetry\TelemetryFloatForm;
 use Zef\Framework\Telemetry\TelemetrySanitizer;
 use Zef\Framework\Telemetry\TelemetryValues;
 
@@ -26,6 +27,7 @@ use Zef\Framework\Telemetry\TelemetryValues;
  */
 #[CoversClass(TelemetrySanitizer::class)]
 #[CoversClass(TelemetryValues::class)]
+#[CoversClass(TelemetryFloatForm::class)]
 final class TelemetrySanitizerTest extends TestCase
 {
     #[DataProvider('provideEveryCensusFragmentIsSensitiveCases')]
@@ -502,6 +504,84 @@ final class TelemetrySanitizerTest extends TestCase
                 'honest' => 'value',
             ]),
             'a refusal skips the entry -- the walk carries on to the honest keys behind it',
+        );
+    }
+
+    /**
+     * The key's own budget (issue #788, finding 7): the values clamp
+     * at 2048 bytes while the caller spelled the key at any length it
+     * liked -- 1024 series over arbitrary keys is the memory
+     * amplification the series ceiling exists to refuse, so the key
+     * the series identity renders under answers the same census.
+     */
+    public function testAnOverBudgetKeyClampsAtItsOwnBudget(): void
+    {
+        $key = str_repeat('k', 300) . '-distinct-tail';
+
+        self::assertSame(
+            [str_repeat('k', 253) . '…' => 'value'],
+            TelemetryValues::attributes([$key => 'value']),
+            'the key clamps at its own byte budget, marked at the cut',
+        );
+    }
+
+    public function testTwoOverBudgetKeysFoldIntoTheOneIdentity(): void
+    {
+        // The bounded-table doctrine the budget serves: two keys the
+        // caller spelled distinct but sharing their budgeted prefix
+        // fold into the one series identity -- the ceiling's own
+        // honest answer to unbounded identity spellings.
+        $first = str_repeat('k', 300) . '-first-tail';
+        $second = str_repeat('k', 300) . '-second-tail';
+
+        self::assertSame(
+            [str_repeat('k', 253) . '…' => 'second'],
+            TelemetryValues::attributes([
+                $first => 'first',
+                $second => 'second',
+            ]),
+            'the two budgeted spellings mint the one identity',
+        );
+    }
+
+    public function testTheSensitiveJudgementReadsTheCallersOwnSpelling(): void
+    {
+        // A credential key the budget would have truncated under its
+        // own fragment is still a credential key: the judgement reads
+        // the caller's spelling, never the budgeted fold.
+        self::assertSame(
+            [],
+            TelemetryValues::attributes([
+                str_repeat('p', 300) . 'password' => 'material that must never exist in the collection',
+            ]),
+            'the credential key is refused however long its spelling',
+        );
+    }
+
+    public function testAnEmptyKeyAnswersNoDimension(): void
+    {
+        self::assertSame(
+            [],
+            TelemetryValues::attributes(['' => 'value']),
+            'an empty key is no dimension at all -- the census carries nothing for it',
+        );
+    }
+
+    public function testTheNestedArrayWalkBudgetsItsOwnKeys(): void
+    {
+        self::assertSame(
+            [str_repeat('k', 253) . '…' => 'value'],
+            TelemetryValues::value([str_repeat('k', 300) => 'value']),
+            'the array value walks its own keys under the same census',
+        );
+    }
+
+    public function testTheNestedArrayWalkDropsItsOwnEmptyKeys(): void
+    {
+        self::assertSame(
+            ['kept' => 'value'],
+            TelemetryValues::value(['' => 'dropped', 'kept' => 'value']),
+            'an empty key inside the array value answers no dimension either',
         );
     }
 }
