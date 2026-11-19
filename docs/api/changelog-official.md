@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(database\): the single row is the cursor's own step and the DSN knobs carry their grammar \(issue \#787\) [\#889](https://github.com/Zeflous/zeflous/pull/889) ([mbetixz](https://github.com/mbetixz))
 - fix\(http\): the anonymous name is the anonymous resolution's own and the entry map is closed \(issue \#785\) [\#884](https://github.com/Zeflous/zeflous/pull/884) ([mbetixz](https://github.com/mbetixz))
 - docs\(http\): the audit's three docblock claims meet the code they describe \(issue \#784\) [\#883](https://github.com/Zeflous/zeflous/pull/883) ([mbetixz](https://github.com/mbetixz))
 - docs\(container\): the extractor's reflection claim meets the code it describes \(issue \#783\) [\#880](https://github.com/Zeflous/zeflous/pull/880) ([mbetixz](https://github.com/mbetixz))
