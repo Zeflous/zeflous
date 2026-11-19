@@ -97,6 +97,22 @@ final class CounterMeterTest extends TestCase
     }
 
     /**
+     * The refusal's own boundary: zero is not a negative -- the
+     * monotonic refusal refuses the REWIND, never the no-op, and an
+     * increment of zero lands as the count it already owned.
+     */
+    public function testTheZeroIncrementIsTheNoOpTheMonotonicTotalAlreadyOwns(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.custom.requests', 5);
+        $counterMeter->increment('zef.custom.requests', 0);
+
+        $series = $counterMeter->snapshot()[MeterSlot::key('zef.custom.requests', [])];
+        self::assertSame(5, $series['count'], 'the zero increment is the no-op the total already owns');
+        self::assertSame(5.0, $series['sum'], 'the zero measurement adds nothing to the sum either');
+    }
+
+    /**
      * The observation series is the honest sibling: a measurement
      * below zero is a reading the histogram-style series records
      * with its sign, never a rewound total.
@@ -426,6 +442,11 @@ final class CounterMeterTest extends TestCase
             3,
             $snapshot[MeterSlot::key('app.cardinality.alpha', ['zef.cardinality.bucket' => 'overflow'])]['count'],
             "A's bucket rides through B's collapse: its folded sibling plus the two collapses it already held",
+        );
+        self::assertSame(
+            3.0,
+            $snapshot[MeterSlot::key('app.cardinality.alpha', ['zef.cardinality.bucket' => 'overflow'])]['sum'],
+            "A's bucket carries the sum the same folds carried: each collapse's reading advanced onto it",
         );
         self::assertSame(
             1,
