@@ -56,9 +56,11 @@ final readonly class SessionRecordRetirement
             return;
         }
 
-        if ($now - $record['writtenAt'] >= $this->idleTimeout) {
-            $this->sessionRecordFiles->removeRecord($id);
+        if ($now - $record['writtenAt'] < $this->idleTimeout) {
+            return;
         }
+
+        $this->sessionRecordFiles->removeRecord($id);
     }
 
     /**
