@@ -359,7 +359,9 @@ final class ConnectionConfigTest extends TestCase
     public function testNonStringCharsetRejected(): void
     {
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessageIsOrContains('Charset must be letters, digits, underscore, dash or dot (1-64 characters), or null (got: int)');
+        $this->expectExceptionMessageIsOrContains(
+            'Charset must be letters, digits, underscore, dash or dot (1-64 characters), or null (got: int)',
+        );
 
         ConnectionConfig::fromArray(['driver' => 'mysql', 'host' => 'h', 'dbname' => 'app', 'charset' => 8]);
     }
@@ -371,7 +373,10 @@ final class ConnectionConfigTest extends TestCase
         // clause -- a `'` and a `;` would break the clauses apart and
         // reach the driver's own option parsing as new options.
         $this->expectException(ConnectionException::class);
-        $this->expectExceptionMessageIsOrContains("Charset must be letters, digits, underscore, dash or dot (1-64 characters), or null (got: 'UTF8' --search_path=x')");
+        $this->expectExceptionMessageIsOrContains(
+            'Charset must be letters, digits, underscore, dash or dot (1-64 characters),'
+            . " or null (got: 'UTF8' --search_path=x')",
+        );
 
         ConnectionConfig::fromArray([
             'driver' => 'pgsql',

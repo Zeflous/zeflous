@@ -40,7 +40,11 @@ final class PdoFetchOne
         $startNs = $pdoQueryLog?->begin() ?? 0;
 
         try {
-            /** @var array<string, mixed>|false $row the cursor-stepped FETCH_ASSOC row, false when the answer is empty */
+            /**
+             * @var array<string, mixed>|false $row the cursor-stepped
+             *                                 FETCH_ASSOC row, false
+             *                                 when the answer is empty
+             */
             $row = PdoStatementRun::execute(PdoStatementRun::prepare($pdo, $sqlQuery), $sqlQuery)
                 ->fetch(PDO::FETCH_ASSOC)
             ;
