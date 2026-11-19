@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-18T22:51:36Z",
+  "as_of": "2026-11-19T14:23:45Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 347,
+  "unreleased_count": 348,
   "versions": [
     {
       "version": "Unreleased",
@@ -7859,6 +7859,42 @@
                 "sha": "32a5df42bb59ce4f03f7caf43a6ba35ad97daade",
                 "short_sha": "32a5df4",
                 "subject": "docs(roadmap): the pin rides the auth audit round's fix head (#884)"
+              }
+            ]
+          },
+          {
+            "pr": 889,
+            "title": "fix(database): the single row is the cursor's own step and the DSN knobs carry their grammar (issue #787)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-19T14:23:45Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/889",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ecca27e66847c7758cb0668b3c66063c65aa2ecf",
+                "short_sha": "ecca27e",
+                "subject": "fix(database): the single row is the cursor's own step and the DSN knobs carry their grammar (issue #787)"
+              },
+              {
+                "sha": "142f96dda65d6aeb8472aeeb9ea6b0c986bd67b1",
+                "short_sha": "142f96d",
+                "subject": "docs(roadmap): the pin rides the database audit round's fix head (#889)"
+              },
+              {
+                "sha": "24c2bbb0fa5b6088f8130238ad58554430f8ef16",
+                "short_sha": "24c2bbb",
+                "subject": "fix(database): the two message spellings ride the 120-column wall the phpcs lane keeps (issue #787)"
+              },
+              {
+                "sha": "131aa4ece1ac95210cd8c7d0d5ee85d2d60f101e",
+                "short_sha": "131aa4e",
+                "subject": "fix(database): the mutation round's escaped seams meet their kills (issue #787)"
+              },
+              {
+                "sha": "74965a817ecaf6e2e1220c1ad1956a0f45ce68c9",
+                "short_sha": "74965a8",
+                "subject": "docs(roadmap): the pin rides the audit round's mutation-answered head (#889)"
               }
             ]
           }
@@ -23787,6 +23823,42 @@
               "sha": "32a5df42bb59ce4f03f7caf43a6ba35ad97daade",
               "short_sha": "32a5df4",
               "subject": "docs(roadmap): the pin rides the auth audit round's fix head (#884)"
+            }
+          ]
+        },
+        {
+          "pr": 889,
+          "title": "fix(database): the single row is the cursor's own step and the DSN knobs carry their grammar (issue #787)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-19T14:23:45Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/889",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ecca27e66847c7758cb0668b3c66063c65aa2ecf",
+              "short_sha": "ecca27e",
+              "subject": "fix(database): the single row is the cursor's own step and the DSN knobs carry their grammar (issue #787)"
+            },
+            {
+              "sha": "142f96dda65d6aeb8472aeeb9ea6b0c986bd67b1",
+              "short_sha": "142f96d",
+              "subject": "docs(roadmap): the pin rides the database audit round's fix head (#889)"
+            },
+            {
+              "sha": "24c2bbb0fa5b6088f8130238ad58554430f8ef16",
+              "short_sha": "24c2bbb",
+              "subject": "fix(database): the two message spellings ride the 120-column wall the phpcs lane keeps (issue #787)"
+            },
+            {
+              "sha": "131aa4ece1ac95210cd8c7d0d5ee85d2d60f101e",
+              "short_sha": "131aa4e",
+              "subject": "fix(database): the mutation round's escaped seams meet their kills (issue #787)"
+            },
+            {
+              "sha": "74965a817ecaf6e2e1220c1ad1956a0f45ce68c9",
+              "short_sha": "74965a8",
+              "subject": "docs(roadmap): the pin rides the audit round's mutation-answered head (#889)"
             }
           ]
         }
