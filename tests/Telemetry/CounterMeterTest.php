@@ -459,9 +459,11 @@ final class CounterMeterTest extends TestCase
         $bucketCount = 0;
 
         foreach ($counterMeter->snapshot() as $series) {
-            if ($series['attributes'] === ['zef.cardinality.bucket' => 'overflow']) {
-                ++$bucketCount;
+            if ($series['attributes'] !== ['zef.cardinality.bucket' => 'overflow']) {
+                continue;
             }
+
+            ++$bucketCount;
         }
 
         self::assertSame(

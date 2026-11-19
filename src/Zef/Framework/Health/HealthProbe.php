@@ -19,9 +19,10 @@ use Zef\Framework\Contracts\HealthCheckInterface;
  * scrape's deadline is skipped, `down` with the skip marker, and a
  * probe that ANSWERS past the deadline is itself `down` with the
  * overrun marker (issue #788, finding 3): the answer the deadline
- * can no longer vouch for -- the response is already over budget
- * while it ran, and the probe that ate the whole budget is the
- * reason the scrape degrades. The boolean seam carries no message,
+ * can no longer vouch for -- the response was already over budget
+ * while it ran, and the probe that ate the budget is the reason the
+ * scrape degrades. The record vocabulary is the {@see
+ * HealthVerdicts} fold's own; the boolean seam carries no message,
  * so a probe that is simply down answers the empty message -- the
  * seam's own honest shape.
  */
@@ -51,37 +52,18 @@ final class HealthProbe
         $before = $deadline === null ? null : $healthScrapeClock->now();
 
         if ($before !== null && $before >= $deadline) {
-            return [
-                'name' => $name,
-                'status' => HealthStatuses::STATUS_DOWN,
-                'message' => 'skipped: overall health deadline exceeded',
-            ];
+            return HealthVerdicts::skipped($name);
         }
 
         try {
             $healthy = $healthCheck->isHealthy();
         } catch (Throwable $throwable) {
-            return [
-                'name' => $name,
-                'status' => HealthStatuses::STATUS_DOWN,
-                'message' => 'probe failure: ' . mb_substr($throwable::class, 0, 128),
-            ];
+            return HealthVerdicts::probeFailure($name, $throwable);
         }
 
         $after = $deadline === null ? null : $healthScrapeClock->now();
+        $overran = $after !== null && $after >= $deadline;
 
-        if ($after !== null && $after >= $deadline) {
-            return [
-                'name' => $name,
-                'status' => HealthStatuses::STATUS_DOWN,
-                'message' => 'overran the scrape deadline: the answer the deadline can no longer vouch for',
-            ];
-        }
-
-        return [
-            'name' => $name,
-            'status' => $healthy ? HealthStatuses::STATUS_UP : HealthStatuses::STATUS_DOWN,
-            'message' => '',
-        ];
+        return HealthVerdicts::answered($name, $healthy, $overran);
     }
 }

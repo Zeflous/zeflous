@@ -30,6 +30,9 @@ final class SessionFileDoubleState
     /** @var null|false|list<string> the armed scandir answer (false arms the unscannable-root refusal; a list arms a stale listing whose members the reads answer for) */
     public static array|false|null $scandirAnswer = null;
 
+    /** @var null|bool the armed mkdir answer (false arms the unopenable-quarantine-lane refusal) */
+    public static ?bool $mkdirAnswer = null;
+
     /** @var null|false|string the armed file_get_contents answer */
     public static false|string|null $fileGetContentsAnswer = null;
 
@@ -58,6 +61,7 @@ final class SessionFileDoubleState
         self::$renameAnswers = [];
         self::$unlinkAnswer = null;
         self::$scandirAnswer = null;
+        self::$mkdirAnswer = null;
         self::$fileGetContentsAnswer = null;
         self::$fopenAnswer = null;
         self::$flockAnswer = null;

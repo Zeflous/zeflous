@@ -358,6 +358,29 @@ final class OtlpHttpJsonExporterTest extends TestCase
         }
     }
 
+    /**
+     * The oddballs below 200 -- a provisional answer a proxy strands
+     * as the final one -- are not deliveries either: the engine's own
+     * wrapper consumes the interim status and the answer the
+     * transport reads names no deliverable status at all.
+     */
+    public function testAStrandedProvisionalAnswerIsNotADeliveryEither(): void
+    {
+        $this->otlpMockServer = new OtlpMockServer(status: 100);
+        $endpoint = $this->otlpMockServer->start();
+        $otlpHttpJsonExporter = new OtlpHttpJsonExporter($endpoint, ['service.name' => 'svc'], 500);
+
+        try {
+            $otlpHttpJsonExporter->export([$this->record('provisional')]);
+            self::fail('A stranded below-200 answer must not be counted as a delivery.');
+        } catch (OtlpExporterException $otlpExporterException) {
+            self::assertSame(
+                'OTLP exporter transient rejection: the stranded below-200 answer is not a delivery.',
+                $otlpExporterException->getMessage(),
+            );
+        }
+    }
+
     public function testASlowCollectorTimesTheExchangeOut(): void
     {
         $this->otlpMockServer = new OtlpMockServer(delayMs: 400);

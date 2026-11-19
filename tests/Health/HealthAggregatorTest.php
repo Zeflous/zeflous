@@ -14,6 +14,7 @@ use Zef\Framework\Health\HealthOutcome;
 use Zef\Framework\Health\HealthProbe;
 use Zef\Framework\Health\HealthScrapeClock;
 use Zef\Framework\Health\HealthStatuses;
+use Zef\Framework\Health\HealthVerdicts;
 use Zef\Framework\Health\ProbeName;
 use Zef\Test\Support\AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFailureException as OverlongFailureException; // phpcs:ignore
 use Zef\Test\Support\FixedGroupedHealthCheck;
@@ -38,6 +39,7 @@ use Zef\Test\Support\ThrowingHealthCheck;
 #[CoversClass(HealthGroups::class)]
 #[CoversClass(HealthOutcome::class)]
 #[CoversClass(HealthProbe::class)]
+#[CoversClass(HealthVerdicts::class)]
 #[CoversClass(HealthScrapeClock::class)]
 #[CoversClass(HealthStatuses::class)]
 #[CoversClass(ProbeName::class)]

@@ -575,4 +575,13 @@ final class TelemetrySanitizerTest extends TestCase
             'the array value walks its own keys under the same census',
         );
     }
+
+    public function testTheNestedArrayWalkDropsItsOwnEmptyKeys(): void
+    {
+        self::assertSame(
+            ['kept' => 'value'],
+            TelemetryValues::value(['' => 'dropped', 'kept' => 'value']),
+            'an empty key inside the array value answers no dimension either',
+        );
+    }
 }

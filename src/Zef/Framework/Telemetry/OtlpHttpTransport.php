@@ -164,7 +164,7 @@ final readonly class OtlpHttpTransport
             ),
             $status >= 200 => null,
             default => throw new OtlpExporterException(
-                'OTLP exporter transient rejection: the unfollowed 3xx is not a delivery.',
+                'OTLP exporter transient rejection: the stranded below-200 answer is not a delivery.',
             ),
         };
     }

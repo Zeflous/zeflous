@@ -20,6 +20,7 @@ use Zef\Framework\Adapters\Session\SessionRecordFiles;
 use Zef\Framework\Adapters\Session\SessionRecordLoad;
 use Zef\Framework\Adapters\Session\SessionRecordLock;
 use Zef\Framework\Adapters\Session\SessionRecordQuarantine;
+use Zef\Framework\Adapters\Session\SessionRecordRetirement;
 use Zef\Framework\Adapters\Session\SessionRecordScan;
 use Zef\Framework\Adapters\Session\SessionRecordShape;
 use Zef\Framework\Adapters\Session\SessionRecordStaging;
@@ -70,6 +71,7 @@ use Zef\Test\Support\Adapters\Session\SessionFileDoubleState;
 #[CoversClass(SessionRecordValues::class)]
 #[CoversClass(SessionSweepCadence::class)]
 #[CoversClass(SessionRecordQuarantine::class)]
+#[CoversClass(SessionRecordRetirement::class)]
 #[CoversClass(SessionStoreDirectory::class)]
 #[CoversClass(SessionSweep::class)]
 final class FileSessionAdapterTest extends TestCase
@@ -393,6 +395,85 @@ final class FileSessionAdapterTest extends TestCase
                 $invalidArgumentException->getMessage(),
             );
         }
+    }
+
+    /**
+     * The lane the store cannot open is the same named refusal: the
+     * mkdir the store cannot make is the store's own filesystem
+     * story, never a record's defect.
+     */
+    public function testALaneTheStoreCannotOpenIsTheNamedRefusal(): void
+    {
+        file_put_contents($this->directory . '/corrupt.json', 'not json at all');
+
+        // The mkdir double arms the unopenable-lane refusal without
+        // the engine's own warning the real failure would emit.
+        SessionFileDoubleState::$mkdirAnswer = false;
+
+        try {
+            $this->adapter(1800, 1000)->save('present', ['user' => 7]);
+            self::fail('The lane the store cannot open was not refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The session file store cannot open its quarantine lane.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * The marker the store can see but not read still answers zero:
+     * the read double refuses while the file exists, and zero is the
+     * walk the store pays -- the fail-open cadence the marker's own
+     * doctrine spells.
+     */
+    public function testAMarkerTheStoreCannotReadAnswersTheWalk(): void
+    {
+        file_put_contents($this->directory . '/.sweep-cadence', '5000');
+        file_put_contents(
+            $this->directory . '/abandoned.json',
+            '{"data":{"user":1},"written_at":1000}',
+        );
+
+        SessionFileDoubleState::$fileGetContentsAnswer = false;
+
+        $this->adapter(300, 6000)->save('fresh', ['user' => 7]);
+
+        self::assertFileDoesNotExist(
+            $this->directory . '/abandoned.json',
+            'the unreadable marker answers zero, the walk the store pays',
+        );
+    }
+
+    /**
+     * The marker's own staging name is the one the best-effort write
+     * shrugs off: a refused write leaves the save landing and the
+     * marker absent -- the degraded-but-correct cadence, the next save
+     * sweeping again. The cadence fold is exercised directly so the
+     * refused write is the marker's own, never the record staging the
+     * armed double would refuse first.
+     */
+    public function testAWriteTheMarkerCannotLayDownAnswersTheDegradedCadence(): void
+    {
+        $sessionSweepCadence = new SessionSweepCadence($this->directory);
+
+        $sessionSweepCadence->ranAt(5000);
+
+        self::assertSame(
+            5000,
+            $sessionSweepCadence->lastRanAt(),
+            'the laid-down marker reads back',
+        );
+
+        SessionFileDoubleState::$filePutContentsAnswer = false;
+
+        $sessionSweepCadence->ranAt(6000);
+
+        self::assertSame(
+            5000,
+            $sessionSweepCadence->lastRanAt(),
+            'the marker the store cannot write is simply not there: the reading it last held stands',
+        );
     }
 
     public function testASaveRefusesABagTheRecordCannotCarry(): void

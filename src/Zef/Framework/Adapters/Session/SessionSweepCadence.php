@@ -91,9 +91,11 @@ final readonly class SessionSweepCadence
             return;
         }
 
-        if (!rename($staging, $this->markerPath())) {
-            unlink($staging);
+        if (rename($staging, $this->markerPath())) {
+            return;
         }
+
+        unlink($staging);
     }
 
     /**
