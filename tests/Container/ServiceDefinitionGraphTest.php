@@ -219,6 +219,24 @@ final class ServiceDefinitionGraphTest extends TestCase
         self::assertSame([ExternalFactory::class], $edges['app.label']);
     }
 
+    public function testADefinitionWithSeveralPlannedTargetsCollectsEveryEdge(): void
+    {
+        // The inner walk's own continuation pin: a definition whose
+        // references carry TWO planned targets collects BOTH edges --
+        // the loop walks every reference the fold answers, never just
+        // the first (the round's flake answer: the AOT-boot-level
+        // kills that used to carry this mutant ride the slow boot
+        // machinery, so the loop's own semantics get their own
+        // deterministic, boot-free pin).
+        $edges = DefinitionEdges::collect([
+            new InstanceDefinition('app.x', Greeter::class, [['service' => 'app.y'], ['service' => 'app.z']]),
+            new InstanceDefinition('app.y', Greeter::class),
+            new InstanceDefinition('app.z', Greeter::class),
+        ], new Container());
+
+        self::assertSame(['app.y', 'app.z'], $edges['app.x']);
+    }
+
     public function testAServiceNamedFactoryTargetStaysTheDeclaredEdgeAlone(): void
     {
         // The shadow judgment's own negative: a service-named target is

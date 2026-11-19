@@ -71,7 +71,8 @@ final class ViewRenderScope
     public static function render(string $file, TemplateFace $templateFace, array $data, ViewName $viewName): string
     {
         $entry = ob_get_level();
-        $caller = $entry > 0 ? (int) ob_get_length() : null;
+        $length = ob_get_length();
+        $caller = \is_int($length) ? $length : null;
 
         ob_start();
 
@@ -96,7 +97,9 @@ final class ViewRenderScope
                 ob_end_clean();
             }
 
-            ViewFlushedTail::discard($entry, $caller);
+            if ($caller !== null) {
+                ViewFlushedTail::discard($entry, $caller);
+            }
         }
 
         return $answer;

@@ -18,6 +18,13 @@ namespace Zef\Framework\Adapters\View;
  * never `ob_end_clean()`): the buffer's own identity is the caller's
  * buffering choice, not the engine's to reopen on its behalf.
  *
+ * The caller's own prefix length rides the two reads before the
+ * open: the level (the entry) and the buffer content length -- a
+ * level-zero entry holds NO buffer to trim (the false answer the
+ * length read gives there is the no-buffer signal itself), and
+ * the null spelling is the gate the refusal path keys on (the
+ * fold only ever runs for a caller whose buffer exists).
+ *
  * @internal
  */
 final class ViewFlushedTail
@@ -26,14 +33,21 @@ final class ViewFlushedTail
      * Discards the tail a flushing template pushed into the caller's
      * own buffer, keeping the prefix the caller owned.
      *
-     * @param int      $entry  the caller's buffer level before the render
-     * @param null|int $caller the caller's own buffer content length
-     *                         before the render, null when the caller
-     *                         holds no buffer to trim
+     * The level arm is the whole answer for the past-flushing
+     * residual: a template that flushes PAST the engine's walls
+     * closes the caller's own buffer, the level then sits BELOW the
+     * entry, and the buffer now at the entry's own level is an
+     * INNOCENT one (the caller's caller) -- the early return refuses
+     * to touch it (the bytes the flush pushed into it are the
+     * recorded residual, never a slice the engine may re-cut).
+     *
+     * @param int $entry  the caller's buffer level before the render
+     * @param int $caller the caller's own buffer content length
+     *                    before the render
      */
-    public static function discard(int $entry, ?int $caller): void
+    public static function discard(int $entry, int $caller): void
     {
-        if ($caller === null || ob_get_level() !== $entry || ob_get_length() <= $caller) {
+        if (ob_get_level() !== $entry || ob_get_length() <= $caller) {
             return;
         }
 

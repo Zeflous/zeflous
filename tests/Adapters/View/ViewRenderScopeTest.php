@@ -266,6 +266,49 @@ final class ViewRenderScopeTest extends TestCase
         ob_end_clean();
     }
 
+    public function testAPastFlushingTemplateNeverTouchesTheInnocentBufferBelow(): void
+    {
+        // The trim's level arm, with teeth: a template that flushes
+        // PAST the engine's walls closes the caller's own buffer, and
+        // the buffer now sitting at the entry's own level is an
+        // INNOCENT one (the caller's caller). The refusal's early
+        // return is the whole answer there -- a fold that trimmed
+        // anyway would clean the innocent buffer and re-echo a slice
+        // of it sized to the CLOSED buffer's length, corrupting a
+        // buffer the template never reached with its own bytes.
+        $file = $this->template('deep', "<?php echo 'a'; ob_end_flush(); ob_end_flush(); ?>b");
+
+        ob_start();
+        echo 'innocent-below-';
+
+        $below = ob_get_level();
+
+        ob_start();
+        echo 'victim';
+
+        try {
+            ViewRenderScope::render($file, $this->templateFace, [], new ViewName('deep'));
+            self::fail('The past-flushing template was not refused.');
+        } catch (ViewException) {
+            // the discipline refusal is the expectation
+        } finally {
+            // the caller's own buffer was closed by the template (the
+            // level sits below the entry), and the innocent buffer
+            // below keeps exactly its own prefix plus the flushed
+            // bytes ('victima' the closed buffers pushed down, 'b' the
+            // tail echoed with no engine buffer left) -- the recorded
+            // residual, never a re-cut slice.
+            self::assertSame($below, ob_get_level());
+            self::assertSame(
+                'innocent-below-victimab',
+                (string) ob_get_contents(),
+                'the innocent buffer below must survive the refusal with its own bytes',
+            );
+
+            ob_end_clean();
+        }
+    }
+
     public function testAFlushingTemplateLeavesAMultibyteCallersPrefixByteExact(): void
     {
         // The trim's own semantics, the byte-exact half: ob_get_length()

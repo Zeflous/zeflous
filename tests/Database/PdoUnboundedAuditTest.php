@@ -11,6 +11,7 @@ use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoQueryRun;
 use Zef\Framework\Adapters\Database\PdoUnboundedAudit;
+use Zef\Framework\Adapters\Database\PdoUnboundedSignals;
 use Zef\Framework\Database\SqlQuery;
 use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Test\Support\Log\RecordingLogger;
@@ -31,6 +32,7 @@ use Zef\Test\Support\Telemetry\ThrowingMeter;
  * @internal
  */
 #[CoversClass(PdoUnboundedAudit::class)]
+#[CoversClass(PdoUnboundedSignals::class)]
 #[CoversClass(PdoQueryRun::class)]
 #[CoversClass(PdoConnection::class)]
 final class PdoUnboundedAuditTest extends TestCase
@@ -114,6 +116,38 @@ final class PdoUnboundedAuditTest extends TestCase
         $affected = $connection->execute(new SqlQuery('DELETE FROM audit_rows', unbounded: true));
 
         self::assertSame(1, $affected, 'the null seams are the honest void, never a failure');
+    }
+
+    public function testTheNullMeterSeamAnswersTheRecordWithoutTheCounter(): void
+    {
+        // The raw emission fold's own nullseam pin (the
+        // PdoQuerySignals::emit() shape): the fold carries NO
+        // containment, so a seam spelled without its nullsafe arm
+        // answers its own error under the direct call -- the null
+        // meter never costs the WARN record its delivery.
+        $recordingLogger = new RecordingLogger();
+
+        PdoUnboundedSignals::emit(null, $recordingLogger, new SqlQuery('DELETE FROM t'), 3);
+
+        self::assertCount(1, $recordingLogger->calls, 'the WARN record answers without a meter');
+        self::assertSame('warning', $recordingLogger->calls[0][0]);
+        self::assertSame(
+            'Unbounded delete executed (allowUnbounded): 3 row(s) affected',
+            $recordingLogger->calls[0][1],
+        );
+    }
+
+    public function testTheNullLoggerSeamAnswersTheCounterWithoutTheRecord(): void
+    {
+        // The fold's second nullseam arm: the null logger never
+        // costs the counter its increment.
+        $recordingMeter = new RecordingMeter();
+
+        PdoUnboundedSignals::emit($recordingMeter, null, new SqlQuery('DELETE FROM t'), 3);
+
+        self::assertCount(1, $recordingMeter->increments, 'the counter answers without a logger');
+        self::assertSame(1, $recordingMeter->increments[0]['value']);
+        self::assertSame(['op' => 'delete'], $recordingMeter->increments[0]['attributes']);
     }
 
     public function testASeamThatThrowsNeverTaintsTheStatementsOwnAnswer(): void
