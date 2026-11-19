@@ -46,7 +46,7 @@ final class MeterFold
         $foldKey = MeterOverflow::bucketKey(MeterOverflow::nameOf($casualtyKey));
 
         if (isset($data[$foldKey])) {
-            $data[$foldKey]['count'] += $casualty['count'];
+            $data[$foldKey]['count'] = MeterCount::advanced($data[$foldKey]['count'], $casualty['count']);
             $data[$foldKey]['sum'] += $casualty['sum'];
 
             return $data;

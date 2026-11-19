@@ -73,14 +73,14 @@ final class TelemetryValues
     {
         $sanitized = [];
 
-        foreach ($attributes as $key => $value) {
+        foreach (array_keys($attributes) as $key) {
             $name = TelemetrySanitizer::key((string) $key);
 
             if ($name === '' || TelemetrySanitizer::isSensitiveKey((string) $key)) {
                 continue;
             }
 
-            $sanitized[$name] = self::value($value);
+            $sanitized[$name] = self::value($attributes[$key]);
         }
 
         return $sanitized;
