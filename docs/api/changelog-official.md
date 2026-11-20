@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- fix\(container\): the reference grammar's two lanes agree, the probe's bookkeeping is its own, and the env-shaped value names its address \(issue \#800\) [\#896](https://github.com/Zeflous/zeflous/pull/896) ([mbetixz](https://github.com/mbetixz))
 - fix\(router\): the match never raises, the engine's failure answers its own diagnostic, and the claims walk keeps its own tuple \(issue \#799\) [\#893](https://github.com/Zeflous/zeflous/pull/893) ([mbetixz](https://github.com/mbetixz))
 - fix\(telemetry\): the count survives the collapse and the store keeps its own cadence \(issue \#788\) [\#892](https://github.com/Zeflous/zeflous/pull/892) ([mbetixz](https://github.com/mbetixz))
 - fix\(database\): the single row is the cursor's own step and the DSN knobs carry their grammar \(issue \#787\) [\#889](https://github.com/Zeflous/zeflous/pull/889) ([mbetixz](https://github.com/mbetixz))
