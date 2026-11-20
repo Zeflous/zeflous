@@ -70,6 +70,58 @@ final class AutowireRunBookkeepingTest extends TestCase
         self::assertFalse($autowireReuse->known('app.unknown'));
     }
 
+    public function testThePureProbeAnswersTheSameVerdictWithoutRecording(): void
+    {
+        // The consultative probe's own spelling (issue #800's finding 3):
+        // the probe answers the same declared/birthed/carried verdict the
+        // recording query answers, and writes no bookkeeping -- the report's
+        // `reused` column counts the resolutions that actually happened,
+        // never the consultations that merely asked.
+        $autowireBirths = new AutowireBirths();
+        $autowireReuse = new AutowireReuse($autowireBirths);
+        $autowireReuse->open(
+            [new InstanceDefinition('app.declared', SimpleDep::class, ['a'])],
+            new Container(),
+        );
+
+        self::assertTrue($autowireReuse->peek('app.declared'));
+        self::assertFalse($autowireReuse->peek('app.unknown'));
+        self::assertSame([], $autowireBirths->reused(), 'the probe records nothing');
+
+        // The resolvable consultation is pure the same way: the declared
+        // identifier counts no reuse until the resolution arm asks for it.
+        self::assertTrue($autowireReuse->resolvable('app.declared'));
+        self::assertSame([], $autowireBirths->reused(), 'the resolvable consultation records nothing');
+    }
+
+    public function testADefaultedBindingsConsultationCountsNoPhantomReuse(): void
+    {
+        // The audit's own repro (issue #800's finding 3): a defaulted
+        // parameter whose declared type binds nothing consults the reuse
+        // query to decide whether the binding must yield to the
+        // constructor's own default -- and the first spelling counted the
+        // consultation itself as a reuse, so the report's `reused` column
+        // overcounted references the run never planned. The pure probe
+        // keeps the verdict and drops the phantom.
+        $autowireBirths = new AutowireBirths();
+        $autowireReuse = new AutowireReuse($autowireBirths);
+        $autowireReuse->open(
+            [new InstanceDefinition('app.declared', SimpleDep::class, ['a'])],
+            new Container(),
+        );
+
+        // The consultation the defaulted binding's yield rule reads: the
+        // declared identifier answers, but the resolution never runs for
+        // it (the parameter takes its default), so nothing is recorded.
+        self::assertTrue($autowireReuse->peek('app.declared'));
+        self::assertSame([], $autowireBirths->reused());
+
+        // The resolution arm alone records: the reference the plan
+        // actually carries is the only reuse the report counts.
+        self::assertTrue($autowireReuse->known('app.declared'));
+        self::assertSame(['app.declared'], $autowireBirths->reused());
+    }
+
     public function testTheBirthsAnswerTheirOwnMemoAndReport(): void
     {
         $autowireBirths = new AutowireBirths();

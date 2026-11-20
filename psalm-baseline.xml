@@ -153,6 +153,11 @@
       <code><![CDATA[$type]]></code>
     </ArgumentTypeCoercion>
   </file>
+  <file src="src/Zef/Framework/Container/Autowiring/AutowireValueMaterialisations.php">
+    <MixedAssignment>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Container/Autowiring/AutowireResult.php">
     <PossiblyUnusedProperty>
       <code><![CDATA[$generated]]></code>

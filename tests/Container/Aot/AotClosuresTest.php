@@ -10,6 +10,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zef\Framework\Container\AliasDefinition;
+use Zef\Framework\Container\Aot\AotArgumentEscape;
+use Zef\Framework\Container\Aot\AotArgumentReference;
 use Zef\Framework\Container\Aot\AotArguments;
 use Zef\Framework\Container\Aot\AotClosures;
 use Zef\Framework\Container\Aot\AotExportability;
@@ -24,6 +26,7 @@ use Zef\Framework\Container\ServiceLifetime;
 use Zef\Framework\Container\ValueDefinition;
 use Zef\Test\Support\Container\Aot\CallsHouse;
 use Zef\Test\Support\Container\Aot\EnumHouse;
+use Zef\Test\Support\Container\Aot\EscapeHouse;
 use Zef\Test\Support\Container\Aot\House;
 use Zef\Test\Support\Container\Aot\Roof;
 use Zef\Test\Support\Container\Aot\Tone;
@@ -38,6 +41,8 @@ use Zef\Test\Support\Container\Aot\Window;
  * @internal
  */
 #[CoversClass(AotClosures::class)]
+#[CoversClass(AotArgumentReference::class)]
+#[CoversClass(AotArgumentEscape::class)]
 #[CoversClass(AotArguments::class)]
 #[CoversClass(AotLiterals::class)]
 #[CoversClass(AotRefusals::class)]
@@ -306,11 +311,16 @@ final class AotClosuresTest extends TestCase
         self::assertSame(['nested' => ['service' => 'app.roof']], $house->trim);
     }
 
-    public function testAHandBuiltMultiKeyServiceMapResolvesLikeTheRuntimeWalk(): void
+    public function testAHandBuiltMultiKeyServiceMapIsRefusedLikeTheRuntimeWalk(): void
     {
-        // The recognition mirrors ArgumentResolution exactly: a map whose
-        // `service` key holds a string answers the container's call, the
-        // extra keys ignored -- both lanes agree by construction.
+        // The recognition mirrors ArgumentResolution exactly (issue #800's
+        // finding 1): the reference is the single-key form alone, so a map
+        // that carries `service` beside other keys is neither a reference
+        // nor data -- the runtime walk refuses it at the instantiation seam
+        // and the closure lane refuses it at the rendering seam, the same
+        // refusal instead of the two-lane disagreement the first spelling
+        // carried (the runtime resolving any map that merely carried the
+        // key, the closure rendering the same loose guess).
         $instanceDefinition = new InstanceDefinition(
             'app.house',
             House::class,
@@ -321,12 +331,103 @@ final class AotClosuresTest extends TestCase
             ],
         );
 
+        try {
+            AotClosures::instance($instanceDefinition);
+            self::fail('Expected an AotUnrenderableException to be thrown.');
+        } catch (AotUnrenderableException $aotUnrenderableException) {
+            self::assertSame(
+                "Service 'app.house' argument at 'arguments.0' carries the reserved key "
+                . "'service' in a shape that is neither the single-key reference form "
+                . "(['service' => identifier]) nor the single-key literal escape "
+                . "(['literal' => value]): the runtime walk refuses the same shape, and the "
+                . 'AOT lane renders no guess -- align the entry with the validated grammar, '
+                . 'or boot without the AOT lane.',
+                $aotUnrenderableException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheLiteralEscapeHandsTheClosureItsOwnVerbatimValue(): void
+    {
+        // The grammar's own escape (issue #800's finding 1): a single-key
+        // `['literal' => $value]` entry answers `$value` itself, so a map
+        // whose own shape IS the reference form reaches the constructor as
+        // data -- never resolved, never guessed.
+        $instanceDefinition = new InstanceDefinition(
+            'app.escape',
+            EscapeHouse::class,
+            [
+                ['literal' => ['service' => 'app.window']],
+                ['literal' => 'plain'],
+            ],
+        );
+
         $closure = eval('return ' . AotClosures::instance($instanceDefinition) . ';');
         self::assertInstanceOf(Closure::class, $closure);
 
         $house = $closure($this->container);
-        self::assertInstanceOf(House::class, $house);
-        self::assertSame('storm', $house->window->glazing);
+        self::assertInstanceOf(EscapeHouse::class, $house);
+        self::assertSame(['service' => 'app.window'], $house->window);
+        self::assertSame('plain', $house->trim);
+    }
+
+    /**
+     * The malformed single-key carriers refuse at the rendering seam
+     * (issue #800's finding 1): the reference's own grammar demands the
+     * non-empty string identifier, so an empty or mistyped identifier
+     * and a literal carrier with extra keys render no guess -- the same
+     * refusal the runtime walk takes at the instantiation seam.
+     */
+    public function testMalformedCarriersRefuseAtTheRenderingSeamLikeTheRuntimeWalk(): void
+    {
+        try {
+            AotClosures::instance(new InstanceDefinition('app.empty', House::class, [['service' => '']]));
+            self::fail('Expected an AotUnrenderableException to be thrown.');
+        } catch (AotUnrenderableException $aotUnrenderableException) {
+            self::assertSame(
+                "Service 'app.empty' argument at 'arguments.0' carries the reserved key "
+                . "'service' in a shape that is neither the single-key reference form "
+                . "(['service' => identifier]) nor the single-key literal escape "
+                . "(['literal' => value]): the runtime walk refuses the same shape, and the "
+                . 'AOT lane renders no guess -- align the entry with the validated grammar, '
+                . 'or boot without the AOT lane.',
+                $aotUnrenderableException->getMessage(),
+            );
+        }
+
+        try {
+            AotClosures::instance(new InstanceDefinition('app.typed', House::class, [['service' => 7]]));
+            self::fail('Expected an AotUnrenderableException to be thrown.');
+        } catch (AotUnrenderableException $aotUnrenderableException) {
+            self::assertSame(
+                "Service 'app.typed' argument at 'arguments.0' carries the reserved key "
+                . "'service' in a shape that is neither the single-key reference form "
+                . "(['service' => identifier]) nor the single-key literal escape "
+                . "(['literal' => value]): the runtime walk refuses the same shape, and the "
+                . 'AOT lane renders no guess -- align the entry with the validated grammar, '
+                . 'or boot without the AOT lane.',
+                $aotUnrenderableException->getMessage(),
+            );
+        }
+
+        try {
+            AotClosures::instance(new InstanceDefinition(
+                'app.carried',
+                House::class,
+                [['literal' => 'plain', 'extra' => 'keys']],
+            ));
+            self::fail('Expected an AotUnrenderableException to be thrown.');
+        } catch (AotUnrenderableException $aotUnrenderableException) {
+            self::assertSame(
+                "Service 'app.carried' argument at 'arguments.0' carries the reserved key "
+                . "'literal' in a shape that is neither the single-key reference form "
+                . "(['service' => identifier]) nor the single-key literal escape "
+                . "(['literal' => value]): the runtime walk refuses the same shape, and the "
+                . 'AOT lane renders no guess -- align the entry with the validated grammar, '
+                . 'or boot without the AOT lane.',
+                $aotUnrenderableException->getMessage(),
+            );
+        }
     }
 
     public function testLiteralsExportScalarsAndRefuseNothingData(): void

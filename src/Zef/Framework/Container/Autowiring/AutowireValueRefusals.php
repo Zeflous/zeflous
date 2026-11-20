@@ -42,4 +42,31 @@ final readonly class AutowireValueRefusals
             . 'identifier.',
         );
     }
+
+    /**
+     * The address's value cannot serve the parameter's declared type:
+     * the environment layer hands raw strings, and no silent coercion
+     * sits between it and the typed parameter (issue #800's finding 4 --
+     * the first spelling let the mismatch through to the injection,
+     * where a TypeError named the call site and never the value's own
+     * source).
+     *
+     * @param string $builtinType the parameter's declared builtin type name
+     */
+    public static function typeMismatch(
+        string $ownerId,
+        string $name,
+        string $key,
+        mixed $value,
+        string $builtinType,
+    ): AutowiringException {
+        return new AutowiringException(
+            "Cannot plan '{$ownerId}': the parameter '\${$name}' declares {$builtinType} and "
+            . "carries #[Value('{$key}')], but the 'parameters' value for '{$key}' is "
+            . get_debug_type($value) . ' -- the environment layer hands raw strings and nothing '
+            . 'casts them (the parameters lane coerces nothing, ever); declare the typed value '
+            . 'through a parameter provider that computes it, or type the parameter as the '
+            . 'string the source actually carries.',
+        );
+    }
 }

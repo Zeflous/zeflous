@@ -49,7 +49,13 @@ use Zef\Framework\Container\ContainerCompileLane;
  * lane's own boot answer. When `aot.warm` is on, every
  * singleton-lifetime definition is eagerly constructed once the install
  * loop closes -- on both lanes, because what it warms is the
- * container's own memoisation.
+ * container's own memoisation -- with the one deferral the warmer
+ * keeps as declared: a lazy-marked singleton answers its native proxy
+ * at the warm step (the factory never run, the halt-the-boot promise
+ * the eager lane alone owns -- issue #800's finding 2, the interaction
+ * the {@see \Zef\Framework\Container\SingletonWarmer} spell records),
+ * so the never-at-the-boot families' silent knobs stay silent across
+ * the warmest boot a host can ask for.
  */
 final readonly class ContainerBootstrapper
 {

@@ -7,6 +7,7 @@ namespace Zef\Test\Container;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Container\Aot\AotArtifact;
 use Zef\Framework\Container\Aot\AotArtifactLazies;
@@ -37,6 +38,7 @@ use Zef\Test\Support\Container\Interception\RecordingResolvingListener;
 use Zef\Test\Support\Container\Lazy\EngineFuel;
 use Zef\Test\Support\Container\Lazy\EngineMode;
 use Zef\Test\Support\Container\Lazy\HeavyEngine;
+use Zef\Test\Support\Container\Lazy\UnbuildableHouse;
 use Zef\Test\Support\Container\Namespaces\NamespacedWrapper;
 
 /**
@@ -462,6 +464,144 @@ final class LazyBootTest extends TestCase
         self::assertTrue($container->has('app.engine'));
         self::assertFalse($container->has('app.unregistered'));
         self::assertSame(0, HeavyEngine::$constructions);
+    }
+
+    /**
+     * The warm step's own scope, pinned (issue #800's finding 2, the
+     * interaction documented): the knob constructs the EAGER singleton
+     * lane alone -- a lazy-marked singleton keeps the deferral its
+     * declaration owns across the warm step, the warmer answering the
+     * native proxy with the factory never run. This is the recorded
+     * posture the never-at-the-boot families spell through it (the
+     * database and events lanes' silent knobs), not an escape: the
+     * halt-the-boot promise reads the eager lane alone, and the
+     * deferral's own failure answers at the first use.
+     */
+    public function testTheWarmStepConstructsTheEagerSingletonAndKeepsTheLazySingletonDeferred(): void
+    {
+        $container = $this->booted(['aot' => ['warm' => true], ...$this->warmServices()]);
+
+        // The eager singleton (the fuel, unmarked) constructed at the
+        // warm step; both lazy singletons (engine and spinner) kept
+        // their deferral -- the memo holds each proxy, the factories
+        // never ran.
+        self::assertSame(0, HeavyEngine::$constructions);
+        self::assertSame(1, EngineFuel::$constructions);
+
+        // The marks ride the registry exactly as declared: the warm
+        // step neither strips them nor runs behind them.
+        self::assertSame(HeavyEngine::class, $container->lazyIdentities()->classOf('app.engine'));
+        self::assertSame(HeavyEngine::class, $container->lazyIdentities()->classOf('app.spinner'));
+
+        // The resolution answers the proxy: an instance of the declared
+        // class itself, nothing constructed behind it yet.
+        $engine = $container->get('app.engine');
+        self::assertInstanceOf(HeavyEngine::class, $engine);
+        self::assertSame(0, HeavyEngine::$constructions);
+
+        // The first use materialises once -- the deferred construction
+        // the declaration asked to run later, running later.
+        self::assertSame(7, $engine->thrust());
+        self::assertSame(1, HeavyEngine::$constructions);
+    }
+
+    /**
+     * The finding's own repro, pinned as the recorded posture: a lazy
+     * singleton whose factory throws does NOT halt the warm boot -- the
+     * deferral the declaration owns keeps its failure at the first use,
+     * where the host who declared the deferral meets it, with the
+     * constructor's own message. The warm knob's halt-the-boot promise
+     * reads the eager lane alone.
+     */
+    public function testALazySingletonWhoseFactoryFailsSurfacesAtTheFirstUseNeverAtTheWarmBoot(): void
+    {
+        $config = ['aot' => ['warm' => true], ...$this->warmServices()];
+        $config['services']['app.unbuildable'] = [
+            'class' => UnbuildableHouse::class,
+            'lazy' => true,
+        ];
+
+        // The boot stays green: the warmer answered the proxy, the
+        // factory never ran.
+        $container = $this->booted($config);
+        self::assertSame(0, HeavyEngine::$constructions);
+
+        $house = $container->get('app.unbuildable');
+        self::assertInstanceOf(UnbuildableHouse::class, $house);
+
+        try {
+            $entered = $house->enter();
+            self::fail('Expected a RuntimeException to be thrown, entered ' . $entered);
+        } catch (RuntimeException $runtimeException) {
+            self::assertSame('the unbuildable house cannot be built', $runtimeException->getMessage());
+        }
+    }
+
+    /**
+     * The loaded lane's own twin: the artifact boot warms through the
+     * same resolution lane, so the lazy singletons the artifact carries
+     * keep their deferral across the loaded lane's own warm step too --
+     * the recorded interaction riding both boots identically, and the
+     * eager singleton (the fuel) constructed on the loaded boot.
+     */
+    public function testTheWarmStepKeepsTheLazyDeferralOnTheLoadedLaneToo(): void
+    {
+        $containerAotCache = new ContainerAotCache($this->artifactFile);
+        $containerBootstrapper = new ContainerBootstrapper(containerAotCache: $containerAotCache);
+
+        $config = [
+            'aot' => ['enabled' => true, 'warm' => true],
+            'container' => ['mode' => 'production'],
+            ...$this->warmServices(),
+        ];
+
+        $containerBootstrapper->bootstrap(new Config($config), new Container());
+
+        HeavyEngine::reset();
+        EngineFuel::reset();
+
+        $loaded = $containerBootstrapper->bootstrap(new Config($config), new Container());
+
+        // The loaded lane's own warm step: the eager fuel constructed,
+        // both lazy singletons deferred, the marks riding the registry.
+        self::assertSame(0, HeavyEngine::$constructions);
+        self::assertSame(1, EngineFuel::$constructions);
+        self::assertSame(HeavyEngine::class, $loaded->lazyIdentities()->classOf('app.engine'));
+
+        $engine = $loaded->get('app.engine');
+        self::assertInstanceOf(HeavyEngine::class, $engine);
+        self::assertSame(0, HeavyEngine::$constructions);
+
+        self::assertSame(7, $engine->thrust());
+        self::assertSame(1, HeavyEngine::$constructions);
+    }
+
+    /**
+     * The warm interaction's own governed set: the shared configuration
+     * with both lazy singletons referencing the fuel explicitly, so the
+     * warm walk's counts are the walk's own arithmetic alone (the
+     * autowire lane's synthetic class-keyed birth stays out of the
+     * numbers the assertions read).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function warmServices(): array
+    {
+        return [
+            'services' => [
+                'app.fuel' => ['class' => EngineFuel::class],
+                'app.engine' => [
+                    'class' => HeavyEngine::class,
+                    'arguments' => [['service' => 'app.fuel'], 7],
+                    'lazy' => true,
+                ],
+                'app.spinner' => [
+                    'class' => HeavyEngine::class,
+                    'arguments' => ['fuel' => ['service' => 'app.fuel'], 'thrust' => 3],
+                    'lazy' => true,
+                ],
+            ],
+        ];
     }
 
     /**

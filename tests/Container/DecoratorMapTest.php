@@ -262,7 +262,8 @@ final class DecoratorMapTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'decorators.logger' argument reference must be the single key 'service' "
-                . '(extra keys alongside it are rejected).',
+                . '(extra keys alongside it are rejected; a literal map that must keep its own '
+                . "'service' key escapes through the single-key form ['literal' => value]).",
                 $definitionException->getMessage(),
             );
         }

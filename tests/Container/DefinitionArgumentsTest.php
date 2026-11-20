@@ -134,7 +134,8 @@ final class DefinitionArgumentsTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.x' argument reference must be the single key 'service' "
-                . '(extra keys alongside it are rejected).',
+                . '(extra keys alongside it are rejected; a literal map that must keep its own '
+                . "'service' key escapes through the single-key form ['literal' => value]).",
                 $definitionException->getMessage(),
             );
         }
@@ -173,5 +174,132 @@ final class DefinitionArgumentsTest extends TestCase
         $resolved = DefinitionArguments::resolve([['not-a-service' => 'map']], $container);
 
         self::assertSame([['not-a-service' => 'map']], $resolved);
+    }
+
+    public function testTheLiteralEscapeAnswersItsOwnValueVerbatim(): void
+    {
+        // The grammar's own escape (issue #800's finding 1): a single-key
+        // `['literal' => $value]` entry answers `$value` itself, so the
+        // reference-shaped map the declaration actually wanted as data
+        // reaches the constructor as data -- never the container's answer
+        // for the identifier it spells.
+        $container = new Container();
+        $container->set('app.greeter', static fn (): Greeter => new Greeter('Hello'));
+
+        $resolved = DefinitionArguments::resolve(
+            [
+                ['literal' => ['service' => 'app.greeter']],
+                ['literal' => 'plain'],
+                ['literal' => ['nested' => ['literal' => true]]],
+            ],
+            $container,
+        );
+
+        self::assertSame(['service' => 'app.greeter'], $resolved[0]);
+        self::assertSame('plain', $resolved[1]);
+        self::assertSame(['nested' => ['literal' => true]], $resolved[2]);
+    }
+
+    public function testAResolutionRefusesAMultiKeyServiceCarrierLikeTheValidator(): void
+    {
+        // The two lanes answer one shape with one verdict (issue #800's
+        // finding 1): the first runtime spelling resolved ANY map that
+        // merely carried a `service` key, so a hand-built definition --
+        // the path that bypasses the parse-time validation -- resolved a
+        // multi-key map the declarative lane refuses. The aligned
+        // recognition surfaces the same ambiguity at the instantiation
+        // seam instead.
+        $container = new Container();
+        $container->set('app.greeter', static fn (): Greeter => new Greeter('Hello'));
+
+        try {
+            DefinitionArguments::resolve([['service' => 'app.greeter', 'extra' => 1]], $container);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "An argument entry must not carry 'service' beside other keys: the reference "
+                . "form owns the whole map (['service' => identifier]; a literal map that must "
+                . "keep its own 'service' key escapes through ['literal' => value]).",
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAResolutionRefusesAMalformedServiceCarrierLikeTheValidator(): void
+    {
+        // The malformed single-key carriers refuse at the instantiation
+        // seam too: the aligned grammar recognises the reference by the
+        // single-key non-empty string form alone.
+        $container = new Container();
+
+        try {
+            DefinitionArguments::resolve([['service' => 7]], $container);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                'An argument entry reference must name a non-empty service identifier, int given.',
+                $definitionException->getMessage(),
+            );
+        }
+
+        try {
+            DefinitionArguments::resolve([['service' => '']], $container);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                'An argument entry reference must name a non-empty service identifier, string given.',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testAResolutionRefusesAMultiKeyLiteralCarrier(): void
+    {
+        // The escape owns the whole map the same way the reference form
+        // does: a `literal` key beside siblings is neither the escape nor
+        // data, and the ambiguity is surfaced rather than guessed.
+        $container = new Container();
+
+        try {
+            DefinitionArguments::resolve([['literal' => 'value', 'extra' => 1]], $container);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "An argument entry must not carry 'literal' beside other keys: the literal "
+                . 'escape owns the whole map (single key only).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheAssertionRefusesAMultiKeyLiteralCarrier(): void
+    {
+        // The validation lane's own arm (the runtime twin is pinned above;
+        // this is the parse half's): a `literal` key beside siblings never
+        // reaches the resolution -- the assertion surfaces it first, so
+        // one grammar answers on both lanes for the escape too (issue
+        // #800's finding 1's own seam discipline).
+        try {
+            DefinitionArguments::assertValid('app.x', [['literal' => 'value', 'extra' => 1]]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.x' argument literal escape must be the single key 'literal' "
+                . '(a map that carries it beside other keys is neither the escape nor a plain value).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheAssertionCarriesASingleKeyLiteralEscapeVerbatim(): void
+    {
+        // The well-formed escape passes the validation lane untouched: the
+        // refusal guards the malformed carrier alone, never the spelling
+        // the grammar itself owns.
+        $validated = DefinitionArguments::assertValid('app.x', [
+            ['literal' => ['service' => 'app.y']],
+        ]);
+
+        self::assertSame([['literal' => ['service' => 'app.y']]], $validated);
     }
 }

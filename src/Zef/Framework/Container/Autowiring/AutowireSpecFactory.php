@@ -48,6 +48,7 @@ final readonly class AutowireSpecFactory
             injectId: AutowireAttributes::injectId($reflectionParameter),
             targetClass: AutowireAttributes::targetClass($reflectionParameter),
             valueKey: AutowireAttributes::valueKey($reflectionParameter),
+            builtinType: AutowireParameterTypes::builtinTypeOf($reflectionParameter),
         );
     }
 }
