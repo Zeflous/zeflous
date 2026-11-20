@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-20T00:14:34Z",
+  "as_of": "2026-11-20T19:33:57Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 350,
+  "unreleased_count": 351,
   "versions": [
     {
       "version": "Unreleased",
@@ -7992,6 +7992,57 @@
                 "sha": "bc268f874e3f8b69516cb7476307465c77a55ea7",
                 "short_sha": "bc268f8",
                 "subject": "docs(roadmap): the pin rides the router audit round's fix head (#893)"
+              }
+            ]
+          },
+          {
+            "pr": 896,
+            "title": "fix(container): the reference grammar's two lanes agree, the probe's bookkeeping is its own, and the env-shaped value names its address (issue #800)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-20T19:33:57Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/896",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "1580a93dc400c9d0fc9a0bf85398d2b01acbd55b",
+                "short_sha": "1580a93",
+                "subject": "fix(container): the reference grammar's two lanes agree, the probe's bookkeeping is its own, and the env-shaped value names its address (issue #800)"
+              },
+              {
+                "sha": "daf2f3ef177c1bcfcff4e9a080cf230a42bfc3ab",
+                "short_sha": "daf2f3e",
+                "subject": "docs(roadmap): the pin rides the container audit round's fix head (#896)"
+              },
+              {
+                "sha": "ec62e5d0f86dfbc8cbf3c205b78482f0459e25fe",
+                "short_sha": "ec62e5d",
+                "subject": "docs(roadmap): the landing row's own bookkeeping -- the summary counts the round, the history's last-updated line rides the fix head (#896)"
+              },
+              {
+                "sha": "845a49444f5ae38912ff5e59ec4cc63a74b3c020",
+                "short_sha": "845a494",
+                "subject": "Merge remote-tracking branch 'origin/main' into fix/issue-800-audit-container"
+              },
+              {
+                "sha": "0e13ec27eb445663f4c3341113cc1d1d411bcadb",
+                "short_sha": "0e13ec2",
+                "subject": "fix(container): the gate round's own answers -- the grammar wall's archeology-sized pair, the value judgment its own unit, the reuse arms' own index, and the escaped seams meet their kills (issue #800)"
+              },
+              {
+                "sha": "8885f8816d499936bb88ad6a8e8f339bcad320e1",
+                "short_sha": "8885f88",
+                "subject": "docs(roadmap): the second gate round's own bookkeeping -- the row's commit and both pins ride the new fix head, the summary's total counts the round (#896)"
+              },
+              {
+                "sha": "6e20f1574b8173474226d7cd656ade25f5807b2a",
+                "short_sha": "6e20f15",
+                "subject": "test(container): the round's four new units join their owners' CoversClass lists -- the Sonar condition answers the visibility, not the execution (issue #800)"
+              },
+              {
+                "sha": "246c2d3893849cd290f30347e035a4adecbf4b21",
+                "short_sha": "246c2d3",
+                "subject": "docs(roadmap): the pins and the row's commit ride the round's covers-answer head (#896)"
               }
             ]
           }
@@ -24053,6 +24104,57 @@
               "sha": "bc268f874e3f8b69516cb7476307465c77a55ea7",
               "short_sha": "bc268f8",
               "subject": "docs(roadmap): the pin rides the router audit round's fix head (#893)"
+            }
+          ]
+        },
+        {
+          "pr": 896,
+          "title": "fix(container): the reference grammar's two lanes agree, the probe's bookkeeping is its own, and the env-shaped value names its address (issue #800)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-20T19:33:57Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/896",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "1580a93dc400c9d0fc9a0bf85398d2b01acbd55b",
+              "short_sha": "1580a93",
+              "subject": "fix(container): the reference grammar's two lanes agree, the probe's bookkeeping is its own, and the env-shaped value names its address (issue #800)"
+            },
+            {
+              "sha": "daf2f3ef177c1bcfcff4e9a080cf230a42bfc3ab",
+              "short_sha": "daf2f3e",
+              "subject": "docs(roadmap): the pin rides the container audit round's fix head (#896)"
+            },
+            {
+              "sha": "ec62e5d0f86dfbc8cbf3c205b78482f0459e25fe",
+              "short_sha": "ec62e5d",
+              "subject": "docs(roadmap): the landing row's own bookkeeping -- the summary counts the round, the history's last-updated line rides the fix head (#896)"
+            },
+            {
+              "sha": "845a49444f5ae38912ff5e59ec4cc63a74b3c020",
+              "short_sha": "845a494",
+              "subject": "Merge remote-tracking branch 'origin/main' into fix/issue-800-audit-container"
+            },
+            {
+              "sha": "0e13ec27eb445663f4c3341113cc1d1d411bcadb",
+              "short_sha": "0e13ec2",
+              "subject": "fix(container): the gate round's own answers -- the grammar wall's archeology-sized pair, the value judgment its own unit, the reuse arms' own index, and the escaped seams meet their kills (issue #800)"
+            },
+            {
+              "sha": "8885f8816d499936bb88ad6a8e8f339bcad320e1",
+              "short_sha": "8885f88",
+              "subject": "docs(roadmap): the second gate round's own bookkeeping -- the row's commit and both pins ride the new fix head, the summary's total counts the round (#896)"
+            },
+            {
+              "sha": "6e20f1574b8173474226d7cd656ade25f5807b2a",
+              "short_sha": "6e20f15",
+              "subject": "test(container): the round's four new units join their owners' CoversClass lists -- the Sonar condition answers the visibility, not the execution (issue #800)"
+            },
+            {
+              "sha": "246c2d3893849cd290f30347e035a4adecbf4b21",
+              "short_sha": "246c2d3",
+              "subject": "docs(roadmap): the pins and the row's commit ride the round's covers-answer head (#896)"
             }
           ]
         }
