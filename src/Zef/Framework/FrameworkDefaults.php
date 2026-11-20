@@ -64,7 +64,15 @@ use Zef\Framework\Middleware\TracingFactory;
  * registration always exists -- a host cannot delete the framework's own
  * machinery out from under it -- while stack membership stays the host's
  * explicit choice: the `middleware.stack` list decides what runs, exactly
- * as it does for any other middleware. The export family ships no
+ * as it does for any other middleware. The profile does ship the
+ * pipeline's own minimum posture (issue #802's finding 2): the default
+ * `middleware.stack` carries the error boundary alone, so a defaults-only
+ * boot -- no application configuration at all, or a deleted
+ * `middleware.php` -- composes a pipeline that answers failures with the
+ * RFC 9457 problem document instead of an empty pass-through, while the
+ * layering's list semantics (a host list replaces the default wholesale)
+ * keep the host's own declaration, including the deliberate empty stack,
+ * the winner it always was. The export family ships no
  * registration of its own -- the lane is the tracing family's sink and
  * retry posture, wired by the `TracingFactory` seam the tracing
  * registration already names, and the drain cadence rides the
@@ -316,6 +324,21 @@ final readonly class FrameworkDefaults
             'decorators' => [],
             'interceptors' => [],
             'listeners' => [],
+            // The pipeline's own minimum posture (issue #802's finding 2):
+            // the error boundary alone, so a defaults-only boot -- an
+            // application directory with no configuration file, or a host
+            // that deletes its `middleware.php` -- still composes a
+            // pipeline that answers a failure with the RFC 9457 problem
+            // document instead of an empty pass-through. A host's own
+            // `middleware.stack` REPLACES this list wholesale (the
+            // layering's list semantics), so the host's explicit choice --
+            // including the explicit empty stack -- still wins exactly as
+            // it does for any other middleware.
+            'middleware' => [
+                'stack' => [
+                    ['service' => 'http.errors', 'priority' => 1000],
+                ],
+            ],
             'modules' => [],
             'namespaces' => ['scopes' => [], 'max_cross_scope_refs' => 0],
             'parameters' => [],

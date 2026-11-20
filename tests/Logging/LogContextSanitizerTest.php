@@ -226,13 +226,37 @@ final class LogContextSanitizerTest extends TestCase
         );
     }
 
-    public function testStringValuesAreBoundedToFourThousandNinetySixCharacters(): void
+    public function testStringValuesAreBoundedToFourThousandNinetySixBytes(): void
     {
         $bounded = LogContextSanitizer::sanitize(['note' => str_repeat('a', 4097)]);
         self::assertSame(str_repeat('a', 4096), $bounded['note']);
 
+        // The budget is a BYTE budget, the lane's own claim (issue #802's
+        // finding 1): a multibyte string of fewer CHARACTERS than the bound
+        // still crosses it in bytes -- the first spelling let 3000 'é' (6000
+        // bytes) through untouched, three times the documented budget, so
+        // the clamp reads bytes exactly the way the formatter's own
+        // `mb_strcut` does.
         $multibyte = LogContextSanitizer::sanitize(['note' => str_repeat('é', 3000)]);
-        self::assertSame(str_repeat('é', 3000), $multibyte['note']);
+        self::assertSame(str_repeat('é', 2048), $multibyte['note']);
+
+        // The exactly-at-budget twin: a multibyte string of exactly the
+        // byte budget passes whole -- the clamp is a bound, never a shave.
+        $atBudget = LogContextSanitizer::sanitize(['note' => str_repeat('é', 2048)]);
+        self::assertSame(str_repeat('é', 2048), $atBudget['note']);
+    }
+
+    public function testTheByteClampSnapsToTheCharacterEdgeNeverShippingABrokenTail(): void
+    {
+        // The boundary the two-byte 'é' repro can never see: a byte budget
+        // landing MID-character (4096 is not a multiple of three) is where
+        // the clamp's own doctrine shows -- `mb_strcut` answers the last
+        // COMPLETE character inside the budget, while a plain byte `substr`
+        // would ship a broken half-character tail. The three-byte '€'
+        // repro pins the snap: 1400 '€' (4200 bytes) cuts at exactly 1365
+        // '€' (4095 bytes), the edge the lane's formatter already spells.
+        $snapped = LogContextSanitizer::sanitize(['note' => str_repeat('€', 1400)]);
+        self::assertSame(str_repeat('€', 1365), $snapped['note']);
     }
 
     public function testUnsupportedValuesAnswerTheirDebugType(): void

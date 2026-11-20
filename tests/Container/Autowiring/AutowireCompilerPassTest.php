@@ -1146,6 +1146,27 @@ final class AutowireCompilerPassTest extends TestCase
         self::assertSame(['a.example', 'b.example'], $value->value);
     }
 
+    public function testAnUnlistedBuiltinDeclarationKeepsItsAnythingGoesVerdictOverAScalar(): void
+    {
+        // The closed set the type judgment refuses over (int, float, bool,
+        // string) has a complement: every other builtin spelling (array,
+        // iterable, mixed) judges nothing -- the value lane has typed
+        // nothing for them to disagree with, so the raw SCALAR the
+        // parameters knob hands an array-typed #[Value] parameter
+        // materialises untouched (the anything-goes verdict the judgment's
+        // own default arm spells -- an arm whose removal would crash the
+        // materialisation where the refusal family never promises one).
+        $result = $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+            'app.pool' => ['class' => PoolHouse::class, 'autowire' => true],
+        ]), new Container(), new ParameterValues([
+            'db.replicas' => 'a.example',
+        ]));
+
+        $value = $result->definitions[1];
+        self::assertInstanceOf(ValueDefinition::class, $value);
+        self::assertSame('a.example', $value->value, 'the scalar rides untouched, no refusal, no crash');
+    }
+
     public function testAMissingAddressRefusesEvenWhenTheConstructorCarriesADefault(): void
     {
         try {
