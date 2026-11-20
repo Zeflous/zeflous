@@ -151,6 +151,30 @@ final readonly class AotRefusals
     }
 
     /**
+     * An argument entry that carries a reserved grammar key ambiguously:
+     * neither the single-key reference nor the single-key literal escape
+     * nor a plain value, the recognition mirror's own refusal (issue
+     * #800's finding 1 -- the runtime walk refuses the same shape at its
+     * instantiation seam).
+     *
+     * @param string $reserved the reserved key the entry carried ('service' or 'literal')
+     */
+    public static function argumentGrammarCarrier(
+        string $serviceId,
+        string $path,
+        string $reserved,
+    ): AotUnrenderableException {
+        return new AotUnrenderableException(
+            "Service '{$serviceId}' argument at '{$path}' carries the reserved key "
+            . "'{$reserved}' in a shape that is neither the single-key reference form "
+            . "(['service' => identifier]) nor the single-key literal escape "
+            . "(['literal' => value]): the runtime walk refuses the same shape, and the "
+            . 'AOT lane renders no guess -- align the entry with the validated grammar, '
+            . 'or boot without the AOT lane.',
+        );
+    }
+
+    /**
      * A member that must be a list is not one: the member named with
      * the type it carried.
      *

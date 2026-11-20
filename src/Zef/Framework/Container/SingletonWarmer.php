@@ -26,12 +26,32 @@ namespace Zef\Framework\Container;
  * construction failure's own message: the warmer adds no wrapping,
  * because the failure the host must see is the one the constructor
  * already raised.
+ *
+ * The lazy lane's marks stay deferred across the warm step (issue
+ * #800's finding 2, the interaction documented): a lazy-marked
+ * singleton resolves through the ordinary lane at warm time, so the
+ * warmer answers the native proxy alone -- the memo holds the
+ * deferral, the factory never runs, and the halt-the-boot promise
+ * above reads the EAGER singleton lane alone. This is the recorded
+ * posture the never-at-the-boot families spell through it (the
+ * `database.connection` and `database.schema` registrations, the
+ * migrator -- {@see FrameworkDefaults}: silent knobs whose refusal
+ * must fire at the host's own ask, never at the boot), so the
+ * deferral is the declaration's own, kept exactly as spelled when the
+ * warm knob asks for proof: a host whose lazy singleton fails
+ * construction hears it at the first use, with the deferral they
+ * declared -- and a host who wants the boot's own proof leaves the
+ * `lazy` key off the declaration the warm knob then proves. The
+ * warmer itself constructs nothing a deferral owns: it resolves, and
+ * the resolution lane's own answer is the proxy.
  */
 final readonly class SingletonWarmer
 {
     /**
      * Eagerly constructs each named singleton through the container's
-     * own resolution lane.
+     * own resolution lane -- the lazy-marked half of the walk answered
+     * by the native proxy its deferral owns, the eager half by the
+     * construction the promise above names.
      *
      * @param list<string> $singletonIds the singleton-lifetime identifiers,
      *                                   in declaration order

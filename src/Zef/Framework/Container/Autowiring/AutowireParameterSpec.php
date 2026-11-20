@@ -38,6 +38,7 @@ final readonly class AutowireParameterSpec
         public ?string $injectId = null,
         public ?string $targetClass = null,
         public ?string $valueKey = null,
+        public ?string $builtinType = null,
     ) {
         if ($this->injectId !== null && $this->targetClass !== null) {
             throw new AutowiringException(

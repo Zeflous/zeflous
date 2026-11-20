@@ -37,6 +37,23 @@ final readonly class AutowireParameterTypes
     }
 
     /**
+     * The parameter's declared builtin type name when the declaration
+     * spells one ('int', 'float', 'bool', 'string', 'array', ...), the
+     * type the value lane's own compatibility check reads (issue #800's
+     * finding 4): null for an untyped parameter and for every
+     * class-typed, union and intersection spelling.
+     */
+    public static function builtinTypeOf(ReflectionParameter $reflectionParameter): ?string
+    {
+        $type = $reflectionParameter->getType();
+        if (!$type instanceof ReflectionNamedType || !$type->isBuiltin()) {
+            return null;
+        }
+
+        return $type->getName();
+    }
+
+    /**
      * The honest verdict for a type the lane cannot plan: unions and
      * intersections admit several types and thereby name no single
      * binding (the refusal message quotes the reason verbatim).

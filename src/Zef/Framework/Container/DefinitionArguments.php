@@ -8,12 +8,15 @@ namespace Zef\Framework\Container;
  * The validation half of a declarative definition's argument list (see
  * {@see ArgumentResolution} for the resolution half).
  *
- * Arguments are a positional list. An entry is either a plain value (passed
- * through verbatim at resolution time) or a service reference -- a
+ * Arguments are a positional list. An entry is a plain value (passed
+ * through verbatim at resolution time), a service reference -- a
  * single-key map spelled `['service' => 'identifier']`, resolved through
- * the container at instantiation time. A multi-key map that *contains* a
- * `service` key is rejected rather than guessed: the reference form owns
- * the whole map, so the ambiguity is surfaced instead of silently resolved.
+ * the container at instantiation time -- or the literal escape, a
+ * single-key map spelled `['literal' => $value]`, the one way to hand
+ * the resolution a value whose own shape is the reference form. A
+ * multi-key map that *contains* a `service` or `literal` key is rejected
+ * rather than guessed: both reserved keys own the whole map, so the
+ * ambiguity is surfaced instead of silently resolved.
  */
 final readonly class DefinitionArguments
 {

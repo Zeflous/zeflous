@@ -93,6 +93,7 @@ use Zef\Test\Support\Container\Parameters\PoolHouse;
 use Zef\Test\Support\Container\Parameters\SharedFlagAudit;
 use Zef\Test\Support\Container\Parameters\SharedFlagHouse;
 use Zef\Test\Support\Container\Parameters\SpelledHouse;
+use Zef\Test\Support\Container\Parameters\TypedPortHouse;
 use Zef\Test\Support\Container\Parameters\UnionValueHouse;
 use Zef\Test\Support\Container\Parameters\VariadicValueHouse;
 
@@ -261,6 +262,27 @@ final class AutowireCompilerPassTest extends TestCase
         ]);
 
         self::assertSame([null], $this->firstInstance($planned)->arguments);
+    }
+
+    public function testABoundDefaultedNullableCountsExactlyTheOneRealReuse(): void
+    {
+        // The consultative probe is pure (issue #800's finding 3): the
+        // yield rule's consultation reads the same declared/carried verdict
+        // without recording it, so the report counts exactly the one reuse
+        // the plan actually carries -- the first spelling recorded the
+        // consultation itself, and the same reference answered twice in
+        // the reused column of one run.
+        $result = $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+            'app.logger' => ['class' => FileLogger::class, 'arguments' => ['/tmp/app.log']],
+            LoggerInterface::class => ['alias' => 'app.logger'],
+            'app.house' => ['class' => NullableDefaultedHouse::class, 'autowire' => true],
+        ]), new Container());
+
+        self::assertSame(
+            [['service' => LoggerInterface::class]],
+            $this->firstInstance($result->definitions, 2)->arguments,
+        );
+        self::assertSame([LoggerInterface::class], $result->reused);
     }
 
     public function testADefaultedNullableParameterStillResolvesABoundType(): void
@@ -675,7 +697,8 @@ final class AutowireCompilerPassTest extends TestCase
         } catch (DefinitionException $definitionException) {
             self::assertSame(
                 "Service 'app.house' argument reference must be the single key 'service' "
-                . '(extra keys alongside it are rejected).',
+                . '(extra keys alongside it are rejected; a literal map that must keep its own '
+                . "'service' key escapes through the single-key form ['literal' => value]).",
                 $definitionException->getMessage(),
             );
         }
@@ -929,6 +952,58 @@ final class AutowireCompilerPassTest extends TestCase
         self::assertSame(3306, $portValue->value);
         self::assertSame(['@value:db.host', '@value:db.port'], $result->values);
         self::assertSame([], $result->generated);
+    }
+
+    public function testAnEnvShapedStringRefusesAnIntTypedValueParameterAtThePlanSeam(): void
+    {
+        // The audit's own repro (issue #800's finding 4): the environment
+        // layer folds APP_PARAMETERS__DB__PORT onto the parameters knob as
+        // the raw string '3306', and the first spelling handed the string to
+        // the int-typed #[Value] parameter untouched -- the TypeError named
+        // the injection call site, never the value's own source. The
+        // plan's own compatibility check answers instead: the parameter,
+        // the address and the way out named, at the seam that owns the
+        // grammar.
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.house' => ['class' => TypedPortHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([
+                'db.port' => '3306',
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertSame(
+                "Cannot plan 'app.house': the parameter '\$port' declares int and "
+                . "carries #[Value('db.port')], but the 'parameters' value for 'db.port' is "
+                . 'string -- the environment layer hands raw strings and nothing '
+                . 'casts them (the parameters lane coerces nothing, ever); declare the typed value '
+                . 'through a parameter provider that computes it, or type the parameter as the '
+                . 'string the source actually carries.',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testATypedValueParameterMaterialisesItsOwnTypedValue(): void
+    {
+        // The twin the refusal keeps honest: the typed parameter with the
+        // parameters knob carrying the same type materialises exactly as
+        // it always did.
+        $result = $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+            'app.house' => ['class' => TypedPortHouse::class, 'autowire' => true],
+        ]), new Container(), new ParameterValues([
+            'db.port' => 3306,
+        ]));
+
+        self::assertSame(
+            [['service' => '@value:db.port']],
+            $this->firstInstance($result->definitions)->arguments,
+        );
+
+        $portValue = $result->definitions[1];
+        self::assertInstanceOf(ValueDefinition::class, $portValue);
+        self::assertSame('@value:db.port', $portValue->id);
+        self::assertSame(3306, $portValue->value);
     }
 
     public function testTwoConsumersOfOneAddressShareOneMaterialisation(): void

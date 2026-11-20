@@ -87,6 +87,7 @@ final class AutowireValueServices
             $key,
             $this->parameterValues,
             $this->syntheticValueGuard,
+            $autowireParameterSpec->builtinType,
         );
     }
 
