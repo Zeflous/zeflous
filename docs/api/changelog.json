@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-20T19:33:57Z",
+  "as_of": "2026-11-20T22:50:06Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 351,
+  "unreleased_count": 352,
   "versions": [
     {
       "version": "Unreleased",
@@ -8043,6 +8043,37 @@
                 "sha": "246c2d3893849cd290f30347e035a4adecbf4b21",
                 "short_sha": "246c2d3",
                 "subject": "docs(roadmap): the pins and the row's commit ride the round's covers-answer head (#896)"
+              }
+            ]
+          },
+          {
+            "pr": 897,
+            "title": "fix(kernel): the sanitizer's byte budget answers in bytes, and the defaults-only boot keeps the error boundary (issue #802)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-20T22:50:06Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/897",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "e359526afae6dedae80936de52aef8a9f601c66a",
+                "short_sha": "e359526",
+                "subject": "fix(kernel): the sanitizer's byte budget answers in bytes, and the defaults-only boot keeps the error boundary (issue #802)"
+              },
+              {
+                "sha": "c03ac41a3ec69ef43941ed886201d01b7d14fc04",
+                "short_sha": "c03ac41",
+                "subject": "test(kernel): the boot battery routes the SAPI fallback record into a file for its own duration (issue #802)"
+              },
+              {
+                "sha": "c6432cffd379c6a1bcf3347ca419ef55548344dd",
+                "short_sha": "c6432cf",
+                "subject": "test(kernel): the mutation lane's two escapes meet their kills -- the clamp's character-edge snap and the unlisted verdict's anything-goes pin (issue #802)"
+              },
+              {
+                "sha": "8f3f27d498df6f8457346777535d9f8157c2e2dd",
+                "short_sha": "8f3f27d",
+                "subject": "docs(roadmap): the row and both pins ride the round's second-gate head (#897)"
               }
             ]
           }
@@ -24155,6 +24186,37 @@
               "sha": "246c2d3893849cd290f30347e035a4adecbf4b21",
               "short_sha": "246c2d3",
               "subject": "docs(roadmap): the pins and the row's commit ride the round's covers-answer head (#896)"
+            }
+          ]
+        },
+        {
+          "pr": 897,
+          "title": "fix(kernel): the sanitizer's byte budget answers in bytes, and the defaults-only boot keeps the error boundary (issue #802)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-20T22:50:06Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/897",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "e359526afae6dedae80936de52aef8a9f601c66a",
+              "short_sha": "e359526",
+              "subject": "fix(kernel): the sanitizer's byte budget answers in bytes, and the defaults-only boot keeps the error boundary (issue #802)"
+            },
+            {
+              "sha": "c03ac41a3ec69ef43941ed886201d01b7d14fc04",
+              "short_sha": "c03ac41",
+              "subject": "test(kernel): the boot battery routes the SAPI fallback record into a file for its own duration (issue #802)"
+            },
+            {
+              "sha": "c6432cffd379c6a1bcf3347ca419ef55548344dd",
+              "short_sha": "c6432cf",
+              "subject": "test(kernel): the mutation lane's two escapes meet their kills -- the clamp's character-edge snap and the unlisted verdict's anything-goes pin (issue #802)"
+            },
+            {
+              "sha": "8f3f27d498df6f8457346777535d9f8157c2e2dd",
+              "short_sha": "8f3f27d",
+              "subject": "docs(roadmap): the row and both pins ride the round's second-gate head (#897)"
             }
           ]
         }
