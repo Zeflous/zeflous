@@ -5,7 +5,7 @@ A chronological record of **what has actually been done**, grouped by the area o
 Every row is a **merged pull request**, with its merge commit; nothing here is aspirational.
 For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](ROADMAP-STATUS.md).
 
-**Last updated:** 2026-11-19 · `main` @ `86eff3ac`
+**Last updated:** 2026-11-20 · `main` @ `1580a93d`
 
 **How to read this file**
 
@@ -22,7 +22,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 
 | Roadmap area | Completed items |
 |---|---|
-| Container | 25 |
+| Container | 26 |
 | HTTP Layer | 42 |
 | Middleware Pipeline | 1 |
 | Error Handling | 7 |
