@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-19T14:23:45Z",
+  "as_of": "2026-11-20T00:14:34Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 348,
+  "unreleased_count": 350,
   "versions": [
     {
       "version": "Unreleased",
@@ -7895,6 +7895,103 @@
                 "sha": "74965a817ecaf6e2e1220c1ad1956a0f45ce68c9",
                 "short_sha": "74965a8",
                 "subject": "docs(roadmap): the pin rides the audit round's mutation-answered head (#889)"
+              }
+            ]
+          },
+          {
+            "pr": 892,
+            "title": "fix(telemetry): the count survives the collapse and the store keeps its own cadence (issue #788)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-19T21:35:24Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/892",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "f1647d958a38b716110b087a31129e9c4b364bbe",
+                "short_sha": "f1647d9",
+                "subject": "fix(telemetry): the count survives the collapse and the store keeps its own cadence (issue #788)"
+              },
+              {
+                "sha": "234fff01801a6ec99a8ca44437e1f7831ad982e5",
+                "short_sha": "234fff0",
+                "subject": "docs(roadmap): the pin rides the telemetry audit round's fix head (#892)"
+              },
+              {
+                "sha": "660650b5cf53515e83e90c5236d24a5c00f9bbb2",
+                "short_sha": "660650b",
+                "subject": "fix(session): the settle round rides the S1142 and the ceiling together (issue #788)"
+              },
+              {
+                "sha": "4363f8d21693809077fa171077f20d676f0d6e1b",
+                "short_sha": "4363f8d",
+                "subject": "docs(roadmap): the pin rides the settle round's S1142-answered head (#892)"
+              },
+              {
+                "sha": "7a804be7d106103a55aa04c219b8b257f5853ed9",
+                "short_sha": "7a804be",
+                "subject": "fix(session): the retirement's second boundary rides the early exit the sniff spells (issue #788)"
+              },
+              {
+                "sha": "ac290b584197d353504f2e5084ff88d085c28fba",
+                "short_sha": "ac290b5",
+                "subject": "docs(roadmap): the pin rides the second settle head (#892)"
+              },
+              {
+                "sha": "f8478542176238810ae11fcc41a55b624fcb953d",
+                "short_sha": "f847854",
+                "subject": "fix(session): the settle round's rector spellings and the escaped mutant's own pin (issue #788)"
+              },
+              {
+                "sha": "4f3c66c822190a157afe7b6f769903927d961f84",
+                "short_sha": "4f3c66c",
+                "subject": "docs(roadmap): the pin rides the third settle head and the history's own pointer rides it too (#892)"
+              },
+              {
+                "sha": "d56d8b66877a24f42ed0a176e5086f5e197a2050",
+                "short_sha": "d56d8b6",
+                "subject": "fix(telemetry): the psalm pair answers the folds their own siblings spell (issue #788)"
+              },
+              {
+                "sha": "cb00f0d04a7a8ba009c87677c986c5740e31f58f",
+                "short_sha": "cb00f0d",
+                "subject": "docs(roadmap): the pin rides the psalm-answered head (#892)"
+              },
+              {
+                "sha": "65df02b6ddb18fed61be4481281c8f97d36dc280",
+                "short_sha": "65df02b",
+                "subject": "fix(telemetry): the mutation round's escaped seams meet their kills (issue #788)"
+              },
+              {
+                "sha": "7669eaf73d1294fe00ceb35784c4cf3dc9635430",
+                "short_sha": "7669eaf",
+                "subject": "docs(roadmap): the pin rides the mutation-answered head (#892)"
+              }
+            ]
+          },
+          {
+            "pr": 893,
+            "title": "fix(router): the match never raises, the engine's failure answers its own diagnostic, and the claims walk keeps its own tuple (issue #799)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-20T00:14:34Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/893",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "a790a3b65bad6391a3f72e5b16a1bcd936f3089f",
+                "short_sha": "a790a3b",
+                "subject": "fix(router): the match never raises, the engine's failure answers its own diagnostic, and the claims walk keeps its own tuple (issue #799)"
+              },
+              {
+                "sha": "86eff3ac53797759a8877d5d13fa6dc9e85677fd",
+                "short_sha": "86eff3a",
+                "subject": "fix(router): the mutation round's escaped seams meet their kills (issue #799)"
+              },
+              {
+                "sha": "bc268f874e3f8b69516cb7476307465c77a55ea7",
+                "short_sha": "bc268f8",
+                "subject": "docs(roadmap): the pin rides the router audit round's fix head (#893)"
               }
             ]
           }
@@ -23859,6 +23956,103 @@
               "sha": "74965a817ecaf6e2e1220c1ad1956a0f45ce68c9",
               "short_sha": "74965a8",
               "subject": "docs(roadmap): the pin rides the audit round's mutation-answered head (#889)"
+            }
+          ]
+        },
+        {
+          "pr": 892,
+          "title": "fix(telemetry): the count survives the collapse and the store keeps its own cadence (issue #788)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-19T21:35:24Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/892",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "f1647d958a38b716110b087a31129e9c4b364bbe",
+              "short_sha": "f1647d9",
+              "subject": "fix(telemetry): the count survives the collapse and the store keeps its own cadence (issue #788)"
+            },
+            {
+              "sha": "234fff01801a6ec99a8ca44437e1f7831ad982e5",
+              "short_sha": "234fff0",
+              "subject": "docs(roadmap): the pin rides the telemetry audit round's fix head (#892)"
+            },
+            {
+              "sha": "660650b5cf53515e83e90c5236d24a5c00f9bbb2",
+              "short_sha": "660650b",
+              "subject": "fix(session): the settle round rides the S1142 and the ceiling together (issue #788)"
+            },
+            {
+              "sha": "4363f8d21693809077fa171077f20d676f0d6e1b",
+              "short_sha": "4363f8d",
+              "subject": "docs(roadmap): the pin rides the settle round's S1142-answered head (#892)"
+            },
+            {
+              "sha": "7a804be7d106103a55aa04c219b8b257f5853ed9",
+              "short_sha": "7a804be",
+              "subject": "fix(session): the retirement's second boundary rides the early exit the sniff spells (issue #788)"
+            },
+            {
+              "sha": "ac290b584197d353504f2e5084ff88d085c28fba",
+              "short_sha": "ac290b5",
+              "subject": "docs(roadmap): the pin rides the second settle head (#892)"
+            },
+            {
+              "sha": "f8478542176238810ae11fcc41a55b624fcb953d",
+              "short_sha": "f847854",
+              "subject": "fix(session): the settle round's rector spellings and the escaped mutant's own pin (issue #788)"
+            },
+            {
+              "sha": "4f3c66c822190a157afe7b6f769903927d961f84",
+              "short_sha": "4f3c66c",
+              "subject": "docs(roadmap): the pin rides the third settle head and the history's own pointer rides it too (#892)"
+            },
+            {
+              "sha": "d56d8b66877a24f42ed0a176e5086f5e197a2050",
+              "short_sha": "d56d8b6",
+              "subject": "fix(telemetry): the psalm pair answers the folds their own siblings spell (issue #788)"
+            },
+            {
+              "sha": "cb00f0d04a7a8ba009c87677c986c5740e31f58f",
+              "short_sha": "cb00f0d",
+              "subject": "docs(roadmap): the pin rides the psalm-answered head (#892)"
+            },
+            {
+              "sha": "65df02b6ddb18fed61be4481281c8f97d36dc280",
+              "short_sha": "65df02b",
+              "subject": "fix(telemetry): the mutation round's escaped seams meet their kills (issue #788)"
+            },
+            {
+              "sha": "7669eaf73d1294fe00ceb35784c4cf3dc9635430",
+              "short_sha": "7669eaf",
+              "subject": "docs(roadmap): the pin rides the mutation-answered head (#892)"
+            }
+          ]
+        },
+        {
+          "pr": 893,
+          "title": "fix(router): the match never raises, the engine's failure answers its own diagnostic, and the claims walk keeps its own tuple (issue #799)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-20T00:14:34Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/893",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "a790a3b65bad6391a3f72e5b16a1bcd936f3089f",
+              "short_sha": "a790a3b",
+              "subject": "fix(router): the match never raises, the engine's failure answers its own diagnostic, and the claims walk keeps its own tuple (issue #799)"
+            },
+            {
+              "sha": "86eff3ac53797759a8877d5d13fa6dc9e85677fd",
+              "short_sha": "86eff3a",
+              "subject": "fix(router): the mutation round's escaped seams meet their kills (issue #799)"
+            },
+            {
+              "sha": "bc268f874e3f8b69516cb7476307465c77a55ea7",
+              "short_sha": "bc268f8",
+              "subject": "docs(roadmap): the pin rides the router audit round's fix head (#893)"
             }
           ]
         }

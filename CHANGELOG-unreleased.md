@@ -205,6 +205,8 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - fix(container): the shadowed factory target's edge is the boot's to prove (issue #783) [#878](https://github.com/Zeflous/zeflous/pull/878) ([mbetixz](https://github.com/mbetixz))
 - fix(http): the anonymous name is the anonymous resolution's own and the entry map is closed (issue #785) [#884](https://github.com/Zeflous/zeflous/pull/884) ([mbetixz](https://github.com/mbetixz))
 - fix(database): the single row is the cursor's own step and the DSN knobs carry their grammar (issue #787) [#889](https://github.com/Zeflous/zeflous/pull/889) ([mbetixz](https://github.com/mbetixz))
+- fix(telemetry): the count survives the collapse and the store keeps its own cadence (issue #788) [#892](https://github.com/Zeflous/zeflous/pull/892) ([mbetixz](https://github.com/mbetixz))
+- fix(router): the match never raises, the engine's failure answers its own diagnostic, and the claims walk keeps its own tuple (issue #799) [#893](https://github.com/Zeflous/zeflous/pull/893) ([mbetixz](https://github.com/mbetixz))
 
 **Maintenance:**
 
