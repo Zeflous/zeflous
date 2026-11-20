@@ -1,0 +1,55 @@
+# Kernel/Logging Audit — KDD
+
+**Scope:** issue #802's two minor findings -- the logging lane's
+mis-spelled byte budget and the kernel's defaults-only pipeline
+posture -- inspected against `main` at `c3badaf4` (2026-11-20), the
+closing rounds the `#768-#789` audit wave's leftovers named.
+
+## KDD-KL1 — the sanitizer's budget is a byte budget (finding 1)
+
+`LogContextSanitizer::MESSAGE_BOUND` declared itself the string value's
+BYTE budget while the clamp spelled `mb_substr` -- a CHARACTERS cut. A
+4096-character multibyte string rode through at up to three times the
+documented budget, and the lane's own formatter
+(`JsonLineFormatter::format()`) already spelled the byte-true clamp
+(`mb_strcut`) for its message -- two halves of one sanitisation
+posture answering with two different bounds.
+
+The fix takes the formatter's own spelling: `mb_strcut($value, 0,
+self::MESSAGE_BOUND)`. The battery pins the byte truth: the 3000-'é'
+string (6000 bytes, 3000 characters -- under the old character bound,
+twice the new byte one) now cuts at exactly 2048 characters, the
+4096-byte boundary landing on a character edge; the exactly-at-budget
+twin (2048 'é' = 4096 bytes) passes whole -- a bound, never a shave;
+and the ASCII repro keeps its 4096. The hand-applied battery verified
+the kills: the reverted spelling (the original defect), the bound
+decrement, and the start offset each fail their own pin.
+
+## KDD-KL2 — the defaults-only boot keeps the error boundary (finding 2)
+
+The error boundary (the RFC 9457 mapping) existed only as a SERVICE
+registration; the pipeline's `middleware.stack` list lived solely in
+the host-deletable `app/configs/middleware.php`, so a defaults-only
+boot -- an empty application directory, or a host that deleted one
+file -- composed an empty pipeline: no error mapping, no problem
+document, a silent posture loss no boot surface announced.
+
+The fix ships the pipeline's own minimum posture in the default
+profile: `middleware.stack` carries the error boundary alone
+(`http.errors`, priority 1000 -- the shipped application profile's own
+outermost placement). The layering's list semantics do the rest: a
+host's `middleware.stack` REPLACES the default wholesale
+(`ArrayMerger`'s list rule), so the host's explicit choice stays
+exactly the winner it always was -- including the deliberate empty
+stack, which now must be spelled to be had. The battery pins all
+three postures: the defaults-only boot answers a failing handler with
+the 500 problem document (the detail never leaking), the security
+fixture's own stack replaces the default with no residue appending,
+and the deliberate-empty fixture's pipeline runs nothing at all.
+
+## The round's own gate lessons
+
+None worth the note: the local battery ran green on the first pass
+(PHPStan, Psalm, the fixer, the full suite), the archeology findings
+at zero for both touched files, and the mutant battery's six kills
+(each finding's own seams) verified before the branch moved.
