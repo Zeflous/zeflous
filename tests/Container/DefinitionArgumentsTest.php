@@ -271,4 +271,35 @@ final class DefinitionArgumentsTest extends TestCase
             );
         }
     }
+
+    public function testTheAssertionRefusesAMultiKeyLiteralCarrier(): void
+    {
+        // The validation lane's own arm (the runtime twin is pinned above;
+        // this is the parse half's): a `literal` key beside siblings never
+        // reaches the resolution -- the assertion surfaces it first, so
+        // one grammar answers on both lanes for the escape too (issue
+        // #800's finding 1's own seam discipline).
+        try {
+            DefinitionArguments::assertValid('app.x', [['literal' => 'value', 'extra' => 1]]);
+            self::fail('Expected a DefinitionException to be thrown.');
+        } catch (DefinitionException $definitionException) {
+            self::assertSame(
+                "Service 'app.x' argument literal escape must be the single key 'literal' "
+                . '(a map that carries it beside other keys is neither the escape nor a plain value).',
+                $definitionException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheAssertionCarriesASingleKeyLiteralEscapeVerbatim(): void
+    {
+        // The well-formed escape passes the validation lane untouched: the
+        // refusal guards the malformed carrier alone, never the spelling
+        // the grammar itself owns.
+        $validated = DefinitionArguments::assertValid('app.x', [
+            ['literal' => ['service' => 'app.y']],
+        ]);
+
+        self::assertSame([['literal' => ['service' => 'app.y']]], $validated);
+    }
 }

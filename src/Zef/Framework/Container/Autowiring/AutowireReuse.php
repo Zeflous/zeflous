@@ -22,7 +22,9 @@ use Zef\Framework\Container\ServiceDefinition;
  * never yields counts no phantom reuse (issue #800's finding 3). A
  * container-registered service answers through the definition edges'
  * leaf semantics: the host application's own behaviour, validated no
- * further and exactly as without this lane.
+ * further and exactly as without this lane. The declared set is the
+ * query's own index ({@see AutowireDeclaredIndex}), so the arms read
+ * one lookup each and never re-walk the list.
  */
 final class AutowireReuse
 {
@@ -44,13 +46,9 @@ final class AutowireReuse
      */
     public function open(array $definitions, Container $container): void
     {
-        $this->declaredById = [];
+        $this->declaredById = AutowireDeclaredIndex::byId($definitions);
         $this->autowireBirths->reset();
         $this->container = $container;
-
-        foreach ($definitions as $definition) {
-            $this->declaredById[$definition->id] = $definition;
-        }
     }
 
     /**
@@ -59,13 +57,13 @@ final class AutowireReuse
      */
     public function known(string $id): bool
     {
-        if (!self::answered($id)) {
-            return false;
+        if (self::answered($id)) {
+            $this->autowireBirths->recordReuse($id);
+
+            return true;
         }
 
-        $this->autowireBirths->recordReuse($id);
-
-        return true;
+        return false;
     }
 
     /**
@@ -99,7 +97,8 @@ final class AutowireReuse
     /**
      * The three arms every verdict reads: a declared definition, a
      * class this run already birthed, or a service the container itself
-     * carries.
+     * carries (the container's null answer, when no run has opened it,
+     * spelled against the boolean the comparison demands).
      */
     private function answered(string $id): bool
     {

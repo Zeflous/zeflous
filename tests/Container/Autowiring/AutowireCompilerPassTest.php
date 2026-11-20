@@ -93,7 +93,10 @@ use Zef\Test\Support\Container\Parameters\PoolHouse;
 use Zef\Test\Support\Container\Parameters\SharedFlagAudit;
 use Zef\Test\Support\Container\Parameters\SharedFlagHouse;
 use Zef\Test\Support\Container\Parameters\SpelledHouse;
+use Zef\Test\Support\Container\Parameters\TypedFlagHouse;
+use Zef\Test\Support\Container\Parameters\TypedNameHouse;
 use Zef\Test\Support\Container\Parameters\TypedPortHouse;
+use Zef\Test\Support\Container\Parameters\TypedRatioHouse;
 use Zef\Test\Support\Container\Parameters\UnionValueHouse;
 use Zef\Test\Support\Container\Parameters\VariadicValueHouse;
 
@@ -1004,6 +1007,104 @@ final class AutowireCompilerPassTest extends TestCase
         self::assertInstanceOf(ValueDefinition::class, $portValue);
         self::assertSame('@value:db.port', $portValue->id);
         self::assertSame(3306, $portValue->value);
+    }
+
+    public function testAScalarOfAnotherFamilyRefusesAFloatTypedValueParameterAtThePlanSeam(): void
+    {
+        // The closed set's float arm: the environment layer hands the raw
+        // string '0.5' and the float-typed #[Value] parameter surfaces the
+        // disagreement at the plan seam, with the parameter, the address
+        // and both ways out named -- never a TypeError at the injection.
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.ratio' => ['class' => TypedRatioHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([
+                'db.ratio' => '0.5',
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertSame(
+                "Cannot plan 'app.ratio': the parameter '\$ratio' declares float and "
+                . "carries #[Value('db.ratio')], but the 'parameters' value for 'db.ratio' is "
+                . 'string -- the environment layer hands raw strings and nothing '
+                . 'casts them (the parameters lane coerces nothing, ever); declare the typed value '
+                . 'through a parameter provider that computes it, or type the parameter as the '
+                . 'string the source actually carries.',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testAScalarOfAnotherFamilyRefusesABoolTypedValueParameterAtThePlanSeam(): void
+    {
+        // The closed set's bool arm: the string 'true' the environment
+        // layer hands a bool-typed #[Value] parameter refuses exactly like
+        // the int arm's own repro -- the same judgment, the same words,
+        // the same way out.
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.flag' => ['class' => TypedFlagHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([
+                'runtime.flag' => 'true',
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertSame(
+                "Cannot plan 'app.flag': the parameter '\$flag' declares bool and "
+                . "carries #[Value('runtime.flag')], but the 'parameters' value for 'runtime.flag' is "
+                . 'string -- the environment layer hands raw strings and nothing '
+                . 'casts them (the parameters lane coerces nothing, ever); declare the typed value '
+                . 'through a parameter provider that computes it, or type the parameter as the '
+                . 'string the source actually carries.',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testAScalarOfAnotherFamilyRefusesAStringTypedValueParameterAtThePlanSeam(): void
+    {
+        // The closed set's string arm: an integer the parameters knob
+        // hands a string-typed #[Value] parameter refuses at the same
+        // seam -- every family of the closed set answers the one judgment.
+        try {
+            $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+                'app.name' => ['class' => TypedNameHouse::class, 'autowire' => true],
+            ]), new Container(), new ParameterValues([
+                'app.name' => 7,
+            ]));
+            self::fail('Expected an AutowiringException to be thrown.');
+        } catch (AutowiringException $autowiringException) {
+            self::assertSame(
+                "Cannot plan 'app.name': the parameter '\$name' declares string and "
+                . "carries #[Value('app.name')], but the 'parameters' value for 'app.name' is "
+                . 'int -- the environment layer hands raw strings and nothing '
+                . 'casts them (the parameters lane coerces nothing, ever); declare the typed value '
+                . 'through a parameter provider that computes it, or type the parameter as the '
+                . 'string the source actually carries.',
+                $autowiringException->getMessage(),
+            );
+        }
+    }
+
+    public function testANonScalarValueMaterialisesForATypedScalarParameter(): void
+    {
+        // The judgment's own guard: only a scalar value is ever read
+        // against the declared closed set, so an array the parameters knob
+        // hands the int-typed parameter materialises untouched -- the
+        // value lane spells no coercion, and it spells no cross-family
+        // verdict either (the guard answers false before the set is
+        // consulted, never the array-vs-int mismatch the removal would
+        // surface).
+        $result = $this->autowireCompilerPass->process(DefinitionMap::parse('services', [
+            'app.house' => ['class' => TypedPortHouse::class, 'autowire' => true],
+        ]), new Container(), new ParameterValues([
+            'db.port' => ['unparsed' => '3306'],
+        ]));
+
+        $portValue = $result->definitions[1];
+        self::assertInstanceOf(ValueDefinition::class, $portValue);
+        self::assertSame('@value:db.port', $portValue->id);
+        self::assertSame(['unparsed' => '3306'], $portValue->value);
     }
 
     public function testTwoConsumersOfOneAddressShareOneMaterialisation(): void

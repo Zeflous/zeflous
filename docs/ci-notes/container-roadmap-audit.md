@@ -163,3 +163,33 @@ is mixed by design, the `TypeMapDecode` precedent) rides the baseline
 as its own entry. The mutation round runs in CI over the round's
 seams; any escaped mutant the gate reports answers in the branch
 before the pin rides the head.
+
+## The second gate round: the CI lanes' own answers
+
+The push met five archeology difficulty findings and seven escaped
+mutants, and the roadmap document's own count gate answered first --
+the landing row's bookkeeping had counted the round in the Container
+area but left the Summary total behind (275 against 276 summed), the
+off-by-one the count rule exists to catch. The five difficulty
+answers follow the family's own doctrine, each seam its own unit: the
+AOT grammar wall became the archeology-sized pair the rendering
+consults (`AotArgumentReference::target()` and
+`AotArgumentEscape::value()`, the runtime twin's own naming -- one
+grammar, two lanes, three units), the value lane's type judgment took
+its own unit (`AutowireValueTypes::mismatched()`, the finding-4 seam
+the materialisation consults), and the reuse query's arms read
+through the declared index its own unit builds
+(`AutowireDeclaredIndex::byId()`), the loop the other lanes spell
+inline -- the query shed it, `known()`'s early shape spelled without
+the negation, and the container arm keeps the comparison the boolean
+chain demands (`=== true`, the SyntheticValueGuard precedent).
+The escaped seams met their kills: the closed scalar set's three
+untested arms (float, bool, string) each refused by their own
+typed-parameter repro, the `is_scalar` guard pinned by the
+non-scalar twin (an array-valued address materialises for a typed
+scalar parameter -- the guard answers false before the set is ever
+consulted), and the validation lane's literal arm -- every carrier the
+runtime twin refuses, the parse half had never pinned -- by its own
+multi-key carrier refusal and the verbatim escape pass-through at
+`assertValid()`. The local battery re-verified the reshaped seams
+hand-applied (seventeen kills, zero escapes) before the branch moved.

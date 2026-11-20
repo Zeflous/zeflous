@@ -40,7 +40,9 @@ final class AutowireValueMaterialisations
      * casts them, so a string the parameters knob hands an int-typed
      * #[Value] parameter surfaces HERE, with the parameter, the address
      * and the way out named, never as a TypeError at the injection
-     * seam), and the first consumer materialises the value service.
+     * seam; the judgment itself is the lane's own unit,
+     * {@see AutowireValueTypes::mismatched()}), and the first consumer
+     * materialises the value service.
      */
     public function ensure(
         string $ownerId,
@@ -66,7 +68,7 @@ final class AutowireValueMaterialisations
 
         $value = $parameterValues->value($key);
 
-        if ($this->typeMismatched($builtinType, $value)) {
+        if (AutowireValueTypes::mismatched($builtinType, $value)) {
             throw AutowireValueRefusals::typeMismatch($ownerId, $name, $key, $value, (string) $builtinType);
         }
 
@@ -95,35 +97,5 @@ final class AutowireValueMaterialisations
     public function reset(): void
     {
         $this->materialised = [];
-    }
-
-    /**
-     * Whether the declared builtin type and the value's own runtime type
-     * disagree on the closed scalar set (int, float, bool, string): the
-     * one mismatch the lane refuses -- the parameters lane coerces
-     * nothing, ever, and the mismatch the injection would have surfaced
-     * as a TypeError naming no value source is the plan's own defect.
-     * Array, iterable, mixed and untyped declarations keep their
-     * anything-goes verdict (the value lane has typed nothing for them
-     * to disagree with), and a null value stays the nullable family's
-     * own spelling.
-     *
-     * @param null|string $builtinType the parameter's declared builtin type name
-     */
-    private function typeMismatched(?string $builtinType, mixed $value): bool
-    {
-        if (!\is_scalar($value)) {
-            return false;
-        }
-
-        $expected = match ($builtinType) {
-            'int' => 'integer',
-            'float' => 'double',
-            'bool' => 'boolean',
-            'string' => 'string',
-            default => null,
-        };
-
-        return $expected !== null && \gettype($value) !== $expected;
     }
 }
