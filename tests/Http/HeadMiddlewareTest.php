@@ -19,6 +19,7 @@ use Zef\Framework\Http\Uri;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Http\MiddlewareHandler;
 use Zef\Test\Support\Http\RecordingHandler;
+use Zef\Test\Support\Http\SizelessStream;
 use Zef\Test\Support\Http\TellGuardedStream;
 
 /**
@@ -334,6 +335,38 @@ final class HeadMiddlewareTest extends TestCase
 
         self::assertSame('', $response->getBody()->getContents());
         self::assertFalse($response->hasHeader('Content-Length'), 'the unmeasured length never travels');
+        // The guarded body's own size rides the view (the length the GET
+        // twin would have owed), the strip refusing only the HEADER the
+        // cursor could not certify.
+        self::assertSame(27, $response->getBody()->getSize());
+    }
+
+    public function testTheHeadViewOfASizelessBodyAnswersTheZeroLengthView(): void
+    {
+        // The view's own zero fallback (issue #801's finding 1): a body
+        // whose size cannot be read at all (getSize null, the PSR-7
+        // unknown-size spelling) keeps the honest strip AND the honest
+        // zero-length view -- no measurement to carry, so the body the
+        // answer rides answers nothing owed.
+        $view = HeadResponse::view(new Response(200, ['Content-Length' => '27'], new SizelessStream()));
+
+        self::assertFalse($view->hasHeader('Content-Length'));
+        self::assertSame(0, $view->getBody()->getSize(), 'the sizeless body rides as the zero-length view');
+        self::assertSame('', $view->getBody()->getContents());
+    }
+
+    public function testTheHeadViewOfANotModifiedAnswerStampsNothingDirectly(): void
+    {
+        // The view's own arm, pinned directly: a 304 is already the
+        // body-less answer its own conditional fold built -- the view
+        // never stamps the length the emptied stream measures (issue
+        // #801's finding 1's own edge), so the honest guard's 304 arm
+        // answers its own battery, not only the conditional walk's.
+        $view = HeadResponse::view(new Response(304, ['Content-Length' => '12'], 'suppressed'));
+
+        self::assertSame(304, $view->getStatusCode());
+        self::assertFalse($view->hasHeader('Content-Length'), "the 304 never carries the emptied body's length");
+        self::assertSame('', $view->getBody()->getContents());
     }
 
     private function processed(string $method, int $status = 200): ResponseInterface

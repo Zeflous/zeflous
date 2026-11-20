@@ -151,3 +151,23 @@ sixth new unit (`HeadBody`, 0.86) never near it. The
 `Adapters\Session\SessionSweep` name collision the first spelling
 paid (`Http\SessionSweep`) is retired for the honest
 `SessionStorageEffects`.
+
+## The round's own mutation answer
+
+The mutation lane answered the first push with eight escapes, three
+kinds among them. Five were the head view's own arms -- the guard's
+304 status, the length-or-null fold, and the zero-length fallback
+`HeadBody` carries when no measurement exists -- now pinned DIRECTLY
+on the view itself (the conditional walk's indirect pin kept, the
+direct battery answering the guard's every arm without depending on
+which tests the coverage map selected): a 304 view stamps nothing
+whatever its declared field, and a SIZELESS body (the PSR-7
+unknown-size spelling, the new `SizelessStream` double) answers the
+honest zero-length view. Two were equivalences the config now ignores
+with their reasons on record: the pair census's `mb_substr_count` is
+`substr_count` for the single-byte ampersand needle (one spelling of
+the one number), and the storage walk's regenerated-and-retired guard
+reads a pair the rotation itself sets together (the divergent arm a
+state the family's construction never spells). The eighth -- the
+container value judgment's default arm -- is the #897 round's own
+pin, riding that branch and answering the merge ref once it lands.
