@@ -66,3 +66,23 @@ boot battery routes the fallback into a file for its own duration
 (`ini_set('error_log', ...)`, the writer's own direct battery's own
 spelling) -- the record's content stays pinned where it always was,
 the boot battery pinning the pipeline's response alone.
+
+**The second gate round -- the mutation lane's own two escapes.** The
+initial suite now green, the lane answered with two escaped mutants,
+each killed by its own pin:
+
+- The sanitizer's `mb_strcut` swapped for a plain byte `substr` --
+  invisible to the two-byte 'é' repro, whose 4096-byte cut lands on a
+  character edge BY ARITHMETIC (2048 two-byte characters exactly).
+  The three-byte '€' repro pins what the clamp actually promises: the
+  snap to the character edge (1400 '€' = 4200 bytes cuts at 1365 '€',
+  4095 bytes -- the last complete character inside the budget), the
+  broken half-character tail a plain substr would ship never
+  surviving the pin.
+- The container value judgment's `default => null` arm removed -- the
+  anything-goes verdict for every builtin spelling outside the closed
+  scalar set (array, iterable, mixed) never pinned by a scalar
+  hand-off. The array-typed `#[Value]` parameter over a raw string
+  pins it: the scalar materialises untouched, no refusal, no crash --
+  the arm's removal answering an UnhandledMatchError the refusal
+  family never promises.

@@ -246,6 +246,19 @@ final class LogContextSanitizerTest extends TestCase
         self::assertSame(str_repeat('é', 2048), $atBudget['note']);
     }
 
+    public function testTheByteClampSnapsToTheCharacterEdgeNeverShippingABrokenTail(): void
+    {
+        // The boundary the two-byte 'é' repro can never see: a byte budget
+        // landing MID-character (4096 is not a multiple of three) is where
+        // the clamp's own doctrine shows -- `mb_strcut` answers the last
+        // COMPLETE character inside the budget, while a plain byte `substr`
+        // would ship a broken half-character tail. The three-byte '€'
+        // repro pins the snap: 1400 '€' (4200 bytes) cuts at exactly 1365
+        // '€' (4095 bytes), the edge the lane's formatter already spells.
+        $snapped = LogContextSanitizer::sanitize(['note' => str_repeat('€', 1400)]);
+        self::assertSame(str_repeat('€', 1365), $snapped['note']);
+    }
+
     public function testUnsupportedValuesAnswerTheirDebugType(): void
     {
         self::assertSame(['probe' => '[stdClass]'], LogContextSanitizer::sanitize(['probe' => new stdClass()]));
