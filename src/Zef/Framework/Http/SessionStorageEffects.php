@@ -51,8 +51,10 @@ final readonly class SessionStorageEffects
             $this->sessionAdapter->destroy($retiredId);
         }
 
-        if ($sessionState->isDirty()) {
-            $this->sessionAdapter->save($sessionState->id(), $sessionState->data());
+        if (!$sessionState->isDirty()) {
+            return;
         }
+
+        $this->sessionAdapter->save($sessionState->id(), $sessionState->data());
     }
 }

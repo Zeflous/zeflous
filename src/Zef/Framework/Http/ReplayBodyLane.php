@@ -32,8 +32,10 @@ final class ReplayBodyLane
      */
     public static function of(string $mediaType): ?string
     {
-        if ($mediaType === 'application/json'
-            || (str_starts_with($mediaType, 'application/') && str_ends_with($mediaType, '+json'))) {
+        if (
+            $mediaType === 'application/json'
+            || (str_starts_with($mediaType, 'application/') && str_ends_with($mediaType, '+json'))
+        ) {
             return 'json';
         }
 
