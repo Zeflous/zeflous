@@ -10,6 +10,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Zef\Framework\Container\AliasDefinition;
+use Zef\Framework\Container\Aot\AotArgumentEscape;
+use Zef\Framework\Container\Aot\AotArgumentReference;
 use Zef\Framework\Container\Aot\AotArguments;
 use Zef\Framework\Container\Aot\AotClosures;
 use Zef\Framework\Container\Aot\AotExportability;
@@ -39,6 +41,8 @@ use Zef\Test\Support\Container\Aot\Window;
  * @internal
  */
 #[CoversClass(AotClosures::class)]
+#[CoversClass(AotArgumentReference::class)]
+#[CoversClass(AotArgumentEscape::class)]
 #[CoversClass(AotArguments::class)]
 #[CoversClass(AotLiterals::class)]
 #[CoversClass(AotRefusals::class)]

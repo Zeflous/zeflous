@@ -193,3 +193,21 @@ runtime twin refuses, the parse half had never pinned -- by its own
 multi-key carrier refusal and the verbatim escape pass-through at
 `assertValid()`. The local battery re-verified the reshaped seams
 hand-applied (seventeen kills, zero escapes) before the branch moved.
+
+## The second gate round's own lesson: the covers-restriction invisibility, replayed
+
+The SonarCloud coverage-on-new-code condition answered 72.2% against
+the second round's push -- the four new units' lines measured
+uncovered by a battery that demonstrably executes them. The cause was
+the family's own oldest recorded lesson (#396's
+covers-restriction invisibility, `requireCoverageMetadata="true"`):
+coverage attributes only to the classes a test's `#[CoversClass]`
+list names, and the round's four new units rode their owners' tests
+unnamed -- `AotArgumentReference`/`AotArgumentEscape` under
+`AotClosuresTest`'s list, `AutowireValueTypes`/`AutowireDeclaredIndex`
+under `AutowireCompilerPassTest`'s. The units' lines were exercised
+by every pin the round wrote; the report simply could not see them.
+The four classes now ride their owners' lists, and the lesson is
+re-recorded here because it was re-learned: a new unit's coverage
+visibility is a fold of the extraction itself, not an afterthought
+of the gate that reports it.

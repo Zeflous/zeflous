@@ -12,6 +12,7 @@ use Zef\Framework\Container\Autowiring\AutowireBirther;
 use Zef\Framework\Container\Autowiring\AutowireBirths;
 use Zef\Framework\Container\Autowiring\AutowireCompilerPass;
 use Zef\Framework\Container\Autowiring\AutowireDeclaredArguments;
+use Zef\Framework\Container\Autowiring\AutowireDeclaredIndex;
 use Zef\Framework\Container\Autowiring\AutowireDeclaredStretch;
 use Zef\Framework\Container\Autowiring\AutowireFactoryProduct;
 use Zef\Framework\Container\Autowiring\AutowireImplementations;
@@ -32,6 +33,7 @@ use Zef\Framework\Container\Autowiring\AutowireTargetBinding;
 use Zef\Framework\Container\Autowiring\AutowireValueMaterialisations;
 use Zef\Framework\Container\Autowiring\AutowireValueRefusals;
 use Zef\Framework\Container\Autowiring\AutowireValueServices;
+use Zef\Framework\Container\Autowiring\AutowireValueTypes;
 use Zef\Framework\Container\Autowiring\AutowireVariadicCollection;
 use Zef\Framework\Container\Autowiring\AutowiringException;
 use Zef\Framework\Container\Autowiring\ConstructorFitRefusals;
@@ -108,6 +110,8 @@ use Zef\Test\Support\Container\Parameters\VariadicValueHouse;
 #[CoversClass(AutowireResult::class)]
 #[CoversClass(AutowireAttributes::class)]
 #[CoversClass(AutowireValueServices::class)]
+#[CoversClass(AutowireValueTypes::class)]
+#[CoversClass(AutowireDeclaredIndex::class)]
 #[CoversClass(SyntheticValueGuard::class)]
 #[CoversClass(AutowireValueMaterialisations::class)]
 #[CoversClass(AutowireValueRefusals::class)]
