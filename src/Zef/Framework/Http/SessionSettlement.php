@@ -13,12 +13,20 @@ use Psr\Http\Message\ServerRequestInterface;
  * handler leaves behind -- destruction, issuance, or the write-only
  * refresh.
  *
- * The three verdicts, in order: a destroyed session
+ * The verdicts, in order: a destroyed session
  * ({@see SessionState::destroy()}) destroys the storage entry and
  * answers the deletion cookie -- including the freshly-minted case,
  * because the client that carried a now-expired cookie (the very
  * reason the session was minted fresh) still holds a stale cookie
- * the deletion retires; a freshly minted session the handler WROTE
+ * the deletion retires, and including a rotation the destruction
+ * follows (the retired identifier's entry dies with the current
+ * one, a rebind-shaped sweep the one verdict must own whole); a
+ * rotated session ({@see SessionState::regenerate()}, issue #801's
+ * finding 6) destroys the retired identifier's entry and falls to
+ * the write arm the rotation dirtied -- the bag saved under the
+ * FRESH identifier, the issuance cookie carrying it, the client's
+ * next request riding the new identity and the old identifier dead
+ * on the wire both; a freshly minted session the handler WROTE
  * INTO saves its bag and answers the issuance cookie carrying the
  * new identifier -- the client must learn the identifier before it
  * can ever carry it -- while a freshly minted session the handler
@@ -68,6 +76,10 @@ final readonly class SessionSettlement
         if ($sessionState->isDestroyed()) {
             $this->sessionAdapter->destroy($sessionState->id());
 
+            if ($sessionState->retiredId() !== null) {
+                $this->sessionAdapter->destroy($sessionState->retiredId());
+            }
+
             return $this->withCookie(
                 $response,
                 SetCookie::deleted(
@@ -80,10 +92,14 @@ final readonly class SessionSettlement
             );
         }
 
+        if ($sessionState->isRegenerated() && $sessionState->retiredId() !== null) {
+            $this->sessionAdapter->destroy($sessionState->retiredId());
+        }
+
         if ($sessionState->isDirty()) {
             $this->sessionAdapter->save($sessionState->id(), $sessionState->data());
 
-            if ($sessionState->isNew()) {
+            if ($sessionState->isNew() || $sessionState->isRegenerated()) {
                 return $this->withCookie(
                     $response,
                     new SetCookie(

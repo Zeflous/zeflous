@@ -12,6 +12,7 @@ use Zef\Framework\Http\PayloadTooLargeException;
 use Zef\Framework\Http\RequestBodyPolicy;
 use Zef\Framework\Http\RequestFactory;
 use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\SlowRequestMiddleware;
 use Zef\Framework\Http\WorkerBody;
 use Zef\Framework\Http\WorkerConnection;
 use Zef\Framework\Http\WorkerCookies;
@@ -63,6 +64,11 @@ final class WorkerRequestFactoryTest extends TestCase
         );
 
         $request = WorkerRequestFactory::fromWorker($workerRequest);
+
+        // The worker lane's construction stamps the same canonical
+        // start the SAPI twin does (issue #801's finding 4): one
+        // apple-to-apple total duration across both ingress lanes.
+        self::assertIsInt($request->getAttribute(SlowRequestMiddleware::REQUEST_START_ATTRIBUTE));
 
         self::assertSame('POST', $request->getMethod());
         self::assertSame('http://api.example.com/v1/users?page=2&sort=name', (string) $request->getUri());

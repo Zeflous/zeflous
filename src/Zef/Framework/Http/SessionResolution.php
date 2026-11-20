@@ -49,10 +49,15 @@ final readonly class SessionResolution
             $data = $this->sessionAdapter->load($carriedId);
 
             if ($data !== null) {
-                return new SessionState($carriedId, $data);
+                return new SessionState($carriedId, $data, mintId: $this->sessionId->issue(...));
             }
         }
 
-        return new SessionState($this->sessionId->issue(), [], isNew: true);
+        return new SessionState(
+            $this->sessionId->issue(),
+            [],
+            isNew: true,
+            mintId: $this->sessionId->issue(...),
+        );
     }
 }

@@ -19,17 +19,29 @@ use Psr\Log\LoggerInterface;
  * tracing's closing item, the automatic record a request whose
  * total duration exceeds the configured bar answers.
  *
- * An armed family ({@see SlowRequestPolicy::$enabled}) brackets the
- * span its request spends inside the remaining pipeline between two
- * monotonic readings -- the timing family's own measured-span shape
- * over the same injectable clock seam ({@see TimingClock}, one
- * named place the suite can freeze) -- and hands the span to the
- * record fold's verdict ({@see SlowRequestRecord::whenExceeded()},
- * over the policy's own {@see SlowRequestPolicy::exceededBy()}
- * arithmetic: a span that exactly meets the bar is not slow -- the
- * roadmap's own "melebihi" -- held in integer nanoseconds so the
- * boundary is exact rather than a float's neighbour; a broken clock
- * seam answering a negative span fabricates nothing).
+ * An armed family ({@see SlowRequestPolicy::$enabled}) measures the
+ * span from the CANONICAL start point -- the monotonic stamp the
+ * ingress factory writes onto the request as its own decoration
+ * ({@see RequestFactory::validateIngress()} stamps {@see
+ * self::REQUEST_START_ATTRIBUTE} at the same seam the trusted
+ * scheme fold runs, the earliest clock a request the application
+ * processes can read: the span then covers the ingress guards, the
+ * pipeline above this middleware, and the handler alike, one
+ * apple-to-apple duration across deployments -- issue #801's
+ * finding 4, the first spelling bracketing only the span BELOW this
+ * middleware, placement-dependent and excluding the ingress and
+ * every outer layer). A request that carries no stamp -- a foreign
+ * PSR-7 request the ingress never decorated, or a host-built request
+ * -- keeps the local bracket as the honest fallback, the span the
+ * request spends inside the remaining pipeline, measured from the
+ * clock seam ({@see TimingClock}, one named place the suite can
+ * freeze) -- and hands the span to the record fold's verdict ({@see
+ * SlowRequestRecord::whenExceeded()}, over the policy's own {@see
+ * SlowRequestPolicy::exceededBy()} arithmetic: a span that exactly
+ * meets the bar is not slow -- the roadmap's own "melebihi" -- held
+ * in integer nanoseconds so the boundary is exact rather than a
+ * float's neighbour; a broken clock seam answering a negative span
+ * fabricates nothing).
  *
  * The record fires on BOTH outcomes, the one seam a finally block
  * owns: a request that answered slowly AND a request that threw
@@ -54,6 +66,12 @@ use Psr\Log\LoggerInterface;
  */
 final readonly class SlowRequestMiddleware implements MiddlewareInterface
 {
+    /** The request attribute the canonical start stamp rides: the
+     * monotonic nanoseconds the ingress factory's own decoration
+     * writes, the earliest clock a request the application processes
+     * can read (the total-duration family's canonical point). */
+    public const string REQUEST_START_ATTRIBUTE = 'zef.http.request.start_ns';
+
     /**
      * The clock seam, one reading at each edge of the measured span.
      *
@@ -99,16 +117,20 @@ final readonly class SlowRequestMiddleware implements MiddlewareInterface
     }
 
     /**
-     * The measured path: bracket the remaining pipeline's answer
-     * between two monotonic readings, and answer the verdict in the
-     * finally the throw path shares -- the span exists either way,
-     * and the record is the one place it lands.
+     * The measured path: the canonical start the ingress stamped when
+     * the request carries one -- the total duration from the earliest
+     * point the application processes -- and the local bracket when it
+     * does not (the foreign request the ingress never decorated), the
+     * verdict answered in the finally the throw path shares -- the
+     * span exists either way, and the record is the one place it
+     * lands.
      */
     private function measured(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler,
     ): ResponseInterface {
-        $startNs = ($this->nowNs)();
+        $stampNs = $request->getAttribute(self::REQUEST_START_ATTRIBUTE);
+        $startNs = \is_int($stampNs) ? $stampNs : ($this->nowNs)();
 
         try {
             return $handler->handle($request);

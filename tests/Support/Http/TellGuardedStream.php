@@ -14,8 +14,10 @@ use Psr\Http\Message\StreamInterface;
  * or rewind() call on a stream that reported itself unseekable is a
  * contract violation worth crashing on), and reads one chunk then
  * nothing. The unseekable stream is the reason the emitter neither
- * rewinds it nor consults its cursor: the remaining Content-Length falls
- * back to the whole size.
+ * rewinds it nor consults its cursor: the remaining Content-Length is
+ * unmeasurable, and the reconciler refuses the declared field rather
+ * than blessing it against a size nobody measured (issue #801's
+ * finding 2).
  */
 final class TellGuardedStream implements StreamInterface
 {

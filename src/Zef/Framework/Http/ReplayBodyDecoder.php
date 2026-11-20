@@ -45,6 +45,15 @@ final class ReplayBodyDecoder
     /** @return array{string, bool} */
     private static function form(string $body): array
     {
+        // The same pair bound the url-encoded strategy holds (issue
+        // #801's finding 3): a captured ampersand storm is censused
+        // before any decode allocates, the over-bound capture answering
+        // not-replayable -- the failure lane this family exists to
+        // serve never throwing over a body it merely records.
+        if (FormBodyParser::pairCount($body) > FormBodyParser::PAIR_LIMIT) {
+            return ['', false];
+        }
+
         parse_str($body, $decoded);
         $safe = ReplayPayloadSanitizer::sanitize($decoded);
 

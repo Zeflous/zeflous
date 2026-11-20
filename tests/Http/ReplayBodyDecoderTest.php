@@ -9,6 +9,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Zef\Framework\Http\FormBodyParser;
 use Zef\Framework\Http\ReplayBodyDecoder;
 use Zef\Test\Support\Http\ReplaySnapshotDoubleState;
 use Zef\Test\Support\Http\ReplaySnapshotFunctionDoubles;
@@ -62,6 +63,34 @@ final class ReplayBodyDecoderTest extends TestCase
         yield 'structured suffix on a foreign tree' => ['text/vnd.custom+json'];
 
         yield 'deceptive json substring' => ['application/json-evil'];
+    }
+
+    public function testAnOverBoundFormCaptureAnswersNotReplayableRatherThanRefusing(): void
+    {
+        // Issue #801's finding 3, the replay twin: a captured
+        // ampersand storm is censused through the same bound the
+        // url-encoded strategy holds, but the failure lane this family
+        // exists to serve never throws over a body it merely records
+        // -- the over-bound capture answers not-replayable instead.
+        $storm = 'a=1' . str_repeat('&x=1', FormBodyParser::PAIR_LIMIT);
+
+        self::assertSame(
+            ['', false],
+            ReplayBodyDecoder::decode('application/x-www-form-urlencoded', $storm),
+        );
+    }
+
+    public function testAFormCaptureExactlyAtThePairBoundStillReplays(): void
+    {
+        // The bound's own edge, the replay twin: a capture of exactly the
+        // thousand pairs the posture permits still replays -- the
+        // not-replayable answer starts one pair beyond the line itself.
+        $atBound = 'a=1' . str_repeat('&x=1', FormBodyParser::PAIR_LIMIT - 1);
+
+        [$sanitized, $replayable] = ReplayBodyDecoder::decode('application/x-www-form-urlencoded', $atBound);
+
+        self::assertTrue($replayable);
+        self::assertNotSame('', $sanitized);
     }
 
     public function testJsonBodiesAtTheDepthBoundDecodeReplayably(): void

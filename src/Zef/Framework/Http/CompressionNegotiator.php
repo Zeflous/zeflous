@@ -10,21 +10,26 @@ namespace Zef\Framework\Http;
  * preference order, what the client accepts, and what this runtime
  * can produce.
  *
- * The walk is the standard's own: the preference order is walked
- * best-first, and the first coding whose granted quality is above
- * zero wins -- exactly as an HTTP origin server walks its own
- * representation table. A coding's granted quality is its own
+ * The walk is the standard's own (RFC 9110 section 12.5 -- issue
+ * #801's finding 5: the first spelling walked the server's
+ * preference order and answered the first coding above zero, so a
+ * client spelling `deflate;q=1, gzip;q=0.1` was answered gzip, the
+ * server's preference overriding the client's explicit quality --
+ * the deviation the first docblock recorded as deliberate): the
+ * client's granted quality decides -- the producible coding whose
+ * granted quality is the highest wins, the server's preference
+ * order breaking ties alone (two codings granted the same quality
+ * answer the one the server prefers, the only voice the standard
+ * leaves the origin). A coding's granted quality is its own
  * spelling's `q=` when the header names it, the `*` wildcard's when
  * it does not, so under `Accept-Encoding: deflate, *;q=0.5` the
- * gzip preference survives on the wildcard's 0.5 while the deflate
- * preference's own 1.0 never gets its turn -- preference order, not
- * quality arithmetic, decides.
- *
- * A coding the client spelled `q=0` is refused even when the
- * wildcard grants it (`gzip;q=0, *` does not negotiate gzip), and an
- * absent or empty header accepts nothing but identity -- the
- * legacy-engines' own posture, and the honest one: a client that
- * sent no `Accept-Encoding` line is a client that decodes nothing.
+ * deflate preference's own 1.0 wins over the gzip the wildcard
+ * would grant at 0.5 -- quality arithmetic decides, the client's
+ * voice the standard gives it; a coding the client spelled `q=0`
+ * is refused even when the wildcard grants it (`gzip;q=0, *` does
+ * not negotiate gzip), and an absent or empty header accepts
+ * nothing but identity -- the honest posture: a client that sent
+ * no `Accept-Encoding` line is a client that decodes nothing.
  *
  * `identity` is deliberately NOT negotiated: this family's identity
  * answer is the pass-through the middleware returns unchanged, and a
@@ -61,14 +66,25 @@ final readonly class CompressionNegotiator
     {
         $qualities = AcceptEncodingQualities::qualities($acceptEncoding);
 
+        // The client's quality decides, the server's preference
+        // breaking ties alone: the walk stays in preference order (the
+        // first coding of a tied quality is the preferred one) but
+        // answers the coding whose granted quality is the highest,
+        // never the first coding merely above zero.
+        $best = null;
+        $bestQuality = 0.0;
+
         foreach (ContentCoding::preferences($this->capabilities) as $coding) {
             $quality = $qualities[$coding] ?? $qualities['*'] ?? 0.0;
 
-            if ($quality > 0.0) {
-                return $coding;
+            if ($quality <= $bestQuality) {
+                continue;
             }
+
+            $best = $coding;
+            $bestQuality = $quality;
         }
 
-        return null;
+        return $best;
     }
 }

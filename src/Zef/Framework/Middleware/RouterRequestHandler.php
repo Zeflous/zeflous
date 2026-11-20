@@ -13,6 +13,7 @@ use UnexpectedValueException;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Http\HeadResponse;
 use Zef\Framework\Router\Router;
 
 /**
@@ -75,16 +76,24 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         $response = new MiddlewarePipeline($stack, $routeDispatchHandler)->handle($request);
         $response = $this->conditionalRequests->apply($request, $response, $serverRequestMetadata->method);
 
-        if ($serverRequestMetadata->method !== 'HEAD' && $response->getStatusCode() !== 304) {
-            return $response;
+        if ($serverRequestMetadata->method === 'HEAD') {
+            // RFC 9110 section 9.3.2's SHOULD (issue #801's finding 1):
+            // the HEAD answer carries the GET twin's Content-Length over
+            // the head view's own body -- the length the router's own
+            // empty-body swap used to lose to the reconciliation.
+            return HeadResponse::view($response);
         }
 
-        $message = $response->withBody($this->streamFactory->createStream(''));
-        if (!$message instanceof ResponseInterface) {
-            throw new UnexpectedValueException('The HEAD response body operation did not return a ResponseInterface.');
+        if ($response->getStatusCode() === 304) {
+            $message = $response->withBody($this->streamFactory->createStream(''));
+            if (!$message instanceof ResponseInterface) {
+                throw new UnexpectedValueException('The HEAD response body operation did not return a ResponseInterface.');
+            }
+
+            return $message;
         }
 
-        return $message;
+        return $response;
     }
 
     /**

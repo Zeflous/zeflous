@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Http;
 
+use Closure;
+
 /**
  * The request-scoped session bag: one identifier, one data bag, and
  * the three flags the outbound boundary ({@see SessionMiddleware})
@@ -31,11 +33,13 @@ namespace Zef\Framework\Http;
  *
  * Destruction ({@see self::destroy()}) empties the bag and marks it:
  * the boundary destroys the storage entry and answers the deletion
- * cookie. Regeneration -- the identifier rotation a privilege change
- * classically asks for -- is deliberately not this slice's seam: the
- * port supports it (destroy plus save under a fresh identifier), the
- * family does not grow it speculatively, and the hardening that
- * lands it belongs to the authentication lane that would consume it.
+ * cookie. Regeneration ({@see self::regenerate()}) is the identifier
+ * rotation a privilege change classically asks for (issue #801's
+ * finding 6, the OWASP fixation window: an identifier minted
+ * pre-login must not ride the post-login session), the data kept and
+ * the identifier swapped: the boundary destroys the retired entry,
+ * saves the bag under the fresh identifier, and answers the
+ * issuance cookie carrying it.
  */
 final class SessionState
 {
@@ -43,19 +47,31 @@ final class SessionState
 
     private bool $destroyed = false;
 
+    private bool $regenerated = false;
+
+    /** The identifier the rotation retired, null until one runs. */
+    private ?string $retiredId = null;
+
     /**
-     * @param string               $id    the session identifier
-     * @param array<string, mixed> $data  the loaded bag, or empty for a
-     *                                    freshly minted session
-     * @param bool                 $isNew whether the identifier was minted
-     *                                    this request (no cookie the
-     *                                    client carried matched a live
-     *                                    session)
+     * @param string                   $id     the session identifier
+     * @param array<string, mixed>     $data   the loaded bag, or empty for a
+     *                                         freshly minted session
+     * @param bool                     $isNew  whether the identifier was minted
+     *                                         this request (no cookie the
+     *                                         client carried matched a live
+     *                                         session)
+     * @param null|(Closure(): string) $mintId the identifier seam the
+     *                                         rotation ({@see self::regenerate()})
+     *                                         mints through; null leaves the
+     *                                         state unrotatable (the
+     *                                         boundary-owned states carry the
+     *                                         resolution's own mint)
      */
     public function __construct(
-        private readonly string $id,
+        private string $id,
         private array $data,
         private readonly bool $isNew = false,
+        private readonly ?Closure $mintId = null,
     ) {
     }
 
@@ -138,6 +154,24 @@ final class SessionState
     }
 
     /**
+     * Whether the session's identifier was rotated this request.
+     */
+    public function isRegenerated(): bool
+    {
+        return $this->regenerated;
+    }
+
+    /**
+     * The identifier the rotation retired, null until one runs: the
+     * boundary's own read, the entry the settlement destroys beside
+     * the save under the fresh identifier.
+     */
+    public function retiredId(): ?string
+    {
+        return $this->retiredId;
+    }
+
+    /**
      * Marks the session for destruction and empties the bag: the
      * boundary destroys the storage entry and answers the deletion
      * cookie.
@@ -146,5 +180,42 @@ final class SessionState
     {
         $this->data = [];
         $this->destroyed = true;
+    }
+
+    /**
+     * Rotates the session's identifier, keeping the bag the request
+     * already wrote: the privilege-change spelling (issue #801's
+     * finding 6, the OWASP fixation window -- the identifier minted
+     * before the login must not ride the authenticated session after
+     * it), the data deliberately KEPT (the rotation protects the
+     * identifier's history, never erasing the session's own content
+     * -- erasure is {@see self::destroy()}'s own verdict). The
+     * boundary retires the prior identifier's storage entry and
+     * re-issues the cookie carrying the fresh one; a destroyed
+     * session has nothing left to rotate, an unrotatable state (no
+     * mint at construction) refuses loudly rather than degrading
+     * into the silent no-op a privilege change must never read, and
+     * a second call is the idempotent spelling -- one rotation per
+     * request, the boundary's save answering it once.
+     */
+    public function regenerate(): void
+    {
+        if ($this->destroyed || $this->regenerated) {
+            return;
+        }
+
+        if (!$this->mintId instanceof Closure) {
+            throw new HttpException(
+                'The session identifier cannot rotate: the state was constructed without the '
+                . 'identifier seam the rotation mints through (the boundary-owned states carry '
+                . "the resolution's own mint -- construct the state through the session "
+                . 'boundary, or hand the mint the rotation asks for).',
+            );
+        }
+
+        $this->retiredId = $this->id;
+        $this->id = ($this->mintId)();
+        $this->regenerated = true;
+        $this->dirty = true;
     }
 }

@@ -593,9 +593,15 @@
       <code><![CDATA[non-empty-string]]></code>
     </MoreSpecificReturnType>
   </file>
+  <file src="src/Zef/Framework/Http/SlowRequestMiddleware.php">
+    <MixedAssignment>
+      <code><![CDATA[$stampNs]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Http/SessionState.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[destroy]]></code>
+      <code><![CDATA[regenerate]]></code>
       <code><![CDATA[remove]]></code>
       <code><![CDATA[set]]></code>
       <code><![CDATA[value]]></code>

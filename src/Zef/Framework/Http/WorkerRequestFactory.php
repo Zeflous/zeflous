@@ -83,7 +83,12 @@ final class WorkerRequestFactory
         /** @var array<string, mixed> $queryBag the query bag (keys fold: the engine's numeric-string claim) */
         $queryBag = WorkerQuery::bag($uri->getQuery());
 
-        return new ServerRequest(
+        // The total-duration family's canonical start point (issue
+        // #801's finding 4), the worker lane's own construction stamp:
+        // the SAPI twin's ({@see RequestFactory::fromServer()}) exact
+        // spelling, one apple-to-apple duration across both ingress
+        // lanes.
+        $serverRequest = new ServerRequest(
             $workerRequest->method,
             $uri,
             WorkerConnection::entries($workerRequest->remoteAddress, $workerRequest->remotePort),
@@ -94,6 +99,9 @@ final class WorkerRequestFactory
             $workerRequest->headers,
             $stream,
             $workerRequest->protocolVersion,
-        );
+        )->withAttribute(SlowRequestMiddleware::REQUEST_START_ATTRIBUTE, TimingClock::monotonicNs());
+        \assert($serverRequest instanceof ServerRequest, 'the attribute wither preserves the request type.');
+
+        return $serverRequest;
     }
 }

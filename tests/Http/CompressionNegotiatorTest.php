@@ -67,11 +67,33 @@ final class CompressionNegotiatorTest extends TestCase
         );
     }
 
-    public function testAWildcardGrantsTheUnspelledPreference(): void
+    public function testTheClientsExplicitQualityDecidesOverTheServerPreference(): void
+    {
+        // Issue #801's finding 5's own repro: the client spelled
+        // deflate at 1.0 and gzip at 0.1 -- the deflate wins, the
+        // server's gzip-first preference breaking ties alone (RFC 9110
+        // section 12.5).
+        $compressionNegotiator = new CompressionNegotiator(['gzip', 'deflate']);
+
+        self::assertSame('deflate', $compressionNegotiator->negotiate('deflate;q=1, gzip;q=0.1'));
+    }
+
+    public function testTheServerPreferenceBreaksTheQualityTieAlone(): void
     {
         $compressionNegotiator = new CompressionNegotiator(['gzip', 'deflate']);
 
-        self::assertSame('gzip', $compressionNegotiator->negotiate('deflate, *;q=0.5'));
+        self::assertSame('gzip', $compressionNegotiator->negotiate('deflate, gzip'));
+    }
+
+    public function testTheSpelledQualityOutranksTheWildcardGrant(): void
+    {
+        $compressionNegotiator = new CompressionNegotiator(['gzip', 'deflate']);
+
+        // Issue #801's finding 5: the client's quality decides (RFC
+        // 9110 section 12.5) -- the deflate the client spelled at 1.0
+        // outranks the gzip only the wildcard grants at 0.5, the
+        // server's preference never overriding an explicit quality.
+        self::assertSame('deflate', $compressionNegotiator->negotiate('deflate, *;q=0.5'));
     }
 
     public function testASpelledZeroRefusesEvenUnderTheWildcard(): void
@@ -79,6 +101,20 @@ final class CompressionNegotiatorTest extends TestCase
         $compressionNegotiator = new CompressionNegotiator(['gzip', 'deflate']);
 
         self::assertSame('deflate', $compressionNegotiator->negotiate('gzip;q=0, *'));
+    }
+
+    public function testTheWildcardStillGrantsTheUnspelledCoding(): void
+    {
+        // The wildcard's own grant survives the quality-decides walk
+        // (issue #801's finding 5): an unspelled producible coding the
+        // wildcard grants at 0.5 outranks nothing (the client named no
+        // producible coding), and the tied grants answer the server's
+        // preference alone -- the wildcard's grant was never the part
+        // the finding retired, only the server-first walk that ignored
+        // the client's own qualities.
+        $compressionNegotiator = new CompressionNegotiator(['gzip', 'deflate']);
+
+        self::assertSame('gzip', $compressionNegotiator->negotiate('br, *;q=0.5'));
     }
 
     public function testTheUnspelledPreferenceWithoutAWildcardIsNotGranted(): void

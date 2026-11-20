@@ -358,6 +358,95 @@ final class SessionMiddlewareTest extends TestCase
         self::assertMatchesRegularExpression('/^zef_session=/', $cookieLines[1]);
     }
 
+    public function testThePrivilegeChangeRotationRetiresTheOldEntryAndReIssuesTheCookie(): void
+    {
+        // Issue #801's finding 6, the OWASP fixation window closed at
+        // the boundary: the handler rotates the identifier a privilege
+        // change asks for, and the settlement destroys the retired
+        // entry, saves the kept bag under the FRESH identifier, and
+        // answers the issuance cookie carrying it -- the client's next
+        // request rides the new identity with the old one dead.
+        $recordingSessionAdapter = new RecordingSessionAdapter();
+        $recordingSessionAdapter->save('OLDID' . str_repeat('x', 17), ['user' => 7]);
+
+        $rotatingHandler = new class implements RequestHandlerInterface {
+            #[Override]
+            public function handle(ServerRequestInterface $serverRequest): ResponseInterface
+            {
+                $state = $serverRequest->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
+                Assert::assertInstanceOf(SessionState::class, $state, 'the boundary decorates the request with its session bag.');
+                $state->regenerate();
+                $state->set('user', 42);
+
+                return new Response(200);
+            }
+        };
+
+        $response = new SessionMiddleware(new SessionPolicy(), $recordingSessionAdapter)->process(
+            $this->request(['zef_session' => 'OLDID' . str_repeat('x', 17)]),
+            $rotatingHandler,
+        );
+
+        // The seed save rides the recording (the flow's own saves are
+        // everything after it): the retired identifier destroyed, the
+        // bag saved exactly once under the fresh identifier, the
+        // issuance cookie carrying it.
+        self::assertSame(
+            ['OLDID' . str_repeat('x', 17)],
+            $recordingSessionAdapter->destroyedIds,
+            'exactly the retired entry dies',
+        );
+        self::assertCount(2, $recordingSessionAdapter->savedIds, "the seed save beside the flow's own one");
+        $freshId = $recordingSessionAdapter->savedIds[1];
+        self::assertNotSame('OLDID' . str_repeat('x', 17), $freshId, 'the bag is saved under the fresh identifier alone');
+
+        $cookieLines = $response->getHeader('Set-Cookie');
+        self::assertCount(1, $cookieLines);
+        self::assertStringContainsString(
+            'zef_session=' . $freshId,
+            $cookieLines[0],
+            'the issuance cookie carries the fresh identifier',
+        );
+    }
+
+    public function testADestructionAfterARotationSweepsBothIdentifiers(): void
+    {
+        // The logout-after-login twin: a rotation followed by a
+        // destruction must not leave the retired entry alive -- the
+        // destruction verdict sweeps both identifiers, the deletion
+        // cookie answering.
+        $recordingSessionAdapter = new RecordingSessionAdapter();
+        $recordingSessionAdapter->save('OLDID' . str_repeat('x', 17), ['user' => 7]);
+
+        $rotatingOutHandler = new class implements RequestHandlerInterface {
+            #[Override]
+            public function handle(ServerRequestInterface $serverRequest): ResponseInterface
+            {
+                $state = $serverRequest->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
+                Assert::assertInstanceOf(SessionState::class, $state, 'the boundary decorates the request with its session bag.');
+                $state->regenerate();
+                $state->destroy();
+
+                return new Response(200);
+            }
+        };
+
+        $response = new SessionMiddleware(new SessionPolicy(), $recordingSessionAdapter)->process(
+            $this->request(['zef_session' => 'OLDID' . str_repeat('x', 17)]),
+            $rotatingOutHandler,
+        );
+
+        self::assertSame(
+            ['OLDID' . str_repeat('x', 17)],
+            $recordingSessionAdapter->savedIds,
+            'the seed save alone -- a destroyed session saves nothing',
+        );
+        self::assertCount(2, $recordingSessionAdapter->destroyedIds, 'both identifiers swept');
+        $cookieLines = $response->getHeader('Set-Cookie');
+        self::assertCount(1, $cookieLines);
+        self::assertStringContainsString('zef_session=; ', $cookieLines[0], 'the deletion cookie answers');
+    }
+
     /**
      * One request over the given cookie bag and scheme.
      *
