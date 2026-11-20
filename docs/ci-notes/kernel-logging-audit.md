@@ -53,3 +53,16 @@ None worth the note: the local battery ran green on the first pass
 (PHPStan, Psalm, the fixer, the full suite), the archeology findings
 at zero for both touched files, and the mutant battery's six kills
 (each finding's own seams) verified before the branch moved.
+
+**Amended -- the gate lesson the round earned after all.** The first
+CI pass failed the mutation lane with an exit-143 the local battery
+could never see: the failing-handler fold answers through the record
+writer's SAPI fallback (`error_log()`, STDERR on the CLI -- no log
+address the defaults-only boot carries), and Infection's initial
+suite run STOPS on the first STDERR byte it sees -- its own doctrine
+("a test process that writes an error stream is a failing one"),
+the whole battery dying as a red suite for one expected record. The
+boot battery routes the fallback into a file for its own duration
+(`ini_set('error_log', ...)`, the writer's own direct battery's own
+spelling) -- the record's content stays pinned where it always was,
+the boot battery pinning the pipeline's response alone.

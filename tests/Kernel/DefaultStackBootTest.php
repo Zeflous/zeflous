@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Test\Kernel;
 
+use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -32,6 +33,40 @@ use Zef\Test\Support\Http\ThrowingHandler;
 #[CoversClass(FrameworkDefaults::class)]
 final class DefaultStackBootTest extends TestCase
 {
+    private string $routedErrorLog = '';
+
+    private false|string $previousErrorLog = false;
+
+    #[Override]
+    protected function setUp(): void
+    {
+        // The failing-handler fold answers through the record writer's
+        // SAPI fallback (no log address the defaults-only boot carries,
+        // so `error_log()` lands on the CLI's STDERR) -- and the mutation
+        // gate's initial suite run STOPS on the first STDERR byte it
+        // sees (Infection's own doctrine: a test process that writes an
+        // error stream is a failing one), killing the whole battery with
+        // the exit-143 the gate reads as a red suite. The battery routes
+        // the fallback into a file instead -- the same spelling the
+        // writer's own direct battery pins ({@see ErrorFaultLogWriterTest}),
+        // this one pinning the pipeline's RESPONSE, never the log's
+        // destination.
+        $this->routedErrorLog = sys_get_temp_dir() . '/zef-default-stack-errorlog-' . uniqid() . '.log';
+        $this->previousErrorLog = (string) ini_set('error_log', $this->routedErrorLog);
+    }
+
+    #[Override]
+    protected function tearDown(): void
+    {
+        ini_set('error_log', (string) $this->previousErrorLog);
+
+        if (!is_file($this->routedErrorLog)) {
+            return;
+        }
+
+        unlink($this->routedErrorLog);
+    }
+
     public function testTheDefaultLayerShipsTheErrorBoundaryStack(): void
     {
         $kernel = new ApplicationBootstrapper()->boot(__DIR__ . '/fixtures/empty');
