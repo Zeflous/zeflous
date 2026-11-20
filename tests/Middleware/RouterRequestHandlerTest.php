@@ -483,7 +483,11 @@ final class RouterRequestHandlerTest extends TestCase
             ->handle($this->request('HEAD', 'api.example.com', 'text/plain'))
         ;
 
-        self::assertSame('4', $lying->getHeaderLine('Content-Length'), 'the measured truth replaces the lying declaration');
+        self::assertSame(
+            '4',
+            $lying->getHeaderLine('Content-Length'),
+            'the measured truth replaces the lying declaration',
+        );
         self::assertSame('', $lying->getBody()->getContents());
     }
 

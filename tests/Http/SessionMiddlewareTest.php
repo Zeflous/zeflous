@@ -15,11 +15,13 @@ use Zef\Framework\Http\HttpException;
 use Zef\Framework\Http\InMemorySessionAdapter;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\SessionCookieLine;
 use Zef\Framework\Http\SessionMiddleware;
 use Zef\Framework\Http\SessionPolicy;
 use Zef\Framework\Http\SessionResolution;
 use Zef\Framework\Http\SessionSettlement;
 use Zef\Framework\Http\SessionState;
+use Zef\Framework\Http\SessionStorageEffects;
 use Zef\Framework\Http\Uri;
 use Zef\Test\Support\Http\MutableClock;
 use Zef\Test\Support\Http\RecordingSessionAdapter;
@@ -42,6 +44,8 @@ use Zef\Test\Support\Http\SessionWritingHandler;
 #[CoversClass(SessionMiddleware::class)]
 #[CoversClass(SessionResolution::class)]
 #[CoversClass(SessionSettlement::class)]
+#[CoversClass(SessionStorageEffects::class)]
+#[CoversClass(SessionCookieLine::class)]
 final class SessionMiddlewareTest extends TestCase
 {
     /** One carried identifier the live-session tests spell once. */
@@ -374,7 +378,7 @@ final class SessionMiddlewareTest extends TestCase
             public function handle(ServerRequestInterface $serverRequest): ResponseInterface
             {
                 $state = $serverRequest->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
-                Assert::assertInstanceOf(SessionState::class, $state, 'the boundary decorates the request with its session bag.');
+                Assert::assertInstanceOf(SessionState::class, $state);
                 $state->regenerate();
                 $state->set('user', 42);
 
@@ -398,7 +402,11 @@ final class SessionMiddlewareTest extends TestCase
         );
         self::assertCount(2, $recordingSessionAdapter->savedIds, "the seed save beside the flow's own one");
         $freshId = $recordingSessionAdapter->savedIds[1];
-        self::assertNotSame('OLDID' . str_repeat('x', 17), $freshId, 'the bag is saved under the fresh identifier alone');
+        self::assertNotSame(
+            'OLDID' . str_repeat('x', 17),
+            $freshId,
+            'the bag is saved under the fresh identifier alone',
+        );
 
         $cookieLines = $response->getHeader('Set-Cookie');
         self::assertCount(1, $cookieLines);
@@ -423,7 +431,7 @@ final class SessionMiddlewareTest extends TestCase
             public function handle(ServerRequestInterface $serverRequest): ResponseInterface
             {
                 $state = $serverRequest->getAttribute(SessionMiddleware::SESSION_ATTRIBUTE);
-                Assert::assertInstanceOf(SessionState::class, $state, 'the boundary decorates the request with its session bag.');
+                Assert::assertInstanceOf(SessionState::class, $state);
                 $state->regenerate();
                 $state->destroy();
 

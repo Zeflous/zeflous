@@ -13,33 +13,40 @@ use Psr\Http\Message\ServerRequestInterface;
  * handler leaves behind -- destruction, issuance, or the write-only
  * refresh.
  *
- * The verdicts, in order: a destroyed session
- * ({@see SessionState::destroy()}) destroys the storage entry and
- * answers the deletion cookie -- including the freshly-minted case,
- * because the client that carried a now-expired cookie (the very
- * reason the session was minted fresh) still holds a stale cookie
- * the deletion retires, and including a rotation the destruction
- * follows (the retired identifier's entry dies with the current
- * one, a rebind-shaped sweep the one verdict must own whole); a
+ * The verdicts live in their own units (the #801 round's archeology
+ * answer, the rotation round's own growth pushing the settlement
+ * past the difficulty bar): the storage walk -- the entries that die
+ * and the bag that saves -- is {@see SessionStorageEffects}'s own, the cookie
+ * line -- the deletion, the issuance, or nothing -- is {@see
+ * SessionCookieLine}'s own, and the settlement is the composition
+ * alone: the sweep runs, the line is judged, and the answer carries
+ * whichever line the verdict spells over the request's own scheme.
+ *
+ * The verdicts, in order: a destroyed session destroys the storage
+ * entry (and the retired one a rotation had marked -- a rebind-shaped
+ * sweep the one verdict owns whole) and answers the deletion cookie
+ * -- including the freshly-minted case, because the client that
+ * carried a now-expired cookie (the very reason the session was
+ * minted fresh) still holds a stale cookie the deletion retires; a
  * rotated session ({@see SessionState::regenerate()}, issue #801's
  * finding 6) destroys the retired identifier's entry and falls to
  * the write arm the rotation dirtied -- the bag saved under the
  * FRESH identifier, the issuance cookie carrying it, the client's
  * next request riding the new identity and the old identifier dead
- * on the wire both; a freshly minted session the handler WROTE
- * INTO saves its bag and answers the issuance cookie carrying the
- * new identifier -- the client must learn the identifier before it
- * can ever carry it -- while a freshly minted session the handler
- * never wrote answers neither, because minting alone is not state
- * worth persisting: the cookie-less traffic (crawler, attacker,
- * private browsing) that mints and never returns would otherwise
- * grow the storage one abandoned empty entry per request (the
- * round-3 audit's R3-4); and a live session saves only when the bag
- * carries writes, the write-only refresh the family's idle doctrine
- * spells: the idle clock is the storage's own last-write clock, so a
- * request that reads without writing does not extend the session,
- * and the read-only touch the alternative doctrine would answer with
- * a storage write per request is a knob the family grows when a
+ * on the wire both; a freshly minted session the handler WROTE INTO
+ * saves its bag and answers the issuance cookie carrying the new
+ * identifier -- the client must learn the identifier before it can
+ * ever carry it -- while a freshly minted session the handler never
+ * wrote answers neither, because minting alone is not state worth
+ * persisting: the cookie-less traffic (crawler, attacker, private
+ * browsing) that mints and never returns would otherwise grow the
+ * storage one abandoned empty entry per request (the round-3 audit's
+ * R3-4); and a live session saves only when the bag carries writes,
+ * the write-only refresh the family's idle doctrine spells: the
+ * idle clock is the storage's own last-write clock, so a request
+ * that reads without writing does not extend the session, and the
+ * read-only touch the alternative doctrine would answer with a
+ * storage write per request is a knob the family grows when a
  * consumer asks for it, not a posture it assumes silently.
  *
  * The cookie line is appended beside whatever `Set-Cookie` values
@@ -52,10 +59,13 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 final readonly class SessionSettlement
 {
+    private SessionStorageEffects $sessionStorageEffects;
+
     public function __construct(
         private SessionPolicy $sessionPolicy,
-        private SessionAdapterInterface $sessionAdapter,
+        SessionAdapterInterface $sessionAdapter,
     ) {
+        $this->sessionStorageEffects = new SessionStorageEffects($sessionAdapter);
     }
 
     /**
@@ -73,53 +83,21 @@ final readonly class SessionSettlement
         SessionState $sessionState,
         ServerRequestInterface $serverRequest,
     ): ResponseInterface {
-        if ($sessionState->isDestroyed()) {
-            $this->sessionAdapter->destroy($sessionState->id());
+        $this->sessionStorageEffects->apply($sessionState);
 
-            if ($sessionState->retiredId() !== null) {
-                $this->sessionAdapter->destroy($sessionState->retiredId());
-            }
+        $setCookie = SessionCookieLine::verdict($this->sessionPolicy, $sessionState);
 
-            return $this->withCookie(
-                $response,
-                SetCookie::deleted(
-                    $this->sessionPolicy->cookieName,
-                    $this->sessionPolicy->sameSite,
-                    $this->sessionPolicy->cookieSecure,
-                    $this->sessionPolicy->cookieHttpOnly,
-                ),
-                $serverRequest,
-            );
+        if (!$setCookie instanceof SetCookie) {
+            // A live session the handler never wrote owes no cookie
+            // line (the client already carries the identifier), and a
+            // mint the handler never wrote into is an identifier the
+            // client never needs to learn: no storage entry, no
+            // issuance cookie, because minting alone is not state
+            // worth persisting.
+            return $response;
         }
 
-        if ($sessionState->isRegenerated() && $sessionState->retiredId() !== null) {
-            $this->sessionAdapter->destroy($sessionState->retiredId());
-        }
-
-        if ($sessionState->isDirty()) {
-            $this->sessionAdapter->save($sessionState->id(), $sessionState->data());
-
-            if ($sessionState->isNew() || $sessionState->isRegenerated()) {
-                return $this->withCookie(
-                    $response,
-                    new SetCookie(
-                        name: $this->sessionPolicy->cookieName,
-                        value: $sessionState->id(),
-                        sameSite: $this->sessionPolicy->sameSite,
-                        secure: $this->sessionPolicy->cookieSecure,
-                        httpOnly: $this->sessionPolicy->cookieHttpOnly,
-                    ),
-                    $serverRequest,
-                );
-            }
-        }
-
-        // A live session the handler never wrote owes no cookie line
-        // (the client already carries the identifier), and a mint the
-        // handler never wrote into is an identifier the client never
-        // needs to learn: no storage entry, no issuance cookie,
-        // because minting alone is not state worth persisting.
-        return $response;
+        return $this->withCookie($response, $setCookie, $serverRequest);
     }
 
     /**

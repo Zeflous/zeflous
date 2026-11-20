@@ -7,6 +7,8 @@ namespace Zef\Test\Http;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\HttpException;
+use Zef\Framework\Http\SessionDataBag;
+use Zef\Framework\Http\SessionRotation;
 use Zef\Framework\Http\SessionState;
 
 /**
@@ -20,6 +22,8 @@ use Zef\Framework\Http\SessionState;
  * @internal
  */
 #[CoversClass(SessionState::class)]
+#[CoversClass(SessionRotation::class)]
+#[CoversClass(SessionDataBag::class)]
 final class SessionStateTest extends TestCase
 {
     public function testAFreshlyMintedSessionCarriesItsFlags(): void

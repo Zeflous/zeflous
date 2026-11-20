@@ -11,6 +11,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Http\FormBodyParser;
 use Zef\Framework\Http\ReplayBodyDecoder;
+use Zef\Framework\Http\ReplayBodyLane;
 use Zef\Test\Support\Http\ReplaySnapshotDoubleState;
 use Zef\Test\Support\Http\ReplaySnapshotFunctionDoubles;
 
@@ -25,6 +26,7 @@ use Zef\Test\Support\Http\ReplaySnapshotFunctionDoubles;
  * @internal
  */
 #[CoversClass(ReplayBodyDecoder::class)]
+#[CoversClass(ReplayBodyLane::class)]
 final class ReplayBodyDecoderTest extends TestCase
 {
     #[Override]

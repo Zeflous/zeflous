@@ -4,7 +4,13 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Http;
 
-/** Decodes one structured body by its media type into the redacted, replayable shape. */
+/**
+ * Decodes one structured body by its media type into the redacted,
+ * replayable shape: the {@see ReplayBodyLane} judgment names the lane,
+ * and this class owns the decodes alone (the #801 round's archeology
+ * answer -- the routing judgment its own unit so the decoder's own
+ * difficulty stays under the bar the pair census pushed it past).
+ */
 final class ReplayBodyDecoder
 {
     /**
@@ -12,17 +18,11 @@ final class ReplayBodyDecoder
      */
     public static function decode(string $mediaType, string $body): array
     {
-        return match (true) {
-            self::isJsonMediaType($mediaType) => self::json($body),
-            $mediaType === 'application/x-www-form-urlencoded' => self::form($body),
-            default => ['', false],
+        return match (ReplayBodyLane::of($mediaType)) {
+            'json' => self::json($body),
+            'form' => self::form($body),
+            null => ['', false],
         };
-    }
-
-    private static function isJsonMediaType(string $mediaType): bool
-    {
-        return $mediaType === 'application/json'
-            || (str_starts_with($mediaType, 'application/') && str_ends_with($mediaType, '+json'));
     }
 
     /** @return array{string, bool} */

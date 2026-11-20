@@ -87,7 +87,9 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
         if ($response->getStatusCode() === 304) {
             $message = $response->withBody($this->streamFactory->createStream(''));
             if (!$message instanceof ResponseInterface) {
-                throw new UnexpectedValueException('The HEAD response body operation did not return a ResponseInterface.');
+                throw new UnexpectedValueException(
+                    'The HEAD response body operation did not return a ResponseInterface.',
+                );
             }
 
             return $message;

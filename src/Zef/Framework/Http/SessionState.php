@@ -8,9 +8,16 @@ use Closure;
 
 /**
  * The request-scoped session bag: one identifier, one data bag, and
- * the three flags the outbound boundary ({@see SessionMiddleware})
- * reads to decide what the storage and the `Set-Cookie` header owe --
- * freshly minted, dirtied by writes, or marked for destruction.
+ * the flags the outbound boundary ({@see SessionMiddleware})
+ * reads to decide what the storage and the `Set-Cookie` header owe
+ * -- freshly minted, dirtied by writes, or marked for destruction.
+ * The bag itself is {@see SessionDataBag}'s own unit and the
+ * identifier's rotation is {@see SessionRotation}'s (the #801
+ * round's own archeology answer: the state's difficulty crossed the
+ * bar with the rotation aboard, and both halves of the class's own
+ * docblock decomposition -- one identifier, one data bag -- moved
+ * out), the state keeping the identity, its own flags, and the
+ * composition alone.
  *
  * The bag is mutable on purpose: it is the request's own state, the
  * one place in the HTTP family where mutation is the contract (the
@@ -39,18 +46,19 @@ use Closure;
  * pre-login must not ride the post-login session), the data kept and
  * the identifier swapped: the boundary destroys the retired entry,
  * saves the bag under the fresh identifier, and answers the
- * issuance cookie carrying it.
+ * issuance cookie carrying it. The rotation's own state -- whether
+ * one ran, and which identifier it retired -- lives in its own unit
+ * ({@see SessionRotation}), the bag in its own ({@see
+ * SessionDataBag}), the state keeping the identifier, its own
+ * flags, and the composition alone.
  */
 final class SessionState
 {
-    private bool $dirty = false;
-
     private bool $destroyed = false;
 
-    private bool $regenerated = false;
+    private readonly SessionRotation $sessionRotation;
 
-    /** The identifier the rotation retired, null until one runs. */
-    private ?string $retiredId = null;
+    private readonly SessionDataBag $sessionDataBag;
 
     /**
      * @param string                   $id     the session identifier
@@ -69,10 +77,12 @@ final class SessionState
      */
     public function __construct(
         private string $id,
-        private array $data,
+        array $data,
         private readonly bool $isNew = false,
-        private readonly ?Closure $mintId = null,
+        ?Closure $mintId = null,
     ) {
+        $this->sessionDataBag = new SessionDataBag($data);
+        $this->sessionRotation = new SessionRotation($mintId);
     }
 
     /**
@@ -96,7 +106,7 @@ final class SessionState
      */
     public function isDirty(): bool
     {
-        return $this->dirty;
+        return $this->sessionDataBag->isDirty();
     }
 
     /**
@@ -115,7 +125,7 @@ final class SessionState
      */
     public function value(string $key): mixed
     {
-        return $this->data[$key] ?? null;
+        return $this->sessionDataBag->value($key);
     }
 
     /**
@@ -126,7 +136,7 @@ final class SessionState
      */
     public function data(): array
     {
-        return $this->data;
+        return $this->sessionDataBag->data();
     }
 
     /**
@@ -134,8 +144,7 @@ final class SessionState
      */
     public function set(string $key, mixed $value): void
     {
-        $this->data[$key] = $value;
-        $this->dirty = true;
+        $this->sessionDataBag->set($key, $value);
     }
 
     /**
@@ -145,12 +154,7 @@ final class SessionState
      */
     public function remove(string $key): void
     {
-        if (!\array_key_exists($key, $this->data)) {
-            return;
-        }
-
-        unset($this->data[$key]);
-        $this->dirty = true;
+        $this->sessionDataBag->remove($key);
     }
 
     /**
@@ -158,7 +162,7 @@ final class SessionState
      */
     public function isRegenerated(): bool
     {
-        return $this->regenerated;
+        return $this->sessionRotation->rotated();
     }
 
     /**
@@ -168,7 +172,7 @@ final class SessionState
      */
     public function retiredId(): ?string
     {
-        return $this->retiredId;
+        return $this->sessionRotation->retiredId();
     }
 
     /**
@@ -178,7 +182,7 @@ final class SessionState
      */
     public function destroy(): void
     {
-        $this->data = [];
+        $this->sessionDataBag->clear();
         $this->destroyed = true;
     }
 
@@ -192,30 +196,19 @@ final class SessionState
      * -- erasure is {@see self::destroy()}'s own verdict). The
      * boundary retires the prior identifier's storage entry and
      * re-issues the cookie carrying the fresh one; a destroyed
-     * session has nothing left to rotate, an unrotatable state (no
-     * mint at construction) refuses loudly rather than degrading
-     * into the silent no-op a privilege change must never read, and
-     * a second call is the idempotent spelling -- one rotation per
-     * request, the boundary's save answering it once.
+     * session has nothing left to rotate, the rotation itself
+     * ({@see SessionRotation::rotate()}) refusing loudly when the
+     * state was constructed without the mint, and answering the
+     * identifier it was handed when one already ran -- one rotation
+     * per request, the boundary's save answering it once.
      */
     public function regenerate(): void
     {
-        if ($this->destroyed || $this->regenerated) {
+        if ($this->destroyed) {
             return;
         }
 
-        if (!$this->mintId instanceof Closure) {
-            throw new HttpException(
-                'The session identifier cannot rotate: the state was constructed without the '
-                . 'identifier seam the rotation mints through (the boundary-owned states carry '
-                . "the resolution's own mint -- construct the state through the session "
-                . 'boundary, or hand the mint the rotation asks for).',
-            );
-        }
-
-        $this->retiredId = $this->id;
-        $this->id = ($this->mintId)();
-        $this->regenerated = true;
-        $this->dirty = true;
+        $this->id = $this->sessionRotation->rotate($this->id);
+        $this->sessionDataBag->markDirty();
     }
 }

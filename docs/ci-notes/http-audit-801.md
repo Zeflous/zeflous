@@ -130,3 +130,24 @@ bound's boundary pair, the stamp's presence and fallback, the
 rotation's idempotence and refusal), and the local gates ran green
 before the branch moved (the full suite, PHPStan, Psalm, the fixer,
 Rector).
+
+## The round's own archeology answer
+
+The rotation's growth pushed three of the lane's files past the
+difficulty bar the gate keeps (the pinned-strict 20): the state
+(21.15), the settlement (26.13) and the decoder (20.04), the state's
+class-level shape answering 22.46. The answer is the wave's own
+doctrine -- the cohesive judgment moves out into its own unit, the
+composition keeping the composition alone: the decoder's media-type
+routing (`ReplayBodyLane`, 5.06), the state's two halves of its own
+docblock decomposition (`SessionDataBag`, 13.00 -- the bag and its
+write-honest dirty flag; `SessionRotation`, 9.00 -- the retired
+identifier, the mint, the loud refusal), the settlement's two verdict
+arms (`SessionStorageEffects`, 10.50 -- the entries that die and the
+bag that saves; `SessionCookieLine`, 15.75 -- the deletion, the
+issuance, or nothing), every landing shape under the bar (the state
+11.67, the settlement 14.25, the decoder 14.50), and the lane's
+sixth new unit (`HeadBody`, 0.86) never near it. The
+`Adapters\Session\SessionSweep` name collision the first spelling
+paid (`Http\SessionSweep`) is retired for the honest
+`SessionStorageEffects`.
