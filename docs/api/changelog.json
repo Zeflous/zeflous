@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-20T22:50:06Z",
+  "as_of": "2026-11-21T05:05:42Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 352,
+  "unreleased_count": 353,
   "versions": [
     {
       "version": "Unreleased",
@@ -8074,6 +8074,52 @@
                 "sha": "8f3f27d498df6f8457346777535d9f8157c2e2dd",
                 "short_sha": "8f3f27d",
                 "subject": "docs(roadmap): the row and both pins ride the round's second-gate head (#897)"
+              }
+            ]
+          },
+          {
+            "pr": 900,
+            "title": "fix(http): the head answer carries its GET twin's length, the unmeasurable cursor loses the field honestly, and the lane's four minor seams each answer at their own edge (issue #801)",
+            "author": "mbetixz",
+            "category": "Bug Fixes",
+            "merged_at": "2026-11-21T05:05:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/900",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "6d43189863aed4fcee3d697d2ac9a15129eeeb8e",
+                "short_sha": "6d43189",
+                "subject": "fix(http): the head answer carries its GET twin's length, the unmeasurable cursor loses the field honestly, and the lane's four minor seams each answer at their own edge (issue #801)"
+              },
+              {
+                "sha": "fe024caab050649ee9a4a80142c2cbafed13c8bf",
+                "short_sha": "fe024ca",
+                "subject": "refactor(http): the round's archeology answer -- the over-bar shapes split their judgments into landing units (issue #801)"
+              },
+              {
+                "sha": "dc3fffcf9c906e8c0ad31a6c3f068b292390b4a4",
+                "short_sha": "dc3fffc",
+                "subject": "style(http): the phpcs bar's own two answers -- the lane's early exit and the multi-line guard's spacing (issue #801)"
+              },
+              {
+                "sha": "9b339c8726ace5120745fd15e942e59e107a2495",
+                "short_sha": "9b339c8",
+                "subject": "test(http): the mutation lane's five escapes meet their direct pins, and the two equivalences their own ignores (issue #801)"
+              },
+              {
+                "sha": "422a1b150ac1bcbd9374237d901a437987b09c4f",
+                "short_sha": "422a1b1",
+                "subject": "Merge branch 'main' into fix/issue-801-audit-http"
+              },
+              {
+                "sha": "6a9ee3fecc05580e503adba69883ab901fa1b106",
+                "short_sha": "6a9ee3f",
+                "subject": "docs(roadmap): the row and both pins ride the round's mutation-answer head (#900)"
+              },
+              {
+                "sha": "d161423fbdcd97f75530cecff6112326077c61a0",
+                "short_sha": "d161423",
+                "subject": "docs(roadmap): the row's commit and both pins ride the record head, the interleaved landing's queue walk answered (#900)"
               }
             ]
           }
@@ -24217,6 +24263,52 @@
               "sha": "8f3f27d498df6f8457346777535d9f8157c2e2dd",
               "short_sha": "8f3f27d",
               "subject": "docs(roadmap): the row and both pins ride the round's second-gate head (#897)"
+            }
+          ]
+        },
+        {
+          "pr": 900,
+          "title": "fix(http): the head answer carries its GET twin's length, the unmeasurable cursor loses the field honestly, and the lane's four minor seams each answer at their own edge (issue #801)",
+          "author": "mbetixz",
+          "category": "Bug Fixes",
+          "merged_at": "2026-11-21T05:05:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/900",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "6d43189863aed4fcee3d697d2ac9a15129eeeb8e",
+              "short_sha": "6d43189",
+              "subject": "fix(http): the head answer carries its GET twin's length, the unmeasurable cursor loses the field honestly, and the lane's four minor seams each answer at their own edge (issue #801)"
+            },
+            {
+              "sha": "fe024caab050649ee9a4a80142c2cbafed13c8bf",
+              "short_sha": "fe024ca",
+              "subject": "refactor(http): the round's archeology answer -- the over-bar shapes split their judgments into landing units (issue #801)"
+            },
+            {
+              "sha": "dc3fffcf9c906e8c0ad31a6c3f068b292390b4a4",
+              "short_sha": "dc3fffc",
+              "subject": "style(http): the phpcs bar's own two answers -- the lane's early exit and the multi-line guard's spacing (issue #801)"
+            },
+            {
+              "sha": "9b339c8726ace5120745fd15e942e59e107a2495",
+              "short_sha": "9b339c8",
+              "subject": "test(http): the mutation lane's five escapes meet their direct pins, and the two equivalences their own ignores (issue #801)"
+            },
+            {
+              "sha": "422a1b150ac1bcbd9374237d901a437987b09c4f",
+              "short_sha": "422a1b1",
+              "subject": "Merge branch 'main' into fix/issue-801-audit-http"
+            },
+            {
+              "sha": "6a9ee3fecc05580e503adba69883ab901fa1b106",
+              "short_sha": "6a9ee3f",
+              "subject": "docs(roadmap): the row and both pins ride the round's mutation-answer head (#900)"
+            },
+            {
+              "sha": "d161423fbdcd97f75530cecff6112326077c61a0",
+              "short_sha": "d161423",
+              "subject": "docs(roadmap): the row's commit and both pins ride the record head, the interleaved landing's queue walk answered (#900)"
             }
           ]
         }
