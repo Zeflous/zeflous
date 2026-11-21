@@ -159,10 +159,24 @@ in the evidence's own order), the store keeps the landing alone (the
 name, the move, the address), and the admission owns the ceiling and
 the allowlist's construction bounds -- neither fold ever answers for
 the other, and each sits under the ceiling on its own terms. The CI
-round's other two findings rode the same settle: the boundary-test
+round's other findings rode the same settle: the boundary-test
 variable name the rector rule demands, and the suite's three
 identical private `removeTree` helpers folded into the one
-`UploadsTemporaryTree` support fold the three test classes share --
-the honest deduplication the round's own review demanded before the
-advisory lane could answer green.
+`UploadsTemporaryTree` support fold the three test classes share.
+
+The round's second measure kept the advisory duplication lane's
+density above its 2% bound -- the small slice cannot amortise the
+per-family spellings the house doctrine keeps (the census and the
+directory posture are each deliberately the sister folds' shape,
+the words the family's own), and the removeTree extraction alone
+did not move the number. The answer the house's own disciplines
+spell, not a detector dodge: the census walks as a filter over
+the declaration's own key set (the first foreign key answered
+identically, the message unchanged -- a family spelling the sister
+censuses' fail-fast loop does not own), and the directory posture
+splits into its three guards -- the geometry, the canonical
+address, the permission mask -- the depth-split discipline the
+tree's folds keep under the architecture gates' ceilings, each
+guard owning one question and one refusal, every message and
+every refusal semantics unchanged (the tests never changed).
 

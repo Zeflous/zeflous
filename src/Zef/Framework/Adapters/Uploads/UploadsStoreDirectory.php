@@ -27,10 +27,12 @@ use Zef\Framework\Storage\StorageDocumentRoot;
  * delivery and session directory folds compose it. The geometry
  * this fold itself owns -- existence, writability, the symlink
  * refusal, the owner-only permission mask -- is spelled fresh, in
- * the uploads family's own words, for the same reason: the
- * uploads lane is the one Partial area the priorities table
- * spells as a production attack surface, so its first writer
- * lands the strictest posture the sister lanes already carry.
+ * the uploads family's own words, as the three guards the fold's
+ * own answer spells (the depth-split discipline the tree's folds
+ * keep under the architecture gates' ceilings): the geometry
+ * guard, the canonical address and the permission mask each own
+ * one question, one refusal, one seam -- the same posture the
+ * sister lanes carry, in the family's own spelling (KDD-US10).
  */
 final class UploadsStoreDirectory
 {
@@ -49,13 +51,50 @@ final class UploadsStoreDirectory
      */
     public static function resolve(string $directory): string
     {
+        self::refuseUnwritableGeometry($directory);
+
+        $resolved = self::canonicalAddress($directory);
+
+        self::refusePermissiveMask($resolved);
+
+        StorageDocumentRoot::assertOutside($resolved);
+
+        return $resolved;
+    }
+
+    /**
+     * The geometry guard: an existing, writable, non-symlink
+     * directory -- the writer's own landing surface.
+     *
+     * @param string $directory the declared or derived uploads lane
+     *                          address
+     *
+     * @throws InvalidArgumentException when the directory is empty,
+     *                                  a symlink, missing, or unwritable
+     */
+    private static function refuseUnwritableGeometry(string $directory): void
+    {
         if ($directory === '' || is_link($directory) || !is_dir($directory) || !is_writable($directory)) {
             throw new InvalidArgumentException(
                 'The uploads file store must be an existing writable'
                 . ' non-symlink directory.',
             );
         }
+    }
 
+    /**
+     * The canonical address: the resolved real path the landing's
+     * own name joins onto, refused when the engine cannot resolve
+     * it.
+     *
+     * @param string $directory the declared or derived uploads lane
+     *                          address
+     *
+     * @throws InvalidArgumentException when the directory cannot be
+     *                                  resolved
+     */
+    private static function canonicalAddress(string $directory): string
+    {
         $resolved = realpath($directory);
 
         if (!\is_string($resolved)) {
@@ -64,6 +103,20 @@ final class UploadsStoreDirectory
             );
         }
 
+        return $resolved;
+    }
+
+    /**
+     * The permission mask guard: owner-only, the posture the lane's
+     * inbound artefacts demand.
+     *
+     * @param string $resolved the resolved real path being judged
+     *
+     * @throws InvalidArgumentException when the mask cannot be read
+     *                                  or carries a group or world bit
+     */
+    private static function refusePermissiveMask(string $resolved): void
+    {
         $permissions = fileperms($resolved);
 
         if (!\is_int($permissions) || ($permissions & 0o077) !== 0) {
@@ -72,9 +125,5 @@ final class UploadsStoreDirectory
                 . ' permissions.',
             );
         }
-
-        StorageDocumentRoot::assertOutside($resolved);
-
-        return $resolved;
     }
 }

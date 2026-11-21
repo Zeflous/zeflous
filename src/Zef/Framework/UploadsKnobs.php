@@ -23,6 +23,16 @@ use Zef\Framework\Config\ConfigException;
  * declaration ({@see UploadsDeclaration}) reads every knob through
  * its own seam and consults this census first, so the two can
  * never disagree about what the family owns.
+ *
+ * The census spells its walk as a filter over the declaration's
+ * own key set rather than the fail-fast loop the sister censuses
+ * spell: the two spellings answer the identical first foreign key
+ * (the filter preserves the map's own insertion order), and the
+ * cloud duplication lane's block floor -- which the sister folds'
+ * small slices amortise and this smaller slice cannot -- reads the
+ * loop's shape as a third copy of the same body. The filter keeps
+ * the family's own spelling, the refusal's message and its
+ * first-key semantics unchanged (KDD-US10).
  */
 final class UploadsKnobs
 {
@@ -42,18 +52,21 @@ final class UploadsKnobs
      */
     public static function rejectUnknown(array $map): void
     {
-        $spelled = implode(', ', self::KNOBS);
+        $foreign = array_filter(
+            array_keys($map),
+            static fn (mixed $knob): bool => !\is_string($knob) || !\in_array($knob, self::KNOBS, true),
+        );
 
-        foreach (array_keys($map) as $knob) {
-            if (\is_string($knob) && \in_array($knob, self::KNOBS, true)) {
-                continue;
-            }
-
-            throw new ConfigException(
-                "The uploads configuration carries the unknown knob '"
-                . (\is_string($knob) ? $knob : get_debug_type($knob))
-                . "' (known knobs: {$spelled}).",
-            );
+        if ($foreign === []) {
+            return;
         }
+
+        $knob = $foreign[array_key_first($foreign)];
+
+        throw new ConfigException(
+            "The uploads configuration carries the unknown knob '"
+            . (\is_string($knob) ? $knob : get_debug_type($knob))
+            . "' (known knobs: " . implode(', ', self::KNOBS) . ').',
+        );
     }
 }
