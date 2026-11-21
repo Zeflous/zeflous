@@ -18,6 +18,8 @@ use Zef\Framework\Exception\NativeErrorException;
 use Zef\Framework\Exception\NotAcceptableException;
 use Zef\Framework\Exception\NotFoundException;
 use Zef\Framework\Exception\RateLimitException;
+use Zef\Framework\Exception\UnsupportedMediaTypeException;
+use Zef\Framework\Exception\UploadTooLargeException;
 use Zef\Framework\Exception\ValidationException;
 use Zef\Framework\Exception\ZefException;
 
@@ -37,6 +39,8 @@ use Zef\Framework\Exception\ZefException;
 #[CoversClass(NotAcceptableException::class)]
 #[CoversClass(ConflictException::class)]
 #[CoversClass(RateLimitException::class)]
+#[CoversClass(UploadTooLargeException::class)]
+#[CoversClass(UnsupportedMediaTypeException::class)]
 #[CoversClass(InternalException::class)]
 #[CoversClass(NativeErrorException::class)]
 final class TypedExceptionFamilyTest extends TestCase
@@ -68,6 +72,13 @@ final class TypedExceptionFamilyTest extends TestCase
         yield 'conflict answers 409' => [new ConflictException('Email already registered.'), 409];
 
         yield 'rate limit answers 429' => [new RateLimitException(30), 429];
+
+        yield 'upload too large answers 413' => [new UploadTooLargeException(524289, 524288), 413];
+
+        yield 'unsupported media type answers 415' => [
+            new UnsupportedMediaTypeException('application/x-evil', ['image/png']),
+            415,
+        ];
 
         yield 'internal answers 500' => [new InternalException('The queue worker observed an impossible state.'), 500];
 

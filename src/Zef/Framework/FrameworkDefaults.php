@@ -101,7 +101,20 @@ use Zef\Framework\Middleware\TracingFactory;
  * registration is deliberately TRANSIENT, because the singleton
  * warmer would eagerly resolve a shared lifetime and the wired
  * default's silent knob is the refusal that must fire only at the
- * host's own ask, never at the boot. The database family joins
+ * host's own ask, never at the boot. The uploads family joins
+ * the catalogue the same way the events family did -- the
+ * `uploads` lane's first writer (`uploads.store`, the
+ * registration over the `UploadsStorageWiring` fold, its knobs
+ * under the family's own `uploads` key) -- with the same
+ * never-at-the-boot posture the events family planted, spelled
+ * the way the attack surface demands it: the knobs ship SILENT
+ * (the framework ships no uploads of its own, so `uploads.types`
+ * stays the empty allowlist until a host's own declaration
+ * spells one), the transient registration keeps the silent
+ * knob's refusal firing only at the host's own ask, and the
+ * declared allowlist is itself the opt-in word the events
+ * family's store word spelled -- a writer that accepts nothing
+ * is a surface that stays shut. The database family joins
  * the catalogue the same way every family did -- the wiring knob
  * block's own registration set (`database.connection`,
  * `database.transactions`, `database.unit_of_work` and
@@ -349,6 +362,11 @@ final readonly class FrameworkDefaults
                     'capacity' => EventDeliveryDeclaration::DEFAULT_CAPACITY,
                 ],
             ],
+            'uploads' => [
+                'path' => '',
+                'max_bytes' => UploadsDeclaration::DEFAULT_MAX_BYTES,
+                'types' => [],
+            ],
             'database' => [
                 'default' => '',
                 'connections' => [],
@@ -490,6 +508,13 @@ final readonly class FrameworkDefaults
             ],
             'events.deferred.store' => [
                 'factory' => EventStorageWiring::class . '::store',
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+                'lifetime' => 'transient',
+            ],
+            'uploads.store' => [
+                'factory' => UploadsStorageWiring::class . '::store',
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],

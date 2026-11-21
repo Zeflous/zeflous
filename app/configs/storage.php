@@ -23,11 +23,13 @@ declare(strict_types=1);
  *       replay lane). A declared root provisions the family's
  *       defaults: the structured log address derives to the `logs`
  *       lane, the replay directory to the `replay` lane, the file
- *       session driver's directory to the `sessions` lane, and the
+ *       session driver's directory to the `sessions` lane, the
  *       durable event delivery store's wired default (the
  *       `events.deferred.store` knob's 'file' word) to the `queue`
- *       lane, each only when its own knob is left empty -- an
- *       explicitly spelled address always wins.
+ *       lane, and the uploads lane's validated writer (the
+ *       `uploads.store` service, the types the host spells) to the
+ *       `uploads` lane, each only when its own knob is left empty --
+ *       an explicitly spelled address always wins.
  *
  *       The tree under a declared root must be provisioned before
  *       boot: all seven lanes, existing, writable, non-symlink,

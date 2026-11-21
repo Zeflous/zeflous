@@ -62,11 +62,7 @@
   <file src="src/Contracts/Psr/Http/Message/UploadedFileInterface.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[getClientFilename]]></code>
-      <code><![CDATA[getClientMediaType]]></code>
-      <code><![CDATA[getError]]></code>
-      <code><![CDATA[getSize]]></code>
       <code><![CDATA[getStream]]></code>
-      <code><![CDATA[moveTo]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Contracts/Psr/Http/Message/UriFactoryInterface.php">
@@ -524,11 +520,6 @@
   <file src="src/Zef/Framework/Exception/ConflictException.php">
     <UnusedClass>
       <code><![CDATA[ConflictException]]></code>
-    </UnusedClass>
-  </file>
-  <file src="src/Zef/Framework/Exception/ValidationException.php">
-    <UnusedClass>
-      <code><![CDATA[ValidationException]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Export/OpenApiOperationAttribute.php">

@@ -31,6 +31,8 @@ require __DIR__ . '/Support/Adapters/Event/delivery_file_function_doubles.php';
 
 require __DIR__ . '/Support/Adapters/Session/session_file_function_doubles.php';
 
+require __DIR__ . '/Support/Adapters/Uploads/uploads_file_function_doubles.php';
+
 require __DIR__ . '/Support/Adapters/Redis/resp_socket_function_doubles.php';
 
 require __DIR__ . '/Support/Adapters/View/view_file_function_doubles.php';
