@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered [\#905](https://github.com/Zeflous/zeflous/pull/905) ([mbetixz](https://github.com/mbetixz))
 - fix\(http\): the head answer carries its GET twin's length, the unmeasurable cursor loses the field honestly, and the lane's four minor seams each answer at their own edge \(issue \#801\) [\#900](https://github.com/Zeflous/zeflous/pull/900) ([mbetixz](https://github.com/mbetixz))
 - fix\(kernel\): the sanitizer's byte budget answers in bytes, and the defaults-only boot keeps the error boundary \(issue \#802\) [\#897](https://github.com/Zeflous/zeflous/pull/897) ([mbetixz](https://github.com/mbetixz))
 - fix\(container\): the reference grammar's two lanes agree, the probe's bookkeeping is its own, and the env-shaped value names its address \(issue \#800\) [\#896](https://github.com/Zeflous/zeflous/pull/896) ([mbetixz](https://github.com/mbetixz))
