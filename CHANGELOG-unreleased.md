@@ -363,6 +363,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(roadmap): the audit's five sentences meet the code they describe (issue #789) [#864](https://github.com/Zeflous/zeflous/pull/864) ([mbetixz](https://github.com/mbetixz))
 - docs(container): the extractor's reflection claim meets the code it describes (issue #783) [#880](https://github.com/Zeflous/zeflous/pull/880) ([mbetixz](https://github.com/mbetixz))
 - docs(http): the audit's three docblock claims meet the code they describe (issue #784) [#883](https://github.com/Zeflous/zeflous/pull/883) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered [#905](https://github.com/Zeflous/zeflous/pull/905) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

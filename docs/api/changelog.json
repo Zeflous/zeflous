@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-21T05:05:42Z",
+  "as_of": "2026-11-21T15:44:53Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 353,
+  "unreleased_count": 354,
   "versions": [
     {
       "version": "Unreleased",
@@ -11971,6 +11971,27 @@
                 "sha": "c8fc1cf519f04cea30fc5b18e1bb8fa5fae5efb5",
                 "short_sha": "c8fc1cf",
                 "subject": "docs(roadmap): the pin rides the docblock-claim round's documents head (#883)"
+              }
+            ]
+          },
+          {
+            "pr": 905,
+            "title": "docs(roadmap): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-11-21T15:44:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/905",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "0e94c4a823fe53e246308c0d48d73fb2ceff8def",
+                "short_sha": "0e94c4a",
+                "subject": "docs(roadmap): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered"
+              },
+              {
+                "sha": "6d94526b784dba7ebdfe161a0b5421fee256923e",
+                "short_sha": "6d94526",
+                "subject": "docs(roadmap): the row and both pins ride the hygiene head (#905)"
               }
             ]
           }
@@ -24309,6 +24330,27 @@
               "sha": "d161423fbdcd97f75530cecff6112326077c61a0",
               "short_sha": "d161423",
               "subject": "docs(roadmap): the row's commit and both pins ride the record head, the interleaved landing's queue walk answered (#900)"
+            }
+          ]
+        },
+        {
+          "pr": 905,
+          "title": "docs(roadmap): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-11-21T15:44:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/905",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "0e94c4a823fe53e246308c0d48d73fb2ceff8def",
+              "short_sha": "0e94c4a",
+              "subject": "docs(roadmap): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered"
+            },
+            {
+              "sha": "6d94526b784dba7ebdfe161a0b5421fee256923e",
+              "short_sha": "6d94526",
+              "subject": "docs(roadmap): the row and both pins ride the hygiene head (#905)"
             }
           ]
         }
