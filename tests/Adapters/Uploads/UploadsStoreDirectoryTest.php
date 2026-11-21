@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Uploads\UploadsStoreDirectory;
 use Zef\Test\Support\Adapters\Uploads\UploadsFileDoubleState;
+use Zef\Test\Support\Adapters\Uploads\UploadsTemporaryTree;
 
 /**
  * Pins the uploads store's own directory posture: the geometry
@@ -49,7 +50,7 @@ final class UploadsStoreDirectoryTest extends TestCase
             unlink($this->directory . '-link');
         }
 
-        $this->removeTree($this->directory);
+        UploadsTemporaryTree::remove($this->directory);
     }
 
     public function testResolvesAnAcceptableDirectory(): void
@@ -283,35 +284,5 @@ final class UploadsStoreDirectoryTest extends TestCase
         } else {
             unset($_SERVER['DOCUMENT_ROOT']);
         }
-    }
-
-    /**
-     * Removes a directory tree the test laid down, best-effort: a
-     * tree the runner could not remove is the runner's own
-     * environment, never a reason to redden the arm's own verdict.
-     */
-    private function removeTree(string $directory): void
-    {
-        if (!is_dir($directory)) {
-            return;
-        }
-
-        $entries = scandir($directory);
-
-        foreach (\is_array($entries) ? $entries : [] as $entry) {
-            if ($entry === '.' || $entry === '..') {
-                continue;
-            }
-
-            $path = $directory . '/' . $entry;
-
-            if (is_dir($path)) {
-                $this->removeTree($path);
-            } else {
-                unlink($path);
-            }
-        }
-
-        rmdir($directory);
     }
 }

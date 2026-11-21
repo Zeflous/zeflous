@@ -9,6 +9,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Uploads\FileUploadsStore;
+use Zef\Framework\Adapters\Uploads\UploadsAdmission;
 use Zef\Framework\Adapters\Uploads\UploadsStoreDirectory;
 use Zef\Framework\Exception\InvariantViolationException;
 use Zef\Framework\Exception\UnsupportedMediaTypeException;
@@ -17,6 +18,7 @@ use Zef\Framework\Exception\ValidationException;
 use Zef\Framework\Http\HttpException;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\UploadedFile;
+use Zef\Test\Support\Adapters\Uploads\UploadsTemporaryTree;
 use Zef\Test\Support\Http\SizelessStream;
 
 /**
@@ -34,6 +36,7 @@ use Zef\Test\Support\Http\SizelessStream;
  * @internal
  */
 #[CoversClass(FileUploadsStore::class)]
+#[CoversClass(UploadsAdmission::class)]
 #[CoversClass(UploadsStoreDirectory::class)]
 #[CoversClass(UploadTooLargeException::class)]
 #[CoversClass(UnsupportedMediaTypeException::class)]
@@ -51,7 +54,7 @@ final class FileUploadsStoreTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        $this->removeTree($this->directory);
+        UploadsTemporaryTree::remove($this->directory);
     }
 
     public function testALandingAnswerableUploadLandsUnderTheWritersOwnName(): void
@@ -309,11 +312,11 @@ final class FileUploadsStoreTest extends TestCase
             );
         }
 
-        $zeroSizedRefusal = new UploadTooLargeException(0, 1);
+        $uploadTooLargeException = new UploadTooLargeException(0, 1);
 
-        self::assertSame(0, $zeroSizedRefusal->size);
-        self::assertSame(1, $zeroSizedRefusal->maxBytes);
-        self::assertSame(413, $zeroSizedRefusal->httpStatus());
+        self::assertSame(0, $uploadTooLargeException->size);
+        self::assertSame(1, $uploadTooLargeException->maxBytes);
+        self::assertSame(413, $uploadTooLargeException->httpStatus());
     }
 
     public function testTheTypeRefusalCarriesItsEvidenceValidated(): void
@@ -347,35 +350,5 @@ final class FileUploadsStoreTest extends TestCase
                 $invariantViolationException->getMessage(),
             );
         }
-    }
-
-    /**
-     * Removes a directory tree the test laid down, best-effort: a
-     * tree the runner could not remove is the runner's own
-     * environment, never a reason to redden the arm's own verdict.
-     */
-    private function removeTree(string $directory): void
-    {
-        if (!is_dir($directory)) {
-            return;
-        }
-
-        $entries = scandir($directory);
-
-        foreach (\is_array($entries) ? $entries : [] as $base) {
-            if ($base === '.' || $base === '..') {
-                continue;
-            }
-
-            $entry = $directory . \DIRECTORY_SEPARATOR . $base;
-
-            if (is_dir($entry)) {
-                $this->removeTree($entry);
-            } else {
-                unlink($entry);
-            }
-        }
-
-        rmdir($directory);
     }
 }

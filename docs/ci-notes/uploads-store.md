@@ -146,3 +146,23 @@ for the request-surface refusals (`Adapters += Exception`, the
 same one-way widening the database adapter's audit emission
 planted for `Telemetry`): the sister adapters' construction-time
 refusals stay SPL (the Storage posture) exactly as they were.
+## KDD-US10 — the archeology ceiling demanded the fold split, and the suite's own tree helper answered with it
+
+The first spelling carried the four gates inside `FileUploadsStore::store()`
+beside the constructor's own bounds, and the archeology gate's difficulty
+ceiling (20) answered with two error-level findings -- the file and the
+class both over. The split the storage layout's own record spells
+(the `StorageRoot` fold split that answered its 26.50 at 16.67/17.50,
+the `StorageRootDeclaration` split at 16.67/17.50): the gates live in
+`UploadsAdmission` (the admission judgment: the four questions, asked
+in the evidence's own order), the store keeps the landing alone (the
+name, the move, the address), and the admission owns the ceiling and
+the allowlist's construction bounds -- neither fold ever answers for
+the other, and each sits under the ceiling on its own terms. The CI
+round's other two findings rode the same settle: the boundary-test
+variable name the rector rule demands, and the suite's three
+identical private `removeTree` helpers folded into the one
+`UploadsTemporaryTree` support fold the three test classes share --
+the honest deduplication the round's own review demanded before the
+advisory lane could answer green.
+

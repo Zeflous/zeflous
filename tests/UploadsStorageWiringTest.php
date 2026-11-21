@@ -17,6 +17,7 @@ use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\UploadedFile;
 use Zef\Framework\Storage\StorageLane;
 use Zef\Framework\UploadsStorageWiring;
+use Zef\Test\Support\Adapters\Uploads\UploadsTemporaryTree;
 
 /**
  * Pins the uploads family's wiring onto the `files/**` route map:
@@ -55,13 +56,13 @@ final class UploadsStorageWiringTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
-        $this->removeTree($this->root);
+        UploadsTemporaryTree::remove($this->root);
 
         if ($this->bootParent === '') {
             return;
         }
 
-        $this->removeTree($this->bootParent);
+        UploadsTemporaryTree::remove($this->bootParent);
     }
 
     public function testASilentDeclarationRefusesWithTheWayOutSpelled(): void
@@ -287,35 +288,5 @@ final class UploadsStorageWiringTest extends TestCase
         $this->bootParent = $parent;
 
         return $parent;
-    }
-
-    /**
-     * Removes a directory tree the test laid down, best-effort: a
-     * tree the runner could not remove is the runner's own
-     * environment, never a reason to redden the arm's own verdict.
-     */
-    private function removeTree(string $directory): void
-    {
-        if (!is_dir($directory)) {
-            return;
-        }
-
-        $entries = scandir($directory);
-
-        foreach (\is_array($entries) ? $entries : [] as $base) {
-            if ($base === '.' || $base === '..') {
-                continue;
-            }
-
-            $entry = $directory . \DIRECTORY_SEPARATOR . $base;
-
-            if (is_dir($entry)) {
-                $this->removeTree($entry);
-            } else {
-                unlink($entry);
-            }
-        }
-
-        rmdir($directory);
     }
 }
