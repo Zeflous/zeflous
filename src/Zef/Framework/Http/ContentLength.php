@@ -34,6 +34,14 @@ final class ContentLength
      * emission only, never the body path (the reference implementation
      * threads the reconciled message into its body step, but a
      * Content-Length strip changes nothing a body emission could observe).
+     *
+     * A stream whose cursor cannot be read (not seekable) is exactly as
+     * unmeasurable as one whose size cannot be read (issue #801's finding
+     * 2): the remaining length is the size the stream still owes, and a
+     * stream that cannot answer its cursor may already have been partially
+     * consumed -- a declared length equal to the whole size then promises
+     * bytes the stream no longer carries, the client hang the reconciliation
+     * exists to prevent. The unmeasurable cases lose the header both.
      */
     public static function reconcile(MessageInterface $message, StreamInterface $stream): MessageInterface
     {
@@ -43,8 +51,7 @@ final class ContentLength
         }
 
         $size = $stream->getSize();
-        $consumed = $stream->isSeekable() ? $stream->tell() : null;
-        $remaining = $size !== null && $consumed !== null ? max(0, $size - $consumed) : $size;
+        $remaining = $size !== null && $stream->isSeekable() ? max(0, $size - $stream->tell()) : null;
 
         if (!ctype_digit($declared) || $remaining === null || (int) $declared !== $remaining) {
             return $message->withoutHeader('Content-Length');

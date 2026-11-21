@@ -30,6 +30,7 @@ use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\ServerUploads;
 use Zef\Framework\Http\ServerUri;
 use Zef\Framework\Http\ServerValues;
+use Zef\Framework\Http\SlowRequestMiddleware;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\UploadCoercion;
 use Zef\Framework\Http\UploadedFile;
@@ -97,6 +98,29 @@ final class RequestFactoryTest extends TestCase
         $uploads = $request->getUploadedFiles();
         self::assertArrayHasKey('avatar', $uploads);
         self::assertInstanceOf(UploadedFile::class, $uploads['avatar']);
+    }
+
+    public function testTheConstructedRequestCarriesTheCanonicalStartStamp(): void
+    {
+        // Issue #801's finding 4: the construction seam stamps the
+        // total-duration family's canonical start -- the monotonic
+        // nanoseconds the slow-request record measures from, covering
+        // the guards and the pipeline above the timing middleware
+        // alike. The stamp is a live monotonic reading, so the pin
+        // judges its PRESENCE and honesty (a non-negative integer), not
+        // its value.
+        $request = RequestFactory::fromServer(['REQUEST_METHOD' => 'GET']);
+
+        $startNs = $request->getAttribute(SlowRequestMiddleware::REQUEST_START_ATTRIBUTE);
+        self::assertIsInt($startNs, 'the construction stamps the canonical start point');
+        self::assertGreaterThanOrEqual(0, $startNs, 'the monotonic clock answers non-negative nanoseconds');
+
+        $stamped = RequestFactory::fromServer(['REQUEST_METHOD' => 'POST']);
+        self::assertNotSame(
+            $startNs,
+            $stamped->getAttribute(SlowRequestMiddleware::REQUEST_START_ATTRIBUTE),
+            'every construction stamps its own fresh reading',
+        );
     }
 
     public function testTheMethodTokenIsNormalisedToUppercase(): void

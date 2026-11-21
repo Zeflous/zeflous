@@ -337,6 +337,51 @@ final class SlowRequestMiddlewareTest extends TestCase
         );
     }
 
+    public function testTheCanonicalStartStampMeasuresTheIngressSpan(): void
+    {
+        // Issue #801's finding 4: the request the ingress factory built
+        // carries the canonical start stamp -- the total duration then
+        // measuring from the INGRESS (the guards, the pipeline above
+        // this middleware and the handler alike), one end reading at
+        // the close. The span a client watches and the record the
+        // operator reads agree across deployments whatever the stack's
+        // placement.
+        $recordingLogger = new RecordingLogger();
+        $this->steppingClock->epoch = 1_500_000_000;
+
+        $response = $this->middleware($recordingLogger)->process(
+            $this->request()->withAttribute(SlowRequestMiddleware::REQUEST_START_ATTRIBUTE, 0),
+            $this->answeredHandler(),
+        );
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertCount(1, $recordingLogger->calls);
+        [, , $context] = $recordingLogger->calls[0];
+        self::assertSame(1500.0, $context['elapsed_ms'], 'the span runs from the stamped ingress start');
+        self::assertSame(1, $this->steppingClock->readCount(), 'the canonical start needs one clock read alone');
+    }
+
+    public function testARequestWithoutTheStartStampKeepsTheLocalBracket(): void
+    {
+        // The honest fallback: a foreign PSR-7 request the ingress never
+        // decorated (or a host-built one) keeps the local bracket -- the
+        // span inside the remaining pipeline, two clock readings, the
+        // shape the battery above pins.
+        $recordingLogger = new RecordingLogger();
+        $this->steppingClock->step = 1_500_000_000;
+
+        $response = $this->middleware($recordingLogger)->process(
+            $this->request(),
+            $this->answeredHandler(),
+        );
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertCount(1, $recordingLogger->calls);
+        [, , $context] = $recordingLogger->calls[0];
+        self::assertSame(1500.0, $context['elapsed_ms']);
+        self::assertSame(2, $this->steppingClock->readCount(), 'the local bracket reads the clock at both edges');
+    }
+
     /**
      * The family's middleware over the frozen clock.
      */

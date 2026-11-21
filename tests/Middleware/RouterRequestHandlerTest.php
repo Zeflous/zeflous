@@ -437,6 +437,94 @@ final class RouterRequestHandlerTest extends TestCase
         self::assertSame(1, $calls);
     }
 
+    public function testTheHeadFoldCarriesTheMeasuredGetLengthOverTheHeadBody(): void
+    {
+        // Issue #801's finding 1, the audit's named site: the head fold
+        // carries the GET twin's measured Content-Length over the
+        // {@see HeadBody} view (RFC 9110 section 9.3.2's SHOULD: the
+        // client reading HEAD for size and progress arithmetic learns
+        // the representation's length) -- a truthful declaration
+        // travels as its own number, and a lying one is replaced by the
+        // measured truth rather than trusted.
+        $truthfulContainer = new Container();
+        $truthfulContainer->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Length' => '4'],
+                'body',
+            ),
+        );
+        $truthfulRouter = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $truthful = $this->handler($truthfulRouter, $truthfulContainer)
+            ->handle($this->request('HEAD', 'api.example.com', 'text/plain'))
+        ;
+
+        self::assertSame('4', $truthful->getHeaderLine('Content-Length'), 'the truthful GET length travels');
+        self::assertSame('', $truthful->getBody()->getContents());
+
+        $lyingContainer = new Container();
+        $lyingContainer->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Length' => '999'],
+                'body',
+            ),
+        );
+        $lyingRouter = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $lying = $this->handler($lyingRouter, $lyingContainer)
+            ->handle($this->request('HEAD', 'api.example.com', 'text/plain'))
+        ;
+
+        self::assertSame(
+            '4',
+            $lying->getHeaderLine('Content-Length'),
+            'the measured truth replaces the lying declaration',
+        );
+        self::assertSame('', $lying->getBody()->getContents());
+    }
+
+    public function testTheHeadFoldOfAConditionalMatchKeepsTheBodyless304WithoutALength(): void
+    {
+        // Issue #801's finding 1's own edge: a HEAD request whose
+        // conditional matched answers the body-less 304 the conditional
+        // fold built -- the head view's stamp never blesses the zero the
+        // emptied stream measures (a 304's field-value is the would-be
+        // 200's length, a body the fold already suppressed), so the
+        // 304 keeps the framing its fold left: no Content-Length.
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => new Response(
+                200,
+                ['Content-Type' => 'application/json', 'ETag' => 'W/"profile-v1"'],
+                '{"name":"profile"}',
+            ),
+        );
+        $router = Router::fromRoutes([
+            ['path' => '/profile', 'method' => ['GET'], 'handler' => 'Profile@show'],
+        ]);
+
+        $response = $this->handler($router, $container)->handle($this->request(
+            'HEAD',
+            'api.example.com',
+            'application/json',
+            extraHeaders: ['If-None-Match' => '"profile-v1"'],
+        ));
+
+        self::assertSame(304, $response->getStatusCode());
+        self::assertSame('W/"profile-v1"', $response->getHeaderLine('ETag'));
+        self::assertFalse($response->hasHeader('Content-Length'), "the 304 never carries the emptied body's zero");
+        self::assertSame('', $response->getBody()->getContents());
+    }
+
     public function testExplicitHeadRouteTakesPrecedenceOverGetFallback(): void
     {
         $container = new Container();

@@ -136,7 +136,19 @@ final class RequestFactory
         /** @var array<string, mixed> $uploads the normalised upload tree (keys fold: class docblock) */
         $uploads = ServerUploads::normalize($uploadedFiles ?? []);
 
-        return new ServerRequest(
+        // The total-duration family's canonical start point (issue
+        // #801's finding 4): the monotonic stamp the ingress's own
+        // construction writes -- the earliest clock a request the
+        // application processes can read, so the slow-request record
+        // measures from HERE, the span covering the guards, the
+        // pipeline and the handler alike instead of whatever
+        // middleware's own bracket its placement happened to own. The
+        // stamp rides the construction seam alone (a fresh instance by
+        // definition): the guard seam keeps its identity discipline --
+        // a passing request the guards never rewrote keeps its own
+        // instance -- and a foreign request the guard alone sees keeps
+        // the middleware's local bracket as the honest fallback.
+        $serverRequest = new ServerRequest(
             mb_strtoupper(ServerValues::text($server, 'REQUEST_METHOD', 'GET')),
             ServerUri::build($server),
             $server,
@@ -151,7 +163,10 @@ final class RequestFactory
             ),
             ServerProtocol::version(ServerValues::text($server, 'SERVER_PROTOCOL', 'HTTP/1.1')),
             ServerValues::text($server, 'REQUEST_URI', ''),
-        );
+        )->withAttribute(SlowRequestMiddleware::REQUEST_START_ATTRIBUTE, TimingClock::monotonicNs());
+        \assert($serverRequest instanceof ServerRequest, 'the attribute wither preserves the request type.');
+
+        return $serverRequest;
     }
 
     /**

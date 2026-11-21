@@ -280,6 +280,14 @@
         // methods.
         "MBString": {
             "ignore": [
+                // The form pair census counts the ampersand delimiter
+                // over the raw body: the needle is the single BYTE '&',
+                // so mb_substr_count and substr_count walk the same
+                // bytes and answer the same count for every body the
+                // bound reads -- the mutant is the equivalence itself,
+                // one spelling of the one number. This ignore is scoped
+                // to that single method.
+                "Zef\\Framework\\Http\\FormBodyParser::pairCount",
                 // The errors family's request-id prefix strip reads the
                 // prefix's own closed vocabulary: '--request-id=' is pure
                 // ASCII (13 bytes, 13 characters -- every spelling of the
@@ -2278,7 +2286,18 @@
             "ignore": [
                 "Zef\\Framework\\Logging\\JsonLineRecordWriter::write",
                 "Zef\\Framework\\Http\\ReplaySnapshotWriter::writeAll",
-                "Zef\\Framework\\Container\\Aot\\AotEntriesBlock::rendered"
+                "Zef\\Framework\\Container\\Aot\\AotEntriesBlock::rendered",
+                // The session storage walk's rotation arm reads the
+                // retired identifier and the regenerated flag together
+                // because the rotation itself sets them together (the
+                // retired recorded before the rotated flag, one state,
+                // one seam) -- the divergent arm the mutator writes
+                // (regenerated with no retired identifier, or a retired
+                // identifier without the rotation) is a state the
+                // family's own construction never spells, so both
+                // spellings answer the same walk over every reachable
+                // state. This ignore is scoped to that single method.
+                "Zef\\Framework\\Http\\SessionStorageEffects::apply"
             ]
         },
         // The workflow collector's absent-directory early return

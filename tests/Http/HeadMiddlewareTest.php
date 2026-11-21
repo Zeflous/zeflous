@@ -19,6 +19,8 @@ use Zef\Framework\Http\Uri;
 use Zef\Test\Support\Http\FixedResponseHandler;
 use Zef\Test\Support\Http\MiddlewareHandler;
 use Zef\Test\Support\Http\RecordingHandler;
+use Zef\Test\Support\Http\SizelessStream;
+use Zef\Test\Support\Http\TellGuardedStream;
 
 /**
  * @internal
@@ -69,21 +71,36 @@ final class HeadMiddlewareTest extends TestCase
         $response = $this->processed('HEAD');
 
         self::assertSame('', $response->getBody()->getContents(), 'the head view empties the body');
-        self::assertSame(0, $response->getBody()->getSize());
-        self::assertSame(0, $response->getBody()->tell(), 'the empty stream rests at position zero for the emitter');
+        // The {@see HeadBody} view answers the GET twin's length as its
+        // own size (issue #801's finding 1): the wire carries none of the
+        // octets BY PROTOCOL, the length the Content-Length reports
+        // describes the representation the GET lane would have shipped.
+        self::assertSame(
+            mb_strlen(self::REPRESENTATION),
+            $response->getBody()->getSize(),
+        );
+        self::assertSame(0, $response->getBody()->tell(), 'the head body rests at position zero for the emitter');
         self::assertTrue(
             $response->getBody()->isSeekable(),
             'the emitter rewinds the body before its eligibility pump',
         );
+        self::assertTrue($response->getBody()->eof(), 'nothing is ever read: the stream rests at its end');
     }
 
-    public function testTheHeadAnswerDropsTheStaleContentLength(): void
+    public function testTheHeadAnswerReplacesTheStaleContentLengthWithTheMeasuredTruth(): void
     {
         $response = $this->processed('HEAD');
 
-        self::assertFalse(
-            $response->hasHeader('content-length'),
-            'the length describes a payload that will never arrive',
+        // The recording handler's declared '28' is stale (the
+        // representation measures 27), and the head view's stamp
+        // replaces the declaration with the measured truth (issue
+        // #801's finding 1, RFC 9110 sections 9.3.2 and 8.6): the length
+        // the GET twin would have shipped travels, the stale number
+        // never does.
+        self::assertSame(
+            (string) mb_strlen(self::REPRESENTATION),
+            $response->getHeaderLine('content-length'),
+            'the measured GET length travels, the stale declaration never does',
         );
     }
 
@@ -243,7 +260,15 @@ final class HeadMiddlewareTest extends TestCase
             $response->getHeaderLine('ETag'),
             'the validator describes the full GET representation, not the emptied head view',
         );
-        self::assertFalse($response->hasHeader('Content-Length'));
+        // The truthful Content-Length travels (issue #801's finding 1,
+        // RFC 9110 section 9.3.2): the head view stamps the measured GET
+        // twin's length over the {@see HeadBody} view, so the answer
+        // carries exactly the length the GET lane would have shipped --
+        // the size a client reading HEAD for progress arithmetic reads.
+        self::assertSame(
+            (string) mb_strlen(self::REPRESENTATION),
+            $response->getHeaderLine('Content-Length'),
+        );
         self::assertSame('', $response->getBody()->getContents());
     }
 
@@ -285,6 +310,63 @@ final class HeadMiddlewareTest extends TestCase
             $response->getBody()->tell(),
             'the head view swaps in a fresh empty stream regardless of the cursor',
         );
+        // The view's own length stamp is the representation's measured
+        // size, the number the GET twin's field would carry -- the stale
+        // '28' declaration the handler rode replaced by the truth.
+        self::assertSame('27', $response->getHeaderLine('Content-Length'));
+    }
+
+    public function testTheHeadViewOfAnUnmeasurableBodyKeepsTheHonestStrip(): void
+    {
+        // A body whose cursor cannot be read (the guarded, non-seekable
+        // stream) is an unmeasurable one: the head view never stamps a
+        // length it did not measure (issue #801's finding 1's strip arm
+        // meeting finding 2's own doctrine), and the declared field the
+        // handler rode -- even one that happens to match the size -- is
+        // dropped rather than blessed against a body nobody measured.
+        $response = new HeadMiddleware()->process(
+            $this->request('HEAD'),
+            new FixedResponseHandler(new Response(
+                200,
+                ['Content-Length' => '27'],
+                new TellGuardedStream(27),
+            )),
+        );
+
+        self::assertSame('', $response->getBody()->getContents());
+        self::assertFalse($response->hasHeader('Content-Length'), 'the unmeasured length never travels');
+        // The guarded body's own size rides the view (the length the GET
+        // twin would have owed), the strip refusing only the HEADER the
+        // cursor could not certify.
+        self::assertSame(27, $response->getBody()->getSize());
+    }
+
+    public function testTheHeadViewOfASizelessBodyAnswersTheZeroLengthView(): void
+    {
+        // The view's own zero fallback (issue #801's finding 1): a body
+        // whose size cannot be read at all (getSize null, the PSR-7
+        // unknown-size spelling) keeps the honest strip AND the honest
+        // zero-length view -- no measurement to carry, so the body the
+        // answer rides answers nothing owed.
+        $view = HeadResponse::view(new Response(200, ['Content-Length' => '27'], new SizelessStream()));
+
+        self::assertFalse($view->hasHeader('Content-Length'));
+        self::assertSame(0, $view->getBody()->getSize(), 'the sizeless body rides as the zero-length view');
+        self::assertSame('', $view->getBody()->getContents());
+    }
+
+    public function testTheHeadViewOfANotModifiedAnswerStampsNothingDirectly(): void
+    {
+        // The view's own arm, pinned directly: a 304 is already the
+        // body-less answer its own conditional fold built -- the view
+        // never stamps the length the emptied stream measures (issue
+        // #801's finding 1's own edge), so the honest guard's 304 arm
+        // answers its own battery, not only the conditional walk's.
+        $view = HeadResponse::view(new Response(304, ['Content-Length' => '12'], 'suppressed'));
+
+        self::assertSame(304, $view->getStatusCode());
+        self::assertFalse($view->hasHeader('Content-Length'), "the 304 never carries the emptied body's length");
+        self::assertSame('', $view->getBody()->getContents());
     }
 
     private function processed(string $method, int $status = 200): ResponseInterface

@@ -454,8 +454,15 @@ final class ResponseEmitterTest extends TestCase
         self::assertContains('Content-Length: 0', $this->fieldLines($fields));
     }
 
-    public function testAMatchingContentLengthSurvivesOnANonSeekableBody(): void
+    public function testANonSeekableBodyLosesTheContentLengthEvenWhenItMatchesTheSize(): void
     {
+        // The unmeasurable cursor is the unmeasurable size's own family
+        // (issue #801's finding 2): a non-seekable body cannot answer
+        // how much of it is already consumed, so a declared length equal
+        // to the whole size may promise bytes the stream no longer carries
+        // -- the client hang the reconciliation exists to prevent. The
+        // first spelling kept a matching declaration on faith; the
+        // reconciled one keeps nothing it cannot measure.
         $foreignResponse = new ForeignResponse(200, ['Content-Length' => ['3']], new TellGuardedStream(3));
         $fields = [];
         $statuses = [];
@@ -463,7 +470,7 @@ final class ResponseEmitterTest extends TestCase
 
         $this->emits($emitter, $foreignResponse, false, true);
 
-        self::assertContains('Content-Length: 3', $this->fieldLines($fields));
+        self::assertNotContains('Content-Length: 3', $this->fieldLines($fields));
     }
 
     public function testReconcilesTheContentLengthCaseInsensitively(): void
