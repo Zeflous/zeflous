@@ -165,7 +165,7 @@ final class PdoQueryCountTest extends TestCase
     }
 
     /**
-     * @param Closure(): (ServerRequestInterface|null) $requestProvider the composition's request seam
+     * @param Closure(): (null|ServerRequestInterface) $requestProvider the composition's request seam
      */
     private function countedConnection(Closure $requestProvider): PdoConnection
     {
