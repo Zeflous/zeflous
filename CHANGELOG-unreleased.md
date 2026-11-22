@@ -122,6 +122,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(database): the ambient transaction scope [#706](https://github.com/Zeflous/zeflous/pull/706) ([mbetixz](https://github.com/mbetixz))
 - feat(database): the migrations scaffolding verb [#707](https://github.com/Zeflous/zeflous/pull/707) ([mbetixz](https://github.com/mbetixz))
 - feat(database): the JSON answers on the migrations mutation verbs [#708](https://github.com/Zeflous/zeflous/pull/708) ([mbetixz](https://github.com/mbetixz))
+- feat(uploads): the lane's first writer -- fail-closed size and type validation behind the family's knobs [#908](https://github.com/Zeflous/zeflous/pull/908) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
