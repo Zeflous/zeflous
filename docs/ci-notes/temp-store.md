@@ -225,7 +225,12 @@ seam) answer the impossible filesystem answers (an unsecurable
 scratch, an unfinalisable rename, an unscannable root, an
 unresolvable address) the real filesystem cannot produce in a
 test process, closing the failure-path coverage the 95-on-new-code
-condition demands.
+condition demands. The cloud lane's maintainability condition
+taught the registration seam its own const: the three lane
+writers' service registrations now spell their construction entry
+through `STORE_FACTORY_ENTRY` (`::store`, the `CONFIG_FACTORY_ENTRY`
+precedent's own shape), because the third literal the slice added
+is the one the no-duplicate rule refuses.
 
 ## KDD-TS12 — the shipped profile sentences the slice re-homes
 

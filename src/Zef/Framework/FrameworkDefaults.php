@@ -260,6 +260,10 @@ final readonly class FrameworkDefaults
      * service registrations spell it. */
     private const string CONFIG_FACTORY_ENTRY = '::fromConfig';
 
+    /** The storage-wiring folds' shared construction entry, as the
+     * lane writers' service registrations spell it. */
+    private const string STORE_FACTORY_ENTRY = '::store';
+
     /**
      * The framework's default configuration profile.
      *
@@ -529,21 +533,21 @@ final readonly class FrameworkDefaults
                 ],
             ],
             'events.deferred.store' => [
-                'factory' => EventStorageWiring::class . '::store',
+                'factory' => EventStorageWiring::class . self::STORE_FACTORY_ENTRY,
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],
                 'lifetime' => 'transient',
             ],
             'uploads.store' => [
-                'factory' => UploadsStorageWiring::class . '::store',
+                'factory' => UploadsStorageWiring::class . self::STORE_FACTORY_ENTRY,
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],
                 'lifetime' => 'transient',
             ],
             'temp.store' => [
-                'factory' => TempStorageWiring::class . '::store',
+                'factory' => TempStorageWiring::class . self::STORE_FACTORY_ENTRY,
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],
