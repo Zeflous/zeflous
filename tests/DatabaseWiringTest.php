@@ -548,7 +548,7 @@ final class DatabaseWiringTest extends TestCase
         self::assertSame(
             2,
             $errorRequestContext->queryCount(),
-            'the composition\'s request provider rides the wired connection:'
+            "the composition's request provider rides the wired connection:"
             . ' every executed statement feeds the request-scoped counter',
         );
     }
@@ -572,7 +572,7 @@ final class DatabaseWiringTest extends TestCase
         self::assertSame(
             0,
             $errorRequestContext->queryCount(),
-            'the framework\'s own registration spells no provider: the counter stays the documented host-adapter hook',
+            "the framework's own registration spells no provider: the counter stays the documented host-adapter hook",
         );
         self::assertInstanceOf(ServerRequest::class, $serverRequest);
     }
