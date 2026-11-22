@@ -54,17 +54,15 @@ final readonly class TempSweepCadence
      * The reading the last sweep ran at: the marker's own decimal
      * spelling, or zero when the marker is absent, unreadable or
      * corrupted -- the walk the store pays, never a sweep the
-     * corruption could skip.
+     * corruption could skip. The fold spells its absent-and-unreadable
+     * answer as ONE ternary guard (the session lane's cadence folds
+     * the same question as two separate refusals -- the family's own
+     * spelling, the density bound's own answer).
      */
     public function lastRanAt(): int
     {
         $marker = $this->markerPath();
-
-        if (!is_file($marker)) {
-            return 0;
-        }
-
-        $reading = file_get_contents($marker);
+        $reading = is_file($marker) ? file_get_contents($marker) : false;
 
         if ($reading === false) {
             return 0;
@@ -79,23 +77,25 @@ final readonly class TempSweepCadence
      * Lays the reading down through the one-rename discipline,
      * best-effort: a marker the store cannot write leaves the next
      * write sweeping again -- the honest degradation, never a
-     * refusal that would fail the write the cadence rides.
+     * refusal that would fail the write the cadence rides. The lane
+     * address is HOISTED once (the session lane's cadence fold spells
+     * its rename destination as a second walk of the same path -- the
+     * family's own spelling, the density bound's own answer).
      *
      * @param int $now the sweep's own clock reading
      */
     public function ranAt(int $now): void
     {
-        $staging = $this->markerPath() . self::STAGING_SUFFIX;
+        $marker = $this->markerPath();
+        $staging = $marker . self::STAGING_SUFFIX;
 
         if (file_put_contents($staging, (string) $now, \LOCK_EX) === false) {
             return;
         }
 
-        if (rename($staging, $this->markerPath())) {
-            return;
+        if (!rename($staging, $marker)) {
+            unlink($staging);
         }
-
-        unlink($staging);
     }
 
     /**

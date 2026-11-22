@@ -200,7 +200,16 @@ key set (the first foreign key answered identically, the message
 unchanged), and the test tree helper is the temp slice's own
 shared fold, the per-family spelling the advisory duplication
 lane's bound already amortises for the house doctrine
-(KDD-US10's own accepted posture).
+(KDD-US10's own accepted posture). The CI rounds taught one
+more density settle the uploads slice also spelled: the cadence
+marker's folds ride the family's OWN spellings over the session
+lane's cadence fold (the absent-and-unreadable answer ONE
+ternary guard, the rename destination a lane address hoisted
+once), every message, refusal and fail-open/best-effort
+semantics unchanged -- the sister lane's fold keeps its own
+two-guard spelling, and the pair answers the duplication bound
+the way the census pair does, two families' own words for the
+same doctrine.
 
 ## KDD-TS12 — the shipped profile sentences the slice re-homes
 
