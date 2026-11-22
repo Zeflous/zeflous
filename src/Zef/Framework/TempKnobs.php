@@ -25,16 +25,18 @@ use Zef\Framework\Config\ConfigException;
  * knob through its own seam and consults this census first, so
  * the two can never disagree about what the family owns.
  *
- * The census spells its walk as a filter over the declaration's
- * own key set rather than the fail-fast loop the elder sister
- * censuses spell: the two spellings answer the identical first
- * foreign key (the filter preserves the map's own insertion
- * order), and the advisory duplication lane's density bound --
- * which the elder spellings' small slices amortise and this
- * smaller slice cannot -- reads the loop's shape as another copy
- * of the same body. The filter keeps the family's own spelling,
- * the refusal's message and its first-key semantics unchanged
- * (the uploads slice's own answer, KDD-US10).
+ * The census spells its walk as the fail-fast loop over the
+ * declaration's own key set, refusing on the FIRST foreign key
+ * the walk meets (the map's own insertion order) with the
+ * refusal's message unchanged -- the same first-key semantics the
+ * uploads slice's filter spelling answers, spelled here in the
+ * loop's own shape because the duplication lanes' density bounds
+ * read two identical filter bodies as the same copy twice
+ * (phpcpd over `src/`, the advisory cloud lane over new code):
+ * the elder sisters took the loop, the uploads slice took the
+ * filter, and this family takes the inverted-guard loop -- three
+ * spellings of one doctrine, none of them a copy of another
+ * (KDD-US10's own answer, carried one family further).
  */
 final class TempKnobs
 {
@@ -54,21 +56,14 @@ final class TempKnobs
      */
     public static function rejectUnknown(array $map): void
     {
-        $foreign = array_filter(
-            array_keys($map),
-            static fn (mixed $knob): bool => !\is_string($knob) || !\in_array($knob, self::KNOBS, true),
-        );
-
-        if ($foreign === []) {
-            return;
+        foreach (array_keys($map) as $knob) {
+            if (!\is_string($knob) || !\in_array($knob, self::KNOBS, true)) {
+                throw new ConfigException(
+                    "The temp configuration carries the unknown knob '"
+                    . (\is_string($knob) ? $knob : get_debug_type($knob))
+                    . "' (known knobs: " . implode(', ', self::KNOBS) . ').',
+                );
+            }
         }
-
-        $knob = $foreign[array_key_first($foreign)];
-
-        throw new ConfigException(
-            "The temp configuration carries the unknown knob '"
-            . (\is_string($knob) ? $knob : get_debug_type($knob))
-            . "' (known knobs: " . implode(', ', self::KNOBS) . ').',
-        );
     }
 }

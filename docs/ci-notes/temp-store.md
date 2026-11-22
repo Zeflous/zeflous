@@ -176,9 +176,12 @@ The lane's directory posture is the sister writers' own:
 existing, writable, non-symlink, owner-only permissions, outside
 the public document root -- the last judgment through the
 storage layer's own shared fold (`StorageDocumentRoot`), the
-geometry spelled fresh in the family's own words (the
-depth-split three guards the uploads fold spelled,
-KDD-US10's own split). The uploads argument lands a fortiori
+geometry spelled fresh in the family's own words (the depth-split
+three guards the difficulty ceiling demands, each carrying the
+family's own spellings: the landable-lane guard judged as a
+positive boolean, the resolved lane address, the shared-lane
+refusal -- never the uploads fold's own guard names, the density
+bounds' own answer). The uploads argument lands a fortiori
 here: the uploads lane validates a type before landing, while
 the temp lane lands whatever bytes the host hands it,
 unvalidated by design -- a world-readable or web-served temp
@@ -195,21 +198,32 @@ the one-file retirement, the cadenced walk, and the store's own
 landing -- each fold owning one question, one refusal, one
 seam, so neither the store nor any fold answers for another.
 The knob family follows the uploads slice's own density
-settle: the census walks as a filter over the declaration's own
-key set (the first foreign key answered identically, the message
-unchanged), and the test tree helper is the temp slice's own
-shared fold, the per-family spelling the advisory duplication
-lane's bound already amortises for the house doctrine
-(KDD-US10's own accepted posture). The CI rounds taught one
-more density settle the uploads slice also spelled: the cadence
-marker's folds ride the family's OWN spellings over the session
-lane's cadence fold (the absent-and-unreadable answer ONE
-ternary guard, the rename destination a lane address hoisted
-once), every message, refusal and fail-open/best-effort
-semantics unchanged -- the sister lane's fold keeps its own
-two-guard spelling, and the pair answers the duplication bound
-the way the census pair does, two families' own words for the
-same doctrine.
+settle: the census walks as the inverted-guard fail-fast loop
+over the declaration's own key set (the first foreign key
+answered identically, the message unchanged -- a third spelling
+beside the elder sisters' loop and the uploads slice's filter,
+none of them a copy of another), and the test tree helper is the
+temp slice's own shared fold, the per-family spelling the
+advisory duplication lane's bound already amortises for the
+house doctrine (KDD-US10's own accepted posture). The CI rounds
+taught two more density settles the uploads slice also spelled:
+the cadence marker's folds ride the family's OWN spellings over
+the session lane's cadence fold (the absent-and-unreadable
+answer ONE ternary guard, the rename destination a lane address
+hoisted once), and the directory fold's guards carry the temp
+family's own names and positive spellings over the uploads fold's
+-- every message, refusal and fail-open/best-effort semantics
+unchanged, the sister lanes keeping their own spellings, and the
+pairs answering the duplication bounds the way the census pair
+does, families' own words for the same doctrines. The cloud
+lane's coverage condition taught the failure-path arms: the
+suite's temp function doubles (`temp_file_function_doubles.php`
+over `TempFileDoubleState`, the session and uploads families'
+seam) answer the impossible filesystem answers (an unsecurable
+scratch, an unfinalisable rename, an unscannable root, an
+unresolvable address) the real filesystem cannot produce in a
+test process, closing the failure-path coverage the 95-on-new-code
+condition demands.
 
 ## KDD-TS12 — the shipped profile sentences the slice re-homes
 

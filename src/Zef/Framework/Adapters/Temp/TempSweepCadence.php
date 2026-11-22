@@ -93,9 +93,11 @@ final readonly class TempSweepCadence
             return;
         }
 
-        if (!rename($staging, $marker)) {
-            unlink($staging);
+        if (rename($staging, $marker)) {
+            return;
         }
+
+        unlink($staging);
     }
 
     /**

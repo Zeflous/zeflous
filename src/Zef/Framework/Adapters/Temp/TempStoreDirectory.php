@@ -55,11 +55,11 @@ final class TempStoreDirectory
      */
     public static function resolve(string $directory): string
     {
-        self::refuseUnwritableGeometry($directory);
+        self::refuseUnlandableLane($directory);
 
-        $resolved = self::canonicalAddress($directory);
+        $resolved = self::resolvedLaneAddress($directory);
 
-        self::refusePermissiveMask($resolved);
+        self::refuseASharedLane($resolved);
 
         StorageDocumentRoot::assertOutside($resolved);
 
@@ -68,7 +68,10 @@ final class TempStoreDirectory
 
     /**
      * The geometry guard: an existing, writable, non-symlink
-     * directory -- the writer's own landing surface.
+     * directory -- the writer's own landing surface, judged as the
+     * family's own positive spelling (the landable lane), the
+     * refusal the one honest answer to a lane the process cannot
+     * land into.
      *
      * @param string $directory the declared or derived temp lane
      *                          address
@@ -76,9 +79,14 @@ final class TempStoreDirectory
      * @throws InvalidArgumentException when the directory is empty,
      *                                  a symlink, missing, or unwritable
      */
-    private static function refuseUnwritableGeometry(string $directory): void
+    private static function refuseUnlandableLane(string $directory): void
     {
-        if ($directory === '' || is_link($directory) || !is_dir($directory) || !is_writable($directory)) {
+        $landable = $directory !== ''
+            && !is_link($directory)
+            && is_dir($directory)
+            && is_writable($directory);
+
+        if (!$landable) {
             throw new InvalidArgumentException(
                 'The temp file store must be an existing writable'
                 . ' non-symlink directory.',
@@ -97,11 +105,11 @@ final class TempStoreDirectory
      * @throws InvalidArgumentException when the directory cannot be
      *                                  resolved
      */
-    private static function canonicalAddress(string $directory): string
+    private static function resolvedLaneAddress(string $directory): string
     {
         $resolved = realpath($directory);
 
-        if (!\is_string($resolved)) {
+        if ($resolved === false) {
             throw new InvalidArgumentException(
                 'The temp file store directory cannot be resolved.',
             );
@@ -112,18 +120,19 @@ final class TempStoreDirectory
 
     /**
      * The permission mask guard: owner-only, the posture the lane's
-     * unjudged scratch demands.
+     * unjudged scratch demands, refused as the family's own shared
+     * lane (a mask the group or world can read).
      *
      * @param string $resolved the resolved real path being judged
      *
      * @throws InvalidArgumentException when the mask cannot be read
      *                                  or carries a group or world bit
      */
-    private static function refusePermissiveMask(string $resolved): void
+    private static function refuseASharedLane(string $resolved): void
     {
         $permissions = fileperms($resolved);
 
-        if (!\is_int($permissions) || ($permissions & 0o077) !== 0) {
+        if ($permissions === false || ($permissions & 0o077) !== 0) {
             throw new InvalidArgumentException(
                 'The temp file store directory must have owner-only'
                 . ' permissions.',

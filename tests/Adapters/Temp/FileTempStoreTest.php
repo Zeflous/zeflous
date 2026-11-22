@@ -15,6 +15,7 @@ use Zef\Framework\Adapters\Temp\TempStaging;
 use Zef\Framework\Adapters\Temp\TempStoreDirectory;
 use Zef\Framework\Adapters\Temp\TempSweep;
 use Zef\Framework\Adapters\Temp\TempSweepCadence;
+use Zef\Test\Support\Adapters\Temp\TempFileDoubleState;
 use Zef\Test\Support\Adapters\Temp\TempTemporaryTree;
 
 /**
@@ -59,6 +60,16 @@ final class FileTempStoreTest extends TestCase
     #[Override]
     protected function tearDown(): void
     {
+        TempFileDoubleState::reset();
+
+        if (is_link($this->directory . '-link')) {
+            unlink($this->directory . '-link');
+        }
+
+        if (is_dir($this->directory)) {
+            chmod($this->directory, 0o700);
+        }
+
         TempTemporaryTree::remove($this->directory);
     }
 
@@ -254,6 +265,147 @@ final class FileTempStoreTest extends TestCase
             restore_error_handler();
             chmod($this->directory, 0o700);
         }
+    }
+
+    public function testAnUnsecurableScratchRefusesTheWrite(): void
+    {
+        $fileTempStore = new FileTempStore($this->directory, 100, static fn (): int => 1000);
+
+        TempFileDoubleState::$chmodAnswer = false;
+
+        try {
+            $fileTempStore->write('never secured');
+            self::fail('An unsecurable scratch must refuse the write.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertStringContainsString(
+                'The temp file store cannot secure the scratch',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnfinalisableScratchRefusesTheWrite(): void
+    {
+        $fileTempStore = new FileTempStore($this->directory, 100, static fn (): int => 1000);
+
+        TempFileDoubleState::$renameAnswer = false;
+
+        try {
+            $fileTempStore->write('never finalised');
+            self::fail('An unfinalisable scratch must refuse the write.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertStringContainsString(
+                'The temp file store cannot finalise the scratch',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnscannableLaneRefusesTheSweepsOwnRide(): void
+    {
+        $fileTempStore = new FileTempStore($this->directory, 100, static fn (): int => 1000);
+
+        TempFileDoubleState::$scandirAnswer = false;
+
+        try {
+            $fileTempStore->write('riding an unscannable lane');
+            self::fail('An unscannable lane must refuse the sweep riding the write.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The temp file store directory cannot be scanned.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnresolvableLaneAddressRefusesTheConstruction(): void
+    {
+        TempFileDoubleState::$realpathAnswer = false;
+
+        try {
+            new FileTempStore($this->directory, 100);
+            self::fail('An unresolvable lane address must refuse the construction.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The temp file store directory cannot be resolved.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testASymlinkedLaneRefusesTheConstruction(): void
+    {
+        symlink($this->directory, $this->directory . '-link');
+
+        try {
+            new FileTempStore($this->directory . '-link', 100);
+            self::fail('A symlinked lane must refuse the construction.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The temp file store must be an existing writable non-symlink directory.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAnUnwritableLaneRefusesTheConstruction(): void
+    {
+        chmod($this->directory, 0o500);
+
+        try {
+            try {
+                new FileTempStore($this->directory, 100);
+                self::fail('An unwritable lane must refuse the construction.');
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                self::assertSame(
+                    'The temp file store must be an existing writable non-symlink directory.',
+                    $invalidArgumentException->getMessage(),
+                );
+            }
+        } finally {
+            chmod($this->directory, 0o700);
+        }
+    }
+
+    public function testAPermissiveMaskRefusesTheConstruction(): void
+    {
+        chmod($this->directory, 0o750);
+
+        try {
+            try {
+                new FileTempStore($this->directory, 100);
+                self::fail('A permissive mask must refuse the construction.');
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                self::assertSame(
+                    'The temp file store directory must have owner-only permissions.',
+                    $invalidArgumentException->getMessage(),
+                );
+            }
+        } finally {
+            chmod($this->directory, 0o700);
+        }
+    }
+
+    public function testAMarkerWhoseRenameRefusesCleansItsOwnStaging(): void
+    {
+        TempFileDoubleState::$renameAnswer = false;
+
+        $tempSweepCadence = new TempSweepCadence($this->directory);
+        $tempSweepCadence->ranAt(12345);
+
+        self::assertFileDoesNotExist(
+            $this->directory . '/.sweep-cadence',
+            'the refused rename leaves no marker behind',
+        );
+        self::assertFileDoesNotExist(
+            $this->directory . '/.sweep-cadence.staging',
+            'the staging file the failed rename stranded is cleaned away',
+        );
+        self::assertSame(
+            0,
+            $tempSweepCadence->lastRanAt(),
+            'the next read answers the absent marker with the walk the store pays',
+        );
     }
 
     public function testARetentionBelowOneSecondRefusesTheConstruction(): void
