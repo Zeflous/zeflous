@@ -99,11 +99,7 @@ final class ErrorRequestContext
      */
     public static function recordQueryFor(?ServerRequestInterface $serverRequest): void
     {
-        if ($serverRequest === null) {
-            return;
-        }
-
-        $context = self::fromAttribute($serverRequest->getAttribute(self::ATTRIBUTE));
+        $context = self::fromAttribute($serverRequest?->getAttribute(self::ATTRIBUTE));
         $context?->recordQuery();
     }
 

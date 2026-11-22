@@ -27,6 +27,7 @@ use Zef\Framework\DatabaseConnections;
 use Zef\Framework\DatabaseDeclaration;
 use Zef\Framework\DatabaseKnobs;
 use Zef\Framework\DatabaseWiring;
+use Psr\Http\Message\ServerRequestInterface;
 use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
@@ -538,7 +539,7 @@ final class DatabaseWiringTest extends TestCase
                 'default' => 'app',
                 'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
             ],
-        ]), null, static fn (): ServerRequest => $serverRequest);
+        ]), null, static fn (): ServerRequestInterface => $serverRequest);
 
         $connection->execute(new SqlQuery('CREATE TABLE counted (id INTEGER PRIMARY KEY)'));
         $connection->fetchAll(new SqlQuery('SELECT id FROM counted'));

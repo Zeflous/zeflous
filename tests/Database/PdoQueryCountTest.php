@@ -46,7 +46,7 @@ final class PdoQueryCountTest extends TestCase
     {
         $errorRequestContext = new ErrorRequestContext('request-123');
         $serverRequest = self::contextCarryingRequest($errorRequestContext);
-        $connection = $this->countedConnection(static fn (): ServerRequest => $serverRequest);
+        $connection = $this->countedConnection(static fn (): ServerRequestInterface => $serverRequest);
 
         $connection->execute(new SqlQuery('CREATE TABLE counted (id INTEGER PRIMARY KEY, v TEXT)'));
         $connection->execute(new SqlQuery('INSERT INTO counted (v) VALUES (?)', ['x']));
@@ -64,7 +64,7 @@ final class PdoQueryCountTest extends TestCase
     {
         $errorRequestContext = new ErrorRequestContext('request-123');
         $serverRequest = self::contextCarryingRequest($errorRequestContext);
-        $connection = $this->countedConnection(static fn (): ServerRequest => $serverRequest);
+        $connection = $this->countedConnection(static fn (): ServerRequestInterface => $serverRequest);
 
         try {
             $connection->execute(new SqlQuery('INSERT INTO nowhere (v) VALUES (?)', ['x']));
@@ -87,7 +87,6 @@ final class PdoQueryCountTest extends TestCase
 
         $connection->execute(new SqlQuery('SELECT 1 AS one'));
 
-        self::assertInstanceOf(PdoConnection::class, $connection);
         self::assertSame(
             [],
             $connection->fetchAll(new SqlQuery('SELECT 1 AS one')),
@@ -99,7 +98,7 @@ final class PdoQueryCountTest extends TestCase
     {
         $errorRequestContext = new ErrorRequestContext('request-123');
         $serverRequest = self::contextCarryingRequest($errorRequestContext);
-        $connection = $this->countedConnection(static fn (): ?ServerRequest => null);
+        $connection = $this->countedConnection(static fn (): ?ServerRequestInterface => null);
 
         $connection->execute(new SqlQuery('SELECT 1 AS one'));
 
@@ -155,7 +154,7 @@ final class PdoQueryCountTest extends TestCase
             null,
             null,
             null,
-            PdoQueryCount::whenCarried(static fn (): ServerRequest => $serverRequest),
+            PdoQueryCount::whenCarried(static fn (): ServerRequestInterface => $serverRequest),
         );
 
         $rows = $connection->fetchOne(new SqlQuery('SELECT 1 AS one'));
@@ -179,7 +178,7 @@ final class PdoQueryCountTest extends TestCase
         );
     }
 
-    private static function contextCarryingRequest(ErrorRequestContext $errorRequestContext): ServerRequest
+    private static function contextCarryingRequest(ErrorRequestContext $errorRequestContext): ServerRequestInterface
     {
         $serverRequest = new ServerRequest('GET', new Uri('https://app.example/orders'));
 

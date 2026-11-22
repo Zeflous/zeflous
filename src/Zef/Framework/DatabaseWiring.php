@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
+use Zef\Framework\Adapters\Database\PdoQueryCount;
 use Zef\Framework\Adapters\Database\PdoQueryLogArming;
 use Zef\Framework\Adapters\Database\SchemaReflection;
 use Zef\Framework\Config\Config;
@@ -289,6 +290,9 @@ final readonly class DatabaseWiring
      * @throws ConfigException when the name carries no declared
      *                         connection, or any connection field the adapter's
      *                         reading folds consume refuses
+     */
+    /**
+     * @param null|Closure(): ?ServerRequestInterface $requestProvider the composition's request seam
      */
     private static function pdoConnection(
         Config $config,
