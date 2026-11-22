@@ -342,7 +342,7 @@ final class FileTempStoreTest extends TestCase
     /**
      * Lays one pre-placed scratch down with its own modified time.
      *
-     * @param string $filename  the scratch's own filename
+     * @param string $filename   the scratch's own filename
      * @param int    $modifiedAt the modified reading the judgment measures
      */
     private function prePlaceScratch(string $filename, int $modifiedAt): void

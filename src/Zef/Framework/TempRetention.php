@@ -34,7 +34,7 @@ final class TempRetention
      * cannot answer as an integer of at least one second.
      *
      * @param mixed $value the `temp.ttl` knob's value as the frozen
-     *                    repository carries it
+     *                     repository carries it
      *
      * @return positive-int the declared retention, in seconds
      *

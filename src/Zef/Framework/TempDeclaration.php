@@ -85,8 +85,8 @@ final readonly class TempDeclaration
      * Reads the declaration from the family's own map.
      *
      * @param mixed $temp the `temp` map as the frozen repository
-     *                   carries it: a knob map, or null when the family is
-     *                   absent
+     *                    carries it: a knob map, or null when the family is
+     *                    absent
      *
      * @throws ConfigException when the map is malformed or carries
      *                         an unknown knob, or any knob's value refuses

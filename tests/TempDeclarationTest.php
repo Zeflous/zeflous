@@ -28,7 +28,7 @@ use Zef\Framework\TempRetention;
  * `TempRetention`) plus the Default layer the drift pin reads:
  * the suite runs with requireCoverageMetadata, so coverage of a
  * fold whose home does not name it is filtered out of the clover
- * report ({@see \Zef\Test\UploadsDeclarationTest} the covers
+ * report ({@see UploadsDeclarationTest} the covers
  * attribution doctrine the uploads slice spelled).
  *
  * @internal
@@ -189,20 +189,6 @@ final class TempDeclarationTest extends TestCase
         }
     }
 
-    /**
-     * @return iterable<non-empty-string, array{string}>
-     */
-    public static function provideAPartiallyDigitSpellingRefusesBothAnchorsCases(): iterable
-    {
-        yield 'a trailing unit' => ['3600s'];
-
-        yield 'a leading space' => [' 3600'];
-
-        yield 'a trailing space' => ['3600 '];
-
-        yield 'a signed spelling' => ['+3600'];
-    }
-
     #[DataProvider('provideAPartiallyDigitSpellingRefusesBothAnchorsCases')]
     public function testAPartiallyDigitSpellingRefusesBothAnchors(string $spelling): void
     {
@@ -217,6 +203,20 @@ final class TempDeclarationTest extends TestCase
                 $configException->getMessage(),
             );
         }
+    }
+
+    /**
+     * @return iterable<non-empty-string, array{string}>
+     */
+    public static function provideAPartiallyDigitSpellingRefusesBothAnchorsCases(): iterable
+    {
+        yield 'a trailing unit' => ['3600s'];
+
+        yield 'a leading space' => [' 3600'];
+
+        yield 'a trailing space' => ['3600 '];
+
+        yield 'a signed spelling' => ['+3600'];
     }
 
     public function testABelowOneSecondRetentionRefuses(): void
