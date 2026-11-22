@@ -772,6 +772,29 @@
                 // is not a source-level option. This ignore is scoped
                 // to that single method.
                 "Zef\\Framework\\Adapters\\Session\\SessionRecordFiles::recordIdOf",
+                // The temp staging fold's write-length measurement is
+                // the BodyBudget::refuses() equivalence carried to the
+                // lane whose payloads are NOT ASCII by construction:
+                // the scratch payload is arbitrary host bytes, and the
+                // settled spelling is mb_strlen($payload, '8bit') --
+                // the encoding that IS byte semantics -- so the
+                // mutator's strlen rewrite answers the identical count
+                // for every payload the lane can ever see, and no test
+                // can distinguish the twins (verified by the CI
+                // round's own escaped-mutant run: the complete family
+                // suite passes under the mutation). The multibyte
+                // round-trip test pins the byte-exact landing under
+                // the mb_ spelling, and the direct fix -- dropping the
+                // '8bit' argument for a plain strlen -- would trade
+                // away the byte-semantics doctrine the KDD pins
+                // (KDD-TS8: the '8bit' identity is the coding
+                // standard's own idiom, the same spelling the database
+                // and telemetry lanes use). The mb_ spelling itself is
+                // the house's own formatter doctrine (MbStrFunctions
+                // rewrites every strlen to its mb_ twin), so the
+                // byte-level spelling is not a source-level option.
+                // This ignore is scoped to that single method.
+                "Zef\\Framework\\Adapters\\Temp\\TempStaging::write",
                 // The module lane's two byte-agreement zones, each behind
                 // an ASCII-only gate of its own grammar:
                 //

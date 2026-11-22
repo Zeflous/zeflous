@@ -53,6 +53,7 @@ use Zef\Framework\Storage\StorageLane;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\NoopSpan;
 use Zef\Framework\Telemetry\Tracer;
+use Zef\Framework\TempStorageWiring;
 use Zef\Framework\UploadsStorageWiring;
 use Zef\Test\Support\Container\Announcer;
 use Zef\Test\Support\Http\FixedResponseHandler;
@@ -197,6 +198,13 @@ final class ApplicationBootstrapperTest extends TestCase
                 ],
                 'uploads.store' => [
                     'factory' => UploadsStorageWiring::class . '::store',
+                    'arguments' => [
+                        ['service' => FrameworkDefaults::CONFIG_SERVICE],
+                    ],
+                    'lifetime' => 'transient',
+                ],
+                'temp.store' => [
+                    'factory' => TempStorageWiring::class . '::store',
                     'arguments' => [
                         ['service' => FrameworkDefaults::CONFIG_SERVICE],
                     ],

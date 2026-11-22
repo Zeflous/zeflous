@@ -26,10 +26,13 @@ declare(strict_types=1);
  *       session driver's directory to the `sessions` lane, the
  *       durable event delivery store's wired default (the
  *       `events.deferred.store` knob's 'file' word) to the `queue`
- *       lane, and the uploads lane's validated writer (the
+ *       lane, the uploads lane's validated writer (the
  *       `uploads.store` service, the types the host spells) to the
- *       `uploads` lane, each only when its own knob is left empty --
- *       an explicitly spelled address always wins.
+ *       `uploads` lane, and the temp lane's scratch writer with
+ *       its cadenced sweep (the `temp.store` service, the
+ *       retention the host spells) to the `temp` lane, each only
+ *       when its own knob is left empty -- an explicitly spelled
+ *       address always wins.
  *
  *       The tree under a declared root must be provisioned before
  *       boot: all seven lanes, existing, writable, non-symlink,
@@ -40,7 +43,9 @@ declare(strict_types=1);
  *
  *       This knob provisions the request-time families (the log
  *       address, the replay directory, the session directory, the
- *       durable event delivery store's directory). The
+ *       durable event delivery store's directory, the uploads
+ *       lane's validated writer's directory and the temp lane's
+ *       scratch writer's directory). The
  *       boot's two compiled caches -- the configuration cache and
  *       the container AOT artifact -- derive from the root declared
  *       at the composition seam instead (`ApplicationBootstrapper`'s
