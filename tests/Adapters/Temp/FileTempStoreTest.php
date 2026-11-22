@@ -215,7 +215,7 @@ final class FileTempStoreTest extends TestCase
 
         self::assertSame(
             0,
-            (new TempSweepCadence($this->directory))->lastRanAt(),
+            new TempSweepCadence($this->directory)->lastRanAt(),
             'a corrupted marker answers the zero reading itself',
         );
 
@@ -337,7 +337,7 @@ final class FileTempStoreTest extends TestCase
 
         self::assertSame(
             ['a-scratch'],
-            (new TempScratchScan($this->directory))->scratchFilenames(),
+            new TempScratchScan($this->directory)->scratchFilenames(),
             'the scan answers the scratch alone -- a container the lane never provisioned never joins the walk',
         );
     }
