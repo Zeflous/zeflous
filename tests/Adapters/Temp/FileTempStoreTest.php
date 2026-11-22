@@ -314,7 +314,7 @@ final class FileTempStoreTest extends TestCase
         self::assertStringStartsWith(
             '.',
             $stranded[0],
-            'the stranded staging is the discipline\'s own leading-dot file, never the landed name',
+            "the stranded staging is the discipline's own leading-dot file, never the landed name",
         );
     }
 
