@@ -56,6 +56,7 @@ use Zef\Framework\Telemetry\SpanData;
 use Zef\Framework\Telemetry\TelemetryClock;
 use Zef\Framework\Telemetry\Tracer;
 use Zef\Test\Support\Log\RecordingLogger;
+use Zef\Test\Support\Telemetry\RecordingMeter;
 use Zef\Test\Support\Telemetry\SteppingTelemetryClock;
 
 /**
@@ -295,6 +296,65 @@ final class RouterRequestHandlerTest extends TestCase
         self::assertSame(404, $response->getStatusCode());
         self::assertSame('text/html; charset=utf-8', $response->getHeaderLine('Content-Type'));
         self::assertStringContainsString('Resource Not Found', $response->getBody()->getContents());
+    }
+
+    public function testTheMatchedRoutePatternRidesTheBoundaryContextOntoTheFaultMetric(): void
+    {
+        $recordingMeter = new RecordingMeter();
+        $container = new Container();
+        $container->set(
+            'Profile@show',
+            static fn (): callable => static fn (array $parameters): ResponseInterface => throw new RuntimeException(
+                'the profile handler failed',
+            ),
+        );
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+
+        $response = (new ErrorMappingMiddleware(null, false, $recordingMeter))->process(
+            $this->request('GET', 'api.example.com', 'application/json'),
+            $this->handler($router, $container),
+        );
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertCount(1, $recordingMeter->increments);
+        self::assertSame('zef.http.errors.total', $recordingMeter->increments[0]['name']);
+        self::assertSame('/profile', $recordingMeter->increments[0]['attributes']['http.route']);
+        self::assertSame('GET', $recordingMeter->increments[0]['attributes']['http.request.method']);
+        self::assertSame(500, $recordingMeter->increments[0]['attributes']['http.response.status_code']);
+        self::assertSame('RuntimeException', $recordingMeter->increments[0]['attributes']['exception.type']);
+    }
+
+    public function testAnUnroutedRefusalAnswersTheClosedRouteSpelling(): void
+    {
+        $recordingMeter = new RecordingMeter();
+        $container = $this->containerWithProfileHandler();
+        $router = Router::fromRoutes([
+            [
+                'path' => '/profile',
+                'method' => ['GET'],
+                'handler' => 'Profile@show',
+                'produces' => ['application/json'],
+            ],
+        ]);
+
+        (new ErrorMappingMiddleware(null, false, $recordingMeter))->process(
+            $this->request('GET', 'api.example.com', 'application/json', '/orders/92'),
+            $this->handler($router, $container),
+        );
+
+        self::assertCount(1, $recordingMeter->increments);
+        self::assertSame(
+            'unrouted',
+            $recordingMeter->increments[0]['attributes']['http.route'],
+            'the unmatched path never reaches a metric: the closed word answers, never the raw target',
+        );
     }
 
     public function testARouterRefusalIsLoggedAtTheClientErrorWarningLevel(): void

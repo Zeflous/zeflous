@@ -22,7 +22,7 @@ When a request explicitly prefers `text/html` over JSON, ZEF renders an escaped 
 
 - `error_handling.debug`: defaults to `false`. Debug output is enabled only when this is `true` **and** `APP_ENV` is one of `local`, `development`, `dev`, `test`, or `testing`. If `APP_ENV` is missing or production-like, debug output remains disabled.
 - `error_handling.log_path`: defaults to an empty string, which writes structured JSON records to PHP's SAPI error log. Set a non-empty path to use the JSONL logger. The parent directory must already exist, be writable by the worker, and be outside the public document root.
-- `observability.metrics.enabled`: when enabled, each mapped failure increments `zef.http.errors.total` with bounded method, status, and exception-type dimensions. The metrics exposition endpoint remains disabled unless the metrics family is explicitly enabled.
+- `observability.metrics.enabled`: when enabled, each mapped failure increments `zef.http.errors.total` with bounded method, status, exception-type, and route dimensions. The route dimension is the matched route's own pattern (the routing table's spelling, written onto the request's error context by the router's request handler at the match it already computed) or the closed `unrouted` word when no route matched -- never the raw request target, so a path carrying captured values can neither explode the series' cardinality nor leak into the exposition. The metrics exposition endpoint remains disabled unless the metrics family is explicitly enabled.
 
 Example for local development:
 

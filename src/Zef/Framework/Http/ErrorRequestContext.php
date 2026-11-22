@@ -18,7 +18,12 @@ use Psr\Http\Message\ServerRequestInterface;
  * and consults for every record the request's own lanes write -- never
  * changes after the boundary mints it (#796: the slow-request record joins
  * the error lane's records on the identifier the response carries, and
- * the mutable trace id must never masquerade as it).
+ * the mutable trace id must never masquerade as it). The context is also
+ * the route dimension's own carrier: the router's request handler writes
+ * the matched route's pattern once at the match it already computed
+ * ({@see self::setRoute()}), the recorder slicing the errors total by
+ * the route the request actually landed on -- the same one-way write the
+ * trace id's adoption rides, never a new seam.
  */
 final class ErrorRequestContext
 {
@@ -29,6 +34,8 @@ final class ErrorRequestContext
     private int $exceptionCount = 0;
 
     private ?string $replayId = null;
+
+    private ?string $route = null;
 
     private readonly int $startedAt;
 
@@ -76,6 +83,39 @@ final class ErrorRequestContext
     public function correlationId(): string
     {
         return $this->correlationId;
+    }
+
+    /**
+     * The matched route's own pattern, written once by the router's
+     * request handler at the match it already computed ({@see
+     * \Zef\Framework\Middleware\RouterRequestHandler}) -- the same
+     * inner-to-outer carrier the trace id rides, the boundary reading
+     * what the deeper layer wrote on the object it minted. The value
+     * is the ROUTING TABLE's own spelling (`/api/users/{id}`, the
+     * pattern the route's grammar parsed), never the raw request
+     * target: the errors total's route dimension is sliced by the
+     * deployment's own route vocabulary, and a path that carries
+     * captured values is a cardinality bomb and a privacy leak the
+     * meter's low-cardinality doctrine and the log context's own
+     * exclusions both refuse. The setter carries no grammar of its
+     * own because the source owns one ({@see
+     * \Zef\Framework\Config\Routing\RoutePath} parses and bounds
+     * the pattern before it ever arrives here).
+     */
+    public function setRoute(string $route): void
+    {
+        $this->route = $route;
+    }
+
+    /**
+     * The matched route's pattern, or null when no route matched (or
+     * no boundary minted a context at all): the fold the errors
+     * total's route dimension reads -- the closed spelling the
+     * recorder answers for every unrouted refusal.
+     */
+    public function route(): ?string
+    {
+        return $this->route;
     }
 
     public function recordQuery(): void

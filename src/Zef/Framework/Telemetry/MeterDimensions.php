@@ -15,7 +15,10 @@ namespace Zef\Framework\Telemetry;
  * the `zef.http.*` and `zef.container.*` series keep exactly the two
  * low-cardinality slices the request series exist to be read by (the
  * request method and the response status code), plus the exception
- * type the errors total is attributed by and the bounded service
+ * type the errors total is attributed by, the ROUTE the request
+ * landed on (the matched pattern the error boundary's context
+ * carries, the closed unrouted spelling for every refusal that
+ * matched none -- never the raw target) and the bounded service
  * identity the resolve duration slices on; the `zef.router.*` series
  * (the router's own match counting) keeps the request method and the
  * closed match-outcome vocabulary the routing lane's series exist to
@@ -123,6 +126,7 @@ final class MeterDimensions
 
         if ($name === 'zef.http.errors.total') {
             $kept = self::exceptionDimension($clean, $kept);
+            $kept = self::routeDimension($clean, $kept);
         }
 
         if ($name === 'zef.container.resolve.duration_seconds') {
@@ -147,6 +151,28 @@ final class MeterDimensions
     {
         if (\array_key_exists('exception.type', $clean) && \is_string($clean['exception.type'])) {
             $kept['exception.type'] = TelemetrySanitizer::string($clean['exception.type'], 128);
+        }
+
+        return $kept;
+    }
+
+    /**
+     * The route the errors total is attributed by: the matched pattern
+     * the boundary's context carried (the routing table's own spelling,
+     * the recorder's closed unrouted word for every refusal that
+     * matched none) -- bounded and sanitised the exception type's own
+     * way, the second named extra the series keeps, because the route
+     * is the slice the operator's dashboard reads errors by.
+     *
+     * @param array<string,mixed> $clean
+     * @param array<string,mixed> $kept
+     *
+     * @return array<string,mixed>
+     */
+    private static function routeDimension(array $clean, array $kept): array
+    {
+        if (\array_key_exists('http.route', $clean) && \is_string($clean['http.route'])) {
+            $kept['http.route'] = TelemetrySanitizer::string($clean['http.route'], 128);
         }
 
         return $kept;

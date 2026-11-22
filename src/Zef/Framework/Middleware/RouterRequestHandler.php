@@ -13,6 +13,7 @@ use UnexpectedValueException;
 use Zef\Framework\Config\Routing\MatchResult;
 use Zef\Framework\Config\Routing\RouteDispatcher;
 use Zef\Framework\Container\Container;
+use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\HeadResponse;
 use Zef\Framework\Router\Router;
 
@@ -37,6 +38,18 @@ use Zef\Framework\Router\Router;
  * exposed on the request. The telemetry is optional and null by default --
  * the family's honest off posture -- so a handler constructed without it
  * answers exactly as it always did.
+ *
+ * The handler also carries the matched route's pattern onto the error
+ * boundary's own context ({@see ErrorRequestContext::setRoute()}) when
+ * the boundary minted one on the request: the found match's pattern --
+ * the routing table's own spelling -- rides the request-scoped carrier
+ * the trace id's adoption already owns, so the boundary's fault metric
+ * slices the errors total by the route the request actually landed on.
+ * A request that carries no boundary context writes nothing (a custom
+ * stack owes the counter nothing), and a refusal that matched no route
+ * writes nothing either (the recorder's own closed spelling answers those
+ * arms) -- the write is best-effort decoration, never a dependency of
+ * the dispatch itself.
  *
  * @api
  */
@@ -64,6 +77,11 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
     {
         $serverRequestMetadata = ServerRequestMetadata::fromRequest($request);
         $matchResult = $this->matchObserved($request, $serverRequestMetadata);
+
+        if ($matchResult->isFound()) {
+            ErrorRequestContext::fromAttribute($request->getAttribute(ErrorRequestContext::ATTRIBUTE))
+                ?->setRoute($matchResult->route()->path()->pattern());
+        }
 
         $routeDispatchHandler = new RouteDispatchHandler(
             $this->routeDispatcher,
