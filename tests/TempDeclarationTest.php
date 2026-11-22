@@ -112,6 +112,21 @@ final class TempDeclarationTest extends TestCase
         );
     }
 
+    public function testATrailingNewlineRetentionSpellingRefuses(): void
+    {
+        try {
+            TempDeclaration::fromConfig(new Config([
+                'temp' => ['ttl' => "3600\n"],
+            ]));
+            self::fail('A trailing-newline spelling must refuse both anchors.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'temp.ttl must be an integer of at least one second, string given.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
     public function testANonMapTempBlockRefuses(): void
     {
         try {

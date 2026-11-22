@@ -33,6 +33,12 @@ final class TempFileDoubleState
     /** @var null|false the armed realpath answer (false arms the unresolvable-address refusal) */
     public static ?false $realpathAnswer = null;
 
+    /** @var null|false the armed unlink answer (false arms the untakeable-removal refusal, without the engine call) */
+    public static ?false $unlinkAnswer = null;
+
+    /** @var null|false the armed file_exists answer (false arms the concurrent-retirement window the re-check owns) */
+    public static ?false $fileExistsAnswer = null;
+
     /**
      * Resets every armed answer to the engine's own.
      */
@@ -42,5 +48,7 @@ final class TempFileDoubleState
         self::$renameAnswer = null;
         self::$scandirAnswer = null;
         self::$realpathAnswer = null;
+        self::$unlinkAnswer = null;
+        self::$fileExistsAnswer = null;
     }
 }

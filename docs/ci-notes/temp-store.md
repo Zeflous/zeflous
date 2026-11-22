@@ -225,12 +225,27 @@ seam) answer the impossible filesystem answers (an unsecurable
 scratch, an unfinalisable rename, an unscannable root, an
 unresolvable address) the real filesystem cannot produce in a
 test process, closing the failure-path coverage the 95-on-new-code
-condition demands. The cloud lane's maintainability condition
-taught the registration seam its own const: the three lane
-writers' service registrations now spell their construction entry
-through `STORE_FACTORY_ENTRY` (`::store`, the `CONFIG_FACTORY_ENTRY`
-precedent's own shape), because the third literal the slice added
-is the one the no-duplicate rule refuses.
+condition demands. The mutation lane's own round taught the
+family its battery: the one-second construction and the
+landed-scratch mode (the staging's owner-only chmod), the exact
+scan answer over the lane's own container, the walk the write
+exactly at the cadence pays, the web-served lane and the
+world-traversable mask the directory posture refuses, the
+stranded staging the unsecurable and unfinalisable arms leave
+(the discipline's own leading-dot spelling pinned), the
+concurrent-retirement window the re-check owns, the corrupted
+marker's own zero reading, and the trailing-newline spelling the
+retention's D anchor refuses -- eighteen kills; the nineteenth
+(the staging measurement's mb_strlen-to-strlen rewrite) is the
+BodyBudget::refuses() equivalence itself (the '8bit' encoding IS
+byte semantics), recorded as the scoped ignore the twin staging
+folds carry, verified by the round's own escaped-mutant run. The
+cloud lane's maintainability condition taught the registration
+seam its own const: the three lane writers' service registrations
+now spell their construction entry through `STORE_FACTORY_ENTRY`
+(`::store`, the `CONFIG_FACTORY_ENTRY` precedent's own shape),
+because the third literal the slice added is the one the
+no-duplicate rule refuses.
 
 ## KDD-TS12 — the shipped profile sentences the slice re-homes
 

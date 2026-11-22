@@ -50,6 +50,9 @@ final class FileTempStoreTest extends TestCase
 {
     private string $directory;
 
+    /** @var array{bool, mixed} whether DOCUMENT_ROOT existed and its previous value */
+    private array $previousDocumentRoot = [false, null];
+
     #[Override]
     protected function setUp(): void
     {
@@ -61,6 +64,8 @@ final class FileTempStoreTest extends TestCase
     protected function tearDown(): void
     {
         TempFileDoubleState::reset();
+
+        $this->restoreDocumentRoot();
 
         if (is_link($this->directory . '-link')) {
             unlink($this->directory . '-link');
@@ -87,6 +92,14 @@ final class FileTempStoreTest extends TestCase
         self::assertSame(1, preg_match('/^[a-f0-9]{32}$/D', basename($path)));
         self::assertFileExists($path);
         self::assertSame('scratch payload', file_get_contents($path));
+        clearstatcache();
+        $permissions = fileperms($path);
+        self::assertNotFalse($permissions);
+        self::assertSame(
+            0o600,
+            $permissions & 0o777,
+            'the landed scratch carries the owner-only mode the staging discipline secures',
+        );
     }
 
     public function testAnEmptyPayloadLandsAsItsOwnEmptyScratch(): void
@@ -200,6 +213,12 @@ final class FileTempStoreTest extends TestCase
         file_put_contents($this->directory . '/.sweep-cadence', 'garbage');
         $this->prePlaceScratch('stale-scratch', 500);
 
+        self::assertSame(
+            0,
+            (new TempSweepCadence($this->directory))->lastRanAt(),
+            'a corrupted marker answers the zero reading itself',
+        );
+
         $fileTempStore = new FileTempStore($this->directory, 100, static fn (): int => 1000);
         $fileTempStore->write('riding write');
 
@@ -281,6 +300,93 @@ final class FileTempStoreTest extends TestCase
                 'The temp file store cannot secure the scratch',
                 $invalidArgumentException->getMessage(),
             );
+        }
+
+        $entries = scandir($this->directory);
+        self::assertNotFalse($entries);
+        $stranded = array_values(array_diff($entries, ['.', '..']));
+
+        self::assertCount(
+            1,
+            $stranded,
+            'the refused staging strands exactly one file',
+        );
+        self::assertStringStartsWith(
+            '.',
+            $stranded[0],
+            'the stranded staging is the discipline\'s own leading-dot file, never the landed name',
+        );
+    }
+
+    public function testAOneSecondRetentionWritesItsOwnScratch(): void
+    {
+        $fileTempStore = new FileTempStore($this->directory, 1, static fn (): int => 1000);
+
+        $path = $fileTempStore->write('one second is its own acceptable bound');
+
+        self::assertFileExists(
+            $path,
+            'the one-second retention constructs and writes its own scratch',
+        );
+    }
+
+    public function testTheScanAnswersTheScratchAloneNeverTheLaneDirectory(): void
+    {
+        $this->prePlaceScratch('a-scratch', 999);
+        mkdir($this->directory . '/nested-dir');
+
+        self::assertSame(
+            ['a-scratch'],
+            (new TempScratchScan($this->directory))->scratchFilenames(),
+            'the scan answers the scratch alone -- a container the lane never provisioned never joins the walk',
+        );
+    }
+
+    public function testAWriteExactlyAtTheCadencePaysTheWalk(): void
+    {
+        file_put_contents($this->directory . '/.sweep-cadence', '940');
+        $this->prePlaceScratch('stale-scratch', 500);
+
+        $fileTempStore = new FileTempStore($this->directory, 100, static fn (): int => 1000);
+        $fileTempStore->write('the cadence elapsed exactly');
+
+        self::assertFileDoesNotExist(
+            $this->directory . '/stale-scratch',
+            'a write exactly at the cadence boundary pays the walk -- the last instant before it does not',
+        );
+    }
+
+    public function testAWebServedLaneRefusesTheConstruction(): void
+    {
+        $this->setDocumentRoot($this->directory);
+
+        try {
+            new FileTempStore($this->directory, 100);
+            self::fail('A lane equal to the document root must be refused.');
+        } catch (InvalidArgumentException $invalidArgumentException) {
+            self::assertSame(
+                'The storage root must be outside the public document root.',
+                $invalidArgumentException->getMessage(),
+            );
+        }
+    }
+
+    public function testAWorldTraversableMaskRefusesTheConstruction(): void
+    {
+        chmod($this->directory, 0o701);
+
+        try {
+            try {
+                new FileTempStore($this->directory, 100);
+                self::fail('A world-traversable mask must refuse the construction.');
+            } catch (InvalidArgumentException $invalidArgumentException) {
+                self::assertSame(
+                    'The temp file store directory must have owner-only permissions.',
+                    $invalidArgumentException->getMessage(),
+                );
+            }
+        } finally {
+            chmod($this->directory, 0o700);
         }
     }
 
@@ -468,6 +574,22 @@ final class FileTempStoreTest extends TestCase
         }
     }
 
+    public function testAScratchASiblingTookBetweenTheFailedUnlinkAndTheRecheckIsTheRetiredState(): void
+    {
+        $this->prePlaceScratch('taken-scratch', 500);
+
+        TempFileDoubleState::$unlinkAnswer = false;
+        TempFileDoubleState::$fileExistsAnswer = false;
+
+        $tempRetirement = new TempRetirement($this->directory, 100);
+        $tempRetirement->retire('taken-scratch', 100000);
+
+        self::assertFileExists(
+            $this->directory . '/taken-scratch',
+            'the retired state arrived through the concurrent window, never a refusal',
+        );
+    }
+
     public function testAMarkerTheLaneCannotLayDownAnswersTheDegradedCadence(): void
     {
         mkdir($this->directory . '/.sweep-cadence');
@@ -491,6 +613,24 @@ final class FileTempStoreTest extends TestCase
         );
     }
 
+    public function testAFailedMarkerRenameAndUnlinkStrandTheStagingFile(): void
+    {
+        TempFileDoubleState::$renameAnswer = false;
+        TempFileDoubleState::$unlinkAnswer = false;
+
+        $tempSweepCadence = new TempSweepCadence($this->directory);
+        $tempSweepCadence->ranAt(12345);
+
+        self::assertFileExists(
+            $this->directory . '/.sweep-cadence.staging',
+            'the failed rename strands the staging file the one-rename discipline writes through',
+        );
+        self::assertFileDoesNotExist(
+            $this->directory . '/.sweep-cadence',
+            'the refused rename leaves no marker behind',
+        );
+    }
+
     /**
      * Lays one pre-placed scratch down with its own modified time.
      *
@@ -503,5 +643,32 @@ final class FileTempStoreTest extends TestCase
 
         file_put_contents($path, 'pre-placed');
         touch($path, $modifiedAt);
+    }
+
+    /**
+     * Arms the SAPI document root the shared fold reads.
+     */
+    private function setDocumentRoot(string $documentRoot): void
+    {
+        $this->previousDocumentRoot = [
+            \array_key_exists('DOCUMENT_ROOT', $_SERVER),
+            $_SERVER['DOCUMENT_ROOT'] ?? null,
+        ];
+
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
+    }
+
+    /**
+     * Restores the SAPI document root the test may have armed.
+     */
+    private function restoreDocumentRoot(): void
+    {
+        [$existed, $previous] = $this->previousDocumentRoot;
+
+        if ($existed) {
+            $_SERVER['DOCUMENT_ROOT'] = $previous;
+        } else {
+            unset($_SERVER['DOCUMENT_ROOT']);
+        }
     }
 }
