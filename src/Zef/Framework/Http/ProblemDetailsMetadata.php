@@ -18,6 +18,7 @@ final class ProblemDetailsMetadata
             406 => 'not-acceptable',
             409 => 'conflict',
             413 => 'content-too-large',
+            415 => 'unsupported-media-type',
             429 => 'rate-limit-exceeded',
             default => 'internal-error',
         };
@@ -36,6 +37,7 @@ final class ProblemDetailsMetadata
             406 => 'Not Acceptable',
             409 => 'Conflict',
             413 => 'Content Too Large',
+            415 => 'Unsupported Media Type',
             429 => 'Too Many Requests',
             default => 'Internal Server Error',
         };

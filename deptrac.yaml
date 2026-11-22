@@ -303,6 +303,19 @@ deptrac:
     # same port, in its own future slice (the optional-extension
     # posture the phpredis boundary spells -- never a composer
     # `require`).
+    # The uploads family's first writer (`Adapters\Uploads\FileUploadsStore`,
+    # the `uploads` lane's fail-closed validation engine) widens the
+    # lane to `Exception` the same one-way way the database
+    # adapter's audit emission widened it to `Telemetry`: its
+    # validation refusals are the request-surface answers the typed
+    # family owns (the crossed ceiling's 413, the refused type's
+    # 415 -- both rendered by the error boundary as RFC 9457
+    # problem+json, CONTRIBUTING rule 17), so the engine -- the only
+    # place the upload's own evidence is visible -- reaches the
+    # family one-way, and the family never learns a writer exists.
+    # The sister adapters' construction-time refusals stay SPL
+    # (the Storage posture) exactly as they were; only the
+    # request-surface refusals ride the typed family.
     Adapters:
       - Event
       - Storage
@@ -310,6 +323,7 @@ deptrac:
       - Database
       - Telemetry
       - View
+      - Exception
     # The modules layer is the module system's own lane: the contract the
     # module author implements (ModuleInterface over the ModuleRegistrar
     # port), the identity/context value objects, the manifest and knob

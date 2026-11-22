@@ -44,6 +44,8 @@ final class ProblemDetailsMetadataTest extends TestCase
 
         yield 'content-too-large answers 413' => [413, 'content-too-large', 'Content Too Large'];
 
+        yield 'unsupported-media-type answers 415' => [415, 'unsupported-media-type', 'Unsupported Media Type'];
+
         yield 'rate-limit-exceeded answers 429' => [429, 'rate-limit-exceeded', 'Too Many Requests'];
     }
 
