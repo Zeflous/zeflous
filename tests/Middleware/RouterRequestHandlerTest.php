@@ -317,7 +317,7 @@ final class RouterRequestHandlerTest extends TestCase
             ],
         ]);
 
-        $response = (new ErrorMappingMiddleware(null, false, $recordingMeter))->process(
+        $response = new ErrorMappingMiddleware(null, false, $recordingMeter)->process(
             $this->request('GET', 'api.example.com', 'application/json'),
             $this->handler($router, $container),
         );
@@ -344,7 +344,7 @@ final class RouterRequestHandlerTest extends TestCase
             ],
         ]);
 
-        (new ErrorMappingMiddleware(null, false, $recordingMeter))->process(
+        new ErrorMappingMiddleware(null, false, $recordingMeter)->process(
             $this->request('GET', 'api.example.com', 'application/json', '/orders/92'),
             $this->handler($router, $container),
         );

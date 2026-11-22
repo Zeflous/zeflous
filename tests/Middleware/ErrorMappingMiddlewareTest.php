@@ -794,6 +794,7 @@ final class ErrorMappingMiddlewareTest extends TestCase
             'exception.type' => 'NotFoundException',
             'http.request.method' => 'GET',
             'http.response.status_code' => 404,
+            'http.route' => 'unrouted',
         ], $series[0]['attributes']);
     }
 

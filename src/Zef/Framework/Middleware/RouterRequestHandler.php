@@ -80,7 +80,8 @@ final readonly class RouterRequestHandler implements RequestHandlerInterface
 
         if ($matchResult->isFound()) {
             ErrorRequestContext::fromAttribute($request->getAttribute(ErrorRequestContext::ATTRIBUTE))
-                ?->setRoute($matchResult->route()->path()->pattern());
+                ?->setRoute($matchResult->route()->path()->pattern())
+            ;
         }
 
         $routeDispatchHandler = new RouteDispatchHandler(
