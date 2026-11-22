@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-22T00:50:12Z",
+  "as_of": "2026-11-22T13:13:23Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 355,
+  "unreleased_count": 356,
   "versions": [
     {
       "version": "Unreleased",
@@ -4934,6 +4934,132 @@
                 "sha": "94f069598e87269753b8a11ed23d48aabc616191",
                 "short_sha": "94f0695",
                 "subject": "docs(roadmap): refresh the pin over the density settle (#908)"
+              }
+            ]
+          },
+          {
+            "pr": 911,
+            "title": "feat(temp): the lane's writer with its cadenced sweep -- the reservation closed behind the retention the host spells",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-22T13:13:23Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/911",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "65fc869fd37db95dab2078bfd1515ef0f83ce29a",
+                "short_sha": "65fc869",
+                "subject": "feat(temp): the lane's writer with its cadenced sweep -- the reservation closed behind the retention the host spells"
+              },
+              {
+                "sha": "261c6ad06562f400b73d9b696495cee2f25565be",
+                "short_sha": "261c6ad",
+                "subject": "docs(roadmap): the Storage row answers the temp writer, the P1 row retires and both pins ride the temp head (#911)"
+              },
+              {
+                "sha": "ae288f3080c8dd8524fac6d2b15365e1ffc34b57",
+                "short_sha": "ae288f3",
+                "subject": "fix(temp): settle the CI round's findings -- the declaration's armed answer and the profile pin's registration"
+              },
+              {
+                "sha": "817cb08abfb71a91cddd7cff63a390597041f608",
+                "short_sha": "817cb08",
+                "subject": "docs(roadmap): refresh the pin over the CI round's settle commit (#911)"
+              },
+              {
+                "sha": "179b403f1a0bbb0d5867de8ccca5da40f3c5bca6",
+                "short_sha": "179b403",
+                "subject": "fix(temp): the second CI round's format settle -- the docblock alignments, the provider's home and the see's own spelling"
+              },
+              {
+                "sha": "83403909c2b41d63c9d122918ae435b134a7feee",
+                "short_sha": "8340390",
+                "subject": "docs(roadmap): refresh the pin over the second CI round's settle commit (#911)"
+              },
+              {
+                "sha": "c985b2616eaf7337d52f72a2a2f05794d26ec356",
+                "short_sha": "c985b26",
+                "subject": "fix(temp): the third CI round's density measure -- the cadence marker's own spellings over the session lane's fold"
+              },
+              {
+                "sha": "9fb9295b21aa28b2ed59e25cea1be2c6fc659e8a",
+                "short_sha": "9fb9295",
+                "subject": "docs(roadmap): refresh the pin over the third CI round's settle commit (#911)"
+              },
+              {
+                "sha": "523d2eb58fbf0bef4ded78d371695bcb3ea68da9",
+                "short_sha": "523d2eb",
+                "subject": "fix(temp): the fourth CI round's cloud-lane settle -- the failure-path arms over the doubles seam and the directory and census spellings' own words"
+              },
+              {
+                "sha": "488ccca638f62fe8aec46681d1465fe5645b662a",
+                "short_sha": "488ccca",
+                "subject": "docs(roadmap): refresh the pin over the fourth CI round's settle commit (#911)"
+              },
+              {
+                "sha": "61789970bca5dafaf54b471cc143c3354c9445c4",
+                "short_sha": "6178997",
+                "subject": "docs(roadmap): the storage row's own phrases answer the document gate -- one clause re-spelled"
+              },
+              {
+                "sha": "35f47310e45294d75c5b4e9ec3b9f98a28826786",
+                "short_sha": "35f4731",
+                "subject": "fix(temp): the fifth CI round's psalm settle -- the armed question's own reading and the retention knob's own fold"
+              },
+              {
+                "sha": "752a69db58d45b5cdf54abd41c14353719f85b5a",
+                "short_sha": "752a69d",
+                "subject": "docs(roadmap): refresh the pin over the fifth CI round's settle commit (#911)"
+              },
+              {
+                "sha": "ea45e83f55a83260ebc873f77be22f00c9d7d2c0",
+                "short_sha": "ea45e83",
+                "subject": "fix(temp): the sixth CI round's alignment settle -- the retention fold's own docblock column"
+              },
+              {
+                "sha": "e379c743bbaf43347182c26c6937768c8af2ebcd",
+                "short_sha": "e379c74",
+                "subject": "docs(roadmap): refresh the pin over the sixth CI round's settle commit (#911)"
+              },
+              {
+                "sha": "2ccc257c0fe92b31140830f88aeedc7cec6a576f",
+                "short_sha": "2ccc257",
+                "subject": "fix(temp): the seventh CI round's entry const -- the three lane writers' registrations spell one construction entry"
+              },
+              {
+                "sha": "d6d4ae2f2b9220f5a5ed452cd1cb41fa7dfffa43",
+                "short_sha": "d6d4ae2",
+                "subject": "docs(roadmap): refresh the pin over the seventh CI round's settle commit (#911)"
+              },
+              {
+                "sha": "5d0d5227ad1648010a647f1297a36ad23440c096",
+                "short_sha": "5d0d522",
+                "subject": "fix(temp): the eighth CI round's mutation battery -- eighteen kills over the lane's own boundary arms and the equivalence's scoped ignore"
+              },
+              {
+                "sha": "2b9b2c587340572a36939c95ee695b49c3728d1b",
+                "short_sha": "2b9b2c5",
+                "subject": "docs(roadmap): refresh the pin over the eighth CI round's settle commit (#911)"
+              },
+              {
+                "sha": "380c7125c9ffd0fa3c84ff62423eb249d5a1cd50",
+                "short_sha": "380c712",
+                "subject": "fix(temp): the ninth CI round's new-instantiation spelling -- the two assertion call sites answer the fixer"
+              },
+              {
+                "sha": "07c7804bbe1d379e835cca1a1369a74a2d286288",
+                "short_sha": "07c7804",
+                "subject": "docs(roadmap): refresh the pin over the ninth CI round's settle commit (#911)"
+              },
+              {
+                "sha": "63aaf454d29f52c4efe6c3dbcda329ee61d69dda",
+                "short_sha": "63aaf45",
+                "subject": "fix(temp): the tenth CI round's quote escape -- the stranded-staging message answers Rector's own spelling"
+              },
+              {
+                "sha": "bf0f96570ce928894f01ab2a15689251048cd58d",
+                "short_sha": "bf0f965",
+                "subject": "docs(roadmap): refresh the pin over the tenth CI round's settle commit (#911)"
               }
             ]
           }
@@ -24443,6 +24569,132 @@
               "sha": "94f069598e87269753b8a11ed23d48aabc616191",
               "short_sha": "94f0695",
               "subject": "docs(roadmap): refresh the pin over the density settle (#908)"
+            }
+          ]
+        },
+        {
+          "pr": 911,
+          "title": "feat(temp): the lane's writer with its cadenced sweep -- the reservation closed behind the retention the host spells",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-22T13:13:23Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/911",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "65fc869fd37db95dab2078bfd1515ef0f83ce29a",
+              "short_sha": "65fc869",
+              "subject": "feat(temp): the lane's writer with its cadenced sweep -- the reservation closed behind the retention the host spells"
+            },
+            {
+              "sha": "261c6ad06562f400b73d9b696495cee2f25565be",
+              "short_sha": "261c6ad",
+              "subject": "docs(roadmap): the Storage row answers the temp writer, the P1 row retires and both pins ride the temp head (#911)"
+            },
+            {
+              "sha": "ae288f3080c8dd8524fac6d2b15365e1ffc34b57",
+              "short_sha": "ae288f3",
+              "subject": "fix(temp): settle the CI round's findings -- the declaration's armed answer and the profile pin's registration"
+            },
+            {
+              "sha": "817cb08abfb71a91cddd7cff63a390597041f608",
+              "short_sha": "817cb08",
+              "subject": "docs(roadmap): refresh the pin over the CI round's settle commit (#911)"
+            },
+            {
+              "sha": "179b403f1a0bbb0d5867de8ccca5da40f3c5bca6",
+              "short_sha": "179b403",
+              "subject": "fix(temp): the second CI round's format settle -- the docblock alignments, the provider's home and the see's own spelling"
+            },
+            {
+              "sha": "83403909c2b41d63c9d122918ae435b134a7feee",
+              "short_sha": "8340390",
+              "subject": "docs(roadmap): refresh the pin over the second CI round's settle commit (#911)"
+            },
+            {
+              "sha": "c985b2616eaf7337d52f72a2a2f05794d26ec356",
+              "short_sha": "c985b26",
+              "subject": "fix(temp): the third CI round's density measure -- the cadence marker's own spellings over the session lane's fold"
+            },
+            {
+              "sha": "9fb9295b21aa28b2ed59e25cea1be2c6fc659e8a",
+              "short_sha": "9fb9295",
+              "subject": "docs(roadmap): refresh the pin over the third CI round's settle commit (#911)"
+            },
+            {
+              "sha": "523d2eb58fbf0bef4ded78d371695bcb3ea68da9",
+              "short_sha": "523d2eb",
+              "subject": "fix(temp): the fourth CI round's cloud-lane settle -- the failure-path arms over the doubles seam and the directory and census spellings' own words"
+            },
+            {
+              "sha": "488ccca638f62fe8aec46681d1465fe5645b662a",
+              "short_sha": "488ccca",
+              "subject": "docs(roadmap): refresh the pin over the fourth CI round's settle commit (#911)"
+            },
+            {
+              "sha": "61789970bca5dafaf54b471cc143c3354c9445c4",
+              "short_sha": "6178997",
+              "subject": "docs(roadmap): the storage row's own phrases answer the document gate -- one clause re-spelled"
+            },
+            {
+              "sha": "35f47310e45294d75c5b4e9ec3b9f98a28826786",
+              "short_sha": "35f4731",
+              "subject": "fix(temp): the fifth CI round's psalm settle -- the armed question's own reading and the retention knob's own fold"
+            },
+            {
+              "sha": "752a69db58d45b5cdf54abd41c14353719f85b5a",
+              "short_sha": "752a69d",
+              "subject": "docs(roadmap): refresh the pin over the fifth CI round's settle commit (#911)"
+            },
+            {
+              "sha": "ea45e83f55a83260ebc873f77be22f00c9d7d2c0",
+              "short_sha": "ea45e83",
+              "subject": "fix(temp): the sixth CI round's alignment settle -- the retention fold's own docblock column"
+            },
+            {
+              "sha": "e379c743bbaf43347182c26c6937768c8af2ebcd",
+              "short_sha": "e379c74",
+              "subject": "docs(roadmap): refresh the pin over the sixth CI round's settle commit (#911)"
+            },
+            {
+              "sha": "2ccc257c0fe92b31140830f88aeedc7cec6a576f",
+              "short_sha": "2ccc257",
+              "subject": "fix(temp): the seventh CI round's entry const -- the three lane writers' registrations spell one construction entry"
+            },
+            {
+              "sha": "d6d4ae2f2b9220f5a5ed452cd1cb41fa7dfffa43",
+              "short_sha": "d6d4ae2",
+              "subject": "docs(roadmap): refresh the pin over the seventh CI round's settle commit (#911)"
+            },
+            {
+              "sha": "5d0d5227ad1648010a647f1297a36ad23440c096",
+              "short_sha": "5d0d522",
+              "subject": "fix(temp): the eighth CI round's mutation battery -- eighteen kills over the lane's own boundary arms and the equivalence's scoped ignore"
+            },
+            {
+              "sha": "2b9b2c587340572a36939c95ee695b49c3728d1b",
+              "short_sha": "2b9b2c5",
+              "subject": "docs(roadmap): refresh the pin over the eighth CI round's settle commit (#911)"
+            },
+            {
+              "sha": "380c7125c9ffd0fa3c84ff62423eb249d5a1cd50",
+              "short_sha": "380c712",
+              "subject": "fix(temp): the ninth CI round's new-instantiation spelling -- the two assertion call sites answer the fixer"
+            },
+            {
+              "sha": "07c7804bbe1d379e835cca1a1369a74a2d286288",
+              "short_sha": "07c7804",
+              "subject": "docs(roadmap): refresh the pin over the ninth CI round's settle commit (#911)"
+            },
+            {
+              "sha": "63aaf454d29f52c4efe6c3dbcda329ee61d69dda",
+              "short_sha": "63aaf45",
+              "subject": "fix(temp): the tenth CI round's quote escape -- the stranded-staging message answers Rector's own spelling"
+            },
+            {
+              "sha": "bf0f96570ce928894f01ab2a15689251048cd58d",
+              "short_sha": "bf0f965",
+              "subject": "docs(roadmap): refresh the pin over the tenth CI round's settle commit (#911)"
             }
           ]
         }
