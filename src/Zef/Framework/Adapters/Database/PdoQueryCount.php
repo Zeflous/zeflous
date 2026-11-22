@@ -65,24 +65,10 @@ use Zef\Framework\Http\ErrorRequestContext;
 final readonly class PdoQueryCount
 {
     /**
-     * @var Closure(): ?ServerRequestInterface the composition's request
-     *                                         seam -- the active request, or
-     *                                         null when no request window is
-     *                                         open (the provider itself is
-     *                                         always present: the
-     *                                         composition that armed the
-     *                                         counter spelled one, the
-     *                                         null-fold's guard lives in
-     *                                         {@see self::whenCarried()})
-     */
-    private Closure $requestProvider;
-
-    /**
      * @param Closure(): ?ServerRequestInterface $requestProvider the composition's request seam
      */
-    public function __construct(Closure $requestProvider)
+    public function __construct(private Closure $requestProvider)
     {
-        $this->requestProvider = $requestProvider;
     }
 
     /**
@@ -97,7 +83,7 @@ final readonly class PdoQueryCount
      */
     public static function whenCarried(?Closure $requestProvider): ?self
     {
-        return $requestProvider === null ? null : new self($requestProvider);
+        return $requestProvider instanceof \Closure ? new self($requestProvider) : null;
     }
 
     /**
