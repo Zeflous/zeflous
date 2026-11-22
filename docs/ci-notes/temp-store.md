@@ -50,13 +50,15 @@ exists anywhere in the family: the uploads ceiling's
 `DEFAULT_MAX_BYTES` answered the question "what bound when the
 host spells the opt-in but not the ceiling"; the temp TTL has no
 such second knob, so no default was ever needed. The CI round
-taught the family its own vocabulary for the armed question: the
-declaration answers the silent-vs-armed posture through its own
-one-way fold (`wantsWriter()`, the same answer the uploads
-declaration's own fold gives for its allowlist), the wiring's
-refusal still narrowing over the retention's null reading itself
--- the declaration's answer is the vocabulary, never a second
-guard the wiring consults.
+taught the family its armed question needs no fold of its own:
+the retention's null reading IS the answer (the wiring's refusal
+narrowing over it, the null and the declared integer the family's
+tests pin directly), and an unconsumed vocabulary fold is a
+psalm finding the uploads family never met -- its own
+`wantsWriter()` is consumed by its own wiring, while the temp
+wiring's guard is the retention's null reading itself, so the
+declaration keeps no second spelling of a question one reading
+already answers.
 
 ## KDD-TS3 — the cadence is the lane's own memory, not the composition's
 

@@ -44,8 +44,7 @@ final class TempDeclarationTest extends TestCase
         $declaration = TempDeclaration::fromConfig(new Config([]));
 
         self::assertSame('', $declaration->path);
-        self::assertNull($declaration->ttlSeconds);
-        self::assertFalse($declaration->wantsWriter(), 'an absent family declares no armed writer');
+        self::assertNull($declaration->ttlSeconds, 'an absent family declares no armed writer');
     }
 
     public function testAnEmptyBlockAnswersTheSilentPosture(): void
@@ -56,7 +55,6 @@ final class TempDeclarationTest extends TestCase
 
         self::assertSame('', $declaration->path);
         self::assertNull($declaration->ttlSeconds);
-        self::assertFalse($declaration->wantsWriter());
     }
 
     public function testTheShippedNullRetentionAnswersTheSilentPosture(): void
@@ -66,9 +64,8 @@ final class TempDeclarationTest extends TestCase
         ]));
 
         self::assertSame('', $declaration->path);
-        self::assertNull($declaration->ttlSeconds);
-        self::assertFalse(
-            $declaration->wantsWriter(),
+        self::assertNull(
+            $declaration->ttlSeconds,
             'the retention the host never spelled keeps the surface shut',
         );
     }
@@ -83,8 +80,7 @@ final class TempDeclarationTest extends TestCase
         ]));
 
         self::assertSame('/srv/app/elsewhere', $declaration->path);
-        self::assertSame(3600, $declaration->ttlSeconds);
-        self::assertTrue($declaration->wantsWriter(), 'a declared retention arms the writer');
+        self::assertSame(3600, $declaration->ttlSeconds, 'a declared retention arms the writer');
     }
 
     public function testAnEnvironmentSpelledRetentionFoldsToTheIntegerItSpells(): void
@@ -103,7 +99,6 @@ final class TempDeclarationTest extends TestCase
         ]));
 
         self::assertSame(1, $declaration->ttlSeconds);
-        self::assertTrue($declaration->wantsWriter());
     }
 
     public function testTheShippedProfileAndTheFrameworkDefaultsDeclareTheSameKnobs(): void

@@ -67,21 +67,6 @@ final readonly class TempDeclaration
     }
 
     /**
-     * Whether the declaration arms the writer at all: a declared
-     * retention. The wiring's own refusal narrows over the
-     * retention's null reading directly (the property the same
-     * answer derives from), and the family's tests pin the
-     * silent-vs-armed posture through this one-way answer -- the
-     * same question the uploads family's declaration answers for
-     * its allowlist, the family's opt-in spelled as the value
-     * object's own vocabulary.
-     */
-    public function wantsWriter(): bool
-    {
-        return $this->ttlSeconds !== null;
-    }
-
-    /**
      * Reads the declaration from the family's own map.
      *
      * @param mixed $temp the `temp` map as the frozen repository
@@ -105,12 +90,27 @@ final readonly class TempDeclaration
 
         TempKnobs::rejectUnknown($temp);
 
-        $ttl = $temp['ttl'] ?? null;
-
         return new self(
             self::readPath($temp['path'] ?? ''),
-            $ttl === null ? null : TempRetention::read($ttl),
+            self::readRetention($temp['ttl'] ?? null),
         );
+    }
+
+    /**
+     * The retention knob's own reading: the silent posture's null
+     * verbatim, and every declared shape handed to the retention's
+     * own integer seam -- the knob read through its own fold so the
+     * declaration never assigns the map's mixed answer to a name.
+     *
+     * @param mixed $ttl the `ttl` knob's value as the family's map
+     *                  carries it: null the silent posture, or the declared
+     *                  retention's own shape
+     *
+     * @throws ConfigException when the declared retention refuses
+     */
+    private static function readRetention(mixed $ttl): ?int
+    {
+        return $ttl === null ? null : TempRetention::read($ttl);
     }
 
     /**
