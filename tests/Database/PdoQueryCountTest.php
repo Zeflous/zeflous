@@ -8,6 +8,7 @@ use Closure;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoFetchOne;
@@ -88,7 +89,7 @@ final class PdoQueryCountTest extends TestCase
         $connection->execute(new SqlQuery('SELECT 1 AS one'));
 
         self::assertSame(
-            [],
+            [['one' => 1]],
             $connection->fetchAll(new SqlQuery('SELECT 1 AS one')),
             'the statement answered its own verb: the count is decoration, never a dependency',
         );
@@ -117,7 +118,7 @@ final class PdoQueryCountTest extends TestCase
     public function testAThrowingProviderCannotReplaceTheStatementAnswer(): void
     {
         $connection = $this->countedConnection(static function (): ServerRequest {
-            throw new \RuntimeException('the composition\'s provider failed');
+            throw new RuntimeException('the composition\'s provider failed');
         });
 
         $rows = $connection->fetchAll(new SqlQuery('SELECT 1 AS one'));

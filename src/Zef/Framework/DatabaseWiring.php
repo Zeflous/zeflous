@@ -86,7 +86,7 @@ use Zef\Framework\Telemetry\MeterInterface;
  * hands the wiring the request provider seam ({@see
  * \Zef\Framework\Adapters\Database\PdoQueryCount}): the framework's
  * own registration spells no provider (the framework mints no
- * request holder, the {@see \Zef\Framework\Http\ErrorRequestContext}
+ * request holder, the {@see Http\ErrorRequestContext}
  * doctrine), so the default wiring keeps the documented host-adapter
  * hook and a deployment's own composition root arms the counter for
  * the runtime it owns.
@@ -101,18 +101,18 @@ final readonly class DatabaseWiring
      * map, composed over the adapter's own reading folds with the
      * audit emission's two optional seams.
      *
-     * @param null|MeterInterface $meter the unbounded-statement audit
-     *                                   counter seam, or null when the caller wires no meter
+     * @param null|MeterInterface                     $meter           the unbounded-statement audit
+     *                                                                 counter seam, or null when the caller wires no meter
      * @param null|Closure(): ?ServerRequestInterface $requestProvider the
-     *                                                                  request-scoped query counter's
-     *                                                                  seam -- the active request a
-     *                                                                  deployment's own composition
-     *                                                                  answers for its statement runs,
-     *                                                                  or null when the composition
-     *                                  spells no provider (the counter
-     *                                  then stays the documented host
-     *                                  hook; the framework itself mints
-     *                                  no request holder)
+     *                                                                 request-scoped query counter's
+     *                                                                 seam -- the active request a
+     *                                                                 deployment's own composition
+     *                                                                 answers for its statement runs,
+     *                                                                 or null when the composition
+     *                                                                 spells no provider (the counter
+     *                                                                 then stays the documented host
+     *                                                                 hook; the framework itself mints
+     *                                                                 no request holder)
      *
      * @throws ConfigException when the declaration is silent (no
      *                         default connection spelled), the named connection is not

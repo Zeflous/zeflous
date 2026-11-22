@@ -79,8 +79,7 @@ final class PdoQueryRun
         ?PdoQueryLog $pdoQueryLog,
         SqlQuery $sqlQuery,
         ?PdoQueryCount $pdoQueryCount = null,
-    ): array
-    {
+    ): array {
         $startNs = $pdoQueryLog?->begin() ?? 0;
 
         try {

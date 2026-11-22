@@ -7,6 +7,7 @@ namespace Zef\Test;
 use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
 use Zef\Framework\Adapters\Database\PdoQueryLog;
@@ -27,7 +28,6 @@ use Zef\Framework\DatabaseConnections;
 use Zef\Framework\DatabaseDeclaration;
 use Zef\Framework\DatabaseKnobs;
 use Zef\Framework\DatabaseWiring;
-use Psr\Http\Message\ServerRequestInterface;
 use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\ServerRequest;
 use Zef\Framework\Http\Uri;
@@ -532,8 +532,9 @@ final class DatabaseWiringTest extends TestCase
     public function testTheRequestProviderRidesTheWiredConnection(): void
     {
         $errorRequestContext = new ErrorRequestContext('request-123');
-        $serverRequest = (new ServerRequest('GET', new Uri('https://app.example/orders')))
-            ->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
+        $serverRequest = new ServerRequest('GET', new Uri('https://app.example/orders'))
+            ->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext)
+        ;
         $connection = DatabaseWiring::connection(new Config([
             'database' => [
                 'default' => 'app',
@@ -554,8 +555,9 @@ final class DatabaseWiringTest extends TestCase
     public function testTheProviderlessWiredConnectionCountsNothing(): void
     {
         $errorRequestContext = new ErrorRequestContext('request-123');
-        $serverRequest = (new ServerRequest('GET', new Uri('https://app.example/orders')))
-            ->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
+        $serverRequest = new ServerRequest('GET', new Uri('https://app.example/orders'))
+            ->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext)
+        ;
         $connection = DatabaseWiring::connection(new Config([
             'database' => [
                 'default' => 'app',
