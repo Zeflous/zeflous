@@ -23,11 +23,17 @@ use Zef\Framework\Telemetry\MeterInterface;
  * statement that threw slowly records and then propagates its throw
  * untouched), and the unbounded-statement audit emission AFTER the
  * window -- an emission is never statement work, and a duration that
- * measured its own record would lie about the statement. The disarmed
+ * measured its own record would lie about the statement. The
+ * request-scoped counter's feeder ({@see PdoQueryCount::feed()})
+ * rides the SAME finally seam the window's closing edge does: one
+ * increment per executed statement, the throw path sharing it -- a
+ * query the request paid is a query the toolbar counts, whichever
+ * way the statement ended. The disarmed
  * connection's window is the inert one: no clock read (the nullsafe
  * bracket's `?? 0` instant the closing edge never reads), no
  * allocation, the timing family's own no-observable-difference
- * posture.
+ * posture -- and the feederless run pays no count either (the null
+ * fold's honest void).
  *
  * @internal
  */
@@ -44,6 +50,7 @@ final class PdoQueryRun
         ?LoggerInterface $auditLogger,
         ?PdoQueryLog $pdoQueryLog,
         SqlQuery $sqlQuery,
+        ?PdoQueryCount $pdoQueryCount = null,
     ): int {
         $startNs = $pdoQueryLog?->begin() ?? 0;
 
@@ -51,6 +58,7 @@ final class PdoQueryRun
             $affected = PdoStatementRun::execute(PdoStatementRun::prepare($pdo, $sqlQuery), $sqlQuery)->rowCount();
         } finally {
             $pdoQueryLog?->end($sqlQuery, $startNs);
+            $pdoQueryCount?->feed();
         }
 
         if ($sqlQuery->unbounded) {
@@ -66,7 +74,12 @@ final class PdoQueryRun
      *
      * @return list<array<string, mixed>> the narrowed rows
      */
-    public static function fetchAll(PDO $pdo, ?PdoQueryLog $pdoQueryLog, SqlQuery $sqlQuery): array
+    public static function fetchAll(
+        PDO $pdo,
+        ?PdoQueryLog $pdoQueryLog,
+        SqlQuery $sqlQuery,
+        ?PdoQueryCount $pdoQueryCount = null,
+    ): array
     {
         $startNs = $pdoQueryLog?->begin() ?? 0;
 
@@ -77,6 +90,7 @@ final class PdoQueryRun
             );
         } finally {
             $pdoQueryLog?->end($sqlQuery, $startNs);
+            $pdoQueryCount?->feed();
         }
     }
 }

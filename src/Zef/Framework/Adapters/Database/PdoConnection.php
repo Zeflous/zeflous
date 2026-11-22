@@ -30,6 +30,15 @@ use Zef\Framework\Telemetry\MeterInterface;
  *   duration observation and the slow verdict's WARN record through
  *   {@see PdoQuerySignals} (the seam defaults to null -- the honest
  *   void: no query log, no clock read, no cost);
+ * - optionally counts its statement runs into the active request's
+ *   error context: a {@see PdoQueryCount} feeder -- armed by the
+ *   wiring's optional request provider, the composition act the meter
+ *   and the audit logger already are -- calls
+ *   {@see ErrorRequestContext::recordQueryFor()} once per executed
+ *   statement in the finally seam the measured window's closing edge
+ *   shares (the seam defaults to null -- no provider, no count, no
+ *   cost; the framework itself mints no request holder, the context
+ *   doctrine the hook was spelled on);
  * - the nested-transaction SAVEPOINT walk and its isolation rules live
  *   in {@see PdoTransactions}, the FETCH_ASSOC answer's narrowing in
  *   {@see PdoRows}, the statement execution mapping in
@@ -60,6 +69,7 @@ final readonly class PdoConnection implements ConnectionInterface
         private ?MeterInterface $meter = null,
         private ?LoggerInterface $auditLogger = null,
         private ?PdoQueryLog $pdoQueryLog = null,
+        private ?PdoQueryCount $pdoQueryCount = null,
     ) {
         $this->pdoHandle = new PdoHandle($connectionConfig, $pdo);
         $this->pdoTransactions = new PdoTransactions();
@@ -84,6 +94,7 @@ final readonly class PdoConnection implements ConnectionInterface
                 $this->auditLogger,
                 $this->pdoQueryLog,
                 $sqlQuery,
+                $this->pdoQueryCount,
             ),
         );
     }
@@ -94,7 +105,12 @@ final readonly class PdoConnection implements ConnectionInterface
         return PdoHealing::around(
             $this->pdoHandle,
             $this->pdoTransactions,
-            fn (): array => PdoQueryRun::fetchAll($this->pdoHandle->pdo(), $this->pdoQueryLog, $sqlQuery),
+            fn (): array => PdoQueryRun::fetchAll(
+                $this->pdoHandle->pdo(),
+                $this->pdoQueryLog,
+                $sqlQuery,
+                $this->pdoQueryCount,
+            ),
         );
     }
 
@@ -104,7 +120,12 @@ final readonly class PdoConnection implements ConnectionInterface
         return PdoHealing::around(
             $this->pdoHandle,
             $this->pdoTransactions,
-            fn (): ?array => PdoFetchOne::fetch($this->pdoHandle->pdo(), $this->pdoQueryLog, $sqlQuery),
+            fn (): ?array => PdoFetchOne::fetch(
+                $this->pdoHandle->pdo(),
+                $this->pdoQueryLog,
+                $sqlQuery,
+                $this->pdoQueryCount,
+            ),
         );
     }
 

@@ -27,6 +27,7 @@ final class ErrorRequestContextTest extends TestCase
         ErrorRequestContext::recordQueryFor($requestWithContext);
         ErrorRequestContext::recordQueryFor($requestWithContext);
         ErrorRequestContext::recordQueryFor($serverRequest);
+        ErrorRequestContext::recordQueryFor(null);
 
         self::assertSame(2, $errorRequestContext->queryCount());
     }

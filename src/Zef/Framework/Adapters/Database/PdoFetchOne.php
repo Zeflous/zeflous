@@ -21,9 +21,12 @@ use Zef\Framework\Database\SqlQuery;
  * reading before the statement, the emission in the finally seam the
  * throw path shares -- a fetch that answered slowly records, and a
  * fetch that threw slowly records and then propagates its throw
- * untouched. The disarmed connection's window is the inert one: no
- * clock read, no allocation, the timing family's own
- * no-observable-difference posture.
+ * untouched. The request-scoped counter's feeder ({@see
+ * PdoQueryCount::feed()}) rides the SAME finally seam: one increment
+ * per executed statement, the throw path sharing it. The disarmed
+ * connection's window is the inert one: no clock read, no
+ * allocation, the timing family's own no-observable-difference
+ * posture -- and the feederless run pays no count either.
  *
  * @internal
  */
@@ -35,8 +38,12 @@ final class PdoFetchOne
      *
      * @return null|array<string, null|bool|float|int|string> the first row, or null when the answer is empty
      */
-    public static function fetch(PDO $pdo, ?PdoQueryLog $pdoQueryLog, SqlQuery $sqlQuery): ?array
-    {
+    public static function fetch(
+        PDO $pdo,
+        ?PdoQueryLog $pdoQueryLog,
+        SqlQuery $sqlQuery,
+        ?PdoQueryCount $pdoQueryCount = null,
+    ): ?array {
         $startNs = $pdoQueryLog?->begin() ?? 0;
 
         try {
@@ -52,6 +59,7 @@ final class PdoFetchOne
             return $row === false ? null : PdoRows::narrow([$row])[0];
         } finally {
             $pdoQueryLog?->end($sqlQuery, $startNs);
+            $pdoQueryCount?->feed();
         }
     }
 }

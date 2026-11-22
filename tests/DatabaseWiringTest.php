@@ -27,6 +27,9 @@ use Zef\Framework\DatabaseConnections;
 use Zef\Framework\DatabaseDeclaration;
 use Zef\Framework\DatabaseKnobs;
 use Zef\Framework\DatabaseWiring;
+use Zef\Framework\Http\ErrorRequestContext;
+use Zef\Framework\Http\ServerRequest;
+use Zef\Framework\Http\Uri;
 use Zef\Framework\Kernel;
 use Zef\Framework\Telemetry\MeterInterface;
 use Zef\Test\Support\Database\ScriptedMigration;
@@ -523,6 +526,51 @@ final class DatabaseWiringTest extends TestCase
             ['db.statement.operation' => 'insert'],
             $recordingMeter->observations[1]['attributes'],
         );
+    }
+
+    public function testTheRequestProviderRidesTheWiredConnection(): void
+    {
+        $errorRequestContext = new ErrorRequestContext('request-123');
+        $serverRequest = (new ServerRequest('GET', new Uri('https://app.example/orders')))
+            ->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
+        $connection = DatabaseWiring::connection(new Config([
+            'database' => [
+                'default' => 'app',
+                'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+            ],
+        ]), null, static fn (): ServerRequest => $serverRequest);
+
+        $connection->execute(new SqlQuery('CREATE TABLE counted (id INTEGER PRIMARY KEY)'));
+        $connection->fetchAll(new SqlQuery('SELECT id FROM counted'));
+
+        self::assertSame(
+            2,
+            $errorRequestContext->queryCount(),
+            'the composition\'s request provider rides the wired connection: every executed statement feeds the request-scoped counter',
+        );
+    }
+
+    public function testTheProviderlessWiredConnectionCountsNothing(): void
+    {
+        $errorRequestContext = new ErrorRequestContext('request-123');
+        $serverRequest = (new ServerRequest('GET', new Uri('https://app.example/orders')))
+            ->withAttribute(ErrorRequestContext::ATTRIBUTE, $errorRequestContext);
+        $connection = DatabaseWiring::connection(new Config([
+            'database' => [
+                'default' => 'app',
+                'connections' => ['app' => ['driver' => 'sqlite', 'dbname' => ':memory:']],
+            ],
+        ]));
+
+        $connection->execute(new SqlQuery('CREATE TABLE counted (id INTEGER PRIMARY KEY)'));
+        $connection->fetchAll(new SqlQuery('SELECT id FROM counted'));
+
+        self::assertSame(
+            0,
+            $errorRequestContext->queryCount(),
+            'the framework\'s own registration spells no provider: the counter stays the documented host-adapter hook',
+        );
+        self::assertInstanceOf(ServerRequest::class, $serverRequest);
     }
 
     public function testTheSilentQueryLogPostureMeasuresNothing(): void
