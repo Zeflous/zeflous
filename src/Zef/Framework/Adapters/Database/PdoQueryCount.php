@@ -83,7 +83,7 @@ final readonly class PdoQueryCount
      */
     public static function whenCarried(?Closure $requestProvider): ?self
     {
-        return $requestProvider instanceof \Closure ? new self($requestProvider) : null;
+        return $requestProvider instanceof Closure ? new self($requestProvider) : null;
     }
 
     /**
