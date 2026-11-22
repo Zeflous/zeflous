@@ -103,8 +103,8 @@ final readonly class TempDeclaration
      * declaration never assigns the map's mixed answer to a name.
      *
      * @param mixed $ttl the `ttl` knob's value as the family's map
-     *                  carries it: null the silent posture, or the declared
-     *                  retention's own shape
+     *                   carries it: null the silent posture, or the declared
+     *                   retention's own shape
      *
      * @throws ConfigException when the declared retention refuses
      */
