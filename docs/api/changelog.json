@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-22T13:13:23Z",
+  "as_of": "2026-11-22T22:46:58Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 356,
+  "unreleased_count": 357,
   "versions": [
     {
       "version": "Unreleased",
@@ -5060,6 +5060,107 @@
                 "sha": "bf0f96570ce928894f01ab2a15689251048cd58d",
                 "short_sha": "bf0f965",
                 "subject": "docs(roadmap): refresh the pin over the tenth CI round's settle commit (#911)"
+              }
+            ]
+          },
+          {
+            "pr": 914,
+            "title": "feat(errors): the vendored PDO adapter joins the request-scoped query counter -- the feeder call the toolbar waited on behind the composition's request provider",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-22T22:46:58Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/914",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "b1a96b88de2243a1f2bbbe8c1fa22359987f7482",
+                "short_sha": "b1a96b8",
+                "subject": "feat(errors): the vendored PDO adapter joins the request-scoped query counter -- the feeder call the toolbar waited on behind the composition's request provider"
+              },
+              {
+                "sha": "d1054032c6ea9fa23a4e80855429fb0d274064b4",
+                "short_sha": "d105403",
+                "subject": "docs(roadmap): the row and both pins ride the feeder's head (#914)"
+              },
+              {
+                "sha": "ae730731b749ae3975f4d92b1e60aad19ab7b93a",
+                "short_sha": "ae73073",
+                "subject": "fix(errors): settle the first CI round's findings -- the wiring's missing import, the tests' interface spellings, the guard's branchless fold"
+              },
+              {
+                "sha": "e0fb1a8d7a37a723545e97c2cee55530bf81053a",
+                "short_sha": "e0fb1a8",
+                "subject": "docs(roadmap): refresh the pin over the first CI round's settle commit (#914)"
+              },
+              {
+                "sha": "325c8e7c7bb4c31fb34c0c6415570d45a9bd4446",
+                "short_sha": "325c8e7",
+                "subject": "fix(errors): settle the second CI round's findings -- the fixer's own spellings, the fetch verb's brace, and the contextless fetch's one row"
+              },
+              {
+                "sha": "53f51d9d1b92f432db97c77166882cc964598c34",
+                "short_sha": "53f51d9",
+                "subject": "docs(roadmap): refresh the pin over the second CI round's settle commit (#914)"
+              },
+              {
+                "sha": "0ee38fef7dac57a996175bf40aab6fd92f212c0d",
+                "short_sha": "0ee38fe",
+                "subject": "fix(errors): settle the third CI round's finding -- the helper's own union answers the null-first spelling"
+              },
+              {
+                "sha": "71d5e35fa13e727d917b6b838f7842818ff4060c",
+                "short_sha": "71d5e35",
+                "subject": "docs(roadmap): refresh the pin over the third CI round's settle commit (#914)"
+              },
+              {
+                "sha": "27ea3276b36af1abf333b6ff21fab963c57a5eec",
+                "short_sha": "27ea327",
+                "subject": "fix(errors): settle the fourth CI round's findings -- the two spellings phpcs' 120-column ceiling refused"
+              },
+              {
+                "sha": "cde18d30b69ba95996f84993b43bff7dc4bb1a0e",
+                "short_sha": "cde18d3",
+                "subject": "docs(roadmap): refresh the pin over the fourth CI round's settle commit (#914)"
+              },
+              {
+                "sha": "0a0b2bc65d066f6da79a738c4fc4ee4d01824a03",
+                "short_sha": "0a0b2bc",
+                "subject": "fix(errors): settle the fifth CI round's findings -- the helper's own instance spelling, the doubled quotes, and the construction variables' own names"
+              },
+              {
+                "sha": "90c74ec2e8358a90d1f88941fa99b5842e3a6534",
+                "short_sha": "90c74ec",
+                "subject": "docs(roadmap): refresh the pin over the fifth CI round's settle commit (#914)"
+              },
+              {
+                "sha": "cb307d0d0a47246d3916f07a08d4f59aac141531",
+                "short_sha": "cb307d0",
+                "subject": "fix(errors): settle the sixth CI round's findings -- the feeder's own constructor promotion and the arming fold's instanceof spelling"
+              },
+              {
+                "sha": "e994078face099a3ad5f813b47fb3b62a42d0ccc",
+                "short_sha": "e994078",
+                "subject": "docs(roadmap): refresh the pin over the sixth CI round's settle commit (#914)"
+              },
+              {
+                "sha": "93df4f83dfb5e91664b1d3ddf88e2d4e9fed041c",
+                "short_sha": "93df4f8",
+                "subject": "fix(errors): settle the seventh CI round's finding -- the arming fold's own imported spelling"
+              },
+              {
+                "sha": "f4bf4058c91aac259a761563a036a8b17b97c0ee",
+                "short_sha": "f4bf405",
+                "subject": "docs(roadmap): refresh the pin over the seventh CI round's settle commit (#914)"
+              },
+              {
+                "sha": "5b25399135aa7f34e53c7a3f408ef1daee33fb06",
+                "short_sha": "5b25399",
+                "subject": "docs(roadmap): the summary's own total answers the eighth gate round's off-by-one"
+              },
+              {
+                "sha": "b48989282568e1a93a620c12fba855156eb950bc",
+                "short_sha": "b489892",
+                "subject": "docs(roadmap): refresh the pin over the eighth gate round's settle commit (#914)"
               }
             ]
           }
@@ -24695,6 +24796,107 @@
               "sha": "bf0f96570ce928894f01ab2a15689251048cd58d",
               "short_sha": "bf0f965",
               "subject": "docs(roadmap): refresh the pin over the tenth CI round's settle commit (#911)"
+            }
+          ]
+        },
+        {
+          "pr": 914,
+          "title": "feat(errors): the vendored PDO adapter joins the request-scoped query counter -- the feeder call the toolbar waited on behind the composition's request provider",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-22T22:46:58Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/914",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "b1a96b88de2243a1f2bbbe8c1fa22359987f7482",
+              "short_sha": "b1a96b8",
+              "subject": "feat(errors): the vendored PDO adapter joins the request-scoped query counter -- the feeder call the toolbar waited on behind the composition's request provider"
+            },
+            {
+              "sha": "d1054032c6ea9fa23a4e80855429fb0d274064b4",
+              "short_sha": "d105403",
+              "subject": "docs(roadmap): the row and both pins ride the feeder's head (#914)"
+            },
+            {
+              "sha": "ae730731b749ae3975f4d92b1e60aad19ab7b93a",
+              "short_sha": "ae73073",
+              "subject": "fix(errors): settle the first CI round's findings -- the wiring's missing import, the tests' interface spellings, the guard's branchless fold"
+            },
+            {
+              "sha": "e0fb1a8d7a37a723545e97c2cee55530bf81053a",
+              "short_sha": "e0fb1a8",
+              "subject": "docs(roadmap): refresh the pin over the first CI round's settle commit (#914)"
+            },
+            {
+              "sha": "325c8e7c7bb4c31fb34c0c6415570d45a9bd4446",
+              "short_sha": "325c8e7",
+              "subject": "fix(errors): settle the second CI round's findings -- the fixer's own spellings, the fetch verb's brace, and the contextless fetch's one row"
+            },
+            {
+              "sha": "53f51d9d1b92f432db97c77166882cc964598c34",
+              "short_sha": "53f51d9",
+              "subject": "docs(roadmap): refresh the pin over the second CI round's settle commit (#914)"
+            },
+            {
+              "sha": "0ee38fef7dac57a996175bf40aab6fd92f212c0d",
+              "short_sha": "0ee38fe",
+              "subject": "fix(errors): settle the third CI round's finding -- the helper's own union answers the null-first spelling"
+            },
+            {
+              "sha": "71d5e35fa13e727d917b6b838f7842818ff4060c",
+              "short_sha": "71d5e35",
+              "subject": "docs(roadmap): refresh the pin over the third CI round's settle commit (#914)"
+            },
+            {
+              "sha": "27ea3276b36af1abf333b6ff21fab963c57a5eec",
+              "short_sha": "27ea327",
+              "subject": "fix(errors): settle the fourth CI round's findings -- the two spellings phpcs' 120-column ceiling refused"
+            },
+            {
+              "sha": "cde18d30b69ba95996f84993b43bff7dc4bb1a0e",
+              "short_sha": "cde18d3",
+              "subject": "docs(roadmap): refresh the pin over the fourth CI round's settle commit (#914)"
+            },
+            {
+              "sha": "0a0b2bc65d066f6da79a738c4fc4ee4d01824a03",
+              "short_sha": "0a0b2bc",
+              "subject": "fix(errors): settle the fifth CI round's findings -- the helper's own instance spelling, the doubled quotes, and the construction variables' own names"
+            },
+            {
+              "sha": "90c74ec2e8358a90d1f88941fa99b5842e3a6534",
+              "short_sha": "90c74ec",
+              "subject": "docs(roadmap): refresh the pin over the fifth CI round's settle commit (#914)"
+            },
+            {
+              "sha": "cb307d0d0a47246d3916f07a08d4f59aac141531",
+              "short_sha": "cb307d0",
+              "subject": "fix(errors): settle the sixth CI round's findings -- the feeder's own constructor promotion and the arming fold's instanceof spelling"
+            },
+            {
+              "sha": "e994078face099a3ad5f813b47fb3b62a42d0ccc",
+              "short_sha": "e994078",
+              "subject": "docs(roadmap): refresh the pin over the sixth CI round's settle commit (#914)"
+            },
+            {
+              "sha": "93df4f83dfb5e91664b1d3ddf88e2d4e9fed041c",
+              "short_sha": "93df4f8",
+              "subject": "fix(errors): settle the seventh CI round's finding -- the arming fold's own imported spelling"
+            },
+            {
+              "sha": "f4bf4058c91aac259a761563a036a8b17b97c0ee",
+              "short_sha": "f4bf405",
+              "subject": "docs(roadmap): refresh the pin over the seventh CI round's settle commit (#914)"
+            },
+            {
+              "sha": "5b25399135aa7f34e53c7a3f408ef1daee33fb06",
+              "short_sha": "5b25399",
+              "subject": "docs(roadmap): the summary's own total answers the eighth gate round's off-by-one"
+            },
+            {
+              "sha": "b48989282568e1a93a620c12fba855156eb950bc",
+              "short_sha": "b489892",
+              "subject": "docs(roadmap): refresh the pin over the eighth gate round's settle commit (#914)"
             }
           ]
         }
