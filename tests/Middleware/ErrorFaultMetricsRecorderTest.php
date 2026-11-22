@@ -6,6 +6,7 @@ namespace Zef\Test\Middleware;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Zef\Framework\Http\ErrorRequestContext;
 use Zef\Framework\Http\ServerRequest;
@@ -83,7 +84,7 @@ final class ErrorFaultMetricsRecorderTest extends TestCase
         );
     }
 
-    private function requestCarrying(ErrorRequestContext $errorRequestContext): ServerRequest
+    private function requestCarrying(ErrorRequestContext $errorRequestContext): ServerRequestInterface
     {
         $serverRequest = new ServerRequest('GET', new Uri('https://app.example/api/users/92'));
 
