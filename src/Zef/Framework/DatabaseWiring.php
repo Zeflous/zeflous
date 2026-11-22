@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Zef\Framework;
 
+use Closure;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Zef\Framework\Adapters\Database\ConnectionConfig;
 use Zef\Framework\Adapters\Database\PdoConnection;
+use Zef\Framework\Adapters\Database\PdoQueryCount;
 use Zef\Framework\Adapters\Database\PdoQueryLogArming;
 use Zef\Framework\Adapters\Database\SchemaReflection;
 use Zef\Framework\Config\Config;
@@ -77,7 +80,16 @@ use Zef\Framework\Telemetry\MeterInterface;
  * registration planted -- while the shared connection's one
  * materialised instance still answers every later ask (a singleton
  * materialises once, through the one proxy it keeps), which a
- * transient could never promise a connection.
+ * transient could never promise a connection. The connection's
+ * statement runs can also count into the active request's error
+ * context -- the toolbar's own query counter -- when the composition
+ * hands the wiring the request provider seam ({@see
+ * \Zef\Framework\Adapters\Database\PdoQueryCount}): the framework's
+ * own registration spells no provider (the framework mints no
+ * request holder, the {@see Http\ErrorRequestContext}
+ * doctrine), so the default wiring keeps the documented host-adapter
+ * hook and a deployment's own composition root arms the counter for
+ * the runtime it owns.
  *
  * @api
  */
@@ -89,16 +101,30 @@ final readonly class DatabaseWiring
      * map, composed over the adapter's own reading folds with the
      * audit emission's two optional seams.
      *
-     * @param null|MeterInterface $meter the unbounded-statement audit
-     *                                   counter seam, or null when the caller wires no meter
+     * @param null|MeterInterface                     $meter           the unbounded-statement
+     *                                                                 audit counter seam, or null when
+     *                                                                 the caller wires no meter
+     * @param null|Closure(): ?ServerRequestInterface $requestProvider the
+     *                                                                 request-scoped query counter's
+     *                                                                 seam -- the active request a
+     *                                                                 deployment's own composition
+     *                                                                 answers for its statement runs,
+     *                                                                 or null when the composition
+     *                                                                 spells no provider (the counter
+     *                                                                 then stays the documented host
+     *                                                                 hook; the framework itself mints
+     *                                                                 no request holder)
      *
      * @throws ConfigException when the declaration is silent (no
      *                         default connection spelled), the named connection is not
      *                         declared, or any connection field the adapter's reading
      *                         folds consume refuses
      */
-    public static function connection(Config $config, ?MeterInterface $meter = null): PdoConnection
-    {
+    public static function connection(
+        Config $config,
+        ?MeterInterface $meter = null,
+        ?Closure $requestProvider = null,
+    ): PdoConnection {
         $databaseDeclaration = DatabaseDeclaration::fromConfig($config);
 
         if ($databaseDeclaration->wantsWiredConnection()) {
@@ -108,6 +134,7 @@ final readonly class DatabaseWiring
                 $databaseDeclaration->default,
                 'default',
                 $meter,
+                $requestProvider,
             );
         }
 
@@ -265,12 +292,16 @@ final readonly class DatabaseWiring
      *                         connection, or any connection field the adapter's
      *                         reading folds consume refuses
      */
+    /**
+     * @param null|Closure(): ?ServerRequestInterface $requestProvider the composition's request seam
+     */
     private static function pdoConnection(
         Config $config,
         DatabaseDeclaration $databaseDeclaration,
         string $name,
         string $knob,
         ?MeterInterface $meter,
+        ?Closure $requestProvider = null,
     ): PdoConnection {
         $logger = self::auditLogger($config);
 
@@ -280,6 +311,7 @@ final readonly class DatabaseWiring
             $meter,
             $logger,
             PdoQueryLogArming::bracket($databaseDeclaration->queryLogPolicy, $meter, $logger),
+            PdoQueryCount::whenCarried($requestProvider),
         );
     }
 

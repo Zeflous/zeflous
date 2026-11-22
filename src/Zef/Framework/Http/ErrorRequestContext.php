@@ -87,13 +87,19 @@ final class ErrorRequestContext
      * Lets an adapter increment the active request's counter without storing
      * mutable request state on a persistent-worker singleton.
      *
+     * The null answer is the no-request-window truth (a console run, a
+     * warm-up walk, a boot-time probe): it counts nothing and refuses
+     * nothing -- the same honest posture the vendored PDO adapter's own
+     * feeder folds through when its composition's provider answers that
+     * no request is active.
+     *
      * @api the documented host-adapter hook (`docs/error-handling.md`) --
      *      database adapters call this from their own code, so the framework
      *      tree alone cannot show the call.
      */
-    public static function recordQueryFor(ServerRequestInterface $serverRequest): void
+    public static function recordQueryFor(?ServerRequestInterface $serverRequest): void
     {
-        $context = self::fromAttribute($serverRequest->getAttribute(self::ATTRIBUTE));
+        $context = self::fromAttribute($serverRequest?->getAttribute(self::ATTRIBUTE));
         $context?->recordQuery();
     }
 
