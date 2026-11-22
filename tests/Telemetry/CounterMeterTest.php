@@ -285,10 +285,11 @@ final class CounterMeterTest extends TestCase
         $counterMeter->increment('zef.http.errors.total', 1, ['http.route' => str_repeat('/', 200)]);
 
         $series = array_values($counterMeter->snapshot())[0];
-        $route = $series['attributes']['http.route'];
-        self::assertIsString($route);
-        self::assertLessThanOrEqual(128, mb_strlen($route), 'the route the errors total carries is bounded');
-        self::assertStringEndsWith('…', $route, 'the cut carries the ellipsis marker');
+        self::assertSame(
+            str_repeat('/', 125) . '…',
+            $series['attributes']['http.route'],
+            "the bound the route carries is exactly its 128 bytes, the exception type's own cut",
+        );
     }
 
     public function testTheErrorsTotalKeepsTheRouteBesideEveryDimensionTogether(): void
