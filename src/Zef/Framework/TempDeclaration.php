@@ -67,6 +67,21 @@ final readonly class TempDeclaration
     }
 
     /**
+     * Whether the declaration arms the writer at all: a declared
+     * retention. The wiring's own refusal narrows over the
+     * retention's null reading directly (the property the same
+     * answer derives from), and the family's tests pin the
+     * silent-vs-armed posture through this one-way answer -- the
+     * same question the uploads family's declaration answers for
+     * its allowlist, the family's opt-in spelled as the value
+     * object's own vocabulary.
+     */
+    public function wantsWriter(): bool
+    {
+        return $this->ttlSeconds !== null;
+    }
+
+    /**
      * Reads the declaration from the family's own map.
      *
      * @param mixed $temp the `temp` map as the frozen repository
