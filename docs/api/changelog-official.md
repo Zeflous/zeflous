@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(temp\): the lane's writer with its cadenced sweep -- the reservation closed behind the retention the host spells [\#911](https://github.com/Zeflous/zeflous/pull/911) ([mbetixz](https://github.com/mbetixz))
 - feat\(uploads\): the lane's first writer -- fail-closed size and type validation behind the family's knobs [\#908](https://github.com/Zeflous/zeflous/pull/908) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered [\#905](https://github.com/Zeflous/zeflous/pull/905) ([mbetixz](https://github.com/mbetixz))
 - fix\(http\): the head answer carries its GET twin's length, the unmeasurable cursor loses the field honestly, and the lane's four minor seams each answer at their own edge \(issue \#801\) [\#900](https://github.com/Zeflous/zeflous/pull/900) ([mbetixz](https://github.com/mbetixz))
