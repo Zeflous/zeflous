@@ -101,8 +101,9 @@ final readonly class DatabaseWiring
      * map, composed over the adapter's own reading folds with the
      * audit emission's two optional seams.
      *
-     * @param null|MeterInterface                     $meter           the unbounded-statement audit
-     *                                                                 counter seam, or null when the caller wires no meter
+     * @param null|MeterInterface                     $meter           the unbounded-statement
+     *                                                                 audit counter seam, or null when
+     *                                                                 the caller wires no meter
      * @param null|Closure(): ?ServerRequestInterface $requestProvider the
      *                                                                 request-scoped query counter's
      *                                                                 seam -- the active request a

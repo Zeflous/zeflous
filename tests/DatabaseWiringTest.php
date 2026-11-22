@@ -548,7 +548,8 @@ final class DatabaseWiringTest extends TestCase
         self::assertSame(
             2,
             $errorRequestContext->queryCount(),
-            'the composition\'s request provider rides the wired connection: every executed statement feeds the request-scoped counter',
+            'the composition\'s request provider rides the wired connection:'
+            . ' every executed statement feeds the request-scoped counter',
         );
     }
 
