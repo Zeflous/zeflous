@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-21T15:44:53Z",
+  "as_of": "2026-11-22T00:50:12Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 354,
+  "unreleased_count": 355,
   "versions": [
     {
       "version": "Unreleased",
@@ -4888,6 +4888,52 @@
                 "sha": "c49a8cbd7c636e27e89d22ae1ab454c398e0de29",
                 "short_sha": "c49a8cb",
                 "subject": "docs(roadmap): the migrations-json row rides the lane's substantif head"
+              }
+            ]
+          },
+          {
+            "pr": 908,
+            "title": "feat(uploads): the lane's first writer -- fail-closed size and type validation behind the family's knobs",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-22T00:50:12Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/908",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "2096f4e26192c8073586300fbcdfd610a9244308",
+                "short_sha": "2096f4e",
+                "subject": "feat(uploads): the lane's first writer -- fail-closed size and type validation behind the family's knobs"
+              },
+              {
+                "sha": "b8f0dd216fa9fc8ee40ac6399bb2706b989d2224",
+                "short_sha": "b8f0dd2",
+                "subject": "docs(roadmap): the Storage row answers the uploads writer, the P1 clause closes and the DoD's nine corrects"
+              },
+              {
+                "sha": "7e0c68a4bbc477718e3be65c88431284465cfa53",
+                "short_sha": "7e0c68a",
+                "subject": "docs(roadmap): the row and both pins ride the uploads head (#908)"
+              },
+              {
+                "sha": "f248e811363d886616d9bc8b807b85efb92a8308",
+                "short_sha": "f248e81",
+                "subject": "fix(uploads): settle the CI round's findings -- the archeology ceiling, the rector naming, the suite's own tree helper"
+              },
+              {
+                "sha": "076b8bc18c287e31b71caf3a528a8e85fdcd48fa",
+                "short_sha": "076b8bc",
+                "subject": "docs(roadmap): refresh the pin over the settle commits (#908)"
+              },
+              {
+                "sha": "31600e1603c28b31a6376ac7d830014dbfbc5ba1",
+                "short_sha": "31600e1",
+                "subject": "fix(uploads): the second CI round's density measure -- the family's own spellings for the census walk and the directory posture"
+              },
+              {
+                "sha": "94f069598e87269753b8a11ed23d48aabc616191",
+                "short_sha": "94f0695",
+                "subject": "docs(roadmap): refresh the pin over the density settle (#908)"
               }
             ]
           }
@@ -24351,6 +24397,52 @@
               "sha": "6d94526b784dba7ebdfe161a0b5421fee256923e",
               "short_sha": "6d94526",
               "subject": "docs(roadmap): the row and both pins ride the hygiene head (#905)"
+            }
+          ]
+        },
+        {
+          "pr": 908,
+          "title": "feat(uploads): the lane's first writer -- fail-closed size and type validation behind the family's knobs",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-22T00:50:12Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/908",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "2096f4e26192c8073586300fbcdfd610a9244308",
+              "short_sha": "2096f4e",
+              "subject": "feat(uploads): the lane's first writer -- fail-closed size and type validation behind the family's knobs"
+            },
+            {
+              "sha": "b8f0dd216fa9fc8ee40ac6399bb2706b989d2224",
+              "short_sha": "b8f0dd2",
+              "subject": "docs(roadmap): the Storage row answers the uploads writer, the P1 clause closes and the DoD's nine corrects"
+            },
+            {
+              "sha": "7e0c68a4bbc477718e3be65c88431284465cfa53",
+              "short_sha": "7e0c68a",
+              "subject": "docs(roadmap): the row and both pins ride the uploads head (#908)"
+            },
+            {
+              "sha": "f248e811363d886616d9bc8b807b85efb92a8308",
+              "short_sha": "f248e81",
+              "subject": "fix(uploads): settle the CI round's findings -- the archeology ceiling, the rector naming, the suite's own tree helper"
+            },
+            {
+              "sha": "076b8bc18c287e31b71caf3a528a8e85fdcd48fa",
+              "short_sha": "076b8bc",
+              "subject": "docs(roadmap): refresh the pin over the settle commits (#908)"
+            },
+            {
+              "sha": "31600e1603c28b31a6376ac7d830014dbfbc5ba1",
+              "short_sha": "31600e1",
+              "subject": "fix(uploads): the second CI round's density measure -- the family's own spellings for the census walk and the directory posture"
+            },
+            {
+              "sha": "94f069598e87269753b8a11ed23d48aabc616191",
+              "short_sha": "94f0695",
+              "subject": "docs(roadmap): refresh the pin over the density settle (#908)"
             }
           ]
         }
