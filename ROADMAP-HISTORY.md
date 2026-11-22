@@ -37,7 +37,7 @@ For the *current* implementation state of each area, see [`ROADMAP-STATUS.md`](R
 | Event source | 5 |
 | Adapters layer | 23 |
 | Module integration | 4 |
-| **Total merged PRs** | **281** |
+| **Total merged PRs** | **282** |
 
 ---
 
