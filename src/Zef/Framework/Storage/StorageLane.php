@@ -13,21 +13,26 @@ namespace Zef\Framework\Storage;
  * A lane names a KIND of on-disk artifact the framework or its host
  * writes, never a specific file: the layout answers where a lane's
  * directory is, the writer that owns the artifact names the file
- * inside it. The vocabulary ships the seven lanes with a live writer
- * or a named reservation today:
+ * inside it. The vocabulary ships the seven lanes, every one with
+ * its live writer today:
  *
  * - `logs` -- the structured JSONL records the error and
  *   slow-request lanes write (the deployment's one sink).
  * - `cache` -- the compiled artifacts the configuration and
  *   container AOT lanes dump for a fast boot.
  * - `temp` -- the transient scratch a process may leave behind
- *   between requests without anyone mourning it.
+ *   between requests without anyone mourning it: the writer
+ *   with its cadenced sweep (`temp.store`, the retention the
+ *   host spells) landed over it, closing the reservation the
+ *   priorities table's own P1 row carried.
  * - `uploads` -- the inbound files a host's uploaded-file moves
- *   land in: a named reservation the roadmap's own open slice
- *   keeps (issue #788, finding 9's honesty: `UploadedTarget` does
- *   not reference the lane -- the writer the lane waits for is
- *   the uploads slice ROADMAP-STATUS spells as open, so the lane
- *   names the reservation, never a writer it does not hold).
+ *   land in: the lane's validated writer (`uploads.store`, the
+ *   types the host spells) over its fail-closed admission -- the
+ *   named reservation this docblock carried honestly through the
+ *   layout's own lifetime, closed by the pull request that landed
+ *   the writer (issue #788, finding 9's honesty held both ways: the
+ *   lane named the reservation while it held no writer, and the
+ *   bullet names the writer it now holds).
  * - `replay` -- the error lane's private request snapshots.
  * - `sessions` -- the session file driver's identifier-keyed bags.
  * - `queue` -- the durable event delivery store's entries and
@@ -43,7 +48,15 @@ namespace Zef\Framework\Storage;
  * same doctrine with the same shape ({@see \Zef\Framework\EventStorageWiring}):
  * the file delivery store kept its own directory posture while the
  * wired default was a named reservation, and the lane, the knob and
- * the reader landed together.
+ * the reader landed together. The `uploads` and `temp` lanes are the
+ * doctrine's own other half, spelled honestly in the priorities
+ * record before they closed: NAMED RESERVATIONS the vocabulary
+ * carried through the layout's own lifetime because the
+ * reservations were the roadmap's own recorded open slices -- the
+ * writers landing later (#908 and its successor), over the
+ * directories, walk answers and skeleton pins the reservations
+ * already carried, never a lane the vocabulary grew to flatter a
+ * writer it did not hold.
  */
 enum StorageLane: string
 {
