@@ -368,6 +368,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(container): the extractor's reflection claim meets the code it describes (issue #783) [#880](https://github.com/Zeflous/zeflous/pull/880) ([mbetixz](https://github.com/mbetixz))
 - docs(http): the audit's three docblock claims meet the code they describe (issue #784) [#883](https://github.com/Zeflous/zeflous/pull/883) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered [#905](https://github.com/Zeflous/zeflous/pull/905) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): the Storage layout bullet leaves Not-yet-done -- the completed lane's recorded open list all landed [#921](https://github.com/Zeflous/zeflous/pull/921) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

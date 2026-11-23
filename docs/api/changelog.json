@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-23T01:21:01Z",
+  "as_of": "2026-11-23T19:04:55Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 358,
+  "unreleased_count": 359,
   "versions": [
     {
       "version": "Unreleased",
@@ -12336,6 +12336,27 @@
                 "sha": "6d94526b784dba7ebdfe161a0b5421fee256923e",
                 "short_sha": "6d94526",
                 "subject": "docs(roadmap): the row and both pins ride the hygiene head (#905)"
+              }
+            ]
+          },
+          {
+            "pr": 921,
+            "title": "docs(roadmap): the Storage layout bullet leaves Not-yet-done -- the completed lane's recorded open list all landed",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-11-23T19:04:55Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/921",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "9c137e01db5869431b1ff7c2d678b1991fd7dd20",
+                "short_sha": "9c137e0",
+                "subject": "docs(roadmap): the Storage layout bullet leaves Not-yet-done -- the completed lane's recorded open list all landed"
+              },
+              {
+                "sha": "ddaf81e326095fa7811c810ba67ea6966684cfe0",
+                "short_sha": "ddaf81e",
+                "subject": "docs(roadmap): the row and both pins ride the bullet's exit (#921)"
               }
             ]
           }
@@ -25039,6 +25060,27 @@
               "sha": "f5c4cbece36c0ffb22827d2a32fe9cd63bbe489f",
               "short_sha": "f5c4cbe",
               "subject": "docs(roadmap): refresh the pin over the assign-set round's settle commit (#915)"
+            }
+          ]
+        },
+        {
+          "pr": 921,
+          "title": "docs(roadmap): the Storage layout bullet leaves Not-yet-done -- the completed lane's recorded open list all landed",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-11-23T19:04:55Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/921",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "9c137e01db5869431b1ff7c2d678b1991fd7dd20",
+              "short_sha": "9c137e0",
+              "subject": "docs(roadmap): the Storage layout bullet leaves Not-yet-done -- the completed lane's recorded open list all landed"
+            },
+            {
+              "sha": "ddaf81e326095fa7811c810ba67ea6966684cfe0",
+              "short_sha": "ddaf81e",
+              "subject": "docs(roadmap): the row and both pins ride the bullet's exit (#921)"
             }
           ]
         }
