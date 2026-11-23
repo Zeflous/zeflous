@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-22T22:46:58Z",
+  "as_of": "2026-11-23T01:21:01Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 357,
+  "unreleased_count": 358,
   "versions": [
     {
       "version": "Unreleased",
@@ -5161,6 +5161,77 @@
                 "sha": "b48989282568e1a93a620c12fba855156eb950bc",
                 "short_sha": "b489892",
                 "subject": "docs(roadmap): refresh the pin over the eighth gate round's settle commit (#914)"
+              }
+            ]
+          },
+          {
+            "pr": 915,
+            "title": "feat(errors): the errors total gains the route dimension -- the matched pattern the boundary's context carries, the closed unrouted word for every no-route refusal",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-23T01:21:01Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/915",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "34150628e818c5c53b4d02c25b0d968495c63d08",
+                "short_sha": "3415062",
+                "subject": "feat(errors): the errors total gains the route dimension -- the matched pattern the boundary's context carries, the closed unrouted word for every no-route refusal"
+              },
+              {
+                "sha": "eb19324c6f00c3d53ad97a617943569c73c02001",
+                "short_sha": "eb19324",
+                "subject": "docs(roadmap): the row and both pins ride the route dimension's head (#915)"
+              },
+              {
+                "sha": "1cbb37442208d456b03bec97e81d36060a49da1b",
+                "short_sha": "1cbb374",
+                "subject": "fix(errors): settle the first CI round's findings -- the carrier write's own trailing fold, the boundary call's bare construction, and the existing pin's fourth dimension"
+              },
+              {
+                "sha": "6991eec2237c8447b57de1ff83759597833fe1b6",
+                "short_sha": "6991eec",
+                "subject": "docs(roadmap): refresh the pin over the first CI round's settle commit (#915)"
+              },
+              {
+                "sha": "bc8c97fcbb6d5a34e9dd221cf85588722954fa89",
+                "short_sha": "bc8c97f",
+                "subject": "fix(errors): settle the mutation round's four escapes -- the recorder's own direct battery and the route cut's exact pin"
+              },
+              {
+                "sha": "4471f0a2bf23b052c1516d7138d4297eb19aaf53",
+                "short_sha": "4471f0a",
+                "subject": "docs(roadmap): refresh the pin over the mutation round's settle commit (#915)"
+              },
+              {
+                "sha": "cc050a20a2dc0643828565490d24f52baf9ad7c5",
+                "short_sha": "cc050a2",
+                "subject": "fix(errors): settle the static round's finding -- the helper's own interface return"
+              },
+              {
+                "sha": "8732c087ef9998d06226fe73ef205eb5acddaee6",
+                "short_sha": "8732c08",
+                "subject": "docs(roadmap): refresh the pin over the static round's settle commit (#915)"
+              },
+              {
+                "sha": "ed48ad654c19c619f1f6cec891606e0a7949e207",
+                "short_sha": "ed48ad6",
+                "subject": "fix(errors): settle the rector round's findings -- the contextless request's own variable name and assign set"
+              },
+              {
+                "sha": "52a3f05f4315a12da61d1811fcabb5c4f1125e28",
+                "short_sha": "52a3f05",
+                "subject": "docs(roadmap): refresh the pin over the rector round's settle commit (#915)"
+              },
+              {
+                "sha": "f910fcce2ec216b9dd349b95b4af27b92d7e8e4c",
+                "short_sha": "f910fcc",
+                "subject": "fix(errors): settle the assign-set round's finding -- the carrier write's own blank fold"
+              },
+              {
+                "sha": "f5c4cbece36c0ffb22827d2a32fe9cd63bbe489f",
+                "short_sha": "f5c4cbe",
+                "subject": "docs(roadmap): refresh the pin over the assign-set round's settle commit (#915)"
               }
             ]
           }
@@ -24897,6 +24968,77 @@
               "sha": "b48989282568e1a93a620c12fba855156eb950bc",
               "short_sha": "b489892",
               "subject": "docs(roadmap): refresh the pin over the eighth gate round's settle commit (#914)"
+            }
+          ]
+        },
+        {
+          "pr": 915,
+          "title": "feat(errors): the errors total gains the route dimension -- the matched pattern the boundary's context carries, the closed unrouted word for every no-route refusal",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-23T01:21:01Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/915",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "34150628e818c5c53b4d02c25b0d968495c63d08",
+              "short_sha": "3415062",
+              "subject": "feat(errors): the errors total gains the route dimension -- the matched pattern the boundary's context carries, the closed unrouted word for every no-route refusal"
+            },
+            {
+              "sha": "eb19324c6f00c3d53ad97a617943569c73c02001",
+              "short_sha": "eb19324",
+              "subject": "docs(roadmap): the row and both pins ride the route dimension's head (#915)"
+            },
+            {
+              "sha": "1cbb37442208d456b03bec97e81d36060a49da1b",
+              "short_sha": "1cbb374",
+              "subject": "fix(errors): settle the first CI round's findings -- the carrier write's own trailing fold, the boundary call's bare construction, and the existing pin's fourth dimension"
+            },
+            {
+              "sha": "6991eec2237c8447b57de1ff83759597833fe1b6",
+              "short_sha": "6991eec",
+              "subject": "docs(roadmap): refresh the pin over the first CI round's settle commit (#915)"
+            },
+            {
+              "sha": "bc8c97fcbb6d5a34e9dd221cf85588722954fa89",
+              "short_sha": "bc8c97f",
+              "subject": "fix(errors): settle the mutation round's four escapes -- the recorder's own direct battery and the route cut's exact pin"
+            },
+            {
+              "sha": "4471f0a2bf23b052c1516d7138d4297eb19aaf53",
+              "short_sha": "4471f0a",
+              "subject": "docs(roadmap): refresh the pin over the mutation round's settle commit (#915)"
+            },
+            {
+              "sha": "cc050a20a2dc0643828565490d24f52baf9ad7c5",
+              "short_sha": "cc050a2",
+              "subject": "fix(errors): settle the static round's finding -- the helper's own interface return"
+            },
+            {
+              "sha": "8732c087ef9998d06226fe73ef205eb5acddaee6",
+              "short_sha": "8732c08",
+              "subject": "docs(roadmap): refresh the pin over the static round's settle commit (#915)"
+            },
+            {
+              "sha": "ed48ad654c19c619f1f6cec891606e0a7949e207",
+              "short_sha": "ed48ad6",
+              "subject": "fix(errors): settle the rector round's findings -- the contextless request's own variable name and assign set"
+            },
+            {
+              "sha": "52a3f05f4315a12da61d1811fcabb5c4f1125e28",
+              "short_sha": "52a3f05",
+              "subject": "docs(roadmap): refresh the pin over the rector round's settle commit (#915)"
+            },
+            {
+              "sha": "f910fcce2ec216b9dd349b95b4af27b92d7e8e4c",
+              "short_sha": "f910fcc",
+              "subject": "fix(errors): settle the assign-set round's finding -- the carrier write's own blank fold"
+            },
+            {
+              "sha": "f5c4cbece36c0ffb22827d2a32fe9cd63bbe489f",
+              "short_sha": "f5c4cbe",
+              "subject": "docs(roadmap): refresh the pin over the assign-set round's settle commit (#915)"
             }
           ]
         }
