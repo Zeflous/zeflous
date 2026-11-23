@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(errors\): the vendored PDO adapter joins the request-scoped query counter -- the feeder call the toolbar waited on behind the composition's request provider [\#914](https://github.com/Zeflous/zeflous/pull/914) ([mbetixz](https://github.com/mbetixz))
 - feat\(temp\): the lane's writer with its cadenced sweep -- the reservation closed behind the retention the host spells [\#911](https://github.com/Zeflous/zeflous/pull/911) ([mbetixz](https://github.com/mbetixz))
 - feat\(uploads\): the lane's first writer -- fail-closed size and type validation behind the family's knobs [\#908](https://github.com/Zeflous/zeflous/pull/908) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered [\#905](https://github.com/Zeflous/zeflous/pull/905) ([mbetixz](https://github.com/mbetixz))
