@@ -252,6 +252,91 @@ final class CounterMeterTest extends TestCase
         self::assertStringEndsWith('…', $exceptionType, 'the cut carries the ellipsis marker');
     }
 
+    public function testTheErrorsTotalKeepsTheSanitisedRouteDimension(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.http.errors.total', 1, [
+            'http.route' => '/api/users/{id}',
+            'url.path' => '/api/users/92',
+        ]);
+
+        $series = $counterMeter->snapshot()[MeterSlot::key('zef.http.errors.total', [
+            'http.route' => '/api/users/{id}',
+        ])];
+        self::assertSame(['http.route' => '/api/users/{id}'], $series['attributes']);
+    }
+
+    public function testTheErrorsTotalRefusesTheNonStringRoute(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.http.errors.total', 1, ['http.route' => 5]);
+
+        $series = array_values($counterMeter->snapshot())[0];
+        self::assertSame(
+            [],
+            $series['attributes'],
+            'a non-string route is not a dimension the series keeps',
+        );
+    }
+
+    public function testTheErrorsTotalTruncatesTheRouteExactly(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.http.errors.total', 1, ['http.route' => str_repeat('/', 200)]);
+
+        $series = array_values($counterMeter->snapshot())[0];
+        self::assertSame(
+            str_repeat('/', 125) . '…',
+            $series['attributes']['http.route'],
+            "the bound the route carries is exactly its 128 bytes, the exception type's own cut",
+        );
+    }
+
+    public function testTheErrorsTotalKeepsTheRouteBesideEveryDimensionTogether(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.http.errors.total', 1, [
+            'http.request.method' => 'POST',
+            'http.response.status_code' => 500,
+            'exception.type' => 'RuntimeException',
+            'http.route' => '/orders/{order}',
+        ]);
+
+        $series = $counterMeter->snapshot()[MeterSlot::key('zef.http.errors.total', [
+            'exception.type' => 'RuntimeException',
+            'http.request.method' => 'POST',
+            'http.response.status_code' => 500,
+            'http.route' => '/orders/{order}',
+        ])];
+        self::assertSame(
+            [
+                'exception.type' => 'RuntimeException',
+                'http.request.method' => 'POST',
+                'http.response.status_code' => 500,
+                'http.route' => '/orders/{order}',
+            ],
+            $series['attributes'],
+        );
+    }
+
+    public function testAnotherRequestSeriesDropsTheRouteTheErrorsTotalAloneKeeps(): void
+    {
+        $counterMeter = new CounterMeter();
+        $counterMeter->increment('zef.http.requests.total', 1, [
+            'http.route' => '/orders/{order}',
+            'http.request.method' => 'POST',
+        ]);
+
+        $series = $counterMeter->snapshot()[MeterSlot::key('zef.http.requests.total', [
+            'http.request.method' => 'POST',
+        ])];
+        self::assertSame(
+            ['http.request.method' => 'POST'],
+            $series['attributes'],
+            "the route is the errors total's own named extra, never the whole prefix's",
+        );
+    }
+
     public function testTheResolveDurationKeepsTheBoundedServiceIdentity(): void
     {
         $counterMeter = new CounterMeter();

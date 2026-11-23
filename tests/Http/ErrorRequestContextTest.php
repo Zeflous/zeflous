@@ -52,6 +52,30 @@ final class ErrorRequestContextTest extends TestCase
         self::assertSame(str_repeat('a', 32), $errorRequestContext->traceId(), 'a valid id is stored lowercase');
     }
 
+    public function testTheRouteCarrierHoldsTheMatchedPatternAndStartsNull(): void
+    {
+        $errorRequestContext = new ErrorRequestContext('request-123');
+
+        self::assertNull($errorRequestContext->route(), 'no route landed before a match wrote one');
+
+        $errorRequestContext->setRoute('/api/users/{id}');
+
+        self::assertSame('/api/users/{id}', $errorRequestContext->route());
+    }
+
+    public function testTheRouteCarrierHoldsThePatternNotTheRawTarget(): void
+    {
+        $errorRequestContext = new ErrorRequestContext('request-123');
+
+        $errorRequestContext->setRoute('/orders/{order}/items/{item}');
+
+        self::assertSame(
+            '/orders/{order}/items/{item}',
+            $errorRequestContext->route(),
+            "the carrier holds the routing table's own spelling, the pattern the grammar parsed",
+        );
+    }
+
     public function testTheQueryCounterSaturatesAtOneMillion(): void
     {
         $errorRequestContext = new ErrorRequestContext('request-123');
