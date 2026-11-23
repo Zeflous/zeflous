@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- docs\(roadmap\): the Storage layout bullet leaves Not-yet-done -- the completed lane's recorded open list all landed [\#921](https://github.com/Zeflous/zeflous/pull/921) ([mbetixz](https://github.com/mbetixz))
 - feat\(errors\): the errors total gains the route dimension -- the matched pattern the boundary's context carries, the closed unrouted word for every no-route refusal [\#915](https://github.com/Zeflous/zeflous/pull/915) ([mbetixz](https://github.com/mbetixz))
 - feat\(errors\): the vendored PDO adapter joins the request-scoped query counter -- the feeder call the toolbar waited on behind the composition's request provider [\#914](https://github.com/Zeflous/zeflous/pull/914) ([mbetixz](https://github.com/mbetixz))
 - feat\(temp\): the lane's writer with its cadenced sweep -- the reservation closed behind the retention the host spells [\#911](https://github.com/Zeflous/zeflous/pull/911) ([mbetixz](https://github.com/mbetixz))
