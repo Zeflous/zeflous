@@ -67,13 +67,14 @@ final class ErrorFaultMetricsRecorderTest extends TestCase
     public function testTheContextlessRequestAnswersTheClosedUnroutedWord(): void
     {
         $recordingMeter = new RecordingMeter();
-        $contextlessRequest = new ServerRequest('GET', new Uri('https://app.example/orders/92'));
+
+        $serverRequest = new ServerRequest('GET', new Uri('https://app.example/orders/92'));
 
         ErrorFaultMetricsRecorder::record(
             $recordingMeter,
             new RuntimeException('application failure'),
             500,
-            $contextlessRequest,
+            $serverRequest,
         );
 
         self::assertCount(1, $recordingMeter->increments);
