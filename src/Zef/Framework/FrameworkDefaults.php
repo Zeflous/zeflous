@@ -114,7 +114,25 @@ use Zef\Framework\Middleware\TracingFactory;
  * knob's refusal firing only at the host's own ask, and the
  * declared allowlist is itself the opt-in word the events
  * family's store word spelled -- a writer that accepts nothing
- * is a surface that stays shut. The database family joins
+ * is a surface that stays shut. The temp family joins
+ * the catalogue the same way the uploads family did -- the
+ * `temp` lane's writer with its cadenced sweep (`temp.store`,
+ * the registration over the `TempStorageWiring` fold, its knobs
+ * under the family's own `temp` key) -- with the same
+ * never-at-the-boot posture the events and uploads families
+ * planted, spelled the way the lane's own mortality demands it:
+ * the knobs ship SILENT (the framework ships no scratch of its
+ * own, so `temp.ttl` stays null until a host's own declaration
+ * spells one), the transient registration keeps the silent
+ * knob's refusal firing only at the host's own ask, and the
+ * declared retention is itself the opt-in word -- the mortality
+ * the host spells is the mortality the lane keeps. The
+ * registration is transient for the cadence's own reason too:
+ * the writer's sweep state lives in the lane itself (the
+ * cadence marker's own dot-file), never in the composition,
+ * so a fresh writer every ask carries the sweep's memory with
+ * it -- the lane's own artefact, never the container's. The
+ * database family joins
  * the catalogue the same way every family did -- the wiring knob
  * block's own registration set (`database.connection`,
  * `database.transactions`, `database.unit_of_work` and
@@ -367,6 +385,10 @@ final readonly class FrameworkDefaults
                 'max_bytes' => UploadsDeclaration::DEFAULT_MAX_BYTES,
                 'types' => [],
             ],
+            'temp' => [
+                'path' => '',
+                'ttl' => null,
+            ],
             'database' => [
                 'default' => '',
                 'connections' => [],
@@ -515,6 +537,13 @@ final readonly class FrameworkDefaults
             ],
             'uploads.store' => [
                 'factory' => UploadsStorageWiring::class . '::store',
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+                'lifetime' => 'transient',
+            ],
+            'temp.store' => [
+                'factory' => TempStorageWiring::class . '::store',
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],

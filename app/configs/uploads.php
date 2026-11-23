@@ -50,10 +50,11 @@ declare(strict_types=1);
  * transports stay deliberately OUT of this block: the name is the
  * writer's own random draw (no client spelling ever reaches a
  * filesystem call), the `temp` lane's writer and its cadenced
- * sweep are the reservation's own named future slices, and a
- * quarantined-refusals lane would be a knob without a reader
- * today -- the census-moment doctrine keeps each one out until
- * the fold that reads it lands.
+ * sweep live in their own family's block (`temp.php`, the
+ * retention the host spells), and a quarantined-refusals lane
+ * would be a knob without a reader today -- the census-moment
+ * doctrine keeps each one out until the fold that reads it
+ * lands.
  */
 
 return [
