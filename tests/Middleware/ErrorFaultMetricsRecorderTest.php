@@ -33,6 +33,7 @@ final class ErrorFaultMetricsRecorderTest extends TestCase
         $recordingMeter = new RecordingMeter();
         $errorRequestContext = new ErrorRequestContext('request-123');
         $errorRequestContext->setRoute('/api/users/{id}');
+
         $serverRequest = $this->requestCarrying($errorRequestContext);
 
         ErrorFaultMetricsRecorder::record(
