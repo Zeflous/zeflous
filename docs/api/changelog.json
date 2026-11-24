@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-23T19:04:55Z",
+  "as_of": "2026-11-24T18:18:05Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 359,
+  "unreleased_count": 360,
   "versions": [
     {
       "version": "Unreleased",
@@ -10313,6 +10313,27 @@
                 "sha": "6ee849542d5fe34e5b923dc71fd79d26da3446d1",
                 "short_sha": "6ee8495",
                 "subject": "Merge remote-tracking branch 'origin/main' into ci/qa-corpora-entrypoint"
+              }
+            ]
+          },
+          {
+            "pr": 925,
+            "title": "chore(deps): the dev toolchain's twig patched past the 2026-11-24 advisories",
+            "author": "mbetixz",
+            "category": "Maintenance",
+            "merged_at": "2026-11-24T18:18:05Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/925",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "c72da8a19d0f7a94b9836530c9b4a1c8c1cf9410",
+                "short_sha": "c72da8a",
+                "subject": "chore(deps): the dev toolchain's twig patched past the 2026-11-24 advisories"
+              },
+              {
+                "sha": "328da7ba159f7a249675bf49bdad04d52c718f21",
+                "short_sha": "328da7b",
+                "subject": "docs(roadmap): the supply-chain row for the twig advisory answer"
               }
             ]
           }
@@ -25081,6 +25102,27 @@
               "sha": "ddaf81e326095fa7811c810ba67ea6966684cfe0",
               "short_sha": "ddaf81e",
               "subject": "docs(roadmap): the row and both pins ride the bullet's exit (#921)"
+            }
+          ]
+        },
+        {
+          "pr": 925,
+          "title": "chore(deps): the dev toolchain's twig patched past the 2026-11-24 advisories",
+          "author": "mbetixz",
+          "category": "Maintenance",
+          "merged_at": "2026-11-24T18:18:05Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/925",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "c72da8a19d0f7a94b9836530c9b4a1c8c1cf9410",
+              "short_sha": "c72da8a",
+              "subject": "chore(deps): the dev toolchain's twig patched past the 2026-11-24 advisories"
+            },
+            {
+              "sha": "328da7ba159f7a249675bf49bdad04d52c718f21",
+              "short_sha": "328da7b",
+              "subject": "docs(roadmap): the supply-chain row for the twig advisory answer"
             }
           ]
         }
