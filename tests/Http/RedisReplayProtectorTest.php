@@ -123,6 +123,75 @@ final class RedisReplayProtectorTest extends TestCase
     }
 
     /**
+     * The window's round-up boundary series, pinned at every edge the
+     * padding can cross: 999 ms and 1 000 ms both round up to one
+     * second, 1 001 ms and 1 002 ms both answer two seconds. A padding
+     * one short or a divisor one off moves an edge, and the series sees
+     * it -- the same series the APCu twin's own battery pins.
+     */
+    public function testTheWindowRoundsUpAtEveryEdgeThePaddingCanCross(): void
+    {
+        $edges = [
+            999 => 1,
+            1_000 => 1,
+            1_001 => 2,
+            1_002 => 2,
+        ];
+
+        foreach ($edges as $windowMs => $expectedTtl) {
+            $recordingRedisCommands = new RecordingRedisCommands();
+            $recordingRedisCommands->incr = 1;
+            $recordingRedisCommands->ttl = -1;
+
+            new RedisReplayProtector(
+                new RedisReplayStore($recordingRedisCommands),
+                $windowMs,
+            )->check(self::REPLAY_ID, 1_000);
+
+            self::assertContains(
+                ['expire', ['zef:replay:' . self::REPLAY_ID, $expectedTtl]],
+                $recordingRedisCommands->calls,
+                \sprintf('a %d ms window installs a %d second TTL', $windowMs, $expectedTtl),
+            );
+        }
+    }
+
+    public function testTheDefaultWindowInstallsTheThreeHundredSecondTtl(): void
+    {
+        $recordingRedisCommands = new RecordingRedisCommands();
+        $recordingRedisCommands->incr = 1;
+        $recordingRedisCommands->ttl = -1;
+
+        $redisReplayProtector = $this->protector($recordingRedisCommands);
+
+        self::assertSame(ReplayDecision::ACCEPT, $redisReplayProtector->check(self::REPLAY_ID, 1_000));
+        self::assertContains(
+            ['expire', ['zef:replay:' . self::REPLAY_ID, 300]],
+            $recordingRedisCommands->calls,
+            'the default five-minute window is the 300-second TTL the winner installs',
+        );
+    }
+
+    public function testAOneMillisecondWindowIsAdmittedAndInstallsAOneSecondTtl(): void
+    {
+        $recordingRedisCommands = new RecordingRedisCommands();
+        $recordingRedisCommands->incr = 1;
+        $recordingRedisCommands->ttl = -1;
+
+        $redisReplayProtector = new RedisReplayProtector(
+            new RedisReplayStore($recordingRedisCommands),
+            1,
+        );
+
+        self::assertSame(ReplayDecision::ACCEPT, $redisReplayProtector->check(self::REPLAY_ID, 1_000));
+        self::assertContains(
+            ['expire', ['zef:replay:' . self::REPLAY_ID, 1]],
+            $recordingRedisCommands->calls,
+            'the smallest admitted window still installs a whole second',
+        );
+    }
+
+    /**
      * The protector over the real store on the recording commands
      * double: the family's own injectable seam, the same doctrine the
      * rate-limit family's tests ride.

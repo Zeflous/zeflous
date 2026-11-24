@@ -65,6 +65,32 @@ final class RedisReplayStoreTest extends TestCase
         );
     }
 
+    /**
+     * A TTL of exactly zero is an in-window sight, never a lost one:
+     * the recovery arm reads the negative alone (the lost install the
+     * phpredis contract spells -1 and -2), so a key whose window is
+     * expiring this instant keeps the duplicate verdict and pays no
+     * second EXPIRE -- the boundary the in-window pin holds.
+     */
+    public function testASightWithATtlOfExactlyZeroIsInWindow(): void
+    {
+        $recordingRedisCommands = new RecordingRedisCommands();
+        $recordingRedisCommands->incr = 2;
+        $recordingRedisCommands->ttl = 0;
+
+        $redisReplayStore = new RedisReplayStore($recordingRedisCommands);
+
+        self::assertFalse($redisReplayStore->claim(self::KEY, 300));
+        self::assertSame(
+            [
+                ['incr', [self::KEY]],
+                ['ttl', [self::KEY]],
+            ],
+            $recordingRedisCommands->calls,
+            'a zero TTL is the window expiring, never a lost install the recovery arm re-installs',
+        );
+    }
+
     public function testASightThatLostItsTtlIsRecoveredWhole(): void
     {
         $recordingRedisCommands = new RecordingRedisCommands();
