@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Http;
 
 /**
- * The auth family's knob census: the nine knobs the family owns, and
+ * The auth family's knob census: the eleven knobs the family owns, and
  * the rejection an unknown key in the family map answers with --
  * following the CSRF family's own {@see CsrfKnobs} lineage, which
  * followed the rate-limit family's, over the shared {@see
@@ -31,6 +31,8 @@ final class AuthKnobs
         'replay_capacity',
         'replay_window',
         'replay_store',
+        'redis_host',
+        'redis_port',
     ];
 
     /**

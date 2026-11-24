@@ -23,23 +23,25 @@ final class ReplayStoresTest extends TestCase
     public function testTheSharedStoreNameReadsAsItself(): void
     {
         self::assertSame('apcu', ReplayStores::read('apcu'));
+        self::assertSame('redis', ReplayStores::read('redis'));
     }
 
     public function testTheStoreNameFoldsCase(): void
     {
         self::assertSame('apcu', ReplayStores::read('APCU'));
         self::assertSame('memory', ReplayStores::read('Memory'));
+        self::assertSame('redis', ReplayStores::read('Redis'));
     }
 
     public function testAnUnknownStoreNameIsRefusedWithTheValueSpelledOut(): void
     {
         try {
-            ReplayStores::read('redis');
+            ReplayStores::read('memcache');
             self::fail('Expected an HttpException to be thrown.');
         } catch (HttpException $httpException) {
             self::assertSame(
                 'The security.auth replay_store knob must be one of the known replay stores '
-                . "(memory, apcu), 'redis' given.",
+                . "(memory, apcu, redis), 'memcache' given.",
                 $httpException->getMessage(),
             );
         }
@@ -53,7 +55,7 @@ final class ReplayStoresTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 'The security.auth replay_store knob must be one of the known replay stores '
-                . '(memory, apcu), int given.',
+                . '(memory, apcu, redis), int given.',
                 $httpException->getMessage(),
             );
         }

@@ -175,15 +175,45 @@ declare(strict_types=1);
  *       method: the 401 fires first.
  *
  *   'replay_capacity'           (int, default 1024)
- *       The replay seen-table's entry ceiling, per worker process. A
- *       full table answers the fail-closed 503 rather than admitting
- *       an untracked replay id.
+ *       The replay seen-table's entry ceiling, per worker process.
+ *       A full table answers the fail-closed 503 rather than
+ *       admitting an untracked replay id. The capacity bound is the
+ *       in-memory spelling's own: the shared spellings' bound is
+ *       their store's own memory budget (APCu's `apc.shm_size`, the
+ *       Redis server's), the same statement the rate-limit family's
+ *       `max_keys` knob makes.
  *
  *   'replay_window'             (int seconds, default 300)
  *       The window inside which a replay id is single-use. The
- *       in-memory table is per-process; a deployment that runs a
- *       process tree behind the boundary composes its own shared
- *       protector through the family's interface seam.
+ *       seen-table's topology is the `replay_store` knob's own
+ *       word -- the three spellings the closed vocabulary keeps.
+ *
+ *   'replay_store'              ('memory'|'apcu'|'redis', default 'memory')
+ *       The seen-table's topology. `memory` keeps the reference's
+ *       per-process table -- a replayed id that lands on a
+ *       different worker of a process tree is re-accepted by it, the
+ *       protection probabilistically absent. `apcu` shares the
+ *       table across the process tree (one atomic `apcu_add` claim,
+ *       exactly one worker of the tree ever wins an id). `redis`
+ *       shares it across the whole host fleet: one server-side-
+ *       atomic `INCR` claim over the phpredis seam, exactly one
+ *       request of the fleet ever wins an id, the TTL the winner
+ *       installs carrying the window. An unknown name halts the
+ *       boot with the value spelled out -- a shared-table request
+ *       the operator believes they made while their replay
+ *       protection quietly stays per-worker is the silent topology
+ *       lie the vocabulary's census refuses.
+ *
+ *   'redis_host'                (string, default '127.0.0.1')
+ *       The Redis endpoint the `redis` replay store composes over --
+ *       the fleet spelling's own address, the same shape the
+ *       rate-limit family's own endpoint knobs keep. The connection
+ *       is established at the middleware resolution the `redis`
+ *       spelling arms: a declared fleet table without its server
+ *       is the honest halt the boot hears, with the endpoint named.
+ *
+ *   'redis_port'                (int, default 6379)
+ *       The Redis endpoint's port (1-65535).
  *
  * Environment overlay spelling (prefix + `__` as the dot, values strictly
  * typed): APP_SECURITY__HEADERS__HSTS=1, APP_SECURITY__RATE_LIMIT__
@@ -192,7 +222,9 @@ declare(strict_types=1);
  * APP_SECURITY__CSRF__ENABLED=off, APP_SECURITY__CSRF__SAME_SITE=lax,
  * APP_SECURITY__AUTH__TOKENS=<comma-separated 32+ char tokens>,
  * APP_SECURITY__AUTH__ALLOW_ANONYMOUS=on, APP_SECURITY__AUTH__
- * REPLAY_WINDOW=600.
+ * REPLAY_WINDOW=600, APP_SECURITY__AUTH__REPLAY_STORE=redis,
+ * APP_SECURITY__AUTH__REDIS_HOST=redis.internal, APP_SECURITY__AUTH__
+ * REDIS_PORT=6380.
  *
  * The shipped profile declares no overrides -- the defaults are the
  * posture -- and an application fills this file with the knobs it wants

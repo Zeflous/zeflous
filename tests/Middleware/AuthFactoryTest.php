@@ -143,7 +143,43 @@ final class AuthFactoryTest extends TestCase
         } catch (HttpException $httpException) {
             self::assertSame(
                 'The security.auth replay_store knob must be one of the known replay stores '
-                . "(memory, apcu), 'reddis' given.",
+                . "(memory, apcu, redis), 'reddis' given.",
+                $httpException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * The fleet spelling's own honest halt: a declared `replay_store:
+     * redis` arms the phpredis boundary at this resolution, and a
+     * runner without its server hears the refusal the boot can act
+     * on -- the endpoint the knobs declared named, the family's own
+     * alternatives spelled -- never a first-request catch-all 503
+     * the operator waited for a client to meet (the rate-limit
+     * family's own redis arm the precedent, its loopback refusal
+     * the same spelling this family rides).
+     */
+    public function testTheFactoryHaltsWhenTheRedisReplayStoreIsUnavailable(): void
+    {
+        $config = new Config([
+            'security' => [
+                'auth' => [
+                    'tokens' => [self::TOKEN],
+                    'replay_store' => 'redis',
+                    'redis_host' => '127.0.0.1',
+                    'redis_port' => 6380,
+                ],
+            ],
+        ]);
+
+        try {
+            AuthFactory::fromConfig($config);
+            self::fail('A declared redis replay store the runner cannot connect to must halt the boot.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                'The security.auth redis replay store is unavailable at 127.0.0.1:6380'
+                . ' (install ext-redis and start the server, or declare the memory'
+                . ' or apcu replay store).',
                 $httpException->getMessage(),
             );
         }

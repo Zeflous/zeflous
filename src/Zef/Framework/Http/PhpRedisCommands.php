@@ -38,6 +38,10 @@ final readonly class PhpRedisCommands implements RedisCommandsInterface
      *                                                  construction establishes the
      *                                                  extension's own by default; the
      *                                                  test suite injects its double)
+     * @param null|string              $unavailable     the establishment refusal's own
+     *                                                  words, when a reaching family
+     *                                                  spells its own (null keeps this
+     *                                                  family's own message)
      *
      * @throws HttpException when the connection cannot be established
      */
@@ -45,8 +49,9 @@ final readonly class PhpRedisCommands implements RedisCommandsInterface
         string $host,
         int $port,
         ?RedisConnectionInterface $redisConnection = null,
+        ?string $unavailable = null,
     ) {
-        $this->redis = PhpRedisConnection::establish($host, $port, $redisConnection);
+        $this->redis = PhpRedisConnection::establish($host, $port, $redisConnection, $unavailable);
     }
 
     #[Override]

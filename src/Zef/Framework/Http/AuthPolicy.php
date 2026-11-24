@@ -67,11 +67,16 @@ final readonly class AuthPolicy
      *                                     vocabulary -- `memory` keeps the
      *                                     reference's per-process table,
      *                                     `apcu` shares it across the
-     *                                     process tree
+     *                                     process tree, `redis` across the
+     *                                     host fleet
+     * @param string       $redisHost      the Redis endpoint's host, the
+     *                                     fleet spelling's own address
+     * @param int          $redisPort      the Redis endpoint's port
+     *                                     (1-65535)
      *
      * @throws HttpException when a token violates its shape, a field
-     *                       violates its bound, or a replay knob is
-     *                       out of range
+     *                       violates its bound, or a replay or redis
+     *                       knob is out of range
      */
     public function __construct(
         public bool $enabled = true,
@@ -83,19 +88,15 @@ final readonly class AuthPolicy
         public int $replayCapacity = 1024,
         public int $replayWindow = 300,
         public string $replayStore = ReplayStores::MEMORY,
+        public string $redisHost = '127.0.0.1',
+        public int $redisPort = 6379,
     ) {
         ReplayStores::read($this->replayStore);
         foreach ($this->tokens as $token) {
             AuthBounds::assertTokenShape($token);
         }
 
-        if ($this->replayCapacity < 1) {
-            throw new HttpException('The security.auth replay_capacity knob must be 1 or above.');
-        }
-
-        if ($this->replayWindow < 1) {
-            throw new HttpException('The security.auth replay_window knob must be 1 or above.');
-        }
+        AuthBounds::assert($this->replayCapacity, $this->replayWindow, $this->redisPort);
     }
 
     /**
@@ -125,17 +126,34 @@ final readonly class AuthPolicy
     }
 
     /**
-     * The family's knob map as constructor arguments: the arm, the
-     * token table, the principal fields, the anonymous switch and the
-     * replay pair -- read strictly, every one.
+     * The family's knob map as constructor arguments: the admission
+     * knobs and the replay knobs, read strictly, every one.
      *
      * @param array<array-key, mixed> $map
      *
      * @return array{enabled: bool, tokens: list<string>, principal: string,
      *               scope: string, requiredScope: string, allowAnonymous: bool,
-     *               replayCapacity: int, replayWindow: int, replayStore: string}
+     *               replayCapacity: int, replayWindow: int, replayStore: string,
+     *               redisHost: string, redisPort: int}
      */
     private static function knobs(array $map): array
+    {
+        return [
+            ...self::admissionKnobs($map),
+            ...self::replayKnobs($map),
+        ];
+    }
+
+    /**
+     * The admission knobs: the arm, the static token table, the
+     * principal and scope fields, and the anonymous switch.
+     *
+     * @param array<array-key, mixed> $map
+     *
+     * @return array{enabled: bool, tokens: list<string>, principal: string,
+     *               scope: string, requiredScope: string, allowAnonymous: bool}
+     */
+    private static function admissionKnobs(array $map): array
     {
         return [
             'enabled' => StrictToggles::read($map['enabled'] ?? true, 'security.auth enabled'),
@@ -150,12 +168,47 @@ final readonly class AuthPolicy
                 $map['allow_anonymous'] ?? false,
                 'security.auth allow_anonymous',
             ),
+        ];
+    }
+
+    /**
+     * The replay knobs: the seen-table's capacity and window, its
+     * topology, and the fleet spelling's Redis endpoint.
+     *
+     * @param array<array-key, mixed> $map
+     *
+     * @return array{replayCapacity: int, replayWindow: int, replayStore: string,
+     *               redisHost: string, redisPort: int}
+     */
+    private static function replayKnobs(array $map): array
+    {
+        return [
             'replayCapacity' => StrictIntegers::read(
                 $map['replay_capacity'] ?? 1024,
                 'security.auth replay_capacity',
             ),
             'replayWindow' => StrictIntegers::read($map['replay_window'] ?? 300, 'security.auth replay_window'),
             'replayStore' => ReplayStores::read($map['replay_store'] ?? ReplayStores::MEMORY),
+            'redisHost' => self::hostString($map['redis_host'] ?? '127.0.0.1'),
+            'redisPort' => StrictIntegers::read($map['redis_port'] ?? 6379, 'security.auth redis_port'),
         ];
+    }
+
+    /**
+     * The host knob's own strict reading: any non-empty address string
+     * is the deployment's own word, and every other type halts with the
+     * knob named -- the rate-limit family's own reader, reached
+     * one-way and spelled for this family's own knobs.
+     */
+    private static function hostString(mixed $value): string
+    {
+        if (\is_string($value) && $value !== '') {
+            return $value;
+        }
+
+        throw new HttpException(
+            'The security.auth redis_host knob must be a non-empty string, '
+            . get_debug_type($value) . ' given.',
+        );
     }
 }

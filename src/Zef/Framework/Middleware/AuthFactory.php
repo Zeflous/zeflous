@@ -13,6 +13,9 @@ use Zef\Framework\Http\AuthClock;
 use Zef\Framework\Http\AuthMiddleware;
 use Zef\Framework\Http\AuthPolicy;
 use Zef\Framework\Http\BoundedReplayProtector;
+use Zef\Framework\Http\PhpRedisCommands;
+use Zef\Framework\Http\RedisReplayProtector;
+use Zef\Framework\Http\RedisReplayStore;
 use Zef\Framework\Http\ReplayProtectorInterface;
 use Zef\Framework\Http\ReplayStores;
 use Zef\Framework\Http\SecurityFamilies;
@@ -45,8 +48,10 @@ use Zef\Framework\Http\StaticCredentialProvider;
  * The composition the knobs shape is the reference's own distributed
  * boundary in this repository's spelling: the static token table as
  * the credential provider, the scope grant as the authorization
- * policy, the bounded in-memory seen-table as the replay protector,
- * and the boundary that orchestrates the three -- every
+ * policy, the seen-table the `replay_store` knob selects as the
+ * replay protector -- per-process, APCu across the process tree, or
+ * Redis across the host fleet -- and the boundary that orchestrates
+ * the three -- every
  * collaborator replaceable through hand construction ({@see
  * AuthBoundary}) when the application grows a real credential
  * backing or a real authorization model.
@@ -98,15 +103,40 @@ final readonly class AuthFactory
 
     /**
      * The seen-table the `security.auth.replay_store` knob selected: the
-     * per-process spelling the reference shipped, or the shared APCu
-     * spelling a process tree declares -- the topology statement the
+     * per-process spelling the reference shipped, the shared APCu
+     * spelling a process tree declares, or the shared Redis spelling
+     * a host fleet declares -- the topology statement the
      * closed vocabulary keeps exact ({@see ReplayStores}), the same
-     * selection the rate-limit family's own store knob makes.
+     * selection the rate-limit family's own store knob makes. The
+     * redis arm composes the phpredis boundary the rate-limit family's
+     * own store rides, the family's own refusal spelled for it: the
+     * endpoint the policy's `redis_host`/`redis_port` knobs declare,
+     * the connection established at this resolution, so a declared
+     * fleet table without its server is the honest halt the boot
+     * hears, never a first-request catch-all 503 the operator waited
+     * for a client to meet.
      */
     private static function replayProtector(AuthPolicy $authPolicy): ReplayProtectorInterface
     {
         if ($authPolicy->replayStore === ReplayStores::APCU) {
             return new ApcuReplayProtector(
+                AuthClock::millisecondsFromSeconds($authPolicy->replayWindow),
+            );
+        }
+
+        if ($authPolicy->replayStore === ReplayStores::REDIS) {
+            return new RedisReplayProtector(
+                new RedisReplayStore(
+                    new PhpRedisCommands(
+                        $authPolicy->redisHost,
+                        $authPolicy->redisPort,
+                        null,
+                        'The security.auth redis replay store is unavailable at '
+                        . $authPolicy->redisHost . ':' . $authPolicy->redisPort
+                        . ' (install ext-redis and start the server, or declare the memory'
+                        . ' or apcu replay store).',
+                    ),
+                ),
                 AuthClock::millisecondsFromSeconds($authPolicy->replayWindow),
             );
         }
