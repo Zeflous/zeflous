@@ -7,6 +7,7 @@
 **Merged pull requests:**
 
 - chore\(deps\): the dev toolchain's twig patched past the 2026-11-24 advisories [\#925](https://github.com/Zeflous/zeflous/pull/925) ([mbetixz](https://github.com/mbetixz))
+- feat\(auth\): the auth replay seam gains its fleet spelling -- the Redis seen-table over the one INCR-atomic claim, the third topology the replay\_store knob answers [\#924](https://github.com/Zeflous/zeflous/pull/924) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): the Storage layout bullet leaves Not-yet-done -- the completed lane's recorded open list all landed [\#921](https://github.com/Zeflous/zeflous/pull/921) ([mbetixz](https://github.com/mbetixz))
 - feat\(errors\): the errors total gains the route dimension -- the matched pattern the boundary's context carries, the closed unrouted word for every no-route refusal [\#915](https://github.com/Zeflous/zeflous/pull/915) ([mbetixz](https://github.com/mbetixz))
 - feat\(errors\): the vendored PDO adapter joins the request-scoped query counter -- the feeder call the toolbar waited on behind the composition's request provider [\#914](https://github.com/Zeflous/zeflous/pull/914) ([mbetixz](https://github.com/mbetixz))
