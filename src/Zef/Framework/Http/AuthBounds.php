@@ -5,9 +5,17 @@ declare(strict_types=1);
 namespace Zef\Framework\Http;
 
 /**
- * The auth family's bounds: the range invariants the family holds,
- * asserted at the two layers that own them -- following the CSRF
+ * The auth family's bounds: the invariants the family holds,
+ * asserted at the layers that own them -- following the CSRF
  * family's own {@see CsrfBounds} two-seam lineage.
+ *
+ * The range invariants are the policy's own: the replay pair's floors
+ * and the fleet spelling's port window, asserted as one pass
+ * ({@see self::assert()}, the rate-limit family's own {@see
+ * RateLimitBounds::assert()} shape) -- a mistyped zero or a phantom
+ * port halts the boot with the knob named, the range half of the
+ * strict-reading contract (the spelling half lives in {@see
+ * StrictIntegers}).
  *
  * The token shape is the policy's own ({@see AuthPolicy}): each
  * static token must be a grammar-valid bearer credential of at least
@@ -35,6 +43,34 @@ final class AuthBounds
 {
     /** The static token's entropy floor, in characters. */
     private const int MIN_TOKEN_CHARS = 32;
+
+    /** The Redis endpoint's port ceiling. */
+    private const int MAX_PORT = 65535;
+
+    /**
+     * Asserts the bounded knobs' ranges: the replay pair's floors and
+     * the fleet spelling's endpoint port.
+     *
+     * @param int $replayCapacity the replay table's entry ceiling
+     * @param int $replayWindow   the replay duplicate window, in seconds
+     * @param int $redisPort      the fleet spelling's endpoint port
+     *
+     * @throws HttpException when a bound is violated
+     */
+    public static function assert(int $replayCapacity, int $replayWindow, int $redisPort): void
+    {
+        if ($replayCapacity < 1) {
+            throw new HttpException('The security.auth replay_capacity knob must be 1 or above.');
+        }
+
+        if ($replayWindow < 1) {
+            throw new HttpException('The security.auth replay_window knob must be 1 or above.');
+        }
+
+        if ($redisPort < 1 || $redisPort > self::MAX_PORT) {
+            throw new HttpException('The security.auth redis_port knob must be between 1 and 65535.');
+        }
+    }
 
     /**
      * Asserts one static token's shape: the token68 grammar the

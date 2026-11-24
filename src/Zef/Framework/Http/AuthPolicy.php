@@ -96,17 +96,7 @@ final readonly class AuthPolicy
             AuthBounds::assertTokenShape($token);
         }
 
-        if ($this->replayCapacity < 1) {
-            throw new HttpException('The security.auth replay_capacity knob must be 1 or above.');
-        }
-
-        if ($this->replayWindow < 1) {
-            throw new HttpException('The security.auth replay_window knob must be 1 or above.');
-        }
-
-        if ($this->redisPort < 1 || $this->redisPort > 65535) {
-            throw new HttpException('The security.auth redis_port knob must be between 1 and 65535.');
-        }
+        AuthBounds::assert($this->replayCapacity, $this->replayWindow, $this->redisPort);
     }
 
     /**
@@ -136,10 +126,8 @@ final readonly class AuthPolicy
     }
 
     /**
-     * The family's knob map as constructor arguments: the arm, the
-     * token table, the principal fields, the anonymous switch, the
-     * replay pair and the Redis endpoint the fleet spelling composes
-     * over -- read strictly, every one.
+     * The family's knob map as constructor arguments: the admission
+     * knobs and the replay knobs, read strictly, every one.
      *
      * @param array<array-key, mixed> $map
      *
@@ -149,6 +137,23 @@ final readonly class AuthPolicy
      *               redisHost: string, redisPort: int}
      */
     private static function knobs(array $map): array
+    {
+        return [
+            ...self::admissionKnobs($map),
+            ...self::replayKnobs($map),
+        ];
+    }
+
+    /**
+     * The admission knobs: the arm, the static token table, the
+     * principal and scope fields, and the anonymous switch.
+     *
+     * @param array<array-key, mixed> $map
+     *
+     * @return array{enabled: bool, tokens: list<string>, principal: string,
+     *               scope: string, requiredScope: string, allowAnonymous: bool}
+     */
+    private static function admissionKnobs(array $map): array
     {
         return [
             'enabled' => StrictToggles::read($map['enabled'] ?? true, 'security.auth enabled'),
@@ -163,6 +168,21 @@ final readonly class AuthPolicy
                 $map['allow_anonymous'] ?? false,
                 'security.auth allow_anonymous',
             ),
+        ];
+    }
+
+    /**
+     * The replay knobs: the seen-table's capacity and window, its
+     * topology, and the fleet spelling's Redis endpoint.
+     *
+     * @param array<array-key, mixed> $map
+     *
+     * @return array{replayCapacity: int, replayWindow: int, replayStore: string,
+     *               redisHost: string, redisPort: int}
+     */
+    private static function replayKnobs(array $map): array
+    {
+        return [
             'replayCapacity' => StrictIntegers::read(
                 $map['replay_capacity'] ?? 1024,
                 'security.auth replay_capacity',

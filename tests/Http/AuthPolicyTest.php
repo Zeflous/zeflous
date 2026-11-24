@@ -456,6 +456,20 @@ final class AuthPolicyTest extends TestCase
         yield 'port above 65535' => [65536];
     }
 
+    public function testTheLastRedisPortIsAValidKnob(): void
+    {
+        $authPolicy = AuthPolicy::fromMap(['redis_port' => 65535]);
+
+        self::assertSame(65535, $authPolicy->redisPort, 'the last port is a valid port');
+    }
+
+    public function testTheFirstRedisPortIsAValidKnob(): void
+    {
+        $authPolicy = AuthPolicy::fromMap(['redis_port' => 1]);
+
+        self::assertSame(1, $authPolicy->redisPort, 'the first port is a valid port');
+    }
+
     /**
      * @dataProvider provideANonStringRedisHostHaltsCases
      */

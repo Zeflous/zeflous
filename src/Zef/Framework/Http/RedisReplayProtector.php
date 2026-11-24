@@ -41,11 +41,11 @@ final readonly class RedisReplayProtector implements ReplayProtectorInterface
 
     /**
      * @param RedisReplayStore $redisReplayStore the atomic claim over the phpredis
-     *                                          command seam
-     * @param int              $windowMs        the duplicate window's length, in
-     *                                          milliseconds (>= 1) -- an id re-seen
-     *                                          inside the window is a duplicate, one
-     *                                          re-seen after it is fresh again
+     *                                           command seam
+     * @param int              $windowMs         the duplicate window's length, in
+     *                                           milliseconds (>= 1) -- an id re-seen
+     *                                           inside the window is a duplicate, one
+     *                                           re-seen after it is fresh again
      *
      * @throws HttpException when the window bound is violated
      */
