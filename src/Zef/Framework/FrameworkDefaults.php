@@ -311,6 +311,9 @@ final readonly class FrameworkDefaults
                     'allow_anonymous' => false,
                     'replay_capacity' => 1024,
                     'replay_window' => 300,
+                    'replay_store' => 'memory',
+                    'redis_host' => '127.0.0.1',
+                    'redis_port' => 6379,
                 ],
             ],
             'observability' => [

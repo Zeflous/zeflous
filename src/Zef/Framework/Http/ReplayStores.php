@@ -14,7 +14,10 @@ namespace Zef\Framework\Http;
  * of a process tree is re-accepted by a per-process table -- the
  * configured protection is probabilistically absent, present only
  * with probability 1/N -- and the operator who declares `apcu` has
- * stated they want the table shared across the tree. An unknown name
+ * stated they want the table shared across the tree, while the one
+ * who declares `redis` has stated they want it shared across the
+ * whole host fleet, behind a load balancer or not ({@see
+ * RedisReplayProtector}). An unknown name
  * is rejected with the value spelled out, never silently answered
  * with the per-process default: a shared-table request the operator
  * believes they made while their replay protection quietly stays
@@ -29,6 +32,9 @@ final class ReplayStores
     /** The one-process-tree shared seen-table ({@see ApcuReplayProtector}). */
     public const string APCU = 'apcu';
 
+    /** The cross-host fleet shared seen-table ({@see RedisReplayProtector}). */
+    public const string REDIS = 'redis';
+
     /**
      * Reads one replay-store knob's value through the closed vocabulary.
      *
@@ -39,19 +45,19 @@ final class ReplayStores
         if (\is_string($value)) {
             $folded = mb_strtolower($value);
 
-            if (\in_array($folded, [self::MEMORY, self::APCU], true)) {
+            if (\in_array($folded, [self::MEMORY, self::APCU, self::REDIS], true)) {
                 return $folded;
             }
 
             throw new HttpException(
                 'The security.auth replay_store knob must be one of the known replay stores '
-                . "(memory, apcu), '" . $value . "' given.",
+                . "(memory, apcu, redis), '" . $value . "' given.",
             );
         }
 
         throw new HttpException(
             'The security.auth replay_store knob must be one of the known replay stores '
-            . '(memory, apcu), ' . get_debug_type($value) . ' given.',
+            . '(memory, apcu, redis), ' . get_debug_type($value) . ' given.',
         );
     }
 }

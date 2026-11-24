@@ -72,6 +72,9 @@ final class AuthPolicyTest extends TestCase
                 'allow_anonymous' => $fromEmptyMap->allowAnonymous,
                 'replay_capacity' => $fromEmptyMap->replayCapacity,
                 'replay_window' => $fromEmptyMap->replayWindow,
+                'replay_store' => $fromEmptyMap->replayStore,
+                'redis_host' => $fromEmptyMap->redisHost,
+                'redis_port' => $fromEmptyMap->redisPort,
             ],
             $fromDefaults,
         );
@@ -131,7 +134,8 @@ final class AuthPolicyTest extends TestCase
             self::assertSame(
                 "The security.auth configuration carries the unknown knob 'bogus'"
                 . ' (known knobs: enabled, tokens, principal, scope, required_scope,'
-                . ' allow_anonymous, replay_capacity, replay_window, replay_store).',
+                . ' allow_anonymous, replay_capacity, replay_window, replay_store,'
+                . ' redis_host, redis_port).',
                 $httpException->getMessage(),
             );
         }
@@ -193,6 +197,9 @@ final class AuthPolicyTest extends TestCase
             'allow_anonymous' => true,
             'replay_capacity' => 2048,
             'replay_window' => 600,
+            'replay_store' => 'redis',
+            'redis_host' => 'redis.internal',
+            'redis_port' => 6380,
         ]);
 
         self::assertFalse($authPolicy->enabled);
@@ -203,6 +210,9 @@ final class AuthPolicyTest extends TestCase
         self::assertTrue($authPolicy->allowAnonymous);
         self::assertSame(2048, $authPolicy->replayCapacity);
         self::assertSame(600, $authPolicy->replayWindow);
+        self::assertSame('redis', $authPolicy->replayStore);
+        self::assertSame('redis.internal', $authPolicy->redisHost);
+        self::assertSame(6380, $authPolicy->redisPort);
     }
 
     public function testTheEnvironmentSpellingsRead(): void
@@ -213,6 +223,8 @@ final class AuthPolicyTest extends TestCase
             'allow_anonymous' => '1',
             'replay_capacity' => '2048',
             'replay_window' => '600',
+            'replay_store' => 'Redis',
+            'redis_port' => '6380',
         ]);
 
         self::assertTrue($authPolicy->enabled);
@@ -220,6 +232,8 @@ final class AuthPolicyTest extends TestCase
         self::assertTrue($authPolicy->allowAnonymous);
         self::assertSame(2048, $authPolicy->replayCapacity);
         self::assertSame(600, $authPolicy->replayWindow);
+        self::assertSame('redis', $authPolicy->replayStore);
+        self::assertSame(6380, $authPolicy->redisPort);
     }
 
     /**
@@ -232,6 +246,7 @@ final class AuthPolicyTest extends TestCase
     public function testTheReplayStoreKnobReadsThroughTheClosedVocabulary(): void
     {
         self::assertSame('apcu', AuthPolicy::fromMap(['replay_store' => 'apcu'])->replayStore);
+        self::assertSame('redis', AuthPolicy::fromMap(['replay_store' => 'redis'])->replayStore);
         self::assertSame('memory', AuthPolicy::fromMap(['replay_store' => 'MEMORY'])->replayStore);
         self::assertSame('memory', AuthPolicy::fromMap([])->replayStore);
     }
@@ -239,12 +254,12 @@ final class AuthPolicyTest extends TestCase
     public function testAnUnknownReplayStoreHaltsTheHandConstruction(): void
     {
         try {
-            new AuthPolicy(replayStore: 'redis');
+            new AuthPolicy(replayStore: 'memcache');
             self::fail('The closed replay-store vocabulary must halt the reading.');
         } catch (HttpException $httpException) {
             self::assertSame(
                 'The security.auth replay_store knob must be one of the known replay stores '
-                    . "(memory, apcu), 'redis' given.",
+                    . "(memory, apcu, redis), 'memcache' given.",
                 $httpException->getMessage(),
             );
         }
@@ -272,7 +287,8 @@ final class AuthPolicyTest extends TestCase
             self::assertSame(
                 "The security.auth configuration carries the unknown knob 'principle'"
                 . ' (known knobs: enabled, tokens, principal, scope, required_scope,'
-                . ' allow_anonymous, replay_capacity, replay_window, replay_store).',
+                . ' allow_anonymous, replay_capacity, replay_window, replay_store,'
+                . ' redis_host, redis_port).',
                 $httpException->getMessage(),
             );
         }
@@ -411,6 +427,60 @@ final class AuthPolicyTest extends TestCase
             -1,
             'The security.auth replay_capacity knob must be 1 or above.',
         ];
+    }
+
+    /**
+     * @dataProvider provideAnOutOfRangeRedisPortHaltsCases
+     */
+    #[DataProvider('provideAnOutOfRangeRedisPortHaltsCases')]
+    public function testAnOutOfRangeRedisPortHalts(int $port): void
+    {
+        try {
+            AuthPolicy::fromMap(['redis_port' => $port]);
+            self::fail('An out-of-range port must halt the construction.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                'The security.auth redis_port knob must be between 1 and 65535.',
+                $httpException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * @return iterable<array{int}>
+     */
+    public static function provideAnOutOfRangeRedisPortHaltsCases(): iterable
+    {
+        yield 'port zero' => [0];
+
+        yield 'port above 65535' => [65536];
+    }
+
+    /**
+     * @dataProvider provideANonStringRedisHostHaltsCases
+     */
+    #[DataProvider('provideANonStringRedisHostHaltsCases')]
+    public function testANonStringRedisHostHalts(mixed $host, string $spelled): void
+    {
+        try {
+            AuthPolicy::fromMap(['redis_host' => $host]);
+            self::fail('A non-string or empty host must halt the construction.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                'The security.auth redis_host knob must be a non-empty string, ' . $spelled . ' given.',
+                $httpException->getMessage(),
+            );
+        }
+    }
+
+    /**
+     * @return iterable<non-empty-string, array{mixed, string}>
+     */
+    public static function provideANonStringRedisHostHaltsCases(): iterable
+    {
+        yield 'an integer host' => [198_512, 'int'];
+
+        yield 'an empty host' => ['', 'string'];
     }
 
     public function testATokenOfExactlyTheFloorCarries(): void

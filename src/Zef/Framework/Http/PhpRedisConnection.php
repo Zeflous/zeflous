@@ -44,6 +44,10 @@ final class PhpRedisConnection
      * @param RedisConnectionInterface $redisConnection the client to establish (the
      *                                                  extension's own by default; the
      *                                                  test suite injects its double)
+     * @param null|string              $unavailable     the refusal's own words, when a
+     *                                                  reaching family spells its own
+     *                                                  (null keeps this family's own
+     *                                                  message)
      *
      * @throws HttpException when the connection cannot be established
      */
@@ -51,16 +55,17 @@ final class PhpRedisConnection
         string $host,
         int $port,
         ?RedisConnectionInterface $redisConnection = null,
+        ?string $unavailable = null,
     ): Redis|RedisConnectionInterface {
         try {
             $client = $redisConnection ?? new Redis();
             $connected = $client->connect($host, $port);
         } catch (Throwable) {
-            throw new HttpException(self::unavailable($host, $port));
+            throw new HttpException($unavailable ?? self::unavailable($host, $port));
         }
 
         if ($connected === false) {
-            throw new HttpException(self::unavailable($host, $port));
+            throw new HttpException($unavailable ?? self::unavailable($host, $port));
         }
 
         return $client;
