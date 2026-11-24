@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-24T18:18:05Z",
+  "as_of": "2026-11-24T21:24:02Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 360,
+  "unreleased_count": 361,
   "versions": [
     {
       "version": "Unreleased",
@@ -5232,6 +5232,82 @@
                 "sha": "f5c4cbece36c0ffb22827d2a32fe9cd63bbe489f",
                 "short_sha": "f5c4cbe",
                 "subject": "docs(roadmap): refresh the pin over the assign-set round's settle commit (#915)"
+              }
+            ]
+          },
+          {
+            "pr": 924,
+            "title": "feat(auth): the auth replay seam gains its fleet spelling -- the Redis seen-table over the one INCR-atomic claim, the third topology the replay_store knob answers",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-24T21:24:02Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/924",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "77df3e478467d33202e4ee1638702d8726cff233",
+                "short_sha": "77df3e4",
+                "subject": "feat(auth): the auth replay seam gains its fleet spelling"
+              },
+              {
+                "sha": "dc0342180d7f43fca767cc5b5e1d1703e6f9b9da",
+                "short_sha": "dc03421",
+                "subject": "fix(auth): settle the first CI round's findings -- the protector's one docblock column, the policy's three archeology findings, and the port's two boundary escapes"
+              },
+              {
+                "sha": "0210892c0876248a492d61036355b160838c3d71",
+                "short_sha": "0210892",
+                "subject": "docs(roadmap): the row and both pins ride the fleet spelling's head (#924)"
+              },
+              {
+                "sha": "0f959733909115c15f840fff1c97617de73154d6",
+                "short_sha": "0f95973",
+                "subject": "fix(auth): settle the mutation round's escapes -- the round-up's exact edges, the one-millisecond floor, the zero TTL, and the default window's twin entry"
+              },
+              {
+                "sha": "98aff928a8c1b34c71ab2b0adf57eefb8a1d0bf6",
+                "short_sha": "98aff92",
+                "subject": "docs(roadmap): refresh the pin over the mutation round's settle commit (#924)"
+              },
+              {
+                "sha": "90c1008719897cf70540d4ab3b08dae025c9e797",
+                "short_sha": "90c1008",
+                "subject": "fix(auth): the mutation settle's ledger entry -- the default window's Redis twin the APCu precedent spells"
+              },
+              {
+                "sha": "454173ac0cd8edbc29d54411b410e51f608e101b",
+                "short_sha": "454173a",
+                "subject": "docs(roadmap): the pin follows the mutation settle's ledger entry (#924)"
+              },
+              {
+                "sha": "a6b56c52282bf206df944877b5160c36654a178b",
+                "short_sha": "a6b56c5",
+                "subject": "chore: merge main (the twig advisory fix #925) into feat/auth-replay-redis"
+              },
+              {
+                "sha": "d3d5134ac29c806a2a65d40386212ca040dbcd3a",
+                "short_sha": "d3d5134",
+                "subject": "fix(auth): settle the second CI round's five escapes -- the default posture's own face, the default-window pin's unspecified window, and the refusal carrying the reaching family's own words"
+              },
+              {
+                "sha": "97bf954043ccfce64c98767ab1e969ce5ac54d7d",
+                "short_sha": "97bf954",
+                "subject": "docs(roadmap): the row's content head follows the second round's settle (#924)"
+              },
+              {
+                "sha": "7458bbc3041de009715bdd257720cc0b0976b9c3",
+                "short_sha": "7458bbc",
+                "subject": "fix(auth): the words-carrying pins fold under the phpcs line ceiling -- the settle's two 122-character construction calls wrapped"
+              },
+              {
+                "sha": "b7f4c4dd891243bb682ba86cd0ada6dfafabfdda",
+                "short_sha": "b7f4c4d",
+                "subject": "docs(roadmap): the row's content head follows the settle's phpcs fold (#924)"
+              },
+              {
+                "sha": "2d24c498efbd741b87ea1b09d704b3a1f26d713b",
+                "short_sha": "2d24c49",
+                "subject": "docs(roadmap): the pin follows the last settle and the row the landing clock (#924)"
               }
             ]
           }
@@ -25102,6 +25178,82 @@
               "sha": "ddaf81e326095fa7811c810ba67ea6966684cfe0",
               "short_sha": "ddaf81e",
               "subject": "docs(roadmap): the row and both pins ride the bullet's exit (#921)"
+            }
+          ]
+        },
+        {
+          "pr": 924,
+          "title": "feat(auth): the auth replay seam gains its fleet spelling -- the Redis seen-table over the one INCR-atomic claim, the third topology the replay_store knob answers",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-24T21:24:02Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/924",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "77df3e478467d33202e4ee1638702d8726cff233",
+              "short_sha": "77df3e4",
+              "subject": "feat(auth): the auth replay seam gains its fleet spelling"
+            },
+            {
+              "sha": "dc0342180d7f43fca767cc5b5e1d1703e6f9b9da",
+              "short_sha": "dc03421",
+              "subject": "fix(auth): settle the first CI round's findings -- the protector's one docblock column, the policy's three archeology findings, and the port's two boundary escapes"
+            },
+            {
+              "sha": "0210892c0876248a492d61036355b160838c3d71",
+              "short_sha": "0210892",
+              "subject": "docs(roadmap): the row and both pins ride the fleet spelling's head (#924)"
+            },
+            {
+              "sha": "0f959733909115c15f840fff1c97617de73154d6",
+              "short_sha": "0f95973",
+              "subject": "fix(auth): settle the mutation round's escapes -- the round-up's exact edges, the one-millisecond floor, the zero TTL, and the default window's twin entry"
+            },
+            {
+              "sha": "98aff928a8c1b34c71ab2b0adf57eefb8a1d0bf6",
+              "short_sha": "98aff92",
+              "subject": "docs(roadmap): refresh the pin over the mutation round's settle commit (#924)"
+            },
+            {
+              "sha": "90c1008719897cf70540d4ab3b08dae025c9e797",
+              "short_sha": "90c1008",
+              "subject": "fix(auth): the mutation settle's ledger entry -- the default window's Redis twin the APCu precedent spells"
+            },
+            {
+              "sha": "454173ac0cd8edbc29d54411b410e51f608e101b",
+              "short_sha": "454173a",
+              "subject": "docs(roadmap): the pin follows the mutation settle's ledger entry (#924)"
+            },
+            {
+              "sha": "a6b56c52282bf206df944877b5160c36654a178b",
+              "short_sha": "a6b56c5",
+              "subject": "chore: merge main (the twig advisory fix #925) into feat/auth-replay-redis"
+            },
+            {
+              "sha": "d3d5134ac29c806a2a65d40386212ca040dbcd3a",
+              "short_sha": "d3d5134",
+              "subject": "fix(auth): settle the second CI round's five escapes -- the default posture's own face, the default-window pin's unspecified window, and the refusal carrying the reaching family's own words"
+            },
+            {
+              "sha": "97bf954043ccfce64c98767ab1e969ce5ac54d7d",
+              "short_sha": "97bf954",
+              "subject": "docs(roadmap): the row's content head follows the second round's settle (#924)"
+            },
+            {
+              "sha": "7458bbc3041de009715bdd257720cc0b0976b9c3",
+              "short_sha": "7458bbc",
+              "subject": "fix(auth): the words-carrying pins fold under the phpcs line ceiling -- the settle's two 122-character construction calls wrapped"
+            },
+            {
+              "sha": "b7f4c4dd891243bb682ba86cd0ada6dfafabfdda",
+              "short_sha": "b7f4c4d",
+              "subject": "docs(roadmap): the row's content head follows the settle's phpcs fold (#924)"
+            },
+            {
+              "sha": "2d24c498efbd741b87ea1b09d704b3a1f26d713b",
+              "short_sha": "2d24c49",
+              "subject": "docs(roadmap): the pin follows the last settle and the row the landing clock (#924)"
             }
           ]
         },
