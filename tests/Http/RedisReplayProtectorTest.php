@@ -194,10 +194,12 @@ final class RedisReplayProtectorTest extends TestCase
     /**
      * The protector over the real store on the recording commands
      * double: the family's own injectable seam, the same doctrine the
-     * rate-limit family's tests ride.
+     * rate-limit family's tests ride. The window stays unspecified --
+     * the constructor's own default is the spelling the default-window
+     * pins read, the literal the mutators aim at.
      */
     private function protector(RecordingRedisCommands $recordingRedisCommands): RedisReplayProtector
     {
-        return new RedisReplayProtector(new RedisReplayStore($recordingRedisCommands), 300_000);
+        return new RedisReplayProtector(new RedisReplayStore($recordingRedisCommands));
     }
 }

@@ -64,6 +64,40 @@ final class PhpRedisCommandsTest extends TestCase
         }
     }
 
+    public function testARefusedConnectionCarriesTheWordsTheReachingFamilySupplies(): void
+    {
+        $redisDouble = new RedisDouble();
+        $redisDouble->connectResult = false;
+
+        try {
+            new PhpRedisCommands('redis.example.com', 6380, $redisDouble, 'the auth family spells its own refusal words');
+            self::fail('A refused connection must fail closed.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                'the auth family spells its own refusal words',
+                $httpException->getMessage(),
+                'the reaching family own words answer the refusal, never the boundary default',
+            );
+        }
+    }
+
+    public function testAThrowingConnectionCarriesTheWordsTheReachingFamilySupplies(): void
+    {
+        $redisDouble = new RedisDouble();
+        $redisDouble->connectThrows = true;
+
+        try {
+            new PhpRedisCommands('redis.example.com', 6380, $redisDouble, 'the auth family spells its own refusal words');
+            self::fail('A throwing connection must fail closed.');
+        } catch (HttpException $httpException) {
+            self::assertSame(
+                'the auth family spells its own refusal words',
+                $httpException->getMessage(),
+                'the reaching family own words answer the refusal, never the boundary default',
+            );
+        }
+    }
+
     public function testTheCommandDelegationsReachTheRedisInstance(): void
     {
         $redisDouble = new RedisDouble();

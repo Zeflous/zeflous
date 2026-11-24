@@ -52,6 +52,9 @@ final class AuthPolicyTest extends TestCase
         self::assertFalse($authPolicy->allowAnonymous);
         self::assertSame(1024, $authPolicy->replayCapacity);
         self::assertSame(300, $authPolicy->replayWindow);
+        self::assertSame('memory', $authPolicy->replayStore);
+        self::assertSame('127.0.0.1', $authPolicy->redisHost);
+        self::assertSame(6379, $authPolicy->redisPort);
     }
 
     public function testTheFrameworkProfileMirrorsThePolicyDefaults(): void
