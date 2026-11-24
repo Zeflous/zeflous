@@ -1386,6 +1386,18 @@
             // method.
             "ignore": [
                 "Zef\\Framework\\Http\\ApcuReplayProtector::__construct",
+                // The Redis twin's own default window literal carries the
+                // same argument the APCu twin's entry above spells: the
+                // knob's only observable face is the TTL the round-up
+                // hands the store (the EXPIRE the winner installs), and
+                // the round-up of 299 999 ms lands on the same 300
+                // seconds the default itself rounds to (intdiv(300 998,
+                // 1000) = 300), so the decremented default is
+                // value-equivalent through every verdict the protector
+                // can answer. The incremented default stays under the
+                // mutator: its TTL lands on 301, and the default-window
+                // TTL test kills it. Scoped to that single method.
+                "Zef\\Framework\\Http\\RedisReplayProtector::__construct",
                 // The blocking wait's microsecond factor: the engine's
                 // own scheduler slack dwarfs the one-microsecond-per-
                 // millisecond the boundary rewrite moves (verified
