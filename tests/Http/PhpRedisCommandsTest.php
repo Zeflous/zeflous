@@ -70,7 +70,12 @@ final class PhpRedisCommandsTest extends TestCase
         $redisDouble->connectResult = false;
 
         try {
-            new PhpRedisCommands('redis.example.com', 6380, $redisDouble, 'the auth family spells its own refusal words');
+            new PhpRedisCommands(
+                'redis.example.com',
+                6380,
+                $redisDouble,
+                'the auth family spells its own refusal words',
+            );
             self::fail('A refused connection must fail closed.');
         } catch (HttpException $httpException) {
             self::assertSame(
@@ -87,7 +92,12 @@ final class PhpRedisCommandsTest extends TestCase
         $redisDouble->connectThrows = true;
 
         try {
-            new PhpRedisCommands('redis.example.com', 6380, $redisDouble, 'the auth family spells its own refusal words');
+            new PhpRedisCommands(
+                'redis.example.com',
+                6380,
+                $redisDouble,
+                'the auth family spells its own refusal words',
+            );
             self::fail('A throwing connection must fail closed.');
         } catch (HttpException $httpException) {
             self::assertSame(
