@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Adapters\Event;
 
 use Zef\Framework\Database\ConnectionInterface;
+use Zef\Framework\Database\DatabaseException;
 use Zef\Framework\Database\SqlQuery;
 
 /**
@@ -29,6 +30,8 @@ use Zef\Framework\Database\SqlQuery;
  */
 final readonly class PdoDeliverySchema
 {
+    private const CREATE_TABLE_IF_NOT_EXISTS = 'CREATE TABLE IF NOT EXISTS ';
+
     public function __construct(
         private ConnectionInterface $connection,
         private PdoDeliveryDialect $pdoDeliveryDialect,
@@ -40,10 +43,10 @@ final readonly class PdoDeliverySchema
      * Ensures the five tables and the due-scan index exist, creating
      * the ones the schema does not hold yet.
      *
-     * @throws \Zef\Framework\Database\DatabaseException when the
-     *                                                   engine refuses a DDL statement -- the honest
-     *                                                   halt, the store's tables named by the statement
-     *                                                   the engine refused
+     * @throws DatabaseException when the engine refuses a DDL
+     *                           statement -- the honest halt, the
+     *                           store's tables named by the statement
+     *                           the engine refused
      */
     public function ensure(): void
     {
@@ -77,7 +80,7 @@ final readonly class PdoDeliverySchema
      */
     private function deadTableDdl(): string
     {
-        return 'CREATE TABLE IF NOT EXISTS ' . $this->pdoDeliveryTables->deadTable()->name
+        return self::CREATE_TABLE_IF_NOT_EXISTS . $this->pdoDeliveryTables->deadTable()->name
             . ' (entry_id CHAR(32) NOT NULL PRIMARY KEY, record TEXT NOT NULL)';
     }
 
@@ -87,7 +90,7 @@ final readonly class PdoDeliverySchema
      */
     private function attributedTableDdl(): string
     {
-        return 'CREATE TABLE IF NOT EXISTS '
+        return self::CREATE_TABLE_IF_NOT_EXISTS
             . $this->pdoDeliveryTables->attributedTable()->name
             . ' (entry_id CHAR(32) NOT NULL PRIMARY KEY,'
             . ' listener_identity VARCHAR(64) NOT NULL)';
@@ -99,7 +102,7 @@ final readonly class PdoDeliverySchema
      */
     private function quarantineTableDdl(): string
     {
-        return 'CREATE TABLE IF NOT EXISTS '
+        return self::CREATE_TABLE_IF_NOT_EXISTS
             . $this->pdoDeliveryTables->quarantineTable()->name
             . ' (listener_identity VARCHAR(64) NOT NULL PRIMARY KEY)';
     }
@@ -111,7 +114,7 @@ final readonly class PdoDeliverySchema
      */
     private function journalTableDdl(): string
     {
-        return 'CREATE TABLE IF NOT EXISTS ' . $this->pdoDeliveryTables->journalTable()->name
+        return self::CREATE_TABLE_IF_NOT_EXISTS . $this->pdoDeliveryTables->journalTable()->name
             . ' (record_id CHAR(32) NOT NULL PRIMARY KEY, record TEXT NOT NULL)';
     }
 }

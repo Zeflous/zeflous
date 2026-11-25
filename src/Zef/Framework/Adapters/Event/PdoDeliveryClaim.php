@@ -75,9 +75,11 @@ final readonly class PdoDeliveryClaim
         $won = [];
 
         foreach ($this->pdoDeliveryDueScan->dueIdentities($now) as $entryId) {
-            if ($this->claim($entryId, $now)) {
-                $won[] = $entryId;
+            if (!$this->claim($entryId, $now)) {
+                continue;
             }
+
+            $won[] = $entryId;
         }
 
         return $won;

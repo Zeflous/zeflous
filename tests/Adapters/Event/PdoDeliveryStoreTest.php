@@ -864,7 +864,7 @@ final class PdoDeliveryStoreTest extends TestCase
             },
         );
 
-        self::assertSame($scriptedDeliveryConnection, $receivedConnection);
+        self::assertSame($receivedConnection, $scriptedDeliveryConnection);
 
         $carried = [];
 

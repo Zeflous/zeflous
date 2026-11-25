@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Zef\Framework\Adapters\Event;
 
+use Zef\Framework\Database\DatabaseException;
 use Zef\Framework\Event\DeliveryEnvelope;
 use Zef\Framework\Event\DeliveryEnvelopeEncoder;
 
@@ -31,8 +32,8 @@ final readonly class PdoDeliveryDeadLane
      * Records the spent entry's whole story where an operator can
      * read it.
      *
-     * @throws \Zef\Framework\Database\DatabaseException when the
-     *                                                   record cannot be written
+     * @throws DatabaseException when the record cannot be
+     *                           written
      */
     public function deadLetter(
         DeliveryEnvelope $deliveryEnvelope,

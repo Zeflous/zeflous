@@ -42,9 +42,10 @@ final class ScriptedDeliveryConnection implements ConnectionInterface
      * @param list<null|array<string, null|bool|float|int|string>>  $fetchOneScript
      * @param list<list<array<string, null|bool|float|int|string>>> $fetchAllScript
      * @param bool                                                  $refusesOperations when true, every verb
-     *                                                                                 refuses with the engine's own typed
-     *                                                                                 family -- the port boundary's
-     *                                                                                 translation observable per verb
+     *                                                                                 refuses with the engine's own
+     *                                                                                 typed family -- the port
+     *                                                                                 boundary's translation
+     *                                                                                 observable per verb
      */
     public function __construct(
         private readonly string $driver,

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Adapters\Event;
 
 use Zef\Framework\Database\ConnectionInterface;
+use Zef\Framework\Database\DatabaseException;
 use Zef\Framework\Database\IdentifierQuoting;
 use Zef\Framework\Database\QueryBuilder;
 
@@ -41,10 +42,11 @@ final readonly class PdoDeliveryEntries
      * admitted or refused together, the engine's own boundary.
      *
      * @param list<array{entry_id: string, record: string, ready_at: int}> $rows
-     *                                                                           the rows one admission or one requeue spelled
+     *                                                                           the rows one admission or
+     *                                                                           one requeue spelled
      *
-     * @throws \Zef\Framework\Database\DatabaseException when the
-     *                                                   engine cannot hold the batch whole
+     * @throws DatabaseException when the engine cannot hold the
+     *                           batch whole
      */
     public function writeRows(array $rows): void
     {
@@ -63,8 +65,8 @@ final readonly class PdoDeliveryEntries
      * idempotent no-op: the engine answers zero affected rows and
      * never an error.
      *
-     * @throws \Zef\Framework\Database\DatabaseException when the
-     *                                                   engine refuses the removal
+     * @throws DatabaseException when the engine refuses the
+     *                           removal
      */
     public function removeEntry(string $entryId): void
     {
@@ -92,8 +94,8 @@ final readonly class PdoDeliveryEntries
      *
      * @return list<array<string, mixed>> the rows the table answered
      *
-     * @throws \Zef\Framework\Database\DatabaseException when the
-     *                                                   engine refuses the read
+     * @throws DatabaseException when the engine refuses the
+     *                           read
      */
     public function recordsFor(array $entryIds): array
     {

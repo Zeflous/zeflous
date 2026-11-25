@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework\Adapters\Event;
 
 use Zef\Framework\Database\ConnectionInterface;
+use Zef\Framework\Database\DatabaseException;
 use Zef\Framework\Database\IdentifierQuoting;
 use Zef\Framework\Database\QueryBuilder;
 use Zef\Framework\Database\SqlQuery;
@@ -47,8 +48,8 @@ final readonly class PdoDeliveryUpsert
      * @param array<string, mixed> $row        the column => value map, the builder's own row grammar
      * @param string               $primaryKey the column the conflict is keyed by
      *
-     * @throws \Zef\Framework\Database\DatabaseException when the
-     *                                                   engine refuses the write
+     * @throws DatabaseException when the engine refuses the
+     *                           write
      */
     public function insertOnce(TableName $tableName, array $row, string $primaryKey): void
     {
@@ -71,8 +72,8 @@ final readonly class PdoDeliveryUpsert
      * @param string               $primaryKey the column the conflict is keyed by
      * @param string               $column     the column the rewrite carries
      *
-     * @throws \Zef\Framework\Database\DatabaseException when the
-     *                                                   engine refuses the write
+     * @throws DatabaseException when the engine refuses the
+     *                           write
      */
     public function insertRewrite(TableName $tableName, array $row, string $primaryKey, string $column): void
     {
