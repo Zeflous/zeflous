@@ -92,6 +92,11 @@
       <code><![CDATA[notice]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Adapters/Event/PdoDeliveryStore.php">
+    <UnusedClass>
+      <code><![CDATA[PdoDeliveryStore]]></code>
+    </UnusedClass>
+  </file>
   <file src="src/Zef/Framework/Adapters/Event/RedisDeliveryStore.php">
     <UnusedClass>
       <code><![CDATA[RedisDeliveryStore]]></code>
@@ -250,15 +255,9 @@
       <code><![CDATA[ConditionColumnComparison]]></code>
     </UnusedClass>
   </file>
-  <file src="src/Zef/Framework/Database/ConditionComparison.php">
-    <UnusedClass>
-      <code><![CDATA[ConditionComparison]]></code>
-    </UnusedClass>
-  </file>
   <file src="src/Zef/Framework/Database/ConditionGroup.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[all]]></code>
-      <code><![CDATA[any]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Database/ConditionIn.php">
@@ -274,11 +273,6 @@
   <file src="src/Zef/Framework/Database/ConditionNot.php">
     <UnusedClass>
       <code><![CDATA[ConditionNot]]></code>
-    </UnusedClass>
-  </file>
-  <file src="src/Zef/Framework/Database/ConditionNull.php">
-    <UnusedClass>
-      <code><![CDATA[ConditionNull]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Database/ColumnSchema.php">
@@ -321,15 +315,6 @@
       <code><![CDATA[$name]]></code>
     </PossiblyUnusedProperty>
   </file>
-  <file src="src/Zef/Framework/Database/ConnectionInterface.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[beginTransaction]]></code>
-      <code><![CDATA[commit]]></code>
-      <code><![CDATA[lastInsertId]]></code>
-      <code><![CDATA[rollBack]]></code>
-      <code><![CDATA[transactionLevel]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Zef/Framework/Database/Migrator.php">
     <UnusedProperty>
       <code><![CDATA[$lockTtlSeconds]]></code>
@@ -344,7 +329,6 @@
       <code><![CDATA[join]]></code>
       <code><![CDATA[orWhere]]></code>
       <code><![CDATA[whereBetween]]></code>
-      <code><![CDATA[whereIn]]></code>
       <code><![CDATA[whereLike]]></code>
     </PossiblyUnusedMethod>
   </file>
