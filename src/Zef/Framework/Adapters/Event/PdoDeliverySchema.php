@@ -30,7 +30,7 @@ use Zef\Framework\Database\SqlQuery;
  */
 final readonly class PdoDeliverySchema
 {
-    private const CREATE_TABLE_IF_NOT_EXISTS = 'CREATE TABLE IF NOT EXISTS ';
+    private const string CREATE_TABLE_IF_NOT_EXISTS = 'CREATE TABLE IF NOT EXISTS ';
 
     public function __construct(
         private ConnectionInterface $connection,
