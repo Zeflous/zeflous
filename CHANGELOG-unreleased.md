@@ -372,6 +372,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - docs(http): the audit's three docblock claims meet the code they describe (issue #784) [#883](https://github.com/Zeflous/zeflous/pull/883) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): the Partial lanes' open lists meet the code they describe -- the roadmap-vs-code audit's seven drift findings answered [#905](https://github.com/Zeflous/zeflous/pull/905) ([mbetixz](https://github.com/mbetixz))
 - docs(roadmap): the Storage layout bullet leaves Not-yet-done -- the completed lane's recorded open list all landed [#921](https://github.com/Zeflous/zeflous/pull/921) ([mbetixz](https://github.com/mbetixz))
+- docs(roadmap): the Error Handling lane's closing audit -- every Fase promise answered with its openable evidence pointer, the row turns Implemented, the last P2 area retires [#933](https://github.com/Zeflous/zeflous/pull/933) ([mbetixz](https://github.com/mbetixz))
 
 **Tests:**
 

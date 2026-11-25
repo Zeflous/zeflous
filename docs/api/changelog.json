@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-25T02:57:08Z",
+  "as_of": "2026-11-25T13:15:42Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 362,
+  "unreleased_count": 363,
   "versions": [
     {
       "version": "Unreleased",
@@ -12510,6 +12510,27 @@
                 "sha": "ddaf81e326095fa7811c810ba67ea6966684cfe0",
                 "short_sha": "ddaf81e",
                 "subject": "docs(roadmap): the row and both pins ride the bullet's exit (#921)"
+              }
+            ]
+          },
+          {
+            "pr": 933,
+            "title": "docs(roadmap): the Error Handling lane's closing audit -- every Fase promise answered with its openable evidence pointer, the row turns Implemented, the last P2 area retires",
+            "author": "mbetixz",
+            "category": "Documentation",
+            "merged_at": "2026-11-25T13:15:42Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/933",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "ca4c568863e741bf851f67490f9bb0d8dc57645b",
+                "short_sha": "ca4c568",
+                "subject": "docs(roadmap): the Error Handling lane's closing audit -- every Fase promise answered with its openable evidence pointer"
+              },
+              {
+                "sha": "08c678d7208820791b49d51d8c531ca0dfb55e67",
+                "short_sha": "08c678d",
+                "subject": "docs(roadmap): the row, both pins and the history row ride the error lane's closing audit (#933)"
               }
             ]
           }
@@ -25387,6 +25408,27 @@
               "sha": "e8465f7db8b4e88f91c62fdd046b1fe254199573",
               "short_sha": "e8465f7",
               "subject": "docs(roadmap): the pins and the row's content head follow the mutation settle (#930)"
+            }
+          ]
+        },
+        {
+          "pr": 933,
+          "title": "docs(roadmap): the Error Handling lane's closing audit -- every Fase promise answered with its openable evidence pointer, the row turns Implemented, the last P2 area retires",
+          "author": "mbetixz",
+          "category": "Documentation",
+          "merged_at": "2026-11-25T13:15:42Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/933",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "ca4c568863e741bf851f67490f9bb0d8dc57645b",
+              "short_sha": "ca4c568",
+              "subject": "docs(roadmap): the Error Handling lane's closing audit -- every Fase promise answered with its openable evidence pointer"
+            },
+            {
+              "sha": "08c678d7208820791b49d51d8c531ca0dfb55e67",
+              "short_sha": "08c678d",
+              "subject": "docs(roadmap): the row, both pins and the history row ride the error lane's closing audit (#933)"
             }
           ]
         }
