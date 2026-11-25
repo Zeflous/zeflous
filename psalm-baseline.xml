@@ -539,11 +539,6 @@
       <code><![CDATA[report]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Health/HealthExposition.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[render]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Zef/Framework/Health/HealthReport.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[checks]]></code>

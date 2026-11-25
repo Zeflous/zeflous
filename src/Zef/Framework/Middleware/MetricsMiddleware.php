@@ -13,6 +13,7 @@ use Zef\Framework\Health\HealthAggregator;
 use Zef\Framework\Health\HealthExposition;
 use Zef\Framework\Health\HealthGroups;
 use Zef\Framework\Health\HealthStatuses;
+use Zef\Framework\Http\HealthContentNegotiator;
 use Zef\Framework\Http\MetricsPolicy;
 use Zef\Framework\Http\Response;
 use Zef\Framework\Telemetry\MeterInterface;
@@ -58,6 +59,21 @@ use Zef\Framework\Telemetry\PrometheusRenderer;
  * -- a scrape and a poll are live readings, never a cached document
  * -- and the exposition carries the format's own content type, the
  * `version=0.0.4` parameter the consumers negotiate.
+ *
+ * THE HEALTH SURFACE ANSWERS TWO REPRESENTATIONS, and the request's
+ * own Accept line picks between them ({@see HealthContentNegotiator},
+ * the error boundary's negotiation lineage): the JSON the load
+ * balancer's poll reads -- the default, an absent or wildcard-only
+ * header never selecting anything else -- or the health-as-gauges
+ * exposition the {@see HealthExposition::render()} unit answers when
+ * the header explicitly prefers the text format, the gauges riding
+ * the poll the surface already runs (the probes aggregate once per
+ * request; the second representation never pays a second pass) with
+ * the status code, the no-store and the deadline riding verbatim --
+ * a gauge reading is a poll too. The scrape endpoint keeps the
+ * meter's own answer alone: the exposition over the accumulated
+ * series, its empty-snapshot honesty (no HELP or TYPE line a series
+ * did not earn) untouched by the health gauges.
  *
  * SECURE DEFAULT ({@see MetricsPolicy}): the family ships OFF -- the
  * endpoints are publications (an `/metrics` answers the internal
@@ -154,7 +170,7 @@ final readonly class MetricsMiddleware implements MiddlewareInterface
             return $this->exposition();
         }
 
-        return $this->health($path);
+        return $this->health($path, $request->getHeaderLine('Accept'));
     }
 
     /**
@@ -177,11 +193,12 @@ final readonly class MetricsMiddleware implements MiddlewareInterface
 
     /**
      * The health answer for the path, when the path is one of the
-     * health surface's three endpoints: the aggregate JSON for the
-     * view the path names, the status code the load balancer gates
-     * on -- null when the path names none of them.
+     * health surface's three endpoints: the aggregate report for the
+     * view the path names rendered in the representation the Accept
+     * line negotiates, the status code the load balancer gates on --
+     * null when the path names none of them.
      */
-    private function health(string $path): ?Response
+    private function health(string $path, string $accept): ?Response
     {
         $healthPath = $this->metricsPolicy->healthPath;
 
@@ -189,6 +206,7 @@ final readonly class MetricsMiddleware implements MiddlewareInterface
             if ($path === $healthPath . $suffix) {
                 return $this->healthResponse(
                     $this->healthAggregator->aggregateFor($group, $this->metricsPolicy->timeoutMs),
+                    $accept,
                 );
             }
         }
@@ -197,17 +215,35 @@ final readonly class MetricsMiddleware implements MiddlewareInterface
     }
 
     /**
-     * One health view's answer: the aggregate JSON under the scrape's
-     * deadline knob, the 200 the passing registry earns and the 503
-     * the degraded one answers -- the aggregate report the view
-     * renders, the shape the aggregator's own contract spells.
+     * One health view's answer: the aggregate report rendered in the
+     * representation the request's raw Accept line negotiates -- the
+     * JSON the load balancer's poll reads (the default, the surface's
+     * own contract) or the health-as-gauges exposition the negotiation
+     * arms when the line explicitly prefers the text format -- under
+     * the scrape's deadline knob, the 200 the passing registry earns
+     * and the 503 the degraded one answers, the status code both
+     * representations carry verbatim because a gauge reading is a
+     * poll too.
      *
      * @param array{status:string,checks:list<array{name:string,status:string,message:string}>,tookMs:float} $report
      */
-    private function healthResponse(array $report): Response
+    private function healthResponse(array $report, string $accept): Response
     {
+        $status = $report['status'] === HealthStatuses::STATUS_OK ? 200 : 503;
+
+        if (HealthContentNegotiator::prefersExposition($accept)) {
+            return new Response(
+                $status,
+                [
+                    'Content-Type' => self::EXPOSITION_CONTENT_TYPE,
+                    'Cache-Control' => 'no-store',
+                ],
+                HealthExposition::render($report),
+            );
+        }
+
         return new Response(
-            $report['status'] === HealthStatuses::STATUS_OK ? 200 : 503,
+            $status,
             [
                 'Content-Type' => self::HEALTH_CONTENT_TYPE,
                 'Cache-Control' => 'no-store',

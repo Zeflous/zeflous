@@ -97,6 +97,8 @@ final readonly class HttpHotPathBench
 
     private ServerRequest $healthPollRequest;
 
+    private ServerRequest $healthGaugesPollRequest;
+
     private ServerRequest $serverRequest;
 
     private FixedResponseHandler $fixedResponseHandler;
@@ -216,6 +218,11 @@ final readonly class HttpHotPathBench
         );
         $this->metricsScrapeRequest = new ServerRequest('GET', new Uri('https://api.example.com/metrics'));
         $this->healthPollRequest = new ServerRequest('GET', new Uri('https://api.example.com/health'));
+        $healthGaugesPollRequest = new ServerRequest('GET', new Uri('https://api.example.com/health'))
+            ->withHeader('Accept', 'text/plain;version=0.0.4;q=0.5,*/*;q=0.1')
+        ;
+        \assert($healthGaugesPollRequest instanceof ServerRequest);
+        $this->healthGaugesPollRequest = $healthGaugesPollRequest;
         $this->serverRequest = new ServerRequest('GET', $this->uri);
         $this->fixedResponseHandler = new FixedResponseHandler($this->response);
 
@@ -437,6 +444,24 @@ final readonly class HttpHotPathBench
             || !str_contains((string) $response->getBody(), '"status":"ok"')
         ) {
             throw new InvariantViolationException('The health surface must aggregate the registered probes.');
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchANegotiatedHealthScrapeAnswersTheGauges(): void
+    {
+        $response = $this->healthMiddleware->process(
+            $this->healthGaugesPollRequest,
+            $this->fixedResponseHandler,
+        );
+
+        if (
+            $response->getStatusCode() !== 200
+            || !str_contains((string) $response->getBody(), 'zef_health_check{check="cache"} 1')
+        ) {
+            throw new InvariantViolationException(
+                'The negotiated health poll must answer the gauges over the probes it already aggregated.',
+            );
         }
     }
 
