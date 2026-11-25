@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-25T13:15:42Z",
+  "as_of": "2026-11-25T22:28:15Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 363,
+  "unreleased_count": 364,
   "versions": [
     {
       "version": "Unreleased",
@@ -5364,6 +5364,42 @@
                 "sha": "e8465f7db8b4e88f91c62fdd046b1fe254199573",
                 "short_sha": "e8465f7",
                 "subject": "docs(roadmap): the pins and the row's content head follow the mutation settle (#930)"
+              }
+            ]
+          },
+          {
+            "pr": 936,
+            "title": "feat(event): the pdo delivery store over the family's own engine",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-25T22:28:15Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/936",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "72fccf1de88edf08674e2f2f6944706c787b98af",
+                "short_sha": "72fccf1",
+                "subject": "feat(event): the pdo delivery store over the family's own engine"
+              },
+              {
+                "sha": "31fd4078534afd5143eecdfbe57a8991c0ec5587",
+                "short_sha": "31fd407",
+                "subject": "fix(event): settle the pdo delivery store's first CI answers -- the fully-qualified throws spellings imported, the claim loop's early exit, the schema fold's duplicated DDL prefix const, and the boundary test's assertion order"
+              },
+              {
+                "sha": "4643c9e5d30e5c65f3548d1e5b7472ed3cfebd6f",
+                "short_sha": "4643c9e",
+                "subject": "fix(event): the schema fold's DDL prefix const gains its native string type (rector AddTypeToConst)"
+              },
+              {
+                "sha": "cce1bcb582185b16575b09ff879787d7e9f62479",
+                "short_sha": "cce1bcb",
+                "subject": "test(event): settle the pdo delivery store's mutation round -- sixteen escapes pinned, the battery widened to the seams the mutants named"
+              },
+              {
+                "sha": "4868198c3465cfa2466ea0ddb8b7d82994c4c165",
+                "short_sha": "4868198",
+                "subject": "docs(roadmap): the pdo delivery store's record and the pins follow the CI answers (#936)"
               }
             ]
           }
@@ -25429,6 +25465,42 @@
               "sha": "08c678d7208820791b49d51d8c531ca0dfb55e67",
               "short_sha": "08c678d",
               "subject": "docs(roadmap): the row, both pins and the history row ride the error lane's closing audit (#933)"
+            }
+          ]
+        },
+        {
+          "pr": 936,
+          "title": "feat(event): the pdo delivery store over the family's own engine",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-25T22:28:15Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/936",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "72fccf1de88edf08674e2f2f6944706c787b98af",
+              "short_sha": "72fccf1",
+              "subject": "feat(event): the pdo delivery store over the family's own engine"
+            },
+            {
+              "sha": "31fd4078534afd5143eecdfbe57a8991c0ec5587",
+              "short_sha": "31fd407",
+              "subject": "fix(event): settle the pdo delivery store's first CI answers -- the fully-qualified throws spellings imported, the claim loop's early exit, the schema fold's duplicated DDL prefix const, and the boundary test's assertion order"
+            },
+            {
+              "sha": "4643c9e5d30e5c65f3548d1e5b7472ed3cfebd6f",
+              "short_sha": "4643c9e",
+              "subject": "fix(event): the schema fold's DDL prefix const gains its native string type (rector AddTypeToConst)"
+            },
+            {
+              "sha": "cce1bcb582185b16575b09ff879787d7e9f62479",
+              "short_sha": "cce1bcb",
+              "subject": "test(event): settle the pdo delivery store's mutation round -- sixteen escapes pinned, the battery widened to the seams the mutants named"
+            },
+            {
+              "sha": "4868198c3465cfa2466ea0ddb8b7d82994c4c165",
+              "short_sha": "4868198",
+              "subject": "docs(roadmap): the pdo delivery store's record and the pins follow the CI answers (#936)"
             }
           ]
         }
