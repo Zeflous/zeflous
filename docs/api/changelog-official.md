@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- feat\(health\): the health surface gains its second representation -- the health-as-gauges render answers the poll whose Accept line prefers the exposition, the consumer the API surface awaited [\#930](https://github.com/Zeflous/zeflous/pull/930) ([mbetixz](https://github.com/mbetixz))
 - chore\(deps\): the dev toolchain's twig patched past the 2026-11-24 advisories [\#925](https://github.com/Zeflous/zeflous/pull/925) ([mbetixz](https://github.com/mbetixz))
 - feat\(auth\): the auth replay seam gains its fleet spelling -- the Redis seen-table over the one INCR-atomic claim, the third topology the replay\_store knob answers [\#924](https://github.com/Zeflous/zeflous/pull/924) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): the Storage layout bullet leaves Not-yet-done -- the completed lane's recorded open list all landed [\#921](https://github.com/Zeflous/zeflous/pull/921) ([mbetixz](https://github.com/mbetixz))
