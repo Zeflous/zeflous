@@ -27,6 +27,7 @@ use Zef\Framework\Database\ConnectionInterface;
 use Zef\Framework\Database\QueryBuilder;
 use Zef\Framework\Database\QueryException;
 use Zef\Framework\Database\SqlQuery;
+use Zef\Framework\Database\TableName;
 use Zef\Framework\Event\DeliveryEntryId;
 use Zef\Framework\Event\DeliveryEnvelope;
 use Zef\Framework\Event\DeliveryEnvelopeDecoder;
@@ -54,6 +55,13 @@ use Zef\Test\Support\Adapters\Event\ScriptedDeliveryConnection;
  * own family held at the boundary: every engine refusal translated
  * into the {@see InvalidArgumentException} the port's docblocks
  * declare, the corrupt record refused by the entry's own identity.
+ * The mutation round's pins ride the same battery: the visibility
+ * timeout's exactly-one-second bound, the drain's foreign-claim-first
+ * order and the records read's vanished-row-first order (the loop
+ * seams the early-exit doctrine owns, both spelled in the mixed
+ * order the continue-versus-break mutant names), the hostile cells'
+ * and the corrupt record's full refusal messages with their zero
+ * codes, and the conflict-tail seam's composed INSERT spelling.
  * The dialect's MySQL and PostgreSQL spellings and the narrowing
  * folds' hostile-row refusals ride the scripted tier
  * ({@see ScriptedDeliveryConnection}), the SQLite-alone-socket
@@ -114,6 +122,21 @@ final class PdoDeliveryStoreTest extends TestCase
         }
     }
 
+    public function testAVisibilityTimeoutOfExactlyOneSecondIsTheAcceptedBound(): void
+    {
+        $pdoDeliveryStore = new PdoDeliveryStore($this->connection, 8, 1, 'zef_');
+        $pdoDeliveryStore->save(
+            $this->envelope('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['amount' => 12]),
+        );
+
+        $taken = $pdoDeliveryStore->takeDue(0);
+
+        self::assertSame(
+            ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'],
+            $this->identitiesOf($taken),
+        );
+    }
+
     public function testAnEmptyTablePrefixIsRefused(): void
     {
         try {
@@ -142,6 +165,7 @@ final class PdoDeliveryStoreTest extends TestCase
                 . ' refuses.',
                 $invalidArgumentException->getMessage(),
             );
+            self::assertSame(0, $invalidArgumentException->getCode());
             self::assertInstanceOf(
                 QueryException::class,
                 $invalidArgumentException->getPrevious(),
@@ -369,6 +393,31 @@ final class PdoDeliveryStoreTest extends TestCase
         self::assertSame([], $storeB->takeDue(100));
     }
 
+    public function testAForeignLiveClaimOnTheFirstDueEntryDoesNotStopTheDrain(): void
+    {
+        $pdoDeliveryStore = new PdoDeliveryStore($this->connection, 8, 60, 'zef_');
+        $pdoDeliveryStore->save(
+            $this->envelope('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['amount' => 12]),
+        );
+        $pdoDeliveryStore->save(
+            $this->envelope('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', ['amount' => 14]),
+        );
+
+        $this->connection->execute(SqlQuery::raw(
+            "UPDATE zef_delivery SET claim_token = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',"
+            . " claim_expires_at = 160 WHERE entry_id = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'",
+        ));
+
+        $secondDrainer = new PdoDeliveryStore($this->connection, 8, 60, 'zef_');
+
+        $takenByTheSecondDrainer = $secondDrainer->takeDue(100);
+
+        self::assertSame(
+            ['bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'],
+            $this->identitiesOf($takenByTheSecondDrainer),
+        );
+    }
+
     public function testThisDrainersOwnClaimIsReTakenByTheNextPass(): void
     {
         $pdoDeliveryStore = new PdoDeliveryStore($this->connection, 8, 60, 'zef_');
@@ -462,6 +511,40 @@ final class PdoDeliveryStoreTest extends TestCase
         self::assertSame([], $answered);
     }
 
+    public function testAVanishedRowAheadOfALiveClaimedEntryIsSkippedNotStoppingTheDecode(): void
+    {
+        $pdoDeliveryStore = new PdoDeliveryStore($this->connection, 8, 60, 'zef_');
+        $first = $this->envelope('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['amount' => 12]);
+        $second = $this->envelope('bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', ['amount' => 14]);
+        $pdoDeliveryStore->save($first);
+        $pdoDeliveryStore->save($second);
+
+        $won = new PdoDeliveryClaim(
+            $this->connection,
+            new PdoDeliveryTables('zef_'),
+            new PdoDeliveryDueScan($this->connection, new PdoDeliveryTables('zef_')),
+            'dddddddddddddddddddddddddddddddd',
+            60,
+        )->claimDue(0);
+
+        self::assertSame(
+            ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'],
+            $won,
+        );
+
+        $this->connection->execute(SqlQuery::raw(
+            "DELETE FROM zef_delivery WHERE entry_id = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'",
+        ));
+
+        $answered = new PdoDeliveryRecords(
+            new PdoDeliveryEntries($this->connection, new PdoDeliveryTables('zef_')),
+            new DeliveryEnvelopeDecoder(),
+        )->answeredDeliveries($won);
+
+        self::assertCount(1, $answered);
+        $this->assertEnvelopeMatches($second, $answered[0]);
+    }
+
     public function testACorruptRecordRefusesNamingTheEntry(): void
     {
         $pdoDeliveryStore = new PdoDeliveryStore($this->connection, 8, 60, 'zef_');
@@ -474,9 +557,15 @@ final class PdoDeliveryStoreTest extends TestCase
             $pdoDeliveryStore->takeDue(0);
             self::fail('The corrupt record was not refused.');
         } catch (InvalidArgumentException $invalidArgumentException) {
-            self::assertStringStartsWith(
-                "The delivery entry record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is refused:",
+            self::assertSame(
+                "The delivery entry record 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' is refused:"
+                . ' The durable delivery record is not valid JSON: Syntax error.',
                 $invalidArgumentException->getMessage(),
+            );
+            self::assertSame(0, $invalidArgumentException->getCode());
+            self::assertInstanceOf(
+                InvalidArgumentException::class,
+                $invalidArgumentException->getPrevious(),
             );
         }
     }
@@ -636,6 +725,43 @@ final class PdoDeliveryStoreTest extends TestCase
         );
     }
 
+    public function testTheConflictTailSeamSpellsTheBuildersInsertWithTheTailAppended(): void
+    {
+        $scriptedDeliveryConnection = new ScriptedDeliveryConnection('sqlite');
+        $pdoDeliveryUpsert = new PdoDeliveryUpsert(
+            $scriptedDeliveryConnection,
+            new PdoDeliveryDialect('sqlite'),
+        );
+
+        $pdoDeliveryUpsert->insertOnce(
+            new TableName('zef_delivery_attributed'),
+            [
+                'entry_id' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                'listener_identity' => 'app.orders.audit',
+            ],
+            'entry_id',
+        );
+        $pdoDeliveryUpsert->insertRewrite(
+            new TableName('zef_delivery_dead'),
+            [
+                'entry_id' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                'record' => '{}',
+            ],
+            'entry_id',
+            'record',
+        );
+
+        self::assertSame(
+            [
+                'INSERT INTO "zef_delivery_attributed" ("entry_id", "listener_identity")'
+                . ' VALUES (?, ?) ON CONFLICT (entry_id) DO NOTHING',
+                'INSERT INTO "zef_delivery_dead" ("entry_id", "record")'
+                . ' VALUES (?, ?) ON CONFLICT (entry_id) DO UPDATE SET record = excluded.record',
+            ],
+            $scriptedDeliveryConnection->executedStatements,
+        );
+    }
+
     public function testAnUnknownDriverOwnsNoDialect(): void
     {
         try {
@@ -727,16 +853,22 @@ final class PdoDeliveryStoreTest extends TestCase
 
     public function testTheClaimedRecordsReadRefusesHostileCells(): void
     {
-        $hostileRows = [
-            [['entry_id' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'record' => 404]],
-            [['entry_id' => 404, 'record' => '{}']],
+        $hostileReads = [
+            [
+                'rows' => [[['entry_id' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'record' => 404]]],
+                'column' => 'record',
+            ],
+            [
+                'rows' => [[['entry_id' => 404, 'record' => '{}']]],
+                'column' => 'entry_id',
+            ],
         ];
 
-        foreach ($hostileRows as $hostileRow) {
+        foreach ($hostileReads as $hostileRead) {
             $scriptedDeliveryConnection = new ScriptedDeliveryConnection(
                 'sqlite',
                 [],
-                [$hostileRow],
+                $hostileRead['rows'],
             );
 
             try {
@@ -749,8 +881,10 @@ final class PdoDeliveryStoreTest extends TestCase
                 )->answeredDeliveries(['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']);
                 self::fail('The hostile cell was not refused.');
             } catch (InvalidArgumentException $invalidArgumentException) {
-                self::assertStringStartsWith(
-                    'The claimed records read refused its answer:',
+                self::assertSame(
+                    'The claimed records read refused its answer: the '
+                    . $hostileRead['column']
+                    . ' cell is not the string its column spells.',
                     $invalidArgumentException->getMessage(),
                 );
             }
@@ -913,6 +1047,7 @@ final class PdoDeliveryStoreTest extends TestCase
                     $invalidArgumentException->getMessage(),
                     $name,
                 );
+                self::assertSame(0, $invalidArgumentException->getCode(), $name);
                 self::assertInstanceOf(
                     QueryException::class,
                     $invalidArgumentException->getPrevious(),
