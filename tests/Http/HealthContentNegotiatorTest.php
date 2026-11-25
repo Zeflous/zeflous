@@ -177,6 +177,31 @@ final class HealthContentNegotiatorTest extends TestCase
     }
 
     /**
+     * The text side's family wildcard outranks the universal floor it
+     * coalesces over (the coalesce order the mutation round reads
+     * directly): a text/* spelled above the floor it falls back to
+     * must win the side's reading, never the floor beneath it.
+     */
+    public function testTheTextFamilyWildcardBeatsTheUniversalFloorItCoalescesOver(): void
+    {
+        self::assertTrue(
+            HealthContentNegotiator::prefersExposition('text/*;q=0.7, */*;q=0.1, application/json;q=0.4'),
+        );
+    }
+
+    /**
+     * The JSON side's family wildcard, the mirror pin: an
+     * application/* spelled above the universal floor must win its
+     * side's reading, never the floor beneath it.
+     */
+    public function testTheJsonFamilyWildcardBeatsTheUniversalFloorItCoalescesOver(): void
+    {
+        self::assertFalse(
+            HealthContentNegotiator::prefersExposition('text/plain;q=0.5, application/*;q=0.9, */*;q=0.3'),
+        );
+    }
+
+    /**
      * The browser's own line (HTML the page, everything else at a
      * lower quality) never selects the gauges: no text/plain and no
      * text/* spelling, so the exposition side reads the universal
