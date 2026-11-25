@@ -429,9 +429,11 @@ final class MetricsMiddlewareTest extends TestCase
     {
         $samples = [];
         foreach (explode("\n", $render) as $line) {
-            if (str_starts_with($line, 'zef_health_check{')) {
-                $samples[] = $line;
+            if (!str_starts_with($line, 'zef_health_check{')) {
+                continue;
             }
+
+            $samples[] = $line;
         }
 
         return implode("\n", $samples) . "\n";
@@ -507,14 +509,14 @@ final class MetricsMiddlewareTest extends TestCase
      */
     private function request(string $method, string $path, string $accept = ''): ServerRequest
     {
-        $request = new ServerRequest($method, new Uri('https://app.example.com' . $path));
+        $serverRequest = new ServerRequest($method, new Uri('https://app.example.com' . $path));
 
         if ($accept === '') {
-            return $request;
+            return $serverRequest;
         }
 
-        $withAccept = $request->withHeader('Accept', $accept);
-        \assert($withAccept instanceof ServerRequest);
+        $withAccept = $serverRequest->withHeader('Accept', $accept);
+        self::assertInstanceOf(ServerRequest::class, $withAccept, 'the with* chain must preserve the request type.');
 
         return $withAccept;
     }

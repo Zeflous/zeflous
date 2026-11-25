@@ -216,19 +216,16 @@ final readonly class MetricsMiddleware implements MiddlewareInterface
 
     /**
      * One health view's answer: the aggregate report rendered in the
-     * representation the Accept line negotiates -- the JSON the load
-     * balancer's poll reads (the default, the surface's own contract)
-     * or the health-as-gauges exposition the negotiation arms when
-     * the line explicitly prefers the text format -- under the
-     * scrape's deadline knob, the 200 the passing registry earns and
-     * the 503 the degraded one answers, the status code both
+     * representation the request's raw Accept line negotiates -- the
+     * JSON the load balancer's poll reads (the default, the surface's
+     * own contract) or the health-as-gauges exposition the negotiation
+     * arms when the line explicitly prefers the text format -- under
+     * the scrape's deadline knob, the 200 the passing registry earns
+     * and the 503 the degraded one answers, the status code both
      * representations carry verbatim because a gauge reading is a
      * poll too.
      *
      * @param array{status:string,checks:list<array{name:string,status:string,message:string}>,tookMs:float} $report
-     *                                                                                                               the aggregate report
-     * @param string                                                                                         $accept
-     *                                                                                                               the request's raw Accept line
      */
     private function healthResponse(array $report, string $accept): Response
     {
