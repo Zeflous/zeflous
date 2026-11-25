@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-24T21:24:02Z",
+  "as_of": "2026-11-25T02:57:08Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 361,
+  "unreleased_count": 362,
   "versions": [
     {
       "version": "Unreleased",
@@ -5308,6 +5308,62 @@
                 "sha": "2d24c498efbd741b87ea1b09d704b3a1f26d713b",
                 "short_sha": "2d24c49",
                 "subject": "docs(roadmap): the pin follows the last settle and the row the landing clock (#924)"
+              }
+            ]
+          },
+          {
+            "pr": 930,
+            "title": "feat(health): the health surface gains its second representation -- the health-as-gauges render answers the poll whose Accept line prefers the exposition, the consumer the API surface awaited",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-25T02:57:08Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/930",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "2f6105a9ecf664375f543aed7b78479e281e949f",
+                "short_sha": "2f6105a",
+                "subject": "feat(health): the health surface gains its second representation -- the health-as-gauges render answers the poll whose Accept line prefers the exposition, the consumer the API surface awaited"
+              },
+              {
+                "sha": "03bc7a3105e6331a50b7f4bf0100f3720f5afefb",
+                "short_sha": "03bc7a3",
+                "subject": "docs(roadmap): the row, both pins and the history row ride the health-as-gauges consumer's head (#930)"
+              },
+              {
+                "sha": "e45655360ea4d5bb580234b2cacb901b0f0cb718",
+                "short_sha": "e456553",
+                "subject": "fix(health): settle the first CI round's findings -- the gauge-line fold's early exit, the request helper's narrowing idiom, and the consumer docblock's column"
+              },
+              {
+                "sha": "e9c8d13f4906d9b64631db779f7109b09b3bee15",
+                "short_sha": "e9c8d13",
+                "subject": "docs(roadmap): the pins follow the settle's head (#930)"
+              },
+              {
+                "sha": "6ee2dfa13413387266282d1fe67f60540638cad8",
+                "short_sha": "6ee2dfa",
+                "subject": "docs(roadmap): the row's content head follows the settle too (#930)"
+              },
+              {
+                "sha": "e9180fd137331768c4607f744b28cfc78b1ab0fe",
+                "short_sha": "e9180fd",
+                "subject": "fix(health): the psalm baseline entry the consumer retires -- render() was PossiblyUnusedMethod while nothing called it"
+              },
+              {
+                "sha": "24f463756fbc1ca4a278667d4cc4b30d4d520a91",
+                "short_sha": "24f4637",
+                "subject": "docs(roadmap): the pins and the row's content head follow the baseline retire (#930)"
+              },
+              {
+                "sha": "641746912620dad93ec4d37bee316de36ddc7cb5",
+                "short_sha": "6417469",
+                "subject": "fix(health): settle the mutation round's two coalesce escapes -- the family wildcard above the universal floor, both sides pinned"
+              },
+              {
+                "sha": "e8465f7db8b4e88f91c62fdd046b1fe254199573",
+                "short_sha": "e8465f7",
+                "subject": "docs(roadmap): the pins and the row's content head follow the mutation settle (#930)"
               }
             ]
           }
@@ -25275,6 +25331,62 @@
               "sha": "328da7ba159f7a249675bf49bdad04d52c718f21",
               "short_sha": "328da7b",
               "subject": "docs(roadmap): the supply-chain row for the twig advisory answer"
+            }
+          ]
+        },
+        {
+          "pr": 930,
+          "title": "feat(health): the health surface gains its second representation -- the health-as-gauges render answers the poll whose Accept line prefers the exposition, the consumer the API surface awaited",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-25T02:57:08Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/930",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "2f6105a9ecf664375f543aed7b78479e281e949f",
+              "short_sha": "2f6105a",
+              "subject": "feat(health): the health surface gains its second representation -- the health-as-gauges render answers the poll whose Accept line prefers the exposition, the consumer the API surface awaited"
+            },
+            {
+              "sha": "03bc7a3105e6331a50b7f4bf0100f3720f5afefb",
+              "short_sha": "03bc7a3",
+              "subject": "docs(roadmap): the row, both pins and the history row ride the health-as-gauges consumer's head (#930)"
+            },
+            {
+              "sha": "e45655360ea4d5bb580234b2cacb901b0f0cb718",
+              "short_sha": "e456553",
+              "subject": "fix(health): settle the first CI round's findings -- the gauge-line fold's early exit, the request helper's narrowing idiom, and the consumer docblock's column"
+            },
+            {
+              "sha": "e9c8d13f4906d9b64631db779f7109b09b3bee15",
+              "short_sha": "e9c8d13",
+              "subject": "docs(roadmap): the pins follow the settle's head (#930)"
+            },
+            {
+              "sha": "6ee2dfa13413387266282d1fe67f60540638cad8",
+              "short_sha": "6ee2dfa",
+              "subject": "docs(roadmap): the row's content head follows the settle too (#930)"
+            },
+            {
+              "sha": "e9180fd137331768c4607f744b28cfc78b1ab0fe",
+              "short_sha": "e9180fd",
+              "subject": "fix(health): the psalm baseline entry the consumer retires -- render() was PossiblyUnusedMethod while nothing called it"
+            },
+            {
+              "sha": "24f463756fbc1ca4a278667d4cc4b30d4d520a91",
+              "short_sha": "24f4637",
+              "subject": "docs(roadmap): the pins and the row's content head follow the baseline retire (#930)"
+            },
+            {
+              "sha": "641746912620dad93ec4d37bee316de36ddc7cb5",
+              "short_sha": "6417469",
+              "subject": "fix(health): settle the mutation round's two coalesce escapes -- the family wildcard above the universal floor, both sides pinned"
+            },
+            {
+              "sha": "e8465f7db8b4e88f91c62fdd046b1fe254199573",
+              "short_sha": "e8465f7",
+              "subject": "docs(roadmap): the pins and the row's content head follow the mutation settle (#930)"
             }
           ]
         }

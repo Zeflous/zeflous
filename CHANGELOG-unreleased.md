@@ -127,6 +127,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(errors): the vendored PDO adapter joins the request-scoped query counter -- the feeder call the toolbar waited on behind the composition's request provider [#914](https://github.com/Zeflous/zeflous/pull/914) ([mbetixz](https://github.com/mbetixz))
 - feat(errors): the errors total gains the route dimension -- the matched pattern the boundary's context carries, the closed unrouted word for every no-route refusal [#915](https://github.com/Zeflous/zeflous/pull/915) ([mbetixz](https://github.com/mbetixz))
 - feat(auth): the auth replay seam gains its fleet spelling -- the Redis seen-table over the one INCR-atomic claim, the third topology the replay_store knob answers [#924](https://github.com/Zeflous/zeflous/pull/924) ([mbetixz](https://github.com/mbetixz))
+- feat(health): the health surface gains its second representation -- the health-as-gauges render answers the poll whose Accept line prefers the exposition, the consumer the API surface awaited [#930](https://github.com/Zeflous/zeflous/pull/930) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
