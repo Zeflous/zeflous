@@ -168,7 +168,27 @@ use Zef\Framework\Middleware\TracingFactory;
  * declaration the connection identity answers -- a service
  * identity answering an identity, no knob of its own, deferring
  * behind a lazy proxy so the silent knob's refusal fires only at
- * the host's own first ask. The remaining growth follows the
+ * the host's own first ask. The view family joins
+ * the catalogue the same way every family did -- the
+ * presentation port's wired engine (`views.engine`, the
+ * registration over the {@see ViewWiring} fold, its knobs under
+ * the family's own `views` key) -- with the same
+ * never-at-the-boot posture the events family planted, spelled
+ * the way a read-only root demands it: the knobs ship SILENT
+ * (the framework ships no templates of its own, so
+ * `views.engine` stays the empty word until a host's own
+ * declaration spells one), and the registration is deliberately
+ * TRANSIENT because the native answer holds no state a render's
+ * own finally does not return to zero -- the depth ledger always
+ * comes home, so a fresh engine every ask is observably the
+ * same engine, while the silent word's refusal fires only at the
+ * host's own ask, never at the boot. The templates root is the
+ * deployment's own explicit address (`views.path`): the
+ * `files/**` route map owns no `views` lane because templates
+ * are the application's source the engine only ever answers
+ * includes from, never state the framework writes -- so the
+ * `php` word without an address is the named halt, never a
+ * silently defaulted directory. The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
  * `http.trusted_hosts`, ...) migrate with their wiring, and the
  * container's `aot` switch has arrived with the compile/dump area
@@ -396,6 +416,10 @@ final readonly class FrameworkDefaults
                 'path' => '',
                 'ttl' => null,
             ],
+            'views' => [
+                'engine' => '',
+                'path' => '',
+            ],
             'database' => [
                 'default' => '',
                 'connections' => [],
@@ -551,6 +575,13 @@ final readonly class FrameworkDefaults
             ],
             'temp.store' => [
                 'factory' => TempStorageWiring::class . self::STORE_FACTORY_ENTRY,
+                'arguments' => [
+                    ['service' => self::CONFIG_SERVICE],
+                ],
+                'lifetime' => 'transient',
+            ],
+            'views.engine' => [
+                'factory' => ViewWiring::class . '::engine',
                 'arguments' => [
                     ['service' => self::CONFIG_SERVICE],
                 ],

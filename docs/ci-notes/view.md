@@ -9,9 +9,10 @@ the zero-dependency native PHP-template engine under
 folds: `ViewTemplateDirectory`, `ViewTemplateFile`, `ViewVariables`,
 `ViewRenderDepth`, `ViewRenderScope`, `TemplateFace`), deptrac
 gaining the `View` layer (`View += Exception` only), branch
-`feat/view-engine-port`. The `views` configuration wiring family
-and the future Twig adapter are the lane's named follow-up slices,
-deliberately not mixed into this one.
+`feat/view-engine-port`. The lane's second slice is the `views`
+configuration wiring family (KDD-VW8..VW10 below, branch
+`feat/view-wiring`). The future Twig adapter remains the lane's
+named follow-up slice, deliberately not mixed into either.
 
 **Attribution:** the owner's recorded direction ("kita akan
 mengadopsi twig engine di masa depan" -- the Twig adoption is the
@@ -310,12 +311,107 @@ battery green under the manually applied `<` flip). The
 restructure that made the arms killable also made them honest:
 the trim now spells exactly what it reads.
 
+## KDD-VW8: the `views` wiring family -- the composition seam that constructs the engine from configuration
+
+The lane's own named next slice (the KDD's named follow-ups section,
+the Database lane's own port-then-wiring order answered): the
+composition seam that turns the port's silent first answer into the
+framework's wired default. Four folds in the unlayered root beside
+their wiring siblings, the registration and the knob block in the
+Default layer, and the shipped profile file:
+
+- **`ViewKnobs`** -- the knob census (`engine`, `path`), the closed
+  set refused with the known list spelled out when the map carries
+  anything else: a `views.engien` typo is a named halt, never a
+  silently defaulted engine. The census takes the eldest sisters'
+  positive-guard loop again ({@see EventDeliveryKnobs} and the
+  database family's own private fold) -- the refusal's own message
+  is the family's, and the message's own tokens keep the run under
+  both duplication lanes' floors (KDD-US10's doctrine, carried).
+- **`ViewEngines`** -- the engine word's closed vocabulary: '' (the
+  silent posture, the port stays opt-in) and `php` (the native
+  answer). The reading folds the environment's spelling
+  (`APP_VIEWS__ENGINE=PHP` reads as the `php` word) and refuses an
+  unknown word with the value spelled out -- the Twig word is the
+  vocabulary's own named future (the word arrives with the wiring
+  that can read its own knobs, never before, KDD-VW1's recorded
+  direction carried).
+- **`ViewDeclaration`** -- the strict read of the one `views` knob
+  block as one immutable value object: absent block or empty word
+  the silent posture, every knob strictly read, the unknown knob and
+  the foreign type each a named halt.
+- **`ViewWiring`** -- the composition seam at the profile's own
+  service identity (`views.engine`, the registration
+  `FrameworkDefaults` declares over the fold): the silent word's
+  named halt with the way out spelled (compose the engine by hand
+  over the `ViewEngine` port, the way every composition before the
+  fold did), the `php` word composing `PhpViewEngine` over the
+  declared templates root, and the address-less word's combination
+  refusal.
+- **The registration and the profile** -- `views.engine` rides the
+  catalogue's transient never-at-the-boot posture (the events
+  family's planted doctrine: the silent word's refusal fires only
+  at the host's own ask, never at the boot), the `views` knob block
+  joins `FrameworkDefaults::profile()` and the shipped
+  `app/configs/views.php` -- the drift pin holding the two to the
+  same knobs -- and the pinned registration map
+  (`ApplicationBootstrapperTest`) carries the entry verbatim.
+
+The TRANSIENT lifetime is spelled for the native answer's own
+reason: the depth ledger always comes home (every render's own
+finally leaves the nesting), so a fresh engine every ask is
+observably the same engine -- while the future Twig answer, whose
+compiled-template state a per-ask lifetime would throw away, may
+revisit the lifetime with its own recorded reason when its word
+arrives.
+
+## KDD-VW9: the explicit address -- the route map owns no `views` lane
+
+The events, uploads, temp and session families derive their empty
+`path` knobs from the `files/**` route map over the declared
+`storage.root`; the view family derives NOTHING, and the divergence
+is recorded here with its reason: the lanes the map owns are the
+WRITTEN-STATE tree (logs, cache, temp, uploads, replay, queue,
+sessions -- directories the framework's own writers provision and
+sweep), while templates are the application's own SOURCE the engine
+only ever answers includes from -- the read-only root doctrine
+KDD-VW3 spells. A lane the map never owned would be a directory the
+framework provisions for a tree it never reads, so the address-less
+`php` word is the named halt the session family's combination
+refusal spelled first ({@see Middleware\SessionFactory}): spell
+`views.path`, or compose the engine by hand. A path that refuses
+the root POSTURE flows through the adapter's own refusal untouched
+-- the wiring answers WHERE, never HOW PRIVATE, the two-seams
+doctrine the events family's wiring spells first.
+
+## KDD-VW10: the psalm retirements and the verification battery
+
+The wiring retires the pin the unwired engine carried:
+`PhpViewEngine`'s `UnusedClass` entry leaves the psalm baseline
+with the fold's arrival (the class gains its first src consumer,
+the composition seam itself). Two entries stay with their recorded
+reasons: `TemplateFace`'s `escape`/`render` pins (the face's verbs
+are answered by template code the analysis never sees -- the
+opt-in-at-each-interpolation doctrine KDD-VW6 spells) and
+`ViewRenderScope`'s `UnresolvableInclude` (the include-by-variable
+idiom IS the resolution discipline).
+
+The verification battery: the scoped batteries green (13
+declaration tests, 7 wiring tests), the full suite green (8082
+tests / 19756 assertions), PHPStan max clean, psalm L1 clean
+against the shrunk baseline, the fixer clean, Rector clean, Deptrac
+unchanged (the wiring folds live in the unlayered root with their
+siblings), archeology 0 error-level findings, duplication and mess
+zero violations, the zero-dependency gate green. The coverage /
+infection / phpcs halves ride CI on the merge group, watched to
+green before the merge (the sandbox carries no pcov and its phpcs
+install cannot finish even one file -- the environment, never the
+tree).
+
 ## The named follow-ups
 
-- The `views` configuration wiring family (the composition seam that
-  constructs the engine from configuration, `FrameworkDefaults`' own
-  `views` knob) -- the lane's own next slice, the Database lane's
-  own port-then-wiring order; the psalm baseline carries the
-  unwired engine's three pins until that fold retires them.
 - The Twig optional adapter over `class_exists` (KDD-VW1's recorded
-  direction) once the host side is ready to carry it.
+  direction) once the host side is ready to carry it -- the `twig`
+  word joins `ViewEngines` with the wiring that can read its own
+  knobs, and the lifetime question KDD-VW8 records is the word's
+  own to revisit.
