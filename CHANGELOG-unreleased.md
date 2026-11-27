@@ -130,6 +130,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(health): the health surface gains its second representation -- the health-as-gauges render answers the poll whose Accept line prefers the exposition, the consumer the API surface awaited [#930](https://github.com/Zeflous/zeflous/pull/930) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the pdo delivery store over the family's own engine [#936](https://github.com/Zeflous/zeflous/pull/936) ([mbetixz](https://github.com/mbetixz))
 - feat(view): the views configuration wiring family over the presentation port [#939](https://github.com/Zeflous/zeflous/pull/939) ([mbetixz](https://github.com/mbetixz))
+- feat(view): the twig answer over the host tree's own twig engine [#942](https://github.com/Zeflous/zeflous/pull/942) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
