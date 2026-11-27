@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-25T22:28:15Z",
+  "as_of": "2026-11-26T23:52:53Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 364,
+  "unreleased_count": 365,
   "versions": [
     {
       "version": "Unreleased",
@@ -5400,6 +5400,27 @@
                 "sha": "4868198c3465cfa2466ea0ddb8b7d82994c4c165",
                 "short_sha": "4868198",
                 "subject": "docs(roadmap): the pdo delivery store's record and the pins follow the CI answers (#936)"
+              }
+            ]
+          },
+          {
+            "pr": 939,
+            "title": "feat(view): the views configuration wiring family over the presentation port",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-26T23:52:53Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/939",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "61688f0778a75174c595656b1018c5995ae94eb6",
+                "short_sha": "61688f0",
+                "subject": "feat(view): the views configuration wiring family over the presentation port"
+              },
+              {
+                "sha": "8f163260989048a251144512eaa3dda8795d7ae5",
+                "short_sha": "8f16326",
+                "subject": "docs(roadmap): the views wiring family's record and the pins follow the content head (#939)"
               }
             ]
           }
@@ -25501,6 +25522,27 @@
               "sha": "4868198c3465cfa2466ea0ddb8b7d82994c4c165",
               "short_sha": "4868198",
               "subject": "docs(roadmap): the pdo delivery store's record and the pins follow the CI answers (#936)"
+            }
+          ]
+        },
+        {
+          "pr": 939,
+          "title": "feat(view): the views configuration wiring family over the presentation port",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-26T23:52:53Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/939",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "61688f0778a75174c595656b1018c5995ae94eb6",
+              "short_sha": "61688f0",
+              "subject": "feat(view): the views configuration wiring family over the presentation port"
+            },
+            {
+              "sha": "8f163260989048a251144512eaa3dda8795d7ae5",
+              "short_sha": "8f16326",
+              "subject": "docs(roadmap): the views wiring family's record and the pins follow the content head (#939)"
             }
           ]
         }

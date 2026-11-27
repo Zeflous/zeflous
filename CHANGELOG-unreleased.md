@@ -129,6 +129,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(auth): the auth replay seam gains its fleet spelling -- the Redis seen-table over the one INCR-atomic claim, the third topology the replay_store knob answers [#924](https://github.com/Zeflous/zeflous/pull/924) ([mbetixz](https://github.com/mbetixz))
 - feat(health): the health surface gains its second representation -- the health-as-gauges render answers the poll whose Accept line prefers the exposition, the consumer the API surface awaited [#930](https://github.com/Zeflous/zeflous/pull/930) ([mbetixz](https://github.com/mbetixz))
 - feat(event): the pdo delivery store over the family's own engine [#936](https://github.com/Zeflous/zeflous/pull/936) ([mbetixz](https://github.com/mbetixz))
+- feat(view): the views configuration wiring family over the presentation port [#939](https://github.com/Zeflous/zeflous/pull/939) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
