@@ -14,17 +14,19 @@ declare(strict_types=1);
  *       The wired default's engine word over the rendering port
  *       (`ViewEngine`): '' (the shipped default -- no wired default
  *       is declared, the presentation port stays opt-in and a host
- *       composes its own engine at the composition seam) or 'php'
+ *       composes its own engine at the composition seam), 'php'
  *       (the native answer, `PhpViewEngine` over plain PHP
- *       templates -- the zero-dependency proof of the port).
+ *       templates -- the zero-dependency proof of the port) or
+ *       'twig' (the Twig answer, `TwigViewEngine` over the HOST
+ *       TREE'S OWN Twig -- the adoption the owner's recorded
+ *       direction names, landed over `class_exists` on the host
+ *       tree's own Twig, never a composer dependency of the
+ *       framework: the adapter's own boundary probes the presence
+ *       and names the remediation, the test side pins its own
+ *       presence in require-dev).
  *
  *       The word is read through a closed vocabulary: a typo is a
- *       named halt, never a silently defaulted engine. The Twig
- *       answer the owner's recorded direction names is the word's
- *       own named future -- over `class_exists` on the host tree's
- *       own Twig, never a composer dependency of the framework --
- *       so the word arrives with the wiring that can read its own
- *       knobs, never before.
+ *       named halt, never a silently defaulted engine.
  *
  *       Resolving the framework's `views.engine` service while
  *       this knob stays empty is the halt that names the way out:
@@ -32,17 +34,17 @@ declare(strict_types=1);
  *       the port.
  *
  *   'path'                       (string, default '')
- *       The php engine's templates root: the deployment's own
- *       explicit address, judged by the engine's own privacy
- *       posture -- existing, readable, non-symlink, owner-only,
- *       outside the public document root -- a root the engine only
- *       ever answers includes from, never writes into (the
- *       read-only root doctrine). The `files/**` route map owns no
- *       `views` lane because templates are the application's own
- *       source, not state the framework writes, so there is
- *       nothing to derive: the 'php' engine word with an empty
- *       path is a named halt -- a directory the host never spelled
- *       is never silently defaulted.
+ *       The wired engine's templates root, whichever word composes
+ *       over it: the deployment's own explicit address, judged by
+ *       the answers' own privacy posture -- existing, readable,
+ *       non-symlink, owner-only, outside the public document root
+ *       -- a root the engines only ever answer includes from,
+ *       never write into (the read-only root doctrine). The
+ *       `files/**` route map owns no `views` lane because templates
+ *       are the application's own source, not state the framework
+ *       writes, so there is nothing to derive: a wired word with
+ *       an empty path is a named halt -- a directory the host never
+ *       spelled is never silently defaulted.
  *
  * The escaping posture, the render discipline and the data key
  * corridor stay deliberately OUT of this block: they are the

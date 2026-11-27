@@ -8,8 +8,11 @@ use InvalidArgumentException;
 use Zef\Framework\Storage\StorageDocumentRoot;
 
 /**
- * The native answer's templates root fold: the one seam that judges
- * where the engine's templates may live. The presentation root's
+ * The view lane's templates root fold: the one seam that judges
+ * where the answers' templates may live -- shared by both engines
+ * (the native answer and the Twig answer compose over the same
+ * posture, one spelling of the WHERE/HOW-PRIVATE question the
+ * wiring's own two-seams doctrine spells). The presentation root's
  * privacy posture is its own -- an existing, readable, non-symlink
  * directory with owner-only permissions, outside the public document
  * root -- because the templates it holds are the application's own
@@ -30,18 +33,18 @@ use Zef\Framework\Storage\StorageDocumentRoot;
  * privacy question belongs to the family that reads, exactly as the
  * families that write spell their own.
  *
- * The posture deliberately does NOT demand writability: the engine
- * only ever ANSWERS includes over this root, never writes into it,
+ * The posture deliberately does NOT demand writability: the engines
+ * only ever ANSWER includes over this root, never write into it,
  * and a writability demand would be a posture the lane never
- * exercises -- the read root the engine composes over is read-only
- * by its own doctrine, so the very process that renders cannot also
- * tamper the tree it renders from.
+ * exercises -- the read root the engines compose over is read-only
+ * by their own doctrine, so the very process that renders cannot
+ * also tamper the tree it renders from.
  */
 final class ViewTemplateDirectory
 {
     /**
      * Resolves the declared directory into the canonical address the
-     * engine answers includes from, refusing every shape the posture
+     * engines answer includes from, refusing every shape the posture
      * above names.
      *
      * @throws InvalidArgumentException when the directory is not an

@@ -913,7 +913,31 @@
                 // under their mutators: the delimiter pins kill every
                 // one of their spellings. This ignore is scoped to
                 // that single method.
-                "Zef\\Framework\\Config\\Routing\\RouteConstraintAnchoring::anchored"
+                "Zef\\Framework\\Config\\Routing\\RouteConstraintAnchoring::anchored",
+                // The view family's engine-vocabulary fold in
+                // ViewEngines::read() carries the same argument
+                // over its own two-word vocabulary that the events
+                // family's twin above spells: the words (php and
+                // twig) contain no ASCII `k`, and the only
+                // single-character lower-case landing from non-ASCII
+                // into ASCII in the Unicode case map is the Kelvin
+                // sign's landing on `k` (U+0130 lands on `i` plus a
+                // combining dot, a two-character mapping, not a
+                // pure ASCII landing), so no engine word folds to php
+                // or twig under mb_strtolower() without being the
+                // same ASCII spelling that folds to it under
+                // strtolower() -- every fold-divergent value misses
+                // the closed set under both spellings and is rejected
+                // with the value spelled out (verified by running the
+                // declaration and wiring batteries under the manually
+                // applied mutation -- the complete batteries pass,
+                // 25 tests over both, the environment's fold-divergent
+                // spellings included). The neighbouring is_string
+                // guard and in_array comparison stay under the
+                // mutator where applicable: they are not MBString
+                // targets. This ignore is scoped to that single
+                // method.
+                "Zef\\Framework\\ViewEngines::read"
             ],
             "ignoreSourceCodeByRegex": [
                 "\\$method = mb_strtoupper\\(\\$request->getMethod\\(\\)\\);",
@@ -2364,6 +2388,34 @@
         "SpreadOneItem": {
             "ignore": [
                 "Zef\\Framework\\Database\\QueryHaving::comparison"
+            ]
+        },
+        // The Twig answer's environment option block carries the
+        // lane's ESCAPING DOCTRINE pinned explicitly
+        // (`autoescape => 'html'`, the adapter docblock's own
+        // recorded reason: the explicit spelling keeps a future Twig
+        // default change from silently moving the lane's security
+        // posture). Under Twig 3's own constructor default the
+        // removal is value-equivalent: the engine's own option table
+        // spells `'autoescape' => 'html'` as the default itself
+        // (vendor/twig/twig/src/Environment.php), so the
+        // removed-item environment composes over the identical
+        // strategy -- the escaper extension's default, the
+        // compiled-template cache key and every rendering answer
+        // byte-identical (verified by running the adapter battery
+        // under the manually applied mutation -- the complete battery
+        // passes, the escaping-doctrine pin included). The spelling
+        // is the pin, never a behaviour today: the day Twig's own
+        // default moves, the escaping-doctrine pin's own test reddens
+        // the suite against the silent posture move the explicit
+        // spelling exists to catch, so the removal stays
+        // value-equivalent for exactly as long as the doctrine is
+        // held by the engine itself -- the one zone no test can
+        // observe, settled by the ledger the same way. This ignore
+        // is scoped to that single method.
+        "ArrayItemRemoval": {
+            "ignore": [
+                "Zef\\Framework\\Adapters\\View\\TwigViewEngine::__construct"
             ]
         }
     },

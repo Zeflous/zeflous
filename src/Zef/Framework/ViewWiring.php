@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework;
 
 use Zef\Framework\Adapters\View\PhpViewEngine;
+use Zef\Framework\Adapters\View\TwigViewEngine;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\View\ViewEngine;
@@ -23,7 +24,14 @@ use Zef\Framework\View\ViewEngine;
  * the {@see ViewDeclaration} census reads what the host declared,
  * and the word answers the engine -- the `php` word composing
  * {@see PhpViewEngine} over the declared templates root, the
- * zero-dependency answer the port already carries.
+ * zero-dependency answer the port already carries; the `twig` word
+ * composing {@see TwigViewEngine} over the same declared root, the
+ * optional answer over the HOST TREE'S OWN Twig (KDD-VW1's recorded
+ * direction landed: the word arrives with the wiring that can read
+ * its own knobs, never before -- the adapter's own boundary probes
+ * the presence and names the remediation, so this fold composes it
+ * exactly the way it composes the native answer, never reaching
+ * past the adapter for a Twig type of its own).
  *
  * The templates root is the deployment's own EXPLICIT address and
  * the fold derives nothing: the `files/**` route map owns no
@@ -53,12 +61,13 @@ use Zef\Framework\View\ViewEngine;
 final readonly class ViewWiring
 {
     /**
-     * Answers the wired engine from the frozen repository: the
-     * `php` word's native answer over the templates root the knob
-     * spells.
+     * Answers the wired engine from the frozen repository: the word's
+     * answer over the templates root the knob spells -- the `php`
+     * word's native answer, the `twig` word's answer over the host
+     * tree's own Twig.
      *
      * @throws ConfigException when the declaration is silent or
-     *                         malformed, or the `php` word is spelled without a
+     *                         malformed, or the word is spelled without a
      *                         templates root to compose over
      */
     public static function engine(Config $config): ViewEngine
@@ -75,8 +84,13 @@ final readonly class ViewWiring
 
         if ($viewDeclaration->path === '') {
             throw new ConfigException(
-                'The views php engine needs a directory: spell views.path.',
+                'The views ' . $viewDeclaration->engine
+                . ' engine needs a directory: spell views.path.',
             );
+        }
+
+        if ($viewDeclaration->engine === ViewEngines::TWIG) {
+            return new TwigViewEngine($viewDeclaration->path);
         }
 
         return new PhpViewEngine($viewDeclaration->path);

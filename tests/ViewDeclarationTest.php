@@ -191,20 +191,43 @@ final class ViewDeclarationTest extends TestCase
         }
     }
 
+    public function testTheTwigWordIsReadVerbatim(): void
+    {
+        $declaration = ViewDeclaration::fromConfig(new Config([
+            'views' => ['engine' => 'twig', 'path' => '/srv/app/templates'],
+        ]));
+
+        self::assertSame('twig', $declaration->engine);
+        self::assertTrue(
+            $declaration->wantsWiredEngine(),
+            'the twig word asks for the wired engine -- the optional answer over the'
+                . " host tree's own Twig, the adoption the owner's recorded direction names",
+        );
+    }
+
+    public function testAnEnvironmentSpelledTwigWordFoldsToTheWordItSpells(): void
+    {
+        $declaration = ViewDeclaration::fromConfig(new Config([
+            'views' => ['engine' => 'TWIG'],
+        ]));
+
+        self::assertSame('twig', $declaration->engine, 'an APP_VIEWS__ENGINE=TWIG overlay reads as the twig word');
+        self::assertTrue($declaration->wantsWiredEngine());
+    }
+
     public function testAnEngineWordTheWiringDoesNotKnowRefusesWithTheWordSpelled(): void
     {
         try {
             ViewDeclaration::fromConfig(new Config([
-                // The lane's own recorded future: the Twig word arrives
-                // with the wiring that can read its own knobs, never
-                // before -- so today it is the unknown word it is.
-                'views' => ['engine' => 'twig'],
+                // The vocabulary's own docblock names the shape: a `pfp`
+                // is a typo of `php`, not an engine.
+                'views' => ['engine' => 'pfp'],
             ]));
             self::fail('An engine word the wiring does not know must refuse.');
         } catch (ConfigException $configException) {
             self::assertSame(
-                "The views.engine word 'twig' is not one the wiring knows"
-                . ' (known words: php).',
+                "The views.engine word 'pfp' is not one the wiring knows"
+                . ' (known words: php, twig).',
                 $configException->getMessage(),
             );
         }

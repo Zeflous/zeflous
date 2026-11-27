@@ -37,7 +37,9 @@ final readonly class ViewDeclaration
 {
     /**
      * @param string $engine the engine word ('' declares no wired
-     *                       default, 'php' the native answer)
+     *                       default, 'php' the native answer, 'twig'
+     *                       the Twig answer over the host tree's own
+     *                       Twig)
      * @param string $path   the templates root the word composes over (''
      *                       the address-less posture the wiring names a halt)
      */
