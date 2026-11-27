@@ -408,10 +408,155 @@ green before the merge (the sandbox carries no pcov and its phpcs
 install cannot finish even one file -- the environment, never the
 tree).
 
+## KDD-VW11: the Twig answer -- the optional adoption over the host tree's own engine
+
+The lane's named follow-up landed the way its recorded direction
+spelled (#939's ledger): an OPTIONAL adapter probing `class_exists`
+on the HOST TREE'S OWN Twig, never a composer dependency of the
+framework itself -- the phpredis boundary's own posture, replayed for
+the presentation port (the zero-dependency gate keeps Twig out of
+`require` forever; `twig/twig: ^3.31` joins require-dev the way the
+export slice pinned its meta-schema validator, the dev tree already
+carrying it transitively under the docs toolchain, so the adapter's
+real-path battery rides a presence the lock pins rather than one it
+inherits).
+
+The adapter's shape, each decision its own seam:
+
+- **The presence is probed fail-closed BEFORE the environment
+  composes** -- a host tree that never installed Twig is a deployment
+  defect the constructor names with the remediation spelled out
+  (install twig/twig on the host's own dependency tree, or spell the
+  'php' word), never a class-not-found fatal a caller could do
+  nothing with. The probe reads the one class the answer composes
+  (`Twig\Environment`); the loader travels beside it on the same
+  composer package, so one probe answers the whole presence.
+- **The templates root resolves through the lane's SHARED posture
+  fold** -- `ViewTemplateDirectory` widened honestly from the native
+  answer's own fold to the lane's fold both answers compose over,
+  one spelling of the WHERE/HOW-PRIVATE question (the wiring answers
+  WHERE, never HOW PRIVATE -- the two-seams doctrine the wiring
+  family's slice spelled).
+- **The environment composes with the ESCAPING DOCTRINE pinned
+  explicitly** -- `autoescape => 'html'`: Twig's own
+  auto-escape-on-output satisfies the doctrine natively, and the
+  explicit spelling keeps a future Twig default change from silently
+  moving the lane's security posture. Every other environment
+  posture stays Twig's own default -- the answer ships no knob the
+  census has no reader for.
+- **The extension-free name is joined with the answer's own `.twig`
+  extension** -- the identity that survives the port boundary: a
+  deployment that swaps engines swaps resolutions, never names. The
+  data bag rides the Twig context VERBATIM (the native corridor's
+  reserved names are the native scope's own -- a corridor the Twig
+  context does not carry).
+- **The WRAP discipline is the native twin's own law, replayed at the
+  boundary** -- a `LoaderError` translates into the lane's own miss
+  refusal (the template named by the caller's own extension-free
+  spelling, the cause chained, never the loader's path-bearing
+  message as the refusal's own words), and every other foreign
+  throwable -- a `SyntaxError` from bad authoring, a `RuntimeError`
+  from a failing payload, any engine failure beneath them -- is
+  wrapped with the template named and the cause chained (the native
+  twin's mid-render message, byte-identical).
+- **The nesting ledger is deliberately absent** -- the ledger bounds
+  the FACE-mediated recursion, and the Twig answer hands its
+  templates no face: the render verb is not reachable from the
+  template side, so the recursion through the port is bounded by
+  construction, while the include-nesting a template authors is
+  Twig's own machinery the deployment chose with the word.
+
+The vocabulary and the wiring widen with their own words: the
+`twig` word joins `ViewEngines` (the known list spells both answers,
+the environment overlay folding TWIG as it folds PHP), `ViewWiring`
+composes the Twig answer exactly the way it composes the native one
+(never reaching past the adapter for a Twig type of its own, the
+address-less word's combination refusal interpolating the word it
+refuses), and the registration keeps the transient
+never-at-the-boot posture with the Twig answer's own reason recorded
+in the Default layer's catalogue: a fresh environment per ask never
+crosses a cache (cache off by default, so both answers re-do the
+per-render work -- the native re-includes, the Twig re-parses; the
+compiled-template cache knob arrives the day a deployment asks, its
+census entry with it -- the named follow-up above).
+
+The false presence is observed only the way it can be: a child
+process carrying the framework's own classes through the entrypoint's
+own zero-vendor fallback mapping (the framework prefix onto `src/`,
+no host autoload), so `class_exists` answers false and the probe
+fires -- a main process that carries the dev tree's own Twig can
+never observe its absence, so the subprocess pin IS the false arm's
+battery, `#[CoversNothing]` the honest covers answer for a child
+whose coverage never rides the parent's report.
+
+The battery: the adapter's seven real-Twig pins (the escaping
+doctrine, the nested-name resolution, the verbatim bag, the miss
+translation with the cause chained, the syntax and runtime wraps,
+the shared root posture), the declaration arms (the twig word
+verbatim, the environment fold, the unknown-word refusal spelling
+both known words) and the wiring arms (the twig composition end to
+end, the address-less refusal, the boot resolving the wired twig
+engine with the transient fresh-engine posture) -- 8095 tests /
+19781 assertions over the full suite, PHPStan max clean, psalm L1
+clean over the unchanged baseline, Deptrac unchanged, the fixer and
+Rector clean, archeology 0 error-level findings (TwigViewEngine at
+difficulty 10.11, ViewWiring 8.89, ViewEngines 5.67), duplication
+and mess zero violations, the zero-dependency gate green.
+
+## KDD-VW12: the first CI round -- the early exit, the one-line absent arm, and the two ledger settlements
+
+The strict lanes answered the slice with one phpcs error, two
+escaped mutants and the cloud gate's new-coverage verdict -- every
+finding settled at its cause, no exclusion widened beyond the
+ledger's own documented shape:
+
+- **Slevomat EarlyExit answered the presence pin's teardown** -- the
+  cleanup loop's positive branch became the negative `continue`, the
+  unlink running after the early exit (the same spelling the claim
+  loop's settle carried, provably equivalent).
+- **SonarCloud's new-coverage gate answered the five-line
+  Twig-absent refusal** -- 86.1% against the 95% floor, the whole
+  answer measured at 30 executable lines with the absent arm's
+  five-line throw the only block the in-process battery cannot reach
+  (the subprocess pin exercises it byte-for-byte, but a child's
+  coverage never rides the parent's report). The remediation the
+  probe names now rides ONE private const beside the probe
+  (`TWIG_ABSENT_REFUSAL`, the message spelled once -- the subprocess
+  pin's own REFUSAL constant keeps its independent spelling, a
+  pinned expectation never a tautology), so the refusal itself is a
+  single line and the arm stays a single uncovered line in the
+  parent's coverage ledger, the new-code gate reading the answer
+  back over the floor. The class const carries its own reason in its
+  docblock -- the coverage posture is the arm's own recorded shape,
+  not an accident.
+- **The mutation round's two escapes settled by the ledger, each
+  verified by running its battery under the manually applied
+  mutation** -- the engine-vocabulary fold (`ViewEngines::read`, the
+  MBString mutant's `strtolower` rewrite) joins the no-`k`
+  equivalence class the session and events store twins already spell
+  (php and twig carry no ASCII `k`, and the Kelvin sign's landing is
+  the only single-character non-ASCII arrival in ASCII, so every
+  fold-divergent value misses the closed set under both spellings --
+  25 tests / 42 assertions green under the rewrite); and the
+  escaping-doctrine pin (`TwigViewEngine::__construct`, the
+  ArrayItemRemoval mutant's empty option block) joins the ledger as
+  the doctrine's own first ArrayItemRemoval entry: under Twig 3's
+  own constructor default (`'autoescape' => 'html'`, the engine's
+  own option table) the removal is value-equivalent -- the escaper
+  default, the compiled-template cache key and every rendering
+  answer byte-identical, 7 tests / 13 assertions green under the
+  rewrite -- while the explicit spelling stays the pin that reddens
+  the suite the day Twig's own default moves (the spelling is the
+  pin, never a behaviour today).
+
+The coverage / infection halves ride CI on the merge group, watched
+to green before the merge.
+
 ## The named follow-ups
 
-- The Twig optional adapter over `class_exists` (KDD-VW1's recorded
-  direction) once the host side is ready to carry it -- the `twig`
-  word joins `ViewEngines` with the wiring that can read its own
-  knobs, and the lifetime question KDD-VW8 records is the word's
-  own to revisit.
+- The compiled-template cache knob on the Twig answer's environment
+  (the transient registration's own recorded reason: cache off by
+  default, both answers re-do the per-render work -- the native
+  re-includes, the Twig re-parses -- so the knob arrives the day a
+  deployment asks, its census entry with it, the lane's rule-17
+  doctrine).
