@@ -52,9 +52,11 @@ final class TwigViewEnginePresenceTest extends TestCase
         $entries = scandir($this->root);
 
         foreach (\is_array($entries) ? $entries : [] as $base) {
-            if ($base !== '.' && $base !== '..') {
-                unlink($this->root . \DIRECTORY_SEPARATOR . $base);
+            if ($base === '.' || $base === '..') {
+                continue;
             }
+
+            unlink($this->root . \DIRECTORY_SEPARATOR . $base);
         }
 
         rmdir($this->root);

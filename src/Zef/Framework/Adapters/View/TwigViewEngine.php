@@ -93,6 +93,20 @@ final readonly class TwigViewEngine implements ViewEngine
     /** The Twig answer's own file extension -- the adapter's vocabulary, never the port's. */
     private const string TEMPLATE_EXTENSION = '.twig';
 
+    /**
+     * The remediation the presence probe names when the host tree
+     * carries no Twig: the message spelled ONCE beside the probe that
+     * raises it, so the refusal itself is a single line -- the arm the
+     * subprocess pin alone can exercise stays a single uncovered line
+     * in the parent process's coverage ledger (the child's own run
+     * exercises it byte-for-byte, but a child's coverage never rides
+     * the parent's report), and the new-code gate reads the arm at one
+     * line of the answer's own posture.
+     */
+    private const string TWIG_ABSENT_REFUSAL = "The views twig engine needs Twig on the host tree's own"
+        . ' dependency tree: install twig/twig (the framework never carries it) or spell'
+        . " the 'php' word (views.engine).";
+
     private Environment $twigEnvironment;
 
     /**
@@ -109,11 +123,7 @@ final readonly class TwigViewEngine implements ViewEngine
         $root = ViewTemplateDirectory::resolve($templateDirectory);
 
         if (!class_exists(Environment::class)) {
-            throw new ViewException(
-                "The views twig engine needs Twig on the host tree's own dependency tree:"
-                . ' install twig/twig (the framework never carries it) or spell the'
-                . " 'php' word (views.engine).",
-            );
+            throw new ViewException(self::TWIG_ABSENT_REFUSAL);
         }
 
         $this->twigEnvironment = new Environment(
