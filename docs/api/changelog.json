@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-26T23:52:53Z",
+  "as_of": "2026-11-27T18:19:49Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 365,
+  "unreleased_count": 366,
   "versions": [
     {
       "version": "Unreleased",
@@ -5421,6 +5421,47 @@
                 "sha": "8f163260989048a251144512eaa3dda8795d7ae5",
                 "short_sha": "8f16326",
                 "subject": "docs(roadmap): the views wiring family's record and the pins follow the content head (#939)"
+              }
+            ]
+          },
+          {
+            "pr": 942,
+            "title": "feat(view): the twig answer over the host tree's own twig engine",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-27T18:19:49Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/942",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "d5f5655f42b29c9bdcced364157de290cc45246d",
+                "short_sha": "d5f5655",
+                "subject": "feat(view): the twig answer over the host tree's own twig engine"
+              },
+              {
+                "sha": "6a3b55c15d19204ad879581b908668c865a1ff3e",
+                "short_sha": "6a3b55c",
+                "subject": "Merge remote-tracking branch 'origin/main' into feat/view-twig-engine"
+              },
+              {
+                "sha": "7b225eefa1282aaa9160c89fbe715f4984fa6bb2",
+                "short_sha": "7b225ee",
+                "subject": "fix(view): settle the twig answer's first CI answers -- the early-exit restructure, the subprocess arm's one-line refusal, and the two documented mutation settlements"
+              },
+              {
+                "sha": "3e0ba1ecccf7dee658a9c9e1da81d20d61c4d37e",
+                "short_sha": "3e0ba1e",
+                "subject": "docs(roadmap): the twig answer's record and the pins follow the content head (#942)"
+              },
+              {
+                "sha": "3a9975cc7ab8d64fdc6ea54b69904fa21539e324",
+                "short_sha": "3a9975c",
+                "subject": "fix(ci): the mutation reporter's memory ceiling follows the tree's growth -- the json payload crossed the 1G budget the lane carried since its split"
+              },
+              {
+                "sha": "22f253d3b9d0ffd0dbc5e6fa0733ed976eda45f7",
+                "short_sha": "22f253d",
+                "subject": "docs(roadmap): the twig answer's pins and content head follow the reporter-budget fix (#942)"
               }
             ]
           }
@@ -25543,6 +25584,47 @@
               "sha": "8f163260989048a251144512eaa3dda8795d7ae5",
               "short_sha": "8f16326",
               "subject": "docs(roadmap): the views wiring family's record and the pins follow the content head (#939)"
+            }
+          ]
+        },
+        {
+          "pr": 942,
+          "title": "feat(view): the twig answer over the host tree's own twig engine",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-27T18:19:49Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/942",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "d5f5655f42b29c9bdcced364157de290cc45246d",
+              "short_sha": "d5f5655",
+              "subject": "feat(view): the twig answer over the host tree's own twig engine"
+            },
+            {
+              "sha": "6a3b55c15d19204ad879581b908668c865a1ff3e",
+              "short_sha": "6a3b55c",
+              "subject": "Merge remote-tracking branch 'origin/main' into feat/view-twig-engine"
+            },
+            {
+              "sha": "7b225eefa1282aaa9160c89fbe715f4984fa6bb2",
+              "short_sha": "7b225ee",
+              "subject": "fix(view): settle the twig answer's first CI answers -- the early-exit restructure, the subprocess arm's one-line refusal, and the two documented mutation settlements"
+            },
+            {
+              "sha": "3e0ba1ecccf7dee658a9c9e1da81d20d61c4d37e",
+              "short_sha": "3e0ba1e",
+              "subject": "docs(roadmap): the twig answer's record and the pins follow the content head (#942)"
+            },
+            {
+              "sha": "3a9975cc7ab8d64fdc6ea54b69904fa21539e324",
+              "short_sha": "3a9975c",
+              "subject": "fix(ci): the mutation reporter's memory ceiling follows the tree's growth -- the json payload crossed the 1G budget the lane carried since its split"
+            },
+            {
+              "sha": "22f253d3b9d0ffd0dbc5e6fa0733ed976eda45f7",
+              "short_sha": "22f253d",
+              "subject": "docs(roadmap): the twig answer's pins and content head follow the reporter-budget fix (#942)"
             }
           ]
         }
