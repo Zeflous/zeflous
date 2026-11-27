@@ -9,6 +9,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\View\PhpViewEngine;
+use Zef\Framework\Adapters\View\TwigViewEngine;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
@@ -109,6 +110,42 @@ final class ViewWiringTest extends TestCase
         }
     }
 
+    public function testTheTwigWordComposesTheTwigEngineOverTheDeclaredRoot(): void
+    {
+        file_put_contents($this->root . '/greet.twig', 'Hello, {{ name }}!');
+
+        $engine = ViewWiring::engine(new Config([
+            'views' => ['engine' => 'twig', 'path' => $this->root],
+        ]));
+
+        self::assertInstanceOf(TwigViewEngine::class, $engine);
+
+        self::assertSame(
+            'Hello, Zef &amp; Co!',
+            $engine->render(new ViewName('greet'), ['name' => 'Zef & Co']),
+            "the twig word wires the optional answer over the host tree's own Twig end to"
+                . ' end -- the same composition discipline the php word spelled, the word'
+                . ' answering the engine and the declared root answering WHERE',
+        );
+    }
+
+    public function testTheTwigWordWithAnEmptyPathRefuses(): void
+    {
+        try {
+            ViewWiring::engine(new Config([
+                'views' => ['engine' => 'twig'],
+            ]));
+            self::fail('The twig word without a templates root must refuse.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The views twig engine needs a directory: spell views.path.',
+                $configException->getMessage(),
+                "the address-less word's combination refusal spells the word it refuses --"
+                    . " the php twin's message, word for word with the word swapped",
+            );
+        }
+    }
+
     public function testARootThatRefusesThePostureFlowsThroughTheAdaptersOwnRefusal(): void
     {
         try {
@@ -148,6 +185,36 @@ final class ViewWiringTest extends TestCase
             $engine,
             $kernel->container()->get('views.engine'),
             'the transient registration answers a fresh engine every resolution -- the depth ledger always comes home',
+        );
+    }
+
+    public function testTheBootResolvesTheWiredTwigEngineOverTheDeclaredRoot(): void
+    {
+        file_put_contents($this->root . '/greet.twig', 'Hello, {{ name }}!');
+
+        $bootTree = $this->temporaryBootTree([
+            'views.php' => '<?php return ["engine" => "twig", "path" => '
+                . var_export($this->root, true) . '];',
+        ]);
+
+        $kernel = new ApplicationBootstrapper()->boot($bootTree . '/configs');
+
+        $engine = $kernel->container()->get('views.engine');
+
+        self::assertInstanceOf(ViewEngine::class, $engine);
+
+        self::assertSame(
+            'Hello, Zef!',
+            $engine->render(new ViewName('greet'), ['name' => 'Zef']),
+            'the booted service identity answers the twig word end to end',
+        );
+
+        self::assertNotSame(
+            $engine,
+            $kernel->container()->get('views.engine'),
+            'the transient registration answers a fresh twig engine every resolution --'
+                . ' the fresh environment per ask rides the same observably-same-engine'
+                . " posture the native answer's depth ledger spelled",
         );
     }
 

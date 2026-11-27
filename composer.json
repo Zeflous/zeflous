@@ -49,6 +49,7 @@
         "slevomat/coding-standard": "^8.31",
         "squizlabs/php_codesniffer": "^4.0",
         "systemsdk/phpcpd": "^9.2",
+        "twig/twig": "^3.31",
         "vimeo/psalm": "^6.19"
     },
     "suggest": {

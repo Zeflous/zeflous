@@ -26,26 +26,31 @@ use Zef\Framework\Config\ConfigException;
  * The words the vocabulary carries today: the empty string -- the
  * silent posture, no wired default declared, the presentation port
  * stays opt-in exactly as the unwired lane's own slice carried it;
- * and `php` -- the native answer over the rendering port ({@see
+ * `php` -- the native answer over the rendering port ({@see
  * \Zef\Framework\Adapters\View\PhpViewEngine}), the zero-dependency
- * proof of the port. The Twig answer the owner's recorded direction
- * names is the word's own named future over the same port: the
- * zero-dependency gate keeps Twig out of `require` forever, so that
- * adoption lands the way the rate-limit family's phpredis boundary
- * already spells -- the word arrives with the wiring that can read
- * its own knobs, never before (KDD-VW1's recorded direction,
- * carried).
+ * proof of the port; and `twig` -- the Twig answer over the HOST
+ * TREE'S OWN Twig ({@see Adapters\View\TwigViewEngine}),
+ * the adoption the owner's recorded direction names, landed the way
+ * KDD-VW1's recorded direction spells: over `class_exists` on the
+ * host tree's own Twig, never a composer dependency of the framework
+ * (the zero-dependency gate keeps Twig out of `require` forever;
+ * the test side pins its own presence in require-dev the way the
+ * export slice pinned its meta-schema validator).
  */
 final class ViewEngines
 {
     /** The native answer over the rendering port ({@see Adapters\View\PhpViewEngine}). */
     public const string PHP = 'php';
 
+    /** The Twig answer over the host tree's own Twig ({@see Adapters\View\TwigViewEngine}). */
+    public const string TWIG = 'twig';
+
     /**
      * Reads one engine knob's value through the closed vocabulary.
      *
      * @return string the folded word: '' the silent posture, 'php'
-     *                the native answer
+     *                the native answer, 'twig' the Twig answer over
+     *                the host tree's own Twig
      *
      * @throws ConfigException when the value is not a string, or is
      *                         a word the wiring does not know
@@ -58,13 +63,13 @@ final class ViewEngines
 
         $folded = mb_strtolower($value);
 
-        if ($folded === '' || $folded === self::PHP) {
+        if (\in_array($folded, ['', self::PHP, self::TWIG], true)) {
             return $folded;
         }
 
         throw new ConfigException(
             "The views.engine word '" . $value . "' is not one the wiring"
-            . ' knows (known words: ' . self::PHP . ').',
+            . ' knows (known words: ' . self::PHP . ', ' . self::TWIG . ').',
         );
     }
 }

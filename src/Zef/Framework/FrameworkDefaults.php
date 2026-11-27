@@ -181,13 +181,19 @@ use Zef\Framework\Middleware\TracingFactory;
  * TRANSIENT because the native answer holds no state a render's
  * own finally does not return to zero -- the depth ledger always
  * comes home, so a fresh engine every ask is observably the
- * same engine, while the silent word's refusal fires only at the
+ * same engine -- and the Twig answer's fresh environment per
+ * ask rides the same posture (its loaded-template memoization
+ * never crosses an ask, cache off by default, so both answers
+ * re-do the per-render work -- the native re-includes, the
+ * Twig re-parses; the compiled-template cache knob arrives the
+ * day a deployment asks, its census entry with it), while the
+ * silent word's refusal fires only at the
  * host's own ask, never at the boot. The templates root is the
  * deployment's own explicit address (`views.path`): the
  * `files/**` route map owns no `views` lane because templates
- * are the application's source the engine only ever answers
- * includes from, never state the framework writes -- so the
- * `php` word without an address is the named halt, never a
+ * are the application's source the engines only ever answer
+ * includes from, never state the framework writes -- so a
+ * wired word without an address is the named halt, never a
  * silently defaulted directory. The remaining growth follows the
  * roadmap's order -- the HTTP lane's ingress knobs (`http.body_budget`,
  * `http.trusted_hosts`, ...) migrate with their wiring, and the
