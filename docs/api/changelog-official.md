@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- feat\(view\): the twig answer over the host tree's own twig engine [\#942](https://github.com/Zeflous/zeflous/pull/942) ([mbetixz](https://github.com/mbetixz))
+- feat\(view\): the views configuration wiring family over the presentation port [\#939](https://github.com/Zeflous/zeflous/pull/939) ([mbetixz](https://github.com/mbetixz))
 - feat\(event\): the pdo delivery store over the family's own engine [\#936](https://github.com/Zeflous/zeflous/pull/936) ([mbetixz](https://github.com/mbetixz))
 - docs\(roadmap\): the Error Handling lane's closing audit -- every Fase promise answered with its openable evidence pointer, the row turns Implemented, the last P2 area retires [\#933](https://github.com/Zeflous/zeflous/pull/933) ([mbetixz](https://github.com/mbetixz))
 - feat\(health\): the health surface gains its second representation -- the health-as-gauges render answers the poll whose Accept line prefers the exposition, the consumer the API surface awaited [\#930](https://github.com/Zeflous/zeflous/pull/930) ([mbetixz](https://github.com/mbetixz))
