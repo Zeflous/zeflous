@@ -550,7 +550,16 @@ ledger's own documented shape:
   pin, never a behaviour today).
 
 The coverage / infection halves ride CI on the merge group, watched
-to green before the merge.
+to green before the merge -- and the round's own run answered with
+the lane's own operational finding: the full tree's mutation census
+(22724 mutants) crossed the JSON reporter's 1G memory budget at the
+report-writing step (`JsonReporter.php`, the payload serialised in
+memory, the run itself green at 22538 killed / 111 configured-ignored
+/ zero escaped, MSI 100/100), so the mutation script's own process
+ceiling follows the tree's growth -- 1G to 2G, the three test threads'
+own 1G spellings unchanged (the runner's 7G budget answers the
+arithmetic). The ceiling is the reporter's own budget, never a gate
+threshold moved.
 
 ## The named follow-ups
 
