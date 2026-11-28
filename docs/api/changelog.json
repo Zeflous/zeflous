@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-11-27T18:19:49Z",
+  "as_of": "2026-11-28T07:51:58Z",
   "repository": "Zeflous/zeflous",
   "version_source": "none",
   "latest_release": null,
   "next_release": "v0.1.0",
-  "unreleased_count": 366,
+  "unreleased_count": 367,
   "versions": [
     {
       "version": "Unreleased",
@@ -5462,6 +5462,67 @@
                 "sha": "22f253d3b9d0ffd0dbc5e6fa0733ed976eda45f7",
                 "short_sha": "22f253d",
                 "subject": "docs(roadmap): the twig answer's pins and content head follow the reporter-budget fix (#942)"
+              }
+            ]
+          },
+          {
+            "pr": 944,
+            "title": "feat(http): the worker response emitter over the wire shape vocabulary",
+            "author": "mbetixz",
+            "category": "Features",
+            "merged_at": "2026-11-28T07:51:58Z",
+            "url": "https://github.com/Zeflous/zeflous/pull/944",
+            "file": "CHANGELOG-unreleased.md",
+            "commits": [
+              {
+                "sha": "3a8a7be754ae141202e629d9642032172100ca49",
+                "short_sha": "3a8a7be",
+                "subject": "feat(http): the worker response emitter over the wire shape vocabulary"
+              },
+              {
+                "sha": "044687698e4a11c64c97959186bae82223b5c901",
+                "short_sha": "0446876",
+                "subject": "feat(http): the phrase gate, the foreign phrase channel and the wire shape battery"
+              },
+              {
+                "sha": "b93de46d8c42a85da406a063ebf886f49ac3bb9a",
+                "short_sha": "b93de46",
+                "subject": "feat(http): the body fold and emitter composition batteries"
+              },
+              {
+                "sha": "ebc82ee845e1c4810c55cbe6ceb41c03ad4c5d73",
+                "short_sha": "ebc82ee",
+                "subject": "perf(bench): the worker answer's outbound round-trip subject"
+              },
+              {
+                "sha": "028038a8a8d584a7f5bb7c45e7d2af9692b76ecf",
+                "short_sha": "028038a",
+                "subject": "fix(http): the reason-phrase anchor pins to the true string end"
+              },
+              {
+                "sha": "d8d31f3e53ab770736bde411c348306db2496acb",
+                "short_sha": "d8d31f3",
+                "subject": "docs(roadmap): the worker response emitter's record and the pins follow the content head (#944)"
+              },
+              {
+                "sha": "62c2121fad03b75bcf9d0dfc4dc3df068d437c54",
+                "short_sha": "62c2121",
+                "subject": "fix(http): settle the static lanes' first answers over the outbound battery"
+              },
+              {
+                "sha": "fbf1f933400f39aa4ad209d17aa70eba2647a4f3",
+                "short_sha": "fbf1f93",
+                "subject": "docs(roadmap): the pins follow the static settle (#944)"
+              },
+              {
+                "sha": "8c92447f62c2e206200a839a46a233349ee7a2f1",
+                "short_sha": "8c92447",
+                "subject": "fix(http): the skip-on-invalid fold answers the early-exit discipline"
+              },
+              {
+                "sha": "9240dd171ac374cd6cf1d087a445df70c1f6149a",
+                "short_sha": "9240dd1",
+                "subject": "docs(roadmap): the pins follow the early-exit settle (#944)"
               }
             ]
           }
@@ -25625,6 +25686,67 @@
               "sha": "22f253d3b9d0ffd0dbc5e6fa0733ed976eda45f7",
               "short_sha": "22f253d",
               "subject": "docs(roadmap): the twig answer's pins and content head follow the reporter-budget fix (#942)"
+            }
+          ]
+        },
+        {
+          "pr": 944,
+          "title": "feat(http): the worker response emitter over the wire shape vocabulary",
+          "author": "mbetixz",
+          "category": "Features",
+          "merged_at": "2026-11-28T07:51:58Z",
+          "url": "https://github.com/Zeflous/zeflous/pull/944",
+          "file": "CHANGELOG-unreleased.md",
+          "commits": [
+            {
+              "sha": "3a8a7be754ae141202e629d9642032172100ca49",
+              "short_sha": "3a8a7be",
+              "subject": "feat(http): the worker response emitter over the wire shape vocabulary"
+            },
+            {
+              "sha": "044687698e4a11c64c97959186bae82223b5c901",
+              "short_sha": "0446876",
+              "subject": "feat(http): the phrase gate, the foreign phrase channel and the wire shape battery"
+            },
+            {
+              "sha": "b93de46d8c42a85da406a063ebf886f49ac3bb9a",
+              "short_sha": "b93de46",
+              "subject": "feat(http): the body fold and emitter composition batteries"
+            },
+            {
+              "sha": "ebc82ee845e1c4810c55cbe6ceb41c03ad4c5d73",
+              "short_sha": "ebc82ee",
+              "subject": "perf(bench): the worker answer's outbound round-trip subject"
+            },
+            {
+              "sha": "028038a8a8d584a7f5bb7c45e7d2af9692b76ecf",
+              "short_sha": "028038a",
+              "subject": "fix(http): the reason-phrase anchor pins to the true string end"
+            },
+            {
+              "sha": "d8d31f3e53ab770736bde411c348306db2496acb",
+              "short_sha": "d8d31f3",
+              "subject": "docs(roadmap): the worker response emitter's record and the pins follow the content head (#944)"
+            },
+            {
+              "sha": "62c2121fad03b75bcf9d0dfc4dc3df068d437c54",
+              "short_sha": "62c2121",
+              "subject": "fix(http): settle the static lanes' first answers over the outbound battery"
+            },
+            {
+              "sha": "fbf1f933400f39aa4ad209d17aa70eba2647a4f3",
+              "short_sha": "fbf1f93",
+              "subject": "docs(roadmap): the pins follow the static settle (#944)"
+            },
+            {
+              "sha": "8c92447f62c2e206200a839a46a233349ee7a2f1",
+              "short_sha": "8c92447",
+              "subject": "fix(http): the skip-on-invalid fold answers the early-exit discipline"
+            },
+            {
+              "sha": "9240dd171ac374cd6cf1d087a445df70c1f6149a",
+              "short_sha": "9240dd1",
+              "subject": "docs(roadmap): the pins follow the early-exit settle (#944)"
             }
           ]
         }
