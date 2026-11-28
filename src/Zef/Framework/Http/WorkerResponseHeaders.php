@@ -56,9 +56,11 @@ final class WorkerResponseHeaders
 
             $members = \is_array($value) ? $value : [$value];
             foreach ($members as $member) {
-                if (\is_string($member) && HeaderGrammar::acceptable($folded, $member)) {
-                    $headers[$folded][] = $member;
+                if (!\is_string($member) || !HeaderGrammar::acceptable($folded, $member)) {
+                    continue;
                 }
+
+                $headers[$folded][] = $member;
             }
         }
 
