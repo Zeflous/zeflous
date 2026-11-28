@@ -41,10 +41,10 @@ final class WorkerResponseHeaders
      *                                     shape the grammar refuses
      *
      * @return array<array-key, list<string>> lowercased names => validated
-     *                                         value lists (a numeric name
-     *                                         lands under its integer engine
-     *                                         form -- the fold the engine
-     *                                         itself performs)
+     *                                        value lists (a numeric name
+     *                                        lands under its integer engine
+     *                                        form -- the fold the engine
+     *                                        itself performs)
      */
     public static function acceptable(array $raw): array
     {

@@ -15,9 +15,9 @@ use Zef\Framework\Http\Response;
 use Zef\Framework\Http\StatusFraming;
 use Zef\Framework\Http\Stream;
 use Zef\Framework\Http\WorkerResponse;
+use Zef\Framework\Http\WorkerResponseBody;
 use Zef\Framework\Http\WorkerResponseEmitter;
 use Zef\Framework\Http\WorkerResponseHeaders;
-use Zef\Framework\Http\WorkerResponseBody;
 use Zef\Test\Support\Http\CursoredStream;
 use Zef\Test\Support\Http\ForeignResponse;
 use Zef\Test\Support\Http\TellGuardedStream;
@@ -49,7 +49,7 @@ final class WorkerResponseEmitterTest extends TestCase
             '{"ok":true}',
         );
 
-        $workerResponse = (new WorkerResponseEmitter())->toWorker($response);
+        $workerResponse = new WorkerResponseEmitter()->toWorker($response);
 
         self::assertSame(200, $workerResponse->status);
         self::assertSame('OK', $workerResponse->reasonPhrase);
@@ -64,18 +64,18 @@ final class WorkerResponseEmitterTest extends TestCase
 
     public function testAForeignPhraseRidesTheWireShape(): void
     {
-        $response = new ForeignResponse(200, [], Stream::fromString('x'), 'Custom OK');
+        $foreignResponse = new ForeignResponse(200, [], Stream::fromString('x'), 'Custom OK');
 
-        $workerResponse = (new WorkerResponseEmitter())->toWorker($response);
+        $workerResponse = new WorkerResponseEmitter()->toWorker($foreignResponse);
 
         self::assertSame('Custom OK', $workerResponse->reasonPhrase);
     }
 
     public function testAPhraseOutsideTheByteGrammarAnswersTheRegisteredPhrase(): void
     {
-        $response = new ForeignResponse(200, [], Stream::fromString('x'), "Bad\r\nPhrase");
+        $foreignResponse = new ForeignResponse(200, [], Stream::fromString('x'), "Bad\r\nPhrase");
 
-        $workerResponse = (new WorkerResponseEmitter())->toWorker($response);
+        $workerResponse = new WorkerResponseEmitter()->toWorker($foreignResponse);
 
         self::assertSame(
             'OK',
@@ -86,9 +86,9 @@ final class WorkerResponseEmitterTest extends TestCase
 
     public function testAnUnacceptablePhraseWithoutARegistryEntryAnswersEmpty(): void
     {
-        $response = new ForeignResponse(599, [], Stream::fromString('x'), "Bad\0Phrase");
+        $foreignResponse = new ForeignResponse(599, [], Stream::fromString('x'), "Bad\0Phrase");
 
-        $workerResponse = (new WorkerResponseEmitter())->toWorker($response);
+        $workerResponse = new WorkerResponseEmitter()->toWorker($foreignResponse);
 
         self::assertSame('', $workerResponse->reasonPhrase);
     }
@@ -96,12 +96,12 @@ final class WorkerResponseEmitterTest extends TestCase
     #[DataProvider('provideAForeignStatusOutsideTheCorridorIsRefusedFailClosedCases')]
     public function testAForeignStatusOutsideTheCorridorIsRefusedFailClosed(int $status): void
     {
-        $response = new ForeignResponse($status, [], Stream::fromString('x'));
+        $foreignResponse = new ForeignResponse($status, [], Stream::fromString('x'));
 
         $this->expectException(HttpException::class);
         $this->expectExceptionMessageIsOrContains("Invalid HTTP status code: {$status}.");
 
-        (new WorkerResponseEmitter())->toWorker($response);
+        new WorkerResponseEmitter()->toWorker($foreignResponse);
     }
 
     /**
@@ -120,7 +120,7 @@ final class WorkerResponseEmitterTest extends TestCase
         self::assertSame('hello', (string) $body);
         self::assertTrue($body->eof());
 
-        $workerResponse = (new WorkerResponseEmitter())->toWorker(new Response(200, [], $body));
+        $workerResponse = new WorkerResponseEmitter()->toWorker(new Response(200, [], $body));
 
         self::assertSame('hello', $workerResponse->body);
     }
@@ -130,7 +130,7 @@ final class WorkerResponseEmitterTest extends TestCase
         // TellGuardedStream refuses rewind() loudly: the guarded stream
         // is the observation that the emitter never rewinds a body it
         // cannot rewind, and the defensive empty read owns the answer.
-        $workerResponse = (new WorkerResponseEmitter())->toWorker(
+        $workerResponse = new WorkerResponseEmitter()->toWorker(
             new ForeignResponse(200, [], new TellGuardedStream(3)),
         );
 
@@ -140,7 +140,7 @@ final class WorkerResponseEmitterTest extends TestCase
     public function testTheBodylessStatusesAnswerNoBody(): void
     {
         foreach ([100, 101, 204, 205, 304] as $status) {
-            $workerResponse = (new WorkerResponseEmitter())->toWorker(
+            $workerResponse = new WorkerResponseEmitter()->toWorker(
                 new Response($status, [], 'must-not-appear'),
             );
 
@@ -150,7 +150,7 @@ final class WorkerResponseEmitterTest extends TestCase
 
     public function testKeepsATruthfulContentLengthOnTheWireShape(): void
     {
-        $workerResponse = (new WorkerResponseEmitter())->toWorker(
+        $workerResponse = new WorkerResponseEmitter()->toWorker(
             new Response(200, ['Content-Length' => '3'], 'abc'),
         );
 
@@ -159,7 +159,7 @@ final class WorkerResponseEmitterTest extends TestCase
 
     public function testDropsALyingContentLengthFromTheWireShape(): void
     {
-        $workerResponse = (new WorkerResponseEmitter())->toWorker(
+        $workerResponse = new WorkerResponseEmitter()->toWorker(
             new Response(200, ['Content-Length' => '999'], 'abc'),
         );
 
@@ -169,7 +169,7 @@ final class WorkerResponseEmitterTest extends TestCase
     public function testDropsTheContentLengthOnTheStatusesThatMustNotCarryIt(): void
     {
         foreach ([100, 101, 204] as $status) {
-            $workerResponse = (new WorkerResponseEmitter())->toWorker(
+            $workerResponse = new WorkerResponseEmitter()->toWorker(
                 new Response($status, ['Content-Length' => '0', 'X-Framework' => 'zef'], ''),
             );
 
@@ -184,7 +184,7 @@ final class WorkerResponseEmitterTest extends TestCase
 
     public function testAnUnmeasurableCursorLosesItsDeclaredContentLength(): void
     {
-        $workerResponse = (new WorkerResponseEmitter())->toWorker(
+        $workerResponse = new WorkerResponseEmitter()->toWorker(
             new ForeignResponse(200, ['Content-Length' => ['3']], new CursoredStream(null, 0)),
         );
 
@@ -193,7 +193,7 @@ final class WorkerResponseEmitterTest extends TestCase
 
     public function testSkipsInvalidFieldsAndKeepsTheValidNeighbours(): void
     {
-        $response = new ForeignResponse(
+        $foreignResponse = new ForeignResponse(
             200,
             ['Bad Name' => ['v'], 'X-Good' => ['ok'], 'X-Bad-Value' => ["line\nbreak"]],
             Stream::fromString('x'),
@@ -202,7 +202,7 @@ final class WorkerResponseEmitterTest extends TestCase
             ->withHeader('X-Count', 5)
         ;
 
-        $workerResponse = (new WorkerResponseEmitter())->toWorker($response);
+        $workerResponse = new WorkerResponseEmitter()->toWorker($foreignResponse);
 
         self::assertSame(
             ['x-also' => ['fine'], 'x-good' => ['ok']],
@@ -212,29 +212,29 @@ final class WorkerResponseEmitterTest extends TestCase
 
     public function testTheNameFoldsThroughTheFullUnicodeCaseMapOnTheEmitterPath(): void
     {
-        $response = new ForeignResponse(200, ["\u{212A}EY" => 'v'], Stream::fromString('x'));
+        $foreignResponse = new ForeignResponse(200, ["\u{212A}EY" => ['v']], Stream::fromString('x'));
 
-        $workerResponse = (new WorkerResponseEmitter())->toWorker($response);
+        $workerResponse = new WorkerResponseEmitter()->toWorker($foreignResponse);
 
         self::assertSame(['key' => ['v']], $workerResponse->headers);
     }
 
     public function testAFieldWhoseNameIsAnEngineIntegerKeyRidesTheWireShape(): void
     {
-        $mutated = (new Response(200, [], 'x'))->withHeader('123', 'v');
+        $mutated = new Response(200, [], 'x')->withHeader('123', 'v');
         self::assertInstanceOf(Response::class, $mutated);
 
-        $workerResponse = (new WorkerResponseEmitter())->toWorker($mutated);
+        $workerResponse = new WorkerResponseEmitter()->toWorker($mutated);
 
         self::assertSame(['123' => ['v']], $workerResponse->headers);
     }
 
     public function testTheProtocolVersionRidesTheWireShape(): void
     {
-        $mutated = (new Response(200, [], 'x'))->withProtocolVersion('2');
+        $mutated = new Response(200, [], 'x')->withProtocolVersion('2');
         self::assertInstanceOf(Response::class, $mutated);
 
-        $workerResponse = (new WorkerResponseEmitter())->toWorker($mutated);
+        $workerResponse = new WorkerResponseEmitter()->toWorker($mutated);
 
         self::assertSame('2', $workerResponse->protocolVersion);
     }

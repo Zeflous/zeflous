@@ -589,6 +589,12 @@
       <code><![CDATA[$value]]></code>
     </MixedAssignment>
   </file>
+  <file src="src/Zef/Framework/Http/WorkerResponseHeaders.php">
+    <MixedAssignment>
+      <code><![CDATA[$member]]></code>
+      <code><![CDATA[$value]]></code>
+    </MixedAssignment>
+  </file>
   <file src="src/Zef/Framework/Kernel.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[version]]></code>

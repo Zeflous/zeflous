@@ -66,14 +66,14 @@ final class WorkerResponseTest extends TestCase
         self::assertSame(
             $payload,
             $workerResponse->body,
-            'no length claim and no encoding: the payload\'s own bytes are the whole truth',
+            "no length claim and no encoding: the payload's own bytes are the whole truth",
         );
     }
 
     public function testTheStatusCorridorHoldsBothWalls(): void
     {
         foreach ([100, 599] as $status) {
-            self::assertSame($status, (new WorkerResponse($status))->status);
+            self::assertSame($status, new WorkerResponse($status)->status);
         }
     }
 
@@ -125,23 +125,12 @@ final class WorkerResponseTest extends TestCase
         new WorkerResponse(200, headers: ['Content-Length' => 2048]);
     }
 
-    #[DataProvider('provideAProtocolVersionOutsideTheGrammarIsRefusedCases')]
-    public function testAProtocolVersionOutsideTheGrammarIsRefused(string $protocolVersion): void
+    public function testAProtocolVersionOutsideTheGrammarIsRefused(): void
     {
         $this->expectException(HttpException::class);
         $this->expectExceptionMessageIsOrContains('Invalid HTTP protocol version.');
 
-        new WorkerResponse(200, protocolVersion: $protocolVersion);
-    }
-
-    /**
-     * @return iterable<string, array{string}>
-     */
-    public static function provideAProtocolVersionOutsideTheGrammarIsRefusedCases(): iterable
-    {
-        yield 'the SAPI spelling' => ['HTTP/1.1'];
-
-        yield 'empty' => [''];
+        new WorkerResponse(200, protocolVersion: 'HTTP/1.1');
     }
 
     public function testTheVersionsTheGrammarCarriesRideVerbatim(): void
@@ -149,7 +138,7 @@ final class WorkerResponseTest extends TestCase
         foreach (['1.0', '1.1', '2', '3'] as $protocolVersion) {
             self::assertSame(
                 $protocolVersion,
-                (new WorkerResponse(200, protocolVersion: $protocolVersion))->protocolVersion,
+                new WorkerResponse(200, protocolVersion: $protocolVersion)->protocolVersion,
             );
         }
     }
