@@ -14,6 +14,13 @@ namespace Zef\Framework\Http;
 final class HttpStatusLine
 {
     /**
+     * RFC 9110 section 15.1: reason-phrase = *( HTAB / SP / VCHAR /
+     * obs-text ) -- CR, LF and NUL would corrupt any status-line
+     * serializer.
+     */
+    private const string PHRASE_PATTERN = '/^[\t\x20-\x7E\x80-\xFF]*\z/';
+
+    /**
      * @throws HttpException when the status falls outside 100..599
      */
     public static function assertCode(int $status): void
@@ -24,17 +31,29 @@ final class HttpStatusLine
     }
 
     /**
-     * RFC 9110 section 15.1: reason-phrase = *( HTAB / SP / VCHAR /
-     * obs-text ) -- CR, LF and NUL would corrupt any status-line
-     * serializer.
-     *
      * @throws HttpException when the phrase carries forbidden bytes
      */
     public static function assertPhrase(string $reasonPhrase): void
     {
-        if (preg_match('/^[\t\x20-\x7E\x80-\xFF]*$/', $reasonPhrase) !== 1) {
+        if (preg_match(self::PHRASE_PATTERN, $reasonPhrase) !== 1) {
             throw new HttpException('Invalid reason phrase.');
         }
+    }
+
+    /**
+     * The worker emission path's acceptance question: whether a reason
+     * phrase may ride the wire shape at all.
+     *
+     * The boolean twin of {@see assertPhrase()} -- the emitter's own
+     * {@see HeaderGrammar::acceptable()} shape: the outbound worker lane
+     * judges a phrase a foreign response may carry and must skip an
+     * unacceptable one without failing the answer (the answer keeps its
+     * registered phrase), so the gate answers with a boolean instead of
+     * throwing.
+     */
+    public static function phraseIsEmittable(string $reasonPhrase): bool
+    {
+        return preg_match(self::PHRASE_PATTERN, $reasonPhrase) === 1;
     }
 
     /**

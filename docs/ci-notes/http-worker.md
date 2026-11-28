@@ -1,4 +1,4 @@
-# HTTP Worker Context — The Payload Vocabulary, The Memory-Resident Body, The Precise Injection
+# HTTP Worker Context — The Inbound Payload Vocabulary, The Outbound Answer
 
 KDD-WK1..WK9 for `src/Zef/Framework/Http/` — the ROADMAP's
 "Zero-Library Shim" Fase 2.2 slice ("Worker Context Adapter,
@@ -225,3 +225,110 @@ One new psalm-baseline line freezes the deliberate mixed boundary
 whose whole purpose is refusing what the grammar names); one entry
 SHRINKS -- `UriInterface::getAuthority` gained its first src consumer
 and left the baseline, the #298/#303 lineage continued.
+
+---
+
+# The Outbound Half — The Wire Shape, The Skip-On-Invalid Fold, The Read-Whole Body
+
+KDD-WK10..WK14 for the runtime adapter's outbound half (#944) — the lane's
+last named open slice, the twin the inbound `WorkerRequestFactory` (#638)
+answered on the other side of the request cycle: where the inbound lane
+converted the wire shape the deployment's glue hands the application, the
+outbound lane converts the application's PSR-7 response into the wire shape
+the glue hands its runtime. `feat/worker-response-emitter`.
+
+**Verified locally before the record commit:** the four outbound batteries
+over the layer's own doubles (46 tests / 97 assertions green under the
+sandbox's PHP 8.4), the full HTTP suite (2330 tests green over the anchor
+fix), and the whole-tree suite answering green everywhere the slice
+touches (the six `ErrorsReplayTest` failures the sandbox answers are
+main's own environment shape, reproduced byte-identically on a clean
+`main` checkout — the subprocess lanes' cwd sensitivity, never the tree).
+
+## The map
+
+| Unit | Question it owns |
+|---|---|
+| `WorkerResponse` | the wire shape a worker runtime hands back, every field judged at construction |
+| `WorkerResponseHeaders` | the foreign response's header map re-judged, the unacceptable members skipped |
+| `WorkerResponseBody` | the payload rules and the read-whole pump onto the resident string |
+| `WorkerResponseEmitter` | the composition root: one response, one wire shape |
+
+## KDD-WK10 — The vocabulary is ours, both directions now
+
+KDD-WK1 replayed outbound: the deployment's glue answers its runtime with
+this vocabulary, never a runtime SDK type crossing into `src/`.
+Construction refuses what cannot become a response — the KDD-WK2 doctrine
+mirrored: `HttpStatusLine::assertCode` the corridor, `assertPhrase` the
+byte grammar, `WorkerHeaders::normalize` the one canonical form the worker
+lane owns BOTH directions through, and `HttpVersion::assert` the PSR-7
+spelling. The body rides as the binary-safe string the wire shape is: no
+length claim to reconcile at the constructor, the payload's own bytes the
+whole truth — the inbound twin's `php://memory` posture mirrored (a worker
+runtime carries the answer as one payload, so the outbound wire is a
+resident string, not a stream: the inbound lane judged the payload's known
+byte length at the boundary; the outbound lane answers the same
+known-length payload back).
+
+## KDD-WK11 — Skip-on-invalid on the wire, fail-closed on the status
+
+Two doctrines meet at the emitter, each answering its own input class. The
+foreign response's header fields re-judge and SKIP — never trusted, never
+fatal — through `WorkerResponseHeaders`, the `EmittedHeaders` policy
+replayed on a payload no SAPI ever touches: one attacker-shaped header
+must not cost the answer its remaining, well-formed fields, a non-string
+member dropping exactly like an invalid name or value. The STATUS itself
+refuses fail-closed: a worker wire shape has no implicit SAPI default to
+fall back on (the SAPI twin's skip leaves the implicit 200 standing; a
+payload cannot carry a default posture silently), so a foreign status
+outside the 100..599 corridor is the programming defect the typed refusal
+names, for the glue to catch and answer. The reason phrase rides the
+skip-on-invalid doctrine through the new
+`HttpStatusLine::phraseIsEmittable()` infallible gate — the
+`HeaderGrammar::acceptable()` shape, the pattern the one `PHRASE_PATTERN`
+const both spellings now share: a phrase the status-line byte grammar
+refuses answers the registered phrase for the code (or an empty phrase) —
+never the bytes that would corrupt any status-line serialiser the runtime
+might run.
+
+## KDD-WK12 — The SAPI ordering and framing, replayed on a string destination
+
+The emitter rewinds the seekable body first (a drained body never answers
+empty — middleware that inspects the body leaves the cursor at the end),
+threads the framing through the existing `StatusFraming` fold (the lying
+Content-Length reconciled away before any field reaches the wire, the
+1xx/204 statuses losing the framing header outright — RFC 9110 section
+8.6, the fold reused verbatim), and reads the body whole through
+`WorkerResponseBody` — the `EmittedBody` doctrine onto a resident string:
+the 1xx/204/205/304 corridor, the unreadable fail-closed, the fixed-size
+chunk pump with the defensive empty-read stop (the lying-eof engine
+disagreement), the read starting at the cursor the emitter left exactly
+as the SAPI twin's body path does. The `ContentLength` reconciliation
+rides the rewound cursor's remaining length, the fold's own arithmetic
+untouched.
+
+## KDD-WK13 — The gate round's own lesson: the anchor the battery caught
+
+The phrase pattern the gate lifted out of `assertPhrase` carried PCRE's
+bare `$` anchor, which also matches immediately before a final newline —
+the anchor class #381 (the constraint's closing anchor) and #867 (the
+event family's D-modifier sweep) had each caught before, and the slice's
+own battery caught it a third lane over: the constructor test feeding
+"OK\n" expected the typed refusal and main's `assertPhrase` answered
+acceptance, the trailing newline riding the canonical spelling past the
+byte grammar. The pattern const both spellings share now carries the `\z`
+anchor (the absolute end), the battery's line-feed arm the kill, and the
+pattern living in ONE const so the assert and the gate can never drift
+apart on the question — the same single-source-of-grammar discipline the
+correlation id's claim grammar carries.
+
+## KDD-WK14 — The posture: no knob, no widening, one bench subject
+
+No config knob lands (the worker lane's own recorded posture — the
+inbound twin's doctrine, the runtime SDK stays out and the glue owns the
+composition), no deptrac widening (the four folds live inside the `Http`
+layer's existing ruleset, every refusal answering the layer's own
+`HttpException` family), and the `HttpHotPathBench` gains the outbound
+round-trip subject beside the inbound twin's — the lane's adapter story
+complete, both runtime directions answering, the shim row the roadmap
+meter records turning Implemented.

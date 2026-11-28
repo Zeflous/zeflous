@@ -43,6 +43,7 @@ use Zef\Framework\Http\TimingPolicy;
 use Zef\Framework\Http\Uri;
 use Zef\Framework\Http\WorkerRequest;
 use Zef\Framework\Http\WorkerRequestFactory;
+use Zef\Framework\Http\WorkerResponseEmitter;
 use Zef\Framework\Middleware\MetricsMiddleware;
 use Zef\Framework\Telemetry\CounterMeter;
 use Zef\Framework\Telemetry\PrometheusRenderer;
@@ -127,6 +128,8 @@ final readonly class HttpHotPathBench
     private array $serverBag;
 
     private WorkerRequest $workerRequest;
+
+    private WorkerResponseEmitter $workerResponseEmitter;
 
     public function __construct()
     {
@@ -311,6 +314,8 @@ final readonly class HttpHotPathBench
             '192.0.2.10',
             54123,
         );
+
+        $this->workerResponseEmitter = new WorkerResponseEmitter();
     }
 
     #[Revs(500)]
@@ -558,6 +563,22 @@ final readonly class HttpHotPathBench
         ) {
             throw new InvariantViolationException(
                 'The worker factory must build the request the wire shape describes.',
+            );
+        }
+    }
+
+    #[Revs(2000)]
+    public function benchAWorkerAnswerBecomesTheOutboundPayload(): void
+    {
+        $workerResponse = $this->workerResponseEmitter->toWorker($this->response);
+
+        if (
+            $workerResponse->status !== 200
+            || ($workerResponse->headers['content-type'] ?? null) !== ['application/json']
+            || $workerResponse->body !== '{"data":{"items":[1,2,3],"page":2,"total":42}}'
+        ) {
+            throw new InvariantViolationException(
+                'The worker emitter must build the payload the response describes.',
             );
         }
     }

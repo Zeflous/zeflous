@@ -10,11 +10,11 @@ use Psr\Http\Message\StreamInterface;
 
 /**
  * Deterministic foreign-response double: carries whatever status, header
- * map and body stream it is constructed with, with none of the layer's
- * construction-time validation. The emitter re-judges every field at
- * emission time precisely because such an implementation is allowed to
- * exist -- an invalid name or value here must be skipped, not trusted and
- * not fatal.
+ * map, body stream and reason phrase it is constructed with, with none
+ * of the layer's construction-time validation. The emitter re-judges
+ * every field at emission time precisely because such an implementation
+ * is allowed to exist -- an invalid name or value here must be skipped,
+ * not trusted and not fatal.
  *
  * The constructor takes an honestly-shaped map, while the deliberate
  * engine-shaped lies (a bare scalar member, a non-string member) enter
@@ -25,15 +25,18 @@ use Psr\Http\Message\StreamInterface;
 final class ForeignResponse implements ResponseInterface
 {
     /**
-     * @param int                         $status  the raw status code the double answers
-     * @param array<string, list<string>> $headers the header map the double
-     *                                             answers verbatim (grammar-invalid names and values included)
-     * @param StreamInterface             $body    the body stream the double answers
+     * @param int                         $status       the raw status code the double answers
+     * @param array<string, list<string>> $headers      the header map the double
+     *                                                  answers verbatim (grammar-invalid names and values included)
+     * @param StreamInterface             $body         the body stream the double answers
+     * @param string                      $reasonPhrase the raw reason phrase the double
+     *                                                  answers verbatim (grammar-forbidden bytes included)
      */
     public function __construct(
         private readonly int $status,
         private readonly array $headers,
         private readonly StreamInterface $body,
+        private readonly string $reasonPhrase = '',
     ) {
     }
 
@@ -46,13 +49,13 @@ final class ForeignResponse implements ResponseInterface
     #[Override]
     public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
     {
-        return new self($code, $this->headers, $this->body);
+        return new self($code, $this->headers, $this->body, $reasonPhrase);
     }
 
     #[Override]
     public function getReasonPhrase(): string
     {
-        return '';
+        return $this->reasonPhrase;
     }
 
     #[Override]
@@ -107,7 +110,7 @@ final class ForeignResponse implements ResponseInterface
         /** @var array<string, list<string>> $headers */
         $headers = [$name => $value, ...$this->headers];
 
-        return new self($this->status, $headers, $this->body);
+        return new self($this->status, $headers, $this->body, $this->reasonPhrase);
     }
 
     /**
@@ -126,7 +129,7 @@ final class ForeignResponse implements ResponseInterface
         /** @var array<string, list<string>> $headers */
         $headers = [$name => $value, ...$this->headers];
 
-        return new self($this->status, $headers, $this->body);
+        return new self($this->status, $headers, $this->body, $this->reasonPhrase);
     }
 
     #[Override]
@@ -141,7 +144,7 @@ final class ForeignResponse implements ResponseInterface
             $rows[$name_] = $values;
         }
 
-        return new self($this->status, $rows, $this->body);
+        return new self($this->status, $rows, $this->body, $this->reasonPhrase);
     }
 
     #[Override]
@@ -153,7 +156,7 @@ final class ForeignResponse implements ResponseInterface
     #[Override]
     public function withBody(StreamInterface $body): ResponseInterface
     {
-        return new self($this->status, $this->headers, $body);
+        return new self($this->status, $this->headers, $body, $this->reasonPhrase);
     }
 
     #[Override]
