@@ -196,4 +196,26 @@ final readonly class EventDispatcher
             ),
         );
     }
+
+    /**
+     * The transactional vocabulary over this dispatcher's own book
+     * and the outbox the host spells, composed one-way with the
+     * durable arm the relay feeds -- the arm whose emission is
+     * atomic with the host's own business write. The outbox and
+     * the delivery store the relay defers into must ride the same
+     * connection: the relay's read, defers and removals answer one
+     * unit over that shared socket, the exactly-once handoff the
+     * durable arm's at-least-once doctrine defers to this lane
+     * (KDD-DU1).
+     */
+    public function transactionalDelivery(
+        OutboxStore $outboxStore,
+        DurableEventDispatcher $durableEventDispatcher,
+    ): TransactionalEventDispatcher {
+        return new TransactionalEventDispatcher(
+            $this->eventBook,
+            $outboxStore,
+            $durableEventDispatcher,
+        );
+    }
 }

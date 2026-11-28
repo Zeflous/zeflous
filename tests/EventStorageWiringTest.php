@@ -9,6 +9,7 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Zef\Framework\Adapters\Event\FileDeliveryStore;
+use Zef\Framework\Adapters\Event\PdoDeliveryStore;
 use Zef\Framework\ApplicationBootstrapper;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
@@ -75,7 +76,7 @@ final class EventStorageWiringTest extends TestCase
         } catch (ConfigException $configException) {
             self::assertSame(
                 'The events.deferred.store wired default is not declared:'
-                . " spell the 'file' word (events.deferred.store) or compose"
+                . " spell a store word ('file', 'database') or compose"
                 . ' the durable arm over your own DeferredDeliveryStore.',
                 $configException->getMessage(),
             );
@@ -159,6 +160,125 @@ final class EventStorageWiringTest extends TestCase
         }
     }
 
+    public function testTheDatabaseWordComposesTheStoreOverTheDefaultConnection(): void
+    {
+        $store = EventStorageWiring::store(new Config([
+            'events' => ['deferred' => ['store' => 'database']],
+            'database' => [
+                'default' => 'main',
+                'connections' => [
+                    'main' => ['driver' => 'sqlite', 'dbname' => ':memory:'],
+                ],
+            ],
+        ]));
+
+        self::assertInstanceOf(PdoDeliveryStore::class, $store);
+
+        $envelope = self::envelope('11111111111111111111111111111111');
+
+        $store->save($envelope);
+
+        self::assertSame(1, $store->pendingCount());
+
+        $store->settle($envelope);
+
+        self::assertSame(0, $store->pendingCount());
+    }
+
+    public function testTheDatabaseWordComposesOverTheNamedConnectionWhenSpelled(): void
+    {
+        $store = EventStorageWiring::store(new Config([
+            'events' => ['deferred' => ['store' => 'database', 'connection' => 'events']],
+            'database' => [
+                'default' => 'main',
+                'connections' => [
+                    'main' => ['driver' => 'sqlite', 'dbname' => ':memory:'],
+                    'events' => ['driver' => 'sqlite', 'dbname' => ':memory:'],
+                ],
+            ],
+        ]));
+
+        $store->save(self::envelope('22222222222222222222222222222222'));
+
+        self::assertSame(1, $store->pendingCount());
+    }
+
+    public function testTheDatabaseWordRefusesAConnectionTheMapDoesNotCarry(): void
+    {
+        try {
+            EventStorageWiring::store(new Config([
+                'events' => ['deferred' => ['store' => 'database', 'connection' => 'ghost']],
+                'database' => [
+                    'default' => 'main',
+                    'connections' => [
+                        'main' => ['driver' => 'sqlite', 'dbname' => ':memory:'],
+                    ],
+                ],
+            ]));
+            self::fail('A connection the map does not carry must refuse with the knob named.');
+        } catch (ConfigException $configException) {
+            self::assertStringContainsString(
+                'events.deferred.connection',
+                $configException->getMessage(),
+            );
+            self::assertStringContainsString('ghost', $configException->getMessage());
+        }
+    }
+
+    public function testTheDatabaseWordWithoutAnyDatabaseDeclarationRefuses(): void
+    {
+        try {
+            EventStorageWiring::store(new Config([
+                'events' => ['deferred' => ['store' => 'database']],
+            ]));
+            self::fail('The database word without any connection declaration must refuse.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The events.deferred.connection wired default is not declared:'
+                . ' spell a connection (database.connections plus database.default)'
+                . ' or compose the family over your own ConnectionInterface.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheDatabaseWordCarriesThePrefixDeclarationIntoTheStoresTables(): void
+    {
+        $store = EventStorageWiring::store(new Config([
+            'events' => ['deferred' => ['store' => 'database', 'prefix' => 'app_']],
+            'database' => [
+                'default' => 'main',
+                'connections' => [
+                    'main' => ['driver' => 'sqlite', 'dbname' => ':memory:'],
+                ],
+            ],
+        ]));
+
+        $store->save(self::envelope('33333333333333333333333333333333'));
+
+        self::assertSame(1, $store->pendingCount());
+    }
+
+    public function testTheBootResolvesTheDatabaseWordOverARealConnection(): void
+    {
+        $bootTree = $this->temporaryBootTree([
+            'events.php' => '<?php return ["deferred" => ["store" => "database"]];',
+            'database.php' => '<?php return ["default" => "main",'
+                . ' "connections" => ["main" =>'
+                . ' ["driver" => "sqlite", "dbname" => ":memory:"]]];',
+        ]);
+
+        $kernel = new ApplicationBootstrapper()->boot($bootTree . '/configs');
+
+        $store = $kernel->container()->get('events.deferred.store');
+
+        self::assertInstanceOf(PdoDeliveryStore::class, $store);
+
+        $store->save(self::envelope('44444444444444444444444444444444'));
+
+        self::assertSame(1, $store->pendingCount());
+    }
+
     public function testTheCapacityDeclarationFlowsIntoTheStoresAdmissionBound(): void
     {
         $store = EventStorageWiring::store(new Config([
@@ -221,7 +341,7 @@ final class EventStorageWiringTest extends TestCase
         } catch (ConfigException $configException) {
             self::assertSame(
                 'The events.deferred.store wired default is not declared:'
-                . " spell the 'file' word (events.deferred.store) or compose"
+                . " spell a store word ('file', 'database') or compose"
                 . ' the durable arm over your own DeferredDeliveryStore.',
                 $configException->getMessage(),
             );
