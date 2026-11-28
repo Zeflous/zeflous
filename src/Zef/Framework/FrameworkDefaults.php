@@ -411,6 +411,9 @@ final readonly class FrameworkDefaults
                     'store' => '',
                     'path' => '',
                     'capacity' => EventDeliveryDeclaration::DEFAULT_CAPACITY,
+                    'connection' => '',
+                    'prefix' => EventDeliveryDeclaration::DEFAULT_PREFIX,
+                    'claim_timeout' => EventDeliveryDeclaration::DEFAULT_CLAIM_TIMEOUT,
                 ],
             ],
             'uploads' => [

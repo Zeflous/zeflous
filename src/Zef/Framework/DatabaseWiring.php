@@ -295,7 +295,7 @@ final readonly class DatabaseWiring
     /**
      * @param null|Closure(): ?ServerRequestInterface $requestProvider the composition's request seam
      */
-    private static function pdoConnection(
+    public static function pdoConnection(
         Config $config,
         DatabaseDeclaration $databaseDeclaration,
         string $name,

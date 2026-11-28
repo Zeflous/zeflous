@@ -172,7 +172,7 @@ final class EventDeliveryDeclarationTest extends TestCase
         } catch (ConfigException $configException) {
             self::assertSame(
                 "The events.deferred configuration carries the unknown knob 'capcity'"
-                . ' (known knobs: store, path, capacity).',
+                . ' (known knobs: store, path, capacity, connection, prefix, claim_timeout).',
                 $configException->getMessage(),
             );
         }
@@ -193,7 +193,7 @@ final class EventDeliveryDeclarationTest extends TestCase
         } catch (ConfigException $configException) {
             self::assertSame(
                 "The events.deferred configuration carries the unknown knob 'capcity'"
-                . ' (known knobs: store, path, capacity).',
+                . ' (known knobs: store, path, capacity, connection, prefix, claim_timeout).',
                 $configException->getMessage(),
             );
         }
@@ -224,7 +224,7 @@ final class EventDeliveryDeclarationTest extends TestCase
         } catch (ConfigException $configException) {
             self::assertSame(
                 "The events.deferred.store word 'redis' is not one the wiring knows"
-                . ' (known words: file).',
+                . ' (known words: file, database).',
                 $configException->getMessage(),
             );
         }
@@ -303,5 +303,100 @@ final class EventDeliveryDeclarationTest extends TestCase
         ]));
 
         self::assertSame(1, $declaration->capacity);
+    }
+
+    public function testTheSilentFamilyAnswersTheDatabaseWordsDefaults(): void
+    {
+        $declaration = EventDeliveryDeclaration::fromConfig(new Config([
+            'events' => ['deferred' => ['store' => 'database']],
+        ]));
+
+        self::assertSame('database', $declaration->store);
+        self::assertSame('', $declaration->connection);
+        self::assertSame(EventDeliveryDeclaration::DEFAULT_PREFIX, $declaration->prefix);
+        self::assertSame(EventDeliveryDeclaration::DEFAULT_CLAIM_TIMEOUT, $declaration->claimTimeout);
+        self::assertSame('zef_', $declaration->prefix);
+        self::assertSame(60, $declaration->claimTimeout);
+    }
+
+    public function testAWrongTypedConnectionRefuses(): void
+    {
+        try {
+            EventDeliveryDeclaration::fromConfig(new Config([
+                'events' => ['deferred' => ['connection' => 7]],
+            ]));
+            self::fail('A wrong-typed connection must refuse.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'events.deferred.connection must be a string.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testAWrongTypedPrefixRefuses(): void
+    {
+        try {
+            EventDeliveryDeclaration::fromConfig(new Config([
+                'events' => ['deferred' => ['prefix' => 7]],
+            ]));
+            self::fail('A wrong-typed prefix must refuse.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'events.deferred.prefix must be a string.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testTheClaimTimeoutReadsItsNativeInteger(): void
+    {
+        $declaration = EventDeliveryDeclaration::fromConfig(new Config([
+            'events' => ['deferred' => ['claim_timeout' => 300]],
+        ]));
+
+        self::assertSame(300, $declaration->claimTimeout);
+    }
+
+    public function testTheClaimTimeoutFoldsTheEnvironmentOverlaysAllDigitString(): void
+    {
+        $declaration = EventDeliveryDeclaration::fromConfig(new Config([
+            'events' => ['deferred' => ['claim_timeout' => '450']],
+        ]));
+
+        self::assertSame(450, $declaration->claimTimeout);
+    }
+
+    public function testAWrongTypedClaimTimeoutRefuses(): void
+    {
+        try {
+            EventDeliveryDeclaration::fromConfig(new Config([
+                'events' => ['deferred' => ['claim_timeout' => true]],
+            ]));
+            self::fail('A wrong-typed claim timeout must refuse.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The events.deferred.claim_timeout knob must be an integer'
+                . ' or an all-digit string, bool given.',
+                $configException->getMessage(),
+            );
+        }
+    }
+
+    public function testAZeroClaimTimeoutRefuses(): void
+    {
+        try {
+            EventDeliveryDeclaration::fromConfig(new Config([
+                'events' => ['deferred' => ['claim_timeout' => 0]],
+            ]));
+            self::fail('A zero claim timeout must refuse.');
+        } catch (ConfigException $configException) {
+            self::assertSame(
+                'The events.deferred.claim_timeout knob must be at least one'
+                . ' second, got 0 -- a visibility timeout of zero would hand a'
+                . " live drainer's claims to the next drainer mid-drain.",
+                $configException->getMessage(),
+            );
+        }
     }
 }

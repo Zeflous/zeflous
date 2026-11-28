@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Zef\Framework;
 
 use Zef\Framework\Adapters\Event\FileDeliveryStore;
+use Zef\Framework\Adapters\Event\PdoDeliveryStore;
 use Zef\Framework\Config\Config;
 use Zef\Framework\Config\ConfigException;
 use Zef\Framework\Event\DeferredDeliveryStore;
@@ -13,26 +14,36 @@ use Zef\Framework\Storage\StorageLane;
 use Zef\Framework\Storage\StorageLayout;
 
 /**
- * The events family's wiring onto the `files/**` route map: the
+ * The events family's wiring onto the configuration system: the
  * composition fold that answers the durable delivery store's
  * wired default from the frozen configuration -- the `queue`
  * lane's first writer, the reservation three decision records
  * carried (KDD-DU10, KDD-DQ8, KDD-CS7) closed by the pull request
- * that lands this class.
+ * that lands this class, and the database word the
+ * transactional/outbox lane's own slice lands (the #936 deferral
+ * honored: the store now composes over the named connection the
+ * `events.deferred.connection` knob spells, the default
+ * connection when the knob stays silent).
  *
  * The question the fold owns is the store the knob's word
  * composes, spelled at the profile's own service identity
  * (`events.deferred.store`, the registration {@see
  * FrameworkDefaults} declares over this fold): the {@see
  * EventDeliveryDeclaration} census reads what the host declared,
- * and the derivation answers the address -- an explicitly spelled
+ * and the word answers the composition -- the `file` word's
+ * derivation answers the address (an explicitly spelled
  * `events.deferred.path` verbatim, else the storage layout's
  * `queue` lane over the declared `storage.root`, the same one-way
- * precedence every family integration in this cross-cut keeps.
- * The `file` word with neither an address nor a declared root is
- * the named halt the session family's combination refusal spelled
- * first ({@see Middleware\SessionFactory}): a directory the host
- * never asked for is never silently defaulted.
+ * precedence every family integration in this cross-cut keeps),
+ * and the `database` word's derivation answers the engine (the
+ * named connection over the `database.connections` map, the
+ * default connection when the knob stayed silent, the same
+ * per-purpose name doctrine the migration runner's own
+ * connection spells). The `file` word with neither an address
+ * nor a declared root is the named halt the session family's
+ * combination refusal spelled first ({@see
+ * Middleware\SessionFactory}): a directory the host never asked
+ * for is never silently defaulted.
  *
  * The walk is the layout's own over the WHOLE tree ({@see
  * StorageLayout::resolve()}), fail-closed with the refusing seam
@@ -61,12 +72,15 @@ final readonly class EventStorageWiring
     /**
      * Answers the wired default store from the frozen repository:
      * the `file` word's filesystem answer over the address the
-     * declaration and the route map spell together.
+     * declaration and the route map spell together, or the
+     * `database` word's answer over the named connection the
+     * declaration spells -- the two cross-process answers the port
+     * names, each composed from its own word.
      *
      * @throws ConfigException when the declaration is silent or
      *                         malformed, the `file` word is spelled without an address to
-     *                         compose over, or the storage map the derivation reads is
-     *                         malformed
+     *                         compose over, the `database` word's connection is not declared,
+     *                         or the storage map the derivation reads is malformed
      */
     public static function store(Config $config): DeferredDeliveryStore
     {
@@ -75,8 +89,22 @@ final readonly class EventStorageWiring
         if (!$eventDeliveryDeclaration->wantsWiredStore()) {
             throw new ConfigException(
                 'The events.deferred.store wired default is not declared:'
-                . " spell the 'file' word (events.deferred.store) or compose"
-                . ' the durable arm over your own DeferredDeliveryStore.',
+                . " spell a store word ('" . EventDeliveryStores::FILE . "', '"
+                . EventDeliveryStores::DATABASE . "') or compose the durable"
+                . ' arm over your own DeferredDeliveryStore.',
+            );
+        }
+
+        if ($eventDeliveryDeclaration->store === EventDeliveryStores::DATABASE) {
+            return new PdoDeliveryStore(
+                DatabaseConnectionWiring::connection(
+                    $config,
+                    $eventDeliveryDeclaration->connection,
+                    'events.deferred.connection',
+                ),
+                $eventDeliveryDeclaration->capacity,
+                $eventDeliveryDeclaration->claimTimeout,
+                $eventDeliveryDeclaration->prefix,
             );
         }
 

@@ -92,9 +92,9 @@
       <code><![CDATA[notice]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Adapters/Event/PdoDeliveryStore.php">
+  <file src="src/Zef/Framework/Adapters/Event/PdoOutboxStore.php">
     <UnusedClass>
-      <code><![CDATA[PdoDeliveryStore]]></code>
+      <code><![CDATA[PdoOutboxStore]]></code>
     </UnusedClass>
   </file>
   <file src="src/Zef/Framework/Adapters/Event/RedisDeliveryStore.php">
@@ -404,9 +404,7 @@
   </file>
   <file src="src/Zef/Framework/Event/DeferralOutcome.php">
     <PossiblyUnusedMethod>
-      <code><![CDATA[admitted]]></code>
       <code><![CDATA[name]]></code>
-      <code><![CDATA[skippedQuarantined]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/DeferredEventDispatcher.php">
@@ -428,11 +426,6 @@
       <code><![CDATA[pendingCount]]></code>
     </PossiblyUnusedMethod>
   </file>
-  <file src="src/Zef/Framework/Event/DurableEventDispatcher.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[defer]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Zef/Framework/Event/EventDispatcher.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[subscribeWildcard]]></code>
@@ -441,6 +434,7 @@
       <code><![CDATA[dispatch]]></code>
       <code><![CDATA[deferredDelivery]]></code>
       <code><![CDATA[durableDelivery]]></code>
+      <code><![CDATA[transactionalDelivery]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/EventPattern.php">
@@ -469,11 +463,25 @@
       <code><![CDATA[isEmpty]]></code>
     </PossiblyUnusedMethod>
   </file>
+  <file src="src/Zef/Framework/Event/OutboxRelayOutcome.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[admitted]]></code>
+      <code><![CDATA[relayed]]></code>
+      <code><![CDATA[skippedQuarantined]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Zef/Framework/Event/RetryPolicy.php">
     <PossiblyUnusedMethod>
       <code><![CDATA[__construct]]></code>
       <code><![CDATA[baseDelaySeconds]]></code>
       <code><![CDATA[maxAttempts]]></code>
+    </PossiblyUnusedMethod>
+  </file>
+  <file src="src/Zef/Framework/Event/TransactionalEventDispatcher.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[defer]]></code>
+      <code><![CDATA[pendingCount]]></code>
+      <code><![CDATA[relay]]></code>
     </PossiblyUnusedMethod>
   </file>
   <file src="src/Zef/Framework/Event/WildcardSubscriptions.php">

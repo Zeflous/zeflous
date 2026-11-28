@@ -30,7 +30,7 @@ final class EventDeliveryKnobs
      * The knobs the `events.deferred` family owns, in declaration
      * order -- the one list the census and the reading share.
      */
-    private const array KNOBS = ['store', 'path', 'capacity'];
+    private const array KNOBS = ['store', 'path', 'capacity', 'connection', 'prefix', 'claim_timeout'];
 
     /**
      * Rejects the map's unknown keys with the known list spelled
