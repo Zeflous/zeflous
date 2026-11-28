@@ -131,6 +131,7 @@ Index: [`CHANGELOG.md`](CHANGELOG.md) · API: [`docs/api/changelog.json`](docs/a
 - feat(event): the pdo delivery store over the family's own engine [#936](https://github.com/Zeflous/zeflous/pull/936) ([mbetixz](https://github.com/mbetixz))
 - feat(view): the views configuration wiring family over the presentation port [#939](https://github.com/Zeflous/zeflous/pull/939) ([mbetixz](https://github.com/mbetixz))
 - feat(view): the twig answer over the host tree's own twig engine [#942](https://github.com/Zeflous/zeflous/pull/942) ([mbetixz](https://github.com/mbetixz))
+- feat(http): the worker response emitter over the wire shape vocabulary [#944](https://github.com/Zeflous/zeflous/pull/944) ([mbetixz](https://github.com/mbetixz))
 
 **Bug Fixes:**
 
