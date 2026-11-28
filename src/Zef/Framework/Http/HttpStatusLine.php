@@ -18,7 +18,7 @@ final class HttpStatusLine
      * obs-text ) -- CR, LF and NUL would corrupt any status-line
      * serializer.
      */
-    private const string PHRASE_PATTERN = '/^[\t\x20-\x7E\x80-\xFF]*$/';
+    private const string PHRASE_PATTERN = '/^[\t\x20-\x7E\x80-\xFF]*\z/';
 
     /**
      * @throws HttpException when the status falls outside 100..599
